@@ -1,0 +1,180 @@
+[versions]
+# kotlin
+kotlin = "2.0.20"
+
+# agp
+agp = "8.7.3"
+
+# ksp
+ksp = "2.0.20-1.0.25"
+
+# jvm
+jetbrainsKotlinJvm = "2.0.20"
+
+# jetpack
+coreKtx = "1.15.0"
+lifecycleRuntime = "2.8.7"
+appcompat = "1.7.0"
+constraintlayout = "2.2.0"
+material = "1.12.0"
+activity = "1.9.3"
+jetpack-fragment = "1.8.5"
+datastore = "1.1.1"
+
+# compose
+composeBom = "2024.11.00"
+activityCompose = "1.9.3"
+compose-compiler = "1.4.5"
+compose-navigation = "2.8.4"
+compose-hilt-navigation = "1.2.0"
+compose-paging = "3.3.4"
+androidxNavigation = "2.8.4"
+
+#junit
+junit = "4.13.2"
+junitVersion = "1.2.1"
+
+# Coroutine
+kotlinxCoroutines = "1.9.0"
+
+# espresso
+espressoCore = "3.6.1"
+
+# hilt
+hilt = "2.52"
+hilt-compiler = "1.2.0"
+
+# retrofit2
+mockwebserver = "4.12.0"
+retrofit2 = "2.11.0"
+
+# okhttp
+okhttp-okHttp = "4.12.0"
+okhttp-profiler = "1.0.8"
+
+# kotlin serialization
+serialization-kotlin = "1.6.3"
+serialization-converter = "1.0.0"
+
+# coil
+coil = "3.0.2"
+
+# firebase
+firebaseBom = "33.3.0"
+firebaseCrashlyticsPlugin = "3.0.2"
+firebasePerfPlugin = "1.4.2"
+
+# test
+androidxTestRules = "1.6.1"
+androidxTestCore = "1.6.1"
+androidxTestRunner = "1.6.2"
+
+# robolectric
+robolectric = "4.12.2"
+
+# turbin
+turbine = "1.1.0"
+
+[libraries]
+# gradle plugin
+android-gradle = { module = "com.android.tools.build:gradle", version.ref = "agp" }
+android-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+
+# kotlin
+kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlin" }
+
+# jetpack
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntime" }
+androidx-activity = { group = "androidx.activity", name = "activity-ktx", version.ref = "activity" }
+androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+androidx-fragment = { module = "androidx.fragment:fragment-ktx", version.ref = "jetpack-fragment" }
+androidx-datastore = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore"}
+androidx-dataStore-core = { group = "androidx.datastore", name = "datastore-core", version.ref = "datastore" }
+
+# compose
+androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
+androidx-ui = { group = "androidx.compose.ui", name = "ui" }
+androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
+androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
+androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+androidx-compose-hilt-navigation = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "compose-hilt-navigation" }
+androidx-compose-paging = { module = "androidx.paging:paging-compose", version.ref = "compose-paging" }
+androidx-lifecycle-runtimeCompose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycleRuntime" }
+androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "compose-navigation" }
+androidx-navigation-testing = { group = "androidx.navigation", name = "navigation-testing", version.ref = "compose-navigation" }
+androidx-lifecycle-runtimeTesting = { group = "androidx.lifecycle", name = "lifecycle-runtime-testing", version.ref = "lifecycleRuntime" }
+androidx-compose-material3-navigationSuite = { group = "androidx.compose.material3", name = "material3-adaptive-navigation-suite" }
+
+# material
+androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-compose-material3-adaptive = { group = "androidx.compose.material3.adaptive", name = "adaptive" }
+
+# junit
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+
+# Coroutine
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
+
+# espresso
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+
+# hilt
+hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
+hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt" }
+hilt-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "hilt-compiler" }
+hilt-android-testing = { group = "com.google.dagger", name = "hilt-android-testing", version.ref = "hilt" }
+
+# kotlin serialization
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization-kotlin" }
+kotlinx-serialization-converter = { module = "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter", version.ref = "serialization-converter" }
+
+# retrofit2
+mockwebserver = { module = "com.squareup.okhttp3:mockwebserver", version.ref = "mockwebserver" }
+retrofit2 = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit2" }
+
+# okhttp
+okhttp-bom = { module = "com.squareup.okhttp3:okhttp-bom", version.ref = "okhttp-okHttp" }
+okhttp-okhttp = { module = "com.squareup.okhttp3:okhttp" }
+okhttp-logging = { module = "com.squareup.okhttp3:logging-interceptor" }
+okhttp-profiler = { module = "com.localebro:okhttpprofiler", version.ref = "okhttp-profiler" }
+
+# coil
+coil = { module = "io.coil-kt.coil3:coil", version.ref = "coil" }
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
+coil-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coil" }
+coil-core = { module = "io.coil-kt.coil3:coil-core", version.ref = "coil" }
+
+# firebase
+firebase-crashlytics-gradlePlugin = { group = "com.google.firebase", name = "firebase-crashlytics-gradle", version.ref = "firebaseCrashlyticsPlugin" }
+firebase-performance-gradlePlugin = { group = "com.google.firebase", name = "perf-plugin", version.ref = "firebasePerfPlugin" }
+
+# test
+androidx-test-rules = { group = "androidx.test", name = "rules", version.ref = "androidxTestRules" }
+androidx-test-core = { group = "androidx.test", name = "core", version.ref = "androidxTestCore" }
+androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidxTestRunner" }
+
+# robolectric
+robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
+
+# turbin
+turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
+jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlyticsPlugin" }
+firebase-perf = { id = "com.google.firebase.firebase-perf", version.ref = "firebasePerfPlugin" }
