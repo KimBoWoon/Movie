@@ -11,19 +11,19 @@ enum class FlavorDimension {
 }
 
 @Suppress("EnumEntryName")
-enum class PokemonFlavor(val dimension: FlavorDimension, val applicationIdSuffix: String? = null) {
+enum class MovieAppFlavor(val dimension: FlavorDimension, val applicationIdSuffix: String? = null) {
     demo(FlavorDimension.contentType, applicationIdSuffix = ".demo"),
     prod(FlavorDimension.contentType)
 }
 
 fun configureFlavors(
     commonExtension: CommonExtension<*, *, *, *, *, *>,
-    flavorConfigurationBlock: ProductFlavor.(flavor: PokemonFlavor) -> Unit = {}
+    flavorConfigurationBlock: ProductFlavor.(flavor: MovieAppFlavor) -> Unit = {}
 ) {
     commonExtension.apply {
         flavorDimensions += FlavorDimension.contentType.name
         productFlavors {
-            PokemonFlavor.values().forEach {
+            MovieAppFlavor.values().forEach {
                 create(it.name) {
                     dimension = it.dimension.name
                     flavorConfigurationBlock(this, it)

@@ -4,7 +4,7 @@ plugins {
     `kotlin-dsl`
 }
 
-group = "com.bowoon.pokemon.buildlogic"
+group = "com.bowoon.movie.buildlogic"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17

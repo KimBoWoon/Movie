@@ -1,4 +1,5 @@
 import com.android.build.gradle.LibraryExtension
+import com.bowoon.convention.Config
 import com.bowoon.convention.configureGradleManagedDevices
 import com.bowoon.convention.libs
 import org.gradle.api.Plugin
@@ -14,9 +15,16 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
                 configureGradleManagedDevices(this)
             }
 
+            extensions.configure<LibraryExtension> {
+                defaultConfig {
+                    buildConfigField("String", "KOBIS_OPEN_API_KEY", "\"${Config.getProp("kobis_open_api_key")}\"")
+                    buildConfigField("String", "KMDB_OPEN_API_KEY", "\"${Config.getProp("kmdb_open_api_key")}\"")
+                }
+            }
+
             dependencies {
                 add("implementation", project(":core:ui"))
-                add("testImplementation", project(":core:testing"))
+//                add("testImplementation", project(":core:testing"))
 
                 add("implementation", libs.findLibrary("androidx.compose.hilt.navigation").get())
                 add("implementation", libs.findLibrary("androidx.lifecycle.runtimeCompose").get())

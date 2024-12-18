@@ -40,9 +40,11 @@ val dp50 = 50.dp
 val dp56 = 56.dp
 val dp60 = 60.dp
 val dp70 = 70.dp
+val dp80 = 80.dp
 val dp90 = 90.dp
 val dp100 = 100.dp
 val dp150 = 150.dp
+val dp180 = 180.dp
 val dp200 = 200.dp
 val dp300 = 300.dp
 

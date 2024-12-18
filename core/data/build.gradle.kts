@@ -17,7 +17,9 @@ android {
 dependencies {
     arrayOf(
         projects.core.common,
-        projects.core.model
+        projects.core.model,
+        projects.core.network,
+        projects.core.datastore
     ).forEach {
         implementation(it)
     }

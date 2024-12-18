@@ -1,6 +1,6 @@
 import com.android.build.api.dsl.ApplicationExtension
 import com.bowoon.convention.Config
-import com.bowoon.convention.PokemonBuildType
+import com.bowoon.convention.MovieAppBuildType
 import com.bowoon.convention.configureFlavors
 import com.bowoon.convention.configureKotlinAndroid
 import com.bowoon.convention.libs
@@ -35,17 +35,17 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                         testInstrumentationRunner = Config.ApplicationSetting.testInstrumentationRunner
 
 //                        signingConfigs {
-//                            register(Config.Application.Pokemon.Sign.Release.name) {
-//                                storeFile = file(getProp(Config.Application.Pokemon.Sign.Release.storeFile))
-//                                storePassword = getProp(Config.Application.Pokemon.Sign.Release.storePassword)
-//                                keyAlias = getProp(Config.Application.Pokemon.Sign.Release.keyAlias)
-//                                keyPassword = getProp(Config.Application.Pokemon.Sign.Release.keyPassword)
+//                            register(Config.Application.Movie.Sign.Release.name) {
+//                                storeFile = file(getProp(Config.Application.Movie.Sign.Release.storeFile))
+//                                storePassword = getProp(Config.Application.Movie.Sign.Release.storePassword)
+//                                keyAlias = getProp(Config.Application.Movie.Sign.Release.keyAlias)
+//                                keyPassword = getProp(Config.Application.Movie.Sign.Release.keyPassword)
 //                            }
-//                            register(Config.Application.Pokemon.Sign.Debug.name) {
-//                                storeFile = file(getProp(Config.Application.Pokemon.Sign.Debug.storeFile))
-//                                storePassword = getProp(Config.Application.Pokemon.Sign.Debug.storePassword)
-//                                keyAlias = getProp(Config.Application.Pokemon.Sign.Debug.keyAlias)
-//                                keyPassword = getProp(Config.Application.Pokemon.Sign.Debug.keyPassword)
+//                            register(Config.Application.Movie.Sign.Debug.name) {
+//                                storeFile = file(getProp(Config.Application.Movie.Sign.Debug.storeFile))
+//                                storePassword = getProp(Config.Application.Movie.Sign.Debug.storePassword)
+//                                keyAlias = getProp(Config.Application.Movie.Sign.Debug.keyAlias)
+//                                keyPassword = getProp(Config.Application.Movie.Sign.Debug.keyPassword)
 //                            }
 //                        }
                     }
@@ -57,13 +57,13 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
 
                 buildTypes {
                     debug {
-                        applicationIdSuffix = PokemonBuildType.DEBUG.applicationIdSuffix
+                        applicationIdSuffix = MovieAppBuildType.DEBUG.applicationIdSuffix
                         isMinifyEnabled = false
                         buildConfigField("Boolean", "IS_DEBUGGING_LOGGING", "true")
-//                        signingConfig = signingConfigs.getByName(Config.Application.Pokemon.Sign.Debug.name)
+//                        signingConfig = signingConfigs.getByName(Config.Application.Movie.Sign.Debug.name)
                     }
                     release {
-                        applicationIdSuffix = PokemonBuildType.RELEASE.applicationIdSuffix
+                        applicationIdSuffix = MovieAppBuildType.RELEASE.applicationIdSuffix
                         isMinifyEnabled = true
                         isShrinkResources = true
                         isDebuggable = false
@@ -72,7 +72,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                             Config.ApplicationSetting.proguardFile
                         )
                         buildConfigField("Boolean", "IS_DEBUGGING_LOGGING", "false")
-//                        signingConfig = signingConfigs.getByName(Config.Application.Pokemon.Sign.Release.name)
+//                        signingConfig = signingConfigs.getByName(Config.Application.Movie.Sign.Release.name)
                     }
                 }
 

@@ -6,7 +6,18 @@ plugins {
 
 dependencies {
     arrayOf(
-        projects.core.ui
+        projects.core.common,
+        projects.core.data,
+        projects.core.ui,
+        projects.feature.home,
+        projects.feature.detail,
+        projects.feature.search,
+        projects.feature.favorite,
+        projects.feature.my,
+        libs.coil.compose,
+        libs.androidx.lifecycle.runtime.ktx,
+        libs.androidx.navigation.compose,
+        libs.androidx.compose.material3.navigationSuite,
     ).forEach {
         implementation(it)
     }
