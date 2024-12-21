@@ -22,12 +22,12 @@ jetpack-fragment = "1.8.5"
 datastore = "1.1.1"
 
 # compose
-composeBom = "2024.11.00"
+composeBom = "2024.12.01"
 activityCompose = "1.9.3"
 compose-compiler = "1.4.5"
-compose-navigation = "2.8.4"
+compose-navigation = "2.8.5"
 compose-hilt-navigation = "1.2.0"
-compose-paging = "3.3.4"
+compose-paging = "3.3.5"
 androidxNavigation = "2.8.4"
 
 #junit
@@ -70,10 +70,13 @@ androidxTestCore = "1.6.1"
 androidxTestRunner = "1.6.2"
 
 # robolectric
-robolectric = "4.12.2"
+robolectric = "4.14"
 
 # turbin
 turbine = "1.1.0"
+
+# threentenabp
+threentenabp = "1.4.8"
 
 [libraries]
 # gradle plugin
@@ -165,6 +168,9 @@ robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "
 
 # turbin
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
+
+# threentenabp
+threetenabp = { group = "com.jakewharton.threetenabp", name = "threetenabp", version.ref = "threentenabp" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

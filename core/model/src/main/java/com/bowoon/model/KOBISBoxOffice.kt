@@ -1,17 +1,17 @@
 package com.bowoon.model
 
 
-data class BoxOffice(
-    val boxOfficeResult: BoxOfficeResult? = null
+data class KOBISBoxOffice(
+    val boxOfficeResult: KOBISBoxOfficeResult? = null
 )
 
-data class BoxOfficeResult(
+data class KOBISBoxOfficeResult(
     val boxofficeType: String? = null,
-    val dailyBoxOfficeList: List<DailyBoxOffice>? = null,
+    val dailyBoxOfficeList: List<KOBISDailyBoxOffice>? = null,
     val showRange: String? = null
 )
 
-data class DailyBoxOffice(
+data class KOBISDailyBoxOffice(
     val audiAcc: String? = null,
     val audiChange: String? = null,
     val audiCnt: String? = null,

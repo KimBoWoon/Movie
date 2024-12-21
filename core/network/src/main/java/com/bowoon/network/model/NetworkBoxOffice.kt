@@ -1,8 +1,8 @@
 package com.bowoon.network.model
 
 
-import com.bowoon.model.BoxOffice
-import com.bowoon.model.DailyBoxOffice
+import com.bowoon.model.KOBISBoxOffice
+import com.bowoon.model.KOBISDailyBoxOffice
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -62,17 +62,17 @@ data class NetworkDailyBoxOffice(
     val showCnt: String? = null
 )
 
-fun NetworkBoxOffice.asExternalModel(): BoxOffice = BoxOffice(
-    com.bowoon.model.BoxOfficeResult(
+fun NetworkBoxOffice.asExternalModel(): KOBISBoxOffice = KOBISBoxOffice(
+    com.bowoon.model.KOBISBoxOfficeResult(
         boxofficeType = boxOfficeResult?.boxofficeType,
         dailyBoxOfficeList = boxOfficeResult?.dailyBoxOfficeList?.asExternalModel(),
         showRange = boxOfficeResult?.showRange
     )
 )
 
-fun List<NetworkDailyBoxOffice>.asExternalModel(): List<DailyBoxOffice> =
+fun List<NetworkDailyBoxOffice>.asExternalModel(): List<KOBISDailyBoxOffice> =
     map {
-        DailyBoxOffice(
+        KOBISDailyBoxOffice(
             audiAcc = it.audiAcc,
             audiChange = it.audiChange,
             audiCnt = it.audiCnt,

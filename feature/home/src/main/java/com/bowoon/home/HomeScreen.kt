@@ -25,7 +25,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bowoon.common.Log
@@ -36,7 +35,6 @@ import com.bowoon.ui.dp200
 import com.bowoon.ui.image.DynamicAsyncImageLoader
 import com.bowoon.ui.sp10
 import com.bowoon.ui.sp8
-import com.bowoon.ui.theme.MovieTheme
 
 @Composable
 fun HomeScreen(
@@ -54,7 +52,8 @@ fun HomeScreen(
 @Composable
 fun HomeScreen(
     state: BoxOfficeState,
-    onMovieClick: (String, String, String) -> Unit
+    onMovieClick: (String, String, String) -> Unit,
+    viewModel: HomeVM = hiltViewModel()
 ) {
     when (state) {
         is BoxOfficeState.Loading -> {
@@ -75,7 +74,7 @@ fun HomeScreen(
                 modifier = Modifier.fillMaxSize()
             ) {
                 DailyBoxOfficeComponent(
-                    boxOffice = state.boxOffice.boxOfficeResult?.dailyBoxOfficeList ?: emptyList(),
+                    boxOffice = state.boxOffice,
                     onMovieClick = onMovieClick
                 )
             }
@@ -115,8 +114,20 @@ fun ColumnScope.DailyBoxOfficeComponent(
 @Composable
 fun BoxOfficeItem(
     boxOffice: DailyBoxOffice,
-    onMovieClick: (String, String, String) -> Unit
+    onMovieClick: (String, String, String) -> Unit,
+    viewModel: HomeVM = hiltViewModel()
 ) {
+    var posterUrl = "https://i.namu.wiki/i/oLWTEwoMCrj9EdiaQBUvgh6pj-4dOOOKZK3XHNXm2C4ues9ehba06JjHNW88zNRlM6kcDmr4xC2e-Ndc30Bxvh8KhDJU28zVdkHruwVkeXvdwsoi2FBn_8t09LtJQTWq8WNmA_5orKI99nrsKFFJfQ.webp"
+
+//    var posterUrl by remember { mutableStateOf("") }
+//    val scope = rememberCoroutineScope()
+//
+//    LaunchedEffect(key1 = "posterUrl") {
+//        scope.launch {
+//            posterUrl = viewModel.getPosterUrl(boxOffice.detailUrl ?: "")
+//        }
+//    }
+
     Column(
         modifier = Modifier.clickable { onMovieClick(boxOffice.openDt ?: "", boxOffice.movieCd ?: "", boxOffice.movieNm ?: "") }
     ) {
@@ -126,8 +137,9 @@ fun BoxOfficeItem(
                 .height(dp200)
         ) {
             DynamicAsyncImageLoader(
-                "https://i.namu.wiki/i/oLWTEwoMCrj9EdiaQBUvgh6pj-4dOOOKZK3XHNXm2C4ues9ehba06JjHNW88zNRlM6kcDmr4xC2e-Ndc30Bxvh8KhDJU28zVdkHruwVkeXvdwsoi2FBn_8t09LtJQTWq8WNmA_5orKI99nrsKFFJfQ.webp",
-                "BoxOfficePoster"
+                modifier = Modifier.fillMaxSize(),
+                source = boxOffice.posterUrl ?: "",
+                contentDescription = "BoxOfficePoster"
             )
             Text(
                 modifier = Modifier.size(dp15)
@@ -153,27 +165,27 @@ fun BoxOfficeItem(
     }
 }
 
-@Composable
-@Preview
-fun DailyBoxOfficePreview() {
-    MovieTheme {
-        Column {
-            DailyBoxOfficeComponent(emptyList(), { _, _, _ ->})
-        }
-    }
-}
-
-@Composable
-@Preview
-fun BoxOfficeItemPreview() {
-    MovieTheme {
-        BoxOfficeItem(
-            DailyBoxOffice(
-                movieNm = "movie",
-                openDt = "20241214",
-                rank = "1"
-            ),
-            { _, _, _ ->}
-        )
-    }
-}
+//@Composable
+//@Preview
+//fun DailyBoxOfficePreview() {
+//    MovieTheme {
+//        Column {
+//            DailyBoxOfficeComponent(emptyList(), { _, _, _ ->})
+//        }
+//    }
+//}
+//
+//@Composable
+//@Preview
+//fun BoxOfficeItemPreview() {
+//    MovieTheme {
+//        BoxOfficeItem(
+//            KOBISDailyBoxOffice(
+//                movieNm = "movie",
+//                openDt = "20241214",
+//                rank = "1"
+//            ),
+//            { _, _, _ ->}
+//        )
+//    }
+//}

@@ -46,6 +46,7 @@ import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
 import com.bowoon.common.Log
 import com.bowoon.model.MovieDetail
+import com.bowoon.model.MoviePoster
 import com.bowoon.ui.ConfirmDialog
 import com.bowoon.ui.dp10
 import com.bowoon.ui.dp150
@@ -57,8 +58,6 @@ import kotlinx.coroutines.launch
 fun DetailScreen(
     viewModel: DetailVM = hiltViewModel()
 ) {
-//    val kmdbMovieInfoState by viewModel.kmdbMovieInfo.collectAsStateWithLifecycle()
-//    val kobisMovieInfoState by viewModel.kobisMovieInfo.collectAsStateWithLifecycle()
     val movieInfo by viewModel.movieInfo.collectAsStateWithLifecycle()
 
     DetailScreen(
@@ -126,8 +125,6 @@ fun MovieDetail(
         ) {
             MovieInfoComponent(movieDetail)
             TabComponent(movieDetail)
-//            PostersComponent(movieDetail)
-//            StllComponent(movieDetail)
         }
     }
 }
@@ -208,14 +205,14 @@ fun TabComponent(
     movie: MovieDetail
 ) {
     val scope = rememberCoroutineScope()
-    val tabList = listOf("포스터", "스틸컷")
+    val tabList = MoviePoster.entries
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { tabList.size })
 
     ScrollableTabRow(
         selectedTabIndex = pagerState.currentPage,
         edgePadding = 0.dp
     ) {
-        tabList.forEachIndexed { index, text ->
+        tabList.forEachIndexed { index, moviePoster ->
             Tab(
                 selected = pagerState.currentPage == index,
                 onClick = {
@@ -224,7 +221,7 @@ fun TabComponent(
                         pagerState.animateScrollToPage(index)
                     }
                 },
-                text = { Text(text = text) },
+                text = { Text(text = moviePoster.label) },
                 selectedContentColor = Color(0xFF7C86DF),
                 unselectedContentColor = Color.LightGray
             )
@@ -240,7 +237,7 @@ fun TabComponent(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (tabList[index] == "포스터") {
+            if (tabList[index].label == MoviePoster.POSTER.label) {
                 ImagePagerComponent(
                     modifier = Modifier.height(dp200).fillMaxWidth(),
                     list = movie.posters ?: emptyList()
