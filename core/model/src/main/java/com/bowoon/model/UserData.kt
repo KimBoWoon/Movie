@@ -5,5 +5,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class UserData(
     val isDarkMode: DarkThemeConfig = DarkThemeConfig.FOLLOW_SYSTEM,
-    val favoriteMovie: List<DailyBoxOffice> = emptyList()
+    val boxOfficeDate: String = "",
+    val dailyBoxOffices: List<DailyBoxOffice> = emptyList()
 )

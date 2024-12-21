@@ -114,22 +114,13 @@ fun ColumnScope.DailyBoxOfficeComponent(
 @Composable
 fun BoxOfficeItem(
     boxOffice: DailyBoxOffice,
-    onMovieClick: (String, String, String) -> Unit,
-    viewModel: HomeVM = hiltViewModel()
+    onMovieClick: (String, String, String) -> Unit
 ) {
-    var posterUrl = "https://i.namu.wiki/i/oLWTEwoMCrj9EdiaQBUvgh6pj-4dOOOKZK3XHNXm2C4ues9ehba06JjHNW88zNRlM6kcDmr4xC2e-Ndc30Bxvh8KhDJU28zVdkHruwVkeXvdwsoi2FBn_8t09LtJQTWq8WNmA_5orKI99nrsKFFJfQ.webp"
-
-//    var posterUrl by remember { mutableStateOf("") }
-//    val scope = rememberCoroutineScope()
-//
-//    LaunchedEffect(key1 = "posterUrl") {
-//        scope.launch {
-//            posterUrl = viewModel.getPosterUrl(boxOffice.detailUrl ?: "")
-//        }
-//    }
-
     Column(
-        modifier = Modifier.clickable { onMovieClick(boxOffice.openDt ?: "", boxOffice.movieCd ?: "", boxOffice.movieNm ?: "") }
+        modifier = Modifier
+            .width(dp150)
+            .wrapContentHeight()
+            .clickable { onMovieClick(boxOffice.openDt ?: "", boxOffice.movieCd ?: "", boxOffice.movieNm ?: "") }
     ) {
         Box(
             modifier = Modifier
@@ -164,28 +155,3 @@ fun BoxOfficeItem(
         )
     }
 }
-
-//@Composable
-//@Preview
-//fun DailyBoxOfficePreview() {
-//    MovieTheme {
-//        Column {
-//            DailyBoxOfficeComponent(emptyList(), { _, _, _ ->})
-//        }
-//    }
-//}
-//
-//@Composable
-//@Preview
-//fun BoxOfficeItemPreview() {
-//    MovieTheme {
-//        BoxOfficeItem(
-//            KOBISDailyBoxOffice(
-//                movieNm = "movie",
-//                openDt = "20241214",
-//                rank = "1"
-//            ),
-//            { _, _, _ ->}
-//        )
-//    }
-//}

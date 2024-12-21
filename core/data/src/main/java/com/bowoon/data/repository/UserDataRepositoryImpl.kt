@@ -16,7 +16,11 @@ class UserDataRepositoryImpl @Inject constructor(
         datastore.updateDarkTheme(config)
     }
 
-    override suspend fun updateFavoriteMovie(favoriteMovieList: List<DailyBoxOffice>) {
-        datastore.updateFavoriteMovie(favoriteMovieList)
+    override suspend fun updateBoxOfficeDate(date: String) {
+        datastore.updateBoxOfficeDate(date)
+    }
+
+    override suspend fun updateDailyBoxOffices(dailyBoxOffices: List<DailyBoxOffice>) {
+        datastore.updateDailyBoxOffices(dailyBoxOffices)
     }
 }

@@ -26,7 +26,10 @@ class InternalDataSource @Inject constructor(
 
     val userData = datastore.data.mapNotNull {
         UserData(
-            favoriteMovie = it[stringPreferencesKey("favoriteMovie")]?.let { jsonString ->
+            boxOfficeDate = it[stringPreferencesKey("boxOfficeDate")]?.let { jsonString ->
+                json.decodeFromString(jsonString)
+            } ?: "",
+            dailyBoxOffices = it[stringPreferencesKey("dailyBoxOffices")]?.let { jsonString ->
                 json.decodeFromString<List<DailyBoxOffice>>(jsonString)
             } ?: emptyList(),
             isDarkMode = it[stringPreferencesKey("isDarkMode")]?.let { jsonString ->
@@ -41,9 +44,15 @@ class InternalDataSource @Inject constructor(
         }
     }
 
-    suspend fun updateFavoriteMovie(favoriteMovieList: List<DailyBoxOffice>) {
+    suspend fun updateBoxOfficeDate(date: String) {
         datastore.edit {
-            it[stringPreferencesKey("favoriteMovie")] = json.encodeToString(favoriteMovieList)
+            it[stringPreferencesKey("boxOfficeDate")] = json.encodeToString(date)
+        }
+    }
+
+    suspend fun updateDailyBoxOffices(dailyBoxOffices: List<DailyBoxOffice>) {
+        datastore.edit {
+            it[stringPreferencesKey("dailyBoxOffices")] = json.encodeToString(dailyBoxOffices)
         }
     }
 }

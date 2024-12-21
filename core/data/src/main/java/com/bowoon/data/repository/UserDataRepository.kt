@@ -8,5 +8,6 @@ import kotlinx.coroutines.flow.Flow
 interface UserDataRepository {
     val userData: Flow<UserData>
     suspend fun updateDarkModeTheme(config: DarkThemeConfig)
-    suspend fun updateFavoriteMovie(favoriteMovieList: List<DailyBoxOffice>)
+    suspend fun updateBoxOfficeDate(date: String)
+    suspend fun updateDailyBoxOffices(dailyBoxOffices: List<DailyBoxOffice>)
 }

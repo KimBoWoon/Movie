@@ -25,7 +25,7 @@ class HomeVM @Inject constructor(
 
     val boxOfficeState: StateFlow<BoxOfficeState> =
         getBoxOfficeUseCase(
-            key = BuildConfig.KOBIS_OPEN_API_KEY,
+            kobisOpenApiKey = BuildConfig.KOBIS_OPEN_API_KEY,
             targetDt = LocalDateTime.now().minusDays(1).format(DateTimeFormatter.ofPattern("yyyyMMdd")),
             kmdbOpenApiKey = BuildConfig.KMDB_OPEN_API_KEY
         ).asResult()
