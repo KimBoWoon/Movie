@@ -11,6 +11,9 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import org.threeten.bp.Duration
+import org.threeten.bp.LocalDate
+import org.threeten.bp.format.DateTimeFormatter
 import javax.inject.Inject
 
 class GetDailyBoxOfficeUseCase @Inject constructor(
@@ -18,17 +21,28 @@ class GetDailyBoxOfficeUseCase @Inject constructor(
     private val kmdbRepository: KmdbRepository,
     private val userDataRepository: UserDataRepository
 ) {
+    companion object {
+        private const val TAG = "GetDailyBoxOfficeUseCase"
+    }
     operator fun invoke(
+        targetDt: LocalDate,
         kobisOpenApiKey: String,
-        targetDt: String,
         kmdbOpenApiKey: String
     ): Flow<List<DailyBoxOffice>> = userDataRepository.userData.flatMapLatest {
         Log.d("boxOfficeDate > ${it.boxOfficeDate}, dailyBoxOffices > ${it.dailyBoxOffices}")
 
-        if (it.boxOfficeDate.isEmpty() || it.boxOfficeDate < targetDt || it.dailyBoxOffices.isEmpty()) {
+        val boxOfficeDate = if (it.boxOfficeDate.isEmpty()) LocalDate.now() else LocalDate.parse(it.boxOfficeDate)
+        val betweenDay = Duration.between(
+            targetDt.atTime(0, 0, 0, 0),
+            boxOfficeDate.atTime(0, 0, 0, 0)
+        ).toDays()
+
+        if (it.boxOfficeDate.isEmpty() || betweenDay > 1 || it.dailyBoxOffices.isEmpty()) {
             Log.d("dailyBoxOffice is empty")
 
-            kobisRepository.getDailyBoxOffice(kobisOpenApiKey, targetDt)
+            val target = targetDt.format(DateTimeFormatter.ofPattern("yyyyMMdd"))
+
+            kobisRepository.getDailyBoxOffice(kobisOpenApiKey, target)
                 .map { kobisBoxOffice ->
                     val dailyBoxOfficeList =
                         kobisBoxOffice.boxOfficeResult?.dailyBoxOfficeList?.map { kobisDailyBoxOffice ->
@@ -55,7 +69,7 @@ class GetDailyBoxOfficeUseCase @Inject constructor(
                             )
                         } ?: emptyList()
 
-                    userDataRepository.updateBoxOfficeDate(targetDt)
+                    userDataRepository.updateBoxOfficeDate(targetDt.toString())
                     userDataRepository.updateDailyBoxOffices(dailyBoxOfficeList)
 
                     dailyBoxOfficeList
@@ -75,13 +89,6 @@ class GetDailyBoxOfficeUseCase @Inject constructor(
             ?.firstOrNull()
             ?.result
             ?.firstOrNull()
-            ?.posters
-            ?.split("|")
-            ?.map { posterUrl ->
-                if (posterUrl.startsWith("http://", true)) {
-                    posterUrl.replace("http://", "https://")
-                } else {
-                    posterUrl
-                }
-            }?.firstOrNull() ?: ""
+            ?.getPosterList()
+            ?.firstOrNull() ?: ""
 }

@@ -11,7 +11,8 @@ dependencies {
     arrayOf(
         projects.core.common,
         projects.core.model,
-        projects.core.data
+        projects.core.data,
+        libs.threetenabp
     ).forEach {
         implementation(it)
     }

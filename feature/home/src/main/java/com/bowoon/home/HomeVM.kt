@@ -11,8 +11,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import org.threeten.bp.LocalDateTime
-import org.threeten.bp.format.DateTimeFormatter
+import org.threeten.bp.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
@@ -25,8 +24,8 @@ class HomeVM @Inject constructor(
 
     val boxOfficeState: StateFlow<BoxOfficeState> =
         getBoxOfficeUseCase(
+            targetDt = LocalDate.now().minusDays(1),
             kobisOpenApiKey = BuildConfig.KOBIS_OPEN_API_KEY,
-            targetDt = LocalDateTime.now().minusDays(1).format(DateTimeFormatter.ofPattern("yyyyMMdd")),
             kmdbOpenApiKey = BuildConfig.KMDB_OPEN_API_KEY
         ).asResult()
             .map {

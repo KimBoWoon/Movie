@@ -79,7 +79,7 @@ fun HomeScreen(
                 )
             }
         }
-        is BoxOfficeState.Error -> Log.d("${state.throwable.message}")
+        is BoxOfficeState.Error -> Log.e("${state.throwable.message}")
     }
 }
 
