@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
@@ -48,9 +50,11 @@ import com.bowoon.common.Log
 import com.bowoon.model.MovieDetail
 import com.bowoon.model.MoviePoster
 import com.bowoon.ui.ConfirmDialog
+import com.bowoon.ui.FavoriteButton
 import com.bowoon.ui.dp10
 import com.bowoon.ui.dp150
 import com.bowoon.ui.dp200
+import com.bowoon.ui.dp5
 import com.bowoon.ui.image.DynamicAsyncImageLoader
 import kotlinx.coroutines.launch
 
@@ -61,13 +65,15 @@ fun DetailScreen(
     val movieInfo by viewModel.movieInfo.collectAsStateWithLifecycle()
 
     DetailScreen(
-        state = movieInfo
+        state = movieInfo,
+        updateFavoriteMovies = viewModel::updateFavoriteMovies
     )
 }
 
 @Composable
 fun DetailScreen(
-    state: MovieDetailState
+    state: MovieDetailState,
+    updateFavoriteMovies: (MovieDetail) -> Unit
 ) {
     var isLoading by remember { mutableStateOf(false) }
     var movieDetail by remember { mutableStateOf<MovieDetail?>(null) }
@@ -105,7 +111,10 @@ fun DetailScreen(
             Column(
                 modifier = Modifier.fillMaxSize()
             ) {
-                movieDetail?.let { MovieDetail(it) }
+                movieDetail?.let { MovieDetail(
+                    movieDetail = it,
+                    updateFavoriteMovies = updateFavoriteMovies
+                )}
             }
         }
     }
@@ -113,7 +122,8 @@ fun DetailScreen(
 
 @Composable
 fun MovieDetail(
-    movieDetail: MovieDetail
+    movieDetail: MovieDetail,
+    updateFavoriteMovies: (MovieDetail) -> Unit
 ) {
     val scrollState = rememberScrollState()
 
@@ -123,7 +133,10 @@ fun MovieDetail(
         Column(
             modifier = Modifier.verticalScroll(state = scrollState)
         ) {
-            MovieInfoComponent(movieDetail)
+            MovieInfoComponent(
+                movie = movieDetail,
+                updateFavoriteMovies = updateFavoriteMovies
+            )
             TabComponent(movieDetail)
         }
     }
@@ -276,12 +289,23 @@ fun ImagePagerComponent(
 }
 
 @Composable
-fun MovieInfoComponent(movie: MovieDetail) {
+fun MovieInfoComponent(
+    movie: MovieDetail,
+    updateFavoriteMovies: (MovieDetail) -> Unit
+) {
+    FavoriteButton(
+        modifier = Modifier
+            .padding(top = dp5, end = dp5)
+            .wrapContentSize(),
+//            .align(Alignment.TopEnd),
+        isFavorite = movie.isFavorite,
+        onClick = { updateFavoriteMovies(movie) }
+    )
     Text(text = movie.title ?: "")
     Text(text = movie.titleEng ?: "")
     Text(text = movie.genre ?: "")
     Text(text = movie.rating ?: "")
-    Text(text = movie.repRlsDate ?: "")
+    Text(text = movie.openDt ?: "")
     if (!movie.audiAcc.isNullOrEmpty()) {
         Text(text = movie.audiAcc ?: "")
     }

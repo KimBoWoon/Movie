@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.bowoon.model.DailyBoxOffice
 import com.bowoon.model.DarkThemeConfig
+import com.bowoon.model.MovieDetail
 import com.bowoon.model.UserData
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.serialization.encodeToString
@@ -32,6 +33,9 @@ class InternalDataSource @Inject constructor(
             dailyBoxOffices = it[stringPreferencesKey("dailyBoxOffices")]?.let { jsonString ->
                 json.decodeFromString<List<DailyBoxOffice>>(jsonString)
             } ?: emptyList(),
+            favoriteMovies = it[stringPreferencesKey("favoriteMovies")]?.let { jsonString ->
+                json.decodeFromString<List<MovieDetail>>(jsonString)
+            } ?: emptyList(),
             isDarkMode = it[stringPreferencesKey("isDarkMode")]?.let { jsonString ->
                 json.decodeFromString<DarkThemeConfig>(jsonString)
             } ?: DarkThemeConfig.FOLLOW_SYSTEM
@@ -47,6 +51,26 @@ class InternalDataSource @Inject constructor(
     suspend fun updateBoxOfficeDate(date: String) {
         datastore.edit {
             it[stringPreferencesKey("boxOfficeDate")] = json.encodeToString(date)
+        }
+    }
+
+    suspend fun updateFavoriteMovies(favoriteMovies: MovieDetail) {
+        datastore.edit {
+            it[stringPreferencesKey("favoriteMovies")].let { jsonString ->
+                when (jsonString) {
+                    null -> it[stringPreferencesKey("favoriteMovies")] = json.encodeToString(listOf(favoriteMovies))
+                    else -> {
+                        val favoriteList = json.decodeFromString<List<MovieDetail>>(jsonString)
+
+                        when {
+                            favoriteList.contains(favoriteMovies) -> favoriteList.filter { it != favoriteMovies }
+                            else -> favoriteList + listOf(favoriteMovies)
+                        }.run {
+                            it[stringPreferencesKey("favoriteMovies")] = json.encodeToString(this)
+                        }
+                    }
+                }
+            }
         }
     }
 

@@ -1,5 +1,9 @@
 package com.bowoon.model
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.Serializable
+
 
 data class KMDBMovieDetail(
     val `data`: List<KMDBMovieData>? = null,
@@ -81,15 +85,19 @@ data class KMDBMovieResult(
     } ?: emptyList()
 }
 
+@Serializable
+@Parcelize
 data class KMDBMovieActors(
     val actor: List<KMDBMovieActor>? = null
-)
+) : Parcelable
 
+@Serializable
+@Parcelize
 data class KMDBMovieActor(
     val actorEnNm: String? = null,
     val actorId: String? = null,
     val actorNm: String? = null
-)
+) : Parcelable
 
 data class KMDBMovieCodes(
     val code: List<KMDBMovieCode>? = null
@@ -109,24 +117,32 @@ data class KMDBMovieCommCode(
     val codeNo: String? = null
 )
 
+@Serializable
+@Parcelize
 data class KMDBMovieDirectors(
     val director: List<KMDBMovieDirector>? = null
-)
+) : Parcelable
 
+@Serializable
+@Parcelize
 data class KMDBMovieDirector(
     val directorEnNm: String? = null,
     val directorId: String? = null,
     val directorNm: String? = null
-)
+) : Parcelable
 
+@Serializable
+@Parcelize
 data class KMDBMoviePlots(
     val plot: List<KMDBMoviePlot>? = null
-)
+) : Parcelable
 
+@Serializable
+@Parcelize
 data class KMDBMoviePlot(
     val plotLang: String? = null,
     val plotText: String? = null
-)
+) : Parcelable
 
 data class KMDBMovieRatings(
     val rating: List<KMDBMovieRating>? = null
@@ -141,10 +157,14 @@ data class KMDBMovieRating(
     val runtime: String? = null
 )
 
+@Serializable
+@Parcelize
 data class KMDBMovieStaffs(
     val staff: List<KMDBMovieStaff>? = null
-)
+) : Parcelable
 
+@Serializable
+@Parcelize
 data class KMDBMovieStaff(
     val staffEnNm: String? = null,
     val staffEtc: String? = null,
@@ -152,7 +172,7 @@ data class KMDBMovieStaff(
     val staffNm: String? = null,
     val staffRole: String? = null,
     val staffRoleGroup: String? = null
-)
+) : Parcelable
 
 data class KMDBMovieStat(
     val audiAcc: String? = null,
@@ -163,11 +183,15 @@ data class KMDBMovieStat(
     val statSouce: String? = null
 )
 
+@Serializable
+@Parcelize
 data class KMDBMovieVods(
     val vod: List<KMDBMovieVod>? = null
-)
+) : Parcelable
 
+@Serializable
+@Parcelize
 data class KMDBMovieVod(
     val vodClass: String? = null,
     val vodUrl: String? = null
-)
+) : Parcelable

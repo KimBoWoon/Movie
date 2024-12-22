@@ -24,6 +24,7 @@ class GetDailyBoxOfficeUseCase @Inject constructor(
     companion object {
         private const val TAG = "GetDailyBoxOfficeUseCase"
     }
+
     operator fun invoke(
         targetDt: LocalDate,
         kobisOpenApiKey: String,
@@ -33,9 +34,11 @@ class GetDailyBoxOfficeUseCase @Inject constructor(
 
         val boxOfficeDate = if (it.boxOfficeDate.isEmpty()) LocalDate.now() else LocalDate.parse(it.boxOfficeDate)
         val betweenDay = Duration.between(
-            targetDt.atTime(0, 0, 0, 0),
-            boxOfficeDate.atTime(0, 0, 0, 0)
+            boxOfficeDate.atTime(0, 0, 0, 0),
+            targetDt.atTime(0, 0, 0, 0)
         ).toDays()
+
+        Log.d("betweenDay > $betweenDay")
 
         if (it.boxOfficeDate.isEmpty() || betweenDay > 1 || it.dailyBoxOffices.isEmpty()) {
             Log.d("dailyBoxOffice is empty")
@@ -44,35 +47,32 @@ class GetDailyBoxOfficeUseCase @Inject constructor(
 
             kobisRepository.getDailyBoxOffice(kobisOpenApiKey, target)
                 .map { kobisBoxOffice ->
-                    val dailyBoxOfficeList =
-                        kobisBoxOffice.boxOfficeResult?.dailyBoxOfficeList?.map { kobisDailyBoxOffice ->
-                            DailyBoxOffice(
-                                audiAcc = kobisDailyBoxOffice.audiAcc,
-                                audiChange = kobisDailyBoxOffice.audiChange,
-                                audiCnt = kobisDailyBoxOffice.audiCnt,
-                                audiInten = kobisDailyBoxOffice.audiInten,
-                                movieCd = kobisDailyBoxOffice.movieCd,
-                                movieNm = kobisDailyBoxOffice.movieNm,
-                                openDt = kobisDailyBoxOffice.openDt,
-                                rank = kobisDailyBoxOffice.rank,
-                                rankInten = kobisDailyBoxOffice.rankInten,
-                                rankOldAndNew = kobisDailyBoxOffice.rankOldAndNew,
-                                rnum = kobisDailyBoxOffice.rnum,
-                                salesAcc = kobisDailyBoxOffice.salesAcc,
-                                salesAmt = kobisDailyBoxOffice.salesAmt,
-                                salesChange = kobisDailyBoxOffice.salesChange,
-                                salesInten = kobisDailyBoxOffice.salesInten,
-                                salesShare = kobisDailyBoxOffice.salesShare,
-                                scrnCnt = kobisDailyBoxOffice.scrnCnt,
-                                showCnt = kobisDailyBoxOffice.showCnt,
-                                posterUrl = getPosterUrl(kobisDailyBoxOffice, kmdbOpenApiKey)
-                            )
-                        } ?: emptyList()
-
-                    userDataRepository.updateBoxOfficeDate(targetDt.toString())
-                    userDataRepository.updateDailyBoxOffices(dailyBoxOfficeList)
-
-                    dailyBoxOfficeList
+                    (kobisBoxOffice.boxOfficeResult?.dailyBoxOfficeList?.map { kobisDailyBoxOffice ->
+                        DailyBoxOffice(
+                            audiAcc = kobisDailyBoxOffice.audiAcc,
+                            audiChange = kobisDailyBoxOffice.audiChange,
+                            audiCnt = kobisDailyBoxOffice.audiCnt,
+                            audiInten = kobisDailyBoxOffice.audiInten,
+                            movieCd = kobisDailyBoxOffice.movieCd,
+                            movieNm = kobisDailyBoxOffice.movieNm,
+                            openDt = kobisDailyBoxOffice.openDt,
+                            rank = kobisDailyBoxOffice.rank,
+                            rankInten = kobisDailyBoxOffice.rankInten,
+                            rankOldAndNew = kobisDailyBoxOffice.rankOldAndNew,
+                            rnum = kobisDailyBoxOffice.rnum,
+                            salesAcc = kobisDailyBoxOffice.salesAcc,
+                            salesAmt = kobisDailyBoxOffice.salesAmt,
+                            salesChange = kobisDailyBoxOffice.salesChange,
+                            salesInten = kobisDailyBoxOffice.salesInten,
+                            salesShare = kobisDailyBoxOffice.salesShare,
+                            scrnCnt = kobisDailyBoxOffice.scrnCnt,
+                            showCnt = kobisDailyBoxOffice.showCnt,
+                            posterUrl = getPosterUrl(kobisDailyBoxOffice, kmdbOpenApiKey)
+                        )
+                    } ?: emptyList()).also { dailyBoxOfficeList ->
+                        userDataRepository.updateBoxOfficeDate(targetDt.toString())
+                        userDataRepository.updateDailyBoxOffices(dailyBoxOfficeList)
+                    }
                 }
         } else {
             flowOf(it.dailyBoxOffices)
