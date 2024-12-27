@@ -9,24 +9,22 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class DetailRoute(
-    val openDt: String,
-    val movieCd: String,
-    val title: String
+    val id: Int
 )
 
 fun NavController.navigateToDetail(
-    openDt: String,
-    movieCd: String,
-    title: String,
+    id: Int,
     navOptions: NavOptionsBuilder.() -> Unit = {}
 ) {
-    navigate(route = DetailRoute(openDt, movieCd, title)) {
+    navigate(route = DetailRoute(id)) {
         navOptions()
     }
 }
 
-fun NavGraphBuilder.detailScreen() {
+fun NavGraphBuilder.detailScreen(
+    navController: NavController
+) {
     composable<DetailRoute>() {
-        DetailScreen()
+        DetailScreen(navController)
     }
 }

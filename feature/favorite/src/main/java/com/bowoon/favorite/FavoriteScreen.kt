@@ -3,17 +3,15 @@ package com.bowoon.favorite
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -21,24 +19,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.PlatformTextStyle
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bowoon.model.MovieDetail
 import com.bowoon.ui.FavoriteButton
 import com.bowoon.ui.dp10
 import com.bowoon.ui.dp15
-import com.bowoon.ui.dp20
+import com.bowoon.ui.dp200
 import com.bowoon.ui.dp5
 import com.bowoon.ui.image.DynamicAsyncImageLoader
-import com.bowoon.ui.sp10
-import com.bowoon.ui.sp8
 
 @Composable
 fun FavoriteScreen(
-    onMovieClick: (String, String, String) -> Unit,
+    onMovieClick: (Int) -> Unit,
     viewModel: FavoriteVM = hiltViewModel()
 ) {
     val state by viewModel.favoriteMovies.collectAsStateWithLifecycle(FavoriteMoviesState.Loading)
@@ -53,7 +46,7 @@ fun FavoriteScreen(
 @Composable
 fun FavoriteScreen(
     state: FavoriteMoviesState,
-    onMovieClick: (String, String, String) -> Unit,
+    onMovieClick: (Int) -> Unit,
     updateFavoriteMovies: (MovieDetail) -> Unit
 ) {
     var favoriteMovies by remember { mutableStateOf<List<MovieDetail>>(emptyList()) }
@@ -68,51 +61,20 @@ fun FavoriteScreen(
         modifier = Modifier.fillMaxSize(),
         columns = GridCells.Fixed(2),
         contentPadding = PaddingValues(dp15),
-        horizontalArrangement = Arrangement.spacedBy(dp20),
+        horizontalArrangement = Arrangement.spacedBy(dp10),
         verticalArrangement = Arrangement.spacedBy(dp10)
     ) {
         items(
             items = favoriteMovies
         ) { movieDetail ->
-            Box() {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                        .clickable {
-                            onMovieClick(
-                                movieDetail.openDt ?: "",
-                                movieDetail.kobisMovieCd ?: "",
-                                movieDetail.title ?: ""
-                            )
-                        }
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        DynamicAsyncImageLoader(
-                            modifier = Modifier.fillMaxSize().align(Alignment.Center),
-                            source = movieDetail.posters?.firstOrNull() ?: "",
-                            contentDescription = "BoxOfficePoster"
-                        )
-                    }
-                    Text(
-                        text = movieDetail.title ?: "",
-                        fontSize = sp10,
-                        style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false)),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Text(
-                        text = movieDetail.openDt ?: "",
-                        fontSize = sp8,
-                        style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false)),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
+            Box(
+                modifier = Modifier.clickable { onMovieClick(movieDetail.id ?: -1) }
+            ) {
+                DynamicAsyncImageLoader(
+                    modifier = Modifier.width(dp200).aspectRatio(9f / 16f),
+                    source = "https://image.tmdb.org/t/p/original${movieDetail.posterPath}",
+                    contentDescription = "BoxOfficePoster"
+                )
                 FavoriteButton(
                     modifier = Modifier
                         .padding(top = dp5, end = dp5)

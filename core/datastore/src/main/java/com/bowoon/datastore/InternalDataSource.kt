@@ -4,10 +4,12 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import com.bowoon.model.DailyBoxOffice
 import com.bowoon.model.DarkThemeConfig
+import com.bowoon.model.MainMenu
 import com.bowoon.model.MovieDetail
 import com.bowoon.model.UserData
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -23,50 +25,63 @@ class InternalDataSource @Inject constructor(
 ) {
     companion object {
         private const val TAG = "datastore"
+
+        private val UPDATE_DATE = stringPreferencesKey("updateDate")
+        private val MAIN_MENU = stringPreferencesKey("mainMenu")
+        private val FAVORITE_MOVIES = stringPreferencesKey("favoriteMovies")
+        private val IS_DART_MODE = stringPreferencesKey("isDarkMode")
+        private val REGION = stringPreferencesKey("region")
+        private val LANGUAGE = stringPreferencesKey("language")
     }
 
     val userData = datastore.data.mapNotNull {
         UserData(
-            boxOfficeDate = it[stringPreferencesKey("boxOfficeDate")]?.let { jsonString ->
+            isDarkMode = it[IS_DART_MODE]?.let { jsonString ->
+                json.decodeFromString<DarkThemeConfig>(jsonString)
+            } ?: DarkThemeConfig.FOLLOW_SYSTEM,
+            updateDate = it[UPDATE_DATE]?.let { jsonString ->
                 json.decodeFromString(jsonString)
             } ?: "",
-            dailyBoxOffices = it[stringPreferencesKey("dailyBoxOffices")]?.let { jsonString ->
-                json.decodeFromString<List<DailyBoxOffice>>(jsonString)
-            } ?: emptyList(),
-            favoriteMovies = it[stringPreferencesKey("favoriteMovies")]?.let { jsonString ->
+            mainMenu = it[MAIN_MENU]?.let { jsonString ->
+                json.decodeFromString<MainMenu>(jsonString)
+            } ?: MainMenu(emptyList(), emptyList(), emptyList()),
+            favoriteMovies = it[FAVORITE_MOVIES]?.let { jsonString ->
                 json.decodeFromString<List<MovieDetail>>(jsonString)
             } ?: emptyList(),
-            isDarkMode = it[stringPreferencesKey("isDarkMode")]?.let { jsonString ->
-                json.decodeFromString<DarkThemeConfig>(jsonString)
-            } ?: DarkThemeConfig.FOLLOW_SYSTEM
+            region = it[REGION]?.let { jsonString ->
+                json.decodeFromString<String>(jsonString)
+            } ?: "",
+            language = it[LANGUAGE]?.let { jsonString ->
+                json.decodeFromString<String>(jsonString)
+            } ?: ""
         )
     }
 
     suspend fun updateDarkTheme(config: DarkThemeConfig) {
         datastore.edit {
-            it[stringPreferencesKey("isDarkMode")] = json.encodeToString(config)
+            it[IS_DART_MODE] = json.encodeToString(config)
         }
     }
 
     suspend fun updateBoxOfficeDate(date: String) {
         datastore.edit {
-            it[stringPreferencesKey("boxOfficeDate")] = json.encodeToString(date)
+            it[UPDATE_DATE] = json.encodeToString(date)
         }
     }
 
     suspend fun updateFavoriteMovies(favoriteMovies: MovieDetail) {
         datastore.edit {
-            it[stringPreferencesKey("favoriteMovies")].let { jsonString ->
+            it[FAVORITE_MOVIES].let { jsonString ->
                 when (jsonString) {
-                    null -> it[stringPreferencesKey("favoriteMovies")] = json.encodeToString(listOf(favoriteMovies))
+                    null -> it[FAVORITE_MOVIES] = json.encodeToString(listOf(favoriteMovies))
                     else -> {
                         val favoriteList = json.decodeFromString<List<MovieDetail>>(jsonString)
 
                         when {
-                            favoriteList.contains(favoriteMovies) -> favoriteList.filter { it != favoriteMovies }
+                            favoriteList.find { it.id == favoriteMovies.id } != null -> favoriteList.filter { it.id != favoriteMovies.id }
                             else -> favoriteList + listOf(favoriteMovies)
                         }.run {
-                            it[stringPreferencesKey("favoriteMovies")] = json.encodeToString(this)
+                            it[FAVORITE_MOVIES] = json.encodeToString(this)
                         }
                     }
                 }
@@ -74,9 +89,30 @@ class InternalDataSource @Inject constructor(
         }
     }
 
-    suspend fun updateDailyBoxOffices(dailyBoxOffices: List<DailyBoxOffice>) {
+    suspend fun updateMainMenu(mainMenu: MainMenu) {
         datastore.edit {
-            it[stringPreferencesKey("dailyBoxOffices")] = json.encodeToString(dailyBoxOffices)
+            it[MAIN_MENU] = json.encodeToString(mainMenu)
         }
     }
+
+    suspend fun updateRegion(region: String) {
+        datastore.edit {
+            it[REGION] = region
+        }
+    }
+
+    suspend fun updateLanguage(language: String) {
+        datastore.edit {
+            it[LANGUAGE] = language
+        }
+    }
+
+    suspend fun getUpdateDate(): String? =
+        datastore.data.map { it[UPDATE_DATE] }.firstOrNull()
+
+    suspend fun getRegion(): String? =
+        datastore.data.map { it[REGION] }.firstOrNull()
+
+    suspend fun getLanguage(): String? =
+        datastore.data.map { it[LANGUAGE] }.firstOrNull()
 }

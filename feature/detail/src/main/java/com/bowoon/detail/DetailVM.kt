@@ -8,7 +8,7 @@ import com.bowoon.common.Result
 import com.bowoon.common.asResult
 import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.detail.navigation.DetailRoute
-import com.bowoon.domain.GetMovieDetailUseCase
+import com.bowoon.domain.GetMovieDetail
 import com.bowoon.model.MovieDetail
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -20,32 +20,27 @@ import javax.inject.Inject
 @HiltViewModel
 class DetailVM @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val getMovieDetailUseCase: GetMovieDetailUseCase,
+    private val getMovieDetail: GetMovieDetail,
     private val userDataRepository: UserDataRepository
 ) : ViewModel() {
     companion object {
         private const val TAG = "DetailVM"
     }
 
-    private val openDt = savedStateHandle.toRoute<DetailRoute>().openDt
-    private val movieCd = savedStateHandle.toRoute<DetailRoute>().movieCd
-    private val title = savedStateHandle.toRoute<DetailRoute>().title
-    val movieInfo = getMovieDetailUseCase(
-        kobisApiKey = BuildConfig.KOBIS_OPEN_API_KEY,
-        movieCd = movieCd,
-        kmdbUrl = "https://api.koreafilm.or.kr/openapi-data2/wisenut/search_api/search_json2.jsp?collection=kmdb_new2&detail=Y&title=$title&releaseDts=$openDt&listCount=1&ServiceKey=${BuildConfig.KMDB_OPEN_API_KEY}"
-    ).asResult()
-    .map {
-        when (it) {
-            is Result.Loading -> MovieDetailState.Loading
-            is Result.Success -> MovieDetailState.Success(it.data)
-            is Result.Error -> MovieDetailState.Error(it.throwable)
-        }
-    }.stateIn(
-        scope = viewModelScope,
-        initialValue = MovieDetailState.Loading,
-        started = SharingStarted.WhileSubscribed(5000)
-    )
+    private val id = savedStateHandle.toRoute<DetailRoute>().id
+    val movieInfo = getMovieDetail(id)
+        .asResult()
+        .map {
+            when (it) {
+                is Result.Loading -> MovieDetailState.Loading
+                is Result.Success -> MovieDetailState.Success(it.data)
+                is Result.Error -> MovieDetailState.Error(it.throwable)
+            }
+        }.stateIn(
+            scope = viewModelScope,
+            initialValue = MovieDetailState.Loading,
+            started = SharingStarted.WhileSubscribed(5000)
+        )
 
     fun updateFavoriteMovies(favoriteMovies: MovieDetail) {
         viewModelScope.launch {

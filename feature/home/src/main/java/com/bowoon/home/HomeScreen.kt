@@ -6,9 +6,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,12 +19,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,12 +46,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bowoon.common.Log
 import com.bowoon.model.DailyBoxOffice
 import com.bowoon.model.MovieDetail
+import com.bowoon.model.UpComingResult
+import com.bowoon.model.Week
 import com.bowoon.ui.dp1
 import com.bowoon.ui.dp10
+import com.bowoon.ui.dp130
 import com.bowoon.ui.dp15
 import com.bowoon.ui.dp150
 import com.bowoon.ui.dp20
-import com.bowoon.ui.dp200
 import com.bowoon.ui.dp30
 import com.bowoon.ui.image.DynamicAsyncImageLoader
 import com.bowoon.ui.sp10
@@ -55,27 +62,24 @@ import org.threeten.bp.LocalDate
 
 @Composable
 fun HomeScreen(
-    onMovieClick: (String, String, String) -> Unit,
+    onMovieClick: (Int) -> Unit,
     viewModel: HomeVM = hiltViewModel()
 ) {
-    val boxOfficeState by viewModel.boxOfficeState.collectAsStateWithLifecycle()
-    val favoriteMoviesState by viewModel.favoriteMovies.collectAsStateWithLifecycle()
+    val homeUiState by viewModel.mainMenu.collectAsStateWithLifecycle()
 
     HomeScreen(
-        state = boxOfficeState,
-        favoriteMoviesState = favoriteMoviesState,
+        state = homeUiState,
         onMovieClick = onMovieClick
     )
 }
 
 @Composable
 fun HomeScreen(
-    state: BoxOfficeState,
-    favoriteMoviesState: FavoriteMoviesState,
-    onMovieClick: (String, String, String) -> Unit
+    state: HomeUiState,
+    onMovieClick: (Int) -> Unit
 ) {
     when (state) {
-        is BoxOfficeState.Loading -> {
+        is HomeUiState.Loading -> {
             Log.d("loading...")
 
             Box(
@@ -86,30 +90,57 @@ fun HomeScreen(
                 )
             }
         }
-        is BoxOfficeState.Success -> {
-            Log.d("${state.boxOffice}")
+        is HomeUiState.Success -> {
+            Log.d("${state.mainMenu}")
+
+//            LazyColumn() {
+//                item {
+//                    DailyBoxOfficeComponent(
+//                        boxOffice = state.mainMenu.dailyBoxOffice,
+//                        onMovieClick = onMovieClick
+//                    )
+//                    UpcomingComponent(
+//                        upcoming = state.mainMenu.upcomingMovies,
+//                        onMovieClick = onMovieClick
+//                    )
+//                    this@LazyColumn.CalendarComponent(
+//                        favoriteMovies = state.mainMenu.favoriteMovies,
+//                        filterFavoriteMovies = { releaseDate -> state.mainMenu.favoriteMovies.filter { it.releaseDate == releaseDate } }
+//                    )
+//                }
+//            }
+            val scrollState = rememberScrollState()
 
             Column(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize().verticalScroll(scrollState),
             ) {
                 DailyBoxOfficeComponent(
-                    boxOffice = state.boxOffice,
+                    boxOffice = state.mainMenu.dailyBoxOffice,
                     onMovieClick = onMovieClick
                 )
-                CalendarComponent(favoriteMoviesState)
+                UpcomingComponent(
+                    upcoming = state.mainMenu.upcomingMovies,
+                    onMovieClick = onMovieClick
+                )
+                CalendarComponent(
+                    favoriteMovies = state.mainMenu.favoriteMovies,
+                    filterFavoriteMovies = { releaseDate ->
+                        state.mainMenu.favoriteMovies.filter { it.releases?.countries?.find { it.iso31661.equals("KR", true) }?.releaseDate == releaseDate }
+                    }
+                )
             }
         }
-        is BoxOfficeState.Error -> Log.e("${state.throwable.message}")
+        is HomeUiState.Error -> Log.e("${state.throwable.message}")
     }
 }
 
 @Composable
-fun ColumnScope.DailyBoxOfficeComponent(
+fun DailyBoxOfficeComponent(
     boxOffice: List<DailyBoxOffice>,
-    onMovieClick: (String, String, String) -> Unit
+    onMovieClick: (Int) -> Unit
 ) {
     Text(
-        modifier = Modifier.align(Alignment.Start),
+//        modifier = Modifier.align(Alignment.Start),
         text = "일별 박스오피스"
     )
     LazyRow(
@@ -134,27 +165,21 @@ fun ColumnScope.DailyBoxOfficeComponent(
 @Composable
 fun BoxOfficeItem(
     boxOffice: DailyBoxOffice,
-    onMovieClick: (String, String, String) -> Unit
+    onMovieClick: (Int) -> Unit
 ) {
     Column(
         modifier = Modifier
             .width(dp150)
             .wrapContentHeight()
             .clickable {
-                onMovieClick(
-                    boxOffice.openDt ?: "",
-                    boxOffice.movieCd ?: "",
-                    boxOffice.movieNm ?: ""
-                )
+                onMovieClick(boxOffice.tmdbId ?: -1)
             }
     ) {
         Box(
-            modifier = Modifier
-                .width(dp150)
-                .height(dp200)
+            modifier = Modifier.wrapContentSize()
         ) {
             DynamicAsyncImageLoader(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.width(dp150).aspectRatio(9f / 16f),
                 source = boxOffice.posterUrl ?: "",
                 contentDescription = "BoxOfficePoster"
             )
@@ -188,20 +213,99 @@ fun BoxOfficeItem(
 }
 
 @Composable
-fun CalendarComponent(
-    favoriteMoviesState: FavoriteMoviesState
+fun UpcomingComponent(
+    upcoming: List<UpComingResult>,
+    onMovieClick: (Int) -> Unit
 ) {
-    var favoriteMovies by remember { mutableStateOf<List<MovieDetail>>(emptyList()) }
-    var openMovies by remember { mutableStateOf<List<MovieDetail>>(emptyList()) }
-
-    when (favoriteMoviesState) {
-        is FavoriteMoviesState.Loading -> {}
-        is FavoriteMoviesState.Success -> favoriteMovies = favoriteMoviesState.favoriteMovies
-        is FavoriteMoviesState.Error -> {}
+    Text(
+//        modifier = Modifier.align(Alignment.Start),
+        text = "개봉 예정작"
+    )
+    LazyRow(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight(),
+        contentPadding = PaddingValues(dp15),
+        horizontalArrangement = Arrangement.spacedBy(dp15)
+    ) {
+        items(
+            items = upcoming,
+            key = { "${it.id}_${it.title}_${it.originalTitle}_${it.releaseDate}" }
+        ) { upcoming ->
+            UpcomingItem(
+                upcoming = upcoming,
+                onMovieClick = onMovieClick
+            )
+        }
     }
+}
+
+@Composable
+fun UpcomingItem(
+    upcoming: UpComingResult,
+    onMovieClick: (Int) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .wrapContentSize()
+            .clickable {
+                onMovieClick(upcoming.id ?: -1)
+            }
+    ) {
+        DynamicAsyncImageLoader(
+            modifier = Modifier.width(dp130).aspectRatio(9f / 16f),
+            source = "https://image.tmdb.org/t/p/original${upcoming.posterPath}",
+            contentDescription = "BoxOfficePoster"
+        )
+        Text(
+            text = upcoming.title ?: "",
+            fontSize = sp10,
+            style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false)),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+        Text(
+            text = upcoming.releaseDate ?: "",
+            fontSize = sp8,
+            style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false)),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+@Composable
+fun CalendarComponent(
+    favoriteMovies: List<MovieDetail>,
+    filterFavoriteMovies: (String) -> List<MovieDetail>
+) {
+    val calendarList = listOf(LocalDate.now().minusMonths(1), LocalDate.now(), LocalDate.now().plusMonths(1))
+    val horizontalPagerState = rememberPagerState(initialPage = 1) { calendarList.size }
+
+    HorizontalPager(
+        state = horizontalPagerState
+    ) {index ->
+        Column {
+            Calendar(
+                today = calendarList[index],
+                favoriteMovies = favoriteMovies,
+                filterFavoriteMovies = filterFavoriteMovies
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun Calendar(
+    today: LocalDate,
+    favoriteMovies: List<MovieDetail>,
+    filterFavoriteMovies: (String) -> List<MovieDetail>,
+) {
+    var releaseDate by remember { mutableStateOf("") }
 
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().wrapContentHeight(),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -213,63 +317,52 @@ fun CalendarComponent(
             )
         }
     }
-    LazyVerticalGrid(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight(),
-        columns = GridCells.Fixed(7)
-    ) {
-        val date = LocalDate.now()
 
-        for (i in 0 until (date.dayOfWeek.value % 7)) {
-            item {
-                Box(
-                    modifier = Modifier
-                        .size(dp30)
-                        .padding(top = dp10)
-                )
-            }
+    FlowRow(
+        modifier = Modifier.fillMaxWidth(),
+        maxLines = 5,
+        maxItemsInEachRow = 7
+    ) {
+        val firstDay = today.withDayOfMonth(1)
+
+        for (i in 0 until (firstDay.dayOfWeek.value % 7)) {
+            Spacer(modifier = Modifier.height(dp30).weight(1f).background(color = Color.Transparent))
         }
-        items(
-            count = date.lengthOfMonth()
-        ) { day ->
-            if (favoriteMovies.find { it.openDt != null && LocalDate.parse(it.openDt) == date.withDayOfMonth(day + 1) } != null) {
+
+        for (day in 1 until today.lengthOfMonth() + 1) {
+            if (favoriteMovies.find { it.releases?.countries?.find { it.iso31661.equals("KR", true) }?.releaseDate != null && LocalDate.parse(it.releases?.countries?.find { it.iso31661.equals("KR", true) }?.releaseDate) == today.withDayOfMonth(day) } != null) {
                 Text(
                     modifier = Modifier
+                        .height(dp30)
+                        .weight(1f)
                         .background(color = Color.Yellow)
-                        .clickable {
-                            val movies = favoriteMovies.filter { it.openDt != null && LocalDate.parse(it.openDt) == date.withDayOfMonth(day + 1) }
-                            Log.d("$movies")
-                            openMovies = movies
-
-                        },
-                    text = "${day + 1}",
+                        .clickable { releaseDate = today.withDayOfMonth(day).toString() },
+                    text = "$day",
                     textAlign = TextAlign.Center,
                     color = Color.Black
                 )
             } else {
                 Text(
                     modifier = Modifier
+                        .height(dp30)
+                        .weight(1f)
                         .background(color = Color.Transparent)
-                        .clickable {
-                            Log.d("${date.withDayOfMonth(day + 1)}")
-                            openMovies = emptyList()
-                        },
-                    text = "${day + 1}",
+                        .clickable { releaseDate = today.withDayOfMonth(day).toString() },
+                    text = "$day",
                     textAlign = TextAlign.Center
                 )
             }
         }
+
+        for (i in 0 until  (5 * 7) - today.lengthOfMonth()) {
+            Spacer(modifier = Modifier.height(dp30).weight(1f).background(color = Color.Transparent))
+        }
     }
 
-    LazyColumn(
-        modifier = Modifier.fillMaxWidth().wrapContentHeight(),
-        contentPadding = PaddingValues(dp10),
-        verticalArrangement = Arrangement.spacedBy(dp10)
+    Column(
+        modifier = Modifier.fillMaxWidth()
     ) {
-        items(
-            items = openMovies
-        ) {
+        filterFavoriteMovies(releaseDate).forEach { movie ->
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -278,23 +371,13 @@ fun CalendarComponent(
             ) {
                 Text(
                     modifier = Modifier.padding(horizontal = dp10),
-                    text = it.title ?: ""
+                    text = movie.title ?: ""
                 )
                 Text(
                     modifier = Modifier.padding(horizontal = dp10),
-                    text = it.openDt ?: ""
+                    text = movie.releaseDate ?: ""
                 )
             }
         }
     }
-}
-
-enum class Week(val label: String) {
-    SUNDAY("일"),
-    MONDAY("월"),
-    TUESDAY("화"),
-    WEDNESDAY("수"),
-    THURSDAY("목"),
-    FRIDAY("금"),
-    SATURDAY("토"),
 }

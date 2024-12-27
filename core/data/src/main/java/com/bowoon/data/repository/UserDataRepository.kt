@@ -1,7 +1,7 @@
 package com.bowoon.data.repository
 
-import com.bowoon.model.DailyBoxOffice
 import com.bowoon.model.DarkThemeConfig
+import com.bowoon.model.MainMenu
 import com.bowoon.model.MovieDetail
 import com.bowoon.model.UserData
 import kotlinx.coroutines.flow.Flow
@@ -10,6 +10,11 @@ interface UserDataRepository {
     val userData: Flow<UserData>
     suspend fun updateDarkModeTheme(config: DarkThemeConfig)
     suspend fun updateBoxOfficeDate(date: String)
-    suspend fun updateDailyBoxOffices(dailyBoxOffices: List<DailyBoxOffice>)
+    suspend fun updateMainMenu(mainMenu: MainMenu)
     suspend fun updateFavoriteMovies(favoriteMovies: MovieDetail)
+    suspend fun updateRegion(region: String)
+    suspend fun updateLanguage(language: String)
+    suspend fun getUpdateDate(): String?
+    suspend fun getRegion(): String?
+    suspend fun getLanguage(): String?
 }

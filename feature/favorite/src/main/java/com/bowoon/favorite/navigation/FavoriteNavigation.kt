@@ -13,7 +13,7 @@ data object FavoriteRoute
 fun NavController.navigateToFavorite(navOptions: NavOptions) = navigate(route = FavoriteRoute, navOptions)
 
 fun NavGraphBuilder.favoriteScreen(
-    onMovieClick: (String, String, String) -> Unit
+    onMovieClick: (Int) -> Unit
 ) {
     composable<FavoriteRoute>() {
         FavoriteScreen(onMovieClick)

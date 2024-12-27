@@ -6,11 +6,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -33,39 +33,41 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.media3.common.MediaItem
-import androidx.media3.common.PlaybackException
-import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
-import androidx.media3.datasource.DefaultHttpDataSource
-import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.exoplayer.source.ProgressiveMediaSource
-import androidx.media3.ui.AspectRatioFrameLayout
-import androidx.media3.ui.PlayerView
+import androidx.navigation.NavController
 import com.bowoon.common.Log
 import com.bowoon.model.MovieDetail
 import com.bowoon.model.MoviePoster
+import com.bowoon.model.TMBDMovieDetailVideos
+import com.bowoon.model.TMDBMovieDetailCountry
+import com.bowoon.model.TMDBMovieDetailReleases
+import com.bowoon.model.TMDBMovieDetailVideoResult
 import com.bowoon.ui.ConfirmDialog
-import com.bowoon.ui.FavoriteButton
+import com.bowoon.ui.Title
 import com.bowoon.ui.dp10
-import com.bowoon.ui.dp150
-import com.bowoon.ui.dp200
-import com.bowoon.ui.dp5
 import com.bowoon.ui.image.DynamicAsyncImageLoader
+import com.bowoon.ui.theme.MovieTheme
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
 import kotlinx.coroutines.launch
 
 @Composable
 fun DetailScreen(
+    navController: NavController,
     viewModel: DetailVM = hiltViewModel()
 ) {
     val movieInfo by viewModel.movieInfo.collectAsStateWithLifecycle()
 
     DetailScreen(
         state = movieInfo,
+        navController = navController,
         updateFavoriteMovies = viewModel::updateFavoriteMovies
     )
 }
@@ -73,6 +75,7 @@ fun DetailScreen(
 @Composable
 fun DetailScreen(
     state: MovieDetailState,
+    navController: NavController,
     updateFavoriteMovies: (MovieDetail) -> Unit
 ) {
     var isLoading by remember { mutableStateOf(false) }
@@ -89,7 +92,7 @@ fun DetailScreen(
             movieDetail = state.movieDetail
         }
         is MovieDetailState.Error -> {
-            Log.d("${state.throwable.message}")
+            Log.e("${state.throwable.message}")
             isLoading = false
             ConfirmDialog(
                 title = "통신 실패",
@@ -111,10 +114,15 @@ fun DetailScreen(
             Column(
                 modifier = Modifier.fillMaxSize()
             ) {
-                movieDetail?.let { MovieDetail(
-                    movieDetail = it,
-                    updateFavoriteMovies = updateFavoriteMovies
-                )}
+                movieDetail?.let {
+                    Title(
+                        title = it.title ?: "",
+                        isFavorite = it.isFavorite,
+                        onBackClick = { navController.navigateUp() },
+                        onFavoriteClick = { updateFavoriteMovies(it) }
+                    )
+                    MovieDetail(movieDetail = it)
+                }
             }
         }
     }
@@ -122,8 +130,7 @@ fun DetailScreen(
 
 @Composable
 fun MovieDetail(
-    movieDetail: MovieDetail,
-    updateFavoriteMovies: (MovieDetail) -> Unit
+    movieDetail: MovieDetail
 ) {
     val scrollState = rememberScrollState()
 
@@ -131,12 +138,9 @@ fun MovieDetail(
         VideosComponent(movieDetail)
 
         Column(
-            modifier = Modifier.verticalScroll(state = scrollState)
+            modifier = Modifier.fillMaxWidth().wrapContentHeight().verticalScroll(state = scrollState)
         ) {
-            MovieInfoComponent(
-                movie = movieDetail,
-                updateFavoriteMovies = updateFavoriteMovies
-            )
+            MovieInfoComponent(movie = movieDetail)
             TabComponent(movieDetail)
         }
     }
@@ -146,68 +150,58 @@ fun MovieDetail(
 @Composable
 fun VideosComponent(movie: MovieDetail) {
     val context = LocalContext.current
-    val vodList = movie.vods?.vod?.mapNotNull { it.vodUrl?.replace("trailerPlayPop?pFileNm=", "play/") } ?: emptyList()
+    val vodList = movie.videos?.results?.mapNotNull { it.key } ?: emptyList()
     val pagerState = rememberPagerState { vodList.size }
-    val scope = rememberCoroutineScope()
 
     HorizontalPager(
         state = pagerState
-    ) {
+    ) { index ->
         val screenWidth = context.resources.displayMetrics.widthPixels
-        val exoPlayer = ExoPlayer.Builder(context).build()
-        val dataSourceFactory = DefaultHttpDataSource.Factory()
-        val mediaSource = remember(vodList[it]) {
-            ProgressiveMediaSource.Factory(dataSourceFactory)
-                .createMediaSource(MediaItem.fromUri(vodList[it]))
-        }
+        val view = YouTubePlayerView(context)
+        val scope = rememberCoroutineScope()
 
-        exoPlayer.setMediaSource(mediaSource)
-        exoPlayer.addListener(
-            object : Player.Listener {
-                override fun onPlaybackStateChanged(playbackState: Int) {
-                    super.onPlaybackStateChanged(playbackState)
-
-                    when (playbackState) {
-                        Player.STATE_IDLE -> Log.i("exoplayer idle")
-                        Player.STATE_BUFFERING -> Log.i("exoplayer buffering")
-                        Player.STATE_READY -> Log.i("exoplayer ready")
-                        Player.STATE_ENDED -> {
-                            Log.i("exoplayer ended")
-                            scope.launch {
-                                if (it + 1 < vodList.size) {
-                                    Log.i("go to next page")
-                                    pagerState.scrollToPage(it + 1)
-                                }
-                            }
-                        }
-                    }
-                }
-
-                override fun onPlayerError(error: PlaybackException) {
-                    super.onPlayerError(error)
-                    Log.e(error.message ?: "something wrong...")
-                }
-            }
-        )
-        exoPlayer.prepare()
-        exoPlayer.playWhenReady = true
-
-        DisposableEffect(Unit) {
+        DisposableEffect("youtube") {
             onDispose {
-                exoPlayer.release()
+                view.release()
             }
         }
 
         AndroidView(
-            factory = { ctx ->
-                PlayerView(ctx).apply {
-                    layoutParams = FrameLayout.LayoutParams(
-                        FrameLayout.LayoutParams.MATCH_PARENT,
-                        (screenWidth / (16f / 9f)).toInt()
-                    )
-                    player = exoPlayer
-                    resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FILL
-                }
+            factory = {
+                view.layoutParams = FrameLayout.LayoutParams(
+                    FrameLayout.LayoutParams.MATCH_PARENT,
+                    (screenWidth / (16f / 9f)).toInt()
+                )
+                view.addYouTubePlayerListener(
+                    object : AbstractYouTubePlayerListener() {
+                        override fun onReady(youTubePlayer: YouTubePlayer) {
+                            super.onReady(youTubePlayer)
+                            youTubePlayer.loadVideo(vodList[index], 0f)
+                        }
+
+                        override fun onStateChange(
+                            youTubePlayer: YouTubePlayer,
+                            state: PlayerConstants.PlayerState
+                        ) {
+                            super.onStateChange(youTubePlayer, state)
+                            when (state) {
+                                PlayerConstants.PlayerState.UNKNOWN -> Log.d("UNKNOWN")
+                                PlayerConstants.PlayerState.UNSTARTED -> Log.d("UNSTARTED")
+                                PlayerConstants.PlayerState.ENDED -> {
+                                    Log.d("ENDED")
+                                    scope.launch {
+                                        pagerState.scrollToPage(index + 1)
+                                    }
+                                }
+                                PlayerConstants.PlayerState.PLAYING -> Log.d("PLAYING")
+                                PlayerConstants.PlayerState.PAUSED -> Log.d("PAUSED")
+                                PlayerConstants.PlayerState.BUFFERING -> Log.d("BUFFERING")
+                                PlayerConstants.PlayerState.VIDEO_CUED -> Log.d("VIDEO_CUED")
+                            }
+                        }
+                    }
+                )
+                view
             }
         )
     }
@@ -242,23 +236,27 @@ fun TabComponent(
     }
 
     HorizontalPager(
+        modifier = Modifier.fillMaxWidth().wrapContentHeight(),
         state = pagerState,
         userScrollEnabled = false
     ) { index ->
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.wrapContentSize(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            val width = 200
+            val ratio = 9f / 16f
+
             if (tabList[index].label == MoviePoster.POSTER.label) {
                 ImagePagerComponent(
-                    modifier = Modifier.height(dp200).fillMaxWidth(),
-                    list = movie.posters ?: emptyList()
+                    modifier = Modifier.width(width.dp).aspectRatio(ratio),
+                    list = movie.images?.posters?.map { "https://image.tmdb.org/t/p/original${it.filePath}" } ?: emptyList()
                 )
             } else {
                 ImagePagerComponent(
-                    modifier = Modifier.height(dp200).fillMaxWidth(),
-                    list = movie.stlls ?: emptyList()
+                    modifier = Modifier.width(width.dp).aspectRatio(ratio),
+                    list = movie.images?.posters?.map { "https://image.tmdb.org/t/p/original${it.filePath}" } ?: emptyList()
                 )
             }
         }
@@ -271,7 +269,7 @@ fun ImagePagerComponent(
     list: List<String>
 ) {
     LazyRow(
-        modifier = modifier,
+        modifier = Modifier.wrapContentSize(),
         contentPadding = PaddingValues(horizontal = dp10),
         horizontalArrangement = Arrangement.spacedBy(dp10)
     ) {
@@ -280,7 +278,7 @@ fun ImagePagerComponent(
             key = { it }
         ) {
             DynamicAsyncImageLoader(
-                modifier = Modifier.width(dp150).height(dp200),
+                modifier = modifier,
                 source = it,
                 contentDescription = "moviePoster"
             )
@@ -290,28 +288,41 @@ fun ImagePagerComponent(
 
 @Composable
 fun MovieInfoComponent(
-    movie: MovieDetail,
-    updateFavoriteMovies: (MovieDetail) -> Unit
+    movie: MovieDetail
 ) {
-    FavoriteButton(
-        modifier = Modifier
-            .padding(top = dp5, end = dp5)
-            .wrapContentSize(),
-//            .align(Alignment.TopEnd),
-        isFavorite = movie.isFavorite,
-        onClick = { updateFavoriteMovies(movie) }
-    )
+    val certification = movie.releases?.countries?.find { it.iso31661.equals("KR", true) }?.certification ?: ""
+
     Text(text = movie.title ?: "")
-    Text(text = movie.titleEng ?: "")
-    Text(text = movie.genre ?: "")
-    Text(text = movie.rating ?: "")
-    Text(text = movie.openDt ?: "")
-    if (!movie.audiAcc.isNullOrEmpty()) {
-        Text(text = movie.audiAcc ?: "")
-    }
-    if (!movie.salesAcc.isNullOrEmpty()) {
-        Text(text = movie.salesAcc ?: "")
-    }
+    Text(text = movie.originalTitle ?: "")
+    Text(text = movie.genres ?: "")
+    Text(
+        text = when (certification) {
+            "ALL" -> "전체 이용가"
+            else -> "${certification}세 이용가"
+        }
+    )
+    Text(text = movie.releases?.countries?.find { it.iso31661.equals("KR", true) }?.releaseDate ?: "")
+    Text(text = "평점 : ${movie.voteAverage.toString()}")
+//    Text(text = movie.revenue.toString())
+//    Text(text = movie.budget.toString())
     Text(text = "${movie.runtime}분")
-    Text(text = movie.plots?.plot?.find { it.plotLang == "한국어" }?.plotText ?: "")
+    Text(text = movie.overview ?: "")
+}
+
+@Preview(showSystemUi = true, showBackground = true)
+@Composable
+fun MovieInfoComponentPreview() {
+    MovieTheme {
+        Column {
+            MovieInfoComponent(
+                MovieDetail(
+                    title = "asdf",
+                    originalTitle = "qwer",
+                    genres = "zxcv",
+                    releases = TMDBMovieDetailReleases(listOf(TMDBMovieDetailCountry(certification = "ALL"))),
+                    videos = TMBDMovieDetailVideos(listOf(TMDBMovieDetailVideoResult(key = "")))
+                )
+            )
+        }
+    }
 }

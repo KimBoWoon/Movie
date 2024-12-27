@@ -1,9 +1,9 @@
 package com.bowoon.data.di
 
-import com.bowoon.data.repository.KmdbRepository
-import com.bowoon.data.repository.KmdbRepositoryImpl
 import com.bowoon.data.repository.KobisRepository
 import com.bowoon.data.repository.KobisRepositoryImpl
+import com.bowoon.data.repository.TMDBRepository
+import com.bowoon.data.repository.TMDBRepositoryImpl
 import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.data.repository.UserDataRepositoryImpl
 import dagger.Binds
@@ -23,13 +23,13 @@ abstract class DataModules {
 
     @Binds
     @ViewModelScoped
-    abstract fun bindKmdbRepository(
-        repository: KmdbRepositoryImpl
-    ): KmdbRepository
-
-    @Binds
-    @ViewModelScoped
     abstract fun bindUserRepository(
         repository: UserDataRepositoryImpl
     ): UserDataRepository
+
+    @Binds
+    @ViewModelScoped
+    abstract fun bindTMDBRepository(
+        repository: TMDBRepositoryImpl
+    ): TMDBRepository
 }

@@ -1,9 +1,9 @@
 package com.bowoon.network.retrofit
 
-import com.bowoon.network.KMDBApis
 import com.bowoon.network.KOBISApis
-import com.bowoon.network.di.KMDBRetrofit
+import com.bowoon.network.TMDBApis
 import com.bowoon.network.di.KOBISRetrofit
+import com.bowoon.network.di.TMDBRetrofit
 import dagger.hilt.android.scopes.ViewModelScoped
 import retrofit2.Retrofit
 import javax.inject.Inject
@@ -14,9 +14,9 @@ import javax.inject.Inject
  */
 @ViewModelScoped
 class Apis @Inject constructor(
-    @KMDBRetrofit private val kmdbRetrofit: Retrofit,
-    @KOBISRetrofit private val kobisRetrofit: Retrofit
+    @KOBISRetrofit private val kobisRetrofit: Retrofit,
+    @TMDBRetrofit private val tmdbRetrofit: Retrofit
 ) {
-    val kmdbApis = kmdbRetrofit.create(KMDBApis::class.java)
     val kobisApis = kobisRetrofit.create(KOBISApis::class.java)
+    val tmdbApis = tmdbRetrofit.create(TMDBApis::class.java)
 }

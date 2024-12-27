@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bowoon.common.Result
 import com.bowoon.common.asResult
+import com.bowoon.data.repository.TMDBRepository
 import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.model.MovieDetail
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -13,7 +14,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class FavoriteVM @Inject constructor(
-    private val userDataRepository: UserDataRepository
+    private val userDataRepository: UserDataRepository,
+    private val tmdbRepository: TMDBRepository
 ) : ViewModel() {
     companion object {
         private const val TAG = "FavoriteVM"

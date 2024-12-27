@@ -25,9 +25,9 @@ fun MovieAppNavHost(
         modifier = modifier
     ) {
         homeSection(
-            onMovieClick = navController::navigateToDetail
+            onMovieClick = navController::navigateToDetail,
         ) {
-            detailScreen()
+            detailScreen(navController)
         }
         searchScreen(onMovieClick = navController::navigateToDetail)
         favoriteScreen(onMovieClick = navController::navigateToDetail)

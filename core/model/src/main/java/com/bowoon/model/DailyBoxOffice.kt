@@ -25,5 +25,6 @@ data class DailyBoxOffice(
     val salesShare: String? = null,
     val scrnCnt: String? = null,
     val showCnt: String? = null,
-    val posterUrl: String? = null
+    val posterUrl: String? = null,
+    val tmdbId: Int? = null
 ) : Parcelable

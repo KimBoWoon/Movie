@@ -6,14 +6,17 @@ import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
 fun SearchScreen(
+    onMovieClick: (Int) -> Unit,
     viewModel: SearchVM = hiltViewModel()
 ) {
-    SearchScreen()
+    SearchScreen(
+        onMovieClick = onMovieClick
+    )
 }
 
 @Composable
 fun SearchScreen(
-    onMovieClick: (String, String, String) -> Unit
+    onMovieClick: (Int) -> Unit
 ) {
     Text(text = "search screen")
 }

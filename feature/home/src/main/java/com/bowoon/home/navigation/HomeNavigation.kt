@@ -17,12 +17,14 @@ data object HomeBaseRoute
 fun NavController.navigateToHome(navOptions: NavOptions) = navigate(route = HomeRoute, navOptions)
 
 fun NavGraphBuilder.homeSection(
-    onMovieClick: (String, String, String) -> Unit,
+    onMovieClick: (Int) -> Unit,
     movieDestination: NavGraphBuilder.() -> Unit,
 ) {
     navigation<HomeBaseRoute>(startDestination = HomeRoute) {
         composable<HomeRoute>() {
-            HomeScreen(onMovieClick)
+            HomeScreen(
+                onMovieClick = onMovieClick
+            )
         }
         movieDestination()
     }
