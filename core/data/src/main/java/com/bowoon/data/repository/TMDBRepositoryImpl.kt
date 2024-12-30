@@ -9,12 +9,15 @@ import com.bowoon.network.model.asExternalModel
 import com.bowoon.network.retrofit.Apis
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class TMDBRepositoryImpl @Inject constructor(
     private val apis: Apis,
     private val userDataRepository: UserDataRepository
 ) : TMDBRepository {
+    override val posterUrl: Flow<String> = userDataRepository.userData.map { "https://image.tmdb.org/t/p/${it.imageQuality}" }
+
     override fun getConfiguration(): Flow<TMDBConfiguration> = flow {
         when (val response = apis.tmdbApis.getConfiguration()) {
             is ApiResponse.Failure -> throw response.throwable

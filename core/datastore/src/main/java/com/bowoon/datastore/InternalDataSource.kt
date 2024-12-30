@@ -32,6 +32,7 @@ class InternalDataSource @Inject constructor(
         private val IS_DART_MODE = stringPreferencesKey("isDarkMode")
         private val REGION = stringPreferencesKey("region")
         private val LANGUAGE = stringPreferencesKey("language")
+        private val IMAGE_QUALITY = stringPreferencesKey("imageQuality")
     }
 
     val userData = datastore.data.mapNotNull {
@@ -53,7 +54,10 @@ class InternalDataSource @Inject constructor(
             } ?: "KR",
             language = it[LANGUAGE]?.let { jsonString ->
                 json.decodeFromString<String>(jsonString)
-            } ?: "ko-KR"
+            } ?: "ko-KR",
+            imageQuality = it[IMAGE_QUALITY]?.let { jsonString ->
+                json.decodeFromString<String>(jsonString)
+            } ?: "original"
         )
     }
 
@@ -107,6 +111,12 @@ class InternalDataSource @Inject constructor(
         }
     }
 
+    suspend fun updateImageQuality(imageQuality: String) {
+        datastore.edit {
+            it[IMAGE_QUALITY] = imageQuality
+        }
+    }
+
     suspend fun getUpdateDate(): String? =
         datastore.data.map { it[UPDATE_DATE] }.firstOrNull()
 
@@ -120,4 +130,9 @@ class InternalDataSource @Inject constructor(
         datastore.data.map { it[FAVORITE_MOVIES] }.firstOrNull()?.let { jsonString ->
             json.decodeFromString<List<MovieDetail>>(jsonString)
         } ?: emptyList()
+
+    suspend fun getImageQuality(): String? =
+        datastore.data.map { it[IMAGE_QUALITY] }.firstOrNull()?.let { jsonString ->
+            json.decodeFromString<String>(jsonString)
+        } ?: "original"
 }

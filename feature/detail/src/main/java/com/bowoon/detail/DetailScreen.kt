@@ -281,7 +281,7 @@ fun TabComponent(
                 MovieDetailTab.ACTOR_AND_CREW.label -> ActorAndCrewComponent(movie)
                 MovieDetailTab.POSTER.label -> ImagePagerComponent(
                     modifier = Modifier.width(width.dp).aspectRatio(ratio),
-                    list = movie.images?.posters?.map { "https://image.tmdb.org/t/p/original${it.filePath}" } ?: emptyList()
+                    list = movie.images?.posters?.mapNotNull { it.filePath } ?: emptyList()
                 )
                 MovieDetailTab.SIMILAR.label -> SimilarMovieComponent(
                     movie = movie,
@@ -389,7 +389,7 @@ fun StaffComponent(
     ) {
         DynamicAsyncImageLoader(
             modifier = Modifier.fillMaxWidth().aspectRatio(4f / 3f),
-            source = "https://image.tmdb.org/t/p/original${tmdbMovieDetailCast.profilePath}",
+            source = tmdbMovieDetailCast.profilePath ?: "",
             contentDescription = "ProfileImage"
         )
         Text(text = tmdbMovieDetailCast.character ?: "")
@@ -407,7 +407,7 @@ fun StaffComponent(
     ) {
         DynamicAsyncImageLoader(
             modifier = Modifier.fillMaxWidth().aspectRatio(4f / 3f),
-            source = "https://image.tmdb.org/t/p/original${tmdbMovieDetailCrew.profilePath}",
+            source = tmdbMovieDetailCrew.profilePath ?: "",
             contentDescription = "ProfileImage"
         )
         Text(text = tmdbMovieDetailCrew.department ?: "")
@@ -438,7 +438,7 @@ fun SimilarMovieComponent(
                 originalTitle = similarMovie.originalTitle,
                 overview = similarMovie.overview,
                 popularity = similarMovie.popularity,
-                posterPath = "https://image.tmdb.org/t/p/original${similarMovie.posterPath}",
+                posterPath = similarMovie.posterPath ?: "",
                 releaseDate = similarMovie.releaseDate,
                 title = similarMovie.title,
                 video = similarMovie.video,

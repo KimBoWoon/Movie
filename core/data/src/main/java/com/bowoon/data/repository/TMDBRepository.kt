@@ -7,6 +7,7 @@ import com.bowoon.model.Upcoming
 import kotlinx.coroutines.flow.Flow
 
 interface TMDBRepository {
+    val posterUrl: Flow<String>
     fun getConfiguration(): Flow<TMDBConfiguration>
     fun getUpcomingMovies(): Flow<Upcoming>
     fun searchMovies(query: String): Flow<TMDBSearch>

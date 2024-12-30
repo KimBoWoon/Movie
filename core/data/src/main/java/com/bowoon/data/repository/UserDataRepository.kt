@@ -18,4 +18,5 @@ interface UserDataRepository {
     suspend fun getRegion(): String?
     suspend fun getLanguage(): String?
     suspend fun getFavoriteMovies(): List<MovieDetail>
+    suspend fun getImageQuality(): String?
 }

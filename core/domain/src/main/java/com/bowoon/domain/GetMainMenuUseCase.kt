@@ -7,6 +7,7 @@ import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.model.DailyBoxOffice
 import com.bowoon.model.KOBISBoxOffice
 import com.bowoon.model.MainMenu
+import com.bowoon.model.UpComingResult
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -45,12 +46,30 @@ class GetMainMenuUseCase @Inject constructor(
 
             combine(
                 kobisRepository.getDailyBoxOffice(kobisOpenApiKey, target),
-                tmdbRepository.getUpcomingMovies()
-            ) { kobisBoxOffice, upcoming ->
+                tmdbRepository.getUpcomingMovies(),
+                tmdbRepository.posterUrl
+            ) { kobisBoxOffice, upcoming, posterUrl ->
                 MainMenu(
-                    dailyBoxOffice = createDailyBoxOffice(kobisBoxOffice),
+                    dailyBoxOffice = createDailyBoxOffice(kobisBoxOffice, posterUrl),
                     favoriteMovies = userData.favoriteMovies,
-                    upcomingMovies = upcoming.results ?: emptyList()
+                    upcomingMovies = upcoming.results?.map {
+                        UpComingResult(
+                            adult = it.adult,
+                            backdropPath = it.backdropPath,
+                            genreIds = it.genreIds,
+                            id = it.id,
+                            originalLanguage = it.originalLanguage,
+                            originalTitle = it.originalTitle,
+                            overview = it.overview,
+                            popularity = it.popularity,
+                            posterPath = "$posterUrl${it.posterPath}",
+                            releaseDate = it.releaseDate,
+                            title = it.title,
+                            video = it.video,
+                            voteAverage = it.voteAverage,
+                            voteCount = it.voteCount
+                        )
+                    } ?: emptyList()
                 ).also { mainMenu ->
                     Log.d("$mainMenu")
                     userDataRepository.updateBoxOfficeDate(targetDt.minusDays(1).toString())
@@ -80,7 +99,8 @@ class GetMainMenuUseCase @Inject constructor(
     }
 
     private suspend fun createDailyBoxOffice(
-        kobisBoxOffice: KOBISBoxOffice
+        kobisBoxOffice: KOBISBoxOffice,
+        posterUrl: String
     ): List<DailyBoxOffice> =
         kobisBoxOffice.boxOfficeResult?.dailyBoxOfficeList?.map { kobisDailyBoxOffice ->
             val tmdbMovie = getTMDBMovie(
@@ -108,7 +128,7 @@ class GetMainMenuUseCase @Inject constructor(
                 salesShare = kobisDailyBoxOffice.salesShare,
                 scrnCnt = kobisDailyBoxOffice.scrnCnt,
                 showCnt = kobisDailyBoxOffice.showCnt,
-                posterUrl = "https://image.tmdb.org/t/p/original${tmdbMovie?.posterPath}",
+                posterUrl = "$posterUrl${tmdbMovie?.posterPath}",
                 tmdbId = tmdbMovie?.id
             )
         } ?: emptyList()

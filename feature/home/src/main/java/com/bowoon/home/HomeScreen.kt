@@ -257,7 +257,7 @@ fun UpcomingItem(
     ) {
         DynamicAsyncImageLoader(
             modifier = Modifier.fillMaxWidth().aspectRatio(9f / 16f),
-            source = "https://image.tmdb.org/t/p/original${upcoming.posterPath}",
+            source = upcoming.posterPath ?: "",
             contentDescription = "BoxOfficePoster"
         )
         Text(
