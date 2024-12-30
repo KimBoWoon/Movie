@@ -35,10 +35,10 @@ class GetMovieDetail @Inject constructor(
                 originalTitle = tmdbMovieInfo.originalTitle,
                 overview = tmdbMovieInfo.overview,
                 popularity = tmdbMovieInfo.popularity,
-                posterPath = tmdbMovieInfo.posterPath,
+                posterPath = "https://image.tmdb.org/t/p/original${tmdbMovieInfo.posterPath}",
                 productionCountries = tmdbMovieInfo.productionCountries,
                 productionCompanies = tmdbMovieInfo.productionCompanies,
-                releaseDate = tmdbMovieInfo.releaseDate,
+                releaseDate = tmdbMovieInfo.releases?.countries?.find { it.iso31661.equals(userData.region, true) }?.releaseDate,
                 releases = tmdbMovieInfo.releases,
                 revenue = tmdbMovieInfo.revenue,
                 runtime = tmdbMovieInfo.runtime,
@@ -52,10 +52,12 @@ class GetMovieDetail @Inject constructor(
                 voteCount = tmdbMovieInfo.voteCount,
                 voteAverage = tmdbMovieInfo.voteAverage,
                 similar = tmdbMovieInfo.similar,
+                certification = tmdbMovieInfo.releases?.countries?.find { it.iso31661.equals(userData.region, true) }?.certification,
+                favoriteMovies = userData.favoriteMovies,
                 isFavorite = userData.favoriteMovies.find {
                     it.title == tmdbMovieInfo.title &&
                             it.originalTitle == tmdbMovieInfo.originalTitle &&
-                            it.releaseDate == tmdbMovieInfo.releaseDate
+                            it.releaseDate == tmdbMovieInfo.releases?.countries?.find { it.iso31661.equals(userData.region, true) }?.releaseDate
                 } != null
             )
         }

@@ -30,7 +30,10 @@ class GetMainMenuUseCase @Inject constructor(
     ): Flow<MainMenu> = userDataRepository.userData.flatMapMerge { userData ->
         Log.d("boxOfficeDate > ${userData.updateDate}, mainMenu > ${userData.mainMenu}")
 
-        val boxOfficeDate = if (userData.updateDate.isEmpty()) LocalDate.now() else LocalDate.parse(userData.updateDate)
+        val boxOfficeDate = when (userData.updateDate.isEmpty()) {
+            true -> LocalDate.now()
+            false -> LocalDate.parse(userData.updateDate)
+        }
         val isUpdate = targetDt.minusDays(1).isAfter(boxOfficeDate)
 
         Log.d("isUpdate > $isUpdate")
@@ -50,7 +53,7 @@ class GetMainMenuUseCase @Inject constructor(
                     upcomingMovies = upcoming.results ?: emptyList()
                 ).also { mainMenu ->
                     Log.d("$mainMenu")
-                    userDataRepository.updateBoxOfficeDate(targetDt.toString())
+                    userDataRepository.updateBoxOfficeDate(targetDt.minusDays(1).toString())
                     userDataRepository.updateMainMenu(mainMenu)
                 }
             }
@@ -69,11 +72,12 @@ class GetMainMenuUseCase @Inject constructor(
         movieName: String,
         releaseDateGte: String,
         releaseDateLte: String,
-    ) =
-        tmdbRepository.discoverMovie(releaseDateGte = releaseDateGte, releaseDateLte = releaseDateLte)
-            .map {
-                it.results?.find { it.title?.replace(" ", "") == movieName.replace(" ", "") }
-            }
+    ) = tmdbRepository.discoverMovie(
+        releaseDateGte = releaseDateGte,
+        releaseDateLte = releaseDateLte
+    ).map {
+        it.results?.find { it.title?.replace(" ", "") == movieName.replace(" ", "") }
+    }
 
     private suspend fun createDailyBoxOffice(
         kobisBoxOffice: KOBISBoxOffice

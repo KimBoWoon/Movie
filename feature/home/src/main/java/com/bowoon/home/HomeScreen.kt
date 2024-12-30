@@ -39,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -50,15 +51,16 @@ import com.bowoon.model.UpComingResult
 import com.bowoon.model.Week
 import com.bowoon.ui.dp1
 import com.bowoon.ui.dp10
-import com.bowoon.ui.dp130
 import com.bowoon.ui.dp15
 import com.bowoon.ui.dp150
 import com.bowoon.ui.dp20
 import com.bowoon.ui.dp30
 import com.bowoon.ui.image.DynamicAsyncImageLoader
 import com.bowoon.ui.sp10
+import com.bowoon.ui.sp15
 import com.bowoon.ui.sp8
 import org.threeten.bp.LocalDate
+import org.threeten.bp.format.DateTimeFormatter
 
 @Composable
 fun HomeScreen(
@@ -179,7 +181,7 @@ fun BoxOfficeItem(
             modifier = Modifier.wrapContentSize()
         ) {
             DynamicAsyncImageLoader(
-                modifier = Modifier.width(dp150).aspectRatio(9f / 16f),
+                modifier = Modifier.fillMaxWidth().aspectRatio(9f / 16f),
                 source = boxOffice.posterUrl ?: "",
                 contentDescription = "BoxOfficePoster"
             )
@@ -247,13 +249,14 @@ fun UpcomingItem(
 ) {
     Column(
         modifier = Modifier
-            .wrapContentSize()
+            .width(dp150)
+            .wrapContentHeight()
             .clickable {
                 onMovieClick(upcoming.id ?: -1)
             }
     ) {
         DynamicAsyncImageLoader(
-            modifier = Modifier.width(dp130).aspectRatio(9f / 16f),
+            modifier = Modifier.fillMaxWidth().aspectRatio(9f / 16f),
             source = "https://image.tmdb.org/t/p/original${upcoming.posterPath}",
             contentDescription = "BoxOfficePoster"
         )
@@ -304,79 +307,88 @@ fun Calendar(
 ) {
     var releaseDate by remember { mutableStateOf("") }
 
-    Row(
-        modifier = Modifier.fillMaxWidth().wrapContentHeight(),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Week.entries.forEach {
-            Text(
-                modifier = Modifier.weight(1f),
-                text = it.label,
-                textAlign = TextAlign.Center
-            )
-        }
-    }
-
-    FlowRow(
-        modifier = Modifier.fillMaxWidth(),
-        maxLines = 5,
-        maxItemsInEachRow = 7
-    ) {
-        val firstDay = today.withDayOfMonth(1)
-
-        for (i in 0 until (firstDay.dayOfWeek.value % 7)) {
-            Spacer(modifier = Modifier.height(dp30).weight(1f).background(color = Color.Transparent))
-        }
-
-        for (day in 1 until today.lengthOfMonth() + 1) {
-            if (favoriteMovies.find { it.releases?.countries?.find { it.iso31661.equals("KR", true) }?.releaseDate != null && LocalDate.parse(it.releases?.countries?.find { it.iso31661.equals("KR", true) }?.releaseDate) == today.withDayOfMonth(day) } != null) {
+    Column {
+        Text(
+            modifier = Modifier.fillMaxWidth(),
+            text = today.format(DateTimeFormatter.ofPattern("yyyy년 MM월")),
+            fontSize = sp15,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Week.entries.forEach {
                 Text(
-                    modifier = Modifier
-                        .height(dp30)
-                        .weight(1f)
-                        .background(color = Color.Yellow)
-                        .clickable { releaseDate = today.withDayOfMonth(day).toString() },
-                    text = "$day",
-                    textAlign = TextAlign.Center,
-                    color = Color.Black
-                )
-            } else {
-                Text(
-                    modifier = Modifier
-                        .height(dp30)
-                        .weight(1f)
-                        .background(color = Color.Transparent)
-                        .clickable { releaseDate = today.withDayOfMonth(day).toString() },
-                    text = "$day",
+                    modifier = Modifier.weight(1f),
+                    text = it.label,
                     textAlign = TextAlign.Center
                 )
             }
         }
 
-        for (i in 0 until  (5 * 7) - today.lengthOfMonth()) {
-            Spacer(modifier = Modifier.height(dp30).weight(1f).background(color = Color.Transparent))
-        }
-    }
+        FlowRow(
+            modifier = Modifier.fillMaxWidth(),
+            maxLines = 5,
+            maxItemsInEachRow = 7
+        ) {
+            val firstDay = today.withDayOfMonth(1)
 
-    Column(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        filterFavoriteMovies(releaseDate).forEach { movie ->
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .border(width = dp1, color = Color.White, shape = RoundedCornerShape(dp20))
-            ) {
-                Text(
-                    modifier = Modifier.padding(horizontal = dp10),
-                    text = movie.title ?: ""
-                )
-                Text(
-                    modifier = Modifier.padding(horizontal = dp10),
-                    text = movie.releaseDate ?: ""
-                )
+            for (i in 0 until (firstDay.dayOfWeek.value % 7)) {
+                Spacer(modifier = Modifier.height(dp30).weight(1f).background(color = Color.Transparent))
+            }
+
+            for (day in 1 until today.lengthOfMonth() + 1) {
+                if (favoriteMovies.find { it.releases?.countries?.find { it.iso31661.equals("KR", true) }?.releaseDate != null && LocalDate.parse(it.releases?.countries?.find { it.iso31661.equals("KR", true) }?.releaseDate) == today.withDayOfMonth(day) } != null) {
+                    Text(
+                        modifier = Modifier
+                            .height(dp30)
+                            .weight(1f)
+                            .background(color = Color.Yellow)
+                            .clickable { releaseDate = today.withDayOfMonth(day).toString() },
+                        text = "$day",
+                        textAlign = TextAlign.Center,
+                        color = Color.Black
+                    )
+                } else {
+                    Text(
+                        modifier = Modifier
+                            .height(dp30)
+                            .weight(1f)
+                            .background(color = Color.Transparent)
+                            .clickable { releaseDate = today.withDayOfMonth(day).toString() },
+                        text = "$day",
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+
+            for (i in 0 until  (5 * 7) - today.lengthOfMonth()) {
+                Spacer(modifier = Modifier.height(dp30).weight(1f).background(color = Color.Transparent))
+            }
+        }
+
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            filterFavoriteMovies(releaseDate).forEach { movie ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .border(width = dp1, color = Color.White, shape = RoundedCornerShape(dp20))
+                ) {
+                    Text(
+                        modifier = Modifier.padding(horizontal = dp10),
+                        text = movie.title ?: ""
+                    )
+                    Text(
+                        modifier = Modifier.padding(horizontal = dp10),
+                        text = movie.releaseDate ?: ""
+                    )
+                }
             }
         }
     }

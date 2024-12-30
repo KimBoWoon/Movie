@@ -2,6 +2,7 @@ package com.bowoon.detail
 
 import android.widget.FrameLayout
 import androidx.annotation.OptIn
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
@@ -33,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -41,22 +44,32 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavController
 import com.bowoon.common.Log
+import com.bowoon.detail.navigation.navigateToDetail
 import com.bowoon.model.MovieDetail
-import com.bowoon.model.MoviePoster
+import com.bowoon.model.MovieDetailTab
 import com.bowoon.model.TMBDMovieDetailVideos
+import com.bowoon.model.TMDBMovieDetailCast
 import com.bowoon.model.TMDBMovieDetailCountry
+import com.bowoon.model.TMDBMovieDetailCrew
 import com.bowoon.model.TMDBMovieDetailReleases
 import com.bowoon.model.TMDBMovieDetailVideoResult
 import com.bowoon.ui.ConfirmDialog
+import com.bowoon.ui.FavoriteButton
 import com.bowoon.ui.Title
+import com.bowoon.ui.dp0
 import com.bowoon.ui.dp10
+import com.bowoon.ui.dp16
+import com.bowoon.ui.dp200
+import com.bowoon.ui.dp5
 import com.bowoon.ui.image.DynamicAsyncImageLoader
+import com.bowoon.ui.sp20
 import com.bowoon.ui.theme.MovieTheme
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
 import kotlinx.coroutines.launch
+import java.text.DecimalFormat
 
 @Composable
 fun DetailScreen(
@@ -96,9 +109,8 @@ fun DetailScreen(
             isLoading = false
             ConfirmDialog(
                 title = "통신 실패",
-                message = "통신 실패",
-                confirmPair = "확인" to {},
-                dismissPair = "취소" to {}
+                message = "${state.throwable.message}",
+                confirmPair = "확인" to { navController.navigateUp() }
             )
         }
     }
@@ -121,7 +133,12 @@ fun DetailScreen(
                         onBackClick = { navController.navigateUp() },
                         onFavoriteClick = { updateFavoriteMovies(it) }
                     )
-                    MovieDetail(movieDetail = it)
+                    MovieDetail(
+                        movieDetail = it,
+                        onMovieClick = { id -> navController.navigateToDetail(id) },
+                        favoriteMovies = it.favoriteMovies ?: emptyList(),
+                        updateFavoriteMovies = updateFavoriteMovies
+                    )
                 }
             }
         }
@@ -130,7 +147,10 @@ fun DetailScreen(
 
 @Composable
 fun MovieDetail(
-    movieDetail: MovieDetail
+    movieDetail: MovieDetail,
+    onMovieClick: (Int) -> Unit,
+    favoriteMovies: List<MovieDetail>,
+    updateFavoriteMovies: (MovieDetail) -> Unit
 ) {
     val scrollState = rememberScrollState()
 
@@ -140,8 +160,12 @@ fun MovieDetail(
         Column(
             modifier = Modifier.fillMaxWidth().wrapContentHeight().verticalScroll(state = scrollState)
         ) {
-            MovieInfoComponent(movie = movieDetail)
-            TabComponent(movieDetail)
+            TabComponent(
+                movie = movieDetail,
+                onMovieClick = onMovieClick,
+                favoriteMovies = favoriteMovies,
+                updateFavoriteMovies = updateFavoriteMovies
+            )
         }
     }
 }
@@ -209,15 +233,19 @@ fun VideosComponent(movie: MovieDetail) {
 
 @Composable
 fun TabComponent(
-    movie: MovieDetail
+    movie: MovieDetail,
+    onMovieClick: (Int) -> Unit,
+    favoriteMovies: List<MovieDetail>,
+    updateFavoriteMovies: (MovieDetail) -> Unit
 ) {
     val scope = rememberCoroutineScope()
-    val tabList = MoviePoster.entries
+    val tabList = MovieDetailTab.entries
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { tabList.size })
 
     ScrollableTabRow(
+        modifier = Modifier.fillMaxWidth(),
         selectedTabIndex = pagerState.currentPage,
-        edgePadding = 0.dp
+        edgePadding = dp0
     ) {
         tabList.forEachIndexed { index, moviePoster ->
             Tab(
@@ -241,22 +269,25 @@ fun TabComponent(
         userScrollEnabled = false
     ) { index ->
         Column(
-            modifier = Modifier.wrapContentSize(),
+            modifier = Modifier.fillMaxWidth().wrapContentHeight(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             val width = 200
             val ratio = 9f / 16f
 
-            if (tabList[index].label == MoviePoster.POSTER.label) {
-                ImagePagerComponent(
+            when (tabList[index].label) {
+                MovieDetailTab.MOVIE_INFO.label -> MovieInfoComponent(movie)
+                MovieDetailTab.ACTOR_AND_CREW.label -> ActorAndCrewComponent(movie)
+                MovieDetailTab.POSTER.label -> ImagePagerComponent(
                     modifier = Modifier.width(width.dp).aspectRatio(ratio),
                     list = movie.images?.posters?.map { "https://image.tmdb.org/t/p/original${it.filePath}" } ?: emptyList()
                 )
-            } else {
-                ImagePagerComponent(
-                    modifier = Modifier.width(width.dp).aspectRatio(ratio),
-                    list = movie.images?.posters?.map { "https://image.tmdb.org/t/p/original${it.filePath}" } ?: emptyList()
+                MovieDetailTab.SIMILAR.label -> SimilarMovieComponent(
+                    movie = movie,
+                    onMovieClick = onMovieClick,
+                    favoriteMovies = favoriteMovies,
+                    updateFavoriteMovies = updateFavoriteMovies
                 )
             }
         }
@@ -290,23 +321,149 @@ fun ImagePagerComponent(
 fun MovieInfoComponent(
     movie: MovieDetail
 ) {
-    val certification = movie.releases?.countries?.find { it.iso31661.equals("KR", true) }?.certification ?: ""
+    val format = DecimalFormat("#,###")
 
-    Text(text = movie.title ?: "")
-    Text(text = movie.originalTitle ?: "")
-    Text(text = movie.genres ?: "")
-    Text(
-        text = when (certification) {
-            "ALL" -> "전체 이용가"
-            else -> "${certification}세 이용가"
+    Column(
+        modifier = Modifier.fillMaxWidth().wrapContentHeight()
+    ) {
+        Text(text = movie.title ?: "")
+        Text(text = movie.originalTitle ?: "")
+        Text(text = movie.genres ?: "")
+        Text(text = movie.certification ?: "")
+        Text(text = movie.releaseDate ?: "")
+        Text(text = "평점 : ${movie.voteAverage.toString()}")
+        Text(text = "수익 : ${format.format(movie.revenue)}")
+        Text(text = "예산 : ${format.format(movie.budget)}")
+        Text(text = "순수익 : ${format.format((movie.revenue ?: 0) + -(movie.budget ?: 0))}")
+        Text(text = "${movie.runtime}분")
+        Text(text = movie.overview ?: "")
+    }
+}
+
+@Composable
+fun ActorAndCrewComponent(
+    movie: MovieDetail
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth().wrapContentHeight()
+    ) {
+        Text(
+            modifier = Modifier.fillMaxWidth().padding(vertical = dp16),
+            text = "배우",
+            fontSize = sp20,
+            textAlign = TextAlign.Center
+        )
+        LazyRow(
+            modifier = Modifier.fillMaxWidth().wrapContentHeight()
+        ) {
+            items(
+                items = movie.credits?.cast ?: emptyList()
+            ) { cast ->
+                StaffComponent(cast)
+            }
         }
-    )
-    Text(text = movie.releases?.countries?.find { it.iso31661.equals("KR", true) }?.releaseDate ?: "")
-    Text(text = "평점 : ${movie.voteAverage.toString()}")
-//    Text(text = movie.revenue.toString())
-//    Text(text = movie.budget.toString())
-    Text(text = "${movie.runtime}분")
-    Text(text = movie.overview ?: "")
+        Text(
+            modifier = Modifier.fillMaxWidth().padding(vertical = dp16),
+            text = "스태프",
+            fontSize = sp20,
+            textAlign = TextAlign.Center
+        )
+        LazyRow(
+            modifier = Modifier.fillMaxWidth().wrapContentHeight()
+        ) {
+            items(
+                items = movie.credits?.crew ?: emptyList()
+            ) { cast ->
+                StaffComponent(cast)
+            }
+        }
+    }
+}
+
+@Composable
+fun StaffComponent(
+    tmdbMovieDetailCast: TMDBMovieDetailCast
+) {
+    Column(
+        modifier = Modifier.width(dp200).wrapContentHeight()
+    ) {
+        DynamicAsyncImageLoader(
+            modifier = Modifier.fillMaxWidth().aspectRatio(4f / 3f),
+            source = "https://image.tmdb.org/t/p/original${tmdbMovieDetailCast.profilePath}",
+            contentDescription = "ProfileImage"
+        )
+        Text(text = tmdbMovieDetailCast.character ?: "")
+        Text(text = tmdbMovieDetailCast.name ?: "")
+        Text(text = tmdbMovieDetailCast.originalName ?: "")
+    }
+}
+
+@Composable
+fun StaffComponent(
+    tmdbMovieDetailCrew: TMDBMovieDetailCrew
+) {
+    Column(
+        modifier = Modifier.width(dp200).wrapContentHeight()
+    ) {
+        DynamicAsyncImageLoader(
+            modifier = Modifier.fillMaxWidth().aspectRatio(4f / 3f),
+            source = "https://image.tmdb.org/t/p/original${tmdbMovieDetailCrew.profilePath}",
+            contentDescription = "ProfileImage"
+        )
+        Text(text = tmdbMovieDetailCrew.department ?: "")
+        Text(text = tmdbMovieDetailCrew.name ?: "")
+        Text(text = tmdbMovieDetailCrew.originalName ?: "")
+        Text(text = tmdbMovieDetailCrew.job ?: "")
+    }
+}
+
+@Composable
+fun SimilarMovieComponent(
+    movie: MovieDetail,
+    onMovieClick: (Int) -> Unit,
+    favoriteMovies: List<MovieDetail>,
+    updateFavoriteMovies: (MovieDetail) -> Unit
+) {
+    LazyRow(
+        modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+        contentPadding = PaddingValues(dp10),
+        horizontalArrangement = Arrangement.spacedBy(dp10)
+    ) {
+        items(
+            items = movie.similar?.results ?: emptyList()
+        ) { similarMovie ->
+            val detail = MovieDetail(
+                id = similarMovie.id,
+                originalLanguage = similarMovie.originalLanguage,
+                originalTitle = similarMovie.originalTitle,
+                overview = similarMovie.overview,
+                popularity = similarMovie.popularity,
+                posterPath = "https://image.tmdb.org/t/p/original${similarMovie.posterPath}",
+                releaseDate = similarMovie.releaseDate,
+                title = similarMovie.title,
+                video = similarMovie.video,
+                voteCount = similarMovie.voteCount,
+                voteAverage = similarMovie.voteAverage,
+            )
+            Box(
+                modifier = Modifier.width(dp200).wrapContentHeight().clickable { onMovieClick(detail.id ?: -1) }
+            ) {
+                DynamicAsyncImageLoader(
+                    modifier = Modifier.fillMaxWidth().aspectRatio(9f / 16f),
+                    source = detail.posterPath ?: "",
+                    contentDescription = "BoxOfficePoster"
+                )
+                FavoriteButton(
+                    modifier = Modifier
+                        .padding(top = dp5, end = dp5)
+                        .wrapContentSize()
+                        .align(Alignment.TopEnd),
+                    isFavorite = favoriteMovies.contains(detail),
+                    onClick = { updateFavoriteMovies(detail) }
+                )
+            }
+        }
+    }
 }
 
 @Preview(showSystemUi = true, showBackground = true)

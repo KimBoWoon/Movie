@@ -50,10 +50,10 @@ class InternalDataSource @Inject constructor(
             } ?: emptyList(),
             region = it[REGION]?.let { jsonString ->
                 json.decodeFromString<String>(jsonString)
-            } ?: "",
+            } ?: "KR",
             language = it[LANGUAGE]?.let { jsonString ->
                 json.decodeFromString<String>(jsonString)
-            } ?: ""
+            } ?: "ko-KR"
         )
     }
 
@@ -115,4 +115,9 @@ class InternalDataSource @Inject constructor(
 
     suspend fun getLanguage(): String? =
         datastore.data.map { it[LANGUAGE] }.firstOrNull()
+
+    suspend fun getFavoriteMovies(): List<MovieDetail> =
+        datastore.data.map { it[FAVORITE_MOVIES] }.firstOrNull()?.let { jsonString ->
+            json.decodeFromString<List<MovieDetail>>(jsonString)
+        } ?: emptyList()
 }

@@ -42,4 +42,6 @@ class UserDataRepositoryImpl @Inject constructor(
     override suspend fun getRegion(): String? = datastore.getRegion()
 
     override suspend fun getLanguage(): String? = datastore.getLanguage()
+
+    override suspend fun getFavoriteMovies(): List<MovieDetail> = datastore.getFavoriteMovies()
 }

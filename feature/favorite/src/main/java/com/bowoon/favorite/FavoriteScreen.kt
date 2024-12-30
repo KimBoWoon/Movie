@@ -72,7 +72,7 @@ fun FavoriteScreen(
             ) {
                 DynamicAsyncImageLoader(
                     modifier = Modifier.width(dp200).aspectRatio(9f / 16f),
-                    source = "https://image.tmdb.org/t/p/original${movieDetail.posterPath}",
+                    source = movieDetail.posterPath ?: "",
                     contentDescription = "BoxOfficePoster"
                 )
                 FavoriteButton(

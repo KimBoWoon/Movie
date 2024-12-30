@@ -22,6 +22,7 @@ class NetworkLogInterceptor @Inject constructor(
             ----------------------------------------------------------------------------------
             ReqMethod : %s
             ReqUrl : %s
+            Query : %s
             ReqBody : %s
             ReqHeader : %s
             ----------------------------------------------------------------------------------
@@ -38,6 +39,7 @@ class NetworkLogInterceptor @Inject constructor(
         val reqHeader = request.headers.names().map { key ->
             "$key: ${request.headers[key]}"
         }
+        val query = request.url.query
         val response = chain.proceed(request)
         val resHeader = response.headers.toString()
         val bodyString = response.body?.string() ?: ""
@@ -45,6 +47,7 @@ class NetworkLogInterceptor @Inject constructor(
             NETWORK_LOG_BODY,
             request.method,
             request.url,
+            query,
             bodyToString(request),
             reqHeader.toString(),
             resHeader,

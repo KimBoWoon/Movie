@@ -17,4 +17,5 @@ interface UserDataRepository {
     suspend fun getUpdateDate(): String?
     suspend fun getRegion(): String?
     suspend fun getLanguage(): String?
+    suspend fun getFavoriteMovies(): List<MovieDetail>
 }
