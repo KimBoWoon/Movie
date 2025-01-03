@@ -19,7 +19,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.bowoon.ui.theme.MovieTheme
 
 @Composable
@@ -33,7 +35,7 @@ fun Title(
         modifier = Modifier
             .fillMaxWidth()
             .height(dp53)
-            .BottomLineBorder(strokeWidth = dp1, color = Color.LightGray),
+            .bottomLineBorder(strokeWidth = (0.5).dp, color = Color.LightGray),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -63,7 +65,9 @@ fun Title(
             text = title,
             fontSize = sp20,
             fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
         )
         FavoriteButton(
             modifier = Modifier

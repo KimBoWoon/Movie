@@ -1,7 +1,9 @@
 package com.bowoon.network
 
 import com.bowoon.network.model.NetworkTMDBConfiguration
+import com.bowoon.network.model.NetworkTMDBLanguageItem
 import com.bowoon.network.model.NetworkTMDBMovieDetail
+import com.bowoon.network.model.NetworkTMDBRegion
 import com.bowoon.network.model.NetworkTMDBSearch
 import com.bowoon.network.model.NetworkUpcoming
 import retrofit2.http.GET
@@ -43,4 +45,10 @@ interface TMDBApis {
         @Query("language") language: String = "ko-KR",
         @Query("region") region: String = "KR"
     ): ApiResponse<NetworkTMDBSearch>
+
+    @GET("/3/configuration/languages")
+    suspend fun getAvailableLanguage(): ApiResponse<List<NetworkTMDBLanguageItem>>
+
+    @GET("/3/watch/providers/regions")
+    suspend fun getAvailableRegion(): ApiResponse<NetworkTMDBRegion>
 }

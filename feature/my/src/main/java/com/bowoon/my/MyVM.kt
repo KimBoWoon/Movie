@@ -4,39 +4,72 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bowoon.common.Result
 import com.bowoon.common.asResult
-import com.bowoon.data.repository.TMDBRepository
-import com.bowoon.model.TMDBConfiguration
+import com.bowoon.data.repository.UserDataRepository
+import com.bowoon.domain.GetMyDataUseCase
+import com.bowoon.model.MyData
+import com.bowoon.model.PosterSize
+import com.bowoon.model.TMDBLanguageItem
+import com.bowoon.model.TMDBRegionResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class MyVM @Inject constructor(
-    private val tmdbRepository: TMDBRepository
+    private val userDataRepository: UserDataRepository,
+    private val getMyDataUseCase: GetMyDataUseCase
 ) : ViewModel() {
     companion object {
         private const val TAG = "MyVM"
     }
 
-    val configuration = tmdbRepository.getConfiguration()
+    val myData = getMyDataUseCase()
         .asResult()
         .map {
             when (it) {
-                is Result.Loading -> ConfigurationState.Loading
-                is Result.Success -> ConfigurationState.Success(it.data)
-                is Result.Error -> ConfigurationState.Error(it.throwable)
+                is Result.Loading -> MyDataState.Loading
+                is Result.Success -> MyDataState.Success(it.data)
+                is Result.Error -> MyDataState.Error(it.throwable)
             }
         }.stateIn(
             scope = viewModelScope,
-            initialValue = ConfigurationState.Loading,
-            started = SharingStarted.WhileSubscribed(5000)
+            initialValue = MyDataState.Loading,
+            started = SharingStarted.Eagerly
         )
+
+    fun updateLanguage(language: TMDBLanguageItem) {
+        viewModelScope.launch {
+            language.iso6391?.let {
+                userDataRepository.updateLanguage(it)
+                userDataRepository.updateMainOfDate("")
+            }
+        }
+    }
+
+    fun updateRegion(region: TMDBRegionResult) {
+        viewModelScope.launch {
+            region.iso31661?.let {
+                userDataRepository.updateRegion(it)
+                userDataRepository.updateMainOfDate("")
+            }
+        }
+    }
+
+    fun updateImageQuality(posterSize: PosterSize) {
+        viewModelScope.launch {
+            posterSize.size?.let {
+                userDataRepository.updateImageQuality(it)
+                userDataRepository.updateMainOfDate("")
+            }
+        }
+    }
 }
 
-sealed interface ConfigurationState {
-    data object Loading : ConfigurationState
-    data class Success(val configuration: TMDBConfiguration) : ConfigurationState
-    data class Error(val throwable: Throwable) : ConfigurationState
+sealed interface MyDataState {
+    data object Loading : MyDataState
+    data class Success(val myData: MyData) : MyDataState
+    data class Error(val throwable: Throwable) : MyDataState
 }

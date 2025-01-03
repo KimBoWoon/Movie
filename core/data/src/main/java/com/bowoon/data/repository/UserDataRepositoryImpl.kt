@@ -4,6 +4,7 @@ import com.bowoon.datastore.InternalDataSource
 import com.bowoon.model.DarkThemeConfig
 import com.bowoon.model.MainMenu
 import com.bowoon.model.MovieDetail
+import com.bowoon.model.PosterSize
 import com.bowoon.model.UserData
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -17,16 +18,16 @@ class UserDataRepositoryImpl @Inject constructor(
         datastore.updateDarkTheme(config)
     }
 
-    override suspend fun updateBoxOfficeDate(date: String) {
-        datastore.updateBoxOfficeDate(date)
+    override suspend fun updateMainOfDate(date: String) {
+        datastore.updateMainOfDate(date)
     }
 
     override suspend fun updateMainMenu(mainMenu: MainMenu) {
         datastore.updateMainMenu(mainMenu)
     }
 
-    override suspend fun updateFavoriteMovies(favoriteMovies: MovieDetail) {
-        datastore.updateFavoriteMovies(favoriteMovies)
+    override suspend fun updateFavoriteMovies(movie: MovieDetail) {
+        datastore.updateFavoriteMovies(movie)
     }
 
     override suspend fun updateRegion(region: String) {
@@ -37,13 +38,17 @@ class UserDataRepositoryImpl @Inject constructor(
         datastore.updateLanguage(language)
     }
 
-    override suspend fun getUpdateDate(): String? = datastore.getUpdateDate()
+    override suspend fun updateImageQuality(imageQuality: String) {
+        datastore.updateImageQuality(imageQuality)
+    }
 
-    override suspend fun getRegion(): String? = datastore.getRegion()
+    override suspend fun getMainOfDate(): String = datastore.getMainOfDate()
 
-    override suspend fun getLanguage(): String? = datastore.getLanguage()
+    override suspend fun getRegion(): String = datastore.getRegion()
+
+    override suspend fun getLanguage(): String = datastore.getLanguage()
 
     override suspend fun getFavoriteMovies(): List<MovieDetail> = datastore.getFavoriteMovies()
 
-    override suspend fun getImageQuality(): String? = datastore.getImageQuality()
+    override suspend fun getImageQuality(): String = datastore.getImageQuality()
 }

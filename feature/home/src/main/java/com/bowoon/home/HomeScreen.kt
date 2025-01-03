@@ -141,25 +141,27 @@ fun DailyBoxOfficeComponent(
     boxOffice: List<DailyBoxOffice>,
     onMovieClick: (Int) -> Unit
 ) {
-    Text(
+    if (boxOffice.isNotEmpty()) {
+        Text(
 //        modifier = Modifier.align(Alignment.Start),
-        text = "일별 박스오피스"
-    )
-    LazyRow(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight(),
-        contentPadding = PaddingValues(dp15),
-        horizontalArrangement = Arrangement.spacedBy(dp15)
-    ) {
-        items(
-            items = boxOffice,
-            key = { "${it.rank}_${it.rnum}_${it.openDt}_${it.movieNm}" }
-        ) { boxOffice ->
-            BoxOfficeItem(
-                boxOffice = boxOffice,
-                onMovieClick = onMovieClick
-            )
+            text = "일별 박스오피스"
+        )
+        LazyRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight(),
+            contentPadding = PaddingValues(dp15),
+            horizontalArrangement = Arrangement.spacedBy(dp15)
+        ) {
+            items(
+                items = boxOffice,
+                key = { "${it.rank}_${it.rnum}_${it.openDt}_${it.movieNm}" }
+            ) { boxOffice ->
+                BoxOfficeItem(
+                    boxOffice = boxOffice,
+                    onMovieClick = onMovieClick
+                )
+            }
         }
     }
 }
@@ -219,25 +221,27 @@ fun UpcomingComponent(
     upcoming: List<UpComingResult>,
     onMovieClick: (Int) -> Unit
 ) {
-    Text(
+    if (upcoming.isNotEmpty()) {
+        Text(
 //        modifier = Modifier.align(Alignment.Start),
-        text = "개봉 예정작"
-    )
-    LazyRow(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight(),
-        contentPadding = PaddingValues(dp15),
-        horizontalArrangement = Arrangement.spacedBy(dp15)
-    ) {
-        items(
-            items = upcoming,
-            key = { "${it.id}_${it.title}_${it.originalTitle}_${it.releaseDate}" }
-        ) { upcoming ->
-            UpcomingItem(
-                upcoming = upcoming,
-                onMovieClick = onMovieClick
-            )
+            text = "개봉 예정작"
+        )
+        LazyRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight(),
+            contentPadding = PaddingValues(dp15),
+            horizontalArrangement = Arrangement.spacedBy(dp15)
+        ) {
+            items(
+                items = upcoming,
+                key = { "${it.id}_${it.title}_${it.originalTitle}_${it.releaseDate}" }
+            ) { upcoming ->
+                UpcomingItem(
+                    upcoming = upcoming,
+                    onMovieClick = onMovieClick
+                )
+            }
         }
     }
 }

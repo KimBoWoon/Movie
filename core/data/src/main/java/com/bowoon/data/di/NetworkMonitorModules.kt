@@ -10,7 +10,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class SingletonDataModules {
+abstract class NetworkMonitorModules {
     @Binds
     @Singleton
     internal abstract fun bindsNetworkMonitor(

@@ -1,6 +1,5 @@
 package com.bowoon.domain
 
-import com.bowoon.common.Log
 import com.bowoon.data.repository.KobisRepository
 import com.bowoon.data.repository.TMDBRepository
 import com.bowoon.data.repository.UserDataRepository
@@ -8,12 +7,9 @@ import com.bowoon.model.DailyBoxOffice
 import com.bowoon.model.KOBISBoxOffice
 import com.bowoon.model.MainMenu
 import com.bowoon.model.UpComingResult
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.flatMapMerge
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
@@ -24,67 +20,37 @@ class GetMainMenuUseCase @Inject constructor(
     private val kobisRepository: KobisRepository,
     private val tmdbRepository: TMDBRepository
 ) {
-    @OptIn(ExperimentalCoroutinesApi::class)
     operator fun invoke(
         targetDt: LocalDate,
         kobisOpenApiKey: String
-    ): Flow<MainMenu> = userDataRepository.userData.flatMapMerge { userData ->
-        Log.d("boxOfficeDate > ${userData.updateDate}, mainMenu > ${userData.mainMenu}")
-
-        val boxOfficeDate = when (userData.updateDate.isEmpty()) {
-            true -> LocalDate.now()
-            false -> LocalDate.parse(userData.updateDate)
-        }
-        val isUpdate = targetDt.minusDays(1).isAfter(boxOfficeDate)
-
-        Log.d("isUpdate > $isUpdate")
-
-        if (userData.updateDate.isEmpty() || isUpdate) {
-            Log.d("need update!!")
-
-            val target = targetDt.minusDays(1).format(DateTimeFormatter.ofPattern("yyyyMMdd"))
-
-            combine(
-                kobisRepository.getDailyBoxOffice(kobisOpenApiKey, target),
-                tmdbRepository.getUpcomingMovies(),
-                tmdbRepository.posterUrl
-            ) { kobisBoxOffice, upcoming, posterUrl ->
-                MainMenu(
-                    dailyBoxOffice = createDailyBoxOffice(kobisBoxOffice, posterUrl),
-                    favoriteMovies = userData.favoriteMovies,
-                    upcomingMovies = upcoming.results?.map {
-                        UpComingResult(
-                            adult = it.adult,
-                            backdropPath = it.backdropPath,
-                            genreIds = it.genreIds,
-                            id = it.id,
-                            originalLanguage = it.originalLanguage,
-                            originalTitle = it.originalTitle,
-                            overview = it.overview,
-                            popularity = it.popularity,
-                            posterPath = "$posterUrl${it.posterPath}",
-                            releaseDate = it.releaseDate,
-                            title = it.title,
-                            video = it.video,
-                            voteAverage = it.voteAverage,
-                            voteCount = it.voteCount
-                        )
-                    } ?: emptyList()
-                ).also { mainMenu ->
-                    Log.d("$mainMenu")
-                    userDataRepository.updateBoxOfficeDate(targetDt.minusDays(1).toString())
-                    userDataRepository.updateMainMenu(mainMenu)
-                }
-            }
-        } else {
-            flowOf(
-                MainMenu(
-                    dailyBoxOffice = userData.mainMenu.dailyBoxOffice,
-                    favoriteMovies = userData.favoriteMovies,
-                    upcomingMovies = userData.mainMenu.upcomingMovies
+    ): Flow<MainMenu> = combine(
+        userDataRepository.userData,
+        kobisRepository.getDailyBoxOffice(kobisOpenApiKey, targetDt.format(DateTimeFormatter.ofPattern("yyyyMMdd"))),
+        tmdbRepository.getUpcomingMovies(),
+        tmdbRepository.posterUrl
+    ) { userData, kobisBoxOffice, upcoming, posterUrl ->
+        MainMenu(
+            dailyBoxOffice = createDailyBoxOffice(kobisBoxOffice, posterUrl),
+            favoriteMovies = userData.favoriteMovies,
+            upcomingMovies = upcoming.results?.map {
+                UpComingResult(
+                    adult = it.adult,
+                    backdropPath = it.backdropPath,
+                    genreIds = it.genreIds,
+                    id = it.id,
+                    originalLanguage = it.originalLanguage,
+                    originalTitle = it.originalTitle,
+                    overview = it.overview,
+                    popularity = it.popularity,
+                    posterPath = "$posterUrl${it.posterPath}",
+                    releaseDate = it.releaseDate,
+                    title = it.title,
+                    video = it.video,
+                    voteAverage = it.voteAverage,
+                    voteCount = it.voteCount
                 )
-            )
-        }
+            } ?: emptyList()
+        )
     }
 
     private fun getTMDBMovie(

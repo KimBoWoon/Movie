@@ -12,7 +12,6 @@ import com.bowoon.domain.GetMovieDetail
 import com.bowoon.model.MovieDetail
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -43,9 +42,9 @@ class DetailVM @Inject constructor(
             started = SharingStarted.WhileSubscribed(5000)
         )
 
-    fun updateFavoriteMovies(favoriteMovies: MovieDetail) {
+    fun updateFavoriteMovies(movie: MovieDetail) {
         viewModelScope.launch {
-            userDataRepository.updateFavoriteMovies(favoriteMovies)
+            userDataRepository.updateFavoriteMovies(movie)
         }
     }
 }

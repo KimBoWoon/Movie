@@ -14,19 +14,22 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -37,7 +40,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -56,8 +58,8 @@ import com.bowoon.model.TMDBMovieDetailVideoResult
 import com.bowoon.ui.ConfirmDialog
 import com.bowoon.ui.FavoriteButton
 import com.bowoon.ui.Title
-import com.bowoon.ui.dp0
 import com.bowoon.ui.dp10
+import com.bowoon.ui.dp100
 import com.bowoon.ui.dp16
 import com.bowoon.ui.dp200
 import com.bowoon.ui.dp5
@@ -152,21 +154,15 @@ fun MovieDetail(
     favoriteMovies: List<MovieDetail>,
     updateFavoriteMovies: (MovieDetail) -> Unit
 ) {
-    val scrollState = rememberScrollState()
-
     Column {
         VideosComponent(movieDetail)
 
-        Column(
-            modifier = Modifier.fillMaxWidth().wrapContentHeight().verticalScroll(state = scrollState)
-        ) {
-            TabComponent(
-                movie = movieDetail,
-                onMovieClick = onMovieClick,
-                favoriteMovies = favoriteMovies,
-                updateFavoriteMovies = updateFavoriteMovies
-            )
-        }
+        TabComponent(
+            movie = movieDetail,
+            onMovieClick = onMovieClick,
+            favoriteMovies = favoriteMovies,
+            updateFavoriteMovies = updateFavoriteMovies
+        )
     }
 }
 
@@ -242,10 +238,11 @@ fun TabComponent(
     val tabList = MovieDetailTab.entries
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { tabList.size })
 
-    ScrollableTabRow(
+//    ScrollableTabRow(
+    TabRow(
         modifier = Modifier.fillMaxWidth(),
         selectedTabIndex = pagerState.currentPage,
-        edgePadding = dp0
+//        edgePadding = dp0
     ) {
         tabList.forEachIndexed { index, moviePoster ->
             Tab(
@@ -273,16 +270,10 @@ fun TabComponent(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val width = 200
-            val ratio = 9f / 16f
-
             when (tabList[index].label) {
-                MovieDetailTab.MOVIE_INFO.label -> MovieInfoComponent(movie)
-                MovieDetailTab.ACTOR_AND_CREW.label -> ActorAndCrewComponent(movie)
-                MovieDetailTab.POSTER.label -> ImagePagerComponent(
-                    modifier = Modifier.width(width.dp).aspectRatio(ratio),
-                    list = movie.images?.posters?.mapNotNull { it.filePath } ?: emptyList()
-                )
+                MovieDetailTab.MOVIE_INFO.label -> MovieInfoComponent(movie = movie)
+                MovieDetailTab.ACTOR_AND_CREW.label -> ActorAndCrewComponent(movie = movie)
+                MovieDetailTab.POSTER.label -> ImageComponent(movie = movie)
                 MovieDetailTab.SIMILAR.label -> SimilarMovieComponent(
                     movie = movie,
                     onMovieClick = onMovieClick,
@@ -295,22 +286,23 @@ fun TabComponent(
 }
 
 @Composable
-fun ImagePagerComponent(
-    modifier: Modifier,
-    list: List<String>
+fun ImageComponent(
+    movie: MovieDetail
 ) {
-    LazyRow(
+    LazyVerticalStaggeredGrid(
+        columns = StaggeredGridCells.Adaptive(dp100),
         modifier = Modifier.wrapContentSize(),
         contentPadding = PaddingValues(horizontal = dp10),
-        horizontalArrangement = Arrangement.spacedBy(dp10)
+        horizontalArrangement = Arrangement.spacedBy(dp10),
+        verticalItemSpacing = dp10
     ) {
         items(
-            items = list,
+            items = movie.images?.posters ?: emptyList(),
             key = { it }
         ) {
             DynamicAsyncImageLoader(
-                modifier = modifier,
-                source = it,
+                modifier = Modifier.width(dp200).aspectRatio(it.aspectRatio?.toFloat() ?: 1f),
+                source = it.filePath ?: "",
                 contentDescription = "moviePoster"
             )
         }
@@ -322,21 +314,30 @@ fun MovieInfoComponent(
     movie: MovieDetail
 ) {
     val format = DecimalFormat("#,###")
+    var overviewMaxLine by remember { mutableIntStateOf(3) }
 
-    Column(
+    LazyColumn(
         modifier = Modifier.fillMaxWidth().wrapContentHeight()
     ) {
-        Text(text = movie.title ?: "")
-        Text(text = movie.originalTitle ?: "")
-        Text(text = movie.genres ?: "")
-        Text(text = movie.certification ?: "")
-        Text(text = movie.releaseDate ?: "")
-        Text(text = "평점 : ${movie.voteAverage.toString()}")
-        Text(text = "수익 : ${format.format(movie.revenue)}")
-        Text(text = "예산 : ${format.format(movie.budget)}")
-        Text(text = "순수익 : ${format.format((movie.revenue ?: 0) + -(movie.budget ?: 0))}")
-        Text(text = "${movie.runtime}분")
-        Text(text = movie.overview ?: "")
+        item {
+            Text(text = movie.title ?: "")
+            Text(text = movie.originalTitle ?: "")
+            Text(text = movie.genres ?: "")
+            Text(text = movie.certification ?: "")
+            Text(text = movie.releaseDate ?: "")
+            Text(text = "평점 : ${movie.voteAverage.toString()}")
+            Text(text = "수익 : ${format.format(movie.revenue)}")
+            Text(text = "예산 : ${format.format(movie.budget)}")
+            Text(text = "순수익 : ${format.format((movie.revenue ?: 0) + -(movie.budget ?: 0))}")
+            Text(text = "${movie.runtime}분")
+            Text(
+                modifier = Modifier.clickable {
+                    overviewMaxLine = if (overviewMaxLine == 3) Int.MAX_VALUE else 3
+                },
+                text = movie.overview ?: "",
+                maxLines = overviewMaxLine
+            )
+        }
     }
 }
 
@@ -344,37 +345,39 @@ fun MovieInfoComponent(
 fun ActorAndCrewComponent(
     movie: MovieDetail
 ) {
-    Column(
+    LazyColumn(
         modifier = Modifier.fillMaxWidth().wrapContentHeight()
     ) {
-        Text(
-            modifier = Modifier.fillMaxWidth().padding(vertical = dp16),
-            text = "배우",
-            fontSize = sp20,
-            textAlign = TextAlign.Center
-        )
-        LazyRow(
-            modifier = Modifier.fillMaxWidth().wrapContentHeight()
-        ) {
-            items(
-                items = movie.credits?.cast ?: emptyList()
-            ) { cast ->
-                StaffComponent(cast)
+        item {
+            Text(
+                modifier = Modifier.fillMaxWidth().padding(vertical = dp16),
+                text = "배우",
+                fontSize = sp20,
+                textAlign = TextAlign.Center
+            )
+            LazyRow(
+                modifier = Modifier.fillMaxWidth().wrapContentHeight()
+            ) {
+                items(
+                    items = movie.credits?.cast ?: emptyList()
+                ) { cast ->
+                    StaffComponent(cast)
+                }
             }
-        }
-        Text(
-            modifier = Modifier.fillMaxWidth().padding(vertical = dp16),
-            text = "스태프",
-            fontSize = sp20,
-            textAlign = TextAlign.Center
-        )
-        LazyRow(
-            modifier = Modifier.fillMaxWidth().wrapContentHeight()
-        ) {
-            items(
-                items = movie.credits?.crew ?: emptyList()
-            ) { cast ->
-                StaffComponent(cast)
+            Text(
+                modifier = Modifier.fillMaxWidth().padding(vertical = dp16),
+                text = "스태프",
+                fontSize = sp20,
+                textAlign = TextAlign.Center
+            )
+            LazyRow(
+                modifier = Modifier.fillMaxWidth().wrapContentHeight()
+            ) {
+                items(
+                    items = movie.credits?.crew ?: emptyList()
+                ) { cast ->
+                    StaffComponent(cast)
+                }
             }
         }
     }
@@ -424,26 +427,19 @@ fun SimilarMovieComponent(
     favoriteMovies: List<MovieDetail>,
     updateFavoriteMovies: (MovieDetail) -> Unit
 ) {
-    LazyRow(
+    LazyVerticalStaggeredGrid(
+        columns = StaggeredGridCells.Adaptive(dp100),
         modifier = Modifier.fillMaxWidth().wrapContentHeight(),
         contentPadding = PaddingValues(dp10),
-        horizontalArrangement = Arrangement.spacedBy(dp10)
+        horizontalArrangement = Arrangement.spacedBy(dp10),
+        verticalItemSpacing = dp10
     ) {
         items(
             items = movie.similar?.results ?: emptyList()
         ) { similarMovie ->
             val detail = MovieDetail(
                 id = similarMovie.id,
-                originalLanguage = similarMovie.originalLanguage,
-                originalTitle = similarMovie.originalTitle,
-                overview = similarMovie.overview,
-                popularity = similarMovie.popularity,
                 posterPath = similarMovie.posterPath ?: "",
-                releaseDate = similarMovie.releaseDate,
-                title = similarMovie.title,
-                video = similarMovie.video,
-                voteCount = similarMovie.voteCount,
-                voteAverage = similarMovie.voteAverage,
             )
             Box(
                 modifier = Modifier.width(dp200).wrapContentHeight().clickable { onMovieClick(detail.id ?: -1) }
@@ -458,7 +454,7 @@ fun SimilarMovieComponent(
                         .padding(top = dp5, end = dp5)
                         .wrapContentSize()
                         .align(Alignment.TopEnd),
-                    isFavorite = favoriteMovies.contains(detail),
+                    isFavorite = favoriteMovies.find { it.id == detail.id } != null,
                     onClick = { updateFavoriteMovies(detail) }
                 )
             }

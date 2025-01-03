@@ -32,9 +32,9 @@ class FavoriteVM @Inject constructor(
             }
         }
 
-    fun updateFavoriteMovies(favoriteMovies: MovieDetail) {
+    fun updateFavoriteMovies(movie: MovieDetail) {
         viewModelScope.launch {
-            userDataRepository.updateFavoriteMovies(favoriteMovies)
+            userDataRepository.updateFavoriteMovies(movie)
         }
     }
 }

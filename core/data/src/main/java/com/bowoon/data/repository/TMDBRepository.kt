@@ -1,7 +1,9 @@
 package com.bowoon.data.repository
 
 import com.bowoon.model.TMDBConfiguration
+import com.bowoon.model.TMDBLanguageItem
 import com.bowoon.model.TMDBMovieDetail
+import com.bowoon.model.TMDBRegion
 import com.bowoon.model.TMDBSearch
 import com.bowoon.model.Upcoming
 import kotlinx.coroutines.flow.Flow
@@ -16,4 +18,6 @@ interface TMDBRepository {
         releaseDateGte: String,
         releaseDateLte: String
     ): Flow<TMDBSearch>
+    fun availableLanguage(): Flow<List<TMDBLanguageItem>>
+    fun availableRegion(): Flow<TMDBRegion>
 }

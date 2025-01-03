@@ -1,7 +1,9 @@
 package com.bowoon.data.repository
 
 import com.bowoon.model.TMDBConfiguration
+import com.bowoon.model.TMDBLanguageItem
 import com.bowoon.model.TMDBMovieDetail
+import com.bowoon.model.TMDBRegion
 import com.bowoon.model.TMDBSearch
 import com.bowoon.model.Upcoming
 import com.bowoon.network.ApiResponse
@@ -26,10 +28,10 @@ class TMDBRepositoryImpl @Inject constructor(
     }
 
     override fun getUpcomingMovies(): Flow<Upcoming> = flow {
-        val language = userDataRepository.getLanguage()
+        val language = "${userDataRepository.getLanguage()}-${userDataRepository.getRegion()}"
         val region = userDataRepository.getRegion()
 
-        when (val response = apis.tmdbApis.getUpcomingMovie(language = language ?: "ko-KR", region = region ?: "KR")) {
+        when (val response = apis.tmdbApis.getUpcomingMovie(language = language, region = region)) {
             is ApiResponse.Failure -> throw response.throwable
             is ApiResponse.Success -> emit(response.data.asExternalModel())
         }
@@ -38,20 +40,20 @@ class TMDBRepositoryImpl @Inject constructor(
     override fun searchMovies(
         query: String
     ): Flow<TMDBSearch> = flow {
-        val language = userDataRepository.getLanguage()
+        val language = "${userDataRepository.getLanguage()}-${userDataRepository.getRegion()}"
         val region = userDataRepository.getRegion()
 
-        when (val response = apis.tmdbApis.searchMovies(query, language ?: "ko-KR", region ?: "KR")) {
+        when (val response = apis.tmdbApis.searchMovies(query = query, language = language, region = region)) {
             is ApiResponse.Failure -> throw response.throwable
             is ApiResponse.Success -> emit(response.data.asExternalModel())
         }
     }
 
     override fun getMovieDetail(id: Int): Flow<TMDBMovieDetail> = flow {
-        val language = userDataRepository.getLanguage()
+        val language = "${userDataRepository.getLanguage()}-${userDataRepository.getRegion()}"
         val region = userDataRepository.getRegion()
 
-        when (val response = apis.tmdbApis.getMovieDetail(id = id, language = language ?: "ko-KR", region = region ?: "KR")) {
+        when (val response = apis.tmdbApis.getMovieDetail(id = id, language = language, region = region)) {
             is ApiResponse.Failure -> throw response.throwable
             is ApiResponse.Success -> emit(response.data.asExternalModel())
         }
@@ -62,6 +64,20 @@ class TMDBRepositoryImpl @Inject constructor(
         releaseDateLte: String
     ): Flow<TMDBSearch> = flow {
         when (val response = apis.tmdbApis.discoverMovie(releaseDateGte = releaseDateGte, releaseDateLte = releaseDateLte)) {
+            is ApiResponse.Failure -> throw response.throwable
+            is ApiResponse.Success -> emit(response.data.asExternalModel())
+        }
+    }
+
+    override fun availableLanguage(): Flow<List<TMDBLanguageItem>> = flow {
+        when (val response = apis.tmdbApis.getAvailableLanguage()) {
+            is ApiResponse.Failure -> throw response.throwable
+            is ApiResponse.Success -> emit(response.data.asExternalModel())
+        }
+    }
+
+    override fun availableRegion(): Flow<TMDBRegion> = flow {
+        when (val response = apis.tmdbApis.getAvailableRegion()) {
             is ApiResponse.Failure -> throw response.throwable
             is ApiResponse.Success -> emit(response.data.asExternalModel())
         }

@@ -10,7 +10,6 @@ import com.bowoon.model.MovieDetail
 import com.bowoon.model.UserData
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
@@ -35,29 +34,21 @@ class InternalDataSource @Inject constructor(
         private val IMAGE_QUALITY = stringPreferencesKey("imageQuality")
     }
 
-    val userData = datastore.data.mapNotNull {
+    val userData = datastore.data.map {
         UserData(
             isDarkMode = it[IS_DART_MODE]?.let { jsonString ->
                 json.decodeFromString<DarkThemeConfig>(jsonString)
             } ?: DarkThemeConfig.FOLLOW_SYSTEM,
-            updateDate = it[UPDATE_DATE]?.let { jsonString ->
-                json.decodeFromString(jsonString)
-            } ?: "",
+            updateDate = it[UPDATE_DATE] ?: "",
             mainMenu = it[MAIN_MENU]?.let { jsonString ->
                 json.decodeFromString<MainMenu>(jsonString)
             } ?: MainMenu(emptyList(), emptyList(), emptyList()),
             favoriteMovies = it[FAVORITE_MOVIES]?.let { jsonString ->
                 json.decodeFromString<List<MovieDetail>>(jsonString)
             } ?: emptyList(),
-            region = it[REGION]?.let { jsonString ->
-                json.decodeFromString<String>(jsonString)
-            } ?: "KR",
-            language = it[LANGUAGE]?.let { jsonString ->
-                json.decodeFromString<String>(jsonString)
-            } ?: "ko-KR",
-            imageQuality = it[IMAGE_QUALITY]?.let { jsonString ->
-                json.decodeFromString<String>(jsonString)
-            } ?: "original"
+            region = it[REGION] ?: "KR",
+            language = it[LANGUAGE] ?: "ko",
+            imageQuality = it[IMAGE_QUALITY] ?: "original"
         )
     }
 
@@ -67,9 +58,9 @@ class InternalDataSource @Inject constructor(
         }
     }
 
-    suspend fun updateBoxOfficeDate(date: String) {
+    suspend fun updateMainOfDate(date: String) {
         datastore.edit {
-            it[UPDATE_DATE] = json.encodeToString(date)
+            it[UPDATE_DATE] = date
         }
     }
 
@@ -117,21 +108,21 @@ class InternalDataSource @Inject constructor(
         }
     }
 
-    suspend fun getUpdateDate(): String? =
-        datastore.data.map { it[UPDATE_DATE] }.firstOrNull()
+    suspend fun getMainOfDate(): String =
+        datastore.data.map { it[UPDATE_DATE] }.firstOrNull() ?: ""
 
-    suspend fun getRegion(): String? =
-        datastore.data.map { it[REGION] }.firstOrNull()
+    suspend fun getRegion(): String =
+        datastore.data.map { it[REGION] }.firstOrNull() ?: "KR"
 
-    suspend fun getLanguage(): String? =
-        datastore.data.map { it[LANGUAGE] }.firstOrNull()
+    suspend fun getLanguage(): String =
+        datastore.data.map { it[LANGUAGE] }.firstOrNull() ?: "ko"
 
     suspend fun getFavoriteMovies(): List<MovieDetail> =
         datastore.data.map { it[FAVORITE_MOVIES] }.firstOrNull()?.let { jsonString ->
             json.decodeFromString<List<MovieDetail>>(jsonString)
         } ?: emptyList()
 
-    suspend fun getImageQuality(): String? =
+    suspend fun getImageQuality(): String =
         datastore.data.map { it[IMAGE_QUALITY] }.firstOrNull()?.let { jsonString ->
             json.decodeFromString<String>(jsonString)
         } ?: "original"

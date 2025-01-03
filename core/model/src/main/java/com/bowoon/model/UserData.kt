@@ -9,6 +9,6 @@ data class UserData(
     val mainMenu: MainMenu = MainMenu(),
     val favoriteMovies: List<MovieDetail> = emptyList(),
     val region: String = "KR",
-    val language: String = "ko-KR",
+    val language: String = "ko",
     val imageQuality: String = "original"
 )
