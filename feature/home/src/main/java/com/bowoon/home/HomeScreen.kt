@@ -20,13 +20,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -46,6 +46,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bowoon.common.Log
 import com.bowoon.model.DailyBoxOffice
+import com.bowoon.model.MainMenu
 import com.bowoon.model.MovieDetail
 import com.bowoon.model.UpComingResult
 import com.bowoon.model.Week
@@ -80,87 +81,69 @@ fun HomeScreen(
     state: HomeUiState,
     onMovieClick: (Int) -> Unit
 ) {
-    when (state) {
-        is HomeUiState.Loading -> {
-            Log.d("loading...")
+    val isLoading = state is HomeUiState.Loading
+    var mainMenu by remember { mutableStateOf<MainMenu>(MainMenu()) }
 
-            Box(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            }
-        }
+    when (state) {
+        is HomeUiState.Loading -> Log.d("loading...")
         is HomeUiState.Success -> {
             Log.d("${state.mainMenu}")
-
-//            LazyColumn() {
-//                item {
-//                    DailyBoxOfficeComponent(
-//                        boxOffice = state.mainMenu.dailyBoxOffice,
-//                        onMovieClick = onMovieClick
-//                    )
-//                    UpcomingComponent(
-//                        upcoming = state.mainMenu.upcomingMovies,
-//                        onMovieClick = onMovieClick
-//                    )
-//                    this@LazyColumn.CalendarComponent(
-//                        favoriteMovies = state.mainMenu.favoriteMovies,
-//                        filterFavoriteMovies = { releaseDate -> state.mainMenu.favoriteMovies.filter { it.releaseDate == releaseDate } }
-//                    )
-//                }
-//            }
-            val scrollState = rememberScrollState()
-
-            Column(
-                modifier = Modifier.fillMaxSize().verticalScroll(scrollState),
-            ) {
-                DailyBoxOfficeComponent(
-                    boxOffice = state.mainMenu.dailyBoxOffice,
-                    onMovieClick = onMovieClick
-                )
-                UpcomingComponent(
-                    upcoming = state.mainMenu.upcomingMovies,
-                    onMovieClick = onMovieClick
-                )
-                CalendarComponent(
-                    favoriteMovies = state.mainMenu.favoriteMovies,
-                    filterFavoriteMovies = { releaseDate ->
-                        state.mainMenu.favoriteMovies.filter { it.releases?.countries?.find { it.iso31661.equals("KR", true) }?.releaseDate == releaseDate }
-                    }
-                )
-            }
+            mainMenu = state.mainMenu
         }
         is HomeUiState.Error -> Log.e("${state.throwable.message}")
     }
+
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        if (isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
+
+        LazyColumn(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            dailyBoxOfficeComponent(
+                boxOffice = mainMenu.dailyBoxOffice,
+                onMovieClick = onMovieClick
+            )
+            upcomingComponent(
+                upcoming = mainMenu.upcomingMovies,
+                onMovieClick = onMovieClick
+            )
+            calendarComponent(
+                favoriteMovies = mainMenu.favoriteMovies,
+                filterFavoriteMovies = { releaseDate -> mainMenu.favoriteMovies.filter { it.releaseDate == releaseDate } }
+            )
+        }
+    }
 }
 
-@Composable
-fun DailyBoxOfficeComponent(
+fun LazyListScope.dailyBoxOfficeComponent(
     boxOffice: List<DailyBoxOffice>,
     onMovieClick: (Int) -> Unit
 ) {
-    if (boxOffice.isNotEmpty()) {
-        Text(
-//        modifier = Modifier.align(Alignment.Start),
-            text = "일별 박스오피스"
-        )
-        LazyRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight(),
-            contentPadding = PaddingValues(dp15),
-            horizontalArrangement = Arrangement.spacedBy(dp15)
-        ) {
-            items(
-                items = boxOffice,
-                key = { "${it.rank}_${it.rnum}_${it.openDt}_${it.movieNm}" }
-            ) { boxOffice ->
-                BoxOfficeItem(
-                    boxOffice = boxOffice,
-                    onMovieClick = onMovieClick
-                )
+    item {
+        if (boxOffice.isNotEmpty()) {
+            Text(text = "일별 박스오피스")
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
+                contentPadding = PaddingValues(dp15),
+                horizontalArrangement = Arrangement.spacedBy(dp15)
+            ) {
+                items(
+                    items = boxOffice,
+                    key = { "${it.rank}_${it.rnum}_${it.openDt}_${it.movieNm}" }
+                ) { boxOffice ->
+                    BoxOfficeItem(
+                        boxOffice = boxOffice,
+                        onMovieClick = onMovieClick
+                    )
+                }
             }
         }
     }
@@ -216,31 +199,29 @@ fun BoxOfficeItem(
     }
 }
 
-@Composable
-fun UpcomingComponent(
+fun LazyListScope.upcomingComponent(
     upcoming: List<UpComingResult>,
     onMovieClick: (Int) -> Unit
 ) {
-    if (upcoming.isNotEmpty()) {
-        Text(
-//        modifier = Modifier.align(Alignment.Start),
-            text = "개봉 예정작"
-        )
-        LazyRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight(),
-            contentPadding = PaddingValues(dp15),
-            horizontalArrangement = Arrangement.spacedBy(dp15)
-        ) {
-            items(
-                items = upcoming,
-                key = { "${it.id}_${it.title}_${it.originalTitle}_${it.releaseDate}" }
-            ) { upcoming ->
-                UpcomingItem(
-                    upcoming = upcoming,
-                    onMovieClick = onMovieClick
-                )
+    item {
+        if (upcoming.isNotEmpty()) {
+            Text(text = "개봉 예정작")
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
+                contentPadding = PaddingValues(dp15),
+                horizontalArrangement = Arrangement.spacedBy(dp15)
+            ) {
+                items(
+                    items = upcoming,
+                    key = { "${it.id}_${it.title}_${it.originalTitle}_${it.releaseDate}" }
+                ) { upcoming ->
+                    UpcomingItem(
+                        upcoming = upcoming,
+                        onMovieClick = onMovieClick
+                    )
+                }
             }
         }
     }
@@ -281,23 +262,24 @@ fun UpcomingItem(
     }
 }
 
-@Composable
-fun CalendarComponent(
+fun LazyListScope.calendarComponent(
     favoriteMovies: List<MovieDetail>,
     filterFavoriteMovies: (String) -> List<MovieDetail>
 ) {
-    val calendarList = listOf(LocalDate.now().minusMonths(1), LocalDate.now(), LocalDate.now().plusMonths(1))
-    val horizontalPagerState = rememberPagerState(initialPage = 1) { calendarList.size }
+    item {
+        val calendarList = listOf(LocalDate.now().minusMonths(1), LocalDate.now(), LocalDate.now().plusMonths(1))
+        val horizontalPagerState = rememberPagerState(initialPage = 1) { calendarList.size }
 
-    HorizontalPager(
-        state = horizontalPagerState
-    ) {index ->
-        Column {
-            Calendar(
-                today = calendarList[index],
-                favoriteMovies = favoriteMovies,
-                filterFavoriteMovies = filterFavoriteMovies
-            )
+        HorizontalPager(
+            state = horizontalPagerState
+        ) {index ->
+            Column {
+                Calendar(
+                    today = calendarList[index],
+                    favoriteMovies = favoriteMovies,
+                    filterFavoriteMovies = filterFavoriteMovies
+                )
+            }
         }
     }
 }

@@ -49,13 +49,11 @@ fun MyScreen(
     updateRegion: (TMDBRegionResult) -> Unit,
     updateImageQuality: (PosterSize) -> Unit
 ) {
+    val isLoading = state is MyDataState.Loading
     var myData by remember { mutableStateOf<MyData?>(null) }
 
     when (state) {
-        is MyDataState.Loading -> {
-            Log.d("myData loading...")
-            myData = null
-        }
+        is MyDataState.Loading -> Log.d("myData loading...")
         is MyDataState.Success -> {
             Log.d("${state.myData}")
             myData = state.myData
@@ -66,46 +64,46 @@ fun MyScreen(
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        if (myData == null) {
+        if (isLoading) {
             CircularProgressIndicator(
                 modifier = Modifier.align(Alignment.Center)
             )
-        } else {
-            Column(
-                modifier = Modifier.fillMaxSize()
+        }
+
+        Column(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(text = "language")
-                    ExposedDropdownLanguageMenu(
-                        list = myData?.language ?: emptyList(),
-                        updateLanguage = updateLanguage
-                    )
-                }
+                Text(text = "language")
+                ExposedDropdownLanguageMenu(
+                    list = myData?.language ?: emptyList(),
+                    updateLanguage = updateLanguage
+                )
+            }
 
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(text = "region")
-                    ExposedDropdownRegionMenu(
-                        list = myData?.region?.results ?: emptyList(),
-                        updateRegion = updateRegion
-                    )
-                }
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = "region")
+                ExposedDropdownRegionMenu(
+                    list = myData?.region?.results ?: emptyList(),
+                    updateRegion = updateRegion
+                )
+            }
 
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(text = "image")
-                    ExposedDropdownPosterSizeMenu(
-                        list = myData?.posterSize ?: emptyList(),
-                        updateImageQuality = updateImageQuality
-                    )
-                }
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = "image")
+                ExposedDropdownPosterSizeMenu(
+                    list = myData?.posterSize ?: emptyList(),
+                    updateImageQuality = updateImageQuality
+                )
             }
         }
     }
@@ -118,7 +116,7 @@ fun ExposedDropdownLanguageMenu(
     updateLanguage: (TMDBLanguageItem) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-    var selectedItem by remember { mutableStateOf<TMDBLanguageItem?>(list.find { it.isSelected }) }
+    var selectedItem = list.find { it.isSelected }
 
     ExposedDropdownMenuBox(
         expanded = expanded,
@@ -162,7 +160,7 @@ fun ExposedDropdownRegionMenu(
     updateRegion: (TMDBRegionResult) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-    var selectedItem by remember { mutableStateOf<TMDBRegionResult?>(list.find { it.isSelected }) }
+    var selectedItem = list.find { it.isSelected }
 
     ExposedDropdownMenuBox(
         expanded = expanded,
@@ -206,7 +204,7 @@ fun ExposedDropdownPosterSizeMenu(
     updateImageQuality: (PosterSize) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-    var selectedItem by remember { mutableStateOf<PosterSize?>(list.find { it.isSelected }) }
+    var selectedItem = list.find { it.isSelected }
 
     ExposedDropdownMenuBox(
         expanded = expanded,

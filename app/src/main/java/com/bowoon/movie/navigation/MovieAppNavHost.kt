@@ -16,6 +16,7 @@ import com.bowoon.search.navigation.searchScreen
 fun MovieAppNavHost(
     modifier: Modifier,
     appState: MovieAppState,
+    onShowSnackbar: suspend (String, String?) -> Boolean
 ) {
     val navController = appState.navController
 
@@ -27,7 +28,10 @@ fun MovieAppNavHost(
         homeSection(
             onMovieClick = navController::navigateToDetail,
         ) {
-            detailScreen(navController)
+            detailScreen(
+                navController = navController,
+                onShowSnackbar = onShowSnackbar
+            )
         }
         searchScreen(onMovieClick = navController::navigateToDetail)
         favoriteScreen(onMovieClick = navController::navigateToDetail)

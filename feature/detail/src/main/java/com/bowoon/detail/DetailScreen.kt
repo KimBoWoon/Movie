@@ -39,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -76,6 +77,7 @@ import java.text.DecimalFormat
 @Composable
 fun DetailScreen(
     navController: NavController,
+    onShowSnackbar: suspend (String, String?) -> Boolean,
     viewModel: DetailVM = hiltViewModel()
 ) {
     val movieInfo by viewModel.movieInfo.collectAsStateWithLifecycle()
@@ -83,7 +85,9 @@ fun DetailScreen(
     DetailScreen(
         state = movieInfo,
         navController = navController,
-        updateFavoriteMovies = viewModel::updateFavoriteMovies
+        updateFavoriteMovies = viewModel::updateFavoriteMovies,
+        onShowSnackbar = onShowSnackbar,
+        restart = viewModel::restart
     )
 }
 
@@ -91,8 +95,11 @@ fun DetailScreen(
 fun DetailScreen(
     state: MovieDetailState,
     navController: NavController,
-    updateFavoriteMovies: (MovieDetail) -> Unit
+    updateFavoriteMovies: (MovieDetail) -> Unit,
+    onShowSnackbar: suspend (String, String?) -> Boolean,
+    restart: () -> Unit
 ) {
+    val scope = rememberCoroutineScope()
     var isLoading by remember { mutableStateOf(false) }
     var movieDetail by remember { mutableStateOf<MovieDetail?>(null) }
 
@@ -112,7 +119,8 @@ fun DetailScreen(
             ConfirmDialog(
                 title = "통신 실패",
                 message = "${state.throwable.message}",
-                confirmPair = "확인" to { navController.navigateUp() }
+                confirmPair = "재시도" to { restart() },
+                dismissPair = "돌아가기" to { navController.navigateUp() }
             )
         }
     }
@@ -124,24 +132,33 @@ fun DetailScreen(
             CircularProgressIndicator(
                 modifier = Modifier.align(Alignment.Center)
             )
-        } else {
-            Column(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                movieDetail?.let {
-                    Title(
-                        title = it.title ?: "",
-                        isFavorite = it.isFavorite,
-                        onBackClick = { navController.navigateUp() },
-                        onFavoriteClick = { updateFavoriteMovies(it) }
-                    )
-                    MovieDetail(
-                        movieDetail = it,
-                        onMovieClick = { id -> navController.navigateToDetail(id) },
-                        favoriteMovies = it.favoriteMovies ?: emptyList(),
-                        updateFavoriteMovies = updateFavoriteMovies
-                    )
-                }
+        }
+
+        Column(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            movieDetail?.let {
+                Title(
+                    title = it.title ?: "",
+                    isFavorite = it.isFavorite,
+                    onBackClick = { navController.navigateUp() },
+                    onFavoriteClick = {
+                        updateFavoriteMovies(it)
+                        scope.launch {
+                            val isFavorite = it.favoriteMovies?.find { favoriteMovie -> favoriteMovie.id == it.id } != null
+                            onShowSnackbar(
+                                if (isFavorite) "보고 싶은 영화에서 제거했습니다." else "보고 싶은 영화에 추가했습니다.",
+                                null
+                            )
+                        }
+                    }
+                )
+                MovieDetail(
+                    movieDetail = it,
+                    onMovieClick = { id -> navController.navigateToDetail(id) },
+                    favoriteMovies = it.favoriteMovies ?: emptyList(),
+                    updateFavoriteMovies = updateFavoriteMovies
+                )
             }
         }
     }
@@ -335,7 +352,8 @@ fun MovieInfoComponent(
                     overviewMaxLine = if (overviewMaxLine == 3) Int.MAX_VALUE else 3
                 },
                 text = movie.overview ?: "",
-                maxLines = overviewMaxLine
+                maxLines = overviewMaxLine,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }

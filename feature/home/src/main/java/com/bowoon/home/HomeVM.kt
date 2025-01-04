@@ -62,7 +62,7 @@ class HomeVM @Inject constructor(
         }.stateIn(
             scope = viewModelScope,
             initialValue = HomeUiState.Loading,
-            started = SharingStarted.Eagerly
+            started = SharingStarted.WhileSubscribed(5_000)
         )
 }
 

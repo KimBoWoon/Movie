@@ -37,14 +37,13 @@ class MyVM @Inject constructor(
         }.stateIn(
             scope = viewModelScope,
             initialValue = MyDataState.Loading,
-            started = SharingStarted.Eagerly
+            started = SharingStarted.WhileSubscribed(5_000)
         )
 
     fun updateLanguage(language: TMDBLanguageItem) {
         viewModelScope.launch {
             language.iso6391?.let {
                 userDataRepository.updateLanguage(it)
-                userDataRepository.updateMainOfDate("")
             }
         }
     }
@@ -53,7 +52,6 @@ class MyVM @Inject constructor(
         viewModelScope.launch {
             region.iso31661?.let {
                 userDataRepository.updateRegion(it)
-                userDataRepository.updateMainOfDate("")
             }
         }
     }
@@ -62,7 +60,6 @@ class MyVM @Inject constructor(
         viewModelScope.launch {
             posterSize.size?.let {
                 userDataRepository.updateImageQuality(it)
-                userDataRepository.updateMainOfDate("")
             }
         }
     }

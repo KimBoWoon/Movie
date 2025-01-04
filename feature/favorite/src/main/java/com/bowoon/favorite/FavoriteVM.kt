@@ -8,7 +8,9 @@ import com.bowoon.data.repository.TMDBRepository
 import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.model.MovieDetail
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -30,7 +32,11 @@ class FavoriteVM @Inject constructor(
                 is Result.Success -> FavoriteMoviesState.Success(it.data)
                 is Result.Error -> FavoriteMoviesState.Error(it.throwable)
             }
-        }
+        }.stateIn(
+            scope = viewModelScope,
+            initialValue = FavoriteMoviesState.Loading,
+            started = SharingStarted.WhileSubscribed(5_000)
+        )
 
     fun updateFavoriteMovies(movie: MovieDetail) {
         viewModelScope.launch {

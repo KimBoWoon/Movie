@@ -22,9 +22,13 @@ fun NavController.navigateToDetail(
 }
 
 fun NavGraphBuilder.detailScreen(
-    navController: NavController
+    navController: NavController,
+    onShowSnackbar: suspend (String, String?) -> Boolean
 ) {
     composable<DetailRoute>() {
-        DetailScreen(navController)
+        DetailScreen(
+            navController = navController,
+            onShowSnackbar = onShowSnackbar
+        )
     }
 }

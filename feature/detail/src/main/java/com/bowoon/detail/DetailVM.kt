@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.bowoon.common.Result
 import com.bowoon.common.asResult
+import com.bowoon.common.restartableStateIn
 import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.detail.navigation.DetailRoute
 import com.bowoon.domain.GetMovieDetail
@@ -13,7 +14,6 @@ import com.bowoon.model.MovieDetail
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -36,16 +36,20 @@ class DetailVM @Inject constructor(
                 is Result.Success -> MovieDetailState.Success(it.data)
                 is Result.Error -> MovieDetailState.Error(it.throwable)
             }
-        }.stateIn(
+        }.restartableStateIn(
             scope = viewModelScope,
             initialValue = MovieDetailState.Loading,
-            started = SharingStarted.WhileSubscribed(5000)
+            started = SharingStarted.WhileSubscribed(5_000)
         )
 
     fun updateFavoriteMovies(movie: MovieDetail) {
         viewModelScope.launch {
             userDataRepository.updateFavoriteMovies(movie)
         }
+    }
+
+    fun restart() {
+        movieInfo.restart()
     }
 }
 

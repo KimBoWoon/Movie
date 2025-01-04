@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,7 +35,7 @@ fun FavoriteScreen(
     onMovieClick: (Int) -> Unit,
     viewModel: FavoriteVM = hiltViewModel()
 ) {
-    val state by viewModel.favoriteMovies.collectAsStateWithLifecycle(FavoriteMoviesState.Loading)
+    val state by viewModel.favoriteMovies.collectAsStateWithLifecycle()
 
     FavoriteScreen(
         state = state,
@@ -49,6 +50,7 @@ fun FavoriteScreen(
     onMovieClick: (Int) -> Unit,
     updateFavoriteMovies: (MovieDetail) -> Unit
 ) {
+    val isLoading = state is FavoriteMoviesState.Loading
     var favoriteMovies by remember { mutableStateOf<List<MovieDetail>>(emptyList()) }
 
     when (state) {
@@ -57,32 +59,42 @@ fun FavoriteScreen(
         is FavoriteMoviesState.Error -> {}
     }
 
-    LazyVerticalGrid(
-        modifier = Modifier.fillMaxSize(),
-        columns = GridCells.Fixed(2),
-        contentPadding = PaddingValues(dp15),
-        horizontalArrangement = Arrangement.spacedBy(dp10),
-        verticalArrangement = Arrangement.spacedBy(dp10)
+    Box(
+        modifier = Modifier.fillMaxSize()
     ) {
-        items(
-            items = favoriteMovies
-        ) { movieDetail ->
-            Box(
-                modifier = Modifier.clickable { onMovieClick(movieDetail.id ?: -1) }
-            ) {
-                DynamicAsyncImageLoader(
-                    modifier = Modifier.width(dp200).aspectRatio(9f / 16f),
-                    source = movieDetail.posterPath ?: "",
-                    contentDescription = "BoxOfficePoster"
-                )
-                FavoriteButton(
-                    modifier = Modifier
-                        .padding(top = dp5, end = dp5)
-                        .wrapContentSize()
-                        .align(Alignment.TopEnd),
-                    isFavorite = favoriteMovies.contains(movieDetail),
-                    onClick = { updateFavoriteMovies(movieDetail) }
-                )
+        if (isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
+
+        LazyVerticalGrid(
+            modifier = Modifier.fillMaxSize(),
+            columns = GridCells.Fixed(2),
+            contentPadding = PaddingValues(dp15),
+            horizontalArrangement = Arrangement.spacedBy(dp10),
+            verticalArrangement = Arrangement.spacedBy(dp10)
+        ) {
+            items(
+                items = favoriteMovies
+            ) { movieDetail ->
+                Box(
+                    modifier = Modifier.clickable { onMovieClick(movieDetail.id ?: -1) }
+                ) {
+                    DynamicAsyncImageLoader(
+                        modifier = Modifier.width(dp200).aspectRatio(9f / 16f),
+                        source = movieDetail.posterPath ?: "",
+                        contentDescription = "BoxOfficePoster"
+                    )
+                    FavoriteButton(
+                        modifier = Modifier
+                            .padding(top = dp5, end = dp5)
+                            .wrapContentSize()
+                            .align(Alignment.TopEnd),
+                        isFavorite = favoriteMovies.contains(movieDetail),
+                        onClick = { updateFavoriteMovies(movieDetail) }
+                    )
+                }
             }
         }
     }
