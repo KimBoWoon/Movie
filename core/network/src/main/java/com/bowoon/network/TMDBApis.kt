@@ -26,7 +26,8 @@ interface TMDBApis {
     suspend fun searchMovies(
         @Query("query") query: String,
         @Query("language") language: String = "ko-KR",
-        @Query("region") region: String = "KR"
+        @Query("region") region: String = "KR",
+        @Query("page") page: Int = 1
     ): ApiResponse<NetworkTMDBSearch>
 
     @GET("/3/movie/{movie_id}")

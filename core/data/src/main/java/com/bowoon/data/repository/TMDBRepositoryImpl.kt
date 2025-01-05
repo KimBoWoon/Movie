@@ -1,10 +1,15 @@
 package com.bowoon.data.repository
 
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import com.bowoon.data.paging.TMDBSearchPagingSource
 import com.bowoon.model.TMDBConfiguration
 import com.bowoon.model.TMDBLanguageItem
 import com.bowoon.model.TMDBMovieDetail
 import com.bowoon.model.TMDBRegion
 import com.bowoon.model.TMDBSearch
+import com.bowoon.model.TMDBSearchResult
 import com.bowoon.model.Upcoming
 import com.bowoon.network.ApiResponse
 import com.bowoon.network.model.asExternalModel
@@ -37,16 +42,31 @@ class TMDBRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun searchMovies(
-        query: String
-    ): Flow<TMDBSearch> = flow {
-        val language = "${userDataRepository.getLanguage()}-${userDataRepository.getRegion()}"
-        val region = userDataRepository.getRegion()
+//    override fun searchMovies(
+//        query: String
+//    ): Flow<TMDBSearch> = flow {
+//        val language = "${userDataRepository.getLanguage()}-${userDataRepository.getRegion()}"
+//        val region = userDataRepository.getRegion()
+//
+//        when (val response = apis.tmdbApis.searchMovies(query = query, language = language, region = region)) {
+//            is ApiResponse.Failure -> throw response.throwable
+//            is ApiResponse.Success -> emit(response.data.asExternalModel())
+//        }
+//    }
 
-        when (val response = apis.tmdbApis.searchMovies(query = query, language = language, region = region)) {
-            is ApiResponse.Failure -> throw response.throwable
-            is ApiResponse.Success -> emit(response.data.asExternalModel())
-        }
+    override suspend fun searchMovies(
+        query: String
+    ): Flow<PagingData<TMDBSearchResult>> {
+        return Pager(
+            config = PagingConfig(pageSize = 20, initialLoadSize = 20, prefetchDistance = 5),
+            pagingSourceFactory = {
+                TMDBSearchPagingSource(
+                    apis = apis,
+                    query = query,
+                    userDataRepository = userDataRepository
+                )
+            }
+        ).flow
     }
 
     override fun getMovieDetail(id: Int): Flow<TMDBMovieDetail> = flow {

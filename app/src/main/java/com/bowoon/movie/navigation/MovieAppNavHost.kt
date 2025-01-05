@@ -33,8 +33,13 @@ fun MovieAppNavHost(
                 onShowSnackbar = onShowSnackbar
             )
         }
-        searchScreen(onMovieClick = navController::navigateToDetail)
-        favoriteScreen(onMovieClick = navController::navigateToDetail)
+        searchScreen(
+            onMovieClick = navController::navigateToDetail
+        )
+        favoriteScreen(
+            onMovieClick = navController::navigateToDetail,
+            onShowSnackbar = onShowSnackbar
+        )
         myScreen()
     }
 }

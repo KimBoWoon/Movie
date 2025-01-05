@@ -12,7 +12,8 @@ dependencies {
         projects.core.common,
         projects.core.model,
         projects.core.data,
-        libs.threetenabp
+        libs.threetenabp,
+        libs.androidx.compose.paging
     ).forEach {
         implementation(it)
     }

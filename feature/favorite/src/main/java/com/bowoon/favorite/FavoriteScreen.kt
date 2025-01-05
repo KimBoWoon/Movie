@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,10 +30,12 @@ import com.bowoon.ui.dp15
 import com.bowoon.ui.dp200
 import com.bowoon.ui.dp5
 import com.bowoon.ui.image.DynamicAsyncImageLoader
+import kotlinx.coroutines.launch
 
 @Composable
 fun FavoriteScreen(
     onMovieClick: (Int) -> Unit,
+    onShowSnackbar: suspend (String, String?) -> Boolean,
     viewModel: FavoriteVM = hiltViewModel()
 ) {
     val state by viewModel.favoriteMovies.collectAsStateWithLifecycle()
@@ -40,6 +43,7 @@ fun FavoriteScreen(
     FavoriteScreen(
         state = state,
         onMovieClick = onMovieClick,
+        onShowSnackbar = onShowSnackbar,
         updateFavoriteMovies = viewModel::updateFavoriteMovies
     )
 }
@@ -48,10 +52,12 @@ fun FavoriteScreen(
 fun FavoriteScreen(
     state: FavoriteMoviesState,
     onMovieClick: (Int) -> Unit,
+    onShowSnackbar: suspend (String, String?) -> Boolean,
     updateFavoriteMovies: (MovieDetail) -> Unit
 ) {
     val isLoading = state is FavoriteMoviesState.Loading
     var favoriteMovies by remember { mutableStateOf<List<MovieDetail>>(emptyList()) }
+    val scope = rememberCoroutineScope()
 
     when (state) {
         is FavoriteMoviesState.Loading -> {}
@@ -92,7 +98,12 @@ fun FavoriteScreen(
                             .wrapContentSize()
                             .align(Alignment.TopEnd),
                         isFavorite = favoriteMovies.contains(movieDetail),
-                        onClick = { updateFavoriteMovies(movieDetail) }
+                        onClick = {
+                            updateFavoriteMovies(movieDetail)
+                            scope.launch {
+                                onShowSnackbar("즐겨찾기에서 제거됐습니다.", null)
+                            }
+                        }
                     )
                 }
             }

@@ -308,7 +308,7 @@ fun ImageComponent(
 ) {
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Adaptive(dp100),
-        modifier = Modifier.wrapContentSize(),
+        modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(horizontal = dp10),
         horizontalArrangement = Arrangement.spacedBy(dp10),
         verticalItemSpacing = dp10
@@ -334,7 +334,7 @@ fun MovieInfoComponent(
     var overviewMaxLine by remember { mutableIntStateOf(3) }
 
     LazyColumn(
-        modifier = Modifier.fillMaxWidth().wrapContentHeight()
+        modifier = Modifier.fillMaxSize()
     ) {
         item {
             Text(text = movie.title ?: "")
@@ -364,7 +364,7 @@ fun ActorAndCrewComponent(
     movie: MovieDetail
 ) {
     LazyColumn(
-        modifier = Modifier.fillMaxWidth().wrapContentHeight()
+        modifier = Modifier.fillMaxSize()
     ) {
         item {
             Text(
@@ -447,7 +447,7 @@ fun SimilarMovieComponent(
 ) {
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Adaptive(dp100),
-        modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+        modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(dp10),
         horizontalArrangement = Arrangement.spacedBy(dp10),
         verticalItemSpacing = dp10

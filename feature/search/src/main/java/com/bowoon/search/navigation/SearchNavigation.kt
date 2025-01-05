@@ -16,6 +16,8 @@ fun NavGraphBuilder.searchScreen(
     onMovieClick: (Int) -> Unit
 ) {
     composable<SearchRoute>() {
-        SearchScreen(onMovieClick)
+        SearchScreen(
+            onMovieClick = onMovieClick
+        )
     }
 }

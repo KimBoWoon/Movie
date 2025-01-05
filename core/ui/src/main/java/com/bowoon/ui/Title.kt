@@ -26,6 +26,70 @@ import com.bowoon.ui.theme.MovieTheme
 
 @Composable
 fun Title(
+    title: String
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(dp53)
+            .bottomLineBorder(strokeWidth = (0.5).dp, color = Color.LightGray),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            modifier = Modifier.padding(horizontal = dp20),
+            text = title,
+            fontSize = sp20,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+@Composable
+fun Title(
+    title: String,
+    onBackClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(dp53)
+            .bottomLineBorder(strokeWidth = (0.5).dp, color = Color.LightGray),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        FilledIconButton(
+            modifier = Modifier.padding(dp5),
+            onClick = { onBackClick() },
+            colors = IconButtonDefaults.iconButtonColors(
+                containerColor = Color.Transparent,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                disabledContainerColor = Color.Transparent,
+                disabledContentColor = Color.Transparent
+            )
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = "onBackClick"
+            )
+        }
+        Text(
+            modifier = Modifier.weight(1f),
+            text = title,
+            fontSize = sp20,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+@Composable
+fun Title(
     title: String,
     isFavorite: Boolean,
     onBackClick: () -> Unit,

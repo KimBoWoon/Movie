@@ -123,7 +123,5 @@ class InternalDataSource @Inject constructor(
         } ?: emptyList()
 
     suspend fun getImageQuality(): String =
-        datastore.data.map { it[IMAGE_QUALITY] }.firstOrNull()?.let { jsonString ->
-            json.decodeFromString<String>(jsonString)
-        } ?: "original"
+        datastore.data.map { it[IMAGE_QUALITY] }.firstOrNull() ?: "original"
 }
