@@ -40,7 +40,7 @@ class InternalDataSource @Inject constructor(
             updateDate = it[UPDATE_DATE] ?: "",
             mainMenu = it[MAIN_MENU]?.let { jsonString ->
                 json.decodeFromString<MainMenu>(jsonString)
-            } ?: MainMenu(emptyList(), emptyList(), emptyList()),
+            } ?: MainMenu(emptyList(), emptyList()),
             region = it[REGION] ?: "KR",
             language = it[LANGUAGE] ?: "ko",
             imageQuality = it[IMAGE_QUALITY] ?: "original"

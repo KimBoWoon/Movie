@@ -43,13 +43,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.bowoon.common.Log
 import com.bowoon.model.DailyBoxOffice
 import com.bowoon.model.MainMenu
 import com.bowoon.model.MovieDetail
 import com.bowoon.model.UpComingResult
 import com.bowoon.model.Week
+import com.bowoon.ui.ConfirmDialog
 import com.bowoon.ui.dp1
 import com.bowoon.ui.dp10
 import com.bowoon.ui.dp15
@@ -69,17 +75,24 @@ fun HomeScreen(
     viewModel: HomeVM = hiltViewModel()
 ) {
     val homeUiState by viewModel.mainMenu.collectAsStateWithLifecycle()
+    val upcomingMovies = viewModel.upcomingMovies.collectAsLazyPagingItems()
+
+    LifecycleEventEffect(event = Lifecycle.Event.ON_START) {
+        viewModel.getUpcomingMoviesPaging()
+    }
 
     HomeScreen(
         state = homeUiState,
-        onMovieClick = onMovieClick
+        onMovieClick = onMovieClick,
+        upcomingMovies = upcomingMovies
     )
 }
 
 @Composable
 fun HomeScreen(
     state: HomeUiState,
-    onMovieClick: (Int) -> Unit
+    onMovieClick: (Int) -> Unit,
+    upcomingMovies: LazyPagingItems<UpComingResult>
 ) {
     val isLoading = state is HomeUiState.Loading
     var mainMenu by remember { mutableStateOf<MainMenu>(MainMenu()) }
@@ -104,7 +117,7 @@ fun HomeScreen(
                 onMovieClick = onMovieClick
             )
             upcomingComponent(
-                upcoming = mainMenu.upcomingMovies,
+                upcoming = upcomingMovies,
                 onMovieClick = onMovieClick
             )
             calendarComponent(
@@ -200,30 +213,73 @@ fun BoxOfficeItem(
 }
 
 fun LazyListScope.upcomingComponent(
-    upcoming: List<UpComingResult>,
+//    upcoming: List<UpComingResult>,
+    upcoming: LazyPagingItems<UpComingResult>,
     onMovieClick: (Int) -> Unit
 ) {
     item {
-        if (upcoming.isNotEmpty()) {
+        var isLoading by remember { mutableStateOf(false) }
+        var isAppend by remember { mutableStateOf(false) }
+
+        when {
+            upcoming.loadState.refresh is LoadState.Loading -> isLoading = true
+            upcoming.loadState.append is LoadState.Loading -> isAppend = true
+            upcoming.loadState.refresh is LoadState.Error || upcoming.loadState.append is LoadState.Error -> {
+                isLoading = false
+                isAppend = false
+
+                ConfirmDialog(
+                    title = "Error",
+                    message = (upcoming.loadState.refresh as? LoadState.Error)?.error?.message ?: "something wrong...",
+                    confirmPair = "재시도" to { upcoming.retry() },
+                    dismissPair = "확인" to {}
+                )
+            }
+
+            upcoming.loadState.refresh is LoadState.NotLoading || upcoming.loadState.append is LoadState.NotLoading -> {
+                isLoading = false
+                isAppend = false
+            }
+        }
+//        if (upcoming.isNotEmpty()) {
             Text(text = "개봉 예정작")
-            LazyRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
-                contentPadding = PaddingValues(dp15),
-                horizontalArrangement = Arrangement.spacedBy(dp15)
-            ) {
-                items(
-                    items = upcoming,
-                    key = { "${it.id}_${it.title}_${it.originalTitle}_${it.releaseDate}" }
-                ) { upcoming ->
+        LazyRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight(),
+            contentPadding = PaddingValues(dp15),
+            horizontalArrangement = Arrangement.spacedBy(dp15)
+        ) {
+            items(
+                count = upcoming.itemCount,
+//                key = { "${it.id}_${it.title}_${it.originalTitle}_${it.releaseDate}" }
+            ) { index ->
+                upcoming[index]?.let {
                     UpcomingItem(
-                        upcoming = upcoming,
+                        upcoming = it,
                         onMovieClick = onMovieClick
                     )
                 }
             }
         }
+//            LazyRow(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .wrapContentHeight(),
+//                contentPadding = PaddingValues(dp15),
+//                horizontalArrangement = Arrangement.spacedBy(dp15)
+//            ) {
+//                items(
+//                    items = upcoming,
+//                    key = { "${it.id}_${it.title}_${it.originalTitle}_${it.releaseDate}" }
+//                ) { upcoming ->
+//                    UpcomingItem(
+//                        upcoming = upcoming,
+//                        onMovieClick = onMovieClick
+//                    )
+//                }
+//            }
+//        }
     }
 }
 

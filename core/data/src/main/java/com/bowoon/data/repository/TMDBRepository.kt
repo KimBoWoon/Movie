@@ -7,15 +7,14 @@ import com.bowoon.model.TMDBMovieDetail
 import com.bowoon.model.TMDBRegion
 import com.bowoon.model.TMDBSearch
 import com.bowoon.model.TMDBSearchResult
-import com.bowoon.model.Upcoming
+import com.bowoon.model.UpComingResult
 import kotlinx.coroutines.flow.Flow
 
 interface TMDBRepository {
     val posterUrl: Flow<String>
     fun getConfiguration(): Flow<TMDBConfiguration>
-    fun getUpcomingMovies(): Flow<Upcoming>
-//    fun searchMovies(query: String): Flow<TMDBSearch>
     suspend fun searchMovies(query: String): Flow<PagingData<TMDBSearchResult>>
+    suspend fun getUpcomingMovies(): Flow<PagingData<UpComingResult>>
     fun getMovieDetail(id: Int): Flow<TMDBMovieDetail>
     fun discoverMovie(
         releaseDateGte: String,

@@ -6,7 +6,6 @@ import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.model.DailyBoxOffice
 import com.bowoon.model.KOBISBoxOffice
 import com.bowoon.model.MainMenu
-import com.bowoon.model.UpComingResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
@@ -26,30 +25,11 @@ class GetMainMenuUseCase @Inject constructor(
     ): Flow<MainMenu> = combine(
         userDataRepository.userData,
         kobisRepository.getDailyBoxOffice(kobisOpenApiKey, targetDt.format(DateTimeFormatter.ofPattern("yyyyMMdd"))),
-        tmdbRepository.getUpcomingMovies(),
         tmdbRepository.posterUrl
-    ) { userData, kobisBoxOffice, upcoming, posterUrl ->
+    ) { userData, kobisBoxOffice, posterUrl ->
         MainMenu(
             dailyBoxOffice = createDailyBoxOffice(kobisBoxOffice, posterUrl),
-            favoriteMovies = userData.favoriteMovies,
-            upcomingMovies = upcoming.results?.map {
-                UpComingResult(
-                    adult = it.adult,
-                    backdropPath = it.backdropPath,
-                    genreIds = it.genreIds,
-                    id = it.id,
-                    originalLanguage = it.originalLanguage,
-                    originalTitle = it.originalTitle,
-                    overview = it.overview,
-                    popularity = it.popularity,
-                    posterPath = "$posterUrl${it.posterPath}",
-                    releaseDate = it.releaseDate,
-                    title = it.title,
-                    video = it.video,
-                    voteAverage = it.voteAverage,
-                    voteCount = it.voteCount
-                )
-            } ?: emptyList()
+            favoriteMovies = userData.favoriteMovies
         )
     }
 
