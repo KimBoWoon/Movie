@@ -7,7 +7,7 @@ import androidx.navigation.toRoute
 import com.bowoon.common.Result
 import com.bowoon.common.asResult
 import com.bowoon.common.restartableStateIn
-import com.bowoon.data.repository.UserDataRepository
+import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.detail.navigation.DetailRoute
 import com.bowoon.domain.GetMovieDetail
 import com.bowoon.model.MovieDetail
@@ -21,7 +21,7 @@ import javax.inject.Inject
 class DetailVM @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val getMovieDetail: GetMovieDetail,
-    private val userDataRepository: UserDataRepository
+    private val databaseRepository: DatabaseRepository
 ) : ViewModel() {
     companion object {
         private const val TAG = "DetailVM"
@@ -44,12 +44,24 @@ class DetailVM @Inject constructor(
 
     fun updateFavoriteMovies(movie: MovieDetail) {
         viewModelScope.launch {
-            userDataRepository.updateFavoriteMovies(movie)
+            databaseRepository.insert(movie)
         }
     }
 
     fun restart() {
         movieInfo.restart()
+    }
+
+    fun insertMovie(movie: MovieDetail) {
+        viewModelScope.launch {
+            databaseRepository.insert(movie)
+        }
+    }
+
+    fun deleteMovie(movie: MovieDetail) {
+        viewModelScope.launch {
+            databaseRepository.delete(movie)
+        }
     }
 }
 

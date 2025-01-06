@@ -1,5 +1,7 @@
 package com.bowoon.data.di
 
+import com.bowoon.data.repository.DatabaseRepository
+import com.bowoon.data.repository.DatabaseRepositoryImpl
 import com.bowoon.data.repository.KobisRepository
 import com.bowoon.data.repository.KobisRepositoryImpl
 import com.bowoon.data.repository.TMDBRepository
@@ -32,4 +34,10 @@ abstract class DataModules {
     abstract fun bindTMDBRepository(
         repository: TMDBRepositoryImpl
     ): TMDBRepository
+
+    @Binds
+    @ViewModelScoped
+    abstract fun bindDatabaseRepository(
+        repository: DatabaseRepositoryImpl
+    ): DatabaseRepository
 }

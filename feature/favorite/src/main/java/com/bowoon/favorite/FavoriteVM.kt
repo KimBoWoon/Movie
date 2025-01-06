@@ -4,8 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bowoon.common.Result
 import com.bowoon.common.asResult
-import com.bowoon.data.repository.TMDBRepository
-import com.bowoon.data.repository.UserDataRepository
+import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.model.MovieDetail
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -16,15 +15,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 class FavoriteVM @Inject constructor(
-    private val userDataRepository: UserDataRepository,
-    private val tmdbRepository: TMDBRepository
+    private val databaseRepository: DatabaseRepository
 ) : ViewModel() {
     companion object {
         private const val TAG = "FavoriteVM"
     }
 
-    val favoriteMovies = userDataRepository.userData
-        .map { it.favoriteMovies }
+    val favoriteMovies = databaseRepository.getMovies()
         .asResult()
         .map {
             when (it) {
@@ -38,9 +35,9 @@ class FavoriteVM @Inject constructor(
             started = SharingStarted.WhileSubscribed(5_000)
         )
 
-    fun updateFavoriteMovies(movie: MovieDetail) {
+    fun deleteMovie(movie: MovieDetail) {
         viewModelScope.launch {
-            userDataRepository.updateFavoriteMovies(movie)
+            databaseRepository.delete(movie)
         }
     }
 }

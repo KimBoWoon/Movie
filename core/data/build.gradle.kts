@@ -20,6 +20,7 @@ dependencies {
         projects.core.model,
         projects.core.network,
         projects.core.datastore,
+        projects.core.database,
         libs.androidx.compose.paging
     ).forEach {
         implementation(it)

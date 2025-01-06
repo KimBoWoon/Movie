@@ -96,12 +96,6 @@ fun HomeScreen(
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        if (isLoading) {
-            CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center)
-            )
-        }
-
         LazyColumn(
             modifier = Modifier.fillMaxSize()
         ) {
@@ -116,6 +110,12 @@ fun HomeScreen(
             calendarComponent(
                 favoriteMovies = mainMenu.favoriteMovies,
                 filterFavoriteMovies = { releaseDate -> mainMenu.favoriteMovies.filter { it.releaseDate == releaseDate } }
+            )
+        }
+
+        if (isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center)
             )
         }
     }

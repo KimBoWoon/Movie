@@ -85,7 +85,8 @@ fun DetailScreen(
     DetailScreen(
         state = movieInfo,
         navController = navController,
-        updateFavoriteMovies = viewModel::updateFavoriteMovies,
+        insertFavoriteMovie = viewModel::insertMovie,
+        deleteFavoriteMovie = viewModel::deleteMovie,
         onShowSnackbar = onShowSnackbar,
         restart = viewModel::restart
     )
@@ -95,7 +96,8 @@ fun DetailScreen(
 fun DetailScreen(
     state: MovieDetailState,
     navController: NavController,
-    updateFavoriteMovies: (MovieDetail) -> Unit,
+    insertFavoriteMovie: (MovieDetail) -> Unit,
+    deleteFavoriteMovie: (MovieDetail) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
     restart: () -> Unit
 ) {
@@ -143,7 +145,11 @@ fun DetailScreen(
                     isFavorite = it.isFavorite,
                     onBackClick = { navController.navigateUp() },
                     onFavoriteClick = {
-                        updateFavoriteMovies(it)
+                        if (it.isFavorite) {
+                            deleteFavoriteMovie(it)
+                        } else {
+                            insertFavoriteMovie(it)
+                        }
                         scope.launch {
                             val isFavorite = it.favoriteMovies?.find { favoriteMovie -> favoriteMovie.id == it.id } != null
                             onShowSnackbar(
@@ -157,7 +163,8 @@ fun DetailScreen(
                     movieDetail = it,
                     onMovieClick = { id -> navController.navigateToDetail(id) },
                     favoriteMovies = it.favoriteMovies ?: emptyList(),
-                    updateFavoriteMovies = updateFavoriteMovies
+                    insertFavoriteMovie = insertFavoriteMovie,
+                    deleteFavoriteMovie = deleteFavoriteMovie
                 )
             }
         }
@@ -169,7 +176,8 @@ fun MovieDetail(
     movieDetail: MovieDetail,
     onMovieClick: (Int) -> Unit,
     favoriteMovies: List<MovieDetail>,
-    updateFavoriteMovies: (MovieDetail) -> Unit
+    insertFavoriteMovie: (MovieDetail) -> Unit,
+    deleteFavoriteMovie: (MovieDetail) -> Unit
 ) {
     Column {
         VideosComponent(movieDetail)
@@ -178,7 +186,8 @@ fun MovieDetail(
             movie = movieDetail,
             onMovieClick = onMovieClick,
             favoriteMovies = favoriteMovies,
-            updateFavoriteMovies = updateFavoriteMovies
+            insertFavoriteMovie = insertFavoriteMovie,
+            deleteFavoriteMovie = deleteFavoriteMovie
         )
     }
 }
@@ -249,7 +258,8 @@ fun TabComponent(
     movie: MovieDetail,
     onMovieClick: (Int) -> Unit,
     favoriteMovies: List<MovieDetail>,
-    updateFavoriteMovies: (MovieDetail) -> Unit
+    insertFavoriteMovie: (MovieDetail) -> Unit,
+    deleteFavoriteMovie: (MovieDetail) -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val tabList = MovieDetailTab.entries
@@ -295,7 +305,8 @@ fun TabComponent(
                     movie = movie,
                     onMovieClick = onMovieClick,
                     favoriteMovies = favoriteMovies,
-                    updateFavoriteMovies = updateFavoriteMovies
+                    insertFavoriteMovie = insertFavoriteMovie,
+                    deleteFavoriteMovie = deleteFavoriteMovie
                 )
             }
         }
@@ -443,7 +454,8 @@ fun SimilarMovieComponent(
     movie: MovieDetail,
     onMovieClick: (Int) -> Unit,
     favoriteMovies: List<MovieDetail>,
-    updateFavoriteMovies: (MovieDetail) -> Unit
+    insertFavoriteMovie: (MovieDetail) -> Unit,
+    deleteFavoriteMovie: (MovieDetail) -> Unit
 ) {
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Adaptive(dp100),
@@ -473,7 +485,13 @@ fun SimilarMovieComponent(
                         .wrapContentSize()
                         .align(Alignment.TopEnd),
                     isFavorite = favoriteMovies.find { it.id == detail.id } != null,
-                    onClick = { updateFavoriteMovies(detail) }
+                    onClick = {
+                        if (favoriteMovies.find { it.id == detail.id } != null) {
+                            deleteFavoriteMovie(detail)
+                        } else {
+                            insertFavoriteMovie(detail)
+                        }
+                    }
                 )
             }
         }

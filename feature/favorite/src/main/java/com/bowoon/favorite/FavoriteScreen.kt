@@ -44,7 +44,7 @@ fun FavoriteScreen(
         state = state,
         onMovieClick = onMovieClick,
         onShowSnackbar = onShowSnackbar,
-        updateFavoriteMovies = viewModel::updateFavoriteMovies
+        deleteFavoriteMovie = viewModel::deleteMovie
     )
 }
 
@@ -53,7 +53,7 @@ fun FavoriteScreen(
     state: FavoriteMoviesState,
     onMovieClick: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
-    updateFavoriteMovies: (MovieDetail) -> Unit
+    deleteFavoriteMovie: (MovieDetail) -> Unit
 ) {
     val isLoading = state is FavoriteMoviesState.Loading
     var favoriteMovies by remember { mutableStateOf<List<MovieDetail>>(emptyList()) }
@@ -99,7 +99,7 @@ fun FavoriteScreen(
                             .align(Alignment.TopEnd),
                         isFavorite = favoriteMovies.contains(movieDetail),
                         onClick = {
-                            updateFavoriteMovies(movieDetail)
+                            deleteFavoriteMovie(movieDetail)
                             scope.launch {
                                 onShowSnackbar("즐겨찾기에서 제거됐습니다.", null)
                             }

@@ -6,7 +6,6 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.bowoon.model.DarkThemeConfig
 import com.bowoon.model.MainMenu
-import com.bowoon.model.MovieDetail
 import com.bowoon.model.UserData
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
@@ -27,7 +26,6 @@ class InternalDataSource @Inject constructor(
 
         private val UPDATE_DATE = stringPreferencesKey("updateDate")
         private val MAIN_MENU = stringPreferencesKey("mainMenu")
-        private val FAVORITE_MOVIES = stringPreferencesKey("favoriteMovies")
         private val IS_DART_MODE = stringPreferencesKey("isDarkMode")
         private val REGION = stringPreferencesKey("region")
         private val LANGUAGE = stringPreferencesKey("language")
@@ -43,9 +41,6 @@ class InternalDataSource @Inject constructor(
             mainMenu = it[MAIN_MENU]?.let { jsonString ->
                 json.decodeFromString<MainMenu>(jsonString)
             } ?: MainMenu(emptyList(), emptyList(), emptyList()),
-            favoriteMovies = it[FAVORITE_MOVIES]?.let { jsonString ->
-                json.decodeFromString<List<MovieDetail>>(jsonString)
-            } ?: emptyList(),
             region = it[REGION] ?: "KR",
             language = it[LANGUAGE] ?: "ko",
             imageQuality = it[IMAGE_QUALITY] ?: "original"
@@ -61,26 +56,6 @@ class InternalDataSource @Inject constructor(
     suspend fun updateMainOfDate(date: String) {
         datastore.edit {
             it[UPDATE_DATE] = date
-        }
-    }
-
-    suspend fun updateFavoriteMovies(favoriteMovies: MovieDetail) {
-        datastore.edit {
-            it[FAVORITE_MOVIES].let { jsonString ->
-                when (jsonString) {
-                    null -> it[FAVORITE_MOVIES] = json.encodeToString(listOf(favoriteMovies))
-                    else -> {
-                        val favoriteList = json.decodeFromString<List<MovieDetail>>(jsonString)
-
-                        when {
-                            favoriteList.find { it.id == favoriteMovies.id } != null -> favoriteList.filter { it.id != favoriteMovies.id }
-                            else -> favoriteList + listOf(favoriteMovies)
-                        }.run {
-                            it[FAVORITE_MOVIES] = json.encodeToString(this)
-                        }
-                    }
-                }
-            }
         }
     }
 
@@ -116,11 +91,6 @@ class InternalDataSource @Inject constructor(
 
     suspend fun getLanguage(): String =
         datastore.data.map { it[LANGUAGE] }.firstOrNull() ?: "ko"
-
-    suspend fun getFavoriteMovies(): List<MovieDetail> =
-        datastore.data.map { it[FAVORITE_MOVIES] }.firstOrNull()?.let { jsonString ->
-            json.decodeFromString<List<MovieDetail>>(jsonString)
-        } ?: emptyList()
 
     suspend fun getImageQuality(): String =
         datastore.data.map { it[IMAGE_QUALITY] }.firstOrNull() ?: "original"

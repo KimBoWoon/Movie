@@ -1,15 +1,15 @@
 [versions]
 # kotlin
-kotlin = "2.0.20"
+kotlin = "2.1.0"
 
 # agp
 agp = "8.7.3"
 
 # ksp
-ksp = "2.0.20-1.0.25"
+ksp = "2.1.0-1.0.29"
 
 # jvm
-jetbrainsKotlinJvm = "2.0.20"
+jetbrainsKotlinJvm = "2.1.0"
 
 # jetpack
 coreKtx = "1.15.0"
@@ -20,6 +20,7 @@ material = "1.12.0"
 activity = "1.9.3"
 jetpack-fragment = "1.8.5"
 datastore = "1.1.1"
+room = "2.6.1"
 
 # compose
 composeBom = "2024.12.01"
@@ -35,13 +36,13 @@ junit = "4.13.2"
 junitVersion = "1.2.1"
 
 # Coroutine
-kotlinxCoroutines = "1.9.0"
+kotlinxCoroutines = "1.10.0"
 
 # espresso
 espressoCore = "3.6.1"
 
 # hilt
-hilt = "2.52"
+hilt = "2.53.1"
 hilt-compiler = "1.2.0"
 
 # retrofit2
@@ -53,7 +54,7 @@ okhttp-okHttp = "4.12.0"
 okhttp-profiler = "1.0.8"
 
 # kotlin serialization
-serialization-kotlin = "1.6.3"
+serialization-kotlin = "1.7.3"
 serialization-converter = "1.0.0"
 
 # coil
@@ -70,10 +71,10 @@ androidxTestCore = "1.6.1"
 androidxTestRunner = "1.6.2"
 
 # robolectric
-robolectric = "4.14"
+robolectric = "4.14.1"
 
 # turbin
-turbine = "1.1.0"
+turbine = "1.2.0"
 
 # threentenabp
 threentenabp = "1.4.8"
@@ -96,6 +97,9 @@ material = { group = "com.google.android.material", name = "material", version.r
 androidx-fragment = { module = "androidx.fragment:fragment-ktx", version.ref = "jetpack-fragment" }
 androidx-datastore = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore"}
 androidx-dataStore-core = { group = "androidx.datastore", name = "datastore-core", version.ref = "datastore" }
+androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 
 # compose
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }

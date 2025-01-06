@@ -1,5 +1,6 @@
 package com.bowoon.domain
 
+import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.data.repository.TMDBRepository
 import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.model.MovieDetail
@@ -19,14 +20,16 @@ import javax.inject.Inject
 
 class GetMovieDetail @Inject constructor(
     private val tmdbRepository: TMDBRepository,
-    private val userDataRepository: UserDataRepository
+    private val userDataRepository: UserDataRepository,
+    private val databaseRepository: DatabaseRepository
 ) {
     operator fun invoke(id: Int): Flow<MovieDetail> =
         combine(
             tmdbRepository.getMovieDetail(id),
             userDataRepository.userData,
+            databaseRepository.getMovies(),
             tmdbRepository.posterUrl
-        ) { tmdbMovieInfo, userData, posterUrl ->
+        ) { tmdbMovieInfo, userData, favoriteMovies, posterUrl ->
             MovieDetail(
                 adult = tmdbMovieInfo.adult,
                 alternativeTitles = tmdbMovieInfo.alternativeTitles,
@@ -64,12 +67,8 @@ class GetMovieDetail @Inject constructor(
                 voteAverage = tmdbMovieInfo.voteAverage,
                 similar = getSimilar(tmdbMovieInfo.similar, posterUrl),
                 certification = tmdbMovieInfo.releases?.countries?.find { it.iso31661.equals(userData.region, true) }?.certification,
-                favoriteMovies = userData.favoriteMovies,
-                isFavorite = userData.favoriteMovies.find {
-                    it.title == tmdbMovieInfo.title &&
-                            it.originalTitle == tmdbMovieInfo.originalTitle &&
-                            it.releaseDate == tmdbMovieInfo.releases?.countries?.find { it.iso31661.equals(userData.region, true) }?.releaseDate
-                } != null
+                favoriteMovies = favoriteMovies,
+                isFavorite = favoriteMovies.find { it.id == tmdbMovieInfo.id } != null
             )
         }
 

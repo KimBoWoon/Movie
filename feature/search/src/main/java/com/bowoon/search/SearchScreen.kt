@@ -99,12 +99,6 @@ fun SearchScreen(
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        if (isLoading) {
-            CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center)
-            )
-        }
-
         Column {
             Title(title = "영화 검색")
             Row(
@@ -159,6 +153,12 @@ fun SearchScreen(
                     }
                 }
             }
+        }
+
+        if (isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center)
+            )
         }
     }
 }
