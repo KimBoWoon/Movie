@@ -12,7 +12,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import org.threeten.bp.LocalDate
 import javax.inject.Inject
@@ -48,16 +47,12 @@ class HomeVM @Inject constructor(
         .map {
             when (it) {
                 is Result.Loading -> HomeUiState.Loading
-                is Result.Success -> HomeUiState.Success(it.data)
-                is Result.Error -> HomeUiState.Error(it.throwable)
-            }
-        }.onEach {
-            when (it) {
-                is HomeUiState.Loading, is HomeUiState.Error -> {}
-                is HomeUiState.Success -> {
+                is Result.Success -> {
+                    userDataRepository.updateMainMenu(it.data)
                     userDataRepository.updateMainOfDate(LocalDate.now().minusDays(1).toString())
-                    userDataRepository.updateMainMenu(it.mainMenu)
+                    HomeUiState.Success(it.data)
                 }
+                is Result.Error -> HomeUiState.Error(it.throwable)
             }
         }.stateIn(
             scope = viewModelScope,

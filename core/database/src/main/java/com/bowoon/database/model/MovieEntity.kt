@@ -10,7 +10,9 @@ data class MovieEntity(
     @PrimaryKey
     val id: Int,
     @ColumnInfo(defaultValue = "")
-    val posterPath: String
+    val posterPath: String,
+    @ColumnInfo(defaultValue = "", typeAffinity = ColumnInfo.INTEGER)
+    val timestamp: Long
 )
 
 fun MovieEntity.asExternalModel(): MovieDetail = MovieDetail(

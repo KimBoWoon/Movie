@@ -21,7 +21,8 @@ dependencies {
         projects.core.network,
         projects.core.datastore,
         projects.core.database,
-        libs.androidx.compose.paging
+        libs.androidx.compose.paging,
+        libs.threetenabp
     ).forEach {
         implementation(it)
     }

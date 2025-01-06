@@ -39,6 +39,7 @@ import com.bowoon.ui.Title
 import com.bowoon.ui.dp10
 import com.bowoon.ui.dp100
 import com.bowoon.ui.dp16
+import com.bowoon.ui.dp5
 import com.bowoon.ui.dp8
 import com.bowoon.ui.image.DynamicAsyncImageLoader
 
@@ -102,6 +103,7 @@ fun SearchScreen(
         Column {
             Title(title = "영화 검색")
             Row(
+                modifier = Modifier.padding(bottom = dp10),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -109,10 +111,10 @@ fun SearchScreen(
                     modifier = Modifier
                         .wrapContentHeight()
                         .weight(1f)
-                        .padding(start = dp16, end = dp8),
+                        .padding(start = dp16, top = dp5, end = dp8),
                     value = text,
                     onValueChange = { text = it },
-                    label = { Text("검색어") },
+                    label = { Text("검색어를 입력하세요.") },
                     singleLine = true,
                     maxLines = 1,
                     keyboardOptions = keyboardOptions,

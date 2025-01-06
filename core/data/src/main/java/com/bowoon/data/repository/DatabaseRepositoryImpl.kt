@@ -7,6 +7,7 @@ import com.bowoon.model.MovieDetail
 import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import org.threeten.bp.Instant
 import javax.inject.Inject
 
 @ViewModelScoped
@@ -15,10 +16,19 @@ class DatabaseRepositoryImpl @Inject constructor(
 ) : DatabaseRepository {
     override fun getMovies(): Flow<List<MovieDetail>> =
         movieDao.getMovieEntities()
-            .map { it.map(MovieEntity::asExternalModel) }
+            .map {
+                it.sortedByDescending { it.timestamp }
+                    .map(MovieEntity::asExternalModel)
+            }
 
     override suspend fun insert(movie: MovieDetail): Long =
-        movieDao.insertOrIgnoreMovies(MovieEntity(id = movie.id ?: -1, posterPath = movie.posterPath ?: ""))
+        movieDao.insertOrIgnoreMovies(
+            MovieEntity(
+                id = movie.id ?: -1,
+                posterPath = movie.posterPath ?: "",
+                timestamp = Instant.now().toEpochMilli()
+            )
+        )
 
     override suspend fun delete(movie: MovieDetail) {
         movie.id?.let {
@@ -31,7 +41,8 @@ class DatabaseRepositoryImpl @Inject constructor(
             movies.map {
                 MovieEntity(
                     id = it.id ?: -1,
-                    posterPath = it.posterPath ?: ""
+                    posterPath = it.posterPath ?: "",
+                    timestamp = Instant.now().toEpochMilli()
                 )
             }
         )
