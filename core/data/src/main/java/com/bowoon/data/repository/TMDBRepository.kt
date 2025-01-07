@@ -4,6 +4,7 @@ import androidx.paging.PagingData
 import com.bowoon.model.TMDBConfiguration
 import com.bowoon.model.TMDBLanguageItem
 import com.bowoon.model.TMDBMovieDetail
+import com.bowoon.model.TMDBPeopleDetail
 import com.bowoon.model.TMDBRegion
 import com.bowoon.model.TMDBSearch
 import com.bowoon.model.TMDBSearchResult
@@ -22,4 +23,5 @@ interface TMDBRepository {
     ): Flow<TMDBSearch>
     fun availableLanguage(): Flow<List<TMDBLanguageItem>>
     fun availableRegion(): Flow<TMDBRegion>
+    fun getPeople(personId: Int): Flow<TMDBPeopleDetail>
 }

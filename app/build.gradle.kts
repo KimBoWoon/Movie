@@ -14,6 +14,7 @@ dependencies {
         projects.feature.search,
         projects.feature.favorite,
         projects.feature.my,
+        projects.feature.people,
         libs.coil.compose,
         libs.androidx.lifecycle.runtime.ktx,
         libs.androidx.navigation.compose,

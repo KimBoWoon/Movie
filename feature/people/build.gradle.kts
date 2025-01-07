@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.bowoon.detail"
+    namespace = "com.bowoon.people"
 }
 
 dependencies {
@@ -14,14 +14,9 @@ dependencies {
         projects.core.common,
         projects.core.data,
         projects.core.domain,
-        projects.core.datastore,
         projects.core.model,
-        projects.feature.people,
         libs.androidx.navigation.compose,
-        libs.androidx.compose.hilt.navigation,
-        "androidx.media3:media3-exoplayer:1.5.0",
-        "androidx.media3:media3-ui:1.5.0",
-        "com.pierfrancescosoffritti.androidyoutubeplayer:core:12.1.1"
+        libs.androidx.compose.hilt.navigation
     ).forEach {
         implementation(it)
     }

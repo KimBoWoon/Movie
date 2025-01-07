@@ -26,7 +26,10 @@ class DatabaseRepositoryImpl @Inject constructor(
             MovieEntity(
                 id = movie.id ?: -1,
                 posterPath = movie.posterPath ?: "",
-                timestamp = Instant.now().toEpochMilli()
+                timestamp = Instant.now().toEpochMilli(),
+                releases = movie.releases,
+                releaseDate = movie.releaseDate ?: "",
+                title = movie.title ?: ""
             )
         )
 
@@ -42,7 +45,10 @@ class DatabaseRepositoryImpl @Inject constructor(
                 MovieEntity(
                     id = it.id ?: -1,
                     posterPath = it.posterPath ?: "",
-                    timestamp = Instant.now().toEpochMilli()
+                    timestamp = Instant.now().toEpochMilli(),
+                    releases = it.releases,
+                    releaseDate = it.releaseDate ?: "",
+                    title = it.title ?: ""
                 )
             }
         )

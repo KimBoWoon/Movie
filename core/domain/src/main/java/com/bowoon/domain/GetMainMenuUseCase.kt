@@ -1,8 +1,8 @@
 package com.bowoon.domain
 
+import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.data.repository.KobisRepository
 import com.bowoon.data.repository.TMDBRepository
-import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.model.DailyBoxOffice
 import com.bowoon.model.KOBISBoxOffice
 import com.bowoon.model.MainMenu
@@ -15,7 +15,7 @@ import org.threeten.bp.format.DateTimeFormatter
 import javax.inject.Inject
 
 class GetMainMenuUseCase @Inject constructor(
-    private val userDataRepository: UserDataRepository,
+    private val databaseRepository: DatabaseRepository,
     private val kobisRepository: KobisRepository,
     private val tmdbRepository: TMDBRepository
 ) {
@@ -23,13 +23,13 @@ class GetMainMenuUseCase @Inject constructor(
         targetDt: LocalDate,
         kobisOpenApiKey: String
     ): Flow<MainMenu> = combine(
-        userDataRepository.userData,
+        databaseRepository.getMovies(),
         kobisRepository.getDailyBoxOffice(kobisOpenApiKey, targetDt.format(DateTimeFormatter.ofPattern("yyyyMMdd"))),
         tmdbRepository.posterUrl
-    ) { userData, kobisBoxOffice, posterUrl ->
+    ) { favoriteMovies, kobisBoxOffice, posterUrl ->
         MainMenu(
             dailyBoxOffice = createDailyBoxOffice(kobisBoxOffice, posterUrl),
-            favoriteMovies = userData.favoriteMovies
+            favoriteMovies = favoriteMovies
         )
     }
 

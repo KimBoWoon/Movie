@@ -44,7 +44,7 @@ data class NetworkTMDBMovieDetail(
     @SerialName("belongs_to_collection")
     val belongsToCollection: NetworkTMDBMovieDetailBelongsToCollection? = null,
     @SerialName("budget")
-    val budget: Int? = null,
+    val budget: Long? = null,
 //    @SerialName("changes")
 //    val changes: NetworkTMDBMovieDetailChanges? = null,
     @SerialName("credits")
@@ -84,7 +84,7 @@ data class NetworkTMDBMovieDetail(
     @SerialName("releases")
     val releases: NetworkTMDBMovieDetailReleases? = null,
     @SerialName("revenue")
-    val revenue: Int? = null,
+    val revenue: Long? = null,
 //    @SerialName("reviews")
 //    val reviews: Reviews? = null,
     @SerialName("runtime")

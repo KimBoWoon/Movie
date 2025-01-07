@@ -2,6 +2,7 @@ package com.bowoon.detail
 
 import android.widget.FrameLayout
 import androidx.annotation.OptIn
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -56,6 +57,7 @@ import com.bowoon.model.TMDBMovieDetailCountry
 import com.bowoon.model.TMDBMovieDetailCrew
 import com.bowoon.model.TMDBMovieDetailReleases
 import com.bowoon.model.TMDBMovieDetailVideoResult
+import com.bowoon.people.navigation.navigateToPeople
 import com.bowoon.ui.ConfirmDialog
 import com.bowoon.ui.FavoriteButton
 import com.bowoon.ui.Title
@@ -162,6 +164,7 @@ fun DetailScreen(
                 MovieDetail(
                     movieDetail = it,
                     onMovieClick = { id -> navController.navigateToDetail(id) },
+                    onPeopleClick = { id -> navController.navigateToPeople(id) },
                     favoriteMovies = it.favoriteMovies ?: emptyList(),
                     insertFavoriteMovie = insertFavoriteMovie,
                     deleteFavoriteMovie = deleteFavoriteMovie
@@ -175,6 +178,7 @@ fun DetailScreen(
 fun MovieDetail(
     movieDetail: MovieDetail,
     onMovieClick: (Int) -> Unit,
+    onPeopleClick: (Int) -> Unit,
     favoriteMovies: List<MovieDetail>,
     insertFavoriteMovie: (MovieDetail) -> Unit,
     deleteFavoriteMovie: (MovieDetail) -> Unit
@@ -185,6 +189,7 @@ fun MovieDetail(
         TabComponent(
             movie = movieDetail,
             onMovieClick = onMovieClick,
+            onPeopleClick = onPeopleClick,
             favoriteMovies = favoriteMovies,
             insertFavoriteMovie = insertFavoriteMovie,
             deleteFavoriteMovie = deleteFavoriteMovie
@@ -195,61 +200,99 @@ fun MovieDetail(
 @OptIn(UnstableApi::class)
 @Composable
 fun VideosComponent(movie: MovieDetail) {
-    val context = LocalContext.current
     val vodList = movie.videos?.results?.mapNotNull { it.key } ?: emptyList()
-    val pagerState = rememberPagerState { vodList.size }
 
-    HorizontalPager(
-        state = pagerState
-    ) { index ->
-        val screenWidth = context.resources.displayMetrics.widthPixels
-        val view = YouTubePlayerView(context)
-        val scope = rememberCoroutineScope()
-
-        DisposableEffect("youtube") {
-            onDispose {
-                view.release()
-            }
+    if (vodList.isEmpty()) {
+        Box(
+            modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f).background(color = Color.LightGray)
+        ) {
+            Text(
+                modifier = Modifier.align(Alignment.Center),
+                text = "영상이 없습니다.",
+                color = Color.White,
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
         }
+    } else {
+        val context = LocalContext.current
+        val pagerState = rememberPagerState { vodList.size }
 
-        AndroidView(
-            factory = {
-                view.layoutParams = FrameLayout.LayoutParams(
-                    FrameLayout.LayoutParams.MATCH_PARENT,
-                    (screenWidth / (16f / 9f)).toInt()
-                )
-                view.addYouTubePlayerListener(
-                    object : AbstractYouTubePlayerListener() {
-                        override fun onReady(youTubePlayer: YouTubePlayer) {
-                            super.onReady(youTubePlayer)
-                            youTubePlayer.loadVideo(vodList[index], 0f)
-                        }
+        HorizontalPager(
+            state = pagerState
+        ) { index ->
+            val screenWidth = context.resources.displayMetrics.widthPixels
+            val view = YouTubePlayerView(context)
+            val scope = rememberCoroutineScope()
 
-                        override fun onStateChange(
-                            youTubePlayer: YouTubePlayer,
-                            state: PlayerConstants.PlayerState
-                        ) {
-                            super.onStateChange(youTubePlayer, state)
-                            when (state) {
-                                PlayerConstants.PlayerState.UNKNOWN -> Log.d("UNKNOWN")
-                                PlayerConstants.PlayerState.UNSTARTED -> Log.d("UNSTARTED")
-                                PlayerConstants.PlayerState.ENDED -> {
-                                    Log.d("ENDED")
-                                    scope.launch {
-                                        pagerState.scrollToPage(index + 1)
+            DisposableEffect("youtube") {
+                onDispose {
+                    view.release()
+                }
+            }
+
+            AndroidView(
+                factory = {
+                    view.layoutParams = FrameLayout.LayoutParams(
+                        FrameLayout.LayoutParams.MATCH_PARENT,
+                        (screenWidth / (16f / 9f)).toInt()
+                    )
+                    view.addYouTubePlayerListener(
+                        object : AbstractYouTubePlayerListener() {
+                            override fun onReady(youTubePlayer: YouTubePlayer) {
+                                super.onReady(youTubePlayer)
+                                youTubePlayer.loadVideo(vodList[index], 0f)
+                            }
+
+                            override fun onStateChange(
+                                youTubePlayer: YouTubePlayer,
+                                state: PlayerConstants.PlayerState
+                            ) {
+                                when (state) {
+                                    PlayerConstants.PlayerState.UNKNOWN -> Log.d("UNKNOWN")
+                                    PlayerConstants.PlayerState.UNSTARTED -> Log.d("UNSTARTED")
+                                    PlayerConstants.PlayerState.ENDED -> {
+                                        Log.d("ENDED")
+                                        scope.launch {
+                                            pagerState.scrollToPage(index + 1)
+                                        }
+                                    }
+                                    PlayerConstants.PlayerState.PLAYING -> Log.d("PLAYING")
+                                    PlayerConstants.PlayerState.PAUSED -> Log.d("PAUSED")
+                                    PlayerConstants.PlayerState.BUFFERING -> Log.d("BUFFERING")
+                                    PlayerConstants.PlayerState.VIDEO_CUED -> Log.d("VIDEO_CUED")
+                                }
+                            }
+
+                            override fun onError(
+                                youTubePlayer: YouTubePlayer,
+                                error: PlayerConstants.PlayerError
+                            ) {
+                                when (error) {
+                                    PlayerConstants.PlayerError.UNKNOWN -> Log.e("UNKNOWN")
+                                    PlayerConstants.PlayerError.INVALID_PARAMETER_IN_REQUEST -> Log.e("INVALID_PARAMETER_IN_REQUEST")
+                                    PlayerConstants.PlayerError.HTML_5_PLAYER -> Log.e("HTML_5_PLAYER")
+                                    PlayerConstants.PlayerError.VIDEO_NOT_FOUND -> {
+                                        Log.e("VIDEO_NOT_FOUND")
+                                        scope.launch {
+                                            pagerState.scrollToPage(index + 1)
+                                        }
+                                    }
+                                    PlayerConstants.PlayerError.VIDEO_NOT_PLAYABLE_IN_EMBEDDED_PLAYER -> {
+                                        Log.e("VIDEO_NOT_PLAYABLE_IN_EMBEDDED_PLAYER")
+                                        scope.launch {
+                                            pagerState.scrollToPage(index + 1)
+                                        }
                                     }
                                 }
-                                PlayerConstants.PlayerState.PLAYING -> Log.d("PLAYING")
-                                PlayerConstants.PlayerState.PAUSED -> Log.d("PAUSED")
-                                PlayerConstants.PlayerState.BUFFERING -> Log.d("BUFFERING")
-                                PlayerConstants.PlayerState.VIDEO_CUED -> Log.d("VIDEO_CUED")
                             }
                         }
-                    }
-                )
-                view
-            }
-        )
+                    )
+                    view
+                }
+            )
+        }
     }
 }
 
@@ -257,6 +300,7 @@ fun VideosComponent(movie: MovieDetail) {
 fun TabComponent(
     movie: MovieDetail,
     onMovieClick: (Int) -> Unit,
+    onPeopleClick: (Int) -> Unit,
     favoriteMovies: List<MovieDetail>,
     insertFavoriteMovie: (MovieDetail) -> Unit,
     deleteFavoriteMovie: (MovieDetail) -> Unit
@@ -299,7 +343,10 @@ fun TabComponent(
         ) {
             when (tabList[index].label) {
                 MovieDetailTab.MOVIE_INFO.label -> MovieInfoComponent(movie = movie)
-                MovieDetailTab.ACTOR_AND_CREW.label -> ActorAndCrewComponent(movie = movie)
+                MovieDetailTab.ACTOR_AND_CREW.label -> ActorAndCrewComponent(
+                    movie = movie,
+                    onPeopleClick = onPeopleClick
+                )
                 MovieDetailTab.POSTER.label -> ImageComponent(movie = movie)
                 MovieDetailTab.SIMILAR.label -> SimilarMovieComponent(
                     movie = movie,
@@ -372,7 +419,8 @@ fun MovieInfoComponent(
 
 @Composable
 fun ActorAndCrewComponent(
-    movie: MovieDetail
+    movie: MovieDetail,
+    onPeopleClick: (Int) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize()
@@ -390,7 +438,7 @@ fun ActorAndCrewComponent(
                 items(
                     items = movie.credits?.cast ?: emptyList()
                 ) { cast ->
-                    StaffComponent(cast)
+                    StaffComponent(tmdbMovieDetailCast = cast, onPeopleClick = onPeopleClick)
                 }
             }
             Text(
@@ -405,7 +453,7 @@ fun ActorAndCrewComponent(
                 items(
                     items = movie.credits?.crew ?: emptyList()
                 ) { cast ->
-                    StaffComponent(cast)
+                    StaffComponent(tmdbMovieDetailCrew = cast, onPeopleClick = onPeopleClick)
                 }
             }
         }
@@ -414,38 +462,68 @@ fun ActorAndCrewComponent(
 
 @Composable
 fun StaffComponent(
-    tmdbMovieDetailCast: TMDBMovieDetailCast
+    tmdbMovieDetailCast: TMDBMovieDetailCast,
+    onPeopleClick: (Int) -> Unit
 ) {
     Column(
-        modifier = Modifier.width(dp200).wrapContentHeight()
+        modifier = Modifier.width(dp200).wrapContentHeight().clickable { onPeopleClick(tmdbMovieDetailCast.id ?: -1) }
     ) {
         DynamicAsyncImageLoader(
             modifier = Modifier.fillMaxWidth().aspectRatio(4f / 3f),
             source = tmdbMovieDetailCast.profilePath ?: "",
             contentDescription = "ProfileImage"
         )
-        Text(text = tmdbMovieDetailCast.character ?: "")
-        Text(text = tmdbMovieDetailCast.name ?: "")
-        Text(text = tmdbMovieDetailCast.originalName ?: "")
+        Text(
+            text = tmdbMovieDetailCast.character ?: "",
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+        Text(
+            text = tmdbMovieDetailCast.name ?: "",
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+        Text(
+            text = tmdbMovieDetailCast.originalName ?: "",
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
     }
 }
 
 @Composable
 fun StaffComponent(
-    tmdbMovieDetailCrew: TMDBMovieDetailCrew
+    tmdbMovieDetailCrew: TMDBMovieDetailCrew,
+    onPeopleClick: (Int) -> Unit
 ) {
     Column(
-        modifier = Modifier.width(dp200).wrapContentHeight()
+        modifier = Modifier.width(dp200).wrapContentHeight().clickable { onPeopleClick(tmdbMovieDetailCrew.id ?: -1) }
     ) {
         DynamicAsyncImageLoader(
             modifier = Modifier.fillMaxWidth().aspectRatio(4f / 3f),
             source = tmdbMovieDetailCrew.profilePath ?: "",
             contentDescription = "ProfileImage"
         )
-        Text(text = tmdbMovieDetailCrew.department ?: "")
-        Text(text = tmdbMovieDetailCrew.name ?: "")
-        Text(text = tmdbMovieDetailCrew.originalName ?: "")
-        Text(text = tmdbMovieDetailCrew.job ?: "")
+        Text(
+            text = tmdbMovieDetailCrew.department ?: "",
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+        Text(
+            text = tmdbMovieDetailCrew.name ?: "",
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+        Text(
+            text = tmdbMovieDetailCrew.originalName ?: "",
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+        Text(
+            text = tmdbMovieDetailCrew.job ?: "",
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
     }
 }
 

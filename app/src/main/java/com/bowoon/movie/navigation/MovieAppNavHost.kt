@@ -3,13 +3,14 @@ package com.bowoon.movie.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
-import com.bowoon.detail.navigation.detailScreen
+import com.bowoon.detail.navigation.detailSection
 import com.bowoon.detail.navigation.navigateToDetail
 import com.bowoon.favorite.navigation.favoriteScreen
 import com.bowoon.home.navigation.HomeBaseRoute
 import com.bowoon.home.navigation.homeSection
 import com.bowoon.movie.MovieAppState
 import com.bowoon.my.navigation.myScreen
+import com.bowoon.people.navigation.peopleScreen
 import com.bowoon.search.navigation.searchScreen
 
 @Composable
@@ -28,10 +29,16 @@ fun MovieAppNavHost(
         homeSection(
             onMovieClick = navController::navigateToDetail,
         ) {
-            detailScreen(
+            detailSection(
                 navController = navController,
                 onShowSnackbar = onShowSnackbar
-            )
+            ) {
+                peopleScreen(
+                    navController = navController,
+                    onMovieClick = navController::navigateToDetail,
+                    onShowSnackbar = onShowSnackbar
+                )
+            }
         }
         searchScreen(
             onMovieClick = navController::navigateToDetail

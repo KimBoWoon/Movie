@@ -8,6 +8,7 @@ import com.bowoon.data.paging.TMDBUpcomingPagingSource
 import com.bowoon.model.TMDBConfiguration
 import com.bowoon.model.TMDBLanguageItem
 import com.bowoon.model.TMDBMovieDetail
+import com.bowoon.model.TMDBPeopleDetail
 import com.bowoon.model.TMDBRegion
 import com.bowoon.model.TMDBSearch
 import com.bowoon.model.TMDBSearchResult
@@ -85,6 +86,15 @@ class TMDBRepositoryImpl @Inject constructor(
 
     override fun availableRegion(): Flow<TMDBRegion> = flow {
         when (val response = apis.tmdbApis.getAvailableRegion()) {
+            is ApiResponse.Failure -> throw response.throwable
+            is ApiResponse.Success -> emit(response.data.asExternalModel())
+        }
+    }
+
+    override fun getPeople(personId: Int): Flow<TMDBPeopleDetail> = flow {
+        val language = "${userDataRepository.getLanguage()}-${userDataRepository.getRegion()}"
+
+        when (val response = apis.tmdbApis.getPeopleDetail(personId = personId, language = language)) {
             is ApiResponse.Failure -> throw response.throwable
             is ApiResponse.Success -> emit(response.data.asExternalModel())
         }

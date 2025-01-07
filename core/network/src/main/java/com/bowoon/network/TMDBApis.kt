@@ -3,6 +3,7 @@ package com.bowoon.network
 import com.bowoon.network.model.NetworkTMDBConfiguration
 import com.bowoon.network.model.NetworkTMDBLanguageItem
 import com.bowoon.network.model.NetworkTMDBMovieDetail
+import com.bowoon.network.model.NetworkTMDBPeopleDetail
 import com.bowoon.network.model.NetworkTMDBRegion
 import com.bowoon.network.model.NetworkTMDBSearch
 import com.bowoon.network.model.NetworkUpcoming
@@ -52,4 +53,11 @@ interface TMDBApis {
 
     @GET("/3/watch/providers/regions")
     suspend fun getAvailableRegion(): ApiResponse<NetworkTMDBRegion>
+
+    @GET("/3/person/{person_id}")
+    suspend fun getPeopleDetail(
+        @Path("person_id") personId: Int,
+        @Query("append_to_response") appendToResponse: String = "images, combined_credits, external_ids",
+        @Query("language") language: String = "ko-KR"
+    ): ApiResponse<NetworkTMDBPeopleDetail>
 }
