@@ -5,5 +5,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class MainMenu(
     val dailyBoxOffice: List<DailyBoxOffice> = emptyList(),
-    val favoriteMovies: List<MovieDetail> = emptyList()
+    val upcomingMovies: List<UpComingResult> = emptyList()
 )

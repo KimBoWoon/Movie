@@ -23,6 +23,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.bowoon.common.Log
+import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.model.MovieDetail
 import com.bowoon.ui.FavoriteButton
 import com.bowoon.ui.dp10
@@ -60,9 +62,9 @@ fun FavoriteScreen(
     val scope = rememberCoroutineScope()
 
     when (state) {
-        is FavoriteMoviesState.Loading -> {}
+        is FavoriteMoviesState.Loading -> Log.d("favorite movie list loading...")
         is FavoriteMoviesState.Success -> favoriteMovies = state.data
-        is FavoriteMoviesState.Error -> {}
+        is FavoriteMoviesState.Error -> Log.printStackTrace(state.throwable)
     }
 
     Box(
@@ -88,8 +90,10 @@ fun FavoriteScreen(
                     modifier = Modifier.clickable { onMovieClick(movieDetail.id ?: -1) }
                 ) {
                     DynamicAsyncImageLoader(
-                        modifier = Modifier.width(dp200).aspectRatio(9f / 16f),
-                        source = movieDetail.posterPath ?: "",
+                        modifier = Modifier
+                            .width(dp200)
+                            .aspectRatio(POSTER_IMAGE_RATIO),
+                        source = "${movieDetail.posterUrl}${movieDetail.posterPath}",
                         contentDescription = "BoxOfficePoster"
                     )
                     FavoriteButton(

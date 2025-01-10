@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.bowoon.common.Result
 import com.bowoon.common.asResult
 import com.bowoon.data.repository.DatabaseRepository
+import com.bowoon.domain.GetFavoriteMoviesUseCase
 import com.bowoon.model.MovieDetail
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -15,13 +16,14 @@ import javax.inject.Inject
 
 @HiltViewModel
 class FavoriteVM @Inject constructor(
+    private val getFavoriteMoviesUseCase: GetFavoriteMoviesUseCase,
     private val databaseRepository: DatabaseRepository
 ) : ViewModel() {
     companion object {
         private const val TAG = "FavoriteVM"
     }
 
-    val favoriteMovies = databaseRepository.getMovies()
+    val favoriteMovies = getFavoriteMoviesUseCase()
         .asResult()
         .map {
             when (it) {

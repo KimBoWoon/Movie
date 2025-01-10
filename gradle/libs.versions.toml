@@ -3,7 +3,7 @@
 kotlin = "2.1.0"
 
 # agp
-agp = "8.7.3"
+agp = "8.8.0"
 
 # ksp
 ksp = "2.1.0-1.0.29"
@@ -21,6 +21,7 @@ activity = "1.9.3"
 jetpack-fragment = "1.8.5"
 datastore = "1.1.1"
 room = "2.6.1"
+workManager = "2.9.1"
 
 # compose
 composeBom = "2024.12.01"
@@ -100,6 +101,7 @@ androidx-dataStore-core = { group = "androidx.datastore", name = "datastore-core
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
+androidx-work-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workManager" }
 
 # compose
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
@@ -137,6 +139,7 @@ hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt"
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt" }
 hilt-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "hilt-compiler" }
 hilt-android-testing = { group = "com.google.dagger", name = "hilt-android-testing", version.ref = "hilt" }
+hilt-ext-work = { group = "androidx.hilt", name = "hilt-work", version.ref = "hilt-compiler" }
 
 # kotlin serialization
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization-kotlin" }

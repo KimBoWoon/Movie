@@ -1,11 +1,14 @@
 package com.bowoon.model
 
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class TMDBConfiguration(
     val changeKeys: List<String>? = null,
     val images: Images? = null
 )
 
+@Serializable
 data class Images(
     val backdropSizes: List<String>? = null,
     val baseUrl: String? = null,

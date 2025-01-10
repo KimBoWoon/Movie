@@ -10,5 +10,6 @@ data class UserData(
     val favoriteMovies: List<MovieDetail> = emptyList(),
     val region: String = "KR",
     val language: String = "ko",
-    val imageQuality: String = "original"
+    val imageQuality: String = "original",
+    val myData: MyData? = null
 )

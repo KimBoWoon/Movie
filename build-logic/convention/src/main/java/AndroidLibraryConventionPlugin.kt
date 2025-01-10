@@ -35,6 +35,7 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
                     }
 
                     buildConfigField("String", "TMDB_OPEN_API_KEY", "\"${Config.getProp("tmdb_open_api_key")}\"")
+                    buildConfigField("String", "KOBIS_OPEN_API_KEY", "\"${Config.getProp("kobis_open_api_key")}\"")
                 }
 
                 testOptions {

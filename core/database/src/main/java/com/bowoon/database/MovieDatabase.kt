@@ -9,7 +9,9 @@ import com.bowoon.database.util.InstantConverter
 import com.bowoon.database.util.TMDBReleasesConverter
 
 @Database(
-    entities = [MovieEntity::class],
+    entities = [
+        MovieEntity::class
+    ],
     version = 1,
     autoMigrations = [],
     exportSchema = true,

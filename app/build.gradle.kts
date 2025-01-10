@@ -9,6 +9,7 @@ dependencies {
         projects.core.common,
         projects.core.data,
         projects.core.ui,
+        projects.core.sync,
         projects.feature.home,
         projects.feature.detail,
         projects.feature.search,

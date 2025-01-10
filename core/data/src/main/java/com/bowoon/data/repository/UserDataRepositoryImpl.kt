@@ -1,14 +1,17 @@
 package com.bowoon.data.repository
 
+import com.bowoon.data.util.SyncManager
 import com.bowoon.datastore.InternalDataSource
 import com.bowoon.model.DarkThemeConfig
 import com.bowoon.model.MainMenu
+import com.bowoon.model.MyData
 import com.bowoon.model.UserData
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class UserDataRepositoryImpl @Inject constructor(
-    private val datastore: InternalDataSource
+    private val datastore: InternalDataSource,
+    private val syncManager: SyncManager,
 ) : UserDataRepository {
     override val userData: Flow<UserData> = datastore.userData
 
@@ -26,14 +29,21 @@ class UserDataRepositoryImpl @Inject constructor(
 
     override suspend fun updateRegion(region: String) {
         datastore.updateRegion(region)
+        syncManager.requestSync()
     }
 
     override suspend fun updateLanguage(language: String) {
         datastore.updateLanguage(language)
+        syncManager.requestSync()
     }
 
     override suspend fun updateImageQuality(imageQuality: String) {
         datastore.updateImageQuality(imageQuality)
+        syncManager.requestSync()
+    }
+
+    override suspend fun updateMyData(myData: MyData) {
+        datastore.updateMyData(myData)
     }
 
     override suspend fun getMainOfDate(): String = datastore.getMainOfDate()

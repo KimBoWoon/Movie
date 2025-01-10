@@ -43,19 +43,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.paging.LoadState
-import androidx.paging.compose.LazyPagingItems
-import androidx.paging.compose.collectAsLazyPagingItems
 import com.bowoon.common.Log
+import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.model.DailyBoxOffice
 import com.bowoon.model.MainMenu
 import com.bowoon.model.MovieDetail
 import com.bowoon.model.UpComingResult
 import com.bowoon.model.Week
-import com.bowoon.ui.ConfirmDialog
 import com.bowoon.ui.dp1
 import com.bowoon.ui.dp10
 import com.bowoon.ui.dp15
@@ -75,35 +70,34 @@ fun HomeScreen(
     viewModel: HomeVM = hiltViewModel()
 ) {
     val homeUiState by viewModel.mainMenu.collectAsStateWithLifecycle()
-    val upcomingMovies = viewModel.upcomingMovies.collectAsLazyPagingItems()
-
-    LifecycleEventEffect(event = Lifecycle.Event.ON_START) {
-        viewModel.getUpcomingMoviesPaging()
-    }
+    val favoriteMoviesState by viewModel.favoriteMovies.collectAsStateWithLifecycle()
+    val isSyncing by viewModel.isSyncing.collectAsStateWithLifecycle()
 
     HomeScreen(
+        isSyncing = isSyncing,
         state = homeUiState,
-        onMovieClick = onMovieClick,
-        upcomingMovies = upcomingMovies
+        favoriteMoviesState = favoriteMoviesState,
+        onMovieClick = onMovieClick
     )
 }
 
 @Composable
 fun HomeScreen(
-    state: HomeUiState,
-    onMovieClick: (Int) -> Unit,
-    upcomingMovies: LazyPagingItems<UpComingResult>
+    isSyncing: Boolean,
+    state: DailyBoxOfficeState,
+    favoriteMoviesState: FavoriteMoviesState,
+    onMovieClick: (Int) -> Unit
 ) {
-    val isLoading = state is HomeUiState.Loading
+    val isLoading = state is DailyBoxOfficeState.Loading
     var mainMenu by remember { mutableStateOf<MainMenu>(MainMenu()) }
 
     when (state) {
-        is HomeUiState.Loading -> Log.d("loading...")
-        is HomeUiState.Success -> {
+        is DailyBoxOfficeState.Loading -> Log.d("loading...")
+        is DailyBoxOfficeState.Success -> {
             Log.d("${state.mainMenu}")
             mainMenu = state.mainMenu
         }
-        is HomeUiState.Error -> Log.e("${state.throwable.message}")
+        is DailyBoxOfficeState.Error -> Log.e("${state.throwable.message}")
     }
 
     Box(
@@ -117,12 +111,11 @@ fun HomeScreen(
                 onMovieClick = onMovieClick
             )
             upcomingComponent(
-                upcoming = upcomingMovies,
+                upcoming = mainMenu.upcomingMovies.sortedBy { it.releaseDate },
                 onMovieClick = onMovieClick
             )
             calendarComponent(
-                favoriteMovies = mainMenu.favoriteMovies,
-                filterFavoriteMovies = { releaseDate -> mainMenu.favoriteMovies.filter { it.releaseDate == releaseDate } }
+                favoriteMoviesState = favoriteMoviesState
             )
         }
 
@@ -179,7 +172,9 @@ fun BoxOfficeItem(
             modifier = Modifier.wrapContentSize()
         ) {
             DynamicAsyncImageLoader(
-                modifier = Modifier.fillMaxWidth().aspectRatio(9f / 16f),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(POSTER_IMAGE_RATIO),
                 source = boxOffice.posterUrl ?: "",
                 contentDescription = "BoxOfficePoster"
             )
@@ -213,73 +208,30 @@ fun BoxOfficeItem(
 }
 
 fun LazyListScope.upcomingComponent(
-//    upcoming: List<UpComingResult>,
-    upcoming: LazyPagingItems<UpComingResult>,
+    upcoming: List<UpComingResult>,
     onMovieClick: (Int) -> Unit
 ) {
     item {
-        var isLoading by remember { mutableStateOf(false) }
-        var isAppend by remember { mutableStateOf(false) }
-
-        when {
-            upcoming.loadState.refresh is LoadState.Loading -> isLoading = true
-            upcoming.loadState.append is LoadState.Loading -> isAppend = true
-            upcoming.loadState.refresh is LoadState.Error || upcoming.loadState.append is LoadState.Error -> {
-                isLoading = false
-                isAppend = false
-
-                ConfirmDialog(
-                    title = "Error",
-                    message = (upcoming.loadState.refresh as? LoadState.Error)?.error?.message ?: "something wrong...",
-                    confirmPair = "재시도" to { upcoming.retry() },
-                    dismissPair = "확인" to {}
-                )
-            }
-
-            upcoming.loadState.refresh is LoadState.NotLoading || upcoming.loadState.append is LoadState.NotLoading -> {
-                isLoading = false
-                isAppend = false
-            }
-        }
-//        if (upcoming.isNotEmpty()) {
+        if (upcoming.isNotEmpty()) {
             Text(text = "개봉 예정작")
-        LazyRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight(),
-            contentPadding = PaddingValues(dp15),
-            horizontalArrangement = Arrangement.spacedBy(dp15)
-        ) {
-            items(
-                count = upcoming.itemCount,
-//                key = { "${it.id}_${it.title}_${it.originalTitle}_${it.releaseDate}" }
-            ) { index ->
-                upcoming[index]?.let {
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
+                contentPadding = PaddingValues(dp15),
+                horizontalArrangement = Arrangement.spacedBy(dp15)
+            ) {
+                items(
+                    count = upcoming.size,
+                    key = { "${upcoming[it].id}_${upcoming[it].title}_${upcoming[it].originalTitle}_${upcoming[it].releaseDate}" }
+                ) { index ->
                     UpcomingItem(
-                        upcoming = it,
+                        upcoming = upcoming[index],
                         onMovieClick = onMovieClick
                     )
                 }
             }
         }
-//            LazyRow(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .wrapContentHeight(),
-//                contentPadding = PaddingValues(dp15),
-//                horizontalArrangement = Arrangement.spacedBy(dp15)
-//            ) {
-//                items(
-//                    items = upcoming,
-//                    key = { "${it.id}_${it.title}_${it.originalTitle}_${it.releaseDate}" }
-//                ) { upcoming ->
-//                    UpcomingItem(
-//                        upcoming = upcoming,
-//                        onMovieClick = onMovieClick
-//                    )
-//                }
-//            }
-//        }
     }
 }
 
@@ -297,7 +249,9 @@ fun UpcomingItem(
             }
     ) {
         DynamicAsyncImageLoader(
-            modifier = Modifier.fillMaxWidth().aspectRatio(9f / 16f),
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(POSTER_IMAGE_RATIO),
             source = upcoming.posterPath ?: "",
             contentDescription = "BoxOfficePoster"
         )
@@ -319,8 +273,7 @@ fun UpcomingItem(
 }
 
 fun LazyListScope.calendarComponent(
-    favoriteMovies: List<MovieDetail>,
-    filterFavoriteMovies: (String) -> List<MovieDetail>
+    favoriteMoviesState: FavoriteMoviesState
 ) {
     item {
         val calendarList = listOf(LocalDate.now().minusMonths(1), LocalDate.now(), LocalDate.now().plusMonths(1))
@@ -332,8 +285,7 @@ fun LazyListScope.calendarComponent(
             Column {
                 Calendar(
                     today = calendarList[index],
-                    favoriteMovies = favoriteMovies,
-                    filterFavoriteMovies = filterFavoriteMovies
+                    favoriteMoviesState = favoriteMoviesState
                 )
             }
         }
@@ -344,10 +296,16 @@ fun LazyListScope.calendarComponent(
 @Composable
 fun Calendar(
     today: LocalDate,
-    favoriteMovies: List<MovieDetail>,
-    filterFavoriteMovies: (String) -> List<MovieDetail>,
+    favoriteMoviesState: FavoriteMoviesState
 ) {
     var releaseDate by remember { mutableStateOf("") }
+    var favoriteMovies by remember { mutableStateOf<List<MovieDetail>>(emptyList()) }
+
+    when (favoriteMoviesState) {
+        is FavoriteMoviesState.Loading -> Log.d("favorite movies loading...")
+        is FavoriteMoviesState.Success -> favoriteMovies = favoriteMoviesState.favoriteMovies
+        is FavoriteMoviesState.Error -> Log.e(favoriteMoviesState.throwable.message ?: "something wrong...")
+    }
 
     Column {
         Text(
@@ -358,7 +316,9 @@ fun Calendar(
             textAlign = TextAlign.Center
         )
         Row(
-            modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight(),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -379,7 +339,10 @@ fun Calendar(
             val firstDay = today.withDayOfMonth(1)
 
             for (i in 0 until (firstDay.dayOfWeek.value % 7)) {
-                Spacer(modifier = Modifier.height(dp30).weight(1f).background(color = Color.Transparent))
+                Spacer(modifier = Modifier
+                    .height(dp30)
+                    .weight(1f)
+                    .background(color = Color.Transparent))
             }
 
             for (day in 1 until today.lengthOfMonth() + 1) {
@@ -389,7 +352,10 @@ fun Calendar(
                             .height(dp30)
                             .weight(1f)
                             .background(color = Color.Yellow)
-                            .clickable { releaseDate = today.withDayOfMonth(day).toString() },
+                            .clickable { releaseDate = today
+                                .withDayOfMonth(day)
+                                .toString()
+                            },
                         text = "$day",
                         textAlign = TextAlign.Center,
                         color = Color.Black
@@ -400,7 +366,10 @@ fun Calendar(
                             .height(dp30)
                             .weight(1f)
                             .background(color = Color.Transparent)
-                            .clickable { releaseDate = today.withDayOfMonth(day).toString() },
+                            .clickable { releaseDate = today
+                                .withDayOfMonth(day)
+                                .toString()
+                            },
                         text = "$day",
                         textAlign = TextAlign.Center
                     )
@@ -408,14 +377,17 @@ fun Calendar(
             }
 
             for (i in 0 until  (5 * 7) - today.lengthOfMonth()) {
-                Spacer(modifier = Modifier.height(dp30).weight(1f).background(color = Color.Transparent))
+                Spacer(modifier = Modifier
+                    .height(dp30)
+                    .weight(1f)
+                    .background(color = Color.Transparent))
             }
         }
 
         Column(
             modifier = Modifier.fillMaxWidth()
         ) {
-            filterFavoriteMovies(releaseDate).forEach { movie ->
+            favoriteMovies.filter { !it.releaseDate.isNullOrEmpty() && releaseDate.isNotEmpty() && it.releaseDate == releaseDate }.forEach { movie ->
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()

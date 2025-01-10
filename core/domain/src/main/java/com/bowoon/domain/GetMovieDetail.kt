@@ -49,7 +49,7 @@ class GetMovieDetail @Inject constructor(
                 originalTitle = tmdbMovieInfo.originalTitle,
                 overview = tmdbMovieInfo.overview,
                 popularity = tmdbMovieInfo.popularity,
-                posterPath = "$posterUrl${tmdbMovieInfo.posterPath}",
+                posterPath = "${tmdbMovieInfo.posterPath}",
                 productionCountries = tmdbMovieInfo.productionCountries,
                 productionCompanies = tmdbMovieInfo.productionCompanies,
                 releaseDate = tmdbMovieInfo.releases?.countries?.find { it.iso31661.equals(userData.region, true) }?.releaseDate,
@@ -68,6 +68,7 @@ class GetMovieDetail @Inject constructor(
                 similar = getSimilar(tmdbMovieInfo.similar, posterUrl),
                 certification = tmdbMovieInfo.releases?.countries?.find { it.iso31661.equals(userData.region, true) }?.certification,
                 favoriteMovies = favoriteMovies,
+                posterUrl = posterUrl,
                 isFavorite = favoriteMovies.find { it.id == tmdbMovieInfo.id } != null
             )
         }

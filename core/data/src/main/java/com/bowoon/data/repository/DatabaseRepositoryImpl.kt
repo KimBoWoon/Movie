@@ -4,13 +4,11 @@ import com.bowoon.database.dao.MovieDao
 import com.bowoon.database.model.MovieEntity
 import com.bowoon.database.model.asExternalModel
 import com.bowoon.model.MovieDetail
-import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.threeten.bp.Instant
 import javax.inject.Inject
 
-@ViewModelScoped
 class DatabaseRepositoryImpl @Inject constructor(
     private val movieDao: MovieDao
 ) : DatabaseRepository {
@@ -39,7 +37,7 @@ class DatabaseRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun updateMovies(movies: List<MovieDetail>) {
+    override suspend fun upsertMovies(movies: List<MovieDetail>) {
         movieDao.upsertMovies(
             movies.map {
                 MovieEntity(

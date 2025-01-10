@@ -1,5 +1,8 @@
 package com.bowoon.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class MyData(
     val configuration: TMDBConfiguration,
     val region: TMDBRegion,
@@ -7,6 +10,7 @@ data class MyData(
     val posterSize: List<PosterSize>
 )
 
+@Serializable
 data class PosterSize(
     val size: String? = null,
     val isSelected: Boolean = false

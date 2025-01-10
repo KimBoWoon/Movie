@@ -24,9 +24,11 @@ import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -48,6 +50,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
 import androidx.navigation.NavController
 import com.bowoon.common.Log
+import com.bowoon.data.util.PEOPLE_IMAGE_RATIO
+import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.detail.navigation.navigateToDetail
 import com.bowoon.model.MovieDetail
 import com.bowoon.model.MovieDetailTab
@@ -60,6 +64,7 @@ import com.bowoon.model.TMDBMovieDetailVideoResult
 import com.bowoon.people.navigation.navigateToPeople
 import com.bowoon.ui.ConfirmDialog
 import com.bowoon.ui.FavoriteButton
+import com.bowoon.ui.ModalBottomSheetDialog
 import com.bowoon.ui.Title
 import com.bowoon.ui.dp10
 import com.bowoon.ui.dp100
@@ -204,7 +209,10 @@ fun VideosComponent(movie: MovieDetail) {
 
     if (vodList.isEmpty()) {
         Box(
-            modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f).background(color = Color.LightGray)
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(16f / 9f)
+                .background(color = Color.LightGray)
         ) {
             Text(
                 modifier = Modifier.align(Alignment.Center),
@@ -332,12 +340,16 @@ fun TabComponent(
     }
 
     HorizontalPager(
-        modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight(),
         state = pagerState,
         userScrollEnabled = false
     ) { index ->
         Column(
-            modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -360,10 +372,16 @@ fun TabComponent(
     }
 }
 
+@kotlin.OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ImageComponent(
     movie: MovieDetail
 ) {
+    var isShowing by remember { mutableStateOf(false) }
+    var index by remember { mutableIntStateOf(0) }
+    val modalBottomSheetState = rememberModalBottomSheetState()
+    val scope = rememberCoroutineScope()
+
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Adaptive(dp100),
         modifier = Modifier.fillMaxSize(),
@@ -376,11 +394,32 @@ fun ImageComponent(
             key = { it }
         ) {
             DynamicAsyncImageLoader(
-                modifier = Modifier.width(dp200).aspectRatio(it.aspectRatio?.toFloat() ?: 1f),
-                source = it.filePath ?: "",
+                modifier = Modifier
+                    .width(dp200)
+                    .aspectRatio(it.aspectRatio?.toFloat() ?: 1f)
+                    .clickable {
+                        index = movie.images?.posters?.indexOf(it) ?: 0
+                        isShowing = true
+                    },
+                source = "${it.filePath}",
                 contentDescription = "moviePoster"
             )
         }
+    }
+
+    if (isShowing) {
+        ModalBottomSheetDialog(
+            state = modalBottomSheetState,
+            scope = scope,
+            index = index,
+            imageList = movie.images?.posters?.map { "${it.filePath}" } ?: emptyList(),
+            onClickCancel = {
+                scope.launch {
+                    isShowing = false
+                    modalBottomSheetState.hide()
+                }
+            }
+        )
     }
 }
 
@@ -427,13 +466,17 @@ fun ActorAndCrewComponent(
     ) {
         item {
             Text(
-                modifier = Modifier.fillMaxWidth().padding(vertical = dp16),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = dp16),
                 text = "배우",
                 fontSize = sp20,
                 textAlign = TextAlign.Center
             )
             LazyRow(
-                modifier = Modifier.fillMaxWidth().wrapContentHeight()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
             ) {
                 items(
                     items = movie.credits?.cast ?: emptyList()
@@ -442,13 +485,17 @@ fun ActorAndCrewComponent(
                 }
             }
             Text(
-                modifier = Modifier.fillMaxWidth().padding(vertical = dp16),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = dp16),
                 text = "스태프",
                 fontSize = sp20,
                 textAlign = TextAlign.Center
             )
             LazyRow(
-                modifier = Modifier.fillMaxWidth().wrapContentHeight()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
             ) {
                 items(
                     items = movie.credits?.crew ?: emptyList()
@@ -466,10 +513,15 @@ fun StaffComponent(
     onPeopleClick: (Int) -> Unit
 ) {
     Column(
-        modifier = Modifier.width(dp200).wrapContentHeight().clickable { onPeopleClick(tmdbMovieDetailCast.id ?: -1) }
+        modifier = Modifier
+            .width(dp200)
+            .wrapContentHeight()
+            .clickable { onPeopleClick(tmdbMovieDetailCast.id ?: -1) }
     ) {
         DynamicAsyncImageLoader(
-            modifier = Modifier.fillMaxWidth().aspectRatio(4f / 3f),
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(PEOPLE_IMAGE_RATIO),
             source = tmdbMovieDetailCast.profilePath ?: "",
             contentDescription = "ProfileImage"
         )
@@ -497,10 +549,15 @@ fun StaffComponent(
     onPeopleClick: (Int) -> Unit
 ) {
     Column(
-        modifier = Modifier.width(dp200).wrapContentHeight().clickable { onPeopleClick(tmdbMovieDetailCrew.id ?: -1) }
+        modifier = Modifier
+            .width(dp200)
+            .wrapContentHeight()
+            .clickable { onPeopleClick(tmdbMovieDetailCrew.id ?: -1) }
     ) {
         DynamicAsyncImageLoader(
-            modifier = Modifier.fillMaxWidth().aspectRatio(4f / 3f),
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(PEOPLE_IMAGE_RATIO),
             source = tmdbMovieDetailCrew.profilePath ?: "",
             contentDescription = "ProfileImage"
         )
@@ -550,10 +607,15 @@ fun SimilarMovieComponent(
                 posterPath = similarMovie.posterPath ?: "",
             )
             Box(
-                modifier = Modifier.width(dp200).wrapContentHeight().clickable { onMovieClick(detail.id ?: -1) }
+                modifier = Modifier
+                    .width(dp200)
+                    .wrapContentHeight()
+                    .clickable { onMovieClick(detail.id ?: -1) }
             ) {
                 DynamicAsyncImageLoader(
-                    modifier = Modifier.fillMaxWidth().aspectRatio(9f / 16f),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(POSTER_IMAGE_RATIO),
                     source = detail.posterPath ?: "",
                     contentDescription = "BoxOfficePoster"
                 )

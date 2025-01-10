@@ -33,6 +33,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.model.TMDBSearchResult
 import com.bowoon.ui.ConfirmDialog
 import com.bowoon.ui.Title
@@ -141,7 +142,7 @@ fun SearchScreen(
                     DynamicAsyncImageLoader(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .aspectRatio(9f / 16f)
+                            .aspectRatio(POSTER_IMAGE_RATIO)
                             .clickable { onMovieClick(state[index]?.id ?: -1) },
                         source = state[index]?.posterPath ?: "",
                         contentDescription = "SearchPoster"

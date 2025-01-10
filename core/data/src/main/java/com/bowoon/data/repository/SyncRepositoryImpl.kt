@@ -1,37 +1,45 @@
-package com.bowoon.domain
+package com.bowoon.data.repository
 
-import com.bowoon.data.repository.DatabaseRepository
-import com.bowoon.data.repository.KobisRepository
-import com.bowoon.data.repository.TMDBRepository
+import com.bowoon.data.BuildConfig
+import com.bowoon.data.util.suspendRunCatching
 import com.bowoon.model.DailyBoxOffice
 import com.bowoon.model.KOBISBoxOffice
 import com.bowoon.model.MainMenu
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
+import com.bowoon.model.UpComingResult
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
 import javax.inject.Inject
 
-class GetMainMenuUseCase @Inject constructor(
-    private val databaseRepository: DatabaseRepository,
+class SyncRepositoryImpl @Inject constructor(
     private val kobisRepository: KobisRepository,
-    private val tmdbRepository: TMDBRepository
-) {
-    operator fun invoke(
-        targetDt: LocalDate,
-        kobisOpenApiKey: String
-    ): Flow<MainMenu> = combine(
-        databaseRepository.getMovies(),
-        kobisRepository.getDailyBoxOffice(kobisOpenApiKey, targetDt.format(DateTimeFormatter.ofPattern("yyyyMMdd"))),
-        tmdbRepository.posterUrl
-    ) { favoriteMovies, kobisBoxOffice, posterUrl ->
-        MainMenu(
-            dailyBoxOffice = createDailyBoxOffice(kobisBoxOffice, posterUrl),
-            favoriteMovies = favoriteMovies
-        )
-    }
+    private val tmdbRepository: TMDBRepository,
+    private val userDataRepository: UserDataRepository
+) : SyncRepository {
+    override suspend fun syncWith(isForce: Boolean): Boolean =
+        suspendRunCatching {
+            val key = BuildConfig.KOBIS_OPEN_API_KEY
+            val date = userDataRepository.getMainOfDate()
+            val targetDt = LocalDate.now().minusDays(1)
+            val updateDate = when (date.isNotEmpty()) {
+                true -> LocalDate.parse(date)
+                false -> LocalDate.MIN
+            }
+            val isUpdate = targetDt.isAfter(updateDate)
+
+            if (isUpdate || isForce) {
+                val kobisBoxOffice = kobisRepository.getDailyBoxOffice(key, targetDt.format(DateTimeFormatter.ofPattern("yyyyMMdd"))).first()
+                val posterUrl = tmdbRepository.posterUrl.first()
+                val upcomingMovies = tmdbRepository.getUpcomingMovies().first()
+
+                createMainMenu(kobisBoxOffice, posterUrl, upcomingMovies).also {
+                    userDataRepository.updateMainMenu(it)
+                    userDataRepository.updateMainOfDate(targetDt.toString())
+                }
+            }
+        }.isSuccess
 
     private fun getTMDBMovie(
         movieName: String,
@@ -44,11 +52,12 @@ class GetMainMenuUseCase @Inject constructor(
         it.results?.find { it.title?.replace(" ", "") == movieName.replace(" ", "") }
     }
 
-    private suspend fun createDailyBoxOffice(
+    private suspend fun createMainMenu(
         kobisBoxOffice: KOBISBoxOffice,
-        posterUrl: String
-    ): List<DailyBoxOffice> =
-        kobisBoxOffice.boxOfficeResult?.dailyBoxOfficeList?.map { kobisDailyBoxOffice ->
+        posterUrl: String,
+        upComingResult: List<UpComingResult>
+    ): MainMenu = MainMenu(
+        dailyBoxOffice = kobisBoxOffice.boxOfficeResult?.dailyBoxOfficeList?.map { kobisDailyBoxOffice ->
             val tmdbMovie = getTMDBMovie(
                 movieName = kobisDailyBoxOffice.movieNm ?: "",
                 releaseDateGte = kobisDailyBoxOffice.openDt ?: "",
@@ -77,5 +86,7 @@ class GetMainMenuUseCase @Inject constructor(
                 posterUrl = "$posterUrl${tmdbMovie?.posterPath}",
                 tmdbId = tmdbMovie?.id
             )
-        } ?: emptyList()
+        } ?: emptyList(),
+        upcomingMovies = upComingResult
+    )
 }
