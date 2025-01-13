@@ -29,6 +29,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
@@ -43,6 +45,7 @@ import com.bowoon.ui.dp16
 import com.bowoon.ui.dp5
 import com.bowoon.ui.dp8
 import com.bowoon.ui.image.DynamicAsyncImageLoader
+import com.bowoon.ui.sp30
 
 @Composable
 fun SearchScreen(
@@ -54,7 +57,8 @@ fun SearchScreen(
     SearchScreen(
         state = state,
         onMovieClick = onMovieClick,
-        onSearchClick = viewModel::searchMovies
+        onSearchClick = viewModel::searchMovies,
+        viewModel = viewModel
     )
 }
 
@@ -62,23 +66,28 @@ fun SearchScreen(
 fun SearchScreen(
     state: LazyPagingItems<TMDBSearchResult>,
     onMovieClick: (Int) -> Unit,
-    onSearchClick: (String) -> Unit
+    onSearchClick: (String) -> Unit,
+    viewModel: SearchVM = hiltViewModel()
 ) {
     val focusManager = LocalFocusManager.current
-    var text by remember { mutableStateOf("") }
+//    var keyword by remember { mutableStateOf("") }
     val keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search, keyboardType = KeyboardType.Text)
     val keyboardActions = KeyboardActions(
         onDone = { focusManager.clearFocus() },
         onSearch = {
-            onSearchClick(text)
+            onSearchClick(viewModel.keyword.text)
             focusManager.clearFocus()
         }
     )
     var isLoading by remember { mutableStateOf(false) }
     var isAppend by remember { mutableStateOf(false) }
+    var pagingStatus by remember { mutableStateOf<PagingStatus>(PagingStatus.NONE) }
 
     when {
-        state.loadState.refresh is LoadState.Loading -> isLoading = true
+        state.loadState.refresh is LoadState.Loading -> {
+            isLoading = true
+            pagingStatus = PagingStatus.LOADING
+        }
         state.loadState.append is LoadState.Loading -> isAppend = true
         state.loadState.refresh is LoadState.Error || state.loadState.append is LoadState.Error -> {
             isLoading = false
@@ -91,8 +100,20 @@ fun SearchScreen(
                 dismissPair = "확인" to {}
             )
         }
-
-        state.loadState.refresh is LoadState.NotLoading || state.loadState.append is LoadState.NotLoading -> {
+        state.loadState.refresh is LoadState.NotLoading -> {
+            isLoading = false
+            isAppend = false
+            pagingStatus = if (pagingStatus == PagingStatus.LOADING) {
+                if (state.itemCount == 0) {
+                    PagingStatus.EMPTY
+                } else {
+                    PagingStatus.NOT_EMPTY
+                }
+            } else {
+                pagingStatus
+            }
+        }
+        state.loadState.append is LoadState.NotLoading -> {
             isLoading = false
             isAppend = false
         }
@@ -113,8 +134,8 @@ fun SearchScreen(
                         .wrapContentHeight()
                         .weight(1f)
                         .padding(start = dp16, top = dp5, end = dp8),
-                    value = text,
-                    onValueChange = { text = it },
+                    value = viewModel.keyword.text,
+                    onValueChange = { viewModel.update(TextFieldValue(it)) },
                     label = { Text("검색어를 입력하세요.") },
                     singleLine = true,
                     maxLines = 1,
@@ -124,7 +145,7 @@ fun SearchScreen(
                 Button(
                     modifier = Modifier.padding(end = dp16),
                     onClick = {
-                        onSearchClick(text)
+                        onSearchClick(viewModel.keyword.text)
                         focusManager.clearFocus()
                     }
                 ) {
@@ -132,27 +153,37 @@ fun SearchScreen(
                 }
             }
 
-            LazyVerticalGrid(
-                columns = GridCells.Adaptive(dp100),
-                contentPadding = PaddingValues(dp10),
-                horizontalArrangement = Arrangement.spacedBy(dp10),
-                verticalArrangement = Arrangement.spacedBy(dp10)
-            ) {
-                items(state.itemCount) { index ->
-                    DynamicAsyncImageLoader(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .aspectRatio(POSTER_IMAGE_RATIO)
-                            .clickable { onMovieClick(state[index]?.id ?: -1) },
-                        source = state[index]?.posterPath ?: "",
-                        contentDescription = "SearchPoster"
-                    )
-                }
-                if (isAppend) {
-                    item {
-                        CircularProgressIndicator(
-                            modifier = Modifier.align(Alignment.CenterHorizontally)
+            if (pagingStatus == PagingStatus.EMPTY) {
+                Text(
+                    modifier = Modifier.fillMaxSize(),
+                    text = "검색결과가 없습니다.",
+                    fontSize = sp30,
+                    textAlign = TextAlign.Center
+                )
+            } else {
+                LazyVerticalGrid(
+                    modifier = Modifier.fillMaxSize(),
+                    columns = GridCells.Adaptive(dp100),
+                    contentPadding = PaddingValues(dp10),
+                    horizontalArrangement = Arrangement.spacedBy(dp10),
+                    verticalArrangement = Arrangement.spacedBy(dp10)
+                ) {
+                    items(state.itemCount) { index ->
+                        DynamicAsyncImageLoader(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .aspectRatio(POSTER_IMAGE_RATIO)
+                                .clickable { onMovieClick(state[index]?.id ?: -1) },
+                            source = state[index]?.posterPath ?: "",
+                            contentDescription = "SearchPoster"
                         )
+                    }
+                    if (isAppend) {
+                        item {
+                            CircularProgressIndicator(
+                                modifier = Modifier.align(Alignment.CenterHorizontally)
+                            )
+                        }
                     }
                 }
             }
@@ -164,4 +195,8 @@ fun SearchScreen(
             )
         }
     }
+}
+
+enum class PagingStatus {
+    NONE, LOADING, EMPTY, NOT_EMPTY
 }

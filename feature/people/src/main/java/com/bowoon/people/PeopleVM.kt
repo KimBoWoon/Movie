@@ -8,14 +8,12 @@ import com.bowoon.common.Result
 import com.bowoon.common.asResult
 import com.bowoon.common.restartableStateIn
 import com.bowoon.data.repository.DatabaseRepository
-import com.bowoon.domain.GetFavoritePeopleUseCase
 import com.bowoon.domain.GetPeopleDetail
 import com.bowoon.model.PeopleDetail
 import com.bowoon.people.navigation.PeopleRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,8 +21,7 @@ import javax.inject.Inject
 class PeopleVM @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val getPeopleDetail: GetPeopleDetail,
-    private val databaseRepository: DatabaseRepository,
-    private val getFavoritePeopleUseCase: GetFavoritePeopleUseCase
+    private val databaseRepository: DatabaseRepository
 ) : ViewModel() {
     companion object {
         private const val TAG = "PeopleVM"
@@ -42,19 +39,6 @@ class PeopleVM @Inject constructor(
         }.restartableStateIn(
             scope = viewModelScope,
             initialValue = PeopleState.Loading,
-            started = SharingStarted.WhileSubscribed(5_000)
-        )
-    val favoritePeoples = getFavoritePeopleUseCase()
-        .asResult()
-        .map {
-            when (it) {
-                is Result.Loading -> emptyList()
-                is Result.Success -> it.data
-                is Result.Error -> emptyList()
-            }
-        }.stateIn(
-            scope = viewModelScope,
-            initialValue = emptyList(),
             started = SharingStarted.WhileSubscribed(5_000)
         )
 

@@ -1,5 +1,6 @@
 package com.bowoon.domain
 
+import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.data.repository.TMDBRepository
 import com.bowoon.model.CombineCredits
 import com.bowoon.model.CombineCreditsCast
@@ -12,15 +13,17 @@ import kotlinx.coroutines.flow.combine
 import javax.inject.Inject
 
 class GetPeopleDetail @Inject constructor(
-    private val tmdbRepository: TMDBRepository
+    private val tmdbRepository: TMDBRepository,
+    private val databaseRepository: DatabaseRepository
 ) {
     operator fun invoke(personId: Int): Flow<PeopleDetail> =
         combine(
             tmdbRepository.getPeople(personId = personId),
             tmdbRepository.getCombineCredits(personId = personId),
             tmdbRepository.getExternalIds(personId = personId),
-            tmdbRepository.posterUrl
-        ) { tmdbPeopleDetail, tmdbCombineCredits, tmdbExternalIds, posterUrl ->
+            tmdbRepository.posterUrl,
+            databaseRepository.getPeople()
+        ) { tmdbPeopleDetail, tmdbCombineCredits, tmdbExternalIds, posterUrl, favoritePeoples ->
             PeopleDetail(
                 adult = tmdbPeopleDetail.adult,
                 alsoKnownAs = tmdbPeopleDetail.alsoKnownAs,
@@ -116,7 +119,9 @@ class GetPeopleDetail @Inject constructor(
                 name = tmdbPeopleDetail.name,
                 placeOfBirth = tmdbPeopleDetail.placeOfBirth,
                 popularity = tmdbPeopleDetail.popularity,
-                profilePath = "$posterUrl${tmdbPeopleDetail.profilePath}"
+                profilePath = "$posterUrl${tmdbPeopleDetail.profilePath}",
+                posterUrl = posterUrl,
+                isFavorite = favoritePeoples.find { it.id == tmdbPeopleDetail.id } != null
             )
         }
 }

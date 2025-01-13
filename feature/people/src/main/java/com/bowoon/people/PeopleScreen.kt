@@ -74,11 +74,9 @@ fun PeopleScreen(
     viewModel: PeopleVM = hiltViewModel()
 ) {
     val peopleState by viewModel.people.collectAsStateWithLifecycle()
-    val favoritePeoples by viewModel.favoritePeoples.collectAsStateWithLifecycle()
 
     PeopleScreen(
         peopleState = peopleState,
-        favoritePeoples = favoritePeoples,
         navController = navController,
         insertFavoritePeople = viewModel::insertPeople,
         deleteFavoritePeople = viewModel::deletePeople,
@@ -91,7 +89,6 @@ fun PeopleScreen(
 @Composable
 fun PeopleScreen(
     peopleState: PeopleState,
-    favoritePeoples: List<PeopleDetail>,
     navController: NavController,
     insertFavoritePeople: (PeopleDetail) -> Unit,
     deleteFavoritePeople: (PeopleDetail) -> Unit,
@@ -101,7 +98,6 @@ fun PeopleScreen(
 ) {
     var isLoading by remember { mutableStateOf(false) }
     var people by remember { mutableStateOf<PeopleDetail?>(null) }
-    val isFavorite = { id: Int -> favoritePeoples.find { it.id == id } != null }
 
     when (peopleState) {
         is PeopleState.Loading -> {
@@ -129,7 +125,6 @@ fun PeopleScreen(
         PeopleDetailScreen(
             isLoading = isLoading,
             people = it,
-            isFavorite = isFavorite,
             navController = navController,
             onMovieClick = onMovieClick,
             insertFavoritePeople = insertFavoritePeople,
@@ -209,7 +204,6 @@ private fun rememberToolbarState(toolbarHeightRange: IntRange): ToolbarState {
 fun PeopleDetailScreen(
     isLoading: Boolean,
     people: PeopleDetail,
-    isFavorite: (Int) -> Boolean,
     navController: NavController,
     onMovieClick: (Int) -> Unit,
     insertFavoritePeople: (PeopleDetail) -> Unit,
@@ -222,7 +216,6 @@ fun PeopleDetailScreen(
         Column {
             CollapsingLayout(
                 people = people,
-                isFavorite = isFavorite,
                 navController = navController,
                 onMovieClick = onMovieClick,
                 insertFavoritePeople = insertFavoritePeople,
@@ -242,7 +235,6 @@ fun PeopleDetailScreen(
 @Composable
 fun CollapsingLayout(
     people: PeopleDetail,
-    isFavorite: (Int) -> Boolean,
     navController: NavController,
     onMovieClick: (Int) -> Unit,
     insertFavoritePeople: (PeopleDetail) -> Unit,
@@ -315,7 +307,6 @@ fun CollapsingLayout(
                 .height(with(LocalDensity.current) { toolbarState.height.toDp() })
                 .graphicsLayer { translationY = toolbarState.offset },
             people = people,
-            isFavorite = isFavorite,
             progress = toolbarState.progress,
             insertFavoritePeople = insertFavoritePeople,
             deleteFavoritePeople = deleteFavoritePeople,
