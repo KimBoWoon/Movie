@@ -70,7 +70,6 @@ fun SearchScreen(
     viewModel: SearchVM = hiltViewModel()
 ) {
     val focusManager = LocalFocusManager.current
-//    var keyword by remember { mutableStateOf("") }
     val keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search, keyboardType = KeyboardType.Text)
     val keyboardActions = KeyboardActions(
         onDone = { focusManager.clearFocus() },
@@ -104,11 +103,7 @@ fun SearchScreen(
             isLoading = false
             isAppend = false
             pagingStatus = if (pagingStatus == PagingStatus.LOADING) {
-                if (state.itemCount == 0) {
-                    PagingStatus.EMPTY
-                } else {
-                    PagingStatus.NOT_EMPTY
-                }
+                if (state.itemCount == 0) PagingStatus.EMPTY else PagingStatus.NOT_EMPTY
             } else {
                 pagingStatus
             }

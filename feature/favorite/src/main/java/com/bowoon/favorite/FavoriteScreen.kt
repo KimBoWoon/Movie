@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -37,6 +38,7 @@ import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.model.MovieDetail
 import com.bowoon.model.PeopleDetail
 import com.bowoon.ui.FavoriteButton
+import com.bowoon.ui.Title
 import com.bowoon.ui.dp10
 import com.bowoon.ui.dp15
 import com.bowoon.ui.dp200
@@ -97,6 +99,7 @@ fun FavoriteScreen(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
+        Title(title = "즐겨찾기")
         TabRow(
             modifier = Modifier.fillMaxWidth(),
             selectedTabIndex = pagerState.currentPage

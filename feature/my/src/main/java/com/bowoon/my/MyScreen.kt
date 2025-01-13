@@ -27,6 +27,7 @@ import com.bowoon.model.MyData
 import com.bowoon.model.PosterSize
 import com.bowoon.model.TMDBLanguageItem
 import com.bowoon.model.TMDBRegionResult
+import com.bowoon.ui.Title
 
 @Composable
 fun MyScreen(
@@ -64,15 +65,10 @@ fun MyScreen(
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        if (isLoading) {
-            CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center)
-            )
-        }
-
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
+            Title(title = "마이페이지")
             Row(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
@@ -105,6 +101,12 @@ fun MyScreen(
                     updateImageQuality = updateImageQuality
                 )
             }
+        }
+
+        if (isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center)
+            )
         }
     }
 }

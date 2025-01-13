@@ -16,7 +16,8 @@ dependencies {
         libs.androidx.compose.material3.adaptive,
         libs.androidx.compose.material3.navigationSuite,
         libs.coil.okhttp,
-        libs.coil.compose
+        libs.coil.compose,
+        libs.threetenabp
     ).forEach {
         implementation(it)
     }
