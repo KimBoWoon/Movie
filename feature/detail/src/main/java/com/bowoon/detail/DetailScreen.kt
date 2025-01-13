@@ -212,7 +212,7 @@ fun VideosComponent(movie: MovieDetail) {
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(16f / 9f)
-                .background(color = Color.LightGray)
+                .background(color = Color.Black)
         ) {
             Text(
                 modifier = Modifier.align(Alignment.Center),
@@ -379,7 +379,7 @@ fun ImageComponent(
 ) {
     var isShowing by remember { mutableStateOf(false) }
     var index by remember { mutableIntStateOf(0) }
-    val modalBottomSheetState = rememberModalBottomSheetState()
+    val modalBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
 
     LazyVerticalStaggeredGrid(

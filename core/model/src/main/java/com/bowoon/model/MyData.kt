@@ -4,10 +4,10 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class MyData(
-    val configuration: TMDBConfiguration,
-    val region: TMDBRegion,
-    val language: List<TMDBLanguageItem>,
-    val posterSize: List<PosterSize>
+    val secureBaseUrl: String? = null,
+    val region: List<TMDBRegionResult>? = null,
+    val language: List<TMDBLanguageItem>? = null,
+    val posterSize: List<PosterSize>? = null
 )
 
 @Serializable

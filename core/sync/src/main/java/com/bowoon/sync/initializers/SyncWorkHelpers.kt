@@ -12,6 +12,7 @@ import androidx.work.NetworkType
 import com.bowoon.sync.R
 
 const val SYNC_TOPIC = "sync"
+const val UNIQUE_SYNC_WORKER = "UNIQUE_SYNC_WORKER"
 private const val SYNC_NOTIFICATION_ID = 0
 private const val SYNC_NOTIFICATION_CHANNEL_ID = "SyncNotificationChannel"
 

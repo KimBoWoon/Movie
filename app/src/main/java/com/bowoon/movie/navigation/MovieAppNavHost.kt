@@ -10,6 +10,7 @@ import com.bowoon.home.navigation.HomeBaseRoute
 import com.bowoon.home.navigation.homeSection
 import com.bowoon.movie.MovieAppState
 import com.bowoon.my.navigation.myScreen
+import com.bowoon.people.navigation.navigateToPeople
 import com.bowoon.people.navigation.peopleScreen
 import com.bowoon.search.navigation.searchScreen
 
@@ -45,6 +46,7 @@ fun MovieAppNavHost(
         )
         favoriteScreen(
             onMovieClick = navController::navigateToDetail,
+            onPeopleClick = navController::navigateToPeople,
             onShowSnackbar = onShowSnackbar
         )
         myScreen()

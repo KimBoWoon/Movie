@@ -7,7 +7,9 @@ import com.bowoon.data.paging.TMDBSearchPagingSource
 import com.bowoon.data.util.suspendRunCatching
 import com.bowoon.model.MyData
 import com.bowoon.model.PosterSize
+import com.bowoon.model.TMDBCombineCredits
 import com.bowoon.model.TMDBConfiguration
+import com.bowoon.model.TMDBExternalIds
 import com.bowoon.model.TMDBLanguageItem
 import com.bowoon.model.TMDBMovieDetail
 import com.bowoon.model.TMDBPeopleDetail
@@ -21,6 +23,7 @@ import com.bowoon.network.model.asExternalModel
 import com.bowoon.network.retrofit.Apis
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -29,55 +32,41 @@ class TMDBRepositoryImpl @Inject constructor(
     private val apis: Apis,
     private val userDataRepository: UserDataRepository
 ) : TMDBRepository {
-    override val posterUrl: Flow<String> = userDataRepository.userData.map { "${it.myData?.configuration?.images?.secureBaseUrl}${it.imageQuality}" }
+    override val posterUrl: Flow<String> = userDataRepository.userData.map { "${it.myData?.secureBaseUrl}${it.imageQuality}" }
 
     override suspend fun syncWith(): Boolean = suspendRunCatching {
-        val networkConfiguration = getConfiguration().first()
-        val networkRegion = availableRegion().first()
-        val networkLanguage = availableLanguage().first()
-        val imageQuality = userDataRepository.userData.map { it.imageQuality }.first()
+        val configuration = getConfiguration().first()
+        val region = getAvailableRegion().first()
+        val language = getAvailableLanguage().first()
 
-        val region = TMDBRegion(
-            results = networkRegion.results?.map {
+        MyData(
+            secureBaseUrl = configuration.images?.secureBaseUrl,
+            region = region.results?.map {
                 TMDBRegionResult(
                     englishName = it.englishName,
                     iso31661 = it.iso31661,
                     nativeName = it.nativeName,
                     isSelected = userDataRepository.getRegion() == it.iso31661
                 )
-            }
-        )
-        val language = networkLanguage.map {
-            TMDBLanguageItem(
-                englishName = it.englishName,
-                iso6391 = it.iso6391,
-                name = it.name,
-                isSelected = userDataRepository.getLanguage() == it.iso6391
-            )
+            },
+            language = language.map {
+                TMDBLanguageItem(
+                    englishName = it.englishName,
+                    iso6391 = it.iso6391,
+                    name = it.name,
+                    isSelected = userDataRepository.getLanguage() == it.iso6391
+                )
+            },
+            posterSize = configuration.images?.posterSizes?.map {
+                PosterSize(
+                    size = it,
+                    isSelected = userDataRepository.getImageQuality() == it
+                )
+            } ?: emptyList(),
+        ).also {
+            userDataRepository.updateMyData(it)
         }
-        val posterSize = networkConfiguration.images?.posterSizes?.map {
-            PosterSize(
-                size = it,
-                isSelected = imageQuality == it
-            )
-        } ?: emptyList()
-
-        userDataRepository.updateMyData(
-            MyData(
-                configuration = networkConfiguration,
-                region = region,
-                language = language,
-                posterSize = posterSize
-            )
-        )
     }.isSuccess
-
-    override fun getConfiguration(): Flow<TMDBConfiguration> = flow {
-        when (val response = apis.tmdbApis.getConfiguration()) {
-            is ApiResponse.Failure -> throw response.throwable
-            is ApiResponse.Success -> emit(response.data.asExternalModel())
-        }
-    }
 
     override suspend fun searchMovies(
         query: String
@@ -92,24 +81,15 @@ class TMDBRepositoryImpl @Inject constructor(
         }
     ).flow
 
-//    override suspend fun getUpcomingMovies(): Flow<PagingData<UpComingResult>> = Pager(
-//        config = PagingConfig(pageSize = 20, initialLoadSize = 20, prefetchDistance = 5),
-//        pagingSourceFactory = {
-//            TMDBUpcomingPagingSource(
-//                apis = apis,
-//                userDataRepository = userDataRepository
-//            )
-//        }
-//    ).flow
-
     override fun getUpcomingMovies(): Flow<List<UpComingResult>> = flow {
         val result = mutableListOf<UpComingResult>()
         var page = 1
         var totalPage = 1
-        val imageQuality = userDataRepository.getImageQuality()
+        val language = "${userDataRepository.getLanguage()}-${userDataRepository.getRegion()}"
+        val region = userDataRepository.getRegion()
 
         do {
-            when (val response = apis.tmdbApis.getUpcomingMovie(page = page)) {
+            when (val response = apis.tmdbApis.getUpcomingMovie(language = language, region = region, page = page)) {
                 is ApiResponse.Failure -> throw response.throwable
                 is ApiResponse.Success -> {
                     page = ((response.data.page ?: 1) + 1)
@@ -125,7 +105,7 @@ class TMDBRepositoryImpl @Inject constructor(
                                 originalTitle = it.originalTitle,
                                 overview = it.overview,
                                 popularity = it.popularity,
-                                posterPath = "https://image.tmdb.org/t/p/$imageQuality${it.posterPath}",
+                                posterPath = "${posterUrl.firstOrNull()}${it.posterPath}",
                                 releaseDate = it.releaseDate,
                                 title = it.title,
                                 video = it.video,
@@ -136,9 +116,9 @@ class TMDBRepositoryImpl @Inject constructor(
                     )
                 }
             }
-        } while (page <= totalPage)
+        } while (page <= totalPage && page < 5)
 
-        emit(result)
+        emit(result.distinctBy { it.id })
     }
 
     override fun getMovieDetail(id: Int): Flow<TMDBMovieDetail> = flow {
@@ -155,20 +135,30 @@ class TMDBRepositoryImpl @Inject constructor(
         releaseDateGte: String,
         releaseDateLte: String
     ): Flow<TMDBSearch> = flow {
-        when (val response = apis.tmdbApis.discoverMovie(releaseDateGte = releaseDateGte, releaseDateLte = releaseDateLte)) {
+        val language = "${userDataRepository.getLanguage()}-${userDataRepository.getRegion()}"
+        val region = userDataRepository.getRegion()
+
+        when (val response = apis.tmdbApis.discoverMovie(releaseDateGte = releaseDateGte, releaseDateLte = releaseDateLte, language = language, region = region)) {
             is ApiResponse.Failure -> throw response.throwable
             is ApiResponse.Success -> emit(response.data.asExternalModel())
         }
     }
 
-    override fun availableLanguage(): Flow<List<TMDBLanguageItem>> = flow {
+    override fun getConfiguration(): Flow<TMDBConfiguration> = flow {
+        when (val response = apis.tmdbApis.getConfiguration()) {
+            is ApiResponse.Failure -> throw response.throwable
+            is ApiResponse.Success -> emit(response.data.asExternalModel())
+        }
+    }
+
+    override fun getAvailableLanguage(): Flow<List<TMDBLanguageItem>> = flow {
         when (val response = apis.tmdbApis.getAvailableLanguage()) {
             is ApiResponse.Failure -> throw response.throwable
             is ApiResponse.Success -> emit(response.data.asExternalModel())
         }
     }
 
-    override fun availableRegion(): Flow<TMDBRegion> = flow {
+    override fun getAvailableRegion(): Flow<TMDBRegion> = flow {
         when (val response = apis.tmdbApis.getAvailableRegion()) {
             is ApiResponse.Failure -> throw response.throwable
             is ApiResponse.Success -> emit(response.data.asExternalModel())
@@ -179,6 +169,22 @@ class TMDBRepositoryImpl @Inject constructor(
         val language = "${userDataRepository.getLanguage()}-${userDataRepository.getRegion()}"
 
         when (val response = apis.tmdbApis.getPeopleDetail(personId = personId, language = language)) {
+            is ApiResponse.Failure -> throw response.throwable
+            is ApiResponse.Success -> emit(response.data.asExternalModel())
+        }
+    }
+
+    override fun getCombineCredits(personId: Int): Flow<TMDBCombineCredits> = flow {
+        val language = "${userDataRepository.getLanguage()}-${userDataRepository.getRegion()}"
+
+        when (val response = apis.tmdbApis.getCombineCredits(personId = personId, language = language)) {
+            is ApiResponse.Failure -> throw response.throwable
+            is ApiResponse.Success -> emit(response.data.asExternalModel())
+        }
+    }
+
+    override fun getExternalIds(personId: Int): Flow<TMDBExternalIds> = flow {
+        when (val response = apis.tmdbApis.getExternalIds(personId = personId)) {
             is ApiResponse.Failure -> throw response.throwable
             is ApiResponse.Success -> emit(response.data.asExternalModel())
         }

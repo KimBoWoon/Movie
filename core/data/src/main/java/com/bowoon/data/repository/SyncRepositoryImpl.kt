@@ -2,9 +2,9 @@ package com.bowoon.data.repository
 
 import com.bowoon.data.BuildConfig
 import com.bowoon.data.util.suspendRunCatching
-import com.bowoon.model.DailyBoxOffice
 import com.bowoon.model.KOBISBoxOffice
 import com.bowoon.model.MainMenu
+import com.bowoon.model.MainMovie
 import com.bowoon.model.UpComingResult
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
@@ -57,36 +57,43 @@ class SyncRepositoryImpl @Inject constructor(
         posterUrl: String,
         upComingResult: List<UpComingResult>
     ): MainMenu = MainMenu(
-        dailyBoxOffice = kobisBoxOffice.boxOfficeResult?.dailyBoxOfficeList?.map { kobisDailyBoxOffice ->
-            val tmdbMovie = getTMDBMovie(
+        dailyBoxOffice = kobisBoxOffice.boxOfficeResult?.dailyBoxOfficeList?.mapNotNull { kobisDailyBoxOffice ->
+            getTMDBMovie(
                 movieName = kobisDailyBoxOffice.movieNm ?: "",
                 releaseDateGte = kobisDailyBoxOffice.openDt ?: "",
                 releaseDateLte = kobisDailyBoxOffice.openDt ?: ""
-            ).firstOrNull()
-
-            DailyBoxOffice(
-                audiAcc = kobisDailyBoxOffice.audiAcc,
-                audiChange = kobisDailyBoxOffice.audiChange,
-                audiCnt = kobisDailyBoxOffice.audiCnt,
-                audiInten = kobisDailyBoxOffice.audiInten,
-                movieCd = kobisDailyBoxOffice.movieCd,
-                movieNm = tmdbMovie?.title ?: kobisDailyBoxOffice.movieNm,
-                openDt = kobisDailyBoxOffice.openDt,
-                rank = kobisDailyBoxOffice.rank,
-                rankInten = kobisDailyBoxOffice.rankInten,
-                rankOldAndNew = kobisDailyBoxOffice.rankOldAndNew,
-                rnum = kobisDailyBoxOffice.rnum,
-                salesAcc = kobisDailyBoxOffice.salesAcc,
-                salesAmt = kobisDailyBoxOffice.salesAmt,
-                salesChange = kobisDailyBoxOffice.salesChange,
-                salesInten = kobisDailyBoxOffice.salesInten,
-                salesShare = kobisDailyBoxOffice.salesShare,
-                scrnCnt = kobisDailyBoxOffice.scrnCnt,
-                showCnt = kobisDailyBoxOffice.showCnt,
-                posterUrl = "$posterUrl${tmdbMovie?.posterPath}",
-                tmdbId = tmdbMovie?.id
-            )
+            ).firstOrNull()?.let { tmdbMovie ->
+                MainMovie(
+                    genreIds = tmdbMovie.genreIds,
+                    id = tmdbMovie.id,
+                    originalLanguage = tmdbMovie.originalLanguage,
+                    originalTitle = tmdbMovie.originalTitle,
+                    overview = tmdbMovie.overview,
+                    popularity = tmdbMovie.popularity,
+                    posterPath = "$posterUrl${tmdbMovie.posterPath}",
+                    releaseDate = tmdbMovie.releaseDate,
+                    title = tmdbMovie.title ?: kobisDailyBoxOffice.movieNm,
+                    voteAverage = tmdbMovie.voteAverage,
+                    voteCount = tmdbMovie.voteCount,
+                    rank = kobisDailyBoxOffice.rank,
+                    rankOldAndNew = kobisDailyBoxOffice.rankOldAndNew
+                )
+            }
         } ?: emptyList(),
-        upcomingMovies = upComingResult
+        upcomingMovies = upComingResult.map { upComingMovie ->
+            MainMovie(
+                genreIds = upComingMovie.genreIds,
+                id = upComingMovie.id,
+                title = upComingMovie.title,
+                originalLanguage = upComingMovie.originalLanguage,
+                originalTitle = upComingMovie.originalTitle,
+                overview = upComingMovie.overview,
+                popularity = upComingMovie.popularity,
+                posterPath = "$posterUrl${upComingMovie.posterPath}",
+                releaseDate = upComingMovie.releaseDate,
+                voteAverage = upComingMovie.voteAverage,
+                voteCount = upComingMovie.voteCount,
+            )
+        }
     )
 }

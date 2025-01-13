@@ -11,7 +11,7 @@ import javax.inject.Inject
 
 class UserDataRepositoryImpl @Inject constructor(
     private val datastore: InternalDataSource,
-    private val syncManager: SyncManager,
+    private val syncManager: SyncManager
 ) : UserDataRepository {
     override val userData: Flow<UserData> = datastore.userData
 

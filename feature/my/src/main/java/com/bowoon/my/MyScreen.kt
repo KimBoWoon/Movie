@@ -90,7 +90,7 @@ fun MyScreen(
             ) {
                 Text(text = "region")
                 ExposedDropdownRegionMenu(
-                    list = myData?.region?.results ?: emptyList(),
+                    list = myData?.region ?: emptyList(),
                     updateRegion = updateRegion
                 )
             }

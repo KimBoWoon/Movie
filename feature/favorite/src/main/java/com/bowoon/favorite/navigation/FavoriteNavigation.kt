@@ -14,11 +14,13 @@ fun NavController.navigateToFavorite(navOptions: NavOptions) = navigate(route = 
 
 fun NavGraphBuilder.favoriteScreen(
     onMovieClick: (Int) -> Unit,
+    onPeopleClick: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean
 ) {
     composable<FavoriteRoute>() {
         FavoriteScreen(
             onMovieClick = onMovieClick,
+            onPeopleClick = onPeopleClick,
             onShowSnackbar = onShowSnackbar
         )
     }

@@ -3,6 +3,9 @@ package com.bowoon.database.di
 import android.content.Context
 import androidx.room.Room
 import com.bowoon.database.MovieDatabase
+import com.bowoon.database.util.CombineCreditsConverter
+import com.bowoon.database.util.ExternalIdsConverter
+import com.bowoon.database.util.ImagesConverter
 import com.bowoon.database.util.TMDBReleasesConverter
 import dagger.Module
 import dagger.Provides
@@ -25,5 +28,8 @@ internal object DatabaseModule {
         MovieDatabase::class.java,
         "movie-database",
     ).addTypeConverter(TMDBReleasesConverter(json))
+        .addTypeConverter(CombineCreditsConverter(json))
+        .addTypeConverter(ExternalIdsConverter(json))
+        .addTypeConverter(ImagesConverter(json))
         .build()
 }

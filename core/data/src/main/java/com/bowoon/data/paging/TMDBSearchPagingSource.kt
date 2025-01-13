@@ -8,6 +8,8 @@ import com.bowoon.model.TMDBSearchResult
 import com.bowoon.network.ApiResponse
 import com.bowoon.network.model.asExternalModel
 import com.bowoon.network.retrofit.Apis
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class TMDBSearchPagingSource @Inject constructor(
@@ -20,6 +22,7 @@ class TMDBSearchPagingSource @Inject constructor(
             val language = "${userDataRepository.getLanguage()}-${userDataRepository.getRegion()}"
             val region = userDataRepository.getRegion()
             val imageQuality = userDataRepository.getImageQuality()
+            val posterUrl = userDataRepository.userData.map { it.myData?.secureBaseUrl }.firstOrNull()
 
             when (val response = apis.tmdbApis.searchMovies(query = query, language = language, region = region, page = params.key ?: 1)) {
                 is ApiResponse.Failure -> LoadResult.Error(response.throwable)
@@ -35,7 +38,7 @@ class TMDBSearchPagingSource @Inject constructor(
                                 originalTitle = it.originalTitle,
                                 overview = it.overview,
                                 popularity = it.popularity,
-                                posterPath = "https://image.tmdb.org/t/p/$imageQuality${it.posterPath}",
+                                posterPath = "$posterUrl$imageQuality${it.posterPath}",
                                 releaseDate = it.releaseDate,
                                 title = it.title,
                                 video = it.video,

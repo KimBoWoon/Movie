@@ -1,6 +1,8 @@
 package com.bowoon.network
 
+import com.bowoon.network.model.NetworkTMDBCombineCredits
 import com.bowoon.network.model.NetworkTMDBConfiguration
+import com.bowoon.network.model.NetworkTMDBExternalIds
 import com.bowoon.network.model.NetworkTMDBLanguageItem
 import com.bowoon.network.model.NetworkTMDBMovieDetail
 import com.bowoon.network.model.NetworkTMDBPeopleDetail
@@ -60,4 +62,15 @@ interface TMDBApis {
         @Query("append_to_response") appendToResponse: String = "images, combined_credits, external_ids",
         @Query("language") language: String = "ko-KR"
     ): ApiResponse<NetworkTMDBPeopleDetail>
+
+    @GET("/3/person/{person_id}/combined_credits")
+    suspend fun getCombineCredits(
+        @Path("person_id") personId: Int,
+        @Query("language") language: String = "ko-KR"
+    ): ApiResponse<NetworkTMDBCombineCredits>
+
+    @GET("/3/person/{person_id}/external_ids")
+    suspend fun getExternalIds(
+        @Path("person_id") personId: Int
+    ): ApiResponse<NetworkTMDBExternalIds>
 }

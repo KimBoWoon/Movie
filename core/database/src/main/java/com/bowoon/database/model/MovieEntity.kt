@@ -12,7 +12,6 @@ data class MovieEntity(
     val id: Int,
     @ColumnInfo(defaultValue = "")
     val posterPath: String,
-    @ColumnInfo(defaultValue = "", typeAffinity = ColumnInfo.INTEGER)
     val timestamp: Long,
     val releases: TMDBMovieDetailReleases?,
     @ColumnInfo(defaultValue = "", typeAffinity = ColumnInfo.TEXT)

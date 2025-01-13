@@ -77,7 +77,7 @@ fun Title(
             )
         }
         Text(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(1f).padding(end = dp50),
             text = title,
             fontSize = sp20,
             fontWeight = FontWeight.Bold,
@@ -152,6 +152,17 @@ fun TitlePreview() {
             isFavorite = true,
             onBackClick = {  },
             onFavoriteClick = {  }
+        )
+    }
+}
+
+@Preview
+@Composable
+fun LeftButtonTitlePreview() {
+    MovieTheme {
+        Title(
+            title = "Hello, World",
+            onBackClick = {  },
         )
     }
 }

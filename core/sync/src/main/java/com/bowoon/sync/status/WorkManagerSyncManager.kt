@@ -1,12 +1,13 @@
 package com.bowoon.sync.status
 
 import android.content.Context
-import androidx.work.ExistingWorkPolicy
 import androidx.work.WorkInfo
 import androidx.work.WorkInfo.State
 import androidx.work.WorkManager
 import com.bowoon.data.util.SyncManager
-import com.bowoon.sync.workers.SyncWorker
+import com.bowoon.sync.initializers.UNIQUE_SYNC_WORKER
+import com.bowoon.sync.workers.MainMenuSyncWorker
+import com.bowoon.sync.workers.MyDataSyncWorker
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.conflate
@@ -18,17 +19,15 @@ internal class WorkManagerSyncManager @Inject constructor(
 ) : SyncManager {
     override val isSyncing: Flow<Boolean> =
         WorkManager.getInstance(context)
-            .getWorkInfosForUniqueWorkFlow(SyncWorker.WORKER_NAME)
+            .getWorkInfosForUniqueWorkFlow(UNIQUE_SYNC_WORKER)
             .map(List<WorkInfo>::anyRunning)
             .conflate()
 
     override fun requestSync() {
         WorkManager.getInstance(context)
-            .enqueueUniqueWork(
-                SyncWorker.WORKER_NAME,
-                ExistingWorkPolicy.KEEP,
-                SyncWorker.startUpSyncWork(true)
-            )
+            .beginWith(MyDataSyncWorker.startUpSyncWork())
+            .then(MainMenuSyncWorker.startUpSyncWork(true))
+            .enqueue()
     }
 }
 

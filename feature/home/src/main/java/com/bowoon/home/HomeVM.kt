@@ -49,21 +49,21 @@ class HomeVM @Inject constructor(
         .asResult()
         .map {
             when (it) {
-                is Result.Loading -> DailyBoxOfficeState.Loading
-                is Result.Success -> DailyBoxOfficeState.Success(it.data)
-                is Result.Error -> DailyBoxOfficeState.Error(it.throwable)
+                is Result.Loading -> MainMenuState.Loading
+                is Result.Success -> MainMenuState.Success(it.data)
+                is Result.Error -> MainMenuState.Error(it.throwable)
             }
         }.stateIn(
             scope = viewModelScope,
-            initialValue = DailyBoxOfficeState.Loading,
+            initialValue = MainMenuState.Loading,
             started = SharingStarted.WhileSubscribed(5_000)
         )
 }
 
-sealed interface DailyBoxOfficeState {
-    data object Loading : DailyBoxOfficeState
-    data class Success(val mainMenu: MainMenu) : DailyBoxOfficeState
-    data class Error(val throwable: Throwable) : DailyBoxOfficeState
+sealed interface MainMenuState {
+    data object Loading : MainMenuState
+    data class Success(val mainMenu: MainMenu) : MainMenuState
+    data class Error(val throwable: Throwable) : MainMenuState
 }
 
 sealed interface FavoriteMoviesState {

@@ -1,6 +1,6 @@
 package com.bowoon.data.util
 
-import android.util.Log
+import com.bowoon.common.Log
 import kotlin.coroutines.cancellation.CancellationException
 
 interface Syncable {
@@ -12,10 +12,10 @@ internal suspend fun <T> suspendRunCatching(block: suspend () -> T): Result<T> =
 } catch (cancellationException: CancellationException) {
     throw cancellationException
 } catch (exception: Exception) {
-    Log.i(
+    Log.e(
         "suspendRunCatching",
-        "Failed to evaluate a suspendRunCatchingBlock. Returning failure Result",
-        exception,
+        "Failed to evaluate a suspendRunCatchingBlock. Returning failure Result"
     )
+    Log.printStackTrace(exception)
     Result.failure(exception)
 }

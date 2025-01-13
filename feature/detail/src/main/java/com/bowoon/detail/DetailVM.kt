@@ -44,7 +44,7 @@ class DetailVM @Inject constructor(
 
     fun updateFavoriteMovies(movie: MovieDetail) {
         viewModelScope.launch {
-            databaseRepository.insert(movie)
+            databaseRepository.insertMovie(movie)
         }
     }
 
@@ -54,13 +54,13 @@ class DetailVM @Inject constructor(
 
     fun insertMovie(movie: MovieDetail) {
         viewModelScope.launch {
-            databaseRepository.insert(movie)
+            databaseRepository.insertMovie(movie)
         }
     }
 
     fun deleteMovie(movie: MovieDetail) {
         viewModelScope.launch {
-            databaseRepository.delete(movie)
+            databaseRepository.deleteMovie(movie)
         }
     }
 }

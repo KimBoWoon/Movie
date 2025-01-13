@@ -46,16 +46,17 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bowoon.common.Log
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
-import com.bowoon.model.DailyBoxOffice
 import com.bowoon.model.MainMenu
+import com.bowoon.model.MainMovie
 import com.bowoon.model.MovieDetail
-import com.bowoon.model.UpComingResult
 import com.bowoon.model.Week
+import com.bowoon.ui.BoxOfficeRank
 import com.bowoon.ui.dp1
 import com.bowoon.ui.dp10
 import com.bowoon.ui.dp15
 import com.bowoon.ui.dp150
 import com.bowoon.ui.dp20
+import com.bowoon.ui.dp25
 import com.bowoon.ui.dp30
 import com.bowoon.ui.image.DynamicAsyncImageLoader
 import com.bowoon.ui.sp10
@@ -84,20 +85,20 @@ fun HomeScreen(
 @Composable
 fun HomeScreen(
     isSyncing: Boolean,
-    state: DailyBoxOfficeState,
+    state: MainMenuState,
     favoriteMoviesState: FavoriteMoviesState,
     onMovieClick: (Int) -> Unit
 ) {
-    val isLoading = state is DailyBoxOfficeState.Loading
+    val isLoading = state is MainMenuState.Loading
     var mainMenu by remember { mutableStateOf<MainMenu>(MainMenu()) }
 
     when (state) {
-        is DailyBoxOfficeState.Loading -> Log.d("loading...")
-        is DailyBoxOfficeState.Success -> {
+        is MainMenuState.Loading -> Log.d("loading...")
+        is MainMenuState.Success -> {
             Log.d("${state.mainMenu}")
             mainMenu = state.mainMenu
         }
-        is DailyBoxOfficeState.Error -> Log.e("${state.throwable.message}")
+        is MainMenuState.Error -> Log.e("${state.throwable.message}")
     }
 
     Box(
@@ -128,7 +129,8 @@ fun HomeScreen(
 }
 
 fun LazyListScope.dailyBoxOfficeComponent(
-    boxOffice: List<DailyBoxOffice>,
+//    boxOffice: List<DailyBoxOffice>,
+    boxOffice: List<MainMovie>,
     onMovieClick: (Int) -> Unit
 ) {
     item {
@@ -143,10 +145,11 @@ fun LazyListScope.dailyBoxOfficeComponent(
             ) {
                 items(
                     items = boxOffice,
-                    key = { "${it.rank}_${it.rnum}_${it.openDt}_${it.movieNm}" }
+                    key = { "${it.rank}_${it.releaseDate}_${it.title}_${it.id}" }
                 ) { boxOffice ->
-                    BoxOfficeItem(
-                        boxOffice = boxOffice,
+                    MainMovieItem(
+                        movie = boxOffice,
+                        isVisibleRank = true,
                         onMovieClick = onMovieClick
                     )
                 }
@@ -156,8 +159,9 @@ fun LazyListScope.dailyBoxOfficeComponent(
 }
 
 @Composable
-fun BoxOfficeItem(
-    boxOffice: DailyBoxOffice,
+fun MainMovieItem(
+    movie: MainMovie,
+    isVisibleRank: Boolean,
     onMovieClick: (Int) -> Unit
 ) {
     Column(
@@ -165,7 +169,7 @@ fun BoxOfficeItem(
             .width(dp150)
             .wrapContentHeight()
             .clickable {
-                onMovieClick(boxOffice.tmdbId ?: -1)
+                onMovieClick(movie.id ?: -1)
             }
     ) {
         Box(
@@ -175,30 +179,28 @@ fun BoxOfficeItem(
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(POSTER_IMAGE_RATIO),
-                source = boxOffice.posterUrl ?: "",
+                source = movie.posterPath ?: "",
                 contentDescription = "BoxOfficePoster"
             )
-            Text(
-                modifier = Modifier
-                    .size(dp15)
-                    .background(if ((boxOffice.rank?.toInt() ?: 0) < 4) Color.Red else Color.Gray)
-                    .align(Alignment.TopStart),
-                text = boxOffice.rank ?: "",
-                color = Color.White,
-                fontSize = sp10,
-                style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false)),
-                textAlign = TextAlign.Center
-            )
+            if (isVisibleRank) {
+                BoxOfficeRank(
+                    modifier = Modifier
+                        .size(dp25)
+                        .background(if ((movie.rank?.toInt() ?: 0) < 4) Color.Red else Color.Gray)
+                        .align(Alignment.TopStart),
+                    rank = movie.rank?.toInt() ?: 0
+                )
+            }
         }
         Text(
-            text = boxOffice.movieNm ?: "",
+            text = movie.title ?: "",
             fontSize = sp10,
             style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false)),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
         Text(
-            text = boxOffice.openDt ?: "",
+            text = movie.releaseDate ?: "",
             fontSize = sp8,
             style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false)),
             maxLines = 1,
@@ -208,7 +210,8 @@ fun BoxOfficeItem(
 }
 
 fun LazyListScope.upcomingComponent(
-    upcoming: List<UpComingResult>,
+//    upcoming: List<UpComingResult>,
+    upcoming: List<MainMovie>,
     onMovieClick: (Int) -> Unit
 ) {
     item {
@@ -225,50 +228,14 @@ fun LazyListScope.upcomingComponent(
                     count = upcoming.size,
                     key = { "${upcoming[it].id}_${upcoming[it].title}_${upcoming[it].originalTitle}_${upcoming[it].releaseDate}" }
                 ) { index ->
-                    UpcomingItem(
-                        upcoming = upcoming[index],
+                    MainMovieItem(
+                        movie = upcoming[index],
+                        isVisibleRank = false,
                         onMovieClick = onMovieClick
                     )
                 }
             }
         }
-    }
-}
-
-@Composable
-fun UpcomingItem(
-    upcoming: UpComingResult,
-    onMovieClick: (Int) -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .width(dp150)
-            .wrapContentHeight()
-            .clickable {
-                onMovieClick(upcoming.id ?: -1)
-            }
-    ) {
-        DynamicAsyncImageLoader(
-            modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(POSTER_IMAGE_RATIO),
-            source = upcoming.posterPath ?: "",
-            contentDescription = "BoxOfficePoster"
-        )
-        Text(
-            text = upcoming.title ?: "",
-            fontSize = sp10,
-            style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false)),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
-        Text(
-            text = upcoming.releaseDate ?: "",
-            fontSize = sp8,
-            style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false)),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
     }
 }
 

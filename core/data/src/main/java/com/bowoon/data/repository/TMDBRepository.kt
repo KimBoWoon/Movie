@@ -1,8 +1,9 @@
 package com.bowoon.data.repository
 
 import androidx.paging.PagingData
-import com.bowoon.model.MyData
+import com.bowoon.model.TMDBCombineCredits
 import com.bowoon.model.TMDBConfiguration
+import com.bowoon.model.TMDBExternalIds
 import com.bowoon.model.TMDBLanguageItem
 import com.bowoon.model.TMDBMovieDetail
 import com.bowoon.model.TMDBPeopleDetail
@@ -14,17 +15,18 @@ import kotlinx.coroutines.flow.Flow
 
 interface TMDBRepository {
     val posterUrl: Flow<String>
-    fun getConfiguration(): Flow<TMDBConfiguration>
     suspend fun searchMovies(query: String): Flow<PagingData<TMDBSearchResult>>
-//    suspend fun getUpcomingMovies(): Flow<PagingData<UpComingResult>>
     fun getUpcomingMovies(): Flow<List<UpComingResult>>
     fun getMovieDetail(id: Int): Flow<TMDBMovieDetail>
     fun discoverMovie(
         releaseDateGte: String,
         releaseDateLte: String
     ): Flow<TMDBSearch>
-    fun availableLanguage(): Flow<List<TMDBLanguageItem>>
-    fun availableRegion(): Flow<TMDBRegion>
+    fun getConfiguration(): Flow<TMDBConfiguration>
+    fun getAvailableLanguage(): Flow<List<TMDBLanguageItem>>
+    fun getAvailableRegion(): Flow<TMDBRegion>
     fun getPeople(personId: Int): Flow<TMDBPeopleDetail>
+    fun getCombineCredits(personId: Int): Flow<TMDBCombineCredits>
+    fun getExternalIds(personId: Int): Flow<TMDBExternalIds>
     suspend fun syncWith(): Boolean
 }

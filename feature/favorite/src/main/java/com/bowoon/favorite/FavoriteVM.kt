@@ -6,7 +6,9 @@ import com.bowoon.common.Result
 import com.bowoon.common.asResult
 import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.domain.GetFavoriteMoviesUseCase
+import com.bowoon.domain.GetFavoritePeopleUseCase
 import com.bowoon.model.MovieDetail
+import com.bowoon.model.PeopleDetail
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
@@ -17,6 +19,7 @@ import javax.inject.Inject
 @HiltViewModel
 class FavoriteVM @Inject constructor(
     private val getFavoriteMoviesUseCase: GetFavoriteMoviesUseCase,
+    private val getFavoritePeopleUseCase: GetFavoritePeopleUseCase,
     private val databaseRepository: DatabaseRepository
 ) : ViewModel() {
     companion object {
@@ -36,10 +39,29 @@ class FavoriteVM @Inject constructor(
             initialValue = FavoriteMoviesState.Loading,
             started = SharingStarted.WhileSubscribed(5_000)
         )
+    val favoritePeoples = getFavoritePeopleUseCase()
+        .asResult()
+        .map {
+            when (it) {
+                is Result.Loading -> FavoritePeoplesState.Loading
+                is Result.Success -> FavoritePeoplesState.Success(it.data)
+                is Result.Error -> FavoritePeoplesState.Error(it.throwable)
+            }
+        }.stateIn(
+            scope = viewModelScope,
+            initialValue = FavoritePeoplesState.Loading,
+            started = SharingStarted.WhileSubscribed(5_000)
+        )
 
     fun deleteMovie(movie: MovieDetail) {
         viewModelScope.launch {
-            databaseRepository.delete(movie)
+            databaseRepository.deleteMovie(movie)
+        }
+    }
+
+    fun deletePeople(people: PeopleDetail) {
+        viewModelScope.launch {
+            databaseRepository.deletePeople(people)
         }
     }
 }
@@ -48,4 +70,10 @@ sealed interface FavoriteMoviesState {
     data object Loading : FavoriteMoviesState
     data class Success(val data: List<MovieDetail>) : FavoriteMoviesState
     data class Error(val throwable: Throwable) : FavoriteMoviesState
+}
+
+sealed interface FavoritePeoplesState {
+    data object Loading : FavoritePeoplesState
+    data class Success(val data: List<PeopleDetail>) : FavoritePeoplesState
+    data class Error(val throwable: Throwable) : FavoritePeoplesState
 }

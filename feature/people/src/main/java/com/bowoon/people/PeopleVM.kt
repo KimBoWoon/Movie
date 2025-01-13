@@ -7,18 +7,24 @@ import androidx.navigation.toRoute
 import com.bowoon.common.Result
 import com.bowoon.common.asResult
 import com.bowoon.common.restartableStateIn
+import com.bowoon.data.repository.DatabaseRepository
+import com.bowoon.domain.GetFavoritePeopleUseCase
 import com.bowoon.domain.GetPeopleDetail
-import com.bowoon.model.TMDBPeopleDetail
+import com.bowoon.model.PeopleDetail
 import com.bowoon.people.navigation.PeopleRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class PeopleVM @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val getPeopleDetail: GetPeopleDetail
+    private val getPeopleDetail: GetPeopleDetail,
+    private val databaseRepository: DatabaseRepository,
+    private val getFavoritePeopleUseCase: GetFavoritePeopleUseCase
 ) : ViewModel() {
     companion object {
         private const val TAG = "PeopleVM"
@@ -38,14 +44,39 @@ class PeopleVM @Inject constructor(
             initialValue = PeopleState.Loading,
             started = SharingStarted.WhileSubscribed(5_000)
         )
+    val favoritePeoples = getFavoritePeopleUseCase()
+        .asResult()
+        .map {
+            when (it) {
+                is Result.Loading -> emptyList()
+                is Result.Success -> it.data
+                is Result.Error -> emptyList()
+            }
+        }.stateIn(
+            scope = viewModelScope,
+            initialValue = emptyList(),
+            started = SharingStarted.WhileSubscribed(5_000)
+        )
 
     fun restart() {
         people.restart()
+    }
+
+    fun insertPeople(people: PeopleDetail) {
+        viewModelScope.launch {
+            databaseRepository.insertPeople(people)
+        }
+    }
+
+    fun deletePeople(people: PeopleDetail) {
+        viewModelScope.launch {
+            databaseRepository.deletePeople(people)
+        }
     }
 }
 
 sealed interface PeopleState {
     data object Loading : PeopleState
-    data class Success(val data: TMDBPeopleDetail) : PeopleState
+    data class Success(val data: PeopleDetail) : PeopleState
     data class Error(val throwable: Throwable) : PeopleState
 }

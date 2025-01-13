@@ -1,16 +1,20 @@
 package com.bowoon.data.repository
 
 import com.bowoon.database.dao.MovieDao
+import com.bowoon.database.dao.PeopleDao
 import com.bowoon.database.model.MovieEntity
+import com.bowoon.database.model.PeopleEntity
 import com.bowoon.database.model.asExternalModel
 import com.bowoon.model.MovieDetail
+import com.bowoon.model.PeopleDetail
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.threeten.bp.Instant
 import javax.inject.Inject
 
 class DatabaseRepositoryImpl @Inject constructor(
-    private val movieDao: MovieDao
+    private val movieDao: MovieDao,
+    private val peopleDao: PeopleDao
 ) : DatabaseRepository {
     override fun getMovies(): Flow<List<MovieDetail>> =
         movieDao.getMovieEntities()
@@ -19,7 +23,7 @@ class DatabaseRepositoryImpl @Inject constructor(
                     .map(MovieEntity::asExternalModel)
             }
 
-    override suspend fun insert(movie: MovieDetail): Long =
+    override suspend fun insertMovie(movie: MovieDetail): Long =
         movieDao.insertOrIgnoreMovies(
             MovieEntity(
                 id = movie.id ?: -1,
@@ -31,7 +35,7 @@ class DatabaseRepositoryImpl @Inject constructor(
             )
         )
 
-    override suspend fun delete(movie: MovieDetail) {
+    override suspend fun deleteMovie(movie: MovieDetail) {
         movie.id?.let {
             movieDao.deleteMovie(it)
         }
@@ -51,4 +55,53 @@ class DatabaseRepositoryImpl @Inject constructor(
             }
         )
     }
+
+    override fun getPeople(): Flow<List<PeopleDetail>> =
+        peopleDao.getPeopleEntities()
+            .map {
+                it.sortedByDescending { it.timestamp }
+                    .map(PeopleEntity::asExternalModel)
+            }
+
+    override suspend fun insertPeople(people: PeopleDetail): Long =
+        peopleDao.insertOrIgnorePeoples(
+            PeopleEntity(
+                id = people.id ?: -1,
+                timestamp = Instant.now().toEpochMilli(),
+                name = people.name,
+                gender = people.gender,
+                birthday = people.birthday,
+                deathday = people.deathday,
+                combineCredits = people.combineCredits,
+                externalIds = people.externalIds,
+                images = people.images,
+                placeOfBirth = people.placeOfBirth,
+                profilePath = people.profilePath
+            )
+        )
+
+    override suspend fun deletePeople(people: PeopleDetail) {
+        people.id?.let {
+            peopleDao.deletePeople(it)
+        }
+    }
+
+    override suspend fun upsertPeoples(peoples: List<PeopleDetail>) =
+        peopleDao.upsertPeoples(
+            peoples.map { people ->
+                PeopleEntity(
+                    id = people.id ?: -1,
+                    timestamp = Instant.now().toEpochMilli(),
+                    name = people.name,
+                    gender = people.gender,
+                    birthday = people.birthday,
+                    deathday = people.deathday,
+                    combineCredits = people.combineCredits,
+                    externalIds = people.externalIds,
+                    images = people.images,
+                    placeOfBirth = people.placeOfBirth,
+                    profilePath = people.profilePath
+                )
+            }
+        )
 }
