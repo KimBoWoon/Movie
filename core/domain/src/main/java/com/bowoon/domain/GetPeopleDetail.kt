@@ -1,6 +1,7 @@
 package com.bowoon.domain
 
 import com.bowoon.data.repository.DatabaseRepository
+import com.bowoon.data.repository.MyDataRepository
 import com.bowoon.data.repository.TMDBRepository
 import com.bowoon.model.CombineCredits
 import com.bowoon.model.CombineCreditsCast
@@ -14,14 +15,15 @@ import javax.inject.Inject
 
 class GetPeopleDetail @Inject constructor(
     private val tmdbRepository: TMDBRepository,
-    private val databaseRepository: DatabaseRepository
+    private val databaseRepository: DatabaseRepository,
+    private val myDataRepository: MyDataRepository
 ) {
     operator fun invoke(personId: Int): Flow<PeopleDetail> =
         combine(
             tmdbRepository.getPeople(personId = personId),
             tmdbRepository.getCombineCredits(personId = personId),
             tmdbRepository.getExternalIds(personId = personId),
-            tmdbRepository.posterUrl,
+            myDataRepository.posterUrl,
             databaseRepository.getPeople()
         ) { tmdbPeopleDetail, tmdbCombineCredits, tmdbExternalIds, posterUrl, favoritePeoples ->
             PeopleDetail(

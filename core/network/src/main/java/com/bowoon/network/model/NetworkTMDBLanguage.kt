@@ -1,6 +1,6 @@
 package com.bowoon.network.model
 
-import com.bowoon.model.TMDBLanguageItem
+import com.bowoon.model.tmdb.TMDBLanguageItem
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

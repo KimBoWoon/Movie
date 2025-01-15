@@ -4,7 +4,6 @@ import com.bowoon.data.util.SyncManager
 import com.bowoon.datastore.InternalDataSource
 import com.bowoon.model.DarkThemeConfig
 import com.bowoon.model.MainMenu
-import com.bowoon.model.MyData
 import com.bowoon.model.UserData
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -40,10 +39,6 @@ class UserDataRepositoryImpl @Inject constructor(
     override suspend fun updateImageQuality(imageQuality: String) {
         datastore.updateImageQuality(imageQuality)
         syncManager.requestSync()
-    }
-
-    override suspend fun updateMyData(myData: MyData) {
-        datastore.updateMyData(myData)
     }
 
     override suspend fun getMainOfDate(): String = datastore.getMainOfDate()

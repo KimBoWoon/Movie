@@ -8,8 +8,8 @@ import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.domain.GetMyDataUseCase
 import com.bowoon.model.MyData
 import com.bowoon.model.PosterSize
-import com.bowoon.model.TMDBLanguageItem
-import com.bowoon.model.TMDBRegionResult
+import com.bowoon.model.tmdb.TMDBLanguageItem
+import com.bowoon.model.tmdb.TMDBRegionResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
@@ -67,6 +67,6 @@ class MyVM @Inject constructor(
 
 sealed interface MyDataState {
     data object Loading : MyDataState
-    data class Success(val myData: MyData) : MyDataState
+    data class Success(val myData: MyData?) : MyDataState
     data class Error(val throwable: Throwable) : MyDataState
 }

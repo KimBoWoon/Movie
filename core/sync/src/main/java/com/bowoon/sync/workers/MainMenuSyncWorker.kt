@@ -9,7 +9,7 @@ import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkerParameters
 import com.bowoon.common.Dispatcher
 import com.bowoon.common.Dispatchers
-import com.bowoon.data.repository.SyncRepository
+import com.bowoon.data.repository.MainMenuRepository
 import com.bowoon.sync.initializers.SyncConstraints
 import com.bowoon.sync.initializers.syncForegroundInfo
 import dagger.assisted.Assisted
@@ -24,7 +24,7 @@ class MainMenuSyncWorker @AssistedInject constructor(
     @Assisted private val appContext: Context,
     @Assisted private val workerParams: WorkerParameters,
     @Dispatcher(Dispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
-    private val syncRepository: SyncRepository
+    private val mainMenuRepository: MainMenuRepository
 ) : CoroutineWorker(appContext, workerParams) {
     companion object {
         const val WORKER_NAME = "MovieInitWorker"
@@ -45,7 +45,7 @@ class MainMenuSyncWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result = withContext(ioDispatcher) {
         awaitAll(
-            async { syncRepository.syncWith(isForce) }
+            async { mainMenuRepository.syncWith(isForce) }
         ).all { it }
             .let {
                 when (it) {

@@ -1,8 +1,9 @@
 package com.bowoon.network.model
 
 
-import com.bowoon.model.KOBISBoxOffice
-import com.bowoon.model.KOBISDailyBoxOffice
+import com.bowoon.model.kobis.KOBISBoxOffice
+import com.bowoon.model.kobis.KOBISBoxOfficeResult
+import com.bowoon.model.kobis.KOBISDailyBoxOffice
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -63,7 +64,7 @@ data class NetworkDailyBoxOffice(
 )
 
 fun NetworkBoxOffice.asExternalModel(): KOBISBoxOffice = KOBISBoxOffice(
-    com.bowoon.model.KOBISBoxOfficeResult(
+    KOBISBoxOfficeResult(
         boxofficeType = boxOfficeResult?.boxofficeType,
         dailyBoxOfficeList = boxOfficeResult?.dailyBoxOfficeList?.asExternalModel(),
         showRange = boxOfficeResult?.showRange

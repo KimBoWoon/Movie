@@ -1,10 +1,12 @@
 package com.bowoon.network
 
+import com.bowoon.network.model.NetworkTMDBCertificationData
 import com.bowoon.network.model.NetworkTMDBCombineCredits
 import com.bowoon.network.model.NetworkTMDBConfiguration
 import com.bowoon.network.model.NetworkTMDBExternalIds
 import com.bowoon.network.model.NetworkTMDBLanguageItem
 import com.bowoon.network.model.NetworkTMDBMovieDetail
+import com.bowoon.network.model.NetworkTMDBMovieGenres
 import com.bowoon.network.model.NetworkTMDBPeopleDetail
 import com.bowoon.network.model.NetworkTMDBRegion
 import com.bowoon.network.model.NetworkTMDBSearch
@@ -16,6 +18,16 @@ import retrofit2.http.Query
 interface TMDBApis {
     @GET("/3/configuration")
     suspend fun getConfiguration(): ApiResponse<NetworkTMDBConfiguration>
+
+    @GET("/3/certification/movie/list")
+    suspend fun getCertification(
+        @Query("language") language: String = "ko-KR"
+    ): ApiResponse<NetworkTMDBCertificationData>
+
+    @GET("/3/genre/movie/list")
+    suspend fun getGenres(
+        @Query("language") language: String = "ko-KR"
+    ): ApiResponse<NetworkTMDBMovieGenres>
 
     @GET("/3/movie/upcoming")
     suspend fun getUpcomingMovie(
@@ -60,7 +72,8 @@ interface TMDBApis {
     suspend fun getPeopleDetail(
         @Path("person_id") personId: Int,
         @Query("append_to_response") appendToResponse: String = "images, combined_credits, external_ids",
-        @Query("language") language: String = "ko-KR"
+        @Query("language") language: String = "ko-KR",
+        @Query("include_image_language") includeImageLanguage: String = "ko"
     ): ApiResponse<NetworkTMDBPeopleDetail>
 
     @GET("/3/person/{person_id}/combined_credits")

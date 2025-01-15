@@ -12,10 +12,6 @@ internal suspend fun <T> suspendRunCatching(block: suspend () -> T): Result<T> =
 } catch (cancellationException: CancellationException) {
     throw cancellationException
 } catch (exception: Exception) {
-    Log.e(
-        "suspendRunCatching",
-        "Failed to evaluate a suspendRunCatchingBlock. Returning failure Result"
-    )
     Log.printStackTrace(exception)
     Result.failure(exception)
 }

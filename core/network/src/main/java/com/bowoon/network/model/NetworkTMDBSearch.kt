@@ -1,8 +1,8 @@
 package com.bowoon.network.model
 
 
-import com.bowoon.model.TMDBSearch
-import com.bowoon.model.TMDBSearchResult
+import com.bowoon.model.tmdb.TMDBSearch
+import com.bowoon.model.tmdb.TMDBSearchResult
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

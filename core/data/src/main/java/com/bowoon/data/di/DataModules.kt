@@ -2,10 +2,12 @@ package com.bowoon.data.di
 
 import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.data.repository.DatabaseRepositoryImpl
-import com.bowoon.data.repository.KobisRepository
-import com.bowoon.data.repository.KobisRepositoryImpl
-import com.bowoon.data.repository.SyncRepository
-import com.bowoon.data.repository.SyncRepositoryImpl
+import com.bowoon.data.repository.KOBISRepository
+import com.bowoon.data.repository.KOBISRepositoryImpl
+import com.bowoon.data.repository.MainMenuRepository
+import com.bowoon.data.repository.MainMenuRepositoryImpl
+import com.bowoon.data.repository.MyDataRepository
+import com.bowoon.data.repository.MyDataRepositoryImpl
 import com.bowoon.data.repository.TMDBRepository
 import com.bowoon.data.repository.TMDBRepositoryImpl
 import com.bowoon.data.repository.UserDataRepository
@@ -14,14 +16,15 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class DataModules {
     @Binds
     abstract fun bindKobisRepository(
-        repository: KobisRepositoryImpl
-    ): KobisRepository
+        repository: KOBISRepositoryImpl
+    ): KOBISRepository
 
     @Binds
     abstract fun bindUserRepository(
@@ -39,7 +42,13 @@ abstract class DataModules {
     ): DatabaseRepository
 
     @Binds
-    abstract fun bindSyncRepository(
-        repository: SyncRepositoryImpl
-    ): SyncRepository
+    abstract fun bindMainMenuRepository(
+        repository: MainMenuRepositoryImpl
+    ): MainMenuRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindMyDataRepository(
+        repository: MyDataRepositoryImpl
+    ): MyDataRepository
 }

@@ -29,6 +29,7 @@ fun MovieAppNavHost(
     ) {
         homeSection(
             onMovieClick = navController::navigateToDetail,
+            onShowSnackbar = onShowSnackbar
         ) {
             detailSection(
                 navController = navController,

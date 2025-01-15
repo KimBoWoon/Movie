@@ -1,5 +1,5 @@
 package com.bowoon.data.repository
 
-interface SyncRepository {
+interface MainMenuRepository {
     suspend fun syncWith(isForce: Boolean): Boolean
 }

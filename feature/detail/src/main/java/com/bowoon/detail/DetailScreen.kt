@@ -55,12 +55,12 @@ import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.detail.navigation.navigateToDetail
 import com.bowoon.model.MovieDetail
 import com.bowoon.model.MovieDetailTab
-import com.bowoon.model.TMBDMovieDetailVideos
-import com.bowoon.model.TMDBMovieDetailCast
-import com.bowoon.model.TMDBMovieDetailCountry
-import com.bowoon.model.TMDBMovieDetailCrew
-import com.bowoon.model.TMDBMovieDetailReleases
-import com.bowoon.model.TMDBMovieDetailVideoResult
+import com.bowoon.model.tmdb.TMBDMovieDetailVideos
+import com.bowoon.model.tmdb.TMDBMovieDetailCast
+import com.bowoon.model.tmdb.TMDBMovieDetailCountry
+import com.bowoon.model.tmdb.TMDBMovieDetailCrew
+import com.bowoon.model.tmdb.TMDBMovieDetailReleases
+import com.bowoon.model.tmdb.TMDBMovieDetailVideoResult
 import com.bowoon.people.navigation.navigateToPeople
 import com.bowoon.ui.ConfirmDialog
 import com.bowoon.ui.FavoriteButton
@@ -381,6 +381,7 @@ fun ImageComponent(
     var index by remember { mutableIntStateOf(0) }
     val modalBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
+    val items = (movie.images?.posters ?: emptyList()) + (movie.images?.backdrops ?: emptyList())
 
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Adaptive(dp100),
@@ -390,7 +391,7 @@ fun ImageComponent(
         verticalItemSpacing = dp10
     ) {
         items(
-            items = movie.images?.posters ?: emptyList(),
+            items = items,
             key = { it }
         ) {
             DynamicAsyncImageLoader(
@@ -398,7 +399,7 @@ fun ImageComponent(
                     .width(dp200)
                     .aspectRatio(it.aspectRatio?.toFloat() ?: 1f)
                     .clickable {
-                        index = movie.images?.posters?.indexOf(it) ?: 0
+                        index = items.indexOf(it)
                         isShowing = true
                     },
                 source = "${it.filePath}",
@@ -412,7 +413,7 @@ fun ImageComponent(
             state = modalBottomSheetState,
             scope = scope,
             index = index,
-            imageList = movie.images?.posters?.map { "${it.filePath}" } ?: emptyList(),
+            imageList = items,
             onClickCancel = {
                 scope.launch {
                     isShowing = false

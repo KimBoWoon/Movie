@@ -36,7 +36,7 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
-import com.bowoon.model.TMDBSearchResult
+import com.bowoon.model.tmdb.TMDBSearchResult
 import com.bowoon.ui.ConfirmDialog
 import com.bowoon.ui.Title
 import com.bowoon.ui.dp10

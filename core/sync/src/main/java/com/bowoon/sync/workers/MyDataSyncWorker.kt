@@ -9,7 +9,7 @@ import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkerParameters
 import com.bowoon.common.Dispatcher
 import com.bowoon.common.Dispatchers
-import com.bowoon.data.repository.TMDBRepository
+import com.bowoon.data.repository.MyDataRepositoryImpl
 import com.bowoon.sync.initializers.SyncConstraints
 import com.bowoon.sync.initializers.syncForegroundInfo
 import dagger.assisted.Assisted
@@ -24,7 +24,7 @@ class MyDataSyncWorker @AssistedInject constructor(
     @Assisted private val appContext: Context,
     @Assisted private val workerParams: WorkerParameters,
     @Dispatcher(Dispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
-    private val tmdbRepository: TMDBRepository
+    private val myDataRepository: MyDataRepositoryImpl
 ) : CoroutineWorker(appContext, workerParams) {
     companion object {
         const val WORKER_NAME = "MyDataSyncWorker"
@@ -43,7 +43,7 @@ class MyDataSyncWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result = withContext(ioDispatcher) {
         awaitAll(
-            async { tmdbRepository.syncWith() }
+            async { myDataRepository.syncWith() }
         ).all { it }
             .let {
                 when (it) {

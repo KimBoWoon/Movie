@@ -22,9 +22,11 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,11 +49,13 @@ import com.bowoon.ui.dp25
 import com.bowoon.ui.image.DynamicAsyncImageLoader
 import com.bowoon.ui.sp10
 import com.bowoon.ui.sp8
+import kotlinx.coroutines.launch
 import org.threeten.bp.LocalDate
 
 @Composable
 fun HomeScreen(
     onMovieClick: (Int) -> Unit,
+    onShowSnackbar: suspend (String, String?) -> Boolean,
     viewModel: HomeVM = hiltViewModel()
 ) {
     val homeUiState by viewModel.mainMenu.collectAsStateWithLifecycle()
@@ -62,6 +66,7 @@ fun HomeScreen(
         isSyncing = isSyncing,
         state = homeUiState,
         favoriteMoviesState = favoriteMoviesState,
+        onShowSnackbar = onShowSnackbar,
         onMovieClick = onMovieClick
     )
 }
@@ -71,10 +76,20 @@ fun HomeScreen(
     isSyncing: Boolean,
     state: MainMenuState,
     favoriteMoviesState: FavoriteMoviesState,
+    onShowSnackbar: suspend (String, String?) -> Boolean,
     onMovieClick: (Int) -> Unit
 ) {
     val isLoading = state is MainMenuState.Loading
     var mainMenu by remember { mutableStateOf<MainMenu>(MainMenu()) }
+    val scope = rememberCoroutineScope()
+
+    if (isSyncing) {
+        LaunchedEffect("updateData") {
+            scope.launch {
+                onShowSnackbar("데이터를 업데이트 하고 있습니다.", null)
+            }
+        }
+    }
 
     when (state) {
         is MainMenuState.Loading -> Log.d("loading...")
@@ -100,7 +115,7 @@ fun HomeScreen(
                     onMovieClick = onMovieClick
                 )
                 upcomingComponent(
-                    upcoming = mainMenu.upcomingMovies.sortedBy { it.releaseDate },
+                    upcoming = mainMenu.upcomingMovies,
                     onMovieClick = onMovieClick
                 )
                 calendarComponent(

@@ -1,18 +1,18 @@
 package com.bowoon.domain
 
 import com.bowoon.data.repository.DatabaseRepository
-import com.bowoon.data.repository.TMDBRepository
+import com.bowoon.data.repository.MyDataRepository
 import com.bowoon.model.PeopleDetail
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import javax.inject.Inject
 
 class GetFavoritePeopleUseCase @Inject constructor(
-    private val tmdbRepository: TMDBRepository,
-    private val databaseRepository: DatabaseRepository
+    private val databaseRepository: DatabaseRepository,
+    private val myDataRepository: MyDataRepository
 ) {
     operator fun invoke(): Flow<List<PeopleDetail>> = combine(
-        tmdbRepository.posterUrl,
+        myDataRepository.posterUrl,
         databaseRepository.getPeople(),
     ) { posterUrl, favoritePeoples ->
         favoritePeoples.map {

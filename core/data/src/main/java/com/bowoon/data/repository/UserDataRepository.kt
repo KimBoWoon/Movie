@@ -2,7 +2,6 @@ package com.bowoon.data.repository
 
 import com.bowoon.model.DarkThemeConfig
 import com.bowoon.model.MainMenu
-import com.bowoon.model.MyData
 import com.bowoon.model.UserData
 import kotlinx.coroutines.flow.Flow
 
@@ -14,7 +13,6 @@ interface UserDataRepository {
     suspend fun updateRegion(region: String)
     suspend fun updateLanguage(language: String)
     suspend fun updateImageQuality(imageQuality: String)
-    suspend fun updateMyData(myData: MyData)
     suspend fun getMainOfDate(): String
     suspend fun getRegion(): String
     suspend fun getLanguage(): String

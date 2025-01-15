@@ -1,6 +1,7 @@
 package com.bowoon.sync.status
 
 import android.content.Context
+import androidx.work.ExistingWorkPolicy
 import androidx.work.WorkInfo
 import androidx.work.WorkInfo.State
 import androidx.work.WorkManager
@@ -19,13 +20,13 @@ internal class WorkManagerSyncManager @Inject constructor(
 ) : SyncManager {
     override val isSyncing: Flow<Boolean> =
         WorkManager.getInstance(context)
-            .getWorkInfosForUniqueWorkFlow(UNIQUE_SYNC_WORKER)
+            .getWorkInfosForUniqueWorkFlow(MainMenuSyncWorker.WORKER_NAME)
             .map(List<WorkInfo>::anyRunning)
             .conflate()
 
     override fun requestSync() {
         WorkManager.getInstance(context)
-            .beginWith(MyDataSyncWorker.startUpSyncWork())
+            .beginUniqueWork(UNIQUE_SYNC_WORKER, ExistingWorkPolicy.KEEP, MyDataSyncWorker.startUpSyncWork())
             .then(MainMenuSyncWorker.startUpSyncWork(true))
             .enqueue()
     }

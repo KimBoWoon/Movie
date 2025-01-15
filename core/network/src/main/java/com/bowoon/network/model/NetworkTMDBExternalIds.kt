@@ -1,7 +1,7 @@
 package com.bowoon.network.model
 
 
-import com.bowoon.model.TMDBExternalIds
+import com.bowoon.model.tmdb.TMDBExternalIds
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

@@ -1,8 +1,8 @@
 package com.bowoon.network.model
 
 
-import com.bowoon.model.TMDBRegion
-import com.bowoon.model.TMDBRegionResult
+import com.bowoon.model.tmdb.TMDBRegion
+import com.bowoon.model.tmdb.TMDBRegionResult
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

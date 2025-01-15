@@ -1,8 +1,8 @@
 package com.bowoon.network.model
 
-import com.bowoon.model.TMDBPeopleDetail
-import com.bowoon.model.TMDBPeopleImages
-import com.bowoon.model.TMDBPeopleProfile
+import com.bowoon.model.tmdb.TMDBPeopleDetail
+import com.bowoon.model.tmdb.TMDBPeopleImages
+import com.bowoon.model.tmdb.TMDBPeopleProfile
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

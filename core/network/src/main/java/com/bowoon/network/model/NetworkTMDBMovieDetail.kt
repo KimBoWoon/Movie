@@ -1,35 +1,33 @@
 package com.bowoon.network.model
 
 
-import com.bowoon.model.TMBDMovieDetailVideos
-import com.bowoon.model.TMDBMovieDetail
-import com.bowoon.model.TMDBMovieDetailAlternativeTitles
-import com.bowoon.model.TMDBMovieDetailBackdrop
-import com.bowoon.model.TMDBMovieDetailBelongsToCollection
-import com.bowoon.model.TMDBMovieDetailCast
-import com.bowoon.model.TMDBMovieDetailChange
-import com.bowoon.model.TMDBMovieDetailChanges
-import com.bowoon.model.TMDBMovieDetailCountry
-import com.bowoon.model.TMDBMovieDetailCredits
-import com.bowoon.model.TMDBMovieDetailCrew
-import com.bowoon.model.TMDBMovieDetailData
-import com.bowoon.model.TMDBMovieDetailGenre
-import com.bowoon.model.TMDBMovieDetailImages
-import com.bowoon.model.TMDBMovieDetailItem
-import com.bowoon.model.TMDBMovieDetailKeyword
-import com.bowoon.model.TMDBMovieDetailKeywords
-import com.bowoon.model.TMDBMovieDetailLogo
-import com.bowoon.model.TMDBMovieDetailPoster
-import com.bowoon.model.TMDBMovieDetailProductionCompany
-import com.bowoon.model.TMDBMovieDetailProductionCountry
-import com.bowoon.model.TMDBMovieDetailReleases
-import com.bowoon.model.TMDBMovieDetailSimilar
-import com.bowoon.model.TMDBMovieDetailSimilarResult
-import com.bowoon.model.TMDBMovieDetailSpokenLanguage
-import com.bowoon.model.TMDBMovieDetailTitle
-import com.bowoon.model.TMDBMovieDetailTranslation
-import com.bowoon.model.TMDBMovieDetailTranslations
-import com.bowoon.model.TMDBMovieDetailVideoResult
+import com.bowoon.model.tmdb.TMBDMovieDetailVideos
+import com.bowoon.model.tmdb.TMDBMovieDetail
+import com.bowoon.model.tmdb.TMDBMovieDetailAlternativeTitles
+import com.bowoon.model.tmdb.TMDBMovieDetailBelongsToCollection
+import com.bowoon.model.tmdb.TMDBMovieDetailCast
+import com.bowoon.model.tmdb.TMDBMovieDetailChange
+import com.bowoon.model.tmdb.TMDBMovieDetailChanges
+import com.bowoon.model.tmdb.TMDBMovieDetailCountry
+import com.bowoon.model.tmdb.TMDBMovieDetailCredits
+import com.bowoon.model.tmdb.TMDBMovieDetailCrew
+import com.bowoon.model.tmdb.TMDBMovieDetailData
+import com.bowoon.model.tmdb.TMDBMovieDetailGenre
+import com.bowoon.model.tmdb.TMDBMovieDetailImage
+import com.bowoon.model.tmdb.TMDBMovieDetailImages
+import com.bowoon.model.tmdb.TMDBMovieDetailItem
+import com.bowoon.model.tmdb.TMDBMovieDetailKeyword
+import com.bowoon.model.tmdb.TMDBMovieDetailKeywords
+import com.bowoon.model.tmdb.TMDBMovieDetailProductionCompany
+import com.bowoon.model.tmdb.TMDBMovieDetailProductionCountry
+import com.bowoon.model.tmdb.TMDBMovieDetailReleases
+import com.bowoon.model.tmdb.TMDBMovieDetailSimilar
+import com.bowoon.model.tmdb.TMDBMovieDetailSimilarResult
+import com.bowoon.model.tmdb.TMDBMovieDetailSpokenLanguage
+import com.bowoon.model.tmdb.TMDBMovieDetailTitle
+import com.bowoon.model.tmdb.TMDBMovieDetailTranslation
+import com.bowoon.model.tmdb.TMDBMovieDetailTranslations
+import com.bowoon.model.tmdb.TMDBMovieDetailVideoResult
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -244,51 +242,15 @@ data class NetworkTMDBMovieDetailGenre(
 @Serializable
 data class NetworkTMDBMovieDetailImages(
     @SerialName("backdrops")
-    val backdrops: List<NetworkTMDBMovieDetailBackdrop>? = null,
+    val backdrops: List<NetworkTMDBMovieDetailImage>? = null,
     @SerialName("logos")
-    val logos: List<NetworkTMDBMovieDetailLogo>? = null,
+    val logos: List<NetworkTMDBMovieDetailImage>? = null,
     @SerialName("posters")
-    val posters: List<NetworkTMDBMovieDetailPoster>? = null
+    val posters: List<NetworkTMDBMovieDetailImage>? = null
 )
 
 @Serializable
-data class NetworkTMDBMovieDetailBackdrop(
-    @SerialName("aspect_ratio")
-    val aspectRatio: Double? = null,
-    @SerialName("file_path")
-    val filePath: String? = null,
-    @SerialName("height")
-    val height: Int? = null,
-    @SerialName("iso_639_1")
-    val iso6391: String? = null,
-    @SerialName("vote_average")
-    val voteAverage: Double? = null,
-    @SerialName("vote_count")
-    val voteCount: Int? = null,
-    @SerialName("width")
-    val width: Int? = null
-)
-
-@Serializable
-data class NetworkTMDBMovieDetailLogo(
-    @SerialName("aspect_ratio")
-    val aspectRatio: Double? = null,
-    @SerialName("file_path")
-    val filePath: String? = null,
-    @SerialName("height")
-    val height: Int? = null,
-    @SerialName("iso_639_1")
-    val iso6391: String? = null,
-    @SerialName("vote_average")
-    val voteAverage: Double? = null,
-    @SerialName("vote_count")
-    val voteCount: Int? = null,
-    @SerialName("width")
-    val width: Int? = null
-)
-
-@Serializable
-data class NetworkTMDBMovieDetailPoster(
+data class NetworkTMDBMovieDetailImage(
     @SerialName("aspect_ratio")
     val aspectRatio: Double? = null,
     @SerialName("file_path")
@@ -650,38 +612,10 @@ fun NetworkTMDBMovieDetailImages.asExternalModel(): TMDBMovieDetailImages =
         posters = posters?.asExternalModel()
     )
 
-@JvmName("NetworkTMDBMovieDetailBackdropAsExternalModel")
-fun List<NetworkTMDBMovieDetailBackdrop>.asExternalModel(): List<TMDBMovieDetailBackdrop> =
+@JvmName("NetworkTMDBMovieDetailImageAsExternalModel")
+fun List<NetworkTMDBMovieDetailImage>.asExternalModel(): List<TMDBMovieDetailImage> =
     map {
-        TMDBMovieDetailBackdrop(
-            aspectRatio = it.aspectRatio,
-            filePath = it.filePath,
-            height = it.height,
-            iso6391 = it.iso6391,
-            voteAverage = it.voteAverage,
-            voteCount = it.voteCount,
-            width = it.width
-        )
-    }
-
-@JvmName("NetworkTMDBMovieDetailLogoAsExternalModel")
-fun List<NetworkTMDBMovieDetailLogo>.asExternalModel(): List<TMDBMovieDetailLogo> =
-    map {
-        TMDBMovieDetailLogo(
-            aspectRatio = it.aspectRatio,
-            filePath = it.filePath,
-            height = it.height,
-            iso6391 = it.iso6391,
-            voteAverage = it.voteAverage,
-            voteCount = it.voteCount,
-            width = it.width
-        )
-    }
-
-@JvmName("NetworkTMDBMovieDetailPosterAsExternalModel")
-fun List<NetworkTMDBMovieDetailPoster>.asExternalModel(): List<TMDBMovieDetailPoster> =
-    map {
-        TMDBMovieDetailPoster(
+        TMDBMovieDetailImage(
             aspectRatio = it.aspectRatio,
             filePath = it.filePath,
             height = it.height,

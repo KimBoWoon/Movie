@@ -12,7 +12,7 @@ import androidx.paging.cachedIn
 import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.domain.GetSearchListUseCase
 import com.bowoon.model.MovieDetail
-import com.bowoon.model.TMDBSearchResult
+import com.bowoon.model.tmdb.TMDBSearchResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch

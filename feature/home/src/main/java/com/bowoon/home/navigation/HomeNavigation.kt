@@ -18,12 +18,14 @@ fun NavController.navigateToHome(navOptions: NavOptions) = navigate(route = Home
 
 fun NavGraphBuilder.homeSection(
     onMovieClick: (Int) -> Unit,
+    onShowSnackbar: suspend (String, String?) -> Boolean,
     detailDestination: NavGraphBuilder.() -> Unit
 ) {
     navigation<HomeBaseRoute>(startDestination = HomeRoute) {
         composable<HomeRoute>() {
             HomeScreen(
-                onMovieClick = onMovieClick
+                onMovieClick = onMovieClick,
+                onShowSnackbar = onShowSnackbar
             )
         }
         detailDestination()

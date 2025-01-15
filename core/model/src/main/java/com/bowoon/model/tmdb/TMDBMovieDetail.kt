@@ -1,4 +1,4 @@
-package com.bowoon.model
+package com.bowoon.model.tmdb
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
@@ -142,9 +142,21 @@ data class TMDBMovieDetailGenre(
 @Serializable
 @Parcelize
 data class TMDBMovieDetailImages(
-    val backdrops: List<TMDBMovieDetailBackdrop>? = null,
-    val logos: List<TMDBMovieDetailLogo>? = null,
-    val posters: List<TMDBMovieDetailPoster>? = null
+    val backdrops: List<TMDBMovieDetailImage>? = null,
+    val logos: List<TMDBMovieDetailImage>? = null,
+    val posters: List<TMDBMovieDetailImage>? = null
+) : Parcelable
+
+@Serializable
+@Parcelize
+data class TMDBMovieDetailImage(
+    val aspectRatio: Double? = null,
+    val filePath: String? = null,
+    val height: Int? = null,
+    val iso6391: String? = null,
+    val voteAverage: Double? = null,
+    val voteCount: Int? = null,
+    val width: Int? = null
 ) : Parcelable
 
 @Serializable

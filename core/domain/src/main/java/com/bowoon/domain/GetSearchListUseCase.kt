@@ -2,7 +2,7 @@ package com.bowoon.domain
 
 import androidx.paging.PagingData
 import com.bowoon.data.repository.TMDBRepository
-import com.bowoon.model.TMDBSearchResult
+import com.bowoon.model.tmdb.TMDBSearchResult
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 

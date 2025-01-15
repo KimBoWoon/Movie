@@ -4,7 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.bowoon.model.MovieDetail
-import com.bowoon.model.TMDBMovieDetailReleases
+import com.bowoon.model.tmdb.TMDBMovieDetailReleases
 
 @Entity(tableName = "movies")
 data class MovieEntity(

@@ -1,9 +1,9 @@
 package com.bowoon.network.model
 
 
-import com.bowoon.model.TMDBCombineCredits
-import com.bowoon.model.TMDBCombineCreditsCast
-import com.bowoon.model.TMDBCombineCreditsCrew
+import com.bowoon.model.tmdb.TMDBCombineCredits
+import com.bowoon.model.tmdb.TMDBCombineCreditsCast
+import com.bowoon.model.tmdb.TMDBCombineCreditsCrew
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

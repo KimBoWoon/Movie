@@ -25,8 +25,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bowoon.common.Log
 import com.bowoon.model.MyData
 import com.bowoon.model.PosterSize
-import com.bowoon.model.TMDBLanguageItem
-import com.bowoon.model.TMDBRegionResult
+import com.bowoon.model.tmdb.TMDBLanguageItem
+import com.bowoon.model.tmdb.TMDBRegionResult
 import com.bowoon.ui.Title
 
 @Composable

@@ -1,7 +1,7 @@
 package com.bowoon.domain
 
 import com.bowoon.data.repository.DatabaseRepository
-import com.bowoon.data.repository.TMDBRepository
+import com.bowoon.data.repository.MyDataRepository
 import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.model.MovieDetail
 import kotlinx.coroutines.flow.Flow
@@ -9,12 +9,12 @@ import kotlinx.coroutines.flow.combine
 import javax.inject.Inject
 
 class GetFavoriteMoviesUseCase @Inject constructor(
-    private val tmdbRepository: TMDBRepository,
     private val databaseRepository: DatabaseRepository,
-    private val userDataRepository: UserDataRepository
+    private val userDataRepository: UserDataRepository,
+    private val myDataRepository: MyDataRepository
 ) {
     operator fun invoke(): Flow<List<MovieDetail>> = combine(
-        tmdbRepository.posterUrl,
+        myDataRepository.posterUrl,
         databaseRepository.getMovies(),
         userDataRepository.userData
     ) { posterUrl, favoriteMovies, userData ->

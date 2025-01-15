@@ -1,6 +1,19 @@
 package com.bowoon.model
 
 import android.os.Parcelable
+import com.bowoon.model.tmdb.TMBDMovieDetailVideos
+import com.bowoon.model.tmdb.TMDBMovieDetailAlternativeTitles
+import com.bowoon.model.tmdb.TMDBMovieDetailBelongsToCollection
+import com.bowoon.model.tmdb.TMDBMovieDetailChanges
+import com.bowoon.model.tmdb.TMDBMovieDetailCredits
+import com.bowoon.model.tmdb.TMDBMovieDetailImages
+import com.bowoon.model.tmdb.TMDBMovieDetailKeywords
+import com.bowoon.model.tmdb.TMDBMovieDetailProductionCompany
+import com.bowoon.model.tmdb.TMDBMovieDetailProductionCountry
+import com.bowoon.model.tmdb.TMDBMovieDetailReleases
+import com.bowoon.model.tmdb.TMDBMovieDetailSimilar
+import com.bowoon.model.tmdb.TMDBMovieDetailSpokenLanguage
+import com.bowoon.model.tmdb.TMDBMovieDetailTranslations
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
 

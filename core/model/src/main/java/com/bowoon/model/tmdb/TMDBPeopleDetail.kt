@@ -1,4 +1,4 @@
-package com.bowoon.model
+package com.bowoon.model.tmdb
 
 data class TMDBPeopleDetail(
     val adult: Boolean? = null,

@@ -2,10 +2,11 @@ package com.bowoon.data.repository
 
 import com.bowoon.data.BuildConfig
 import com.bowoon.data.util.suspendRunCatching
-import com.bowoon.model.KOBISBoxOffice
+import com.bowoon.datastore.InternalDataSource
 import com.bowoon.model.MainMenu
 import com.bowoon.model.MainMovie
 import com.bowoon.model.UpComingResult
+import com.bowoon.model.kobis.KOBISBoxOffice
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
@@ -13,15 +14,16 @@ import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
 import javax.inject.Inject
 
-class SyncRepositoryImpl @Inject constructor(
-    private val kobisRepository: KobisRepository,
+class MainMenuRepositoryImpl @Inject constructor(
+    private val kobisRepository: KOBISRepository,
     private val tmdbRepository: TMDBRepository,
-    private val userDataRepository: UserDataRepository
-) : SyncRepository {
+    private val datastore: InternalDataSource,
+    private val myDataRepository: MyDataRepository
+) : MainMenuRepository {
     override suspend fun syncWith(isForce: Boolean): Boolean =
         suspendRunCatching {
             val key = BuildConfig.KOBIS_OPEN_API_KEY
-            val date = userDataRepository.getMainOfDate()
+            val date = datastore.getMainOfDate()
             val targetDt = LocalDate.now().minusDays(1)
             val updateDate = when (date.isNotEmpty()) {
                 true -> LocalDate.parse(date)
@@ -30,13 +32,13 @@ class SyncRepositoryImpl @Inject constructor(
             val isUpdate = targetDt.isAfter(updateDate)
 
             if (isUpdate || isForce) {
-                val kobisBoxOffice = kobisRepository.getDailyBoxOffice(key, targetDt.format(DateTimeFormatter.ofPattern("yyyyMMdd"))).first()
-                val posterUrl = tmdbRepository.posterUrl.first()
-                val upcomingMovies = tmdbRepository.getUpcomingMovies().first()
+                val posterUrl = myDataRepository.posterUrl.first()
+                val boxOffice = kobisRepository.getDailyBoxOffice(key, targetDt.format(DateTimeFormatter.ofPattern("yyyyMMdd")))
+                val upcomingMovies = tmdbRepository.getUpcomingMoviesTemp()
 
-                createMainMenu(kobisBoxOffice, posterUrl, upcomingMovies).also {
-                    userDataRepository.updateMainMenu(it)
-                    userDataRepository.updateMainOfDate(targetDt.toString())
+                createMainMenu(posterUrl, boxOffice, upcomingMovies).also {
+                    datastore.updateMainMenu(it)
+                    datastore.updateMainOfDate(targetDt.toString())
                 }
             }
         }.isSuccess
@@ -53,8 +55,8 @@ class SyncRepositoryImpl @Inject constructor(
     }
 
     private suspend fun createMainMenu(
-        kobisBoxOffice: KOBISBoxOffice,
         posterUrl: String,
+        kobisBoxOffice: KOBISBoxOffice,
         upComingResult: List<UpComingResult>
     ): MainMenu = MainMenu(
         dailyBoxOffice = kobisBoxOffice.boxOfficeResult?.dailyBoxOfficeList?.mapNotNull { kobisDailyBoxOffice ->

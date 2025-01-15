@@ -1,19 +1,18 @@
 package com.bowoon.domain
 
 import com.bowoon.data.repository.DatabaseRepository
+import com.bowoon.data.repository.MyDataRepository
 import com.bowoon.data.repository.TMDBRepository
 import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.model.MovieDetail
-import com.bowoon.model.TMDBMovieDetailBackdrop
-import com.bowoon.model.TMDBMovieDetailBelongsToCollection
-import com.bowoon.model.TMDBMovieDetailCast
-import com.bowoon.model.TMDBMovieDetailCredits
-import com.bowoon.model.TMDBMovieDetailCrew
-import com.bowoon.model.TMDBMovieDetailImages
-import com.bowoon.model.TMDBMovieDetailLogo
-import com.bowoon.model.TMDBMovieDetailPoster
-import com.bowoon.model.TMDBMovieDetailSimilar
-import com.bowoon.model.TMDBMovieDetailSimilarResult
+import com.bowoon.model.tmdb.TMDBMovieDetailBelongsToCollection
+import com.bowoon.model.tmdb.TMDBMovieDetailCast
+import com.bowoon.model.tmdb.TMDBMovieDetailCredits
+import com.bowoon.model.tmdb.TMDBMovieDetailCrew
+import com.bowoon.model.tmdb.TMDBMovieDetailImage
+import com.bowoon.model.tmdb.TMDBMovieDetailImages
+import com.bowoon.model.tmdb.TMDBMovieDetailSimilar
+import com.bowoon.model.tmdb.TMDBMovieDetailSimilarResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import javax.inject.Inject
@@ -21,14 +20,15 @@ import javax.inject.Inject
 class GetMovieDetail @Inject constructor(
     private val tmdbRepository: TMDBRepository,
     private val userDataRepository: UserDataRepository,
-    private val databaseRepository: DatabaseRepository
+    private val databaseRepository: DatabaseRepository,
+    private val myDataRepository: MyDataRepository
 ) {
     operator fun invoke(id: Int): Flow<MovieDetail> =
         combine(
             tmdbRepository.getMovieDetail(id),
             userDataRepository.userData,
             databaseRepository.getMovies(),
-            tmdbRepository.posterUrl
+            myDataRepository.posterUrl
         ) { tmdbMovieInfo, userData, favoriteMovies, posterUrl ->
             MovieDetail(
                 adult = tmdbMovieInfo.adult,
@@ -144,7 +144,7 @@ class GetMovieDetail @Inject constructor(
     ): TMDBMovieDetailImages =
         TMDBMovieDetailImages(
             backdrops = images?.backdrops?.map {
-                TMDBMovieDetailBackdrop(
+                TMDBMovieDetailImage(
                     aspectRatio = it.aspectRatio,
                     filePath = "$posterUrl${it.filePath}",
                     height = it.height,
@@ -155,7 +155,7 @@ class GetMovieDetail @Inject constructor(
                 )
             },
             logos = images?.logos?.map {
-                TMDBMovieDetailLogo(
+                TMDBMovieDetailImage(
                     aspectRatio = it.aspectRatio,
                     filePath = "$posterUrl${it.filePath}",
                     height = it.height,
@@ -166,7 +166,7 @@ class GetMovieDetail @Inject constructor(
                 )
             },
             posters = images?.posters?.map {
-                TMDBMovieDetailPoster(
+                TMDBMovieDetailImage(
                     aspectRatio = it.aspectRatio,
                     filePath = "$posterUrl${it.filePath}",
                     height = it.height,
