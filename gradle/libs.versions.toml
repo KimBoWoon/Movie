@@ -2,6 +2,9 @@
 # kotlin
 kotlin = "2.1.0"
 
+# plugin
+googleService = "4.4.2"
+
 # agp
 agp = "8.8.0"
 
@@ -21,7 +24,7 @@ activity = "1.9.3"
 jetpack-fragment = "1.8.5"
 datastore = "1.1.1"
 room = "2.6.1"
-workManager = "2.9.1"
+workManager = "2.10.0"
 
 # compose
 composeBom = "2024.12.01"
@@ -37,13 +40,13 @@ junit = "4.13.2"
 junitVersion = "1.2.1"
 
 # Coroutine
-kotlinxCoroutines = "1.10.0"
+kotlinxCoroutines = "1.10.1"
 
 # espresso
 espressoCore = "3.6.1"
 
 # hilt
-hilt = "2.53.1"
+hilt = "2.54"
 hilt-compiler = "1.2.0"
 
 # retrofit2
@@ -55,7 +58,7 @@ okhttp-okHttp = "4.12.0"
 okhttp-profiler = "1.0.8"
 
 # kotlin serialization
-serialization-kotlin = "1.7.3"
+serialization-kotlin = "1.8.0"
 serialization-converter = "1.0.0"
 
 # coil
@@ -162,6 +165,10 @@ coil-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "
 coil-core = { module = "io.coil-kt.coil3:coil-core", version.ref = "coil" }
 
 # firebase
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
+firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics" }
+firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
+firebase-performance = { group = "com.google.firebase", name = "firebase-perf" }
 firebase-crashlytics-gradlePlugin = { group = "com.google.firebase", name = "firebase-crashlytics-gradle", version.ref = "firebaseCrashlyticsPlugin" }
 firebase-performance-gradlePlugin = { group = "com.google.firebase", name = "perf-plugin", version.ref = "firebasePerfPlugin" }
 
@@ -189,5 +196,6 @@ android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
 jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+google-service = { id = "com.google.gms.google-services", version.ref = "googleService" }
 firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlyticsPlugin" }
 firebase-perf = { id = "com.google.firebase.firebase-perf", version.ref = "firebasePerfPlugin" }

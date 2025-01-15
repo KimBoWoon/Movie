@@ -11,12 +11,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -36,6 +42,9 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
+import com.bowoon.model.SearchType
+import com.bowoon.model.tmdb.SearchResult
+import com.bowoon.model.tmdb.TMDBSearchPeopleResult
 import com.bowoon.model.tmdb.TMDBSearchResult
 import com.bowoon.ui.ConfirmDialog
 import com.bowoon.ui.Title
@@ -50,6 +59,7 @@ import com.bowoon.ui.sp30
 @Composable
 fun SearchScreen(
     onMovieClick: (Int) -> Unit,
+    onPeopleClick: (Int) -> Unit,
     viewModel: SearchVM = hiltViewModel()
 ) {
     val state = viewModel.searchMovieState.collectAsLazyPagingItems()
@@ -57,6 +67,7 @@ fun SearchScreen(
     SearchScreen(
         state = state,
         onMovieClick = onMovieClick,
+        onPeopleClick = onPeopleClick,
         onSearchClick = viewModel::searchMovies,
         viewModel = viewModel
     )
@@ -64,8 +75,9 @@ fun SearchScreen(
 
 @Composable
 fun SearchScreen(
-    state: LazyPagingItems<TMDBSearchResult>,
+    state: LazyPagingItems<SearchResult>,
     onMovieClick: (Int) -> Unit,
+    onPeopleClick: (Int) -> Unit,
     onSearchClick: (String) -> Unit,
     viewModel: SearchVM = hiltViewModel()
 ) {
@@ -119,6 +131,11 @@ fun SearchScreen(
     ) {
         Column {
             Title(title = "영화 검색")
+            ExposedDropdownSearchTypeMenu(
+                modifier = Modifier.wrapContentWidth(),
+                list = SearchType.entries.map { it.label }.toList(),
+                viewModel = viewModel
+            )
             Row(
                 modifier = Modifier.padding(bottom = dp10),
                 horizontalArrangement = Arrangement.Center,
@@ -164,14 +181,26 @@ fun SearchScreen(
                     verticalArrangement = Arrangement.spacedBy(dp10)
                 ) {
                     items(state.itemCount) { index ->
-                        DynamicAsyncImageLoader(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .aspectRatio(POSTER_IMAGE_RATIO)
-                                .clickable { onMovieClick(state[index]?.id ?: -1) },
-                            source = state[index]?.posterPath ?: "",
-                            contentDescription = "SearchPoster"
-                        )
+                        (state[index] as? TMDBSearchResult)?.let {
+                            DynamicAsyncImageLoader(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .aspectRatio(POSTER_IMAGE_RATIO)
+                                    .clickable { onMovieClick(it.id ?: -1) },
+                                source = it.posterPath ?: "",
+                                contentDescription = "SearchPoster"
+                            )
+                        }
+                        (state[index] as? TMDBSearchPeopleResult)?.let {
+                            DynamicAsyncImageLoader(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .aspectRatio(POSTER_IMAGE_RATIO)
+                                    .clickable { onPeopleClick(it.id ?: -1) },
+                                source = it.profilePath ?: "",
+                                contentDescription = "SearchPoster"
+                            )
+                        }
                     }
                     if (isAppend) {
                         item {
@@ -188,6 +217,51 @@ fun SearchScreen(
             CircularProgressIndicator(
                 modifier = Modifier.align(Alignment.Center)
             )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ExposedDropdownSearchTypeMenu(
+    modifier: Modifier,
+    list: List<String>,
+    viewModel: SearchVM = hiltViewModel()
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    ExposedDropdownMenuBox(
+        modifier = modifier,
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded }
+    ) {
+        TextField(
+            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
+            readOnly = true,
+            value = list[viewModel.searchType],
+            onValueChange = {},
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) }
+        )
+
+        ExposedDropdownMenu(
+            modifier = modifier,
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            list.forEach {
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = it,
+                            maxLines = 1
+                        )
+                    },
+                    onClick = {
+                        viewModel.searchType = list.indexOf(it)
+                        expanded = false
+                    }
+                )
+            }
         }
     }
 }

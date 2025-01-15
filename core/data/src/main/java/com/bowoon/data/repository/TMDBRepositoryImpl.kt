@@ -6,12 +6,12 @@ import androidx.paging.PagingData
 import com.bowoon.data.paging.TMDBSearchPagingSource
 import com.bowoon.datastore.InternalDataSource
 import com.bowoon.model.UpComingResult
+import com.bowoon.model.tmdb.SearchResult
 import com.bowoon.model.tmdb.TMDBCombineCredits
 import com.bowoon.model.tmdb.TMDBExternalIds
 import com.bowoon.model.tmdb.TMDBMovieDetail
 import com.bowoon.model.tmdb.TMDBPeopleDetail
 import com.bowoon.model.tmdb.TMDBSearch
-import com.bowoon.model.tmdb.TMDBSearchResult
 import com.bowoon.network.ApiResponse
 import com.bowoon.network.model.asExternalModel
 import com.bowoon.network.retrofit.Apis
@@ -27,8 +27,9 @@ class TMDBRepositoryImpl @Inject constructor(
     private val myDataRepository: MyDataRepositoryImpl
 ) : TMDBRepository {
     override suspend fun searchMovies(
+        type: String,
         query: String
-    ): Flow<PagingData<TMDBSearchResult>> {
+    ): Flow<PagingData<SearchResult>> {
         val language = datastore.getLanguage()
         val region = datastore.getRegion()
 
@@ -37,6 +38,7 @@ class TMDBRepositoryImpl @Inject constructor(
             pagingSourceFactory = {
                 TMDBSearchPagingSource(
                     apis = apis,
+                    type = type,
                     query = query,
                     language = language,
                     region = region,

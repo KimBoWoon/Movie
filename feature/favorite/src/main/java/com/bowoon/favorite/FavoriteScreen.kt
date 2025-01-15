@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,8 +17,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
@@ -30,16 +33,19 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bowoon.common.Log
+import com.bowoon.data.util.PEOPLE_IMAGE_RATIO
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.model.MovieDetail
 import com.bowoon.model.PeopleDetail
 import com.bowoon.ui.FavoriteButton
 import com.bowoon.ui.Title
 import com.bowoon.ui.dp10
+import com.bowoon.ui.dp100
 import com.bowoon.ui.dp15
 import com.bowoon.ui.dp200
 import com.bowoon.ui.dp5
@@ -96,64 +102,68 @@ fun FavoriteScreen(
         is FavoritePeoplesState.Error -> Log.printStackTrace(favoritePeoplesState.throwable)
     }
 
-    Column(
+    Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        Title(title = "즐겨찾기")
-        TabRow(
-            modifier = Modifier.fillMaxWidth(),
-            selectedTabIndex = pagerState.currentPage
+        Column(
+            modifier = Modifier.fillMaxSize()
         ) {
-            favoriteList.forEachIndexed { index, label ->
-                Tab(
-                    selected = pagerState.currentPage == index,
-                    onClick = {
-                        Log.d("selected tab index > $index")
-                        scope.launch {
-                            pagerState.animateScrollToPage(index)
-                        }
-                    },
-                    text = { Text(text = label) },
-                    selectedContentColor = Color(0xFF7C86DF),
-                    unselectedContentColor = Color.LightGray
-                )
+            Title(title = "즐겨찾기")
+            TabRow(
+                modifier = Modifier.fillMaxWidth(),
+                selectedTabIndex = pagerState.currentPage
+            ) {
+                favoriteList.forEachIndexed { index, label ->
+                    Tab(
+                        selected = pagerState.currentPage == index,
+                        onClick = {
+                            Log.d("selected tab index > $index")
+                            scope.launch {
+                                pagerState.animateScrollToPage(index)
+                            }
+                        },
+                        text = { Text(text = label) },
+                        selectedContentColor = Color(0xFF7C86DF),
+                        unselectedContentColor = Color.LightGray
+                    )
+                }
             }
-        }
 
-        HorizontalPager(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight(),
-            state = pagerState,
-            userScrollEnabled = false
-        ) { index ->
-            Column(
+            HorizontalPager(
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                when (favoriteList[index]) {
-                    "영화" -> FavoriteMovieList(
-                        favoriteMovies = favoriteMovies,
-                        onMovieClick = onMovieClick,
-                        deleteFavoriteMovie = deleteFavoriteMovie,
-                        onShowSnackbar = onShowSnackbar
-                    )
-                    "인물" -> FavoritePeopleList(
-                        favoritePeoples = favoritePeoples,
-                        onPeopleClick = onPeopleClick,
-                        deleteFavoritePeople = deleteFavoritePeople,
-                        onShowSnackbar = onShowSnackbar
-                    )
+                state = pagerState,
+                userScrollEnabled = false
+            ) { index ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    when (favoriteList[index]) {
+                        "영화" -> FavoriteMovieList(
+                            favoriteMovies = favoriteMovies,
+                            onMovieClick = onMovieClick,
+                            deleteFavoriteMovie = deleteFavoriteMovie,
+                            onShowSnackbar = onShowSnackbar
+                        )
+                        "인물" -> FavoritePeopleList(
+                            favoritePeoples = favoritePeoples,
+                            onPeopleClick = onPeopleClick,
+                            deleteFavoritePeople = deleteFavoritePeople,
+                            onShowSnackbar = onShowSnackbar
+                        )
+                    }
                 }
             }
         }
 
         if (isLoading) {
             CircularProgressIndicator(
-//                modifier = Modifier.align(Alignment.Center)
+                modifier = Modifier.align(Alignment.Center)
             )
         }
     }
@@ -215,39 +225,50 @@ fun FavoritePeopleList(
 ) {
     val scope = rememberCoroutineScope()
 
-    LazyVerticalGrid(
-        modifier = Modifier.fillMaxSize(),
-        columns = GridCells.Fixed(2),
-        contentPadding = PaddingValues(dp15),
-        horizontalArrangement = Arrangement.spacedBy(dp10),
-        verticalArrangement = Arrangement.spacedBy(dp10)
+    LazyColumn(
+        modifier = Modifier.fillMaxSize()
     ) {
         items(
-            items = favoritePeoples
-        ) { peopleDetail ->
-            Box(
-                modifier = Modifier.clickable { onPeopleClick(peopleDetail.id ?: -1) }
+            items = favoritePeoples,
+            key = { "${it.id}_${it.name}" }
+        ) { people ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .clickable { onPeopleClick(people.id ?: -1) }
             ) {
                 DynamicAsyncImageLoader(
                     modifier = Modifier
-                        .width(dp200)
-                        .aspectRatio(POSTER_IMAGE_RATIO),
-                    source = "${peopleDetail.posterUrl}${peopleDetail.profilePath}",
+                        .width(dp100)
+                        .aspectRatio(PEOPLE_IMAGE_RATIO)
+                        .clip(RoundedCornerShape(dp10)),
+                    source = "${people.posterUrl}${people.profilePath}",
                     contentDescription = "BoxOfficePoster"
                 )
-                FavoriteButton(
-                    modifier = Modifier
-                        .padding(top = dp5, end = dp5)
-                        .wrapContentSize()
-                        .align(Alignment.TopEnd),
-                    isFavorite = favoritePeoples.contains(peopleDetail),
-                    onClick = {
-                        deleteFavoritePeople(peopleDetail)
-                        scope.launch {
-                            onShowSnackbar("즐겨찾기에서 제거됐습니다.", null)
-                        }
+                Box(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .padding(start = dp5)
+                            .align(Alignment.TopStart)
+                    ) {
+                        Text(text = people.name ?: "")
                     }
-                )
+                    FavoriteButton(
+                        modifier = Modifier
+                            .wrapContentSize()
+                            .align(Alignment.TopEnd),
+                        isFavorite = favoritePeoples.contains(people),
+                        onClick = {
+                            deleteFavoritePeople(people)
+                            scope.launch {
+                                onShowSnackbar("즐겨찾기에서 제거됐습니다.", null)
+                            }
+                        }
+                    )
+                }
             }
         }
     }

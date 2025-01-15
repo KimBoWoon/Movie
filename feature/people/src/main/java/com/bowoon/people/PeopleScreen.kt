@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -29,7 +30,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -58,8 +58,7 @@ import com.bowoon.ui.ConfirmDialog
 import com.bowoon.ui.Title
 import com.bowoon.ui.collaps.CollapsingToolbar
 import com.bowoon.ui.collaps.FixedScrollFlagState
-import com.bowoon.ui.collaps.ToolbarState
-import com.bowoon.ui.collaps.scrollflags.ExitUntilCollapsedState
+import com.bowoon.ui.collaps.rememberToolbarState
 import com.bowoon.ui.dp10
 import com.bowoon.ui.dp100
 import com.bowoon.ui.image.DynamicAsyncImageLoader
@@ -194,13 +193,6 @@ fun TabComponent(
 }
 
 @Composable
-private fun rememberToolbarState(toolbarHeightRange: IntRange): ToolbarState {
-    return rememberSaveable(saver = ExitUntilCollapsedState.Saver) {
-        ExitUntilCollapsedState(toolbarHeightRange)
-    }
-}
-
-@Composable
 fun PeopleDetailScreen(
     isLoading: Boolean,
     people: PeopleDetail,
@@ -325,6 +317,7 @@ fun PeopleInfoComponent(
         Text(text = people.name ?: "")
         Text(text = people.birthday ?: "")
         Text(text = people.deathday ?: "")
+        Text(text = people.biography ?: "")
         Text(text = people.placeOfBirth ?: "")
     }
 }
@@ -403,13 +396,15 @@ fun RelatedMovieComponent(
         horizontalArrangement = Arrangement.spacedBy(dp10),
         verticalArrangement = Arrangement.spacedBy(dp10)
     ) {
-        items(relatedMovie.size) { index ->
+        items(
+            items = relatedMovie
+        ) { movie ->
             DynamicAsyncImageLoader(
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(POSTER_IMAGE_RATIO)
-                    .clickable { onMovieClick(people.combineCredits?.cast?.get(index)?.id ?: -1) },
-                source = people.combineCredits?.cast?.get(index)?.posterPath ?: "",
+                    .clickable { onMovieClick(movie.id ?: -1) },
+                source = movie.posterPath ?: "",
                 contentDescription = "SearchPoster"
             )
         }

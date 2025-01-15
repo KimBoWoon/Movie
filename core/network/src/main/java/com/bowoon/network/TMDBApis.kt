@@ -10,6 +10,7 @@ import com.bowoon.network.model.NetworkTMDBMovieGenres
 import com.bowoon.network.model.NetworkTMDBPeopleDetail
 import com.bowoon.network.model.NetworkTMDBRegion
 import com.bowoon.network.model.NetworkTMDBSearch
+import com.bowoon.network.model.NetworkTMDBSearchPeople
 import com.bowoon.network.model.NetworkUpcoming
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -44,6 +45,14 @@ interface TMDBApis {
         @Query("region") region: String = "KR",
         @Query("page") page: Int = 1
     ): ApiResponse<NetworkTMDBSearch>
+
+    @GET("/3/search/person")
+    suspend fun searchPeople(
+        @Query("query") query: String,
+        @Query("language") language: String = "ko-KR",
+        @Query("region") region: String = "KR",
+        @Query("page") page: Int = 1
+    ): ApiResponse<NetworkTMDBSearchPeople>
 
     @GET("/3/movie/{movie_id}")
     suspend fun getMovieDetail(

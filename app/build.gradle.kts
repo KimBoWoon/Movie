@@ -2,6 +2,7 @@ plugins {
     id("bowoon.application")
     id("bowoon.application.compose")
     id("bowoon.hilt")
+    id("bowoon.android.application.firebase")
 }
 
 dependencies {

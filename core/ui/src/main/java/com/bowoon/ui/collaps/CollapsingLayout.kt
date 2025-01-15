@@ -24,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import com.bowoon.model.PeopleDetail
 import com.bowoon.ui.R
+import com.bowoon.ui.collaps.scrollflags.ExitUntilCollapsedState
 import com.bowoon.ui.dp80
 import com.bowoon.ui.image.DynamicAsyncImageLoader
 import kotlinx.coroutines.launch
@@ -59,6 +61,13 @@ private val MapHeight = CollapsedCostaRicaHeight * 2
 /**
  * 출처 : https://github.com/pencelab/CollapsingToolbarInCompose
  */
+@Composable
+fun rememberToolbarState(toolbarHeightRange: IntRange): ToolbarState {
+    return rememberSaveable(saver = ExitUntilCollapsedState.Saver) {
+        ExitUntilCollapsedState(toolbarHeightRange)
+    }
+}
+
 @Composable
 fun CollapsingToolbar(
     modifier: Modifier = Modifier,

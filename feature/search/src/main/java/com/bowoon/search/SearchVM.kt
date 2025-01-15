@@ -12,7 +12,8 @@ import androidx.paging.cachedIn
 import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.domain.GetSearchListUseCase
 import com.bowoon.model.MovieDetail
-import com.bowoon.model.tmdb.TMDBSearchResult
+import com.bowoon.model.SearchType
+import com.bowoon.model.tmdb.SearchResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -37,7 +38,8 @@ class SearchVM @Inject constructor(
     var keyword by savedStateHandle.saveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue(""))
     }
-    val searchMovieState = MutableStateFlow<PagingData<TMDBSearchResult>>(PagingData.empty())
+    var searchType = savedStateHandle.get<Int>("searchType") ?: 0
+    val searchMovieState = MutableStateFlow<PagingData<SearchResult>>(PagingData.empty())
 
     fun update(newKeyword: TextFieldValue) {
         keyword = newKeyword
@@ -45,7 +47,7 @@ class SearchVM @Inject constructor(
 
     fun searchMovies(query: String) {
         viewModelScope.launch {
-            getSearchListUseCase(query)
+            getSearchListUseCase(SearchType.entries[searchType].label, query)
                 .cachedIn(viewModelScope)
                 .collect {
                     searchMovieState.value = it

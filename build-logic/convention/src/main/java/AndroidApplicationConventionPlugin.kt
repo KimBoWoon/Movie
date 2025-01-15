@@ -57,13 +57,13 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
 
                 buildTypes {
                     debug {
-                        applicationIdSuffix = MovieAppBuildType.DEBUG.applicationIdSuffix
+//                        applicationIdSuffix = MovieAppBuildType.DEBUG.applicationIdSuffix
                         isMinifyEnabled = false
                         buildConfigField("Boolean", "IS_DEBUGGING_LOGGING", "true")
 //                        signingConfig = signingConfigs.getByName(Config.Application.Movie.Sign.Debug.name)
                     }
                     release {
-                        applicationIdSuffix = MovieAppBuildType.RELEASE.applicationIdSuffix
+//                        applicationIdSuffix = MovieAppBuildType.RELEASE.applicationIdSuffix
                         isMinifyEnabled = true
                         isShrinkResources = true
                         isDebuggable = false

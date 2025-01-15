@@ -43,7 +43,8 @@ fun MovieAppNavHost(
             }
         }
         searchScreen(
-            onMovieClick = navController::navigateToDetail
+            onMovieClick = navController::navigateToDetail,
+            onPeopleClick = navController::navigateToPeople
         )
         favoriteScreen(
             onMovieClick = navController::navigateToDetail,
