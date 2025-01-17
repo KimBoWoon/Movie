@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,11 +12,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -35,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bowoon.common.Log
@@ -46,6 +45,7 @@ import com.bowoon.ui.FavoriteButton
 import com.bowoon.ui.Title
 import com.bowoon.ui.dp10
 import com.bowoon.ui.dp100
+import com.bowoon.ui.dp120
 import com.bowoon.ui.dp15
 import com.bowoon.ui.dp200
 import com.bowoon.ui.dp5
@@ -200,7 +200,6 @@ fun FavoriteMovieList(
                 )
                 FavoriteButton(
                     modifier = Modifier
-                        .padding(top = dp5, end = dp5)
                         .wrapContentSize()
                         .align(Alignment.TopEnd),
                     isFavorite = favoriteMovies.contains(movieDetail),
@@ -225,37 +224,31 @@ fun FavoritePeopleList(
 ) {
     val scope = rememberCoroutineScope()
 
-    LazyColumn(
-        modifier = Modifier.fillMaxSize()
+    LazyVerticalGrid(
+        modifier = Modifier.fillMaxSize(),
+        columns = GridCells.Adaptive(dp120),
+        contentPadding = PaddingValues(dp10),
+        verticalArrangement = Arrangement.spacedBy(dp10),
+        horizontalArrangement = Arrangement.spacedBy(dp10)
     ) {
         items(
             items = favoritePeoples,
             key = { "${it.id}_${it.name}" }
         ) { people ->
-            Row(
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
+                    .wrapContentSize()
                     .clickable { onPeopleClick(people.id ?: -1) }
             ) {
-                DynamicAsyncImageLoader(
-                    modifier = Modifier
-                        .width(dp100)
-                        .aspectRatio(PEOPLE_IMAGE_RATIO)
-                        .clip(RoundedCornerShape(dp10)),
-                    source = "${people.posterUrl}${people.profilePath}",
-                    contentDescription = "BoxOfficePoster"
-                )
-                Box(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Column(
+                Box() {
+                    DynamicAsyncImageLoader(
                         modifier = Modifier
-                            .padding(start = dp5)
-                            .align(Alignment.TopStart)
-                    ) {
-                        Text(text = people.name ?: "")
-                    }
+                            .width(dp100)
+                            .aspectRatio(PEOPLE_IMAGE_RATIO)
+                            .clip(RoundedCornerShape(dp10)),
+                        source = "${people.posterUrl}${people.profilePath}",
+                        contentDescription = "BoxOfficePoster"
+                    )
                     FavoriteButton(
                         modifier = Modifier
                             .wrapContentSize()
@@ -269,6 +262,12 @@ fun FavoritePeopleList(
                         }
                     )
                 }
+                Text(
+                    modifier = Modifier.wrapContentWidth().padding(top = dp5).align(Alignment.CenterHorizontally),
+                    text = people.name ?: "",
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
             }
         }
     }

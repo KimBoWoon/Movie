@@ -13,7 +13,7 @@ import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.domain.GetSearchListUseCase
 import com.bowoon.model.MovieDetail
 import com.bowoon.model.SearchType
-import com.bowoon.model.tmdb.SearchResult
+import com.bowoon.model.SearchItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -29,17 +29,12 @@ class SearchVM @Inject constructor(
         private const val TAG = "SearchVM"
     }
 
-//    var keyword = savedStateHandle.get<String>("keyword") ?: ""
-//        set(value) {
-//            savedStateHandle["keyword"] = value
-//            field = value
-//        }
     @OptIn(SavedStateHandleSaveableApi::class)
     var keyword by savedStateHandle.saveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue(""))
     }
     var searchType = savedStateHandle.get<Int>("searchType") ?: 0
-    val searchMovieState = MutableStateFlow<PagingData<SearchResult>>(PagingData.empty())
+    val searchMovieState = MutableStateFlow<PagingData<SearchItem>>(PagingData.empty())
 
     fun update(newKeyword: TextFieldValue) {
         keyword = newKeyword

@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class UserData(
+    val isAdult: Boolean = true,
     val isDarkMode: DarkThemeConfig = DarkThemeConfig.FOLLOW_SYSTEM,
     val updateDate: String = "",
     val mainMenu: MainMenu = MainMenu(),

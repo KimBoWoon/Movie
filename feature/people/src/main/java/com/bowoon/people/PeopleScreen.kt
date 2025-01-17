@@ -140,7 +140,6 @@ fun TabComponent(
     listState: LazyGridState = rememberLazyGridState(),
     people: PeopleDetail,
     onMovieClick: (Int) -> Unit,
-    favoriteMovies: List<MovieDetail>,
     insertFavoriteMovie: (MovieDetail) -> Unit,
     deleteFavoriteMovie: (MovieDetail) -> Unit
 ) {
@@ -272,7 +271,21 @@ fun CollapsingLayout(
 
     Title(
         title = people.name ?: "인물 정보",
-        onBackClick = { navController.navigateUp() }
+        onBackClick = { navController.navigateUp() },
+        onFavoriteClick = {
+            if (people.isFavorite) {
+                deleteFavoritePeople(people)
+            } else {
+                insertFavoritePeople(people)
+            }
+            scope.launch {
+                onShowSnackbar(
+                    if (people.isFavorite) "좋아하는 인물에서 제거했습니다." else "좋아하는 인물에 추가했습니다.",
+                    null
+                )
+            }
+        },
+        isFavorite = people.isFavorite
     )
 
     Box(modifier = Modifier.nestedScroll(nestedScrollConnection)) {
@@ -289,7 +302,6 @@ fun CollapsingLayout(
             listState = listState,
             people = people,
             onMovieClick = onMovieClick,
-            favoriteMovies = emptyList(),
             insertFavoriteMovie = {},
             deleteFavoriteMovie = {}
         )
@@ -299,10 +311,7 @@ fun CollapsingLayout(
                 .height(with(LocalDensity.current) { toolbarState.height.toDp() })
                 .graphicsLayer { translationY = toolbarState.offset },
             people = people,
-            progress = toolbarState.progress,
-            insertFavoritePeople = insertFavoritePeople,
-            deleteFavoritePeople = deleteFavoritePeople,
-            onShowSnackbar = onShowSnackbar
+            progress = toolbarState.progress
         )
     }
 }

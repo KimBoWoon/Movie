@@ -21,7 +21,8 @@ dependencies {
         libs.androidx.lifecycle.runtime.ktx,
         libs.androidx.navigation.compose,
         libs.androidx.compose.material3.navigationSuite,
-        libs.threetenabp
+        libs.threetenabp,
+        "androidx.core:core-splashscreen:1.0.0"
     ).forEach {
         implementation(it)
     }

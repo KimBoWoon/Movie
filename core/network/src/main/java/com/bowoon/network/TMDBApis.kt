@@ -41,6 +41,7 @@ interface TMDBApis {
     @GET("/3/search/movie")
     suspend fun searchMovies(
         @Query("query") query: String,
+        @Query("include_adult") includeAdult: Boolean = true,
         @Query("language") language: String = "ko-KR",
         @Query("region") region: String = "KR",
         @Query("page") page: Int = 1
@@ -49,6 +50,7 @@ interface TMDBApis {
     @GET("/3/search/person")
     suspend fun searchPeople(
         @Query("query") query: String,
+        @Query("include_adult") includeAdult: Boolean = true,
         @Query("language") language: String = "ko-KR",
         @Query("region") region: String = "KR",
         @Query("page") page: Int = 1
@@ -67,6 +69,7 @@ interface TMDBApis {
     suspend fun discoverMovie(
         @Query("release_date.gte") releaseDateGte: String,
         @Query("release_date.lte") releaseDateLte: String,
+        @Query("include_adult") includeAdult: Boolean = true,
         @Query("language") language: String = "ko-KR",
         @Query("region") region: String = "KR"
     ): ApiResponse<NetworkTMDBSearch>

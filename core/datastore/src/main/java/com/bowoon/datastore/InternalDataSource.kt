@@ -2,6 +2,7 @@ package com.bowoon.datastore
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.bowoon.model.DarkThemeConfig
@@ -9,7 +10,6 @@ import com.bowoon.model.MainMenu
 import com.bowoon.model.UserData
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
@@ -24,6 +24,7 @@ class InternalDataSource @Inject constructor(
     companion object {
         private const val TAG = "datastore"
 
+        private val IS_ADULT = booleanPreferencesKey("isAdult")
         private val UPDATE_DATE = stringPreferencesKey("updateDate")
         private val MAIN_MENU = stringPreferencesKey("mainMenu")
         private val IS_DART_MODE = stringPreferencesKey("isDarkMode")
@@ -34,6 +35,7 @@ class InternalDataSource @Inject constructor(
 
     val userData = datastore.data.map {
         UserData(
+            isAdult = it[IS_ADULT] ?: true,
             isDarkMode = it[IS_DART_MODE]?.let { jsonString ->
                 json.decodeFromString<DarkThemeConfig>(jsonString)
             } ?: DarkThemeConfig.FOLLOW_SYSTEM,
@@ -45,6 +47,12 @@ class InternalDataSource @Inject constructor(
             language = it[LANGUAGE] ?: "ko",
             imageQuality = it[IMAGE_QUALITY] ?: "original"
         )
+    }
+
+    suspend fun updateIsAdult(isAdult: Boolean) {
+        datastore.edit {
+            it[IS_ADULT] = isAdult
+        }
     }
 
     suspend fun updateDarkTheme(config: DarkThemeConfig) {
@@ -82,6 +90,8 @@ class InternalDataSource @Inject constructor(
             it[IMAGE_QUALITY] = imageQuality
         }
     }
+
+    suspend fun isAdult(): Boolean = datastore.data.map { it[IS_ADULT] }.firstOrNull() ?: true
 
     suspend fun getMainOfDate(): String =
         datastore.data.map { it[UPDATE_DATE] }.firstOrNull() ?: ""

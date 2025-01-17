@@ -5,8 +5,8 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.bowoon.data.paging.TMDBSearchPagingSource
 import com.bowoon.datastore.InternalDataSource
+import com.bowoon.model.SearchItem
 import com.bowoon.model.UpComingResult
-import com.bowoon.model.tmdb.SearchResult
 import com.bowoon.model.tmdb.TMDBCombineCredits
 import com.bowoon.model.tmdb.TMDBExternalIds
 import com.bowoon.model.tmdb.TMDBMovieDetail
@@ -29,9 +29,10 @@ class TMDBRepositoryImpl @Inject constructor(
     override suspend fun searchMovies(
         type: String,
         query: String
-    ): Flow<PagingData<SearchResult>> {
+    ): Flow<PagingData<SearchItem>> {
         val language = datastore.getLanguage()
         val region = datastore.getRegion()
+        val isAdult = datastore.isAdult()
 
         return Pager(
             config = PagingConfig(pageSize = 20, initialLoadSize = 20, prefetchDistance = 5),
@@ -42,6 +43,7 @@ class TMDBRepositoryImpl @Inject constructor(
                     query = query,
                     language = language,
                     region = region,
+                    isAdult = isAdult,
                     posterUrl = myDataRepository.posterUrl
                 )
             }
@@ -144,8 +146,9 @@ class TMDBRepositoryImpl @Inject constructor(
     ): Flow<TMDBSearch> = flow {
         val language = "${datastore.getLanguage()}-${datastore.getRegion()}"
         val region = datastore.getRegion()
+        val isAdult = datastore.isAdult()
 
-        when (val response = apis.tmdbApis.discoverMovie(releaseDateGte = releaseDateGte, releaseDateLte = releaseDateLte, language = language, region = region)) {
+        when (val response = apis.tmdbApis.discoverMovie(releaseDateGte = releaseDateGte, releaseDateLte = releaseDateLte, includeAdult = isAdult, language = language, region = region)) {
             is ApiResponse.Failure -> throw response.throwable
             is ApiResponse.Success -> emit(response.data.asExternalModel())
         }

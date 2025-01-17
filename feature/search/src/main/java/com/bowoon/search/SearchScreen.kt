@@ -10,8 +10,8 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.text.KeyboardActions
@@ -41,18 +41,16 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.bowoon.common.Log
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
+import com.bowoon.model.SearchItem
 import com.bowoon.model.SearchType
-import com.bowoon.model.tmdb.SearchResult
-import com.bowoon.model.tmdb.TMDBSearchPeopleResult
-import com.bowoon.model.tmdb.TMDBSearchResult
 import com.bowoon.ui.ConfirmDialog
 import com.bowoon.ui.Title
 import com.bowoon.ui.dp10
 import com.bowoon.ui.dp100
 import com.bowoon.ui.dp16
 import com.bowoon.ui.dp5
-import com.bowoon.ui.dp8
 import com.bowoon.ui.image.DynamicAsyncImageLoader
 import com.bowoon.ui.sp30
 
@@ -75,7 +73,7 @@ fun SearchScreen(
 
 @Composable
 fun SearchScreen(
-    state: LazyPagingItems<SearchResult>,
+    state: LazyPagingItems<SearchItem>,
     onMovieClick: (Int) -> Unit,
     onPeopleClick: (Int) -> Unit,
     onSearchClick: (String) -> Unit,
@@ -131,23 +129,26 @@ fun SearchScreen(
     ) {
         Column {
             Title(title = "영화 검색")
-            ExposedDropdownSearchTypeMenu(
-                modifier = Modifier.wrapContentWidth(),
-                list = SearchType.entries.map { it.label }.toList(),
-                viewModel = viewModel
-            )
             Row(
-                modifier = Modifier.padding(bottom = dp10),
+                modifier = Modifier.padding(top = dp5, bottom = dp10),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                ExposedDropdownSearchTypeMenu(
+                    modifier = Modifier.width(dp100),
+                    list = SearchType.entries.map { it.label }.toList(),
+                    viewModel = viewModel
+                )
                 TextField(
                     modifier = Modifier
                         .wrapContentHeight()
                         .weight(1f)
-                        .padding(start = dp16, top = dp5, end = dp8),
+                        .padding(start = dp5, end = dp5),
                     value = viewModel.keyword.text,
-                    onValueChange = { viewModel.update(TextFieldValue(it)) },
+                    onValueChange = {
+                        Log.d(it)
+                        viewModel.update(TextFieldValue(it))
+                    },
                     label = { Text("검색어를 입력하세요.") },
                     singleLine = true,
                     maxLines = 1,
@@ -181,26 +182,19 @@ fun SearchScreen(
                     verticalArrangement = Arrangement.spacedBy(dp10)
                 ) {
                     items(state.itemCount) { index ->
-                        (state[index] as? TMDBSearchResult)?.let {
-                            DynamicAsyncImageLoader(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .aspectRatio(POSTER_IMAGE_RATIO)
-                                    .clickable { onMovieClick(it.id ?: -1) },
-                                source = it.posterPath ?: "",
-                                contentDescription = "SearchPoster"
-                            )
-                        }
-                        (state[index] as? TMDBSearchPeopleResult)?.let {
-                            DynamicAsyncImageLoader(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .aspectRatio(POSTER_IMAGE_RATIO)
-                                    .clickable { onPeopleClick(it.id ?: -1) },
-                                source = it.profilePath ?: "",
-                                contentDescription = "SearchPoster"
-                            )
-                        }
+                        DynamicAsyncImageLoader(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .aspectRatio(POSTER_IMAGE_RATIO)
+                                .clickable {
+                                    when (viewModel.searchType) {
+                                        SearchType.MOVIE.ordinal -> onMovieClick(state[index]?.tmdbId ?: -1)
+                                        SearchType.PEOPLE.ordinal -> onPeopleClick(state[index]?.tmdbId ?: -1)
+                                    }
+                                },
+                            source = state[index]?.imagePath ?: "",
+                            contentDescription = "SearchPoster"
+                        )
                     }
                     if (isAppend) {
                         item {
@@ -236,7 +230,7 @@ fun ExposedDropdownSearchTypeMenu(
         onExpandedChange = { expanded = !expanded }
     ) {
         TextField(
-            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
+            modifier = modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
             readOnly = true,
             value = list[viewModel.searchType],
             onValueChange = {},
@@ -250,6 +244,7 @@ fun ExposedDropdownSearchTypeMenu(
         ) {
             list.forEach {
                 DropdownMenuItem(
+                    modifier = modifier,
                     text = {
                         Text(
                             text = it,

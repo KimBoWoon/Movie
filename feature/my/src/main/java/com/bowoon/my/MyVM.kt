@@ -63,6 +63,12 @@ class MyVM @Inject constructor(
             }
         }
     }
+
+    fun updateIsAdult(isAdult: Boolean) {
+        viewModelScope.launch {
+            userDataRepository.updateIsAdult(isAdult)
+        }
+    }
 }
 
 sealed interface MyDataState {

@@ -95,7 +95,10 @@ fun List<NetworkTMDBSearchPeopleResult>.asExternalModel(): List<TMDBSearchPeople
             name = it.name,
             originalName = it.originalName,
             popularity = it.popularity,
-            profilePath = it.profilePath
+            profilePath = it.profilePath,
+            searchTitle = it.name,
+            tmdbId = it.id,
+            imagePath = it.profilePath
         )
     }
 

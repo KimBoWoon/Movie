@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,6 +31,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
@@ -43,6 +45,7 @@ import com.bowoon.model.MainMovie
 import com.bowoon.ui.BoxOfficeRank
 import com.bowoon.ui.Calendar
 import com.bowoon.ui.Title
+import com.bowoon.ui.dp10
 import com.bowoon.ui.dp15
 import com.bowoon.ui.dp150
 import com.bowoon.ui.dp25
@@ -203,6 +206,7 @@ fun LazyListScope.calendarComponent(
         }
 
         HorizontalPager(
+            modifier = Modifier.fillMaxSize(),
             state = horizontalPagerState
         ) {index ->
             Calendar(
@@ -223,9 +227,7 @@ fun MainMovieItem(
         modifier = Modifier
             .width(dp150)
             .wrapContentHeight()
-            .clickable {
-                onMovieClick(movie.id ?: -1)
-            }
+            .clickable { onMovieClick(movie.id ?: -1) }
     ) {
         Box(
             modifier = Modifier.wrapContentSize()
@@ -241,6 +243,7 @@ fun MainMovieItem(
                 BoxOfficeRank(
                     modifier = Modifier
                         .size(dp25)
+                        .clip(RoundedCornerShape(topStart = dp10, bottomEnd = dp10))
                         .background(if ((movie.rank?.toInt() ?: 0) < 4) Color.Red else Color.Gray)
                         .align(Alignment.TopStart),
                     rank = movie.rank?.toInt() ?: 0

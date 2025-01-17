@@ -7,6 +7,7 @@ import android.util.DisplayMetrics
 import android.view.WindowManager
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -16,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Unspecified
 import androidx.compose.ui.graphics.ColorFilter
@@ -27,6 +29,7 @@ import coil3.Image
 import coil3.compose.AsyncImagePainter
 import coil3.compose.rememberAsyncImagePainter
 import com.bowoon.common.Log
+import com.bowoon.ui.dp10
 import com.bowoon.ui.theme.LocalTintTheme
 
 @Composable
@@ -61,7 +64,7 @@ fun DynamicAsyncImageLoader(
         when (isError) {
             true -> {
                 Image(
-                    modifier = modifier,
+                    modifier = modifier.clip(RoundedCornerShape(dp10)),
                     contentScale = ContentScale.Crop,
                     painter = error,
                     contentDescription = contentDescription,
@@ -70,7 +73,7 @@ fun DynamicAsyncImageLoader(
             }
             false -> {
                 Image(
-                    modifier = modifier,
+                    modifier = modifier.clip(RoundedCornerShape(dp10)),
                     contentScale = ContentScale.Crop,
                     painter = if (!isLocalInspection) imageLoader else placeholder,
                     contentDescription = contentDescription,

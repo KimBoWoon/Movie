@@ -14,6 +14,10 @@ class UserDataRepositoryImpl @Inject constructor(
 ) : UserDataRepository {
     override val userData: Flow<UserData> = datastore.userData
 
+    override suspend fun updateIsAdult(isAdult: Boolean) {
+        datastore.updateIsAdult(isAdult)
+    }
+
     override suspend fun updateDarkModeTheme(config: DarkThemeConfig) {
         datastore.updateDarkTheme(config)
     }
@@ -40,6 +44,8 @@ class UserDataRepositoryImpl @Inject constructor(
         datastore.updateImageQuality(imageQuality)
         syncManager.requestSync()
     }
+
+    override suspend fun isAdult(): Boolean = datastore.isAdult()
 
     override suspend fun getMainOfDate(): String = datastore.getMainOfDate()
 

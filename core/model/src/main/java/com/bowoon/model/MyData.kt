@@ -8,6 +8,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class MyData(
+    val isAdult: Boolean = true,
+    val mainUpdateLatestDate: String? = null,
     val secureBaseUrl: String? = null,
     val certification: Map<String, List<TMDBCertification>>? = null,
     val genres: List<TMDBMovieGenre>? = null,

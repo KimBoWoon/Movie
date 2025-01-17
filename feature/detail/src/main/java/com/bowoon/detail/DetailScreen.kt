@@ -70,7 +70,6 @@ import com.bowoon.ui.dp10
 import com.bowoon.ui.dp100
 import com.bowoon.ui.dp16
 import com.bowoon.ui.dp200
-import com.bowoon.ui.dp5
 import com.bowoon.ui.image.DynamicAsyncImageLoader
 import com.bowoon.ui.sp20
 import com.bowoon.ui.theme.MovieTheme
@@ -622,7 +621,6 @@ fun SimilarMovieComponent(
                 )
                 FavoriteButton(
                     modifier = Modifier
-                        .padding(top = dp5, end = dp5)
                         .wrapContentSize()
                         .align(Alignment.TopEnd),
                     isFavorite = favoriteMovies.find { it.id == detail.id } != null,

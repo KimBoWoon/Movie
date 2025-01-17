@@ -74,6 +74,9 @@ fun List<NetworkTMDBSearchResult>.asExternalModel(): List<TMDBSearchResult> =
             title = it.title,
             video = it.video,
             voteAverage = it.voteAverage,
-            voteCount = it.voteCount
+            voteCount = it.voteCount,
+            searchTitle = it.title,
+            tmdbId = it.id,
+            imagePath = it.posterPath
         )
     }

@@ -20,15 +20,42 @@ internal class WorkManagerSyncManager @Inject constructor(
 ) : SyncManager {
     override val isSyncing: Flow<Boolean> =
         WorkManager.getInstance(context)
-            .getWorkInfosForUniqueWorkFlow(MainMenuSyncWorker.WORKER_NAME)
+            .getWorkInfosByTagFlow(MainMenuSyncWorker.WORKER_NAME)
             .map(List<WorkInfo>::anyRunning)
             .conflate()
+
+    override fun initialize() {
+        WorkManager.getInstance(context)
+            .enqueueUniqueWork(UNIQUE_SYNC_WORKER, ExistingWorkPolicy.KEEP, MyDataSyncWorker.startUpSyncWork())
+    }
 
     override fun requestSync() {
         WorkManager.getInstance(context)
             .beginUniqueWork(UNIQUE_SYNC_WORKER, ExistingWorkPolicy.KEEP, MyDataSyncWorker.startUpSyncWork())
             .then(MainMenuSyncWorker.startUpSyncWork(true))
             .enqueue()
+    }
+
+    override suspend fun checkWork(
+        context: Context,
+        onSuccess: suspend () -> Unit,
+        onFailure: suspend () -> Unit
+    ) {
+        WorkManager.getInstance(context)
+            .getWorkInfosByTagFlow(MyDataSyncWorker.WORKER_NAME)
+            .collect { works ->
+                val work = works.find { it.tags.find { it == MyDataSyncWorker.WORKER_NAME } != null }
+
+                work?.let {
+                    if (it.state != State.RUNNING) {
+                        if (it.state == State.SUCCEEDED) {
+                            onSuccess()
+                        } else {
+                            onFailure()
+                        }
+                    }
+                }
+            }
     }
 }
 

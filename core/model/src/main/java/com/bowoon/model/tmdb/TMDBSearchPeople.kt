@@ -16,7 +16,10 @@ data class TMDBSearchPeopleResult(
     val name: String? = null,
     val originalName: String? = null,
     val popularity: Double? = null,
-    val profilePath: String? = null
+    val profilePath: String? = null,
+    override val tmdbId: Int? = null,
+    override val searchTitle: String? = null,
+    override val imagePath: String? = null
 ) : SearchResult
 
 data class TMDBSearchPeopleKnownFor(

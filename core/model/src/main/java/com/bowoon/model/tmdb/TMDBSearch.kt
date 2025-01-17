@@ -1,7 +1,5 @@
 package com.bowoon.model.tmdb
 
-sealed interface SearchResult
-
 data class TMDBSearch(
     val page: Int? = null,
     val results: List<TMDBSearchResult>? = null,
@@ -23,5 +21,8 @@ data class TMDBSearchResult(
     val title: String? = null,
     val video: Boolean? = null,
     val voteAverage: Double? = null,
-    val voteCount: Int? = null
+    val voteCount: Int? = null,
+    override val tmdbId: Int? = null,
+    override val searchTitle: String? = null,
+    override val imagePath: String? = null
 ) : SearchResult

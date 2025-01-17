@@ -58,44 +58,49 @@ class MainMenuRepositoryImpl @Inject constructor(
         posterUrl: String,
         kobisBoxOffice: KOBISBoxOffice,
         upComingResult: List<UpComingResult>
-    ): MainMenu = MainMenu(
-        dailyBoxOffice = kobisBoxOffice.boxOfficeResult?.dailyBoxOfficeList?.mapNotNull { kobisDailyBoxOffice ->
-            getTMDBMovie(
-                movieName = kobisDailyBoxOffice.movieNm ?: "",
-                releaseDateGte = kobisDailyBoxOffice.openDt ?: "",
-                releaseDateLte = kobisDailyBoxOffice.openDt ?: ""
-            ).firstOrNull()?.let { tmdbMovie ->
+    ): MainMenu {
+        var rank = 0
+
+        return MainMenu(
+            dailyBoxOffice = kobisBoxOffice.boxOfficeResult?.dailyBoxOfficeList?.mapNotNull { kobisDailyBoxOffice ->
+                getTMDBMovie(
+                    movieName = kobisDailyBoxOffice.movieNm ?: "",
+                    releaseDateGte = kobisDailyBoxOffice.openDt ?: "",
+                    releaseDateLte = kobisDailyBoxOffice.openDt ?: ""
+                ).firstOrNull()?.let { tmdbMovie ->
+                    rank++
+                    MainMovie(
+                        genreIds = tmdbMovie.genreIds,
+                        id = tmdbMovie.id,
+                        originalLanguage = tmdbMovie.originalLanguage,
+                        originalTitle = tmdbMovie.originalTitle,
+                        overview = tmdbMovie.overview,
+                        popularity = tmdbMovie.popularity,
+                        posterPath = "$posterUrl${tmdbMovie.posterPath}",
+                        releaseDate = tmdbMovie.releaseDate,
+                        title = tmdbMovie.title ?: kobisDailyBoxOffice.movieNm,
+                        voteAverage = tmdbMovie.voteAverage,
+                        voteCount = tmdbMovie.voteCount,
+                        rank = rank.toString(),
+                        rankOldAndNew = kobisDailyBoxOffice.rankOldAndNew
+                    )
+                }
+            } ?: emptyList(),
+            upcomingMovies = upComingResult.map { upComingMovie ->
                 MainMovie(
-                    genreIds = tmdbMovie.genreIds,
-                    id = tmdbMovie.id,
-                    originalLanguage = tmdbMovie.originalLanguage,
-                    originalTitle = tmdbMovie.originalTitle,
-                    overview = tmdbMovie.overview,
-                    popularity = tmdbMovie.popularity,
-                    posterPath = "$posterUrl${tmdbMovie.posterPath}",
-                    releaseDate = tmdbMovie.releaseDate,
-                    title = tmdbMovie.title ?: kobisDailyBoxOffice.movieNm,
-                    voteAverage = tmdbMovie.voteAverage,
-                    voteCount = tmdbMovie.voteCount,
-                    rank = kobisDailyBoxOffice.rank,
-                    rankOldAndNew = kobisDailyBoxOffice.rankOldAndNew
+                    genreIds = upComingMovie.genreIds,
+                    id = upComingMovie.id,
+                    title = upComingMovie.title,
+                    originalLanguage = upComingMovie.originalLanguage,
+                    originalTitle = upComingMovie.originalTitle,
+                    overview = upComingMovie.overview,
+                    popularity = upComingMovie.popularity,
+                    posterPath = "$posterUrl${upComingMovie.posterPath}",
+                    releaseDate = upComingMovie.releaseDate,
+                    voteAverage = upComingMovie.voteAverage,
+                    voteCount = upComingMovie.voteCount,
                 )
             }
-        } ?: emptyList(),
-        upcomingMovies = upComingResult.map { upComingMovie ->
-            MainMovie(
-                genreIds = upComingMovie.genreIds,
-                id = upComingMovie.id,
-                title = upComingMovie.title,
-                originalLanguage = upComingMovie.originalLanguage,
-                originalTitle = upComingMovie.originalTitle,
-                overview = upComingMovie.overview,
-                popularity = upComingMovie.popularity,
-                posterPath = "$posterUrl${upComingMovie.posterPath}",
-                releaseDate = upComingMovie.releaseDate,
-                voteAverage = upComingMovie.voteAverage,
-                voteCount = upComingMovie.voteCount,
-            )
-        }
-    )
+        )
+    }
 }

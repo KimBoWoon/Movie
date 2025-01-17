@@ -135,7 +135,7 @@ fun Title(
         )
         FavoriteButton(
             modifier = Modifier
-                .padding(end = dp5)
+                .padding(end = dp16)
                 .wrapContentSize(),
             isFavorite = isFavorite,
             onClick = { onFavoriteClick() }

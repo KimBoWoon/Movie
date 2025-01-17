@@ -1,7 +1,6 @@
 package com.bowoon.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -89,7 +88,7 @@ private fun MovieDialog(
                     Text(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = dp20),
+                            .padding(top = dp20, start = dp16, end = dp16),
                         text = title,
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.titleLarge,
@@ -100,7 +99,7 @@ private fun MovieDialog(
                 Text(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = dp20),
+                        .padding(bottom = dp20, start = dp16, end = dp16),
                     text = message,
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.bodyMedium,
@@ -120,7 +119,6 @@ private fun MovieDialog(
                     DialogButton(
                         modifier = Modifier
                             .background(color = Color(0xFFC2C2C2), shape = RoundedCornerShape(bottomStart = dp20))
-                            .border(width = dp1, color = Color.Black)
                             .padding(top = dp30),
                         text = dismissPair.first ?: "",
                     ) {
@@ -133,7 +131,6 @@ private fun MovieDialog(
                         .background(
                             color = Color.White,
                             shape = RoundedCornerShape(bottomStart = if (!dismissPair.first.isNullOrEmpty()) dp0 else dp20, bottomEnd = dp20))
-                        .border(width = dp1, color = Color.Black)
                         .padding(top = dp30),
                     text = confirmPair.first
                 ) {
@@ -166,27 +163,33 @@ fun RowScope.DialogButton(
     }
 }
 
-@Preview(showSystemUi = false)
+@Preview(
+    showSystemUi = false,
+    backgroundColor = 0xFFFFFFFF, showBackground = true
+)
 @Composable
 fun MovieOneButtonDialogPreview() {
     MovieTheme() {
         MovieDialog(
             onDismiss = {},
             title = "Title",
-            message = "Message",
+            message = "MessageMessageMessageMessageMessageMessageMessageMessageMessageMessageMessageMessageMessage",
             confirmPair = "확인" to {}
         )
     }
 }
 
-@Preview(showSystemUi = false)
+@Preview(
+    showSystemUi = false,
+    backgroundColor = 0xFFFFFFFF, showBackground = true
+)
 @Composable
 fun MovieTwoButtonDialogPreview() {
     MovieTheme {
         MovieDialog(
             onDismiss = {},
             title = "Title",
-            message = "Message",
+            message = "MessageMessageMessageMessageMessageMessageMessageMessageMessageMessageMessageMessageMessage",
             confirmPair = "확인" to {},
             dismissPair = "취소" to {}
         )

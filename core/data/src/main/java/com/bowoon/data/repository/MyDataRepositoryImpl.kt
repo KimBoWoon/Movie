@@ -42,6 +42,8 @@ class MyDataRepositoryImpl @Inject constructor(
         val language = getAvailableLanguage()
 
         MyData(
+            isAdult = datastore.isAdult(),
+            mainUpdateLatestDate = datastore.getMainOfDate(),
             secureBaseUrl = configuration.images?.secureBaseUrl,
             certification = certification.certifications?.certifications,
             genres = genres.genres,
