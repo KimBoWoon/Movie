@@ -7,11 +7,12 @@ import com.bowoon.network.model.NetworkTMDBExternalIds
 import com.bowoon.network.model.NetworkTMDBLanguageItem
 import com.bowoon.network.model.NetworkTMDBMovieDetail
 import com.bowoon.network.model.NetworkTMDBMovieGenres
+import com.bowoon.network.model.NetworkTMDBNowPlaying
 import com.bowoon.network.model.NetworkTMDBPeopleDetail
 import com.bowoon.network.model.NetworkTMDBRegion
 import com.bowoon.network.model.NetworkTMDBSearch
 import com.bowoon.network.model.NetworkTMDBSearchPeople
-import com.bowoon.network.model.NetworkUpcoming
+import com.bowoon.network.model.NetworkTMDBUpcoming
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -30,13 +31,20 @@ interface TMDBApis {
         @Query("language") language: String = "ko-KR"
     ): ApiResponse<NetworkTMDBMovieGenres>
 
+    @GET("/3/movie/now_playing")
+    suspend fun getNowPlaying(
+        @Query("language") language: String = "ko-KR",
+        @Query("region") region: String = "KR",
+        @Query("page") page: Int = 1
+    ): ApiResponse<NetworkTMDBNowPlaying>
+
     @GET("/3/movie/upcoming")
     suspend fun getUpcomingMovie(
         @Query("language") language: String = "ko-KR",
         @Query("region") region: String = "KR",
         @Query("page") page: Int = 1,
         @Query("sort_by") sortBy: String = "release_date.asc"
-    ): ApiResponse<NetworkUpcoming>
+    ): ApiResponse<NetworkTMDBUpcoming>
 
     @GET("/3/search/movie")
     suspend fun searchMovies(

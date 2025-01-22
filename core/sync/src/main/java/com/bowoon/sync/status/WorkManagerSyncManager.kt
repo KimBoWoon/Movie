@@ -6,7 +6,6 @@ import androidx.work.WorkInfo
 import androidx.work.WorkInfo.State
 import androidx.work.WorkManager
 import com.bowoon.data.util.SyncManager
-import com.bowoon.sync.initializers.UNIQUE_SYNC_WORKER
 import com.bowoon.sync.workers.MainMenuSyncWorker
 import com.bowoon.sync.workers.MyDataSyncWorker
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -26,13 +25,20 @@ internal class WorkManagerSyncManager @Inject constructor(
 
     override fun initialize() {
         WorkManager.getInstance(context)
-            .enqueueUniqueWork(UNIQUE_SYNC_WORKER, ExistingWorkPolicy.KEEP, MyDataSyncWorker.startUpSyncWork())
+            .enqueueUniqueWork(
+                MyDataSyncWorker.WORKER_NAME,
+                ExistingWorkPolicy.KEEP,
+                MyDataSyncWorker.startUpSyncWork()
+            )
     }
 
     override fun requestSync() {
         WorkManager.getInstance(context)
-            .beginUniqueWork(UNIQUE_SYNC_WORKER, ExistingWorkPolicy.KEEP, MyDataSyncWorker.startUpSyncWork())
-            .then(MainMenuSyncWorker.startUpSyncWork(true))
+            .beginUniqueWork(
+                MyDataSyncWorker.WORKER_NAME,
+                ExistingWorkPolicy.KEEP,
+                MyDataSyncWorker.startUpSyncWork()
+            ).then(MainMenuSyncWorker.startUpSyncWork(true))
             .enqueue()
     }
 
@@ -43,20 +49,27 @@ internal class WorkManagerSyncManager @Inject constructor(
     ) {
         WorkManager.getInstance(context)
             .getWorkInfosByTagFlow(MyDataSyncWorker.WORKER_NAME)
-            .collect { works ->
-                val work = works.find { it.tags.find { it == MyDataSyncWorker.WORKER_NAME } != null }
-
-                work?.let {
-                    if (it.state != State.RUNNING) {
-                        if (it.state == State.SUCCEEDED) {
-                            onSuccess()
-                        } else {
-                            onFailure()
-                        }
-                    }
-                }
+            .map { works ->
+                works.find { it.id == MyDataSyncWorker.workerId }
+            }.collect { work ->
+                work?.getWorkResult(
+                    { onSuccess() },
+                    { onFailure() }
+                )
             }
     }
 }
 
 private fun List<WorkInfo>.anyRunning() = any { it.state == State.RUNNING }
+private suspend fun WorkInfo.getWorkResult(
+    onSuccess: suspend () -> Unit,
+    onFailure: suspend () -> Unit
+) {
+    if (state != State.ENQUEUED && state != State.RUNNING) {
+        if (state == State.SUCCEEDED) {
+            onSuccess()
+        } else {
+            onFailure()
+        }
+    }
+}

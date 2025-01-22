@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration.Indefinite
 import androidx.compose.material3.SnackbarDuration.Short
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -18,8 +19,11 @@ import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -41,6 +45,17 @@ fun MovieMainScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = { Navigation(appState = appState) }
     ) { innerPadding ->
+        val isOffline by appState.isOffline.collectAsStateWithLifecycle()
+        val notConnectedMessage = "인터넷에 연결되어 있지 않습니다."
+        LaunchedEffect(isOffline) {
+            if (isOffline) {
+                snackbarHostState.showSnackbar(
+                    message = notConnectedMessage,
+                    duration = Indefinite,
+                )
+            }
+        }
+
         MovieAppNavHost(
             modifier = Modifier.padding(innerPadding),
             appState = appState,

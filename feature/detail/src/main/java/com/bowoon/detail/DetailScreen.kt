@@ -69,8 +69,12 @@ import com.bowoon.ui.Title
 import com.bowoon.ui.dp10
 import com.bowoon.ui.dp100
 import com.bowoon.ui.dp16
+import com.bowoon.ui.dp20
 import com.bowoon.ui.dp200
+import com.bowoon.ui.dp5
 import com.bowoon.ui.image.DynamicAsyncImageLoader
+import com.bowoon.ui.sp10
+import com.bowoon.ui.sp15
 import com.bowoon.ui.sp20
 import com.bowoon.ui.theme.MovieTheme
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants
@@ -358,7 +362,7 @@ fun TabComponent(
                     movie = movie,
                     onPeopleClick = onPeopleClick
                 )
-                MovieDetailTab.POSTER.label -> ImageComponent(movie = movie)
+                MovieDetailTab.IMAGES.label -> ImageComponent(movie = movie)
                 MovieDetailTab.SIMILAR.label -> SimilarMovieComponent(
                     movie = movie,
                     onMovieClick = onMovieClick,
@@ -409,6 +413,7 @@ fun ImageComponent(
 
     if (isShowing) {
         ModalBottomSheetDialog(
+            modifier = Modifier.fillMaxWidth().aspectRatio(POSTER_IMAGE_RATIO),
             state = modalBottomSheetState,
             scope = scope,
             index = index,
@@ -434,24 +439,100 @@ fun MovieInfoComponent(
         modifier = Modifier.fillMaxSize()
     ) {
         item {
-            Text(text = movie.title ?: "")
-            Text(text = movie.originalTitle ?: "")
-            Text(text = movie.genres ?: "")
-            Text(text = movie.certification ?: "")
-            Text(text = movie.releaseDate ?: "")
-            Text(text = "평점 : ${movie.voteAverage.toString()}")
-            Text(text = "수익 : ${format.format(movie.revenue)}")
-            Text(text = "예산 : ${format.format(movie.budget)}")
-            Text(text = "순수익 : ${format.format((movie.revenue ?: 0) + -(movie.budget ?: 0))}")
-            Text(text = "${movie.runtime}분")
-            Text(
-                modifier = Modifier.clickable {
-                    overviewMaxLine = if (overviewMaxLine == 3) Int.MAX_VALUE else 3
-                },
-                text = movie.overview ?: "",
-                maxLines = overviewMaxLine,
-                overflow = TextOverflow.Ellipsis
-            )
+            movie.title?.let {
+                Text(
+                    modifier = Modifier.padding(top = dp20, start = dp16, end = dp16).fillMaxWidth().wrapContentHeight(),
+                    text = it,
+                    fontSize = sp20,
+                    textAlign = TextAlign.Center
+                )
+            }
+
+            movie.originalTitle?.let {
+                Text(
+                    modifier = Modifier.padding(top = dp5, start = dp16, end = dp16).fillMaxWidth().wrapContentHeight(),
+                    text = it,
+                    fontSize = sp10,
+                    textAlign = TextAlign.Center
+                )
+            }
+            movie.alternativeTitles?.titles?.let { titleList ->
+                if (titleList.isNotEmpty()) {
+                    Text(
+                        modifier = Modifier.padding(horizontal = dp16).fillMaxWidth().wrapContentHeight(),
+                        text = "다른 이름",
+                        fontSize = sp15
+                    )
+                    titleList.forEach { alternativeTitle ->
+                        alternativeTitle.title?.let {
+                            Text(
+                                modifier = Modifier.padding(top = dp5, start = dp16, end = dp16).fillMaxWidth().wrapContentHeight(),
+                                text = it,
+                                fontSize = sp10,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
+                }
+            }
+            movie.genres?.let {
+                Text(
+                    modifier = Modifier.padding(horizontal = dp16).fillMaxWidth().wrapContentHeight(),
+                    text = "장르 : $it"
+                )
+            }
+            movie.certification?.let {
+                Text(
+                    modifier = Modifier.padding(horizontal = dp16).fillMaxWidth().wrapContentHeight(),
+                    text = "$it 이용가"
+                )
+            }
+            movie.releaseDate?.let {
+                Text(
+                    modifier = Modifier.padding(horizontal = dp16).fillMaxWidth().wrapContentHeight(),
+                    text = "개봉일 : $it"
+                )
+            }
+            movie.voteAverage?.let {
+                Text(
+                    modifier = Modifier.padding(horizontal = dp16).fillMaxWidth().wrapContentHeight(),
+                    text = "평점 : $it"
+                )
+            }
+            movie.revenue?.let {
+                Text(
+                    modifier = Modifier.padding(horizontal = dp16).fillMaxWidth().wrapContentHeight(),
+                    text = "수익 : ${format.format(it)}"
+                )
+            }
+            movie.budget?.let {
+                Text(
+                    modifier = Modifier.padding(horizontal = dp16).fillMaxWidth().wrapContentHeight(),
+                    text = "예산 : ${format.format(it)}"
+                )
+            }
+            if (movie.revenue != null && movie.budget != null) {
+                Text(
+                    modifier = Modifier.padding(horizontal = dp16).fillMaxWidth().wrapContentHeight(),
+                    text = "순수익 : ${format.format((movie.revenue ?: 0) + -(movie.budget ?: 0))}"
+                )
+            }
+            movie.runtime?.let {
+                Text(
+                    modifier = Modifier.padding(horizontal = dp16).fillMaxWidth().wrapContentHeight(),
+                    text = "${it}분"
+                )
+            }
+            movie.overview?.let {
+                Text(
+                    modifier = Modifier.padding(horizontal = dp16).fillMaxWidth().wrapContentHeight().clickable {
+                        overviewMaxLine = if (overviewMaxLine == 3) Int.MAX_VALUE else 3
+                    },
+                    text = it,
+                    maxLines = overviewMaxLine,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
     }
 }

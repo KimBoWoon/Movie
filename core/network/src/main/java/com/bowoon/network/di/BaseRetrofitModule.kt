@@ -19,24 +19,6 @@ import java.util.concurrent.TimeUnit
 @InstallIn(SingletonComponent::class)
 object BaseRetrofitModule {
     @Provides
-    @OtherOkHttp
-    fun provideOkHttpClient(
-        httpLoggingInterceptor: HttpLoggingInterceptor,
-        okHttpProfilerInterceptor: OkHttpProfilerInterceptor,
-        networkLogInterceptor: NetworkLogInterceptor
-    ): OkHttpClient = OkHttpClient().newBuilder().apply {
-        connectTimeout(1, TimeUnit.MINUTES)
-        readTimeout(30, TimeUnit.SECONDS)
-        writeTimeout(15, TimeUnit.SECONDS)
-        addNetworkInterceptor(httpLoggingInterceptor)
-        if (BuildConfig.IS_DEBUGGING_LOGGING) {
-            addInterceptor(okHttpProfilerInterceptor)
-            addInterceptor(networkLogInterceptor)
-        }
-    }.build()
-
-    @Provides
-    @TMDBOkHttp
     fun provideTMDBOkHttpClient(
         httpLoggingInterceptor: HttpLoggingInterceptor,
         okHttpProfilerInterceptor: OkHttpProfilerInterceptor,

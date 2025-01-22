@@ -1,9 +1,6 @@
 package com.bowoon.network.retrofit
 
-import com.bowoon.network.KOBISApis
 import com.bowoon.network.TMDBApis
-import com.bowoon.network.di.KOBISRetrofit
-import com.bowoon.network.di.TMDBRetrofit
 import retrofit2.Retrofit
 import javax.inject.Inject
 
@@ -12,9 +9,7 @@ import javax.inject.Inject
  * @param retrofit 레트로핏 모듈
  */
 class Apis @Inject constructor(
-    @KOBISRetrofit private val kobisRetrofit: Retrofit,
-    @TMDBRetrofit private val tmdbRetrofit: Retrofit
+    private val tmdbRetrofit: Retrofit
 ) {
-    val kobisApis = kobisRetrofit.create(KOBISApis::class.java)
     val tmdbApis = tmdbRetrofit.create(TMDBApis::class.java)
 }

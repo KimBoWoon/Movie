@@ -6,13 +6,13 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class NetworkUpcoming(
+data class NetworkTMDBUpcoming(
     @SerialName("dates")
-    val dates: NetworkDates? = null,
+    val dates: NetworkTMDBDates? = null,
     @SerialName("page")
     val page: Int? = null,
     @SerialName("results")
-    val results: List<NetworkResult>? = null,
+    val results: List<NetworkTMDBResult>? = null,
     @SerialName("total_pages")
     val totalPages: Int? = null,
     @SerialName("total_results")
@@ -20,7 +20,7 @@ data class NetworkUpcoming(
 )
 
 @Serializable
-data class NetworkDates(
+data class NetworkTMDBDates(
     @SerialName("maximum")
     val maximum: String? = null,
     @SerialName("minimum")
@@ -28,7 +28,7 @@ data class NetworkDates(
 )
 
 @Serializable
-data class NetworkResult(
+data class NetworkTMDBResult(
     @SerialName("adult")
     val adult: Boolean? = null,
     @SerialName("backdrop_path")
@@ -59,7 +59,7 @@ data class NetworkResult(
     val voteCount: Int? = null
 )
 
-fun NetworkUpcoming.asExternalModel(): Upcoming =
+fun NetworkTMDBUpcoming.asExternalModel(): Upcoming =
     Upcoming(
         dates = dates?.asExternalModel(),
         page = page,
@@ -68,13 +68,13 @@ fun NetworkUpcoming.asExternalModel(): Upcoming =
         totalResults = totalResults
     )
 
-fun NetworkDates.asExternalModel(): UpComingDates =
+fun NetworkTMDBDates.asExternalModel(): UpComingDates =
     UpComingDates(
         maximum = maximum,
         minimum = minimum
     )
 
-fun List<NetworkResult>.asExternalModel(): List<com.bowoon.model.UpComingResult> =
+fun List<NetworkTMDBResult>.asExternalModel(): List<com.bowoon.model.UpComingResult> =
     map {
         com.bowoon.model.UpComingResult(
             adult = it.adult,

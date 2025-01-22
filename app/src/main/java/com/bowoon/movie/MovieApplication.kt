@@ -5,7 +5,6 @@ import coil3.ImageLoader
 import coil3.PlatformContext
 import coil3.SingletonImageLoader
 import com.bowoon.common.Log
-import com.bowoon.sync.initializers.Sync
 import com.jakewharton.threetenabp.AndroidThreeTen
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
@@ -20,7 +19,6 @@ class MovieApplication : Application(), SingletonImageLoader.Factory {
 
         Log.d("Application", "onCreate()")
         AndroidThreeTen.init(this)
-        Sync.initialize(this)
     }
 
     override fun newImageLoader(context: PlatformContext): ImageLoader = imageLoader.get()

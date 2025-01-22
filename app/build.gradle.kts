@@ -22,8 +22,13 @@ dependencies {
         libs.androidx.navigation.compose,
         libs.androidx.compose.material3.navigationSuite,
         libs.threetenabp,
-        "androidx.core:core-splashscreen:1.0.0"
+        libs.androidx.work.ktx,
+        libs.androidx.splash,
+        libs.androidx.startup,
+        libs.hilt.ext.work
     ).forEach {
         implementation(it)
     }
+
+    ksp(libs.hilt.compiler)
 }

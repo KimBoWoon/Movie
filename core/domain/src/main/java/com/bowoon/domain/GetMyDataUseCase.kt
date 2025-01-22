@@ -8,5 +8,5 @@ import javax.inject.Inject
 class GetMyDataUseCase @Inject constructor(
     private val myDataRepository: MyDataRepository
 ) {
-    operator fun invoke(): Flow<MyData> = myDataRepository.myData
+    operator fun invoke(): Flow<MyData?> = myDataRepository.myData
 }

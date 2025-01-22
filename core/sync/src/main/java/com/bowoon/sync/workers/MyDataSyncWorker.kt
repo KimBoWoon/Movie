@@ -8,7 +8,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkerParameters
 import com.bowoon.common.Dispatcher
 import com.bowoon.common.Dispatchers
-import com.bowoon.data.repository.MyDataRepositoryImpl
+import com.bowoon.data.repository.MyDataRepository
 import com.bowoon.sync.initializers.syncForegroundInfo
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -16,16 +16,18 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.withContext
+import java.util.UUID
 
 @HiltWorker
 class MyDataSyncWorker @AssistedInject constructor(
     @Assisted private val appContext: Context,
     @Assisted private val workerParams: WorkerParameters,
     @Dispatcher(Dispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
-    private val myDataRepository: MyDataRepositoryImpl
+    private val myDataRepository: MyDataRepository
 ) : CoroutineWorker(appContext, workerParams) {
     companion object {
         const val WORKER_NAME = "MyDataSyncWorker"
+        lateinit var workerId: UUID
 
         fun startUpSyncWork() =
             OneTimeWorkRequestBuilder<DelegatingWorker>()
@@ -38,7 +40,9 @@ class MyDataSyncWorker @AssistedInject constructor(
 //                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
 //                .setConstraints(SyncConstraints)
                 .setInputData(MyDataSyncWorker::class.delegatedData())
-                .build()
+                .build().also {
+                    workerId = it.id
+                }
     }
 
     override suspend fun getForegroundInfo(): ForegroundInfo =
@@ -50,11 +54,8 @@ class MyDataSyncWorker @AssistedInject constructor(
         ).all { it }
             .let {
                 when (it) {
-                    true -> Result.Success()
-                    false -> {
-                        Result.failure()
-//                        if (runAttemptCount > 5) Result.Failure() else Result.Retry()
-                    }
+                    true -> Result.success()
+                    false -> Result.failure()
                 }
             }
     }

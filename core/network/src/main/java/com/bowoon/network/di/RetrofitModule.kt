@@ -15,23 +15,8 @@ import retrofit2.Retrofit
 @InstallIn(SingletonComponent::class)
 object RetrofitModule {
     @Provides
-    @KOBISRetrofit
-    fun provideKobisRetrofit(
-        @OtherOkHttp client: OkHttpClient,
-        customCallAdapter: CustomCallAdapter,
-        serialization: Json,
-        jsonMediaType: MediaType
-    ): Retrofit = Retrofit.Builder()
-        .baseUrl("https://www.kobis.or.kr/")
-        .addCallAdapterFactory(customCallAdapter)
-        .addConverterFactory(serialization.asConverterFactory(jsonMediaType))
-        .client(client)
-        .build()
-
-    @Provides
-    @TMDBRetrofit
     fun provideTmdbRetrofit(
-        @TMDBOkHttp client: OkHttpClient,
+        client: OkHttpClient,
         customCallAdapter: CustomCallAdapter,
         serialization: Json,
         jsonMediaType: MediaType

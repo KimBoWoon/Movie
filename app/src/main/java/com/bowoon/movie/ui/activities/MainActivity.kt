@@ -13,14 +13,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.bowoon.common.Log
 import com.bowoon.data.util.NetworkMonitor
 import com.bowoon.data.util.SyncManager
 import com.bowoon.movie.rememberMovieAppState
 import com.bowoon.movie.ui.MovieMainScreen
-import com.bowoon.ui.ConfirmDialog
 import com.bowoon.ui.theme.MovieTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -39,7 +37,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        splashScreen.setKeepOnScreenCondition { viewModel.initDataLoad.value !is InitDataState.Success }
+        splashScreen.setKeepOnScreenCondition { viewModel.initDataLoad.value is InitDataState.Success }
 
         setContent {
             MovieTheme {
@@ -59,26 +57,8 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-                val initialize = viewModel.initDataLoad.collectAsStateWithLifecycle()
                 val appState = rememberMovieAppState(networkMonitor = networkMonitor)
                 val snackbarHostState = remember { SnackbarHostState() }
-
-                when (initialize.value) {
-                    is InitDataState.Load -> Log.d("my data initialize...")
-                    is InitDataState.Success -> Log.d("my data initialize success")
-                    is InitDataState.Error -> {
-                        Log.d("my data initialize error")
-                        ConfirmDialog(
-                            title = "초기 데이터 셋팅 실패",
-                            message = "데이터를 정상적으로 가져오지 못했기 때문에 앱을 사용할 수 없습니다.",
-                            confirmPair = "재시도" to {
-                                viewModel.initDataLoad.value = InitDataState.Load
-                                syncManager.initialize()
-                            },
-                            dismissPair = "앱종료" to { finish() }
-                        )
-                    }
-                }
 
                 MovieMainScreen(
                     appState = appState,

@@ -1,6 +1,7 @@
 package com.bowoon.ui
 
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -17,6 +18,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ModalBottomSheetDialog(
+    modifier: Modifier,
     state: SheetState,
     scope: CoroutineScope,
     index: Int,
@@ -36,10 +38,13 @@ fun ModalBottomSheetDialog(
         val pagerState = rememberPagerState(initialPage = index) { imageList.size }
 
         HorizontalPager(
+            modifier = modifier,
             state = pagerState
         ) {
             DynamicAsyncImageLoader(
-                modifier = Modifier.fillMaxWidth().aspectRatio(imageList[it].aspectRatio?.toFloat() ?: 1f),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(imageList[it].aspectRatio?.toFloat() ?: 1f),
                 source = imageList[it].filePath ?: "",
                 contentDescription = "PosterView"
             )

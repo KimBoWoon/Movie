@@ -1,19 +1,20 @@
 package com.bowoon.data.repository
 
 import androidx.paging.PagingData
-import com.bowoon.model.UpComingResult
 import com.bowoon.model.SearchItem
+import com.bowoon.model.UpComingResult
 import com.bowoon.model.tmdb.TMDBCombineCredits
 import com.bowoon.model.tmdb.TMDBExternalIds
 import com.bowoon.model.tmdb.TMDBMovieDetail
+import com.bowoon.model.tmdb.TMDBNowPlayingResult
 import com.bowoon.model.tmdb.TMDBPeopleDetail
 import com.bowoon.model.tmdb.TMDBSearch
 import kotlinx.coroutines.flow.Flow
 
 interface TMDBRepository {
     suspend fun searchMovies(type: String, query: String): Flow<PagingData<SearchItem>>
-    fun getUpcomingMovies(): Flow<List<UpComingResult>>
-    suspend fun getUpcomingMoviesTemp(): List<UpComingResult>
+    suspend fun getNowPlaying(): List<TMDBNowPlayingResult>
+    suspend fun getUpcomingMovies(): List<UpComingResult>
     fun getMovieDetail(id: Int): Flow<TMDBMovieDetail>
     fun discoverMovie(
         releaseDateGte: String,

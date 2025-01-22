@@ -48,8 +48,8 @@ class MainMenuSyncWorker @AssistedInject constructor(
         ).all { it }
             .let {
                 when (it) {
-                    true -> Result.Success()
-                    false -> Result.Retry()
+                    true -> Result.success()
+                    false -> if (runAttemptCount > 5) Result.failure() else Result.retry()
                 }
             }
     }

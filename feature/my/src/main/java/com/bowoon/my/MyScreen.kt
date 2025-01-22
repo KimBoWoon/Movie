@@ -36,7 +36,7 @@ import com.bowoon.ui.dp16
 fun MyScreen(
     viewModel: MyVM = hiltViewModel()
 ) {
-    val myState by viewModel.myData.collectAsStateWithLifecycle()
+    val myState by viewModel.myData.collectAsStateWithLifecycle(MyDataState.Loading)
 
     MyScreen(
         state = myState,
@@ -64,6 +64,7 @@ fun MyScreen(
         is MyDataState.Success -> {
             Log.d("${state.myData}")
             myData = state.myData
+            checked = state.myData?.isAdult ?: true
         }
         is MyDataState.Error -> Log.e(state.throwable.message ?: "something wrong...")
     }
@@ -146,7 +147,7 @@ fun ExposedDropdownLanguageMenu(
         TextField(
             modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
             readOnly = true,
-            value = "${selectedItem?.iso6391} (${selectedItem?.name ?: selectedItem?.englishName})",
+            value = "${selectedItem?.iso6391} (${selectedItem?.englishName})",
             onValueChange = {},
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) }
         )
@@ -159,7 +160,7 @@ fun ExposedDropdownLanguageMenu(
                 DropdownMenuItem(
                     text = {
                         Text(
-                            text = "${it.iso6391} (${it.name ?: it.englishName})",
+                            text = "${it.iso6391} (${it.englishName})",
                             maxLines = 1
                         )
                     },

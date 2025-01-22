@@ -2,8 +2,6 @@ package com.bowoon.data.di
 
 import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.data.repository.DatabaseRepositoryImpl
-import com.bowoon.data.repository.KOBISRepository
-import com.bowoon.data.repository.KOBISRepositoryImpl
 import com.bowoon.data.repository.MainMenuRepository
 import com.bowoon.data.repository.MainMenuRepositoryImpl
 import com.bowoon.data.repository.MyDataRepository
@@ -21,11 +19,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class DataModules {
-    @Binds
-    abstract fun bindKobisRepository(
-        repository: KOBISRepositoryImpl
-    ): KOBISRepository
-
     @Binds
     abstract fun bindUserRepository(
         repository: UserDataRepositoryImpl

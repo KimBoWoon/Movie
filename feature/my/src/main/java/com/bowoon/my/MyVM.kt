@@ -37,7 +37,7 @@ class MyVM @Inject constructor(
         }.stateIn(
             scope = viewModelScope,
             initialValue = MyDataState.Loading,
-            started = SharingStarted.WhileSubscribed(5_000)
+            started = SharingStarted.Eagerly
         )
 
     fun updateLanguage(language: TMDBLanguageItem) {

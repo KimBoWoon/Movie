@@ -24,6 +24,7 @@ class InternalDataSource @Inject constructor(
     companion object {
         private const val TAG = "datastore"
 
+        private val SECURE_BASE_URL = stringPreferencesKey("secureBaseUrl")
         private val IS_ADULT = booleanPreferencesKey("isAdult")
         private val UPDATE_DATE = stringPreferencesKey("updateDate")
         private val MAIN_MENU = stringPreferencesKey("mainMenu")
@@ -35,6 +36,7 @@ class InternalDataSource @Inject constructor(
 
     val userData = datastore.data.map {
         UserData(
+            secureBaseUrl = it[SECURE_BASE_URL] ?: "",
             isAdult = it[IS_ADULT] ?: true,
             isDarkMode = it[IS_DART_MODE]?.let { jsonString ->
                 json.decodeFromString<DarkThemeConfig>(jsonString)
@@ -47,6 +49,12 @@ class InternalDataSource @Inject constructor(
             language = it[LANGUAGE] ?: "ko",
             imageQuality = it[IMAGE_QUALITY] ?: "original"
         )
+    }
+
+    suspend fun updateSecureBaseUrl(secureBaseUrl: String) {
+        datastore.edit {
+            it[SECURE_BASE_URL] = secureBaseUrl
+        }
     }
 
     suspend fun updateIsAdult(isAdult: Boolean) {

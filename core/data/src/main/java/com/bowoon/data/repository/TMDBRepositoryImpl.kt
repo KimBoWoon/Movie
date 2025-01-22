@@ -10,6 +10,7 @@ import com.bowoon.model.UpComingResult
 import com.bowoon.model.tmdb.TMDBCombineCredits
 import com.bowoon.model.tmdb.TMDBExternalIds
 import com.bowoon.model.tmdb.TMDBMovieDetail
+import com.bowoon.model.tmdb.TMDBNowPlayingResult
 import com.bowoon.model.tmdb.TMDBPeopleDetail
 import com.bowoon.model.tmdb.TMDBSearch
 import com.bowoon.network.ApiResponse
@@ -50,22 +51,22 @@ class TMDBRepositoryImpl @Inject constructor(
         ).flow
     }
 
-    override fun getUpcomingMovies(): Flow<List<UpComingResult>> = flow {
-        val result = mutableListOf<UpComingResult>()
+    override suspend fun getNowPlaying(): List<TMDBNowPlayingResult> {
+        val result = mutableListOf<TMDBNowPlayingResult>()
         var page = 1
         var totalPage = 1
         val language = "${datastore.getLanguage()}-${datastore.getRegion()}"
         val region = datastore.getRegion()
 
         do {
-            when (val response = apis.tmdbApis.getUpcomingMovie(language = language, region = region, page = page)) {
+            when (val response = apis.tmdbApis.getNowPlaying(language = language, region = region, page = page)) {
                 is ApiResponse.Failure -> throw response.throwable
                 is ApiResponse.Success -> {
                     page = ((response.data.page ?: 1) + 1)
                     totalPage = response.data.totalPages ?: Int.MAX_VALUE
                     result.addAll(
                         response.data.asExternalModel().results?.map {
-                            UpComingResult(
+                            TMDBNowPlayingResult(
                                 adult = it.adult,
                                 backdropPath = it.backdropPath,
                                 genreIds = it.genreIds,
@@ -87,10 +88,10 @@ class TMDBRepositoryImpl @Inject constructor(
             }
         } while (page <= totalPage && page < 5)
 
-        emit(result.filter { (it.releaseDate ?: "") > LocalDate.now().toString() }.distinctBy { it.id }.sortedBy { it.releaseDate })
+        return result.distinctBy { it.id }.sortedBy { it.releaseDate }
     }
 
-    override suspend fun getUpcomingMoviesTemp(): List<UpComingResult> {
+    override suspend fun getUpcomingMovies(): List<UpComingResult> {
         val result = mutableListOf<UpComingResult>()
         var page = 1
         var totalPage = 1

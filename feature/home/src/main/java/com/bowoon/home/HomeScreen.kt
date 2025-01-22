@@ -1,6 +1,5 @@
 package com.bowoon.home
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,7 +8,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
@@ -19,7 +17,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,8 +28,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
@@ -42,13 +37,10 @@ import com.bowoon.common.Log
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.model.MainMenu
 import com.bowoon.model.MainMovie
-import com.bowoon.ui.BoxOfficeRank
 import com.bowoon.ui.Calendar
 import com.bowoon.ui.Title
-import com.bowoon.ui.dp10
 import com.bowoon.ui.dp15
 import com.bowoon.ui.dp150
-import com.bowoon.ui.dp25
 import com.bowoon.ui.image.DynamicAsyncImageLoader
 import com.bowoon.ui.sp10
 import com.bowoon.ui.sp8
@@ -89,7 +81,7 @@ fun HomeScreen(
     if (isSyncing) {
         LaunchedEffect("updateData") {
             scope.launch {
-                onShowSnackbar("데이터를 업데이트 하고 있습니다.", null)
+                onShowSnackbar("데이터를 확인하고 있습니다.", null)
             }
         }
     }
@@ -113,8 +105,8 @@ fun HomeScreen(
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
             ) {
-                dailyBoxOfficeComponent(
-                    boxOffice = mainMenu.dailyBoxOffice,
+                nowPlayingComponent(
+                    boxOffice = mainMenu.nowPlaying,
                     onMovieClick = onMovieClick
                 )
                 upcomingComponent(
@@ -135,13 +127,13 @@ fun HomeScreen(
     }
 }
 
-fun LazyListScope.dailyBoxOfficeComponent(
+fun LazyListScope.nowPlayingComponent(
     boxOffice: List<MainMovie>,
     onMovieClick: (Int) -> Unit
 ) {
     item {
         if (boxOffice.isNotEmpty()) {
-            Text(text = "일별 박스오피스")
+            Text(text = "상영중인 영화")
             LazyRow(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -155,7 +147,6 @@ fun LazyListScope.dailyBoxOfficeComponent(
                 ) { boxOffice ->
                     MainMovieItem(
                         movie = boxOffice,
-                        isVisibleRank = true,
                         onMovieClick = onMovieClick
                     )
                 }
@@ -184,7 +175,6 @@ fun LazyListScope.upcomingComponent(
                 ) { index ->
                     MainMovieItem(
                         movie = upcoming[index],
-                        isVisibleRank = false,
                         onMovieClick = onMovieClick
                     )
                 }
@@ -220,7 +210,6 @@ fun LazyListScope.calendarComponent(
 @Composable
 fun MainMovieItem(
     movie: MainMovie,
-    isVisibleRank: Boolean,
     onMovieClick: (Int) -> Unit
 ) {
     Column(
@@ -239,16 +228,6 @@ fun MainMovieItem(
                 source = movie.posterPath ?: "",
                 contentDescription = "BoxOfficePoster"
             )
-            if (isVisibleRank) {
-                BoxOfficeRank(
-                    modifier = Modifier
-                        .size(dp25)
-                        .clip(RoundedCornerShape(topStart = dp10, bottomEnd = dp10))
-                        .background(if ((movie.rank?.toInt() ?: 0) < 4) Color.Red else Color.Gray)
-                        .align(Alignment.TopStart),
-                    rank = movie.rank?.toInt() ?: 0
-                )
-            }
         }
         Text(
             text = movie.title ?: "",
