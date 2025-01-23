@@ -9,6 +9,9 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    env:
+      LOCAL_PROPERTIES_CONTENTS: ${{ secrets.LOCAL_PROPERTIES }}
+
     steps:
       - uses: actions/checkout@v1
       - name: set up JDK 17
