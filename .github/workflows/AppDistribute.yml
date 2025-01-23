@@ -12,7 +12,6 @@ jobs:
     env:
       LOCAL_PROPERTIES: ${{ secrets.LOCAL_PROPERTIES }}
       KEY_STORE_ENCRYPT: ${{ secrets.KEY_STORE_ENCRYPT }}
-      STORE_FILE_PATH: ${{ secrets.STORE_FILE_PATH }}
 
     steps:
       - uses: actions/checkout@v1
