@@ -1,6 +1,5 @@
 package com.bowoon.ui
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -29,7 +28,7 @@ fun RowScope.BottomNavigationBarItem(
     Column(
         modifier = Modifier
             .weight(1f)
-            .clickable(onClick = onClick),
+            .bounceClick(onClick = onClick),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -67,7 +66,7 @@ fun ColumnScope.BottomNavigationRailItem(
     Column(
         modifier = Modifier
             .weight(1f)
-            .clickable(onClick = onClick),
+            .bounceClick(onClick = onClick),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Icon(

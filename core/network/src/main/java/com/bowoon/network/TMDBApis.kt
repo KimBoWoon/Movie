@@ -6,6 +6,7 @@ import com.bowoon.network.model.NetworkTMDBConfiguration
 import com.bowoon.network.model.NetworkTMDBExternalIds
 import com.bowoon.network.model.NetworkTMDBLanguageItem
 import com.bowoon.network.model.NetworkTMDBMovieDetail
+import com.bowoon.network.model.NetworkTMDBMovieDetailSimilar
 import com.bowoon.network.model.NetworkTMDBMovieGenres
 import com.bowoon.network.model.NetworkTMDBNowPlaying
 import com.bowoon.network.model.NetworkTMDBPeopleDetail
@@ -42,8 +43,7 @@ interface TMDBApis {
     suspend fun getUpcomingMovie(
         @Query("language") language: String = "ko-KR",
         @Query("region") region: String = "KR",
-        @Query("page") page: Int = 1,
-        @Query("sort_by") sortBy: String = "release_date.asc"
+        @Query("page") page: Int = 1
     ): ApiResponse<NetworkTMDBUpcoming>
 
     @GET("/3/search/movie")
@@ -72,6 +72,13 @@ interface TMDBApis {
         @Query("include_image_language") includeImageLanguage: String = "ko",
         @Query("region") region: String = "KR"
     ): ApiResponse<NetworkTMDBMovieDetail>
+
+    @GET("/3/movie/{movie_id}/similar")
+    suspend fun getSimilarMovies(
+        @Path("movie_id") id: Int,
+        @Query("language") language: String = "ko-KR",
+        @Query("page") page: Int = 1,
+    ): ApiResponse<NetworkTMDBMovieDetailSimilar>
 
     @GET("/3/discover/movie")
     suspend fun discoverMovie(

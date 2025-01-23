@@ -1,5 +1,6 @@
 package com.bowoon.data.repository
 
+import com.bowoon.common.di.ApplicationScope
 import com.bowoon.data.util.suspendRunCatching
 import com.bowoon.datastore.InternalDataSource
 import com.bowoon.model.MyData
@@ -15,24 +16,24 @@ import com.bowoon.model.tmdb.TMDBRegionResult
 import com.bowoon.network.ApiResponse
 import com.bowoon.network.model.asExternalModel
 import com.bowoon.network.retrofit.Apis
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class MyDataRepositoryImpl @Inject constructor(
     private val apis: Apis,
-    private val datastore: InternalDataSource
+    private val datastore: InternalDataSource,
+    @ApplicationScope scope: CoroutineScope
 ) : MyDataRepository {
-    override val myData: MutableStateFlow<MyData?> = MutableStateFlow<MyData?>(null)
-    override val posterUrl: Flow<String> = datastore.userData.map { "${it.secureBaseUrl}${it.imageQuality}" }
-
-    override fun combineMyData(): Flow<MyData> = combine(
+    override val myData: Flow<MyData?> = combine(
         datastore.userData,
         requestMyData()
     ) { userdata, requestData ->
@@ -66,7 +67,12 @@ class MyDataRepositoryImpl @Inject constructor(
             },
             posterSize = requestData.posterSize
         )
-    }
+    }.stateIn(
+        scope = scope,
+        started = SharingStarted.Eagerly,
+        initialValue = null
+    )
+    override val posterUrl: Flow<String> = datastore.userData.map { "${it.secureBaseUrl}${it.imageQuality}" }
 
     private fun requestMyData(): Flow<RequestMyData> = combine(
         getConfiguration(),
@@ -93,10 +99,7 @@ class MyDataRepositoryImpl @Inject constructor(
     }
 
     override suspend fun syncWith(): Boolean = suspendRunCatching {
-//        combineMyData().collect {
-//            myData.emit(it)
-//        }
-        myData.emit(combineMyData().first())
+        myData.first()
     }.isSuccess
 
     override fun getConfiguration(): Flow<TMDBConfiguration> = flow {

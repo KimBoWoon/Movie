@@ -48,6 +48,7 @@ class MainActivity : ComponentActivity() {
                             onSuccess = {
                                 Log.d("성공")
                                 viewModel.initDataLoad.emit(InitDataState.Success)
+                                syncManager.syncMain()
                             },
                             onFailure = {
                                 Log.d("실패")

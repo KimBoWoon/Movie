@@ -1,6 +1,5 @@
 package com.bowoon.search
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,6 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -29,6 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,16 +44,19 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.bowoon.common.Log
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
+import com.bowoon.model.PagingStatus
 import com.bowoon.model.SearchItem
 import com.bowoon.model.SearchType
 import com.bowoon.ui.ConfirmDialog
 import com.bowoon.ui.Title
+import com.bowoon.ui.bounceClick
 import com.bowoon.ui.dp10
 import com.bowoon.ui.dp100
 import com.bowoon.ui.dp16
 import com.bowoon.ui.dp5
 import com.bowoon.ui.image.DynamicAsyncImageLoader
 import com.bowoon.ui.sp30
+import kotlinx.coroutines.launch
 
 @Composable
 fun SearchScreen(
@@ -79,11 +83,14 @@ fun SearchScreen(
     onSearchClick: (String) -> Unit,
     viewModel: SearchVM = hiltViewModel()
 ) {
+    val scope = rememberCoroutineScope()
+    val scrollState = rememberLazyGridState()
     val focusManager = LocalFocusManager.current
     val keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search, keyboardType = KeyboardType.Text)
     val keyboardActions = KeyboardActions(
         onDone = { focusManager.clearFocus() },
         onSearch = {
+            scope.launch { scrollState.scrollToItem(0) }
             onSearchClick(viewModel.keyword.text)
             focusManager.clearFocus()
         }
@@ -158,6 +165,7 @@ fun SearchScreen(
                 Button(
                     modifier = Modifier.padding(end = dp16),
                     onClick = {
+                        scope.launch { scrollState.scrollToItem(0) }
                         onSearchClick(viewModel.keyword.text)
                         focusManager.clearFocus()
                     }
@@ -176,6 +184,7 @@ fun SearchScreen(
             } else {
                 LazyVerticalGrid(
                     modifier = Modifier.fillMaxSize(),
+                    state = scrollState,
                     columns = GridCells.Adaptive(dp100),
                     contentPadding = PaddingValues(dp10),
                     horizontalArrangement = Arrangement.spacedBy(dp10),
@@ -186,7 +195,7 @@ fun SearchScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .aspectRatio(POSTER_IMAGE_RATIO)
-                                .clickable {
+                                .bounceClick {
                                     when (viewModel.searchType) {
                                         SearchType.MOVIE.ordinal -> onMovieClick(state[index]?.tmdbId ?: -1)
                                         SearchType.PEOPLE.ordinal -> onPeopleClick(state[index]?.tmdbId ?: -1)
@@ -259,8 +268,4 @@ fun ExposedDropdownSearchTypeMenu(
             }
         }
     }
-}
-
-enum class PagingStatus {
-    NONE, LOADING, EMPTY, NOT_EMPTY
 }

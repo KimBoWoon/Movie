@@ -23,6 +23,15 @@ internal class WorkManagerSyncManager @Inject constructor(
             .map(List<WorkInfo>::anyRunning)
             .conflate()
 
+    override fun syncMain() {
+        WorkManager.getInstance(context)
+            .enqueueUniqueWork(
+                MainMenuSyncWorker.WORKER_NAME,
+                ExistingWorkPolicy.KEEP,
+                MainMenuSyncWorker.startUpSyncWork(false)
+            )
+    }
+
     override fun initialize() {
         WorkManager.getInstance(context)
             .enqueueUniqueWork(

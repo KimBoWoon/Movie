@@ -4,14 +4,19 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.bowoon.common.Result
 import com.bowoon.common.asResult
 import com.bowoon.common.restartableStateIn
 import com.bowoon.data.repository.DatabaseRepository
+import com.bowoon.data.repository.TMDBRepository
 import com.bowoon.detail.navigation.DetailRoute
 import com.bowoon.domain.GetMovieDetail
 import com.bowoon.model.MovieDetail
+import com.bowoon.model.SearchItem
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -21,7 +26,8 @@ import javax.inject.Inject
 class DetailVM @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val getMovieDetail: GetMovieDetail,
-    private val databaseRepository: DatabaseRepository
+    private val databaseRepository: DatabaseRepository,
+    private val tmdbRepository: TMDBRepository
 ) : ViewModel() {
     companion object {
         private const val TAG = "DetailVM"
@@ -41,6 +47,17 @@ class DetailVM @Inject constructor(
             initialValue = MovieDetailState.Loading,
             started = SharingStarted.WhileSubscribed(5_000)
         )
+    val similarMovies = MutableStateFlow<PagingData<SearchItem>>(PagingData.empty())
+
+    fun getSimilarMovies() {
+        viewModelScope.launch {
+            tmdbRepository.getSimilarMovies(id)
+                .cachedIn(viewModelScope)
+                .collect {
+                    similarMovies.value = it
+                }
+        }
+    }
 
     fun updateFavoriteMovies(movie: MovieDetail) {
         viewModelScope.launch {

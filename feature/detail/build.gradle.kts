@@ -21,7 +21,8 @@ dependencies {
         libs.androidx.compose.hilt.navigation,
         libs.androidx.media3.exoplayer,
         libs.androidx.media3.ui,
-        libs.youtube.player
+        libs.youtube.player,
+        libs.androidx.compose.paging
     ).forEach {
         implementation(it)
     }

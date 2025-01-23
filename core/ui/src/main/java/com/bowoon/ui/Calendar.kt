@@ -2,7 +2,6 @@ package com.bowoon.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -86,7 +85,8 @@ fun Calendar(
                             .height(dp30)
                             .weight(1f)
                             .background(color = Color.Yellow)
-                            .clickable { releaseDate = today
+                            .bounceClick {
+                                releaseDate = today
                                 .withDayOfMonth(day)
                                 .toString()
                             },
@@ -100,9 +100,10 @@ fun Calendar(
                             .height(dp30)
                             .weight(1f)
                             .background(color = Color.Transparent)
-                            .clickable { releaseDate = today
-                                .withDayOfMonth(day)
-                                .toString()
+                            .bounceClick {
+                                releaseDate = today
+                                    .withDayOfMonth(day)
+                                    .toString()
                             },
                         text = "$day",
                         textAlign = TextAlign.Center

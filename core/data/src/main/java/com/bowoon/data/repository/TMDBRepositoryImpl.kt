@@ -4,6 +4,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.bowoon.data.paging.TMDBSearchPagingSource
+import com.bowoon.data.paging.TMDBSimilarMoviePagingSource
 import com.bowoon.datastore.InternalDataSource
 import com.bowoon.model.SearchItem
 import com.bowoon.model.UpComingResult
@@ -139,6 +140,24 @@ class TMDBRepositoryImpl @Inject constructor(
             is ApiResponse.Failure -> throw response.throwable
             is ApiResponse.Success -> emit(response.data.asExternalModel())
         }
+    }
+
+    override suspend fun getSimilarMovies(id: Int): Flow<PagingData<SearchItem>> {
+        val language = datastore.getLanguage()
+        val region = datastore.getRegion()
+
+        return Pager(
+            config = PagingConfig(pageSize = 20, initialLoadSize = 20, prefetchDistance = 5),
+            pagingSourceFactory = {
+                TMDBSimilarMoviePagingSource(
+                    apis = apis,
+                    id = id,
+                    language = language,
+                    region = region,
+                    posterUrl = myDataRepository.posterUrl
+                )
+            }
+        ).flow
     }
 
     override fun discoverMovie(

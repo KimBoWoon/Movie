@@ -2,7 +2,6 @@ package com.bowoon.people
 
 import androidx.compose.animation.core.FloatExponentialDecaySpec
 import androidx.compose.animation.core.animateDecay
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -56,6 +55,7 @@ import com.bowoon.model.PeopleDetailTab
 import com.bowoon.model.RelatedMovie
 import com.bowoon.ui.ConfirmDialog
 import com.bowoon.ui.Title
+import com.bowoon.ui.bounceClick
 import com.bowoon.ui.collaps.CollapsingToolbar
 import com.bowoon.ui.collaps.FixedScrollFlagState
 import com.bowoon.ui.collaps.rememberToolbarState
@@ -412,7 +412,7 @@ fun RelatedMovieComponent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(POSTER_IMAGE_RATIO)
-                    .clickable { onMovieClick(movie.id ?: -1) },
+                    .bounceClick { onMovieClick(movie.id ?: -1) },
                 source = movie.posterPath ?: "",
                 contentDescription = "SearchPoster"
             )

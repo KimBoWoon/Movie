@@ -7,12 +7,10 @@ import com.bowoon.model.tmdb.TMDBLanguageItem
 import com.bowoon.model.tmdb.TMDBMovieGenres
 import com.bowoon.model.tmdb.TMDBRegion
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 
 interface MyDataRepository {
-    val myData: MutableStateFlow<MyData?>
+    val myData: Flow<MyData?>
     val posterUrl: Flow<String>
-    fun combineMyData(): Flow<MyData>
     suspend fun syncWith(): Boolean
 
     fun getConfiguration(): Flow<TMDBConfiguration>

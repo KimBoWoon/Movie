@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.Flow
 interface SyncManager {
     val isSyncing: Flow<Boolean>
     fun initialize()
+    fun syncMain()
     fun requestSync()
     suspend fun checkWork(
         context: Context,

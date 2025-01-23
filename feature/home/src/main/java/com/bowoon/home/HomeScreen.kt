@@ -1,6 +1,5 @@
 package com.bowoon.home
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,6 +38,7 @@ import com.bowoon.model.MainMenu
 import com.bowoon.model.MainMovie
 import com.bowoon.ui.Calendar
 import com.bowoon.ui.Title
+import com.bowoon.ui.bounceClick
 import com.bowoon.ui.dp15
 import com.bowoon.ui.dp150
 import com.bowoon.ui.image.DynamicAsyncImageLoader
@@ -216,7 +216,7 @@ fun MainMovieItem(
         modifier = Modifier
             .width(dp150)
             .wrapContentHeight()
-            .clickable { onMovieClick(movie.id ?: -1) }
+            .bounceClick { onMovieClick(movie.id ?: -1) }
     ) {
         Box(
             modifier = Modifier.wrapContentSize()

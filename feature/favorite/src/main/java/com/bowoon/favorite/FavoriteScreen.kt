@@ -1,6 +1,5 @@
 package com.bowoon.favorite
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -43,6 +42,7 @@ import com.bowoon.model.MovieDetail
 import com.bowoon.model.PeopleDetail
 import com.bowoon.ui.FavoriteButton
 import com.bowoon.ui.Title
+import com.bowoon.ui.bounceClick
 import com.bowoon.ui.dp10
 import com.bowoon.ui.dp100
 import com.bowoon.ui.dp120
@@ -189,7 +189,7 @@ fun FavoriteMovieList(
             items = favoriteMovies
         ) { movieDetail ->
             Box(
-                modifier = Modifier.clickable { onMovieClick(movieDetail.id ?: -1) }
+                modifier = Modifier.bounceClick { onMovieClick(movieDetail.id ?: -1) }
             ) {
                 DynamicAsyncImageLoader(
                     modifier = Modifier
@@ -238,7 +238,7 @@ fun FavoritePeopleList(
             Column(
                 modifier = Modifier
                     .wrapContentSize()
-                    .clickable { onPeopleClick(people.id ?: -1) }
+                    .bounceClick { onPeopleClick(people.id ?: -1) }
             ) {
                 Box() {
                     DynamicAsyncImageLoader(

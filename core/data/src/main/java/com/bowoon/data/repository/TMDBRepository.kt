@@ -16,6 +16,7 @@ interface TMDBRepository {
     suspend fun getNowPlaying(): List<TMDBNowPlayingResult>
     suspend fun getUpcomingMovies(): List<UpComingResult>
     fun getMovieDetail(id: Int): Flow<TMDBMovieDetail>
+    suspend fun getSimilarMovies(id: Int): Flow<PagingData<SearchItem>>
     fun discoverMovie(
         releaseDateGte: String,
         releaseDateLte: String
