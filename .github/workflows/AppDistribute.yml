@@ -11,6 +11,7 @@ jobs:
 
     env:
       LOCAL_PROPERTIES: ${{ secrets.LOCAL_PROPERTIES }}
+      KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
 
     steps:
       - uses: actions/checkout@v1
@@ -23,10 +24,10 @@ jobs:
         shell: bash
       - name: Decode And Save Keystore Base64
         run: |
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > app/bowoon.jks
+          echo "KEYSTORE_BASE64=$KEYSTORE_BASE64" | base64 --decode > app/sign/bowoon.jks
       - name: Create local.properties
         run: |
-          echo "LOCAL_PROPERTIES" > local.properties
+          echo "LOCAL_PROPERTIES=$LOCAL_PROPERTIES" > local.properties
           echo "store_file_path=bowoon.jks" >> local.properties
       - name: build release
         run: ./gradlew bundleDebug
