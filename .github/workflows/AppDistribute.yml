@@ -24,8 +24,6 @@ jobs:
         shell: bash
       - name: Create sign folder
         run: mkdir -p app/sign
-      - name: Check build-logic
-        run: ./gradlew --stacktrace :build-logic:convention:check
       - name: Decode And Save Keystore Base64
         run: |
           echo "KEY_STORE_ENCRYPT=$KEY_STORE_ENCRYPT" | base64 -i --decode > app/sign/bowoon.jks
@@ -33,6 +31,8 @@ jobs:
         run: |
           echo "LOCAL_PROPERTIES=$LOCAL_PROPERTIES" > app/sign/local.properties
           # echo "store_file_path=bowoon.jks" >> local.properties
+      - name: Check build-logic
+        run: ./gradlew --stacktrace :build-logic:convention:check
       - name: build release
         run: ./gradlew bundleDebug
       - name: upload artifact to Firebase App Distribution
