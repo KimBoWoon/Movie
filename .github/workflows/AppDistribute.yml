@@ -26,7 +26,7 @@ jobs:
         run: mkdir -p app/sign
       - name: Decode And Save Keystore Base64
         run: |
-          echo "KEY_STORE_ENCRYPT=$KEY_STORE_ENCRYPT" | base64 --decode > app/sign/bowoon.jks
+          echo "KEY_STORE_ENCRYPT=$KEY_STORE_ENCRYPT" | base64 -i --decode > app/sign/bowoon.jks
       - name: Create local.properties
         run: |
           echo "LOCAL_PROPERTIES=$LOCAL_PROPERTIES" > app/sign/local.properties
