@@ -61,7 +61,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
 //                        applicationIdSuffix = MovieAppBuildType.DEBUG.applicationIdSuffix
                         isMinifyEnabled = false
                         buildConfigField("Boolean", "IS_DEBUGGING_LOGGING", "true")
-                        signingConfig = signingConfigs.getByName(Config.Application.Movie.Sign.Debug.name)
+//                        signingConfig = signingConfigs.getByName(Config.Application.Movie.Sign.Debug.name)
                     }
                     release {
 //                        applicationIdSuffix = MovieAppBuildType.RELEASE.applicationIdSuffix
@@ -73,7 +73,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                             Config.ApplicationSetting.proguardFile
                         )
                         buildConfigField("Boolean", "IS_DEBUGGING_LOGGING", "false")
-                        signingConfig = signingConfigs.getByName(Config.Application.Movie.Sign.Release.name)
+//                        signingConfig = signingConfigs.getByName(Config.Application.Movie.Sign.Release.name)
                     }
                 }
 
