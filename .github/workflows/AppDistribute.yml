@@ -12,6 +12,7 @@ jobs:
     env:
       LOCAL_PROPERTIES: ${{ secrets.LOCAL_PROPERTIES }}
       KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+      STORE_FILE_PATH: ${{ secrets.STORE_FILE_PATH }}
 
     steps:
       - uses: actions/checkout@v1
@@ -24,6 +25,9 @@ jobs:
         shell: bash
       - name: Create sign folder
         run: mkdir -p app/sign
+      - name: Check STORE_FILE_PATH
+        run: |
+          echo "STORE_FILE_PATH : $STORE_FILE_PATH"
       - name: Decode And Save Keystore Base64
         run: |
           echo "KEYSTORE_BASE64=$KEYSTORE_BASE64" | base64 --decode > app/sign/bowoon.jks
