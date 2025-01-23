@@ -9,7 +9,7 @@ plugins {
 }
 
 android {
-    signingConfigs {
+    /*signingConfigs {
         register(Config.Application.Movie.Sign.Release.name) {
             storeFile = file(getProp(Config.Application.Movie.Sign.Release.storeFile))
             storePassword = getProp(Config.Application.Movie.Sign.Release.storePassword)
@@ -22,13 +22,13 @@ android {
             keyAlias = getProp(Config.Application.Movie.Sign.Debug.keyAlias)
             keyPassword = getProp(Config.Application.Movie.Sign.Debug.keyPassword)
         }
-    }
+    }*/
     buildTypes {
         debug {
 //                        applicationIdSuffix = MovieAppBuildType.DEBUG.applicationIdSuffix
             isMinifyEnabled = false
             buildConfigField("Boolean", "IS_DEBUGGING_LOGGING", "true")
-            signingConfig = signingConfigs.getByName(Config.Application.Movie.Sign.Debug.name)
+            //signingConfig = signingConfigs.getByName(Config.Application.Movie.Sign.Debug.name)
         }
         release {
 //                        applicationIdSuffix = MovieAppBuildType.RELEASE.applicationIdSuffix
@@ -40,7 +40,7 @@ android {
                 Config.ApplicationSetting.proguardFile
             )
             buildConfigField("Boolean", "IS_DEBUGGING_LOGGING", "false")
-            signingConfig = signingConfigs.getByName(Config.Application.Movie.Sign.Release.name)
+            //signingConfig = signingConfigs.getByName(Config.Application.Movie.Sign.Release.name)
         }
     }
 }
