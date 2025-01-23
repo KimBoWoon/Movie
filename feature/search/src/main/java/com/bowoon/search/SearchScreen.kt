@@ -44,8 +44,8 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.bowoon.common.Log
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
+import com.bowoon.model.Movie
 import com.bowoon.model.PagingStatus
-import com.bowoon.model.SearchItem
 import com.bowoon.model.SearchType
 import com.bowoon.ui.ConfirmDialog
 import com.bowoon.ui.Title
@@ -77,7 +77,7 @@ fun SearchScreen(
 
 @Composable
 fun SearchScreen(
-    state: LazyPagingItems<SearchItem>,
+    state: LazyPagingItems<Movie>,
     onMovieClick: (Int) -> Unit,
     onPeopleClick: (Int) -> Unit,
     onSearchClick: (String) -> Unit,
@@ -197,11 +197,11 @@ fun SearchScreen(
                                 .aspectRatio(POSTER_IMAGE_RATIO)
                                 .bounceClick {
                                     when (viewModel.searchType) {
-                                        SearchType.MOVIE.ordinal -> onMovieClick(state[index]?.tmdbId ?: -1)
-                                        SearchType.PEOPLE.ordinal -> onPeopleClick(state[index]?.tmdbId ?: -1)
+                                        SearchType.MOVIE.ordinal -> onMovieClick(state[index]?.id ?: -1)
+                                        SearchType.PEOPLE.ordinal -> onPeopleClick(state[index]?.id ?: -1)
                                     }
                                 },
-                            source = state[index]?.imagePath ?: "",
+                            source = state[index]?.posterPath ?: "",
                             contentDescription = "SearchPoster"
                         )
                     }

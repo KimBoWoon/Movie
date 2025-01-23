@@ -3,7 +3,7 @@ package com.bowoon.data.paging
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.bowoon.common.Log
-import com.bowoon.model.SearchItem
+import com.bowoon.model.Movie
 import com.bowoon.model.tmdb.TMDBMovieDetailSimilarResult
 import com.bowoon.network.ApiResponse
 import com.bowoon.network.model.asExternalModel
@@ -18,8 +18,8 @@ class TMDBSimilarMoviePagingSource @Inject constructor(
     private val language: String,
     private val region: String,
     private val posterUrl: Flow<String>
-) : PagingSource<Int, SearchItem>() {
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, SearchItem> =
+) : PagingSource<Int, Movie>() {
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Movie> =
         runCatching {
             val url = posterUrl.first()
 
@@ -38,7 +38,7 @@ class TMDBSimilarMoviePagingSource @Inject constructor(
             LoadResult.Error(e)
         }
 
-    override fun getRefreshKey(state: PagingState<Int, SearchItem>): Int? =
+    override fun getRefreshKey(state: PagingState<Int, Movie>): Int? =
         state.anchorPosition?.let { anchorPosition ->
             val anchorPage = state.closestPageToPosition(anchorPosition)
             anchorPage?.prevKey ?: anchorPage?.nextKey
@@ -47,12 +47,12 @@ class TMDBSimilarMoviePagingSource @Inject constructor(
     private fun getSearchItem(
         response: List<TMDBMovieDetailSimilarResult>?,
         url: String
-    ): List<SearchItem> =
+    ): List<Movie> =
         response?.map {
-            SearchItem(
-                tmdbId = it.id,
-                searchTitle = it.title,
-                imagePath = "$url${it.posterPath}"
+            Movie(
+                id = it.id,
+                title = it.title,
+                posterPath = "$url${it.posterPath}"
             )
         } ?: emptyList()
 }

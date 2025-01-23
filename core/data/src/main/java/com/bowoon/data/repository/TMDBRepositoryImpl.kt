@@ -6,7 +6,7 @@ import androidx.paging.PagingData
 import com.bowoon.data.paging.TMDBSearchPagingSource
 import com.bowoon.data.paging.TMDBSimilarMoviePagingSource
 import com.bowoon.datastore.InternalDataSource
-import com.bowoon.model.SearchItem
+import com.bowoon.model.Movie
 import com.bowoon.model.UpComingResult
 import com.bowoon.model.tmdb.TMDBCombineCredits
 import com.bowoon.model.tmdb.TMDBExternalIds
@@ -31,7 +31,7 @@ class TMDBRepositoryImpl @Inject constructor(
     override suspend fun searchMovies(
         type: String,
         query: String
-    ): Flow<PagingData<SearchItem>> {
+    ): Flow<PagingData<Movie>> {
         val language = datastore.getLanguage()
         val region = datastore.getRegion()
         val isAdult = datastore.isAdult()
@@ -142,7 +142,7 @@ class TMDBRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getSimilarMovies(id: Int): Flow<PagingData<SearchItem>> {
+    override suspend fun getSimilarMovies(id: Int): Flow<PagingData<Movie>> {
         val language = datastore.getLanguage()
         val region = datastore.getRegion()
 

@@ -35,7 +35,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bowoon.common.Log
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.model.MainMenu
-import com.bowoon.model.MainMovie
+import com.bowoon.model.Movie
 import com.bowoon.ui.Calendar
 import com.bowoon.ui.Title
 import com.bowoon.ui.bounceClick
@@ -128,7 +128,7 @@ fun HomeScreen(
 }
 
 fun LazyListScope.nowPlayingComponent(
-    boxOffice: List<MainMovie>,
+    boxOffice: List<Movie>,
     onMovieClick: (Int) -> Unit
 ) {
     item {
@@ -156,7 +156,7 @@ fun LazyListScope.nowPlayingComponent(
 }
 
 fun LazyListScope.upcomingComponent(
-    upcoming: List<MainMovie>,
+    upcoming: List<Movie>,
     onMovieClick: (Int) -> Unit
 ) {
     item {
@@ -209,7 +209,7 @@ fun LazyListScope.calendarComponent(
 
 @Composable
 fun MainMovieItem(
-    movie: MainMovie,
+    movie: Movie,
     onMovieClick: (Int) -> Unit
 ) {
     Column(

@@ -3,7 +3,7 @@ package com.bowoon.data.repository
 import com.bowoon.data.util.suspendRunCatching
 import com.bowoon.datastore.InternalDataSource
 import com.bowoon.model.MainMenu
-import com.bowoon.model.MainMovie
+import com.bowoon.model.Movie
 import com.bowoon.model.UpComingResult
 import com.bowoon.model.tmdb.TMDBNowPlayingResult
 import kotlinx.coroutines.flow.first
@@ -43,7 +43,7 @@ class MainMenuRepositoryImpl @Inject constructor(
         upComing: List<UpComingResult>
     ): MainMenu = MainMenu(
         nowPlaying = nowPlaying.map { tmdbMovie ->
-            MainMovie(
+            Movie(
                 genreIds = tmdbMovie.genreIds,
                 id = tmdbMovie.id,
                 originalLanguage = tmdbMovie.originalLanguage,
@@ -58,7 +58,7 @@ class MainMenuRepositoryImpl @Inject constructor(
             )
         },
         upcomingMovies = upComing.map { upComingMovie ->
-            MainMovie(
+            Movie(
                 genreIds = upComingMovie.genreIds,
                 id = upComingMovie.id,
                 title = upComingMovie.title,

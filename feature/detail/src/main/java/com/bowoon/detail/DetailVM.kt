@@ -13,8 +13,8 @@ import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.data.repository.TMDBRepository
 import com.bowoon.detail.navigation.DetailRoute
 import com.bowoon.domain.GetMovieDetail
+import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetail
-import com.bowoon.model.SearchItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -47,7 +47,7 @@ class DetailVM @Inject constructor(
             initialValue = MovieDetailState.Loading,
             started = SharingStarted.WhileSubscribed(5_000)
         )
-    val similarMovies = MutableStateFlow<PagingData<SearchItem>>(PagingData.empty())
+    val similarMovies = MutableStateFlow<PagingData<Movie>>(PagingData.empty())
 
     fun getSimilarMovies() {
         viewModelScope.launch {
@@ -56,12 +56,6 @@ class DetailVM @Inject constructor(
                 .collect {
                     similarMovies.value = it
                 }
-        }
-    }
-
-    fun updateFavoriteMovies(movie: MovieDetail) {
-        viewModelScope.launch {
-            databaseRepository.insertMovie(movie)
         }
     }
 

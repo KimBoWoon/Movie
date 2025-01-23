@@ -11,9 +11,9 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.domain.GetSearchListUseCase
+import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetail
 import com.bowoon.model.SearchType
-import com.bowoon.model.SearchItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -34,7 +34,7 @@ class SearchVM @Inject constructor(
         mutableStateOf(TextFieldValue(""))
     }
     var searchType = savedStateHandle.get<Int>("searchType") ?: 0
-    val searchMovieState = MutableStateFlow<PagingData<SearchItem>>(PagingData.empty())
+    val searchMovieState = MutableStateFlow<PagingData<Movie>>(PagingData.empty())
 
     fun update(newKeyword: TextFieldValue) {
         keyword = newKeyword

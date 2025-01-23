@@ -73,10 +73,10 @@ import com.bowoon.common.Log
 import com.bowoon.data.util.PEOPLE_IMAGE_RATIO
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.detail.navigation.navigateToDetail
+import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetail
 import com.bowoon.model.MovieDetailTab
 import com.bowoon.model.PagingStatus
-import com.bowoon.model.SearchItem
 import com.bowoon.model.tmdb.TMBDMovieDetailVideos
 import com.bowoon.model.tmdb.TMDBMovieDetailCast
 import com.bowoon.model.tmdb.TMDBMovieDetailCountry
@@ -135,7 +135,7 @@ fun DetailScreen(
 @Composable
 fun DetailScreen(
     movieInfoState: MovieDetailState,
-    similarMovieState: LazyPagingItems<SearchItem>,
+    similarMovieState: LazyPagingItems<Movie>,
     navController: NavController,
     insertFavoriteMovie: (MovieDetail) -> Unit,
     deleteFavoriteMovie: (MovieDetail) -> Unit,
@@ -217,7 +217,7 @@ fun DetailScreen(
 @Composable
 fun MovieDetailComponent(
     movieDetail: MovieDetail,
-    similarMovieState: LazyPagingItems<SearchItem>,
+    similarMovieState: LazyPagingItems<Movie>,
     onMovieClick: (Int) -> Unit,
     onPeopleClick: (Int) -> Unit,
     favoriteMovies: List<MovieDetail>,
@@ -344,7 +344,7 @@ fun VideosComponent(movie: MovieDetail) {
 @Composable
 fun TabComponent(
     movie: MovieDetail,
-    similarMovieState: LazyPagingItems<SearchItem>,
+    similarMovieState: LazyPagingItems<Movie>,
     onMovieClick: (Int) -> Unit,
     onPeopleClick: (Int) -> Unit,
     favoriteMovies: List<MovieDetail>,
@@ -471,15 +471,45 @@ fun MovieInfoComponent(
 ) {
     val format = DecimalFormat("#,###")
     var overviewMaxLine by remember { mutableIntStateOf(3) }
+    val titles = movie.alternativeTitles?.titles?.fold("") { acc, title -> if (acc.isEmpty()) "${title.title}" else "$acc\n${title.title}" } ?: ""
+    var expanded by remember { mutableStateOf(false) }
+    var currentRotation by remember { mutableFloatStateOf(0f) }
+    val rotation = remember { Animatable(0f) }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize()
     ) {
         item {
+            Row(
+                modifier = Modifier.padding(start = dp16, end = dp5, top = dp10).fillMaxWidth().wrapContentHeight(),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                movie.releaseDate?.let {
+                    Text(
+                        text = it,
+                        fontSize = sp10
+                    )
+                }
+                if (!movie.releaseDate.isNullOrEmpty() && !movie.certification.isNullOrEmpty()) {
+                    Text(
+                        modifier = Modifier.padding(horizontal = dp5),
+                        text = "|",
+                        fontSize = sp10,
+                        color = Color.LightGray
+                    )
+                }
+                movie.certification?.let {
+                    Text(
+                        text = it,
+                        fontSize = sp10
+                    )
+                }
+            }
             movie.title?.let {
                 Text(
                     modifier = Modifier
-                        .padding(top = dp20, start = dp16, end = dp16)
+                        .padding(start = dp16, end = dp16, top = if (!movie.releaseDate.isNullOrEmpty() && !movie.certification.isNullOrEmpty()) dp10 else dp20)
                         .fillMaxWidth()
                         .wrapContentHeight(),
                     text = it,
@@ -503,7 +533,7 @@ fun MovieInfoComponent(
             movie.genres?.let {
                 Text(
                     modifier = Modifier
-                        .padding(horizontal = dp16, vertical = dp10)
+                        .padding(horizontal = dp16)
                         .fillMaxWidth()
                         .wrapContentHeight(),
                     text = it,
@@ -512,10 +542,32 @@ fun MovieInfoComponent(
                 )
             }
 
-            val titles = movie.alternativeTitles?.titles?.fold("") { acc, title -> if (acc.isEmpty()) "${title.title}" else "$acc\n${title.title}" } ?: ""
-            var expanded by remember { mutableStateOf(false) }
-            var currentRotation by remember { mutableFloatStateOf(0f) }
-            val rotation = remember { Animatable(0f) }
+            Row(
+                modifier = Modifier.padding(horizontal = dp16).fillMaxWidth().wrapContentHeight(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                movie.runtime?.let {
+                    Text(
+                        text = "${it}분",
+                        fontSize = sp10,
+                        textAlign = TextAlign.Center
+                    )
+                }
+                Text(
+                    modifier = Modifier.padding(horizontal = dp5),
+                    text = "|",
+                    fontSize = sp10,
+                    color = Color.LightGray
+                )
+                movie.voteAverage?.let {
+                    Text(
+                        text = "별점 $it",
+                        fontSize = sp10,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
 
             if (expanded) {
                 LaunchedEffect(rotation) {
@@ -539,6 +591,21 @@ fun MovieInfoComponent(
                         currentRotation = value
                     }
                 }
+            }
+
+            movie.overview?.let {
+                Text(
+                    modifier = Modifier
+                        .padding(horizontal = dp16)
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .clickable {
+                            overviewMaxLine = if (overviewMaxLine == 3) Int.MAX_VALUE else 3
+                        },
+                    text = it,
+                    maxLines = overviewMaxLine,
+                    overflow = TextOverflow.Ellipsis
+                )
             }
 
             if (titles.isNotEmpty()) {
@@ -576,83 +643,33 @@ fun MovieInfoComponent(
                     overflow = TextOverflow.Ellipsis
                 )
             }
-            movie.certification?.let {
-                Text(
-                    modifier = Modifier
-                        .padding(horizontal = dp16)
-                        .fillMaxWidth()
-                        .wrapContentHeight(),
-                    text = "$it 이용가"
-                )
-            }
-            movie.releaseDate?.let {
-                Text(
-                    modifier = Modifier
-                        .padding(horizontal = dp16)
-                        .fillMaxWidth()
-                        .wrapContentHeight(),
-                    text = "개봉일 : $it"
-                )
-            }
-            movie.voteAverage?.let {
-                Text(
-                    modifier = Modifier
-                        .padding(horizontal = dp16)
-                        .fillMaxWidth()
-                        .wrapContentHeight(),
-                    text = "평점 : $it"
-                )
-            }
-            movie.revenue?.let {
-                Text(
-                    modifier = Modifier
-                        .padding(horizontal = dp16)
-                        .fillMaxWidth()
-                        .wrapContentHeight(),
-                    text = "수익 : ${format.format(it)}"
-                )
-            }
-            movie.budget?.let {
-                Text(
-                    modifier = Modifier
-                        .padding(horizontal = dp16)
-                        .fillMaxWidth()
-                        .wrapContentHeight(),
-                    text = "예산 : ${format.format(it)}"
-                )
-            }
-            if (movie.revenue != null && movie.budget != null) {
-                Text(
-                    modifier = Modifier
-                        .padding(horizontal = dp16)
-                        .fillMaxWidth()
-                        .wrapContentHeight(),
-                    text = "순수익 : ${format.format((movie.revenue ?: 0) + -(movie.budget ?: 0))}"
-                )
-            }
-            movie.runtime?.let {
-                Text(
-                    modifier = Modifier
-                        .padding(horizontal = dp16)
-                        .fillMaxWidth()
-                        .wrapContentHeight(),
-                    text = "${it}분"
-                )
-            }
-            movie.overview?.let {
-                Text(
-                    modifier = Modifier
-                        .padding(horizontal = dp16)
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                        .clickable {
-                            overviewMaxLine = if (overviewMaxLine == 3) Int.MAX_VALUE else 3
-                        },
-                    text = it,
-                    maxLines = overviewMaxLine,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
+//            movie.revenue?.let {
+//                Text(
+//                    modifier = Modifier
+//                        .padding(horizontal = dp16)
+//                        .fillMaxWidth()
+//                        .wrapContentHeight(),
+//                    text = "수익 : ${format.format(it)}"
+//                )
+//            }
+//            movie.budget?.let {
+//                Text(
+//                    modifier = Modifier
+//                        .padding(horizontal = dp16)
+//                        .fillMaxWidth()
+//                        .wrapContentHeight(),
+//                    text = "예산 : ${format.format(it)}"
+//                )
+//            }
+//            if (movie.revenue != null && movie.budget != null) {
+//                Text(
+//                    modifier = Modifier
+//                        .padding(horizontal = dp16)
+//                        .fillMaxWidth()
+//                        .wrapContentHeight(),
+//                    text = "순수익 : ${format.format((movie.revenue ?: 0) + -(movie.budget ?: 0))}"
+//                )
+//            }
         }
     }
 }
@@ -787,7 +804,7 @@ fun StaffComponent(
 
 @Composable
 fun SimilarMovieComponent(
-    similarMovieState: LazyPagingItems<SearchItem>,
+    similarMovieState: LazyPagingItems<Movie>,
     onMovieClick: (Int) -> Unit,
     favoriteMovies: List<MovieDetail>,
     insertFavoriteMovie: (MovieDetail) -> Unit,
@@ -840,29 +857,29 @@ fun SimilarMovieComponent(
             count = similarMovieState.itemCount
         ) { index ->
             val detail = MovieDetail(
-                id = similarMovieState[index]?.tmdbId,
-                posterPath = similarMovieState[index]?.imagePath ?: "",
+                id = similarMovieState[index]?.id,
+                posterPath = similarMovieState[index]?.posterPath ?: "",
             )
             Box(
                 modifier = Modifier
                     .width(dp200)
                     .wrapContentHeight()
-                    .bounceClick { onMovieClick(similarMovieState[index]?.tmdbId ?: -1) }
+                    .bounceClick { onMovieClick(similarMovieState[index]?.id ?: -1) }
             ) {
                 DynamicAsyncImageLoader(
                     modifier = Modifier
                         .fillMaxWidth()
                         .aspectRatio(POSTER_IMAGE_RATIO),
-                    source = similarMovieState[index]?.imagePath ?: "",
+                    source = similarMovieState[index]?.posterPath ?: "",
                     contentDescription = "BoxOfficePoster"
                 )
                 FavoriteButton(
                     modifier = Modifier
                         .wrapContentSize()
                         .align(Alignment.TopEnd),
-                    isFavorite = favoriteMovies.find { it.id == similarMovieState[index]?.tmdbId } != null,
+                    isFavorite = favoriteMovies.find { it.id == similarMovieState[index]?.id } != null,
                     onClick = {
-                        if (favoriteMovies.find { it.id == similarMovieState[index]?.tmdbId } != null) {
+                        if (favoriteMovies.find { it.id == similarMovieState[index]?.id } != null) {
                             deleteFavoriteMovie(detail)
                         } else {
                             insertFavoriteMovie(detail)

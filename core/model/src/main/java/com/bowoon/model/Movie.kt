@@ -3,7 +3,7 @@ package com.bowoon.model
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class MainMovie(
+data class Movie(
     val genreIds: List<Int>? = null,
     val id: Int? = null,
     val originalLanguage: String? = null,

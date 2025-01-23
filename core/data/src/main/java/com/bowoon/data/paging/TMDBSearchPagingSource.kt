@@ -3,7 +3,7 @@ package com.bowoon.data.paging
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.bowoon.common.Log
-import com.bowoon.model.SearchItem
+import com.bowoon.model.Movie
 import com.bowoon.model.SearchType
 import com.bowoon.model.tmdb.SearchResult
 import com.bowoon.network.ApiResponse
@@ -21,8 +21,8 @@ class TMDBSearchPagingSource @Inject constructor(
     private val region: String,
     private val isAdult: Boolean,
     private val posterUrl: Flow<String>
-) : PagingSource<Int, SearchItem>() {
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, SearchItem> =
+) : PagingSource<Int, Movie>() {
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Movie> =
         runCatching {
             val url = posterUrl.first()
 
@@ -36,13 +36,13 @@ class TMDBSearchPagingSource @Inject constructor(
             LoadResult.Error(e)
         }
 
-    override fun getRefreshKey(state: PagingState<Int, SearchItem>): Int? =
+    override fun getRefreshKey(state: PagingState<Int, Movie>): Int? =
         state.anchorPosition?.let { anchorPosition ->
             val anchorPage = state.closestPageToPosition(anchorPosition)
             anchorPage?.prevKey ?: anchorPage?.nextKey
         }
 
-    private suspend fun searchMovie(params: LoadParams<Int>, isAdult: Boolean, url: String): LoadResult<Int, SearchItem> =
+    private suspend fun searchMovie(params: LoadParams<Int>, isAdult: Boolean, url: String): LoadResult<Int, Movie> =
         when (val response = apis.tmdbApis.searchMovies(query = query, includeAdult = isAdult, language = language, region = region, page = params.key ?: 1)) {
             is ApiResponse.Failure -> LoadResult.Error(response.throwable)
             is ApiResponse.Success -> {
@@ -54,7 +54,7 @@ class TMDBSearchPagingSource @Inject constructor(
             }
         }
 
-    private suspend fun searchPeople(params: LoadParams<Int>, isAdult: Boolean, url: String): LoadResult<Int, SearchItem> =
+    private suspend fun searchPeople(params: LoadParams<Int>, isAdult: Boolean, url: String): LoadResult<Int, Movie> =
         when (val response = apis.tmdbApis.searchPeople(query = query, includeAdult = isAdult, language = language, region = region, page = params.key ?: 1)) {
             is ApiResponse.Failure -> LoadResult.Error(response.throwable)
             is ApiResponse.Success -> {
@@ -69,12 +69,12 @@ class TMDBSearchPagingSource @Inject constructor(
     private fun getSearchItem(
         response: List<SearchResult>?,
         url: String
-    ): List<SearchItem> =
+    ): List<Movie> =
         response?.map {
-            SearchItem(
-                tmdbId = it.tmdbId,
-                searchTitle = it.searchTitle,
-                imagePath = "$url${it.imagePath}"
+            Movie(
+                id = it.tmdbId,
+                title = it.searchTitle,
+                posterPath = "$url${it.imagePath}"
             )
         } ?: emptyList()
 }
