@@ -22,6 +22,8 @@ jobs:
       - name: Grant Permission for gradlew
         run: chmod +x ./gradlew
         shell: bash
+      - name: Create sign folder
+        run: mkdir -p app/sign
       - name: Decode And Save Keystore Base64
         run: |
           echo "KEYSTORE_BASE64=$KEYSTORE_BASE64" | base64 --decode > app/sign/bowoon.jks
