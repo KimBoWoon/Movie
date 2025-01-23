@@ -6,7 +6,7 @@ import java.util.Properties
 
 object Config {
     private val prop: Properties = Properties().apply {
-        load(FileInputStream(File("app/sign", "local.properties")))
+        load(FileInputStream(File("../Movie/sign", "local.properties")))
     }
 
     fun getProp(propertyKey: String): String =
