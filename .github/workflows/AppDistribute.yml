@@ -24,9 +24,12 @@ jobs:
         shell: bash
       - name: Create sign folder
         run: mkdir -p app/sign
+      - name: Check KEYSTORE_BASE64
+        run: |
+          echo "KEYSTORE_BASE64 : ${{ secrets.KEYSTORE_BASE64 }}"
       - name: Decode And Save Keystore Base64
         run: |
-          echo "KEYSTORE_BASE64 : ${{ secrets.LOCAL_PROPERTIES }}" | base64 --decode > app/sign/bowoon.jks
+          base64 --decode > app/sign/bowoon.jks
       - name: Create local.properties
         run: |
           echo "LOCAL_PROPERTIES=$LOCAL_PROPERTIES" > local.properties
