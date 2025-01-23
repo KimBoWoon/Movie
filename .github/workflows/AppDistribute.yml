@@ -24,6 +24,8 @@ jobs:
         shell: bash
       - name: Create sign folder
         run: mkdir -p app/sign
+      - name: Check build-logic
+        run: ./gradlew :build-logic:convention:check
       - name: Decode And Save Keystore Base64
         run: |
           echo "KEY_STORE_ENCRYPT=$KEY_STORE_ENCRYPT" | base64 -i --decode > app/sign/bowoon.jks
