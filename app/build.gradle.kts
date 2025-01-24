@@ -9,6 +9,13 @@ android {
     defaultConfig {
         namespace = "com.bowoon.movie"
     }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = true
+            signingConfig = signingConfigs.named("debug").get()
+        }
+    }
 }
 
 dependencies {
