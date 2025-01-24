@@ -34,20 +34,20 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                         versionCode = Config.Application.Movie.versionCode
                         testInstrumentationRunner = Config.ApplicationSetting.testInstrumentationRunner
 
-                        signingConfigs {
-                            register(Config.Application.Movie.Sign.Release.name) {
-                                storeFile = file(getProp(Config.Application.Movie.Sign.Release.storeFile))
-                                storePassword = getProp(Config.Application.Movie.Sign.Release.storePassword)
-                                keyAlias = getProp(Config.Application.Movie.Sign.Release.keyAlias)
-                                keyPassword = getProp(Config.Application.Movie.Sign.Release.keyPassword)
-                            }
-                            register(Config.Application.Movie.Sign.Debug.name) {
-                                storeFile = file(getProp(Config.Application.Movie.Sign.Debug.storeFile))
-                                storePassword = getProp(Config.Application.Movie.Sign.Debug.storePassword)
-                                keyAlias = getProp(Config.Application.Movie.Sign.Debug.keyAlias)
-                                keyPassword = getProp(Config.Application.Movie.Sign.Debug.keyPassword)
-                            }
-                        }
+//                        signingConfigs {
+//                            register(Config.Application.Movie.Sign.Release.name) {
+//                                storeFile = file(getProp(Config.Application.Movie.Sign.Release.storeFile))
+//                                storePassword = getProp(Config.Application.Movie.Sign.Release.storePassword)
+//                                keyAlias = getProp(Config.Application.Movie.Sign.Release.keyAlias)
+//                                keyPassword = getProp(Config.Application.Movie.Sign.Release.keyPassword)
+//                            }
+//                            register(Config.Application.Movie.Sign.Debug.name) {
+//                                storeFile = file(getProp(Config.Application.Movie.Sign.Debug.storeFile))
+//                                storePassword = getProp(Config.Application.Movie.Sign.Debug.storePassword)
+//                                keyAlias = getProp(Config.Application.Movie.Sign.Debug.keyAlias)
+//                                keyPassword = getProp(Config.Application.Movie.Sign.Debug.keyPassword)
+//                            }
+//                        }
                     }
 
                     SimpleDateFormat(Config.ApplicationSetting.dateFormat, Locale.getDefault()).run {
