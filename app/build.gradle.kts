@@ -5,18 +5,6 @@ plugins {
     id("bowoon.android.application.firebase")
 }
 
-android {
-    buildTypes {
-        debug {
-            signingConfig = signingConfigs.named("debug").get()
-        }
-        release {
-            isMinifyEnabled = true
-            signingConfig = signingConfigs.named("debug").get()
-        }
-    }
-}
-
 dependencies {
     arrayOf(
         projects.core.common,
