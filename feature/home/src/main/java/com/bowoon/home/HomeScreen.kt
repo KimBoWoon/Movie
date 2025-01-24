@@ -142,7 +142,7 @@ fun LazyListScope.nowPlayingComponent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight(),
-                contentPadding = PaddingValues(dp16),
+                contentPadding = PaddingValues(horizontal = dp16),
                 horizontalArrangement = Arrangement.spacedBy(dp16)
             ) {
                 items(
@@ -173,7 +173,7 @@ fun LazyListScope.upcomingComponent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight(),
-                contentPadding = PaddingValues(dp16),
+                contentPadding = PaddingValues(horizontal = dp16),
                 horizontalArrangement = Arrangement.spacedBy(dp16)
             ) {
                 items(
