@@ -37,7 +37,7 @@ jobs:
       - name: Check build-logic
         run: ./gradlew :build-logic:convention:check
       - name: build release
-        run: ./gradlew assembleRelease
+        run: ./gradlew bundleDebug
       - name: upload artifact to Firebase App Distribution
         uses: wzieba/Firebase-Distribution-Github-Action@v1
         with:
