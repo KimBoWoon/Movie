@@ -24,15 +24,15 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
 
             extensions.configure<ApplicationExtension> {
                 defaultConfig {
-                    compileSdk = Config.Application.Movie.compileSdkVersion
-                    minSdk = Config.Application.Movie.minSdkVersion
+//                    compileSdk = Config.Application.Movie.compileSdkVersion
+//                    minSdk = Config.Application.Movie.minSdkVersion
                     extensions.configure<ApplicationExtension> {
-                        namespace = Config.Application.Movie.applicationId
-                        applicationId = Config.Application.Movie.applicationId
-                        targetSdk = Config.Application.Movie.targetSdkVersion
-                        versionName = Config.Application.Movie.versionName
-                        versionCode = Config.Application.Movie.versionCode
-                        testInstrumentationRunner = Config.ApplicationSetting.testInstrumentationRunner
+//                        namespace = Config.Application.Movie.applicationId
+//                        applicationId = Config.Application.Movie.applicationId
+//                        targetSdk = Config.Application.Movie.targetSdkVersion
+//                        versionName = Config.Application.Movie.versionName
+//                        versionCode = Config.Application.Movie.versionCode
+//                        testInstrumentationRunner = Config.ApplicationSetting.testInstrumentationRunner
 
 //                        signingConfigs {
 //                            register(Config.Application.Movie.Sign.Release.name) {

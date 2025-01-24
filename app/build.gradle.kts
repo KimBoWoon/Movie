@@ -6,8 +6,17 @@ plugins {
 }
 
 android {
+    namespace = "com.bowoon.movie"
+    compileSdk = 35
+
     defaultConfig {
-        namespace = "com.bowoon.movie"
+        minSdk = 23
+        compileSdk = 35
+        targetSdk = 35
+        applicationId = "com.bowoon.movie"
+        versionCode = 1
+        versionName = "0.0.1"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
