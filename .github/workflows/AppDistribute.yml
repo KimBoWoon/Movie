@@ -16,10 +16,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1
-      - name: set up JDK 1.8
+      - name: set up JDK 17
         uses: actions/setup-java@v1
         with:
-          java-version: 1.8
+          java-version: 17
       - name: Grant Permission for gradlew
         run: chmod +x ./gradlew
         shell: bash
@@ -27,13 +27,13 @@ jobs:
         run: mkdir -p ./sign
       - name: Decode And Save Keystore Base64
         run: |
-          echo "KEY_STORE_ENCRYPT=$KEY_STORE_ENCRYPT" | base64 -i --decode > ./sign/bowoon.jks
+          echo "$KEY_STORE_ENCRYPT" | base64 -i --decode > ./sign/bowoon.jks
       - name: Create local.properties
         run: |
-          echo "LOCAL_PROPERTIES=$LOCAL_PROPERTIES" > ./sign/local.properties
+          echo "$LOCAL_PROPERTIES" > ./sign/local.properties
       - name: Create google-services.json
         run: |
-          echo "GOOGLE_SERVICES_JSON=$GOOGLE_SERVICES_JSON" > ./app/google-services.json
+          echo "$GOOGLE_SERVICES_JSON" > ./app/google-services.json
       - name: Check build-logic
         run: ./gradlew :build-logic:convention:check
       - name: build release
