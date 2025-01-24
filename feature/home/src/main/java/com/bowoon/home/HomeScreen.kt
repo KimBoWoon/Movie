@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
@@ -39,8 +40,8 @@ import com.bowoon.model.Movie
 import com.bowoon.ui.Calendar
 import com.bowoon.ui.Title
 import com.bowoon.ui.bounceClick
-import com.bowoon.ui.dp15
 import com.bowoon.ui.dp150
+import com.bowoon.ui.dp16
 import com.bowoon.ui.image.DynamicAsyncImageLoader
 import com.bowoon.ui.sp10
 import com.bowoon.ui.sp8
@@ -133,13 +134,16 @@ fun LazyListScope.nowPlayingComponent(
 ) {
     item {
         if (boxOffice.isNotEmpty()) {
-            Text(text = "상영중인 영화")
+            Text(
+                modifier = Modifier.padding(dp16).fillMaxWidth(),
+                text = "상영중인 영화"
+            )
             LazyRow(
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight(),
-                contentPadding = PaddingValues(dp15),
-                horizontalArrangement = Arrangement.spacedBy(dp15)
+                contentPadding = PaddingValues(dp16),
+                horizontalArrangement = Arrangement.spacedBy(dp16)
             ) {
                 items(
                     items = boxOffice,
@@ -161,13 +165,16 @@ fun LazyListScope.upcomingComponent(
 ) {
     item {
         if (upcoming.isNotEmpty()) {
-            Text(text = "개봉 예정작")
+            Text(
+                modifier = Modifier.padding(dp16).fillMaxWidth(),
+                text = "개봉 예정작"
+            )
             LazyRow(
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight(),
-                contentPadding = PaddingValues(dp15),
-                horizontalArrangement = Arrangement.spacedBy(dp15)
+                contentPadding = PaddingValues(dp16),
+                horizontalArrangement = Arrangement.spacedBy(dp16)
             ) {
                 items(
                     count = upcoming.size,
@@ -196,7 +203,7 @@ fun LazyListScope.calendarComponent(
         }
 
         HorizontalPager(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.padding(dp16).fillMaxWidth(),
             state = horizontalPagerState
         ) {index ->
             Calendar(
