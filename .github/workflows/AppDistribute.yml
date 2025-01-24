@@ -33,7 +33,7 @@ jobs:
           echo "LOCAL_PROPERTIES=$LOCAL_PROPERTIES" > android/Movie/sign/local.properties
       - name: Create google-services.json
         run: |
-          echo "GOOGLE_SERVICES_JSON=$GOOGLE_SERVICES_JSON" > android/Movie/app/google-services.json
+          echo "GOOGLE_SERVICES_JSON=$GOOGLE_SERVICES_JSON" > android/Movie/google-services.json
 #      - name: Check build-logic
 #        run: ./gradlew :build-logic:convention:check
       - name: build release
