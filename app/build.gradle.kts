@@ -5,6 +5,12 @@ plugins {
     id("bowoon.android.application.firebase")
 }
 
+android {
+    defaultConfig {
+        namespace = "com.bowoon.movie"
+    }
+}
+
 dependencies {
     arrayOf(
         projects.core.common,
