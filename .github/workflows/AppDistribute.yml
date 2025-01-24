@@ -24,13 +24,13 @@ jobs:
         run: chmod +x ./gradlew
         shell: bash
       - name: Create sign folder
-        run: mkdir -p ./Movie/sign
+        run: mkdir -p ./sign
       - name: Decode And Save Keystore Base64
         run: |
-          echo "KEY_STORE_ENCRYPT=$KEY_STORE_ENCRYPT" | base64 -i --decode > ./Movie/sign/bowoon.jks
+          echo "KEY_STORE_ENCRYPT=$KEY_STORE_ENCRYPT" | base64 -i --decode > ./sign/bowoon.jks
       - name: Create local.properties
         run: |
-          echo "LOCAL_PROPERTIES=$LOCAL_PROPERTIES" > ./Movie/sign/local.properties
+          echo "LOCAL_PROPERTIES=$LOCAL_PROPERTIES" > ./sign/local.properties
       - name: Create google-services.json
         run: |
           echo "GOOGLE_SERVICES_JSON=$GOOGLE_SERVICES_JSON" > ./app/google-services.json
