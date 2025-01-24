@@ -3,6 +3,7 @@ plugins {
     id("bowoon.application.compose")
     id("bowoon.hilt")
     id("bowoon.android.application.firebase")
+    id("com.google.gms.google-services")
 }
 
 android {
