@@ -44,4 +44,4 @@ jobs:
           appId: ${{secrets.FIREBASE_APP_ID}}
           serviceCredentialsFileContent: ${{ secrets.CREDENTIAL_FILE_CONTENT }}
           groups: movietester
-          file: ./app/build/outputs/apk/prodDebug/movie-v1.0.0-prod-debug.apk
+          file: ./app/build/outputs/apk/prod/debug/movie-v1.0.0-prod-debug.apk
