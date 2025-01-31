@@ -46,7 +46,7 @@ private fun Context.syncWorkNotification(): Notification {
         this,
         SYNC_NOTIFICATION_CHANNEL_ID,
     )
-        .setSmallIcon(R.mipmap.ic_launcher)
+        .setSmallIcon(R.drawable.ic_launcher_round)
         .setContentTitle("MovieInfo")
         .setPriority(NotificationCompat.PRIORITY_DEFAULT)
         .build()

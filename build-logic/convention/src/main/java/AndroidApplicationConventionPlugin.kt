@@ -1,6 +1,7 @@
 import com.android.build.api.dsl.ApplicationExtension
 import com.bowoon.convention.Config
 import com.bowoon.convention.Config.getProp
+import com.bowoon.convention.MovieAppBuildType
 import com.bowoon.convention.configureKotlinAndroid
 import com.bowoon.convention.libs
 import org.gradle.api.Plugin
@@ -49,7 +50,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
 
                 buildTypes {
                     debug {
-//                        applicationIdSuffix = MovieAppBuildType.DEBUG.applicationIdSuffix
+                        applicationIdSuffix = MovieAppBuildType.DEBUG.applicationIdSuffix
                         isMinifyEnabled = false
                         isDebuggable = true
                         isJniDebuggable = true
@@ -57,7 +58,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                         signingConfig = signingConfigs.getByName(Config.Application.Movie.Sign.Debug.name)
                     }
                     release {
-//                        applicationIdSuffix = MovieAppBuildType.RELEASE.applicationIdSuffix
+                        applicationIdSuffix = MovieAppBuildType.RELEASE.applicationIdSuffix
                         isMinifyEnabled = true
 //                        isShrinkResources = true
                         isDebuggable = false
