@@ -50,7 +50,7 @@ import com.bowoon.common.Log
 import com.bowoon.data.util.PEOPLE_IMAGE_RATIO
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.model.MovieDetail
-import com.bowoon.model.PeopleDetail
+import com.bowoon.model.PeopleDetailData
 import com.bowoon.model.PeopleDetailTab
 import com.bowoon.model.RelatedMovie
 import com.bowoon.ui.ConfirmDialog
@@ -89,14 +89,14 @@ fun PeopleScreen(
 fun PeopleScreen(
     peopleState: PeopleState,
     navController: NavController,
-    insertFavoritePeople: (PeopleDetail) -> Unit,
-    deleteFavoritePeople: (PeopleDetail) -> Unit,
+    insertFavoritePeople: (PeopleDetailData) -> Unit,
+    deleteFavoritePeople: (PeopleDetailData) -> Unit,
     onMovieClick: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
     restart: () -> Unit
 ) {
     var isLoading by remember { mutableStateOf(false) }
-    var people by remember { mutableStateOf<PeopleDetail?>(null) }
+    var people by remember { mutableStateOf<PeopleDetailData?>(null) }
 
     when (peopleState) {
         is PeopleState.Loading -> {
@@ -138,7 +138,7 @@ fun TabComponent(
     modifier: Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
     listState: LazyGridState = rememberLazyGridState(),
-    people: PeopleDetail,
+    people: PeopleDetailData,
     onMovieClick: (Int) -> Unit,
     insertFavoriteMovie: (MovieDetail) -> Unit,
     deleteFavoriteMovie: (MovieDetail) -> Unit
@@ -194,11 +194,11 @@ fun TabComponent(
 @Composable
 fun PeopleDetailScreen(
     isLoading: Boolean,
-    people: PeopleDetail,
+    people: PeopleDetailData,
     navController: NavController,
     onMovieClick: (Int) -> Unit,
-    insertFavoritePeople: (PeopleDetail) -> Unit,
-    deleteFavoritePeople: (PeopleDetail) -> Unit,
+    insertFavoritePeople: (PeopleDetailData) -> Unit,
+    deleteFavoritePeople: (PeopleDetailData) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean
 ) {
     Box(
@@ -225,11 +225,11 @@ fun PeopleDetailScreen(
 
 @Composable
 fun CollapsingLayout(
-    people: PeopleDetail,
+    people: PeopleDetailData,
     navController: NavController,
     onMovieClick: (Int) -> Unit,
-    insertFavoritePeople: (PeopleDetail) -> Unit,
-    deleteFavoritePeople: (PeopleDetail) -> Unit,
+    insertFavoritePeople: (PeopleDetailData) -> Unit,
+    deleteFavoritePeople: (PeopleDetailData) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean
 ) {
     val screenWidth = LocalConfiguration.current.screenWidthDp
@@ -318,7 +318,7 @@ fun CollapsingLayout(
 
 @Composable
 fun PeopleInfoComponent(
-    people: PeopleDetail
+    people: PeopleDetailData
 ) {
     Column(
         modifier = Modifier.fillMaxSize()
@@ -334,7 +334,7 @@ fun PeopleInfoComponent(
 @Composable
 fun RelatedMovieComponent(
     listState: LazyGridState = rememberLazyGridState(),
-    people: PeopleDetail,
+    people: PeopleDetailData,
     onMovieClick: (Int) -> Unit,
     insertFavoriteMovie: (MovieDetail) -> Unit,
     deleteFavoriteMovie: (MovieDetail) -> Unit

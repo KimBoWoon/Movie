@@ -1,32 +1,31 @@
 package com.bowoon.domain
 
 import com.bowoon.data.repository.DatabaseRepository
+import com.bowoon.data.repository.DetailRepository
 import com.bowoon.data.repository.MyDataRepository
-import com.bowoon.data.repository.TMDBRepository
 import com.bowoon.model.CombineCredits
 import com.bowoon.model.CombineCreditsCast
 import com.bowoon.model.CombineCreditsCrew
-import com.bowoon.model.PeopleDetail
+import com.bowoon.model.PeopleDetailData
 import com.bowoon.model.PeopleExternalIds
-import com.bowoon.model.PeopleImage
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import javax.inject.Inject
 
-class GetPeopleDetail @Inject constructor(
-    private val tmdbRepository: TMDBRepository,
+class GetPeopleDetailUseCase @Inject constructor(
+    private val detailRepository: DetailRepository,
     private val databaseRepository: DatabaseRepository,
     private val myDataRepository: MyDataRepository
 ) {
-    operator fun invoke(personId: Int): Flow<PeopleDetail> =
+    operator fun invoke(personId: Int): Flow<PeopleDetailData> =
         combine(
-            tmdbRepository.getPeople(personId = personId),
-            tmdbRepository.getCombineCredits(personId = personId),
-            tmdbRepository.getExternalIds(personId = personId),
+            detailRepository.getPeople(personId = personId),
+            detailRepository.getCombineCredits(personId = personId),
+            detailRepository.getExternalIds(personId = personId),
             myDataRepository.posterUrl,
             databaseRepository.getPeople()
         ) { tmdbPeopleDetail, tmdbCombineCredits, tmdbExternalIds, posterUrl, favoritePeoples ->
-            PeopleDetail(
+            PeopleDetailData(
                 adult = tmdbPeopleDetail.adult,
                 alsoKnownAs = tmdbPeopleDetail.alsoKnownAs,
                 biography = tmdbPeopleDetail.biography,
@@ -105,17 +104,7 @@ class GetPeopleDetail @Inject constructor(
                 gender = tmdbPeopleDetail.gender,
                 homepage = tmdbPeopleDetail.homepage,
                 id = tmdbPeopleDetail.id,
-                images = tmdbPeopleDetail.images?.profiles?.map {
-                    PeopleImage(
-                        aspectRatio = it.aspectRatio,
-                        filePath = "$posterUrl${it.filePath}",
-                        height = it.height,
-                        iso6391 = it.iso6391,
-                        voteAverage = it.voteAverage,
-                        voteCount = it.voteCount,
-                        width = it.width
-                    )
-                },
+                images = tmdbPeopleDetail.images,
                 imdbId = tmdbPeopleDetail.imdbId,
                 knownForDepartment = tmdbPeopleDetail.knownForDepartment,
                 name = tmdbPeopleDetail.name,

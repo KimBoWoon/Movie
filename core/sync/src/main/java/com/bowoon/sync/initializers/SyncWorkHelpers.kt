@@ -9,7 +9,7 @@ import androidx.core.app.NotificationCompat
 import androidx.work.Constraints
 import androidx.work.ForegroundInfo
 import androidx.work.NetworkType
-import com.bowoon.sync.R
+import com.bowoon.movie.core.sync.R
 
 const val SYNC_TOPIC = "sync"
 const val UNIQUE_SYNC_WORKER = "UNIQUE_SYNC_WORKER"

@@ -3,16 +3,16 @@ package com.bowoon.data.repository
 import com.bowoon.common.di.ApplicationScope
 import com.bowoon.data.util.suspendRunCatching
 import com.bowoon.datastore.InternalDataSource
+import com.bowoon.model.CertificationData
+import com.bowoon.model.Configuration
+import com.bowoon.model.LanguageItem
+import com.bowoon.model.MovieGenre
+import com.bowoon.model.MovieGenreList
 import com.bowoon.model.MyData
 import com.bowoon.model.PosterSize
+import com.bowoon.model.Region
+import com.bowoon.model.RegionList
 import com.bowoon.model.RequestMyData
-import com.bowoon.model.tmdb.TMDBCertificationData
-import com.bowoon.model.tmdb.TMDBConfiguration
-import com.bowoon.model.tmdb.TMDBLanguageItem
-import com.bowoon.model.tmdb.TMDBMovieGenre
-import com.bowoon.model.tmdb.TMDBMovieGenres
-import com.bowoon.model.tmdb.TMDBRegion
-import com.bowoon.model.tmdb.TMDBRegionResult
 import com.bowoon.network.ApiResponse
 import com.bowoon.network.model.asExternalModel
 import com.bowoon.network.retrofit.Apis
@@ -44,28 +44,33 @@ class MyDataRepositoryImpl @Inject constructor(
             configuration = requestData.configuration,
             certification = requestData.certification,
             genres = requestData.genres?.genres?.map {
-                TMDBMovieGenre(
+                MovieGenre(
                     id = it.id,
                     name = it.name
                 )
             },
             region = requestData.region?.results?.map {
-                TMDBRegionResult(
+                Region(
                     englishName = it.englishName,
                     iso31661 = it.iso31661,
                     nativeName = it.nativeName,
-                    isSelected = datastore.getRegion() == it.iso31661
+                    isSelected = userdata.region == it.iso31661
                 )
             },
             language = requestData.language?.map {
-                TMDBLanguageItem(
+                LanguageItem(
                     englishName = it.englishName,
                     iso6391 = it.iso6391,
                     name = it.name,
-                    isSelected = datastore.getLanguage() == it.iso6391
+                    isSelected = userdata.language == it.iso6391
                 )
             },
-            posterSize = requestData.posterSize
+            posterSize = requestData.posterSize?.posterSizes?.map {
+                PosterSize(
+                    size = it,
+                    isSelected = userdata.imageQuality == it
+                )
+            } ?: emptyList()
         )
     }.stateIn(
         scope = scope,
@@ -89,12 +94,7 @@ class MyDataRepositoryImpl @Inject constructor(
             genres = genres,
             region = region,
             language = language,
-            posterSize = configuration.images?.posterSizes?.map {
-                PosterSize(
-                    size = it,
-                    isSelected = datastore.getImageQuality() == it
-                )
-            } ?: emptyList()
+            posterSize = configuration.images
         )
     }
 
@@ -102,14 +102,14 @@ class MyDataRepositoryImpl @Inject constructor(
         myData.first()
     }.isSuccess
 
-    override fun getConfiguration(): Flow<TMDBConfiguration> = flow {
+    override fun getConfiguration(): Flow<Configuration> = flow {
         when (val response = apis.tmdbApis.getConfiguration()) {
             is ApiResponse.Failure -> throw response.throwable
             is ApiResponse.Success -> emit(response.data.asExternalModel())
         }
     }
 
-    override fun getCertification(): Flow<TMDBCertificationData> = flow {
+    override fun getCertification(): Flow<CertificationData> = flow {
         val language = datastore.getLanguage()
         val region = datastore.getRegion()
 
@@ -119,7 +119,7 @@ class MyDataRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getGenres(): Flow<TMDBMovieGenres> = flow {
+    override fun getGenres(): Flow<MovieGenreList> = flow {
         val language = datastore.getLanguage()
         val region = datastore.getRegion()
 
@@ -129,14 +129,14 @@ class MyDataRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getAvailableLanguage(): Flow<List<TMDBLanguageItem>> = flow {
+    override fun getAvailableLanguage(): Flow<List<LanguageItem>> = flow {
         when (val response = apis.tmdbApis.getAvailableLanguage()) {
             is ApiResponse.Failure -> throw response.throwable
             is ApiResponse.Success -> emit(response.data.asExternalModel())
         }
     }
 
-    override fun getAvailableRegion(): Flow<TMDBRegion> = flow {
+    override fun getAvailableRegion(): Flow<RegionList> = flow {
         when (val response = apis.tmdbApis.getAvailableRegion()) {
             is ApiResponse.Failure -> throw response.throwable
             is ApiResponse.Success -> emit(response.data.asExternalModel())

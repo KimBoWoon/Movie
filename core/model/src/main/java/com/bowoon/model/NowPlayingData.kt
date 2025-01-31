@@ -1,20 +1,20 @@
-package com.bowoon.model.tmdb
+package com.bowoon.model
 
 
-data class TMDBNowPlaying(
-    val dates: TMDBNowPlayingDates? = null,
+data class NowPlayingData(
+    val dates: NowPlayingDates? = null,
     val page: Int? = null,
-    val results: List<TMDBNowPlayingResult>? = null,
+    val results: List<NowPlaying>? = null,
     val totalPages: Int? = null,
     val totalResults: Int? = null
 )
 
-data class TMDBNowPlayingDates(
+data class NowPlayingDates(
     val maximum: String? = null,
     val minimum: String? = null
 )
 
-data class TMDBNowPlayingResult(
+data class NowPlaying(
     val adult: Boolean? = null,
     val backdropPath: String? = null,
     val genreIds: List<Int>? = null,

@@ -1,12 +1,11 @@
 plugins {
-    id("bowoon.library")
-    id("bowoon.library.compose")
-    id("bowoon.hilt")
-    id("bowoon.android.feature")
+    alias(libs.plugins.bowoon.android.library)
+    alias(libs.plugins.bowoon.android.library.compose)
+    alias(libs.plugins.bowoon.android.feature)
 }
 
 android {
-    namespace = "com.bowoon.people"
+    namespace = "com.bowoon.movie.feature.people"
 }
 
 dependencies {

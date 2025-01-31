@@ -8,8 +8,8 @@ import com.bowoon.common.Result
 import com.bowoon.common.asResult
 import com.bowoon.common.restartableStateIn
 import com.bowoon.data.repository.DatabaseRepository
-import com.bowoon.domain.GetPeopleDetail
-import com.bowoon.model.PeopleDetail
+import com.bowoon.domain.GetPeopleDetailUseCase
+import com.bowoon.model.PeopleDetailData
 import com.bowoon.people.navigation.PeopleRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -19,8 +19,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PeopleVM @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
-    private val getPeopleDetail: GetPeopleDetail,
+    savedStateHandle: SavedStateHandle,
+    getPeopleDetail: GetPeopleDetailUseCase,
     private val databaseRepository: DatabaseRepository
 ) : ViewModel() {
     companion object {
@@ -46,13 +46,13 @@ class PeopleVM @Inject constructor(
         people.restart()
     }
 
-    fun insertPeople(people: PeopleDetail) {
+    fun insertPeople(people: PeopleDetailData) {
         viewModelScope.launch {
             databaseRepository.insertPeople(people)
         }
     }
 
-    fun deletePeople(people: PeopleDetail) {
+    fun deletePeople(people: PeopleDetailData) {
         viewModelScope.launch {
             databaseRepository.deletePeople(people)
         }
@@ -61,6 +61,6 @@ class PeopleVM @Inject constructor(
 
 sealed interface PeopleState {
     data object Loading : PeopleState
-    data class Success(val data: PeopleDetail) : PeopleState
+    data class Success(val data: PeopleDetailData) : PeopleState
     data class Error(val throwable: Throwable) : PeopleState
 }

@@ -1,10 +1,10 @@
 plugins {
-    id("bowoon.library")
-    id("bowoon.hilt")
+    alias(libs.plugins.bowoon.android.library)
+    alias(libs.plugins.bowoon.hilt)
 }
 
 android {
-    namespace = "com.bowoon.data"
+    namespace = "com.bowoon.movie.core.data"
 
     testOptions {
         unitTests {
@@ -16,14 +16,14 @@ android {
 
 dependencies {
     arrayOf(
-        projects.core.common,
-        projects.core.model,
-        projects.core.network,
-        projects.core.datastore,
-        projects.core.database,
         libs.androidx.compose.paging,
         libs.threetenabp
     ).forEach {
         implementation(it)
     }
+
+    api(projects.core.common)
+    api(projects.core.database)
+    api(projects.core.datastore)
+    api(projects.core.network)
 }

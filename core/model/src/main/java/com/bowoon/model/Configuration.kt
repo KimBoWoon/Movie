@@ -1,9 +1,9 @@
-package com.bowoon.model.tmdb
+package com.bowoon.model
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class TMDBConfiguration(
+data class Configuration(
     val changeKeys: List<String>? = null,
     val images: Images? = null
 )

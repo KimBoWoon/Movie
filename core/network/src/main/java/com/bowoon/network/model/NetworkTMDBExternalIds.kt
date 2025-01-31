@@ -1,7 +1,7 @@
 package com.bowoon.network.model
 
 
-import com.bowoon.model.tmdb.TMDBExternalIds
+import com.bowoon.model.ExternalIds
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -31,8 +31,8 @@ data class NetworkTMDBExternalIds(
     val youtubeId: String? = null
 )
 
-fun NetworkTMDBExternalIds.asExternalModel(): TMDBExternalIds =
-    TMDBExternalIds(
+fun NetworkTMDBExternalIds.asExternalModel(): ExternalIds =
+    ExternalIds(
         facebookId = facebookId,
         freebaseId = freebaseId,
         freebaseMid = freebaseMid,

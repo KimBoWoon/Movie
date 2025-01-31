@@ -1,17 +1,17 @@
-package com.bowoon.model.tmdb
+package com.bowoon.model
 
-data class TMDBSearchPeople(
+data class SearchPeopleData(
     val page: Int? = null,
-    val results: List<TMDBSearchPeopleResult>? = null,
+    val results: List<SearchPeopleItem>? = null,
     val totalPages: Int? = null,
     val totalResults: Int? = null
 )
 
-data class TMDBSearchPeopleResult(
+data class SearchPeopleItem(
     val adult: Boolean? = null,
     val gender: Int? = null,
     val id: Int? = null,
-    val knownFor: List<TMDBSearchPeopleKnownFor>? = null,
+    val knownFor: List<SearchPeopleKnownFor>? = null,
     val knownForDepartment: String? = null,
     val name: String? = null,
     val originalName: String? = null,
@@ -22,7 +22,7 @@ data class TMDBSearchPeopleResult(
     override val imagePath: String? = null
 ) : SearchResult
 
-data class TMDBSearchPeopleKnownFor(
+data class SearchPeopleKnownFor(
     val adult: Boolean? = null,
     val backdropPath: String? = null,
     val genreIds: List<Int>? = null,

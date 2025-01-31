@@ -18,47 +18,55 @@ class GetFavoriteMoviesUseCase @Inject constructor(
         databaseRepository.getMovies(),
         userDataRepository.userData
     ) { posterUrl, favoriteMovies, userData ->
-        favoriteMovies.map {
+        favoriteMovies.map { movie ->
             MovieDetail(
-                adult = it.adult,
-                alternativeTitles = it.alternativeTitles,
-                backdropPath = "${it.backdropPath}",
-                belongsToCollection = it.belongsToCollection,
-                budget = it.budget,
-                changes = it.changes,
-                credits = it.credits,
-                genres = it.genres,
-                homepage = it.homepage,
-                id = it.id,
-                images = it.images,
-                imdbId = it.imdbId,
-                keywords = it.keywords,
-                originCountry = it.originCountry,
-                originalLanguage = it.originalLanguage,
-                originalTitle = it.originalTitle,
-                overview = it.overview,
-                popularity = it.popularity,
-                posterPath = "${it.posterPath}",
-                productionCountries = it.productionCountries,
-                productionCompanies = it.productionCompanies,
-                releaseDate = it.releases?.countries?.find { it.iso31661.equals(userData.region, true) }?.releaseDate,
-                releases = it.releases,
-                revenue = it.revenue,
-                runtime = it.runtime,
-                spokenLanguages = it.spokenLanguages,
-                status = it.status,
-                tagline = it.tagline,
-                title = it.title,
-                translations = it.translations,
-                video = it.video,
-                videos = it.videos,
-                voteCount = it.voteCount,
-                voteAverage = it.voteAverage,
-                similar = it.similar,
-                certification = it.releases?.countries?.find { it.iso31661.equals(userData.region, true) }?.certification,
+                adult = movie.adult,
+                alternativeTitles = movie.alternativeTitles,
+                backdropPath = "${movie.backdropPath}",
+                belongsToCollection = movie.belongsToCollection,
+                budget = movie.budget,
+                credits = movie.credits,
+                genres = movie.genres,
+                homepage = movie.homepage,
+                id = movie.id,
+                images = movie.images,
+                imdbId = movie.imdbId,
+                keywords = movie.keywords,
+                originCountry = movie.originCountry,
+                originalLanguage = movie.originalLanguage,
+                originalTitle = movie.originalTitle,
+                overview = movie.overview,
+                popularity = movie.popularity,
+                posterPath = "${movie.posterPath}",
+                productionCountries = movie.productionCountries,
+                productionCompanies = movie.productionCompanies,
+                releaseDate = movie.releases?.countries?.find {
+                    it.iso31661.equals(
+                        userData.region,
+                        true
+                    )
+                }?.releaseDate,
+                releases = movie.releases,
+                revenue = movie.revenue,
+                runtime = movie.runtime,
+                spokenLanguages = movie.spokenLanguages,
+                status = movie.status,
+                tagline = movie.tagline,
+                title = movie.title,
+                translations = movie.translations,
+                video = movie.video,
+                videos = movie.videos,
+                voteCount = movie.voteCount,
+                voteAverage = movie.voteAverage,
+                certification = movie.releases?.countries?.find {
+                    it.iso31661.equals(
+                        userData.region,
+                        true
+                    )
+                }?.certification,
                 favoriteMovies = favoriteMovies,
                 posterUrl = posterUrl,
-                isFavorite = favoriteMovies.find { it.id == it.id } != null
+                isFavorite = favoriteMovies.find { it.id == movie.id } != null
             )
         }
     }

@@ -1,20 +1,21 @@
 plugins {
-    id("bowoon.library")
-    id("bowoon.hilt")
+    alias(libs.plugins.bowoon.android.library)
+    alias(libs.plugins.bowoon.hilt)
 }
 
 android {
-    namespace = "com.bowoon.domain"
+    namespace = "com.bowoon.movie.core.domain"
 }
 
 dependencies {
     arrayOf(
         projects.core.common,
-        projects.core.model,
-        projects.core.data,
         libs.threetenabp,
         libs.androidx.compose.paging
     ).forEach {
         implementation(it)
     }
+
+    api(projects.core.data)
+    api(projects.core.model)
 }

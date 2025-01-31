@@ -6,7 +6,7 @@ import com.bowoon.database.model.MovieEntity
 import com.bowoon.database.model.PeopleEntity
 import com.bowoon.database.model.asExternalModel
 import com.bowoon.model.MovieDetail
-import com.bowoon.model.PeopleDetail
+import com.bowoon.model.PeopleDetailData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.threeten.bp.Instant
@@ -56,14 +56,14 @@ class DatabaseRepositoryImpl @Inject constructor(
         )
     }
 
-    override fun getPeople(): Flow<List<PeopleDetail>> =
+    override fun getPeople(): Flow<List<PeopleDetailData>> =
         peopleDao.getPeopleEntities()
             .map {
                 it.sortedByDescending { it.timestamp }
                     .map(PeopleEntity::asExternalModel)
             }
 
-    override suspend fun insertPeople(people: PeopleDetail): Long =
+    override suspend fun insertPeople(people: PeopleDetailData): Long =
         peopleDao.insertOrIgnorePeoples(
             PeopleEntity(
                 id = people.id ?: -1,
@@ -81,13 +81,13 @@ class DatabaseRepositoryImpl @Inject constructor(
             )
         )
 
-    override suspend fun deletePeople(people: PeopleDetail) {
+    override suspend fun deletePeople(people: PeopleDetailData) {
         people.id?.let {
             peopleDao.deletePeople(it)
         }
     }
 
-    override suspend fun upsertPeoples(peoples: List<PeopleDetail>) =
+    override suspend fun upsertPeoples(peoples: List<PeopleDetailData>) =
         peopleDao.upsertPeoples(
             peoples.map { people ->
                 PeopleEntity(

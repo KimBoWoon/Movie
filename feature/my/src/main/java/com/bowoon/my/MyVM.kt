@@ -8,8 +8,8 @@ import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.domain.GetMyDataUseCase
 import com.bowoon.model.MyData
 import com.bowoon.model.PosterSize
-import com.bowoon.model.tmdb.TMDBLanguageItem
-import com.bowoon.model.tmdb.TMDBRegionResult
+import com.bowoon.model.LanguageItem
+import com.bowoon.model.Region
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
@@ -20,7 +20,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MyVM @Inject constructor(
     private val userDataRepository: UserDataRepository,
-    private val getMyDataUseCase: GetMyDataUseCase
+    getMyDataUseCase: GetMyDataUseCase
 ) : ViewModel() {
     companion object {
         private const val TAG = "MyVM"
@@ -40,7 +40,7 @@ class MyVM @Inject constructor(
             started = SharingStarted.Eagerly
         )
 
-    fun updateLanguage(language: TMDBLanguageItem) {
+    fun updateLanguage(language: LanguageItem) {
         viewModelScope.launch {
             language.iso6391?.let {
                 userDataRepository.updateLanguage(it)
@@ -48,7 +48,7 @@ class MyVM @Inject constructor(
         }
     }
 
-    fun updateRegion(region: TMDBRegionResult) {
+    fun updateRegion(region: Region) {
         viewModelScope.launch {
             region.iso31661?.let {
                 userDataRepository.updateRegion(it)

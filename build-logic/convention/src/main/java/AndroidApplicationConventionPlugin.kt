@@ -1,31 +1,25 @@
 import com.android.build.api.dsl.ApplicationExtension
 import com.bowoon.convention.Config
 import com.bowoon.convention.Config.getProp
-import com.bowoon.convention.configureFlavors
 import com.bowoon.convention.configureKotlinAndroid
 import com.bowoon.convention.libs
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.dependencies
 
 class AndroidApplicationConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
-            with(pluginManager) {
-                apply("com.android.application")
-                apply("com.google.devtools.ksp")
-                apply("org.jetbrains.kotlin.android")
-                apply("org.jetbrains.kotlin.plugin.serialization")
-                apply("org.jetbrains.kotlin.plugin.parcelize")
-            }
+            apply(plugin = "com.android.application")
+            apply(plugin = "org.jetbrains.kotlin.android")
 
             extensions.configure<ApplicationExtension> {
                 defaultConfig {
                     compileSdk = Config.Application.Movie.compileSdkVersion
                     minSdk = Config.Application.Movie.minSdkVersion
                     extensions.configure<ApplicationExtension> {
-                        namespace = Config.Application.Movie.applicationId
                         applicationId = Config.Application.Movie.applicationId
                         targetSdk = Config.Application.Movie.targetSdkVersion
                         versionName = Config.Application.Movie.versionName
@@ -51,18 +45,23 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                     setProperty("archivesBaseName", "${Config.Application.Movie.appName}-v${versionName}")
                 }
 
+                namespace = Config.Application.Movie.applicationId
+
                 buildTypes {
                     debug {
 //                        applicationIdSuffix = MovieAppBuildType.DEBUG.applicationIdSuffix
                         isMinifyEnabled = false
+                        isDebuggable = true
+                        isJniDebuggable = true
                         buildConfigField("Boolean", "IS_DEBUGGING_LOGGING", "true")
                         signingConfig = signingConfigs.getByName(Config.Application.Movie.Sign.Debug.name)
                     }
                     release {
 //                        applicationIdSuffix = MovieAppBuildType.RELEASE.applicationIdSuffix
                         isMinifyEnabled = true
-                        isShrinkResources = true
+//                        isShrinkResources = true
                         isDebuggable = false
+                        isJniDebuggable = false
                         proguardFiles(
                             getDefaultProguardFile(Config.ApplicationSetting.defaultProguardFile),
                             Config.ApplicationSetting.proguardFile
@@ -72,8 +71,13 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                     }
                 }
 
-                configureFlavors(this)
+//                configureFlavors(this)
                 configureKotlinAndroid(this)
+
+//                lint {
+//                    checkReleaseBuilds = false
+//                    abortOnError = false
+//                }
             }
 
             dependencies {

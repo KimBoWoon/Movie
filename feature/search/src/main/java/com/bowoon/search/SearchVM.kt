@@ -21,7 +21,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SearchVM @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
+    savedStateHandle: SavedStateHandle,
     private val getSearchListUseCase: GetSearchListUseCase,
     private val databaseRepository: DatabaseRepository
 ) : ViewModel() {

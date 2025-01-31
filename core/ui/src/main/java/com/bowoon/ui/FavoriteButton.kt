@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import com.bowoon.movie.core.ui.R
 
 @Composable
 fun FavoriteButton(

@@ -1,5 +1,6 @@
 package com.bowoon.common
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
@@ -47,6 +48,7 @@ object StorageUtils {
 //    }
 //}
 
+@Suppress("DEPRECATION")
 inline fun <reified T> Bundle.getSafetyParcelable(key: String): T? =
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         getParcelable(key, T::class.java)
@@ -54,6 +56,7 @@ inline fun <reified T> Bundle.getSafetyParcelable(key: String): T? =
         getParcelable(key)
     }
 
+@Suppress("DEPRECATION")
 inline fun <reified T> Intent.getSafetyParcelable(key: String): T? =
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         getParcelableExtra(key, T::class.java)

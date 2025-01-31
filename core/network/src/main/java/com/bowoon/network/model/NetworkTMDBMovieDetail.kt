@@ -1,33 +1,30 @@
 package com.bowoon.network.model
 
 
-import com.bowoon.model.tmdb.TMBDMovieDetailVideos
-import com.bowoon.model.tmdb.TMDBMovieDetail
-import com.bowoon.model.tmdb.TMDBMovieDetailAlternativeTitles
-import com.bowoon.model.tmdb.TMDBMovieDetailBelongsToCollection
-import com.bowoon.model.tmdb.TMDBMovieDetailCast
-import com.bowoon.model.tmdb.TMDBMovieDetailChange
-import com.bowoon.model.tmdb.TMDBMovieDetailChanges
-import com.bowoon.model.tmdb.TMDBMovieDetailCountry
-import com.bowoon.model.tmdb.TMDBMovieDetailCredits
-import com.bowoon.model.tmdb.TMDBMovieDetailCrew
-import com.bowoon.model.tmdb.TMDBMovieDetailData
-import com.bowoon.model.tmdb.TMDBMovieDetailGenre
-import com.bowoon.model.tmdb.TMDBMovieDetailImage
-import com.bowoon.model.tmdb.TMDBMovieDetailImages
-import com.bowoon.model.tmdb.TMDBMovieDetailItem
-import com.bowoon.model.tmdb.TMDBMovieDetailKeyword
-import com.bowoon.model.tmdb.TMDBMovieDetailKeywords
-import com.bowoon.model.tmdb.TMDBMovieDetailProductionCompany
-import com.bowoon.model.tmdb.TMDBMovieDetailProductionCountry
-import com.bowoon.model.tmdb.TMDBMovieDetailReleases
-import com.bowoon.model.tmdb.TMDBMovieDetailSimilar
-import com.bowoon.model.tmdb.TMDBMovieDetailSimilarResult
-import com.bowoon.model.tmdb.TMDBMovieDetailSpokenLanguage
-import com.bowoon.model.tmdb.TMDBMovieDetailTitle
-import com.bowoon.model.tmdb.TMDBMovieDetailTranslation
-import com.bowoon.model.tmdb.TMDBMovieDetailTranslations
-import com.bowoon.model.tmdb.TMDBMovieDetailVideoResult
+import com.bowoon.model.AlternativeTitle
+import com.bowoon.model.AlternativeTitles
+import com.bowoon.model.BelongsToCollection
+import com.bowoon.model.Cast
+import com.bowoon.model.Country
+import com.bowoon.model.Credits
+import com.bowoon.model.Crew
+import com.bowoon.model.DetailImage
+import com.bowoon.model.Genre
+import com.bowoon.model.Keyword
+import com.bowoon.model.Keywords
+import com.bowoon.model.MovieDetail
+import com.bowoon.model.MovieDetailImages
+import com.bowoon.model.ProductionCompany
+import com.bowoon.model.ProductionCountry
+import com.bowoon.model.Releases
+import com.bowoon.model.SimilarMovie
+import com.bowoon.model.SimilarMovies
+import com.bowoon.model.SpokenLanguage
+import com.bowoon.model.Translation
+import com.bowoon.model.TranslationInfo
+import com.bowoon.model.Translations
+import com.bowoon.model.VideoInfo
+import com.bowoon.model.Videos
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -463,8 +460,8 @@ data class NetworkTMDBMovieDetailSimilarResult(
     val voteCount: Int? = null
 )
 
-fun NetworkTMDBMovieDetail.asExternalModel(): TMDBMovieDetail =
-    TMDBMovieDetail(
+fun NetworkTMDBMovieDetail.asExternalModel(): MovieDetail =
+    MovieDetail(
         adult = adult,
         alternativeTitles = alternativeTitles?.asExternalModel(),
         backdropPath = backdropPath,
@@ -498,71 +495,70 @@ fun NetworkTMDBMovieDetail.asExternalModel(): TMDBMovieDetail =
         video = video,
         videos = videos?.asExternalModel(),
         voteCount = voteCount,
-        voteAverage = voteAverage,
-        similar = similar?.asExternalModel()
+        voteAverage = voteAverage
     )
 
-fun NetworkTMDBMovieDetailAlternativeTitles.asExternalModel(): TMDBMovieDetailAlternativeTitles =
-    TMDBMovieDetailAlternativeTitles(
+fun NetworkTMDBMovieDetailAlternativeTitles.asExternalModel(): AlternativeTitles =
+    AlternativeTitles(
         titles = titles?.asExternalModel()
     )
 
 @JvmName("NetworkTMDBMovieDetailTitleAsExternalModel")
-fun List<NetworkTMDBMovieDetailTitle>.asExternalModel(): List<TMDBMovieDetailTitle> =
+fun List<NetworkTMDBMovieDetailTitle>.asExternalModel(): List<AlternativeTitle> =
     map {
-        TMDBMovieDetailTitle(
+        AlternativeTitle(
             iso31661 = it.iso31661,
             title = it.title,
             type = it.type
         )
     }
 
-fun NetworkTMDBMovieDetailBelongsToCollection.asExternalModel(): TMDBMovieDetailBelongsToCollection =
-    TMDBMovieDetailBelongsToCollection(
+fun NetworkTMDBMovieDetailBelongsToCollection.asExternalModel(): BelongsToCollection =
+    BelongsToCollection(
         backdropPath = backdropPath,
         id = id,
         name = name,
         posterPath = posterPath
     )
 
-fun NetworkTMDBMovieDetailChanges.asExternalModel(): TMDBMovieDetailChanges =
-    TMDBMovieDetailChanges(
-        changes = changes?.asExternalModel()
-    )
+//fun NetworkTMDBMovieDetailChanges.asExternalModel(): Changes =
+//    Changes(
+//        changes = changes?.asExternalModel()
+//    )
+//
+//@JvmName("NetworkTMDBMovieDetailChangeAsExternalModel")
+//fun List<NetworkTMDBMovieDetailChange>.asExternalModel(): List<Change> =
+//    map {
+//        Change(
+//            items = it.items?.asExternalModel(),
+//            key = it.key
+//        )
+//    }
+//
+//@JvmName("NetworkTMDBMovieDetailItemAsExternalModel")
+//fun List<NetworkTMDBMovieDetailItem>.asExternalModel(): List<ChangeItem> =
+//    map {
+//        ChangeItem(
+//            action = it.action,
+//            id = it.id,
+//            iso31661 = it.iso31661,
+//            iso6391 = it.iso6391,
+//            originalValue = it.originalValue,
+//            time = it.time,
+//            value = it.value
+//        )
+//    }
 
-@JvmName("NetworkTMDBMovieDetailChangeAsExternalModel")
-fun List<NetworkTMDBMovieDetailChange>.asExternalModel(): List<TMDBMovieDetailChange> =
-    map {
-        TMDBMovieDetailChange(
-            items = it.items?.asExternalModel(),
-            key = it.key
-        )
-    }
-
-@JvmName("NetworkTMDBMovieDetailItemAsExternalModel")
-fun List<NetworkTMDBMovieDetailItem>.asExternalModel(): List<TMDBMovieDetailItem> =
-    map {
-        TMDBMovieDetailItem(
-            action = it.action,
-            id = it.id,
-            iso31661 = it.iso31661,
-            iso6391 = it.iso6391,
-            originalValue = it.originalValue,
-            time = it.time,
-            value = it.value
-        )
-    }
-
-fun NetworkTMDBMovieDetailCredits.asExternalModel(): TMDBMovieDetailCredits =
-    TMDBMovieDetailCredits(
+fun NetworkTMDBMovieDetailCredits.asExternalModel(): Credits =
+    Credits(
         cast = cast?.asExternalModel(),
         crew = crew?.asExternalModel()
     )
 
 @JvmName("NetworkTMDBMovieDetailCastAsExternalModel")
-fun List<NetworkTMDBMovieDetailCast>.asExternalModel(): List<TMDBMovieDetailCast> =
+fun List<NetworkTMDBMovieDetailCast>.asExternalModel(): List<Cast> =
     map {
-        TMDBMovieDetailCast(
+        Cast(
             adult = it.adult,
             castId = it.castId,
             character = it.character,
@@ -579,9 +575,9 @@ fun List<NetworkTMDBMovieDetailCast>.asExternalModel(): List<TMDBMovieDetailCast
     }
 
 @JvmName("NetworkTMDBMovieDetailCrewAsExternalModel")
-fun List<NetworkTMDBMovieDetailCrew>.asExternalModel(): List<TMDBMovieDetailCrew> =
+fun List<NetworkTMDBMovieDetailCrew>.asExternalModel(): List<Crew> =
     map {
-        TMDBMovieDetailCrew(
+        Crew(
             adult = it.adult,
             creditId = it.creditId,
             gender = it.gender,
@@ -597,25 +593,25 @@ fun List<NetworkTMDBMovieDetailCrew>.asExternalModel(): List<TMDBMovieDetailCrew
     }
 
 @JvmName("NetworkTMDBMovieDetailGenreAsExternalModel")
-fun List<NetworkTMDBMovieDetailGenre>.asExternalModel(): List<TMDBMovieDetailGenre> =
+fun List<NetworkTMDBMovieDetailGenre>.asExternalModel(): List<Genre> =
     map {
-        TMDBMovieDetailGenre(
+        Genre(
             id = it.id,
             name = it.name
         )
     }
 
-fun NetworkTMDBMovieDetailImages.asExternalModel(): TMDBMovieDetailImages =
-    TMDBMovieDetailImages(
+fun NetworkTMDBMovieDetailImages.asExternalModel(): MovieDetailImages =
+    MovieDetailImages(
         backdrops = backdrops?.asExternalModel(),
         logos = logos?.asExternalModel(),
         posters = posters?.asExternalModel()
     )
 
 @JvmName("NetworkTMDBMovieDetailImageAsExternalModel")
-fun List<NetworkTMDBMovieDetailImage>.asExternalModel(): List<TMDBMovieDetailImage> =
+fun List<NetworkTMDBMovieDetailImage>.asExternalModel(): List<DetailImage> =
     map {
-        TMDBMovieDetailImage(
+        DetailImage(
             aspectRatio = it.aspectRatio,
             filePath = it.filePath,
             height = it.height,
@@ -626,33 +622,33 @@ fun List<NetworkTMDBMovieDetailImage>.asExternalModel(): List<TMDBMovieDetailIma
         )
     }
 
-fun NetworkTMDBMovieDetailKeywords.asExternalModel(): TMDBMovieDetailKeywords =
-    TMDBMovieDetailKeywords(
+fun NetworkTMDBMovieDetailKeywords.asExternalModel(): Keywords =
+    Keywords(
         keywords = keywords?.asExternalModel()
     )
 
 @JvmName("NetworkTMDBMovieDetailKeywordAsExternalModel")
-fun List<NetworkTMDBMovieDetailKeyword>.asExternalModel(): List<TMDBMovieDetailKeyword> =
+fun List<NetworkTMDBMovieDetailKeyword>.asExternalModel(): List<Keyword> =
     map {
-        TMDBMovieDetailKeyword(
+        Keyword(
             id = it.id,
             name = it.name
         )
     }
 
 @JvmName("NetworkTMDBMovieDetailProductionCountryAsExternalModel")
-fun List<NetworkTMDBMovieDetailProductionCountry>.asExternalModel(): List<TMDBMovieDetailProductionCountry> =
+fun List<NetworkTMDBMovieDetailProductionCountry>.asExternalModel(): List<ProductionCountry> =
     map {
-        TMDBMovieDetailProductionCountry(
+        ProductionCountry(
             iso31661 = it.iso31661,
             name = it.name
         )
     }
 
 @JvmName("NetworkTMDBMovieDetailProductionCompanyAsExternalModel")
-fun List<NetworkTMDBMovieDetailProductionCompany>.asExternalModel(): List<TMDBMovieDetailProductionCompany> =
+fun List<NetworkTMDBMovieDetailProductionCompany>.asExternalModel(): List<ProductionCompany> =
     map {
-        TMDBMovieDetailProductionCompany(
+        ProductionCompany(
             id = it.id,
             logoPath = it.logoPath,
             name = it.name,
@@ -660,15 +656,15 @@ fun List<NetworkTMDBMovieDetailProductionCompany>.asExternalModel(): List<TMDBMo
         )
     }
 
-fun NetworkTMDBMovieDetailReleases.asExternalModel(): TMDBMovieDetailReleases =
-    TMDBMovieDetailReleases(
+fun NetworkTMDBMovieDetailReleases.asExternalModel(): Releases =
+    Releases(
         countries = countries?.asExternalModel()
     )
 
 @JvmName("NetworkTMDBMovieDetailCountryAsExternalModel")
-fun List<NetworkTMDBMovieDetailCountry>.asExternalModel(): List<TMDBMovieDetailCountry> =
+fun List<NetworkTMDBMovieDetailCountry>.asExternalModel(): List<Country> =
     map {
-        TMDBMovieDetailCountry(
+        Country(
             certification = it.certification,
             descriptors = it.descriptors,
             iso31661 = it.iso31661,
@@ -678,25 +674,25 @@ fun List<NetworkTMDBMovieDetailCountry>.asExternalModel(): List<TMDBMovieDetailC
     }
 
 @JvmName("NetworkTMDBMovieDetailSpokenLanguageAsExternalModel")
-fun List<NetworkTMDBMovieDetailSpokenLanguage>.asExternalModel(): List<TMDBMovieDetailSpokenLanguage> =
+fun List<NetworkTMDBMovieDetailSpokenLanguage>.asExternalModel(): List<SpokenLanguage> =
     map {
-        TMDBMovieDetailSpokenLanguage(
+        SpokenLanguage(
             englishName = it.englishName,
             iso6391 = it.iso6391,
             name = it.name
         )
     }
 
-fun NetworkTMDBMovieDetailTranslations.asExternalModel(): TMDBMovieDetailTranslations =
-    TMDBMovieDetailTranslations(
+fun NetworkTMDBMovieDetailTranslations.asExternalModel(): Translations =
+    Translations(
         translations = translations?.asExternalModel()
     )
 
 @JvmName("NetworkTMDBMovieDetailTranslationAsExternalModel")
-fun List<NetworkTMDBMovieDetailTranslation>.asExternalModel(): List<TMDBMovieDetailTranslation> =
+fun List<NetworkTMDBMovieDetailTranslation>.asExternalModel(): List<Translation> =
     map {
-        TMDBMovieDetailTranslation(
-            data = it.data?.asExternalModel(),
+        Translation(
+            translationInfo = it.data?.asExternalModel(),
             englishName = it.englishName,
             iso6391 = it.iso6391,
             iso31661 = it.iso31661,
@@ -704,8 +700,8 @@ fun List<NetworkTMDBMovieDetailTranslation>.asExternalModel(): List<TMDBMovieDet
         )
     }
 
-fun NetworkTMDBMovieDetailData.asExternalModel(): TMDBMovieDetailData =
-    TMDBMovieDetailData(
+fun NetworkTMDBMovieDetailData.asExternalModel(): TranslationInfo =
+    TranslationInfo(
         homepage = homepage,
         overview = overview,
         runtime = runtime,
@@ -713,15 +709,15 @@ fun NetworkTMDBMovieDetailData.asExternalModel(): TMDBMovieDetailData =
         title = title
     )
 
-fun NetworkTMDBMovieDetailVideos.asExternalModel(): TMBDMovieDetailVideos =
-    TMBDMovieDetailVideos(
+fun NetworkTMDBMovieDetailVideos.asExternalModel(): Videos =
+    Videos(
         results = results?.asExternalModel()
     )
 
 @JvmName("NetworkTMDBVideoResultAsExternalModel")
-fun List<NetworkTMDBVideoResult>.asExternalModel(): List<TMDBMovieDetailVideoResult> =
+fun List<NetworkTMDBVideoResult>.asExternalModel(): List<VideoInfo> =
     map {
-        TMDBMovieDetailVideoResult(
+        VideoInfo(
             id = it.id,
             iso31661 = it.iso31661,
             iso6391 = it.iso6391,
@@ -735,18 +731,17 @@ fun List<NetworkTMDBVideoResult>.asExternalModel(): List<TMDBMovieDetailVideoRes
         )
     }
 
-fun NetworkTMDBMovieDetailSimilar.asExternalModel(): TMDBMovieDetailSimilar =
-    TMDBMovieDetailSimilar(
+fun NetworkTMDBMovieDetailSimilar.asExternalModel(): SimilarMovies =
+    SimilarMovies(
         page = page,
         results = results?.asExternalModel(),
         totalPages = totalPages,
         totalResults = totalResults
     )
 
-@JvmName("NetworkTMDBMovieDetailSimilarResultAsExternalModel")
-fun List<NetworkTMDBMovieDetailSimilarResult>.asExternalModel(): List<TMDBMovieDetailSimilarResult> =
+fun List<NetworkTMDBMovieDetailSimilarResult>.asExternalModel(): List<SimilarMovie> =
     map {
-        TMDBMovieDetailSimilarResult(
+        SimilarMovie(
             adult = it.adult,
             backdropPath = it.backdropPath,
             genreIds = it.genreIds,

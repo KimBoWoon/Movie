@@ -1,9 +1,9 @@
 package com.bowoon.network.model
 
 
-import com.bowoon.model.tmdb.TMDBNowPlaying
-import com.bowoon.model.tmdb.TMDBNowPlayingDates
-import com.bowoon.model.tmdb.TMDBNowPlayingResult
+import com.bowoon.model.NowPlayingData
+import com.bowoon.model.NowPlayingDates
+import com.bowoon.model.NowPlaying
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -61,8 +61,8 @@ data class NetworkTMDBNowPlayingResult(
     val voteCount: Int? = null
 )
 
-fun NetworkTMDBNowPlaying.asExternalModel(): TMDBNowPlaying =
-    TMDBNowPlaying(
+fun NetworkTMDBNowPlaying.asExternalModel(): NowPlayingData =
+    NowPlayingData(
         dates = dates?.asExternalModel(),
         page = page,
         results = results?.asExternalModel(),
@@ -70,15 +70,15 @@ fun NetworkTMDBNowPlaying.asExternalModel(): TMDBNowPlaying =
         totalPages = totalPages
     )
 
-fun NetworkTMDBNowPlayingDates.asExternalModel(): TMDBNowPlayingDates =
-    TMDBNowPlayingDates(
+fun NetworkTMDBNowPlayingDates.asExternalModel(): NowPlayingDates =
+    NowPlayingDates(
         maximum = maximum,
         minimum = minimum
     )
 
-fun List<NetworkTMDBNowPlayingResult>.asExternalModel(): List<TMDBNowPlayingResult> =
+fun List<NetworkTMDBNowPlayingResult>.asExternalModel(): List<NowPlaying> =
     map {
-        TMDBNowPlayingResult(
+        NowPlaying(
             adult = it.adult,
             backdropPath = it.backdropPath,
             genreIds = it.genreIds,

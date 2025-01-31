@@ -1,8 +1,8 @@
 package com.bowoon.network.model
 
 
-import com.bowoon.model.tmdb.TMDBSearch
-import com.bowoon.model.tmdb.TMDBSearchResult
+import com.bowoon.model.MovieSearchData
+import com.bowoon.model.MovieSearchItem
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -50,17 +50,17 @@ data class NetworkTMDBSearchResult(
     val voteCount: Int? = null
 )
 
-fun NetworkTMDBSearch.asExternalModel(): TMDBSearch =
-    TMDBSearch(
+fun NetworkTMDBSearch.asExternalModel(): MovieSearchData =
+    MovieSearchData(
         page = page,
         results = results?.asExternalModel(),
         totalPages = totalPages,
         totalResults = totalResults
     )
 
-fun List<NetworkTMDBSearchResult>.asExternalModel(): List<TMDBSearchResult> =
+fun List<NetworkTMDBSearchResult>.asExternalModel(): List<MovieSearchItem> =
     map {
-        TMDBSearchResult(
+        MovieSearchItem(
             adult = it.adult,
             backdropPath = it.backdropPath,
             genreIds = it.genreIds,

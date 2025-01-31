@@ -1,4 +1,4 @@
-package com.bowoon.model.tmdb
+package com.bowoon.model
 
 sealed interface SearchResult {
     val tmdbId: Int?

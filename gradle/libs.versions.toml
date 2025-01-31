@@ -1,6 +1,6 @@
 [versions]
 # kotlin
-kotlin = "2.1.0"
+kotlin = "2.1.10"
 
 # plugin
 googleService = "4.4.2"
@@ -9,14 +9,14 @@ googleService = "4.4.2"
 agp = "8.8.0"
 
 # ksp
-ksp = "2.1.0-1.0.29"
+ksp = "2.1.10-1.0.29"
 
 # jvm
 jetbrainsKotlinJvm = "2.1.0"
 
 # jetpack
 coreKtx = "1.15.0"
-lifecycleRuntime = "2.8.7"
+androidxLifecycle = "2.8.7"
 appcompat = "1.7.0"
 constraintlayout = "2.2.0"
 material = "1.12.0"
@@ -30,10 +30,10 @@ startup = "1.2.0"
 exoPlayer = "1.5.1"
 
 # compose
-composeBom = "2025.01.00"
+composeBom = "2025.01.01"
 activityCompose = "1.10.0"
 compose-compiler = "1.4.5"
-compose-navigation = "2.8.5"
+compose-navigation = "2.8.6"
 compose-hilt-navigation = "1.2.0"
 compose-paging = "3.3.5"
 androidxNavigation = "2.8.4"
@@ -49,8 +49,8 @@ kotlinxCoroutines = "1.10.1"
 espressoCore = "3.6.1"
 
 # hilt
-hilt = "2.54"
-hilt-compiler = "1.2.0"
+hilt = "2.55"
+hiltExt = "1.2.0"
 
 # retrofit2
 mockwebserver = "4.12.0"
@@ -100,7 +100,7 @@ kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.re
 # jetpack
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
-androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntime" }
+#androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntime" }
 androidx-activity = { group = "androidx.activity", name = "activity-ktx", version.ref = "activity" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
@@ -127,10 +127,11 @@ androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-man
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-compose-hilt-navigation = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "compose-hilt-navigation" }
 androidx-compose-paging = { module = "androidx.paging:paging-compose", version.ref = "compose-paging" }
-androidx-lifecycle-runtimeCompose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycleRuntime" }
+androidx-lifecycle-runtimeCompose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidxLifecycle" }
+androidx-lifecycle-runtimeTesting = { group = "androidx.lifecycle", name = "lifecycle-runtime-testing", version.ref = "androidxLifecycle" }
+androidx-lifecycle-viewModelCompose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "androidxLifecycle" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "compose-navigation" }
 androidx-navigation-testing = { group = "androidx.navigation", name = "navigation-testing", version.ref = "compose-navigation" }
-androidx-lifecycle-runtimeTesting = { group = "androidx.lifecycle", name = "lifecycle-runtime-testing", version.ref = "lifecycleRuntime" }
 androidx-compose-material3-navigationSuite = { group = "androidx.compose.material3", name = "material3-adaptive-navigation-suite" }
 
 # material
@@ -148,11 +149,12 @@ kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-cor
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 
 # hilt
-hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
-hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt" }
-hilt-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "hilt-compiler" }
+hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-android-testing = { group = "com.google.dagger", name = "hilt-android-testing", version.ref = "hilt" }
-hilt-ext-work = { group = "androidx.hilt", name = "hilt-work", version.ref = "hilt-compiler" }
+hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
+hilt-core = { group = "com.google.dagger", name = "hilt-core", version.ref = "hilt" }
+hilt-ext-compiler = { group = "androidx.hilt", name = "hilt-compiler", version.ref = "hiltExt" }
+hilt-ext-work = { group = "androidx.hilt", name = "hilt-work", version.ref = "hiltExt" }
 
 # kotlin serialization
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization-kotlin" }
@@ -199,6 +201,13 @@ threetenabp = { group = "com.jakewharton.threetenabp", name = "threetenabp", ver
 # youtube player
 youtube-player = { group = "com.pierfrancescosoffritti.androidyoutubeplayer", name = "core", version.ref = "youtubePlayer" }
 
+# Inject
+javax-inject = { module = "javax.inject:javax.inject", version = "1" }
+
+# plugin
+ksp-gradlePlugin = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
+room-gradlePlugin = { group = "androidx.room", name = "room-gradle-plugin", version.ref = "room" }
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
@@ -212,3 +221,16 @@ compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "
 google-service = { id = "com.google.gms.google-services", version.ref = "googleService" }
 firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlyticsPlugin" }
 firebase-perf = { id = "com.google.firebase.firebase-perf", version.ref = "firebasePerfPlugin" }
+room = { id = "androidx.room", version.ref = "room" }
+
+# Plugins defined by this project
+bowoon-android-application = { id = "bowoon.android.application" }
+bowoon-android-application-compose = { id = "bowoon.android.application.compose" }
+bowoon-android-application-firebase = { id = "bowoon.android.application.firebase" }
+bowoon-android-application-flavors = { id = "bowoon.android.application.flavors" }
+bowoon-android-feature = { id = "bowoon.android.feature" }
+bowoon-android-library = { id = "bowoon.android.library" }
+bowoon-android-library-compose = { id = "bowoon.android.library.compose" }
+bowoon-android-room = { id = "bowoon.android.room" }
+bowoon-hilt = { id = "bowoon.hilt" }
+bowoon-jvm-library = { id = "bowoon.jvm.library" }

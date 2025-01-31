@@ -1,7 +1,7 @@
-package com.bowoon.model.tmdb
+package com.bowoon.model
 
 
-data class TMDBExternalIds(
+data class ExternalIds(
     val facebookId: String? = null,
     val freebaseId: String? = null,
     val freebaseMid: String? = null,

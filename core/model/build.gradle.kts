@@ -1,9 +1,9 @@
 plugins {
-    id("bowoon.library")
+    alias(libs.plugins.bowoon.android.library)
 }
 
 android {
-    namespace = "com.bowoon.model"
+    namespace = "com.bowoon.movie.core.model"
 }
 
 dependencies {

@@ -1,9 +1,9 @@
 package com.bowoon.network.model
 
 
-import com.bowoon.model.tmdb.TMDBCombineCredits
-import com.bowoon.model.tmdb.TMDBCombineCreditsCast
-import com.bowoon.model.tmdb.TMDBCombineCreditsCrew
+import com.bowoon.model.CombineCredits
+import com.bowoon.model.CombineCreditsCast
+import com.bowoon.model.CombineCreditsCrew
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -118,17 +118,17 @@ data class NetworkTMDBCombineCreditsCrew(
 )
 
 @JvmName("NetworkTMDBCombine")
-fun NetworkTMDBCombineCredits.asExternalModel(): TMDBCombineCredits =
-    TMDBCombineCredits(
+fun NetworkTMDBCombineCredits.asExternalModel(): CombineCredits =
+    CombineCredits(
         cast = cast?.asExternalModel(),
         crew = crew?.asExternalModel(),
         id = id
     )
 
 @JvmName("NetworkTMDBCombineCreditsCast")
-fun List<NetworkTMDBCombineCreditsCast>.asExternalModel(): List<TMDBCombineCreditsCast> =
+fun List<NetworkTMDBCombineCreditsCast>.asExternalModel(): List<CombineCreditsCast> =
     map {
-        TMDBCombineCreditsCast(
+        CombineCreditsCast(
             adult = it.adult,
             backdropPath = it.backdropPath,
             character = it.character,
@@ -156,9 +156,9 @@ fun List<NetworkTMDBCombineCreditsCast>.asExternalModel(): List<TMDBCombineCredi
     }
 
 @JvmName("NetworkTMDBCombineCreditsCrew")
-fun List<NetworkTMDBCombineCreditsCrew>.asExternalModel(): List<TMDBCombineCreditsCrew> =
+fun List<NetworkTMDBCombineCreditsCrew>.asExternalModel(): List<CombineCreditsCrew> =
     map {
-        TMDBCombineCreditsCrew(
+        CombineCreditsCrew(
             adult = it.adult,
             backdropPath = it.backdropPath,
             creditId = it.creditId,

@@ -1,13 +1,16 @@
-package com.bowoon.model.tmdb
+package com.bowoon.model
 
+import kotlinx.serialization.Serializable
 
-data class TMDBCombineCredits(
-    val cast: List<TMDBCombineCreditsCast>? = null,
-    val crew: List<TMDBCombineCreditsCrew>? = null,
+@Serializable
+data class CombineCredits(
+    val cast: List<CombineCreditsCast>? = null,
+    val crew: List<CombineCreditsCrew>? = null,
     val id: Int? = null
 )
 
-data class TMDBCombineCreditsCast(
+@Serializable
+data class CombineCreditsCast(
     val adult: Boolean? = null,
     val backdropPath: String? = null,
     val character: String? = null,
@@ -33,7 +36,8 @@ data class TMDBCombineCreditsCast(
     val voteCount: Int? = null
 )
 
-data class TMDBCombineCreditsCrew(
+@Serializable
+data class CombineCreditsCrew(
     val adult: Boolean? = null,
     val backdropPath: String? = null,
     val creditId: String? = null,

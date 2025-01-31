@@ -1,5 +1,7 @@
 package com.bowoon.common
 
+import com.bowoon.movie.core.common.BuildConfig
+
 object Log {
     private val IS_SHOWING = BuildConfig.IS_DEBUGGING_LOGGING
     private const val PREFIX = "movie_"

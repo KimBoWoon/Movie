@@ -1,8 +1,8 @@
 package com.bowoon.network.model
 
 
-import com.bowoon.model.tmdb.TMDBMovieGenre
-import com.bowoon.model.tmdb.TMDBMovieGenres
+import com.bowoon.model.MovieGenre
+import com.bowoon.model.MovieGenreList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -20,14 +20,14 @@ data class NetworkTMDBMovieGenre(
     val name: String? = null
 )
 
-fun NetworkTMDBMovieGenres.asExternalModel(): TMDBMovieGenres =
-    TMDBMovieGenres(
+fun NetworkTMDBMovieGenres.asExternalModel(): MovieGenreList =
+    MovieGenreList(
         genres = genres?.asExternalModel()
     )
 
-fun List<NetworkTMDBMovieGenre>.asExternalModel(): List<TMDBMovieGenre> =
+fun List<NetworkTMDBMovieGenre>.asExternalModel(): List<MovieGenre> =
     map {
-        TMDBMovieGenre(
+        MovieGenre(
             id = it.id,
             name = it.name
         )

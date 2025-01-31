@@ -3,9 +3,9 @@ package com.bowoon.database.model
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.bowoon.model.CombineCredits
-import com.bowoon.model.PeopleDetail
+import com.bowoon.model.DetailImage
+import com.bowoon.model.PeopleDetailData
 import com.bowoon.model.PeopleExternalIds
-import com.bowoon.model.PeopleImage
 
 @Entity(tableName = "peoples")
 data class PeopleEntity(
@@ -19,12 +19,12 @@ data class PeopleEntity(
     val deathday: String?,
     val combineCredits: CombineCredits?,
     val externalIds: PeopleExternalIds?,
-    val images: List<PeopleImage>?,
+    val images: List<DetailImage>?,
     val placeOfBirth: String?,
     val profilePath: String?,
 )
 
-fun PeopleEntity.asExternalModel(): PeopleDetail = PeopleDetail(
+fun PeopleEntity.asExternalModel(): PeopleDetailData = PeopleDetailData(
     id = id,
     name = name,
     gender = gender,

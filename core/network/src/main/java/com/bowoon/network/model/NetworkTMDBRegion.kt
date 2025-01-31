@@ -1,8 +1,8 @@
 package com.bowoon.network.model
 
 
-import com.bowoon.model.tmdb.TMDBRegion
-import com.bowoon.model.tmdb.TMDBRegionResult
+import com.bowoon.model.RegionList
+import com.bowoon.model.Region
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -22,14 +22,14 @@ data class NetworkTMDBRegionResult(
     val nativeName: String? = null
 )
 
-fun NetworkTMDBRegion.asExternalModel(): TMDBRegion =
-    TMDBRegion(
+fun NetworkTMDBRegion.asExternalModel(): RegionList =
+    RegionList(
         results = results?.asExternalModel()
     )
 
-fun List<NetworkTMDBRegionResult>.asExternalModel(): List<TMDBRegionResult> =
+fun List<NetworkTMDBRegionResult>.asExternalModel(): List<Region> =
     map {
-        TMDBRegionResult(
+        Region(
             englishName = it.englishName,
             iso31661 = it.iso31661,
             nativeName = it.nativeName

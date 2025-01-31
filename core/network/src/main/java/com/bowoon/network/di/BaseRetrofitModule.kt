@@ -1,6 +1,6 @@
 package com.bowoon.network.di
 
-import com.bowoon.network.BuildConfig
+import com.bowoon.movie.core.network.BuildConfig
 import com.bowoon.network.NetworkLogInterceptor
 import com.localebro.okhttpprofiler.OkHttpProfilerInterceptor
 import dagger.Module

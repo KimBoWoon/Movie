@@ -1,13 +1,13 @@
-package com.bowoon.model.tmdb
+package com.bowoon.model
 
-data class TMDBSearch(
+data class MovieSearchData(
     val page: Int? = null,
-    val results: List<TMDBSearchResult>? = null,
+    val results: List<MovieSearchItem>? = null,
     val totalPages: Int? = null,
     val totalResults: Int? = null
 )
 
-data class TMDBSearchResult(
+data class MovieSearchItem(
     val adult: Boolean? = null,
     val backdropPath: String? = null,
     val genreIds: List<Int>? = null,
