@@ -81,7 +81,7 @@ fun CollapsingToolbar(
                     modifier = Modifier
                         .fillMaxWidth()
                         .aspectRatio(3f / 4f),
-                    source = people.images?.get(index)?.filePath ?: "",
+                    source = "${people.posterUrl}${people.images?.get(index)?.filePath}",
                     contentDescription = "PeopleImages"
                 )
             }
