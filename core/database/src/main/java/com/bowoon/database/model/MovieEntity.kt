@@ -4,7 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.bowoon.model.MovieDetail
-import com.bowoon.model.tmdb.TMDBMovieDetailReleases
+import com.bowoon.model.Releases
 
 @Entity(tableName = "movies")
 data class MovieEntity(
@@ -13,7 +13,7 @@ data class MovieEntity(
     @ColumnInfo(defaultValue = "")
     val posterPath: String,
     val timestamp: Long,
-    val releases: TMDBMovieDetailReleases?,
+    val releases: Releases?,
     @ColumnInfo(defaultValue = "", typeAffinity = ColumnInfo.TEXT)
     val releaseDate: String,
     @ColumnInfo(defaultValue = "", typeAffinity = ColumnInfo.TEXT)

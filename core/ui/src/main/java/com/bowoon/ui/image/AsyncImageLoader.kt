@@ -84,6 +84,7 @@ fun DynamicAsyncImageLoader(
     }
 }
 
+@Suppress("DEPRECATION")
 @JvmName("ContextExtensionGetScreenHeight")
 fun Context.getScreenHeight(): Int =
     runCatching {
@@ -96,6 +97,7 @@ fun Context.getScreenHeight(): Int =
         displayMetrics.heightPixels
     }
 
+@Suppress("DEPRECATION")
 fun getScreenHeight(context: Context): Int =
     runCatching {
         context.resources.displayMetrics.heightPixels

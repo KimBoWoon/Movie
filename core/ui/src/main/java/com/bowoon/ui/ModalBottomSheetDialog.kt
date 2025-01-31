@@ -1,7 +1,6 @@
 package com.bowoon.ui
 
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -10,7 +9,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.bowoon.model.tmdb.TMDBMovieDetailImage
+import com.bowoon.model.DetailImage
 import com.bowoon.ui.image.DynamicAsyncImageLoader
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -22,7 +21,7 @@ fun ModalBottomSheetDialog(
     state: SheetState,
     scope: CoroutineScope,
     index: Int,
-    imageList: List<TMDBMovieDetailImage>,
+    imageList: List<DetailImage>,
     onClickCancel: () -> Unit
 ) {
     ModalBottomSheet(

@@ -1,8 +1,9 @@
 plugins {
-    id("bowoon.application")
-    id("bowoon.application.compose")
-    id("bowoon.hilt")
-    id("bowoon.android.application.firebase")
+    alias(libs.plugins.bowoon.android.application)
+    alias(libs.plugins.bowoon.android.application.compose)
+    alias(libs.plugins.bowoon.hilt)
+    alias(libs.plugins.bowoon.android.application.firebase)
+    alias(libs.plugins.bowoon.android.application.flavors)
 }
 
 dependencies {
@@ -11,6 +12,7 @@ dependencies {
         projects.core.data,
         projects.core.ui,
         projects.core.sync,
+        projects.core.model,
         projects.feature.home,
         projects.feature.detail,
         projects.feature.search,
@@ -18,7 +20,6 @@ dependencies {
         projects.feature.my,
         projects.feature.people,
         libs.coil.compose,
-        libs.androidx.lifecycle.runtime.ktx,
         libs.androidx.navigation.compose,
         libs.androidx.compose.material3.navigationSuite,
         libs.threetenabp,
@@ -30,5 +31,6 @@ dependencies {
         implementation(it)
     }
 
-    ksp(libs.hilt.compiler)
+//    ksp(libs.hilt.compiler)
+    ksp(libs.hilt.ext.compiler)
 }

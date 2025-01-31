@@ -5,7 +5,7 @@ import androidx.paging.PagingState
 import com.bowoon.common.Log
 import com.bowoon.model.Movie
 import com.bowoon.model.SearchType
-import com.bowoon.model.tmdb.SearchResult
+import com.bowoon.model.SearchResult
 import com.bowoon.network.ApiResponse
 import com.bowoon.network.model.asExternalModel
 import com.bowoon.network.retrofit.Apis

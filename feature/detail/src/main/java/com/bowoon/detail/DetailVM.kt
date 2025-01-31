@@ -10,9 +10,9 @@ import com.bowoon.common.Result
 import com.bowoon.common.asResult
 import com.bowoon.common.restartableStateIn
 import com.bowoon.data.repository.DatabaseRepository
-import com.bowoon.data.repository.TMDBRepository
+import com.bowoon.data.repository.PagingRepository
 import com.bowoon.detail.navigation.DetailRoute
-import com.bowoon.domain.GetMovieDetail
+import com.bowoon.domain.GetMovieDetailUseCase
 import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetail
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,10 +24,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DetailVM @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
-    private val getMovieDetail: GetMovieDetail,
+    savedStateHandle: SavedStateHandle,
+    getMovieDetail: GetMovieDetailUseCase,
     private val databaseRepository: DatabaseRepository,
-    private val tmdbRepository: TMDBRepository
+    private val pagingRepository: PagingRepository
 ) : ViewModel() {
     companion object {
         private const val TAG = "DetailVM"
@@ -51,7 +51,7 @@ class DetailVM @Inject constructor(
 
     fun getSimilarMovies() {
         viewModelScope.launch {
-            tmdbRepository.getSimilarMovies(id)
+            pagingRepository.getSimilarMovies(id)
                 .cachedIn(viewModelScope)
                 .collect {
                     similarMovies.value = it

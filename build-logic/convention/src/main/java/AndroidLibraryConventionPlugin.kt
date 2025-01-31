@@ -5,6 +5,7 @@ import com.bowoon.convention.configureKotlinAndroid
 import com.bowoon.convention.libs
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.kotlin
@@ -12,24 +13,29 @@ import org.gradle.kotlin.dsl.kotlin
 class AndroidLibraryConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
-            with(pluginManager) {
-                apply("com.android.library")
-                apply("org.jetbrains.kotlin.android")
-                apply("org.jetbrains.kotlin.plugin.parcelize")
-                apply("org.jetbrains.kotlin.plugin.serialization")
-            }
+            apply(plugin = "com.android.library")
+            apply(plugin = "org.jetbrains.kotlin.android")
+            apply(plugin = "kotlin-parcelize")
+            apply(plugin = "org.jetbrains.kotlin.plugin.serialization")
+
             extensions.configure<LibraryExtension> {
                 defaultConfig {
                     compileSdk = Config.Library.MIN_SDK_VERSION
                     minSdk = Config.Library.COMPILE_SDK_VERSION
                     buildTypes {
                         release {
-                            isMinifyEnabled = true
+//                            isMinifyEnabled = true
+//                            isShrinkResources = true
                             isJniDebuggable = false
+                            proguardFiles(
+                                getDefaultProguardFile(Config.ApplicationSetting.defaultProguardFile),
+                                Config.ApplicationSetting.proguardFile
+                            )
                             buildConfigField("Boolean", "IS_DEBUGGING_LOGGING", "false")
                         }
                         debug {
                             isMinifyEnabled = false
+//                            isShrinkResources = false
                             buildConfigField("Boolean", "IS_DEBUGGING_LOGGING", "true")
                         }
                     }

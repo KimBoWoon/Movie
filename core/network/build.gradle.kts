@@ -1,10 +1,10 @@
 plugins {
-    id("bowoon.library")
-    id("bowoon.hilt")
+    alias(libs.plugins.bowoon.android.library)
+    alias(libs.plugins.bowoon.hilt)
 }
 
 android {
-    namespace = "com.bowoon.network"
+    namespace = "com.bowoon.movie.core.network"
 }
 
 dependencies {

@@ -4,7 +4,7 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.bowoon.common.Log
 import com.bowoon.model.Movie
-import com.bowoon.model.tmdb.TMDBMovieDetailSimilarResult
+import com.bowoon.model.SimilarMovie
 import com.bowoon.network.ApiResponse
 import com.bowoon.network.model.asExternalModel
 import com.bowoon.network.retrofit.Apis
@@ -45,7 +45,7 @@ class TMDBSimilarMoviePagingSource @Inject constructor(
         }
 
     private fun getSearchItem(
-        response: List<TMDBMovieDetailSimilarResult>?,
+        response: List<SimilarMovie>?,
         url: String
     ): List<Movie> =
         response?.map {

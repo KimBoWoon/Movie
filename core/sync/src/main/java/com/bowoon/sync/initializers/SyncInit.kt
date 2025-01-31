@@ -9,7 +9,11 @@ import com.bowoon.sync.workers.MyDataSyncWorker
 object Sync {
     fun initialize(context: Context) {
         WorkManager.getInstance(context)
-            .beginUniqueWork(UNIQUE_SYNC_WORKER, ExistingWorkPolicy.KEEP, MyDataSyncWorker.startUpSyncWork())
+            .beginUniqueWork(
+                UNIQUE_SYNC_WORKER,
+                ExistingWorkPolicy.KEEP,
+                MyDataSyncWorker.startUpSyncWork()
+            )
             .then(MainMenuSyncWorker.startUpSyncWork(false))
             .enqueue()
     }

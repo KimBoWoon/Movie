@@ -1,9 +1,9 @@
 package com.bowoon.network.model
 
 
-import com.bowoon.model.tmdb.TMDBCertification
-import com.bowoon.model.tmdb.TMDBCertificationData
-import com.bowoon.model.tmdb.TMDBCertificationMap
+import com.bowoon.model.Certification
+import com.bowoon.model.CertificationData
+import com.bowoon.model.CertificationMap
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -28,24 +28,24 @@ data class NetworkTMDBCertification(
     val order: Int? = null
 )
 
-fun NetworkTMDBCertificationData.asExternalModel(): TMDBCertificationData =
-    TMDBCertificationData(
+fun NetworkTMDBCertificationData.asExternalModel(): CertificationData =
+    CertificationData(
         certifications = certifications?.asExternalModel()
     )
 
-fun NetworkTMDBCertificationMap.asExternalModel(): TMDBCertificationMap =
-    TMDBCertificationMap(
+fun NetworkTMDBCertificationMap.asExternalModel(): CertificationMap =
+    CertificationMap(
         certifications = certifications?.asExternalModel()
     )
 
-fun List<NetworkTMDBCertification>.asExternalModel(): List<TMDBCertification> =
+fun List<NetworkTMDBCertification>.asExternalModel(): List<Certification> =
     map {
-        TMDBCertification(
+        Certification(
             certification = it.certification,
             meaning = it.meaning,
             order = it.order
         )
     }
 
-fun Map<String, List<NetworkTMDBCertification>>.asExternalModel(): Map<String, List<TMDBCertification>> =
+fun Map<String, List<NetworkTMDBCertification>>.asExternalModel(): Map<String, List<Certification>> =
     mapValues { it.value.asExternalModel() }

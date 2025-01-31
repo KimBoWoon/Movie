@@ -1,10 +1,10 @@
 plugins {
-    id("bowoon.library")
-    id("bowoon.hilt")
+    alias(libs.plugins.bowoon.android.library)
+    alias(libs.plugins.bowoon.hilt)
 }
 
 android {
-    namespace = "com.bowoon.datastore"
+    namespace = "com.bowoon.movie.core.datastore"
 }
 
 dependencies {
@@ -12,11 +12,12 @@ dependencies {
         projects.core.common,
         libs.kotlinx.serialization.json,
         libs.androidx.junit,
-        libs.androidx.datastore,
-        projects.core.model
     ).forEach {
         implementation(it)
     }
+
+    api(libs.androidx.datastore)
+    api(projects.core.model)
 
 //    testImplementation(projects.core.testing)
 }

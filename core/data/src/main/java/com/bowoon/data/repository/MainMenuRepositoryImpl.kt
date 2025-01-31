@@ -5,13 +5,17 @@ import com.bowoon.datastore.InternalDataSource
 import com.bowoon.model.MainMenu
 import com.bowoon.model.Movie
 import com.bowoon.model.UpComingResult
-import com.bowoon.model.tmdb.TMDBNowPlayingResult
+import com.bowoon.model.NowPlaying
+import com.bowoon.network.ApiResponse
+import com.bowoon.network.model.asExternalModel
+import com.bowoon.network.retrofit.Apis
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import org.threeten.bp.LocalDate
 import javax.inject.Inject
 
 class MainMenuRepositoryImpl @Inject constructor(
-    private val tmdbRepository: TMDBRepository,
+    private val apis: Apis,
     private val datastore: InternalDataSource,
     private val myDataRepository: MyDataRepository
 ) : MainMenuRepository {
@@ -27,8 +31,8 @@ class MainMenuRepositoryImpl @Inject constructor(
 
             if (isUpdate || isForce) {
                 val posterUrl = myDataRepository.posterUrl.first()
-                val nowPlaying = tmdbRepository.getNowPlaying()
-                val upcomingMovies = tmdbRepository.getUpcomingMovies()
+                val nowPlaying = getNowPlaying()
+                val upcomingMovies = getUpcomingMovies()
 
                 createMainMenu(posterUrl, nowPlaying, upcomingMovies).also {
                     datastore.updateMainMenu(it)
@@ -37,9 +41,89 @@ class MainMenuRepositoryImpl @Inject constructor(
             }
         }.isSuccess
 
+    override suspend fun getNowPlaying(): List<NowPlaying> {
+        val result = mutableListOf<NowPlaying>()
+        var page = 1
+        var totalPage = 1
+        val language = "${datastore.getLanguage()}-${datastore.getRegion()}"
+        val region = datastore.getRegion()
+
+        do {
+            when (val response = apis.tmdbApis.getNowPlaying(language = language, region = region, page = page)) {
+                is ApiResponse.Failure -> throw response.throwable
+                is ApiResponse.Success -> {
+                    page = ((response.data.page ?: 1) + 1)
+                    totalPage = response.data.totalPages ?: Int.MAX_VALUE
+                    result.addAll(
+                        response.data.asExternalModel().results?.map {
+                            NowPlaying(
+                                adult = it.adult,
+                                backdropPath = it.backdropPath,
+                                genreIds = it.genreIds,
+                                id = it.id,
+                                originalLanguage = it.originalLanguage,
+                                originalTitle = it.originalTitle,
+                                overview = it.overview,
+                                popularity = it.popularity,
+                                posterPath = "${myDataRepository.posterUrl.firstOrNull()}${it.posterPath}",
+                                releaseDate = it.releaseDate,
+                                title = it.title,
+                                video = it.video,
+                                voteAverage = it.voteAverage,
+                                voteCount = it.voteCount
+                            )
+                        } ?: emptyList()
+                    )
+                }
+            }
+        } while (page <= totalPage && page < 5)
+
+        return result.distinctBy { it.id }.sortedBy { it.releaseDate }
+    }
+
+    override suspend fun getUpcomingMovies(): List<UpComingResult> {
+        val result = mutableListOf<UpComingResult>()
+        var page = 1
+        var totalPage = 1
+        val language = "${datastore.getLanguage()}-${datastore.getRegion()}"
+        val region = datastore.getRegion()
+
+        do {
+            when (val response = apis.tmdbApis.getUpcomingMovie(language = language, region = region, page = page)) {
+                is ApiResponse.Failure -> throw response.throwable
+                is ApiResponse.Success -> {
+                    page = ((response.data.page ?: 1) + 1)
+                    totalPage = response.data.totalPages ?: Int.MAX_VALUE
+                    result.addAll(
+                        response.data.asExternalModel().results?.map {
+                            UpComingResult(
+                                adult = it.adult,
+                                backdropPath = it.backdropPath,
+                                genreIds = it.genreIds,
+                                id = it.id,
+                                originalLanguage = it.originalLanguage,
+                                originalTitle = it.originalTitle,
+                                overview = it.overview,
+                                popularity = it.popularity,
+                                posterPath = "${myDataRepository.posterUrl.firstOrNull()}${it.posterPath}",
+                                releaseDate = it.releaseDate,
+                                title = it.title,
+                                video = it.video,
+                                voteAverage = it.voteAverage,
+                                voteCount = it.voteCount
+                            )
+                        } ?: emptyList()
+                    )
+                }
+            }
+        } while (page <= totalPage && page < 5)
+
+        return result.filter { (it.releaseDate ?: "") > LocalDate.now().toString() }.distinctBy { it.id }.sortedBy { it.releaseDate }
+    }
+
     private fun createMainMenu(
         posterUrl: String,
-        nowPlaying: List<TMDBNowPlayingResult>,
+        nowPlaying: List<NowPlaying>,
         upComing: List<UpComingResult>
     ): MainMenu = MainMenu(
         nowPlaying = nowPlaying.map { tmdbMovie ->

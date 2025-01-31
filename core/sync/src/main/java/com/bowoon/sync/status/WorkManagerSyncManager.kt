@@ -32,7 +32,7 @@ internal class WorkManagerSyncManager @Inject constructor(
             )
     }
 
-    override fun initialize() {
+    override fun myDataSync() {
         WorkManager.getInstance(context)
             .enqueueUniqueWork(
                 MyDataSyncWorker.WORKER_NAME,

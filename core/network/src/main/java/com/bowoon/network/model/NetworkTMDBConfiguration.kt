@@ -1,8 +1,8 @@
 package com.bowoon.network.model
 
 
-import com.bowoon.model.tmdb.Images
-import com.bowoon.model.tmdb.TMDBConfiguration
+import com.bowoon.model.Images
+import com.bowoon.model.Configuration
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -32,8 +32,8 @@ data class NetworkTMDBImagesConfiguration(
     val stillSizes: List<String>? = null
 )
 
-fun NetworkTMDBConfiguration.asExternalModel(): TMDBConfiguration =
-    TMDBConfiguration(
+fun NetworkTMDBConfiguration.asExternalModel(): Configuration =
+    Configuration(
         changeKeys = changeKeys,
         images = images?.asExternalModel()
     )

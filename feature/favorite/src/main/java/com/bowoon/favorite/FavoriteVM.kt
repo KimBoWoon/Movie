@@ -8,7 +8,7 @@ import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.domain.GetFavoriteMoviesUseCase
 import com.bowoon.domain.GetFavoritePeopleUseCase
 import com.bowoon.model.MovieDetail
-import com.bowoon.model.PeopleDetail
+import com.bowoon.model.PeopleDetailData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
@@ -18,8 +18,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class FavoriteVM @Inject constructor(
-    private val getFavoriteMoviesUseCase: GetFavoriteMoviesUseCase,
-    private val getFavoritePeopleUseCase: GetFavoritePeopleUseCase,
+    getFavoriteMoviesUseCase: GetFavoriteMoviesUseCase,
+    getFavoritePeopleUseCase: GetFavoritePeopleUseCase,
     private val databaseRepository: DatabaseRepository
 ) : ViewModel() {
     companion object {
@@ -59,7 +59,7 @@ class FavoriteVM @Inject constructor(
         }
     }
 
-    fun deletePeople(people: PeopleDetail) {
+    fun deletePeople(people: PeopleDetailData) {
         viewModelScope.launch {
             databaseRepository.deletePeople(people)
         }
@@ -74,6 +74,6 @@ sealed interface FavoriteMoviesState {
 
 sealed interface FavoritePeoplesState {
     data object Loading : FavoritePeoplesState
-    data class Success(val data: List<PeopleDetail>) : FavoritePeoplesState
+    data class Success(val data: List<PeopleDetailData>) : FavoritePeoplesState
     data class Error(val throwable: Throwable) : FavoritePeoplesState
 }

@@ -1,0 +1,47 @@
+name: Deploy & Upload to Firebase App Distribution
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    env:
+      LOCAL_PROPERTIES: ${{ secrets.LOCAL_PROPERTIES }}
+      KEY_STORE_ENCRYPT: ${{ secrets.KEY_STORE_ENCRYPT }}
+      GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+      FIREBASE_APP_ID: ${{secrets.FIREBASE_APP_ID}}
+      CREDENTIAL_FILE_CONTENT: ${{ secrets.CREDENTIAL_FILE_CONTENT }}
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: set up JDK 17
+        uses: actions/setup-java@v1
+        with:
+          java-version: 17
+      - name: Grant Permission for gradlew
+        run: chmod +x ./gradlew
+        shell: bash
+      - name: Create sign folder
+        run: mkdir -p ./sign
+      - name: Decode And Save Keystore Base64
+        run: |
+          echo "$KEY_STORE_ENCRYPT" | base64 -i --decode > ./sign/bowoon.jks
+      - name: Create local.properties
+        run: |
+          echo "$LOCAL_PROPERTIES" > ./sign/local.properties
+      - name: Create google-services.json
+        run: |
+          echo "$GOOGLE_SERVICES_JSON" > ./app/google-services.json
+      - name: build release
+        run: ./gradlew assembleProdRelease
+      - name: upload artifact to Firebase App Distribution
+        uses: wzieba/Firebase-Distribution-Github-Action@v1
+        with:
+          appId: $FIREBASE_APP_ID
+          serviceCredentialsFileContent: $CREDENTIAL_FILE_CONTENT
+          groups: movietester
+          file: ./app/build/outputs/apk/prod/release/movie-v1.0.0-prod-debug.apk

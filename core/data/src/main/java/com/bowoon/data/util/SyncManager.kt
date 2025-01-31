@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
  */
 interface SyncManager {
     val isSyncing: Flow<Boolean>
-    fun initialize()
+    fun myDataSync()
     fun syncMain()
     fun requestSync()
     suspend fun checkWork(

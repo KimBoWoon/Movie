@@ -73,16 +73,16 @@ import com.bowoon.common.Log
 import com.bowoon.data.util.PEOPLE_IMAGE_RATIO
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.detail.navigation.navigateToDetail
+import com.bowoon.model.Cast
+import com.bowoon.model.Country
+import com.bowoon.model.Crew
 import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetail
 import com.bowoon.model.MovieDetailTab
 import com.bowoon.model.PagingStatus
-import com.bowoon.model.tmdb.TMBDMovieDetailVideos
-import com.bowoon.model.tmdb.TMDBMovieDetailCast
-import com.bowoon.model.tmdb.TMDBMovieDetailCountry
-import com.bowoon.model.tmdb.TMDBMovieDetailCrew
-import com.bowoon.model.tmdb.TMDBMovieDetailReleases
-import com.bowoon.model.tmdb.TMDBMovieDetailVideoResult
+import com.bowoon.model.Releases
+import com.bowoon.model.VideoInfo
+import com.bowoon.model.Videos
 import com.bowoon.people.navigation.navigateToPeople
 import com.bowoon.ui.ConfirmDialog
 import com.bowoon.ui.FavoriteButton
@@ -536,7 +536,7 @@ fun MovieInfoComponent(
                         .padding(horizontal = dp16)
                         .fillMaxWidth()
                         .wrapContentHeight(),
-                    text = it,
+                    text = it.fold("") { acc, tmdbMovieDetailGenre -> if (acc.isEmpty()) "${tmdbMovieDetailGenre.name}" else "$acc, ${tmdbMovieDetailGenre.name}" },
                     fontSize = sp10,
                     textAlign = TextAlign.Center
                 )
@@ -727,7 +727,7 @@ fun ActorAndCrewComponent(
 
 @Composable
 fun StaffComponent(
-    tmdbMovieDetailCast: TMDBMovieDetailCast,
+    tmdbMovieDetailCast: Cast,
     onPeopleClick: (Int) -> Unit
 ) {
     Column(
@@ -763,7 +763,7 @@ fun StaffComponent(
 
 @Composable
 fun StaffComponent(
-    tmdbMovieDetailCrew: TMDBMovieDetailCrew,
+    tmdbMovieDetailCrew: Crew,
     onPeopleClick: (Int) -> Unit
 ) {
     Column(
@@ -900,9 +900,9 @@ fun MovieInfoComponentPreview() {
                 MovieDetail(
                     title = "asdf",
                     originalTitle = "qwer",
-                    genres = "zxcv",
-                    releases = TMDBMovieDetailReleases(listOf(TMDBMovieDetailCountry(certification = "ALL"))),
-                    videos = TMBDMovieDetailVideos(listOf(TMDBMovieDetailVideoResult(key = "")))
+//                    genres = "zxcv",
+                    releases = Releases(listOf(Country(certification = "ALL"))),
+                    videos = Videos(listOf(VideoInfo(key = "")))
                 )
             )
         }

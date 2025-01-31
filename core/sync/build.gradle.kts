@@ -1,10 +1,10 @@
 plugins {
-    id("bowoon.library")
-    id("bowoon.hilt")
+    alias(libs.plugins.bowoon.android.library)
+    alias(libs.plugins.bowoon.hilt)
 }
 
 android {
-    namespace = "com.bowoon.sync"
+    namespace = "com.bowoon.movie.core.sync"
 }
 
 dependencies {
@@ -19,4 +19,6 @@ dependencies {
     ).forEach {
         implementation(it)
     }
+
+    ksp(libs.hilt.ext.compiler)
 }

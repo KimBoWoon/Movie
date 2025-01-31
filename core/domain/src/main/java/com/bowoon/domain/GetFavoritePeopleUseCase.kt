@@ -2,7 +2,7 @@ package com.bowoon.domain
 
 import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.data.repository.MyDataRepository
-import com.bowoon.model.PeopleDetail
+import com.bowoon.model.PeopleDetailData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import javax.inject.Inject
@@ -11,12 +11,12 @@ class GetFavoritePeopleUseCase @Inject constructor(
     private val databaseRepository: DatabaseRepository,
     private val myDataRepository: MyDataRepository
 ) {
-    operator fun invoke(): Flow<List<PeopleDetail>> = combine(
+    operator fun invoke(): Flow<List<PeopleDetailData>> = combine(
         myDataRepository.posterUrl,
         databaseRepository.getPeople(),
     ) { posterUrl, favoritePeoples ->
         favoritePeoples.map {
-            PeopleDetail(
+            PeopleDetailData(
                 adult = it.adult,
                 alsoKnownAs = it.alsoKnownAs,
                 biography = it.biography,

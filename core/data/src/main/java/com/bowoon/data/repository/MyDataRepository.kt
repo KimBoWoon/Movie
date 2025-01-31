@@ -1,11 +1,11 @@
 package com.bowoon.data.repository
 
 import com.bowoon.model.MyData
-import com.bowoon.model.tmdb.TMDBCertificationData
-import com.bowoon.model.tmdb.TMDBConfiguration
-import com.bowoon.model.tmdb.TMDBLanguageItem
-import com.bowoon.model.tmdb.TMDBMovieGenres
-import com.bowoon.model.tmdb.TMDBRegion
+import com.bowoon.model.CertificationData
+import com.bowoon.model.Configuration
+import com.bowoon.model.LanguageItem
+import com.bowoon.model.MovieGenreList
+import com.bowoon.model.RegionList
 import kotlinx.coroutines.flow.Flow
 
 interface MyDataRepository {
@@ -13,9 +13,9 @@ interface MyDataRepository {
     val posterUrl: Flow<String>
     suspend fun syncWith(): Boolean
 
-    fun getConfiguration(): Flow<TMDBConfiguration>
-    fun getCertification(): Flow<TMDBCertificationData>
-    fun getGenres(): Flow<TMDBMovieGenres>
-    fun getAvailableLanguage(): Flow<List<TMDBLanguageItem>>
-    fun getAvailableRegion(): Flow<TMDBRegion>
+    fun getConfiguration(): Flow<Configuration>
+    fun getCertification(): Flow<CertificationData>
+    fun getGenres(): Flow<MovieGenreList>
+    fun getAvailableLanguage(): Flow<List<LanguageItem>>
+    fun getAvailableRegion(): Flow<RegionList>
 }

@@ -27,8 +27,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bowoon.common.Log
 import com.bowoon.model.MyData
 import com.bowoon.model.PosterSize
-import com.bowoon.model.tmdb.TMDBLanguageItem
-import com.bowoon.model.tmdb.TMDBRegionResult
+import com.bowoon.model.LanguageItem
+import com.bowoon.model.Region
 import com.bowoon.ui.Title
 import com.bowoon.ui.dp16
 
@@ -51,8 +51,8 @@ fun MyScreen(
 fun MyScreen(
     state: MyDataState,
     updateIsAdult: (Boolean) -> Unit,
-    updateLanguage: (TMDBLanguageItem) -> Unit,
-    updateRegion: (TMDBRegionResult) -> Unit,
+    updateLanguage: (LanguageItem) -> Unit,
+    updateRegion: (Region) -> Unit,
     updateImageQuality: (PosterSize) -> Unit
 ) {
     val isLoading = state is MyDataState.Loading
@@ -134,8 +134,8 @@ fun MyScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExposedDropdownLanguageMenu(
-    list: List<TMDBLanguageItem>,
-    updateLanguage: (TMDBLanguageItem) -> Unit
+    list: List<LanguageItem>,
+    updateLanguage: (LanguageItem) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
     var selectedItem = list.find { it.isSelected }
@@ -178,8 +178,8 @@ fun ExposedDropdownLanguageMenu(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExposedDropdownRegionMenu(
-    list: List<TMDBRegionResult>,
-    updateRegion: (TMDBRegionResult) -> Unit
+    list: List<Region>,
+    updateRegion: (Region) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
     var selectedItem = list.find { it.isSelected }
