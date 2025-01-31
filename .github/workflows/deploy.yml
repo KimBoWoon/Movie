@@ -1,4 +1,4 @@
-name: Build & upload to Firebase App Distribution
+name: Deploy & Upload to Firebase App Distribution
 
 on:
   push:
@@ -37,11 +37,11 @@ jobs:
         run: |
           echo "$GOOGLE_SERVICES_JSON" > ./app/google-services.json
       - name: build release
-        run: ./gradlew assembleDebug
+        run: ./gradlew assembleProdRelease
       - name: upload artifact to Firebase App Distribution
         uses: wzieba/Firebase-Distribution-Github-Action@v1
         with:
           appId: $FIREBASE_APP_ID
           serviceCredentialsFileContent: $CREDENTIAL_FILE_CONTENT
           groups: movietester
-          file: ./app/build/outputs/apk/prod/debug/movie-v1.0.0-prod-debug.apk
+          file: ./app/build/outputs/apk/prod/release/movie-v1.0.0-prod-debug.apk
