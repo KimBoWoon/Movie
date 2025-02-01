@@ -74,11 +74,6 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
 
 //                configureFlavors(this)
                 configureKotlinAndroid(this)
-
-//                lint {
-//                    checkReleaseBuilds = false
-//                    abortOnError = false
-//                }
             }
 
             dependencies {
