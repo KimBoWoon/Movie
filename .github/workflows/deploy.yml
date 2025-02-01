@@ -38,8 +38,10 @@ jobs:
           echo "$GOOGLE_SERVICES_JSON" > ./app/google-services.json
       - name: build release
         run: ./gradlew assembleProdRelease
-      - name: firebase login
+      - name: install firebase cli
         run : curl -sL https://firebase.tools | upgrade=true bash
+      - name: login firebase
+        run: firebase login
       - name: upload artifact to Firebase App Distribution
         uses: wzieba/Firebase-Distribution-Github-Action@v1.7.0
         with:
