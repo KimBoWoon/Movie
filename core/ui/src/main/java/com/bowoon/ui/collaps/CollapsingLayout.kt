@@ -94,7 +94,7 @@ fun CollapsingToolbar(
                 ) {
                     CollapsingToolbarLayout (progress = progress) {
                         DynamicAsyncImageLoader(
-                            source = people.images?.get(0)?.filePath ?: "",
+                            source = "${people.posterUrl}${people.images?.get(0)?.filePath}",
                             contentDescription = null,
                             modifier = Modifier
                                 .padding(logoPadding)
