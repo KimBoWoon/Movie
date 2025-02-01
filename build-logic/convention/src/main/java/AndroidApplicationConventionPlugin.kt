@@ -43,7 +43,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                         }
                     }
 
-                    setProperty("archivesBaseName", "${Config.Application.Movie.appName}-v${versionName}")
+//                    setProperty("archivesBaseName", "${Config.Application.Movie.appName}-v${versionName}")
                 }
 
                 namespace = Config.Application.Movie.applicationId
