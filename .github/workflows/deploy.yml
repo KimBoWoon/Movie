@@ -1,4 +1,4 @@
-name: Deploy & Upload to Firebase App Distribution
+name: Build & upload to Firebase App Distribution
 
 on:
   push:
