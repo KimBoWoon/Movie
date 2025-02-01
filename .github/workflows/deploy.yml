@@ -41,9 +41,17 @@ jobs:
       - name: build release
         run: ./gradlew assembleProdRelease
       - name: upload artifact to Firebase App Distribution
-        uses: wzieba/Firebase-Distribution-Github-Action@v1.7.0
+        uses: emertozd/Firebase-Distribution-Github-Action@v2
         with:
           appId: $FIREBASE_APP_ID
           serviceCredentialsFileContent: $CREDENTIAL_FILE_CONTENT
           groups: movietester
           file: ./app/build/outputs/apk/prod/release/app-prod-release.apk
+
+#      - name: upload artifact to Firebase App Distribution
+#        uses: wzieba/Firebase-Distribution-Github-Action@v1.7.0
+#        with:
+#          appId: $FIREBASE_APP_ID
+#          serviceCredentialsFileContent: $CREDENTIAL_FILE_CONTENT
+#          groups: movietester
+#          file: ./app/build/outputs/apk/prod/release/app-prod-release.apk
