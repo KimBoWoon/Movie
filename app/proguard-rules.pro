@@ -137,6 +137,6 @@
     kotlinx.serialization.KSerializer serializer(...);
 }
 
--keep class com.bowoon.network.ApiResponse.** { *; }
+-keep class com.bowoon.network.** { *; }
 -keep class com.bowoon.model.** { *; }
 -keep class com.bowoon.network.model.** { *; }
