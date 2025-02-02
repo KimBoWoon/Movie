@@ -24,16 +24,9 @@ class AndroidApplicationFirebaseConventionPlugin : Plugin<Project> {
             }
 
             extensions.configure<ApplicationExtension> {
-                buildTypes {
-                    debug {
-                        configure<CrashlyticsExtension> {
-                            mappingFileUploadEnabled = false
-                        }
-                    }
-                    release {
-                        configure<CrashlyticsExtension> {
-                            mappingFileUploadEnabled = true
-                        }
+                buildTypes.configureEach {
+                    configure<CrashlyticsExtension> {
+                        mappingFileUploadEnabled = true
                     }
                 }
             }

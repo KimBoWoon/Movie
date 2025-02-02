@@ -14,40 +14,28 @@ internal class ApiResultCall<R>(
     override fun enqueue(callback: Callback<ApiResponse<R>>) {
         return delegate.enqueue(object : Callback<R> {
             override fun onResponse(call: Call<R>, response: Response<R>) {
-                when (response.isSuccessful) {
-                    true -> {
-                        response.body()?.let { body ->
+                response.body()?.let { body ->
+                    when (response.code()) {
+                        in 200..299 -> {
                             callback.onResponse(
                                 this@ApiResultCall,
                                 Response.success(ApiResponse.Success(body))
                             )
-                        } ?: run {
-                            if (successType == Unit::class.java) {
-                                @Suppress("UNCHECKED_CAST")
-                                callback.onResponse(
-                                    this@ApiResultCall,
-                                    Response.success(ApiResponse.Success(Unit as R))
-                                )
-                            } else {
-                                ApiResponse.Failure(
-                                    throwable = IllegalStateException("empty body!")
-                                )
-                            }
                         }
-                    }
-                    false -> {
-                        callback.onResponse(
-                            this@ApiResultCall,
-                            Response.success(
-                                ApiResponse.Failure(
-                                    response.code(),
-                                    response.message(),
-                                    response.errorBody()?.run { string() } ?: run { null }
+                        in 400..499 -> {
+                            callback.onResponse(
+                                this@ApiResultCall,
+                                Response.success(
+                                    ApiResponse.Failure(
+                                        code = response.code(),
+                                        message = response.message(),
+                                        body = response.errorBody()?.run { string() } ?: run { null }
+                                    )
                                 )
                             )
-                        )
+                        }
                     }
-                }
+                } ?: callback.onResponse(this@ApiResultCall, Response.success(ApiResponse.Failure(throwable = IllegalStateException("empty body!"))))
             }
 
             override fun onFailure(call: Call<R?>, throwable: Throwable) {
