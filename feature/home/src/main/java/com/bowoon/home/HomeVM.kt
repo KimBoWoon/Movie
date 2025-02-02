@@ -89,7 +89,7 @@ class HomeVM @Inject constructor(
                                 LocalDate.parse(it.releaseDate).atTime(0, 0, 0, 0)
                             ).toDays() <= 1
                         }
-                        notifier.postNewsNotifications(movies = filterList)
+                        notifier.postMovieNotifications(movies = filterList)
                     }
                 }
         }

@@ -21,9 +21,9 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
-private const val NEWS_NOTIFICATION_CHANNEL_ID = ""
+private const val MOVIE_NOTIFICATION_CHANNEL_ID = ""
 private const val MOVIE_NOTIFICATION_GROUP = "MOVIE_NOTIFICATIONS"
-private const val NEWS_NOTIFICATION_REQUEST_CODE = 0
+private const val MOVIE_NOTIFICATION_REQUEST_CODE = 0
 private const val TARGET_ACTIVITY_NAME = "com.bowoon.movie.ui.activities.MainActivity"
 private const val DEEP_LINK_SCHEME_AND_HOST = "movieinfo://movie"
 private const val DEEP_LINK_MOVIE_ID_PATH = "detail"
@@ -34,7 +34,7 @@ const val DEEP_LINK_URI_PATTERN = "$DEEP_LINK_BASE_PATH/{id}"
 class SystemTrayNotifier @Inject constructor(
     @ApplicationContext private val context: Context,
 ) : Notifier {
-    override fun postNewsNotifications(movies: List<Movie>) {
+    override fun postMovieNotifications(movies: List<Movie>) {
         with(context) {
             if (checkSelfPermission(this, permission.POST_NOTIFICATIONS) != PERMISSION_GRANTED) {
                 return
@@ -68,7 +68,7 @@ private fun Context.createMovieNotification(
     ensureNotificationChannelExists()
     return NotificationCompat.Builder(
         this,
-        NEWS_NOTIFICATION_CHANNEL_ID,
+        MOVIE_NOTIFICATION_CHANNEL_ID,
     )
         .setPriority(NotificationCompat.PRIORITY_DEFAULT)
         .apply(block)
@@ -79,7 +79,7 @@ private fun Context.ensureNotificationChannelExists() {
     if (VERSION.SDK_INT < VERSION_CODES.O) return
 
     val channel = NotificationChannel(
-        NEWS_NOTIFICATION_CHANNEL_ID,
+        MOVIE_NOTIFICATION_CHANNEL_ID,
         "Movie",
         NotificationManager.IMPORTANCE_DEFAULT,
     ).apply {
@@ -93,7 +93,7 @@ private fun Context.moviePendingIntent(
     movie: Movie,
 ): PendingIntent? = PendingIntent.getActivity(
     this,
-    NEWS_NOTIFICATION_REQUEST_CODE,
+    MOVIE_NOTIFICATION_REQUEST_CODE,
     Intent().apply {
         action = Intent.ACTION_VIEW
         data = movie.movieDeepLinkUri()
