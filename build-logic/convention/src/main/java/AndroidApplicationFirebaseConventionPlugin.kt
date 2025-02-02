@@ -24,13 +24,16 @@ class AndroidApplicationFirebaseConventionPlugin : Plugin<Project> {
             }
 
             extensions.configure<ApplicationExtension> {
-                buildTypes.configureEach {
-                    /**
-                     * firebase 충돌 매핑 파일 업로드를 비활성화
-                     * google-services.json이 구성되어야 업로드 가능
-                     */
-                    configure<CrashlyticsExtension> {
-                        mappingFileUploadEnabled = false
+                buildTypes {
+                    debug {
+                        configure<CrashlyticsExtension> {
+                            mappingFileUploadEnabled = false
+                        }
+                    }
+                    release {
+                        configure<CrashlyticsExtension> {
+                            mappingFileUploadEnabled = true
+                        }
                     }
                 }
             }
