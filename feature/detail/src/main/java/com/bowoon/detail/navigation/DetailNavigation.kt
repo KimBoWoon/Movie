@@ -5,7 +5,9 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
+import androidx.navigation.navDeepLink
 import com.bowoon.detail.DetailScreen
+import com.bowoon.notifications.DEEP_LINK_URI_PATTERN
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -16,11 +18,6 @@ data class DetailRoute(
     val id: Int
 )
 
-//@Serializable
-//data class PeopleRoute(
-//    val id: Int
-//)
-
 fun NavController.navigateToDetail(
     id: Int,
     navOptions: NavOptionsBuilder.() -> Unit = {}
@@ -30,22 +27,19 @@ fun NavController.navigateToDetail(
     }
 }
 
-//fun NavController.navigateToPeople(
-//    id: Int,
-//    navOptions: NavOptionsBuilder.() -> Unit = {}
-//) {
-//    navigate(route = PeopleRoute(id)) {
-//        navOptions()
-//    }
-//}
-
 fun NavGraphBuilder.detailSection(
     navController: NavController,
     onShowSnackbar: suspend (String, String?) -> Boolean,
     peopleDestination: NavGraphBuilder.() -> Unit
 ) {
     navigation<DetailBaseRoute>(startDestination = DetailRoute(id = 0)) {
-        composable<DetailRoute>() {
+        composable<DetailRoute>(
+            deepLinks = listOf(
+                navDeepLink {
+                    uriPattern = DEEP_LINK_URI_PATTERN
+                }
+            )
+        ) {
             DetailScreen(
                 navController = navController,
                 onShowSnackbar = onShowSnackbar
@@ -53,10 +47,4 @@ fun NavGraphBuilder.detailSection(
         }
         peopleDestination()
     }
-//    composable<DetailRoute>() {
-//        DetailScreen(
-//            navController = navController,
-//            onShowSnackbar = onShowSnackbar
-//        )
-//    }
 }

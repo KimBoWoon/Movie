@@ -58,6 +58,8 @@ fun HomeScreen(
     val favoriteMoviesState by viewModel.favoriteMovies.collectAsStateWithLifecycle()
     val isSyncing by viewModel.isSyncing.collectAsStateWithLifecycle()
 
+    viewModel.createNotifications()
+
     HomeScreen(
         isSyncing = isSyncing,
         state = homeUiState,
