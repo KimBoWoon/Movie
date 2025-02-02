@@ -11,8 +11,8 @@ internal class ApiResultCall<R>(
     private val delegate: Call<R>,
     private val successType: Type
 ) : Call<ApiResponse<R>> {
-    override fun enqueue(callback: Callback<ApiResponse<R>>) {
-        return delegate.enqueue(object : Callback<R> {
+    override fun enqueue(callback: Callback<ApiResponse<R>>) =
+        delegate.enqueue(object : Callback<R> {
             override fun onResponse(call: Call<R>, response: Response<R>) {
                 response.body()?.let { body ->
                     when (response.code()) {
@@ -43,10 +43,10 @@ internal class ApiResultCall<R>(
                     this@ApiResultCall,
                     Response.success(
                         ApiResponse.Failure(throwable = throwable)
-                ))
+                    )
+                )
             }
         })
-    }
 
     override fun clone(): Call<ApiResponse<R>> = ApiResultCall(delegate, successType)
 
