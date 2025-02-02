@@ -68,16 +68,18 @@ class HomeVM @Inject constructor(
     fun createNotifications() {
         viewModelScope.launch {
             favoriteMovies
-                .map {
-                    when (it) {
+                .map { state ->
+                    when (state) {
                         is FavoriteMoviesState.Loading -> null
-                        is FavoriteMoviesState.Success -> it.favoriteMovies.map { movieDetail ->
-                            Movie(
-                                id = movieDetail.id,
-                                title = movieDetail.title,
-                                releaseDate = movieDetail.releaseDate
-                            )
-                        }
+                        is FavoriteMoviesState.Success -> state.favoriteMovies
+                            .filter { !it.releaseDate.isNullOrEmpty() }
+                            .map { movieDetail ->
+                                Movie(
+                                    id = movieDetail.id,
+                                    title = movieDetail.title,
+                                    releaseDate = movieDetail.releaseDate
+                                )
+                            }
                         is FavoriteMoviesState.Error -> null
                     }
                 }
