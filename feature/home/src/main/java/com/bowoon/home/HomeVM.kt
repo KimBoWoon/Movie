@@ -8,18 +8,24 @@ import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.data.util.SyncManager
 import com.bowoon.model.MainMenu
+import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetail
+import com.bowoon.notifications.SystemTrayNotifier
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import org.threeten.bp.Duration
+import org.threeten.bp.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeVM @Inject constructor(
-    private val syncManager: SyncManager,
-    private val userDataRepository: UserDataRepository,
-    private val databaseRepository: DatabaseRepository
+    syncManager: SyncManager,
+    userDataRepository: UserDataRepository,
+    databaseRepository: DatabaseRepository,
+    private val notifier: SystemTrayNotifier
 ) : ViewModel() {
     companion object {
         private const val TAG = "HomeVM"
@@ -58,6 +64,36 @@ class HomeVM @Inject constructor(
             initialValue = MainMenuState.Loading,
             started = SharingStarted.WhileSubscribed(5_000)
         )
+
+    fun createNotifications() {
+        viewModelScope.launch {
+            favoriteMovies
+                .map {
+                    when (it) {
+                        is FavoriteMoviesState.Loading -> null
+                        is FavoriteMoviesState.Success -> it.favoriteMovies.map { movieDetail ->
+                            Movie(
+                                id = movieDetail.id,
+                                title = movieDetail.title,
+                                releaseDate = movieDetail.releaseDate
+                            )
+                        }
+                        is FavoriteMoviesState.Error -> null
+                    }
+                }
+                .collect { movies ->
+                    movies?.let {
+                        val filterList = it.filter {
+                            Duration.between(
+                                LocalDate.now().atTime(0, 0, 0, 0),
+                                LocalDate.parse(it.releaseDate).atTime(0, 0, 0, 0)
+                            ).toDays() <= 1
+                        }
+                        notifier.postMovieNotifications(movies = filterList)
+                    }
+                }
+        }
+    }
 }
 
 sealed interface MainMenuState {
