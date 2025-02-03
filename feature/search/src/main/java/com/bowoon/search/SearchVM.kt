@@ -10,7 +10,7 @@ import androidx.lifecycle.viewmodel.compose.saveable
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.bowoon.data.repository.DatabaseRepository
-import com.bowoon.domain.GetSearchListUseCase
+import com.bowoon.data.repository.PagingRepository
 import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetail
 import com.bowoon.model.SearchType
@@ -22,7 +22,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SearchVM @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val getSearchListUseCase: GetSearchListUseCase,
+    private val pagingRepository: PagingRepository,
     private val databaseRepository: DatabaseRepository
 ) : ViewModel() {
     companion object {
@@ -42,7 +42,7 @@ class SearchVM @Inject constructor(
 
     fun searchMovies(query: String) {
         viewModelScope.launch {
-            getSearchListUseCase(SearchType.entries[searchType].label, query)
+            pagingRepository.searchMovies(SearchType.entries[searchType].label, query)
                 .cachedIn(viewModelScope)
                 .collect {
                     searchMovieState.value = it

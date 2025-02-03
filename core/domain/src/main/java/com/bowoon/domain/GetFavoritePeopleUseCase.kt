@@ -15,27 +15,27 @@ class GetFavoritePeopleUseCase @Inject constructor(
         myDataRepository.posterUrl,
         databaseRepository.getPeople(),
     ) { posterUrl, favoritePeoples ->
-        favoritePeoples.map {
+        favoritePeoples.map { people ->
             PeopleDetailData(
-                adult = it.adult,
-                alsoKnownAs = it.alsoKnownAs,
-                biography = it.biography,
-                birthday = it.birthday,
-                combineCredits = it.combineCredits,
-                deathday = it.deathday,
-                externalIds = it.externalIds,
-                gender = it.gender,
-                homepage = it.homepage,
-                id = it.id,
-                images = it.images,
-                imdbId = it.imdbId,
-                knownForDepartment = it.knownForDepartment,
-                name = it.name,
-                placeOfBirth = it.placeOfBirth,
-                popularity = it.popularity,
-                profilePath = it.profilePath,
+                adult = people.adult,
+                alsoKnownAs = people.alsoKnownAs,
+                biography = people.biography,
+                birthday = people.birthday,
+                combineCredits = people.combineCredits,
+                deathday = people.deathday,
+                externalIds = people.externalIds,
+                gender = people.gender,
+                homepage = people.homepage,
+                id = people.id,
+                images = people.images,
+                imdbId = people.imdbId,
+                knownForDepartment = people.knownForDepartment,
+                name = people.name,
+                placeOfBirth = people.placeOfBirth,
+                popularity = people.popularity,
+                profilePath = people.profilePath,
                 posterUrl = posterUrl,
-                isFavorite = favoritePeoples.find { it.id == it.id } != null
+                isFavorite = favoritePeoples.find { it.id == people.id } != null
             )
         }
     }
