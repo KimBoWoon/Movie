@@ -24,13 +24,13 @@ jobs:
         run: mkdir -p ./sign
       - name: Decode And Save Keystore Base64
         run: |
-          echo "${{ secrets.KEY_STORE_ENCRYPT }}" | base64 -i --decode > ./sign/bowoon.jks
+          echo ${{ secrets.KEY_STORE_ENCRYPT }} | base64 -i --decode > ./sign/bowoon.jks
       - name: Create local.properties
         run: |
-          echo "${{ secrets.LOCAL_PROPERTIES }}" > ./sign/local.properties
+          echo ${{ secrets.LOCAL_PROPERTIES }} > ./sign/local.properties
       - name: Create google-services.json
         run: |
-          echo "${{ secrets.GOOGLE_SERVICES_JSON }}" > ./app/google-services.json
+          echo ${{ secrets.GOOGLE_SERVICES_JSON }} > ./app/google-services.json
       - name: build release
         run: ./gradlew assembleProdRelease
       - name: upload artifact to Firebase App Distribution
