@@ -1,5 +1,6 @@
 package com.bowoon.data.repository
 
+import com.bowoon.common.Log
 import com.bowoon.common.di.ApplicationScope
 import com.bowoon.data.util.suspendRunCatching
 import com.bowoon.datastore.InternalDataSource
@@ -19,6 +20,7 @@ import com.bowoon.network.retrofit.Apis
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
@@ -72,6 +74,8 @@ class MyDataRepositoryImpl @Inject constructor(
                 )
             } ?: emptyList()
         )
+    }.catch { e ->
+        Log.printStackTrace(e)
     }.stateIn(
         scope = scope,
         started = SharingStarted.Eagerly,
@@ -96,6 +100,8 @@ class MyDataRepositoryImpl @Inject constructor(
             language = language,
             posterSize = configuration.images
         )
+    }.catch { e ->
+        Log.printStackTrace(e)
     }
 
     override suspend fun syncWith(): Boolean = suspendRunCatching {
@@ -104,7 +110,7 @@ class MyDataRepositoryImpl @Inject constructor(
 
     override fun getConfiguration(): Flow<Configuration> = flow {
         when (val response = apis.tmdbApis.getConfiguration()) {
-            is ApiResponse.Failure -> throw response.throwable
+            is ApiResponse.Failure -> Log.printStackTrace(response.throwable)//throw response.throwable
             is ApiResponse.Success -> emit(response.data.asExternalModel())
         }
     }
@@ -114,7 +120,7 @@ class MyDataRepositoryImpl @Inject constructor(
         val region = datastore.getRegion()
 
         when (val response = apis.tmdbApis.getCertification(language = "$language-$region")) {
-            is ApiResponse.Failure -> throw response.throwable
+            is ApiResponse.Failure -> Log.printStackTrace(response.throwable)//throw response.throwable
             is ApiResponse.Success -> emit(response.data.asExternalModel())
         }
     }
@@ -124,21 +130,21 @@ class MyDataRepositoryImpl @Inject constructor(
         val region = datastore.getRegion()
 
         when (val response = apis.tmdbApis.getGenres(language = "$language-$region")) {
-            is ApiResponse.Failure -> throw response.throwable
+            is ApiResponse.Failure -> Log.printStackTrace(response.throwable)//throw response.throwable
             is ApiResponse.Success -> emit(response.data.asExternalModel())
         }
     }
 
     override fun getAvailableLanguage(): Flow<List<LanguageItem>> = flow {
         when (val response = apis.tmdbApis.getAvailableLanguage()) {
-            is ApiResponse.Failure -> throw response.throwable
+            is ApiResponse.Failure -> Log.printStackTrace(response.throwable)//throw response.throwable
             is ApiResponse.Success -> emit(response.data.asExternalModel())
         }
     }
 
     override fun getAvailableRegion(): Flow<RegionList> = flow {
         when (val response = apis.tmdbApis.getAvailableRegion()) {
-            is ApiResponse.Failure -> throw response.throwable
+            is ApiResponse.Failure -> Log.printStackTrace(response.throwable)//throw response.throwable
             is ApiResponse.Success -> emit(response.data.asExternalModel())
         }
     }
