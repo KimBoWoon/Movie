@@ -152,13 +152,18 @@ fun PeopleDetailScreen(
             },
             isFavorite = people.isFavorite
         )
-        Row() {
+        Row(
+            modifier = Modifier.fillMaxWidth()
+        ) {
             ImageComponent(people)
             Spacer(modifier = Modifier.width(dp5))
             Column {
                 PeopleInfoComponent(people = people)
                 ExternalIdLinkComponent(people = people)
             }
+        }
+        people.biography?.takeIf { it.isNotEmpty() }?.let {
+            Text(text = it)
         }
         RelatedMovieComponent(
             people = people,
@@ -183,10 +188,13 @@ fun ImageComponent(
     DynamicAsyncImageLoader(
         source = "${people.posterUrl}${people.profilePath}",
         contentDescription = "PeopleImage",
-        modifier = Modifier.width(dp100).aspectRatio(POSTER_IMAGE_RATIO).clickable {
-            index = 0
-            isShowing = true
-        }
+        modifier = Modifier
+            .width(dp100)
+            .aspectRatio(POSTER_IMAGE_RATIO)
+            .clickable {
+                index = 0
+                isShowing = true
+            }
     )
 
     if (isShowing) {
@@ -213,74 +221,86 @@ fun ExternalIdLinkComponent(people: PeopleDetailData) {
     val context = LocalContext.current
 
     Row(
-        modifier = Modifier.fillMaxWidth().wrapContentHeight()
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
     ) {
         people.externalIds?.wikidataId?.takeIf { it.isNotEmpty() }?.let {
             Icon(
-                modifier = Modifier.size(dp20).clickable {
-                    context.startActivity(
-                        Intent(
-                            Intent.ACTION_VIEW,
-                            Uri.parse("https://www.wikidata.org/wiki/$it")
+                modifier = Modifier
+                    .size(dp20)
+                    .clickable {
+                        context.startActivity(
+                            Intent(
+                                Intent.ACTION_VIEW,
+                                Uri.parse("https://www.wikidata.org/wiki/$it")
+                            )
                         )
-                    )
-                },
+                    },
                 painter = painterResource(id = R.drawable.ic_wiki),
                 contentDescription = "wikidataId"
             )
         }
         people.externalIds?.facebookId?.takeIf { it.isNotEmpty() }?.let {
             Icon(
-                modifier = Modifier.size(dp20).clickable {
-                    context.startActivity(
-                        Intent(
-                            Intent.ACTION_VIEW,
-                            Uri.parse("https://www.facebook.com/$it")
+                modifier = Modifier
+                    .size(dp20)
+                    .clickable {
+                        context.startActivity(
+                            Intent(
+                                Intent.ACTION_VIEW,
+                                Uri.parse("https://www.facebook.com/$it")
+                            )
                         )
-                    )
-                },
+                    },
                 painter = painterResource(id = R.drawable.ic_facebook),
                 contentDescription = "facebookId"
             )
         }
         people.externalIds?.twitterId?.takeIf { it.isNotEmpty() }?.let {
             Icon(
-                modifier = Modifier.size(dp20).clickable {
-                    context.startActivity(
-                        Intent(
-                            Intent.ACTION_VIEW,
-                            Uri.parse("https://x.com/$it")
+                modifier = Modifier
+                    .size(dp20)
+                    .clickable {
+                        context.startActivity(
+                            Intent(
+                                Intent.ACTION_VIEW,
+                                Uri.parse("https://x.com/$it")
+                            )
                         )
-                    )
-                },
+                    },
                 painter = painterResource(id = R.drawable.ic_twitter),
                 contentDescription = "twitterId"
             )
         }
         people.externalIds?.instagramId?.takeIf { it.isNotEmpty() }?.let {
             Icon(
-                modifier = Modifier.size(dp20).clickable {
-                    context.startActivity(
-                        Intent(
-                            Intent.ACTION_VIEW,
-                            Uri.parse("https://www.instagram.com/$it/")
+                modifier = Modifier
+                    .size(dp20)
+                    .clickable {
+                        context.startActivity(
+                            Intent(
+                                Intent.ACTION_VIEW,
+                                Uri.parse("https://www.instagram.com/$it/")
+                            )
                         )
-                    )
-                },
+                    },
                 painter = painterResource(id = R.drawable.ic_instagram),
                 contentDescription = "instagramId"
             )
         }
         people.externalIds?.youtubeId?.takeIf { it.isNotEmpty() }?.let {
             Icon(
-                modifier = Modifier.size(dp20).clickable {
-                    context.startActivity(
-                        Intent(
-                            Intent.ACTION_VIEW,
-                            Uri.parse("https://www.youtube.com/$it")
+                modifier = Modifier
+                    .size(dp20)
+                    .clickable {
+                        context.startActivity(
+                            Intent(
+                                Intent.ACTION_VIEW,
+                                Uri.parse("https://www.youtube.com/$it")
+                            )
                         )
-                    )
-                },
+                    },
                 painter = painterResource(id = R.drawable.ic_youtube),
                 contentDescription = "youtubeId"
             )
@@ -293,13 +313,21 @@ fun PeopleInfoComponent(
     people: PeopleDetailData
 ) {
     Column(
-        modifier = Modifier.fillMaxWidth().wrapContentHeight()
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
     ) {
-        Text(text = people.name ?: "")
-        Text(text = people.birthday ?: "")
-//        Text(text = people.deathday ?: "")
-//        Text(text = people.biography ?: "")
-        Text(text = people.placeOfBirth ?: "")
+        people.name?.takeIf { it.isNotEmpty() }?.let {
+            Text(text = it)
+        }
+        if (!people.birthday.isNullOrEmpty() && people.deathday.isNullOrEmpty()) {
+            Text(text = people.birthday ?: "")
+        } else if (!people.birthday.isNullOrEmpty() && !people.deathday.isNullOrEmpty()) {
+            Text(text = "${people.birthday} ~ ${people.deathday}")
+        }
+        people.placeOfBirth?.takeIf { it.isNotEmpty() }?.let {
+            Text(text = it)
+        }
     }
 }
 
