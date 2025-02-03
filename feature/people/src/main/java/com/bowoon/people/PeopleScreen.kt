@@ -1,68 +1,54 @@
 package com.bowoon.people
 
-import androidx.compose.animation.core.FloatExponentialDecaySpec
-import androidx.compose.animation.core.animateDecay
-import androidx.compose.foundation.gestures.detectTapGestures
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Velocity
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.bowoon.common.Log
-import com.bowoon.data.util.PEOPLE_IMAGE_RATIO
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.model.MovieDetail
 import com.bowoon.model.PeopleDetailData
-import com.bowoon.model.PeopleDetailTab
 import com.bowoon.model.RelatedMovie
+import com.bowoon.movie.core.ui.R
 import com.bowoon.ui.ConfirmDialog
+import com.bowoon.ui.ModalBottomSheetDialog
 import com.bowoon.ui.Title
 import com.bowoon.ui.bounceClick
-import com.bowoon.ui.collaps.CollapsingToolbar
-import com.bowoon.ui.collaps.FixedScrollFlagState
-import com.bowoon.ui.collaps.rememberToolbarState
 import com.bowoon.ui.dp10
 import com.bowoon.ui.dp100
+import com.bowoon.ui.dp20
+import com.bowoon.ui.dp5
 import com.bowoon.ui.image.DynamicAsyncImageLoader
-import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
 
 @Composable
@@ -134,64 +120,6 @@ fun PeopleScreen(
 }
 
 @Composable
-fun TabComponent(
-    modifier: Modifier,
-    contentPadding: PaddingValues = PaddingValues(0.dp),
-    listState: LazyGridState = rememberLazyGridState(),
-    people: PeopleDetailData,
-    onMovieClick: (Int) -> Unit,
-    insertFavoriteMovie: (MovieDetail) -> Unit,
-    deleteFavoriteMovie: (MovieDetail) -> Unit
-) {
-    val scope = rememberCoroutineScope()
-    val tabList = PeopleDetailTab.entries
-    val pagerState = rememberPagerState(initialPage = 0, pageCount = { tabList.size })
-
-    Column(
-        modifier = modifier.padding(contentPadding)
-    ) {
-        TabRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight(),
-            selectedTabIndex = pagerState.currentPage
-        ) {
-            tabList.forEachIndexed { index, moviePoster ->
-                Tab(
-                    selected = pagerState.currentPage == index,
-                    onClick = {
-                        Log.d("selected tab index > $index")
-                        scope.launch {
-                            pagerState.animateScrollToPage(index)
-                        }
-                    },
-                    text = { Text(text = moviePoster.label) },
-                    selectedContentColor = Color(0xFF7C86DF),
-                    unselectedContentColor = Color.LightGray
-                )
-            }
-        }
-
-        HorizontalPager(
-            modifier = Modifier.fillMaxWidth(),
-            state = pagerState,
-            userScrollEnabled = false
-        ) { index ->
-            when (tabList[index].label) {
-                PeopleDetailTab.PEOPLE_INFO.label -> PeopleInfoComponent(people = people)
-                PeopleDetailTab.RELATED_MOVIE.label -> RelatedMovieComponent(
-                    listState = listState,
-                    people = people,
-                    onMovieClick = onMovieClick,
-                    insertFavoriteMovie = insertFavoriteMovie,
-                    deleteFavoriteMovie = deleteFavoriteMovie
-                )
-            }
-        }
-    }
-}
-
-@Composable
 fun PeopleDetailScreen(
     isLoading: Boolean,
     people: PeopleDetailData,
@@ -201,118 +129,162 @@ fun PeopleDetailScreen(
     deleteFavoritePeople: (PeopleDetailData) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean
 ) {
-    Box(
+    val scope = rememberCoroutineScope()
+
+    Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        Column {
-            CollapsingLayout(
-                people = people,
-                navController = navController,
-                onMovieClick = onMovieClick,
-                insertFavoritePeople = insertFavoritePeople,
-                deleteFavoritePeople = deleteFavoritePeople,
-                onShowSnackbar = onShowSnackbar
-            )
-        }
-
-        if (isLoading) {
-            CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center)
-            )
-        }
-    }
-}
-
-@Composable
-fun CollapsingLayout(
-    people: PeopleDetailData,
-    navController: NavController,
-    onMovieClick: (Int) -> Unit,
-    insertFavoritePeople: (PeopleDetailData) -> Unit,
-    deleteFavoritePeople: (PeopleDetailData) -> Unit,
-    onShowSnackbar: suspend (String, String?) -> Boolean
-) {
-    val screenWidth = LocalConfiguration.current.screenWidthDp
-    val maxToolbarHeight = (screenWidth / PEOPLE_IMAGE_RATIO).toInt().dp
-    val minToolbarHeight = 120.dp
-    val toolbarHeightRange = with(LocalDensity.current) {
-        minToolbarHeight.roundToPx()..maxToolbarHeight.roundToPx()
-    }
-    val toolbarState = rememberToolbarState(toolbarHeightRange)
-    val listState = rememberLazyGridState()
-    val scope = rememberCoroutineScope()
-    val nestedScrollConnection = remember {
-        object : NestedScrollConnection {
-            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-                toolbarState.scrollTopLimitReached = listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset == 0
-                toolbarState.scrollOffset -= available.y
-                return Offset(0f, toolbarState.consumed)
-            }
-
-            override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
-                if (available.y > 0) {
-                    scope.launch {
-                        animateDecay(
-                            initialValue = toolbarState.height + toolbarState.offset,
-                            initialVelocity = available.y,
-                            animationSpec = FloatExponentialDecaySpec()
-                        ) { value, velocity ->
-                            toolbarState.scrollTopLimitReached = listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset == 0
-                            toolbarState.scrollOffset -= (value - (toolbarState.height + toolbarState.offset))
-                            if (toolbarState.scrollOffset == 0f) scope.coroutineContext.cancelChildren()
-                        }
-                    }
+        Title(
+            title = people.name ?: "인물 정보",
+            onBackClick = { navController.navigateUp() },
+            onFavoriteClick = {
+                if (people.isFavorite) {
+                    deleteFavoritePeople(people)
+                } else {
+                    insertFavoritePeople(people)
                 }
-
-                return super.onPostFling(consumed, available)
+                scope.launch {
+                    onShowSnackbar(
+                        if (people.isFavorite) "좋아하는 인물에서 제거했습니다." else "좋아하는 인물에 추가했습니다.",
+                        null
+                    )
+                }
+            },
+            isFavorite = people.isFavorite
+        )
+        Row() {
+            ImageComponent(people)
+            Spacer(modifier = Modifier.width(dp5))
+            Column {
+                PeopleInfoComponent(people = people)
+                ExternalIdLinkComponent(people = people)
             }
         }
-    }
-
-    Title(
-        title = people.name ?: "인물 정보",
-        onBackClick = { navController.navigateUp() },
-        onFavoriteClick = {
-            if (people.isFavorite) {
-                deleteFavoritePeople(people)
-            } else {
-                insertFavoritePeople(people)
-            }
-            scope.launch {
-                onShowSnackbar(
-                    if (people.isFavorite) "좋아하는 인물에서 제거했습니다." else "좋아하는 인물에 추가했습니다.",
-                    null
-                )
-            }
-        },
-        isFavorite = people.isFavorite
-    )
-
-    Box(modifier = Modifier.nestedScroll(nestedScrollConnection)) {
-        TabComponent(
-            modifier = Modifier
-                .fillMaxSize()
-                .graphicsLayer { translationY = toolbarState.height + toolbarState.offset }
-                .pointerInput(Unit) {
-                    detectTapGestures(
-                        onPress = { scope.coroutineContext.cancelChildren() }
-                    )
-                },
-            contentPadding = PaddingValues(bottom = if (toolbarState is FixedScrollFlagState) minToolbarHeight else 0.dp),
-            listState = listState,
+        RelatedMovieComponent(
             people = people,
             onMovieClick = onMovieClick,
             insertFavoriteMovie = {},
             deleteFavoriteMovie = {}
         )
-        CollapsingToolbar(
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ImageComponent(
+    people: PeopleDetailData
+) {
+    var isShowing by remember { mutableStateOf(false) }
+    var index by remember { mutableIntStateOf(0) }
+    val modalBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val scope = rememberCoroutineScope()
+    val items = people.images?.map { it.copy(filePath = "${people.posterUrl}${people.profilePath}") } ?: emptyList()
+
+    DynamicAsyncImageLoader(
+        source = "${people.posterUrl}${people.profilePath}",
+        contentDescription = "PeopleImage",
+        modifier = Modifier.width(dp100).aspectRatio(POSTER_IMAGE_RATIO).clickable {
+            index = 0
+            isShowing = true
+        }
+    )
+
+    if (isShowing) {
+        ModalBottomSheetDialog(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(with(LocalDensity.current) { toolbarState.height.toDp() })
-                .graphicsLayer { translationY = toolbarState.offset },
-            people = people,
-            progress = toolbarState.progress
+                .aspectRatio(POSTER_IMAGE_RATIO),
+            state = modalBottomSheetState,
+            scope = scope,
+            index = index,
+            imageList = items,
+            onClickCancel = {
+                scope.launch {
+                    isShowing = false
+                    modalBottomSheetState.hide()
+                }
+            }
         )
+    }
+}
+
+@Composable
+fun ExternalIdLinkComponent(people: PeopleDetailData) {
+    val context = LocalContext.current
+
+    Row(
+        modifier = Modifier.fillMaxWidth().wrapContentHeight()
+    ) {
+        people.externalIds?.wikidataId?.takeIf { it.isNotEmpty() }?.let {
+            Icon(
+                modifier = Modifier.size(dp20).clickable {
+                    context.startActivity(
+                        Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse("https://www.wikidata.org/wiki/$it")
+                        )
+                    )
+                },
+                painter = painterResource(id = R.drawable.ic_wiki),
+                contentDescription = "wikidataId"
+            )
+        }
+        people.externalIds?.facebookId?.takeIf { it.isNotEmpty() }?.let {
+            Icon(
+                modifier = Modifier.size(dp20).clickable {
+                    context.startActivity(
+                        Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse("https://www.facebook.com/$it")
+                        )
+                    )
+                },
+                painter = painterResource(id = R.drawable.ic_facebook),
+                contentDescription = "facebookId"
+            )
+        }
+        people.externalIds?.twitterId?.takeIf { it.isNotEmpty() }?.let {
+            Icon(
+                modifier = Modifier.size(dp20).clickable {
+                    context.startActivity(
+                        Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse("https://x.com/$it")
+                        )
+                    )
+                },
+                painter = painterResource(id = R.drawable.ic_twitter),
+                contentDescription = "twitterId"
+            )
+        }
+        people.externalIds?.instagramId?.takeIf { it.isNotEmpty() }?.let {
+            Icon(
+                modifier = Modifier.size(dp20).clickable {
+                    context.startActivity(
+                        Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse("https://www.instagram.com/$it/")
+                        )
+                    )
+                },
+                painter = painterResource(id = R.drawable.ic_instagram),
+                contentDescription = "instagramId"
+            )
+        }
+        people.externalIds?.youtubeId?.takeIf { it.isNotEmpty() }?.let {
+            Icon(
+                modifier = Modifier.size(dp20).clickable {
+                    context.startActivity(
+                        Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse("https://www.youtube.com/$it")
+                        )
+                    )
+                },
+                painter = painterResource(id = R.drawable.ic_youtube),
+                contentDescription = "youtubeId"
+            )
+        }
     }
 }
 
@@ -321,19 +293,18 @@ fun PeopleInfoComponent(
     people: PeopleDetailData
 ) {
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxWidth().wrapContentHeight()
     ) {
         Text(text = people.name ?: "")
         Text(text = people.birthday ?: "")
-        Text(text = people.deathday ?: "")
-        Text(text = people.biography ?: "")
+//        Text(text = people.deathday ?: "")
+//        Text(text = people.biography ?: "")
         Text(text = people.placeOfBirth ?: "")
     }
 }
 
 @Composable
 fun RelatedMovieComponent(
-    listState: LazyGridState = rememberLazyGridState(),
     people: PeopleDetailData,
     onMovieClick: (Int) -> Unit,
     insertFavoriteMovie: (MovieDetail) -> Unit,
@@ -399,7 +370,6 @@ fun RelatedMovieComponent(
 
     LazyVerticalGrid(
         modifier = Modifier,
-        state = listState,
         columns = GridCells.Adaptive(dp100),
         contentPadding = PaddingValues(dp10),
         horizontalArrangement = Arrangement.spacedBy(dp10),

@@ -4,11 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bowoon.common.Result
 import com.bowoon.common.asResult
+import com.bowoon.data.repository.MyDataRepository
 import com.bowoon.data.repository.UserDataRepository
-import com.bowoon.domain.GetMyDataUseCase
+import com.bowoon.model.LanguageItem
 import com.bowoon.model.MyData
 import com.bowoon.model.PosterSize
-import com.bowoon.model.LanguageItem
 import com.bowoon.model.Region
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -20,13 +20,13 @@ import javax.inject.Inject
 @HiltViewModel
 class MyVM @Inject constructor(
     private val userDataRepository: UserDataRepository,
-    getMyDataUseCase: GetMyDataUseCase
+    myDataRepository: MyDataRepository
 ) : ViewModel() {
     companion object {
         private const val TAG = "MyVM"
     }
 
-    val myData = getMyDataUseCase()
+    val myData = myDataRepository.myData
         .asResult()
         .map {
             when (it) {

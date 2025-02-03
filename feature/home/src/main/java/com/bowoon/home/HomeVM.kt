@@ -85,11 +85,11 @@ class HomeVM @Inject constructor(
                 }
                 .collect { movies ->
                     movies?.let {
-                        val filterList = it.filter {
+                        val filterList = it.filter { movie ->
                             Duration.between(
                                 LocalDate.now().atTime(0, 0, 0, 0),
-                                LocalDate.parse(it.releaseDate).atTime(0, 0, 0, 0)
-                            ).toDays() <= 1
+                                LocalDate.parse(movie.releaseDate).atTime(0, 0, 0, 0)
+                            ).toDays() in 0..1
                         }
                         notifier.postMovieNotifications(movies = filterList)
                     }

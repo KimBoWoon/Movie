@@ -41,10 +41,7 @@ class GetFavoriteMoviesUseCase @Inject constructor(
                 productionCountries = movie.productionCountries,
                 productionCompanies = movie.productionCompanies,
                 releaseDate = movie.releases?.countries?.find {
-                    it.iso31661.equals(
-                        userData.region,
-                        true
-                    )
+                    it.iso31661.equals(userData.region, true)
                 }?.releaseDate,
                 releases = movie.releases,
                 revenue = movie.revenue,
@@ -59,10 +56,7 @@ class GetFavoriteMoviesUseCase @Inject constructor(
                 voteCount = movie.voteCount,
                 voteAverage = movie.voteAverage,
                 certification = movie.releases?.countries?.find {
-                    it.iso31661.equals(
-                        userData.region,
-                        true
-                    )
+                    it.iso31661.equals(userData.region, true)
                 }?.certification,
                 favoriteMovies = favoriteMovies,
                 posterUrl = posterUrl,
