@@ -481,11 +481,11 @@ fun MovieInfoComponent(
     ) {
         item {
             Row(
-                modifier = Modifier.padding(start = dp16, end = dp5, top = dp10).fillMaxWidth().wrapContentHeight(),
+                modifier = Modifier.padding(start = dp16, end = dp16, top = dp10).fillMaxWidth().wrapContentHeight(),
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                movie.releaseDate?.let {
+                movie.releaseDate?.takeIf { it.isNotEmpty() }?.let {
                     Text(
                         text = it,
                         fontSize = sp10
@@ -499,14 +499,14 @@ fun MovieInfoComponent(
                         color = Color.LightGray
                     )
                 }
-                movie.certification?.let {
+                movie.certification?.takeIf { it.isNotEmpty() }?.let {
                     Text(
                         text = it,
                         fontSize = sp10
                     )
                 }
             }
-            movie.title?.let {
+            movie.title?.takeIf { it.isNotEmpty() }?.let {
                 Text(
                     modifier = Modifier
                         .padding(start = dp16, end = dp16, top = if (!movie.releaseDate.isNullOrEmpty() && !movie.certification.isNullOrEmpty()) dp10 else dp20)
@@ -518,7 +518,7 @@ fun MovieInfoComponent(
                 )
             }
 
-            movie.originalTitle?.let {
+            movie.originalTitle?.takeIf { it.isNotEmpty() }?.let {
                 Text(
                     modifier = Modifier
                         .padding(top = dp5, start = dp16, end = dp16)
@@ -530,7 +530,7 @@ fun MovieInfoComponent(
                 )
             }
 
-            movie.genres?.let {
+            movie.genres?.takeIf { it.isNotEmpty() }?.let {
                 Text(
                     modifier = Modifier
                         .padding(horizontal = dp16)
@@ -593,7 +593,7 @@ fun MovieInfoComponent(
                 }
             }
 
-            movie.overview?.let {
+            movie.overview?.takeIf { it.isNotEmpty() }?.let {
                 Text(
                     modifier = Modifier
                         .padding(horizontal = dp16)
@@ -643,33 +643,6 @@ fun MovieInfoComponent(
                     overflow = TextOverflow.Ellipsis
                 )
             }
-//            movie.revenue?.let {
-//                Text(
-//                    modifier = Modifier
-//                        .padding(horizontal = dp16)
-//                        .fillMaxWidth()
-//                        .wrapContentHeight(),
-//                    text = "수익 : ${format.format(it)}"
-//                )
-//            }
-//            movie.budget?.let {
-//                Text(
-//                    modifier = Modifier
-//                        .padding(horizontal = dp16)
-//                        .fillMaxWidth()
-//                        .wrapContentHeight(),
-//                    text = "예산 : ${format.format(it)}"
-//                )
-//            }
-//            if (movie.revenue != null && movie.budget != null) {
-//                Text(
-//                    modifier = Modifier
-//                        .padding(horizontal = dp16)
-//                        .fillMaxWidth()
-//                        .wrapContentHeight(),
-//                    text = "순수익 : ${format.format((movie.revenue ?: 0) + -(movie.budget ?: 0))}"
-//                )
-//            }
         }
     }
 }

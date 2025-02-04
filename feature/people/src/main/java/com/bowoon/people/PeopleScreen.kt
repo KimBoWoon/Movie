@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -15,8 +16,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -28,6 +31,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -36,7 +40,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.bowoon.common.Log
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
-import com.bowoon.model.MovieDetail
+import com.bowoon.model.CombineCredits
 import com.bowoon.model.PeopleDetailData
 import com.bowoon.model.RelatedMovie
 import com.bowoon.movie.core.ui.R
@@ -106,22 +110,30 @@ fun PeopleScreen(
         }
     }
 
-    people?.let {
-        PeopleDetailScreen(
-            isLoading = isLoading,
-            people = it,
-            navController = navController,
-            onMovieClick = onMovieClick,
-            insertFavoritePeople = insertFavoritePeople,
-            deleteFavoritePeople = deleteFavoritePeople,
-            onShowSnackbar = onShowSnackbar
-        )
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        people?.let {
+            PeopleDetailComponent(
+                people = it,
+                navController = navController,
+                onMovieClick = onMovieClick,
+                insertFavoritePeople = insertFavoritePeople,
+                deleteFavoritePeople = deleteFavoritePeople,
+                onShowSnackbar = onShowSnackbar
+            )
+        }
+
+        if (isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
     }
 }
 
 @Composable
-fun PeopleDetailScreen(
-    isLoading: Boolean,
+fun PeopleDetailComponent(
     people: PeopleDetailData,
     navController: NavController,
     onMovieClick: (Int) -> Unit,
@@ -130,6 +142,7 @@ fun PeopleDetailScreen(
     onShowSnackbar: suspend (String, String?) -> Boolean
 ) {
     val scope = rememberCoroutineScope()
+    val relatedMovie = people.combineCredits?.getRelatedMovie() ?: emptyList()
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -152,25 +165,41 @@ fun PeopleDetailScreen(
             },
             isFavorite = people.isFavorite
         )
-        Row(
-            modifier = Modifier.fillMaxWidth()
+
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(3),
+            contentPadding = PaddingValues(dp10),
+            horizontalArrangement = Arrangement.spacedBy(dp10),
+            verticalArrangement = Arrangement.spacedBy(dp10)
         ) {
-            ImageComponent(people)
-            Spacer(modifier = Modifier.width(dp5))
-            Column {
-                PeopleInfoComponent(people = people)
-                ExternalIdLinkComponent(people = people)
+            item(span = { GridItemSpan(3) }) {
+                Row(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    ImageComponent(people)
+                    Spacer(modifier = Modifier.width(dp5))
+                    Column {
+                        PeopleInfoComponent(people = people)
+                        ExternalIdLinkComponent(people = people)
+                    }
+                }
+            }
+            item(span = { GridItemSpan(3) }) {
+                people.biography?.takeIf { it.isNotEmpty() }?.let {
+                    Text(text = it)
+                }
+            }
+            items(items = relatedMovie) { movie ->
+                DynamicAsyncImageLoader(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(POSTER_IMAGE_RATIO)
+                        .bounceClick { onMovieClick(movie.id ?: -1) },
+                    source = movie.posterPath ?: "",
+                    contentDescription = "RelatedMovie"
+                )
             }
         }
-        people.biography?.takeIf { it.isNotEmpty() }?.let {
-            Text(text = it)
-        }
-        RelatedMovieComponent(
-            people = people,
-            onMovieClick = onMovieClick,
-            insertFavoriteMovie = {},
-            deleteFavoriteMovie = {}
-        )
     }
 }
 
@@ -331,14 +360,8 @@ fun PeopleInfoComponent(
     }
 }
 
-@Composable
-fun RelatedMovieComponent(
-    people: PeopleDetailData,
-    onMovieClick: (Int) -> Unit,
-    insertFavoriteMovie: (MovieDetail) -> Unit,
-    deleteFavoriteMovie: (MovieDetail) -> Unit
-) {
-    val relatedMovie = people.combineCredits?.cast?.filter { it.mediaType.equals("movie", true) }?.map {
+private fun CombineCredits.getRelatedMovie(): List<RelatedMovie> =
+    (cast?.map {
         RelatedMovie(
             adult = it.adult,
             backdropPath = it.backdropPath,
@@ -366,8 +389,8 @@ fun RelatedMovieComponent(
             department = "",
             job = ""
         )
-    }?.plus(
-        people.combineCredits?.crew?.filter { it.mediaType.equals("movie", true) }?.map {
+    } ?: emptyList()).plus(
+        crew?.map {
             RelatedMovie(
                 adult = it.adult,
                 backdropPath = it.backdropPath,
@@ -394,26 +417,4 @@ fun RelatedMovieComponent(
                 job = it.job
             )
         } ?: emptyList()
-    )?.sortedByDescending { it.releaseDate } ?: emptyList()
-
-    LazyVerticalGrid(
-        modifier = Modifier,
-        columns = GridCells.Adaptive(dp100),
-        contentPadding = PaddingValues(dp10),
-        horizontalArrangement = Arrangement.spacedBy(dp10),
-        verticalArrangement = Arrangement.spacedBy(dp10)
-    ) {
-        items(
-            items = relatedMovie
-        ) { movie ->
-            DynamicAsyncImageLoader(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(POSTER_IMAGE_RATIO)
-                    .bounceClick { onMovieClick(movie.id ?: -1) },
-                source = movie.posterPath ?: "",
-                contentDescription = "SearchPoster"
-            )
-        }
-    }
-}
+    ).sortedByDescending { it.releaseDate }
