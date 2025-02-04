@@ -2,7 +2,7 @@ package com.bowoon.model
 
 import kotlinx.serialization.Serializable
 
-data class PeopleDetailData(
+data class PeopleDetail(
     val adult: Boolean? = null,
     val alsoKnownAs: List<String>? = null,
     val biography: String? = null,

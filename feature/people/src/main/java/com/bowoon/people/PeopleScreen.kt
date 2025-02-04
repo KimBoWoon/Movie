@@ -40,7 +40,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.bowoon.common.Log
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
-import com.bowoon.model.PeopleDetailData
+import com.bowoon.model.PeopleDetail
 import com.bowoon.model.getRelatedMovie
 import com.bowoon.movie.core.ui.R
 import com.bowoon.ui.ConfirmDialog
@@ -78,14 +78,14 @@ fun PeopleScreen(
 fun PeopleScreen(
     peopleState: PeopleState,
     navController: NavController,
-    insertFavoritePeople: (PeopleDetailData) -> Unit,
-    deleteFavoritePeople: (PeopleDetailData) -> Unit,
+    insertFavoritePeople: (PeopleDetail) -> Unit,
+    deleteFavoritePeople: (PeopleDetail) -> Unit,
     onMovieClick: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
     restart: () -> Unit
 ) {
     var isLoading by remember { mutableStateOf(false) }
-    var people by remember { mutableStateOf<PeopleDetailData?>(null) }
+    var people by remember { mutableStateOf<PeopleDetail?>(null) }
 
     when (peopleState) {
         is PeopleState.Loading -> {
@@ -133,11 +133,11 @@ fun PeopleScreen(
 
 @Composable
 fun PeopleDetailComponent(
-    people: PeopleDetailData,
+    people: PeopleDetail,
     navController: NavController,
     onMovieClick: (Int) -> Unit,
-    insertFavoritePeople: (PeopleDetailData) -> Unit,
-    deleteFavoritePeople: (PeopleDetailData) -> Unit,
+    insertFavoritePeople: (PeopleDetail) -> Unit,
+    deleteFavoritePeople: (PeopleDetail) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean
 ) {
     val scope = rememberCoroutineScope()
@@ -205,7 +205,7 @@ fun PeopleDetailComponent(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ImageComponent(
-    people: PeopleDetailData
+    people: PeopleDetail
 ) {
     var isShowing by remember { mutableStateOf(false) }
     var index by remember { mutableIntStateOf(0) }
@@ -245,7 +245,7 @@ fun ImageComponent(
 }
 
 @Composable
-fun ExternalIdLinkComponent(people: PeopleDetailData) {
+fun ExternalIdLinkComponent(people: PeopleDetail) {
     val context = LocalContext.current
 
     Row(
@@ -338,7 +338,7 @@ fun ExternalIdLinkComponent(people: PeopleDetailData) {
 
 @Composable
 fun PeopleInfoComponent(
-    people: PeopleDetailData
+    people: PeopleDetail
 ) {
     Column(
         modifier = Modifier

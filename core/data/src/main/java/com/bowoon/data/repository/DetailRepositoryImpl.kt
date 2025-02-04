@@ -5,7 +5,7 @@ import com.bowoon.model.CombineCredits
 import com.bowoon.model.ExternalIds
 import com.bowoon.model.MovieDetail
 import com.bowoon.model.MovieSearchData
-import com.bowoon.model.PeopleDetailData
+import com.bowoon.model.PeopleDetail
 import com.bowoon.network.ApiResponse
 import com.bowoon.network.model.asExternalModel
 import com.bowoon.network.retrofit.Apis
@@ -41,7 +41,7 @@ class DetailRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getPeople(personId: Int): Flow<PeopleDetailData> = flow {
+    override fun getPeople(personId: Int): Flow<PeopleDetail> = flow {
         val language = datastore.getLanguage()
         val region = datastore.getRegion()
 

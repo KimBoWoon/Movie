@@ -1,7 +1,7 @@
 package com.bowoon.data.repository
 
 import com.bowoon.model.MovieDetail
-import com.bowoon.model.PeopleDetailData
+import com.bowoon.model.PeopleDetail
 import kotlinx.coroutines.flow.Flow
 
 interface DatabaseRepository {
@@ -10,8 +10,8 @@ interface DatabaseRepository {
     suspend fun deleteMovie(movie: MovieDetail)
     suspend fun upsertMovies(movies: List<MovieDetail>)
 
-    fun getPeople(): Flow<List<PeopleDetailData>>
-    suspend fun insertPeople(people: PeopleDetailData): Long
-    suspend fun deletePeople(people: PeopleDetailData)
-    suspend fun upsertPeoples(peoples: List<PeopleDetailData>)
+    fun getPeople(): Flow<List<PeopleDetail>>
+    suspend fun insertPeople(people: PeopleDetail): Long
+    suspend fun deletePeople(people: PeopleDetail)
+    suspend fun upsertPeoples(peoples: List<PeopleDetail>)
 }

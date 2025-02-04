@@ -1,7 +1,7 @@
 package com.bowoon.network.model
 
 import com.bowoon.model.DetailImage
-import com.bowoon.model.PeopleDetailData
+import com.bowoon.model.PeopleDetail
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -63,8 +63,8 @@ data class NetworkTMDBPeopleProfile(
     val width: Int? = null
 )
 
-fun NetworkTMDBPeopleDetail.asExternalModel(): PeopleDetailData =
-    PeopleDetailData(
+fun NetworkTMDBPeopleDetail.asExternalModel(): PeopleDetail =
+    PeopleDetail(
         adult = adult,
         alsoKnownAs = alsoKnownAs,
         biography = biography,
