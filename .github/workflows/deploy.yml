@@ -4,7 +4,8 @@ on:
   push:
     branches: [ master ]
   pull_request:
-    branches: [ movie_v1.0.0 ]
+    branches:
+      - 'releases/**'
 
 jobs:
   build:
