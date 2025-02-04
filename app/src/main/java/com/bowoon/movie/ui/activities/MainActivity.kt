@@ -10,6 +10,7 @@ import androidx.compose.runtime.remember
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.bowoon.data.util.NetworkMonitor
 import com.bowoon.movie.rememberMovieAppState
+import com.bowoon.movie.service.FirebaseMessage
 import com.bowoon.movie.ui.MovieMainScreen
 import com.bowoon.ui.theme.MovieTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -27,6 +28,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         splashScreen.setKeepOnScreenCondition { !viewModel.initDataLoad.value.shouldKeepSplashScreen() }
+
+        FirebaseMessage().createChannel(context = this@MainActivity)
+        FirebaseMessage().checkToken()
 
         setContent {
             MovieTheme {

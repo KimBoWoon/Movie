@@ -25,9 +25,9 @@ import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bowoon.common.Log
+import com.bowoon.model.LanguageItem
 import com.bowoon.model.MyData
 import com.bowoon.model.PosterSize
-import com.bowoon.model.LanguageItem
 import com.bowoon.model.Region
 import com.bowoon.ui.Title
 import com.bowoon.ui.dp16
@@ -41,6 +41,7 @@ fun MyScreen(
     MyScreen(
         state = myState,
         updateIsAdult = viewModel::updateIsAdult,
+        updateIsAutoPlayTrailer = viewModel::updateIsAutoPlayTrailer,
         updateLanguage = viewModel::updateLanguage,
         updateRegion = viewModel::updateRegion,
         updateImageQuality = viewModel::updateImageQuality
@@ -51,20 +52,23 @@ fun MyScreen(
 fun MyScreen(
     state: MyDataState,
     updateIsAdult: (Boolean) -> Unit,
+    updateIsAutoPlayTrailer: (Boolean) -> Unit,
     updateLanguage: (LanguageItem) -> Unit,
     updateRegion: (Region) -> Unit,
     updateImageQuality: (PosterSize) -> Unit
 ) {
     val isLoading = state is MyDataState.Loading
     var myData by remember { mutableStateOf<MyData?>(null) }
-    var checked by remember { mutableStateOf(myData?.isAdult ?: true) }
+    var adultChecked by remember { mutableStateOf(myData?.isAdult ?: true) }
+    var autoPlayTrailerChecked by remember { mutableStateOf(myData?.isAutoPlayTrailer ?: true) }
 
     when (state) {
         is MyDataState.Loading -> Log.d("myData loading...")
         is MyDataState.Success -> {
             Log.d("${state.myData}")
             myData = state.myData
-            checked = state.myData?.isAdult ?: true
+            adultChecked = state.myData?.isAdult ?: true
+            autoPlayTrailerChecked = state.myData?.isAutoPlayTrailer ?: true
         }
         is MyDataState.Error -> Log.e(state.throwable.message ?: "something wrong...")
     }
@@ -82,10 +86,22 @@ fun MyScreen(
             ) {
                 Text(text = "성인")
                 Switch(
-                    checked = checked,
+                    checked = adultChecked,
                     onCheckedChange = {
-                        checked = it
+                        adultChecked = it
                         updateIsAdult(it)
+                    }
+                )
+            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = "예고편 자동 재생")
+                Switch(
+                    checked = autoPlayTrailerChecked,
+                    onCheckedChange = {
+                        autoPlayTrailerChecked = it
+                        updateIsAutoPlayTrailer(it)
                     }
                 )
             }

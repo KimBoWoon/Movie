@@ -18,6 +18,10 @@ class UserDataRepositoryImpl @Inject constructor(
         datastore.updateIsAdult(isAdult)
     }
 
+    override suspend fun updateIsAutoPlayTrailer(isAutoPlayTrailer: Boolean) {
+        datastore.updateAutoPlayTrailer(isAutoPlayTrailer)
+    }
+
     override suspend fun updateDarkModeTheme(config: DarkThemeConfig) {
         datastore.updateDarkTheme(config)
     }
@@ -46,6 +50,8 @@ class UserDataRepositoryImpl @Inject constructor(
     }
 
     override suspend fun isAdult(): Boolean = datastore.isAdult()
+
+    override suspend fun isAutoPlayTrailer(): Boolean = datastore.isAutoPlayTrailer()
 
     override suspend fun getMainOfDate(): String = datastore.getMainOfDate()
 

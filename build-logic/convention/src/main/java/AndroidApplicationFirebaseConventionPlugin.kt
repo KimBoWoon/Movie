@@ -21,6 +21,7 @@ class AndroidApplicationFirebaseConventionPlugin : Plugin<Project> {
                 add("implementation", libs.findLibrary("firebase.analytics").get())
                 add("implementation", libs.findLibrary("firebase.performance").get())
                 add("implementation", libs.findLibrary("firebase.crashlytics").get())
+                add("implementation", libs.findLibrary("firebase.message").get())
             }
 
             extensions.configure<ApplicationExtension> {

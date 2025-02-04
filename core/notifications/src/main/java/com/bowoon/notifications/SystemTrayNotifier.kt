@@ -62,7 +62,7 @@ class SystemTrayNotifier @Inject constructor(
     }
 }
 
-private fun Context.createMovieNotification(
+fun Context.createMovieNotification(
     block: NotificationCompat.Builder.() -> Unit,
 ): Notification {
     ensureNotificationChannelExists()
@@ -75,7 +75,7 @@ private fun Context.createMovieNotification(
         .build()
 }
 
-private fun Context.ensureNotificationChannelExists() {
+fun Context.ensureNotificationChannelExists() {
     if (VERSION.SDK_INT < VERSION_CODES.O) return
 
     val channel = NotificationChannel(
@@ -89,7 +89,7 @@ private fun Context.ensureNotificationChannelExists() {
     NotificationManagerCompat.from(this).createNotificationChannel(channel)
 }
 
-private fun Context.moviePendingIntent(
+fun Context.moviePendingIntent(
     movie: Movie,
 ): PendingIntent? = PendingIntent.getActivity(
     this,
