@@ -39,7 +39,7 @@ import com.bowoon.common.Log
 import com.bowoon.data.util.PEOPLE_IMAGE_RATIO
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.model.MovieDetail
-import com.bowoon.model.PeopleDetailData
+import com.bowoon.model.PeopleDetail
 import com.bowoon.ui.FavoriteButton
 import com.bowoon.ui.Title
 import com.bowoon.ui.bounceClick
@@ -81,11 +81,11 @@ fun FavoriteScreen(
     onPeopleClick: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
     deleteFavoriteMovie: (MovieDetail) -> Unit,
-    deleteFavoritePeople: (PeopleDetailData) -> Unit
+    deleteFavoritePeople: (PeopleDetail) -> Unit
 ) {
     val isLoading = favoriteMoviesState is FavoriteMoviesState.Loading
     var favoriteMovies by remember { mutableStateOf<List<MovieDetail>>(emptyList()) }
-    var favoritePeoples by remember { mutableStateOf<List<PeopleDetailData>>(emptyList()) }
+    var favoritePeoples by remember { mutableStateOf<List<PeopleDetail>>(emptyList()) }
     val favoriteList = listOf("영화", "인물")
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { favoriteList.size })
     val scope = rememberCoroutineScope()
@@ -217,9 +217,9 @@ fun FavoriteMovieList(
 
 @Composable
 fun FavoritePeopleList(
-    favoritePeoples: List<PeopleDetailData>,
+    favoritePeoples: List<PeopleDetail>,
     onPeopleClick: (Int) -> Unit,
-    deleteFavoritePeople: (PeopleDetailData) -> Unit,
+    deleteFavoritePeople: (PeopleDetail) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean
 ) {
     val scope = rememberCoroutineScope()

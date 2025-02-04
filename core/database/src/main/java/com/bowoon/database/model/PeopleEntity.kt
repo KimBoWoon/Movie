@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.bowoon.model.CombineCredits
 import com.bowoon.model.DetailImage
-import com.bowoon.model.PeopleDetailData
+import com.bowoon.model.PeopleDetail
 import com.bowoon.model.PeopleExternalIds
 
 @Entity(tableName = "peoples")
@@ -24,7 +24,7 @@ data class PeopleEntity(
     val profilePath: String?,
 )
 
-fun PeopleEntity.asExternalModel(): PeopleDetailData = PeopleDetailData(
+fun PeopleEntity.asExternalModel(): PeopleDetail = PeopleDetail(
     id = id,
     name = name,
     gender = gender,

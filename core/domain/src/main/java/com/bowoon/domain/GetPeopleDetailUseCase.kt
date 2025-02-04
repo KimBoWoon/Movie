@@ -6,7 +6,7 @@ import com.bowoon.data.repository.MyDataRepository
 import com.bowoon.model.CombineCredits
 import com.bowoon.model.CombineCreditsCast
 import com.bowoon.model.CombineCreditsCrew
-import com.bowoon.model.PeopleDetailData
+import com.bowoon.model.PeopleDetail
 import com.bowoon.model.PeopleExternalIds
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -17,7 +17,7 @@ class GetPeopleDetailUseCase @Inject constructor(
     private val databaseRepository: DatabaseRepository,
     private val myDataRepository: MyDataRepository
 ) {
-    operator fun invoke(personId: Int): Flow<PeopleDetailData> =
+    operator fun invoke(personId: Int): Flow<PeopleDetail> =
         combine(
             detailRepository.getPeople(personId = personId),
             detailRepository.getCombineCredits(personId = personId),
@@ -25,7 +25,7 @@ class GetPeopleDetailUseCase @Inject constructor(
             myDataRepository.posterUrl,
             databaseRepository.getPeople()
         ) { tmdbPeopleDetail, tmdbCombineCredits, tmdbExternalIds, posterUrl, favoritePeoples ->
-            PeopleDetailData(
+            PeopleDetail(
                 adult = tmdbPeopleDetail.adult,
                 alsoKnownAs = tmdbPeopleDetail.alsoKnownAs,
                 biography = tmdbPeopleDetail.biography,
