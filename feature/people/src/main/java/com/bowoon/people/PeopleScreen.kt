@@ -40,9 +40,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.bowoon.common.Log
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
-import com.bowoon.model.CombineCredits
 import com.bowoon.model.PeopleDetailData
-import com.bowoon.model.RelatedMovie
+import com.bowoon.model.getRelatedMovie
 import com.bowoon.movie.core.ui.R
 import com.bowoon.ui.ConfirmDialog
 import com.bowoon.ui.ModalBottomSheetDialog
@@ -359,62 +358,3 @@ fun PeopleInfoComponent(
         }
     }
 }
-
-private fun CombineCredits.getRelatedMovie(): List<RelatedMovie> =
-    (cast?.map {
-        RelatedMovie(
-            adult = it.adult,
-            backdropPath = it.backdropPath,
-            character = it.character,
-            creditId = it.creditId,
-            episodeCount = it.episodeCount,
-            firstAirDate = it.firstAirDate,
-            genreIds = it.genreIds,
-            id = it.id,
-            mediaType = it.mediaType,
-            name = it.name,
-            order = it.order,
-            originCountry = it.originCountry,
-            originalLanguage = it.originalLanguage,
-            originalName = it.originalName,
-            originalTitle = it.originalTitle,
-            overview = it.overview,
-            popularity = it.popularity,
-            posterPath = it.posterPath,
-            releaseDate = it.releaseDate,
-            title = it.title,
-            video = it.video,
-            voteAverage = it.voteAverage,
-            voteCount = it.voteCount,
-            department = "",
-            job = ""
-        )
-    } ?: emptyList()).plus(
-        crew?.map {
-            RelatedMovie(
-                adult = it.adult,
-                backdropPath = it.backdropPath,
-                creditId = it.creditId,
-                episodeCount = it.episodeCount,
-                firstAirDate = it.firstAirDate,
-                genreIds = it.genreIds,
-                id = it.id,
-                mediaType = it.mediaType,
-                name = it.name,
-                originCountry = it.originCountry,
-                originalLanguage = it.originalLanguage,
-                originalName = it.originalName,
-                originalTitle = it.originalTitle,
-                overview = it.overview,
-                popularity = it.popularity,
-                posterPath = it.posterPath,
-                releaseDate = it.releaseDate,
-                title = it.title,
-                video = it.video,
-                voteAverage = it.voteAverage,
-                voteCount = it.voteCount,
-                department = it.department,
-                job = it.job
-            )
-        } ?: emptyList()
-    ).sortedByDescending { it.releaseDate }
