@@ -65,7 +65,7 @@ private fun MovieDialog(
         onDismissRequest = { onDismiss() },
         properties = DialogProperties(
             usePlatformDefaultWidth = false,
-            dismissOnBackPress = true,
+            dismissOnBackPress = false,
             dismissOnClickOutside = false
         )
     ) {
