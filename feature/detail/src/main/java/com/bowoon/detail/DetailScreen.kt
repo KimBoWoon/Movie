@@ -287,7 +287,12 @@ fun VideosComponent(movie: MovieDetail) {
                         object : AbstractYouTubePlayerListener() {
                             override fun onReady(youTubePlayer: YouTubePlayer) {
                                 super.onReady(youTubePlayer)
-                                youTubePlayer.loadVideo(vodList[index], 0f)
+
+                                when (movie.autoPlayTrailer) {
+                                    true -> youTubePlayer.loadVideo(vodList[index], 0f)
+                                    false -> youTubePlayer.cueVideo(vodList[index], 0f)
+                                    else -> youTubePlayer.cueVideo(vodList[index], 0f)
+                                }
                             }
 
                             override fun onStateChange(

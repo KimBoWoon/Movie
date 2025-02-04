@@ -8,6 +8,7 @@ import kotlinx.serialization.Serializable
 @Parcelize
 data class MovieDetail(
     val adult: Boolean? = null,
+    val autoPlayTrailer: Boolean? = null,
     val alternativeTitles: AlternativeTitles? = null,
     val backdropPath: String? = null,
     val belongsToCollection: BelongsToCollection? = null,

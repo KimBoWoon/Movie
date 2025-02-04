@@ -26,6 +26,7 @@ class InternalDataSource @Inject constructor(
 
         private val SECURE_BASE_URL = stringPreferencesKey("secureBaseUrl")
         private val IS_ADULT = booleanPreferencesKey("isAdult")
+        private val AUTO_PLAY_TRAILER = booleanPreferencesKey("autoPlayTrailer")
         private val UPDATE_DATE = stringPreferencesKey("updateDate")
         private val MAIN_MENU = stringPreferencesKey("mainMenu")
         private val IS_DART_MODE = stringPreferencesKey("isDarkMode")
@@ -38,6 +39,7 @@ class InternalDataSource @Inject constructor(
         UserData(
             secureBaseUrl = it[SECURE_BASE_URL] ?: "",
             isAdult = it[IS_ADULT] ?: true,
+            autoPlayTrailer = it[AUTO_PLAY_TRAILER] ?: true,
             isDarkMode = it[IS_DART_MODE]?.let { jsonString ->
                 json.decodeFromString<DarkThemeConfig>(jsonString)
             } ?: DarkThemeConfig.FOLLOW_SYSTEM,
@@ -60,6 +62,12 @@ class InternalDataSource @Inject constructor(
     suspend fun updateIsAdult(isAdult: Boolean) {
         datastore.edit {
             it[IS_ADULT] = isAdult
+        }
+    }
+
+    suspend fun updateAutoPlayTrailer(autoPlayTrailer: Boolean) {
+        datastore.edit {
+            it[AUTO_PLAY_TRAILER] = autoPlayTrailer
         }
     }
 
@@ -100,6 +108,8 @@ class InternalDataSource @Inject constructor(
     }
 
     suspend fun isAdult(): Boolean = datastore.data.map { it[IS_ADULT] }.firstOrNull() ?: true
+
+    suspend fun isAutoPlayTrailer(): Boolean = datastore.data.map { it[AUTO_PLAY_TRAILER] }.firstOrNull() ?: true
 
     suspend fun getMainOfDate(): String =
         datastore.data.map { it[UPDATE_DATE] }.firstOrNull() ?: ""

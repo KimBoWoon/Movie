@@ -69,6 +69,12 @@ class MyVM @Inject constructor(
             userDataRepository.updateIsAdult(isAdult)
         }
     }
+
+    fun updateIsAutoPlayTrailer(isAutoPlayTrailer: Boolean) {
+        viewModelScope.launch {
+            userDataRepository.updateIsAutoPlayTrailer(isAutoPlayTrailer)
+        }
+    }
 }
 
 sealed interface MyDataState {

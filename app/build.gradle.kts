@@ -13,6 +13,7 @@ dependencies {
         projects.core.ui,
         projects.core.sync,
         projects.core.model,
+        projects.core.notifications,
         projects.feature.home,
         projects.feature.detail,
         projects.feature.search,

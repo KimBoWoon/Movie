@@ -41,6 +41,7 @@ class MyDataRepositoryImpl @Inject constructor(
     ) { userdata, requestData ->
         MyData(
             isAdult = userdata.isAdult,
+            isAutoPlayTrailer = userdata.autoPlayTrailer,
             mainUpdateLatestDate = userdata.updateDate,
             secureBaseUrl = userdata.secureBaseUrl,
             configuration = requestData.configuration,
