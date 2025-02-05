@@ -1,12 +1,8 @@
 package com.bowoon.movie.service
 
 import android.Manifest.permission
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.content.Context
+import android.app.Notification
 import android.content.pm.PackageManager.PERMISSION_GRANTED
-import android.os.Build.VERSION
-import android.os.Build.VERSION_CODES
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -14,50 +10,20 @@ import coil3.ImageLoader
 import coil3.request.ImageRequest
 import coil3.toBitmap
 import com.bowoon.common.Log
+import com.bowoon.common.di.ApplicationScope
+import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.model.Movie
 import com.bowoon.movie.core.notifications.R
 import com.bowoon.notifications.createMovieNotification
 import com.bowoon.notifications.moviePendingIntent
-import com.google.android.gms.tasks.OnCompleteListener
-import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class FirebaseMessage {
-    companion object {
-        private const val TAG = "FirebaseCloudMessage"
-    }
-
-    fun createChannel(context: Context) {
-        if (VERSION.SDK_INT < VERSION_CODES.O) return
-
-        val channel = NotificationChannel(
-            "Movie release notification",
-            "Movie release notification",
-            NotificationManager.IMPORTANCE_DEFAULT,
-        ).apply {
-            description = "곧 개봉하는 영화가 있습니다."
-        }
-
-        NotificationManagerCompat.from(context).createNotificationChannel(channel)
-    }
-
-    fun checkToken() {
-        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
-            if (!task.isSuccessful) {
-                Log.w(TAG, task.exception?.message ?: "Fetching FCM registration token failed")
-                return@OnCompleteListener
-            }
-
-            // Get new FCM registration token
-            val token = task.result
-
-            // Log and toast
-            Log.d(TAG, token)
-        })
-    }
-}
-
+@AndroidEntryPoint
 class MovieFCMService : FirebaseMessagingService() {
     companion object {
         private const val TAG = "MovieFCMService"
@@ -65,10 +31,26 @@ class MovieFCMService : FirebaseMessagingService() {
         private const val MOVIE_NOTIFICATION_RELEASE_GROUP = "MOVIE_NOTIFICATION_RELEASE_GROUP"
     }
 
+    @Inject
+    lateinit var userdataRepository: UserDataRepository
+    @Inject
+    @ApplicationScope
+    lateinit var scope: CoroutineScope
+
     override fun onNewToken(token: String) {
         super.onNewToken(token)
 
-        Log.d(TAG, token)
+        scope.launch {
+            userdataRepository.getFCMToken().let { savedToken ->
+                Log.d(TAG, "new token > $token")
+                Log.d(TAG, "saved token > $savedToken")
+
+                if (savedToken != token) {
+                    userdataRepository.updateFCMToken(token)
+                    // TODO 서버 저장 필요!
+                }
+            }
+        }
     }
 
     override fun onMessageReceived(message: RemoteMessage) {
@@ -109,11 +91,7 @@ class MovieFCMService : FirebaseMessagingService() {
                                         .setAutoCancel(true)
                                 }
 
-                                val notificationManager = NotificationManagerCompat.from(this)
-                                notificationManager.notify(
-                                    movieNotification.hashCode(),
-                                    movieNotification
-                                )
+                                notify(movieNotification)
                             }
                         )
                         .build()
@@ -128,12 +106,18 @@ class MovieFCMService : FirebaseMessagingService() {
                         .setAutoCancel(true)
                 }
 
-                val notificationManager = NotificationManagerCompat.from(this)
-                notificationManager.notify(
-                    movieNotification.hashCode(),
-                    movieNotification
-                )
+                notify(movieNotification)
             }
+        }
+    }
+
+    private fun notify(movieNotification: Notification) {
+        if (ActivityCompat.checkSelfPermission(this, permission.POST_NOTIFICATIONS) == PERMISSION_GRANTED) {
+            val notificationManager = NotificationManagerCompat.from(this)
+            notificationManager.notify(
+                movieNotification.hashCode(),
+                movieNotification
+            )
         }
     }
 }

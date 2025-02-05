@@ -33,6 +33,7 @@ class InternalDataSource @Inject constructor(
         private val REGION = stringPreferencesKey("region")
         private val LANGUAGE = stringPreferencesKey("language")
         private val IMAGE_QUALITY = stringPreferencesKey("imageQuality")
+        private val FCM_TOKEN = stringPreferencesKey("fcmToken")
     }
 
     val userData = datastore.data.map {
@@ -107,6 +108,12 @@ class InternalDataSource @Inject constructor(
         }
     }
 
+    suspend fun updateFCMToken(token: String) {
+        datastore.edit {
+            it[FCM_TOKEN] = token
+        }
+    }
+
     suspend fun isAdult(): Boolean = datastore.data.map { it[IS_ADULT] }.firstOrNull() ?: true
 
     suspend fun isAutoPlayTrailer(): Boolean = datastore.data.map { it[AUTO_PLAY_TRAILER] }.firstOrNull() ?: true
@@ -122,4 +129,7 @@ class InternalDataSource @Inject constructor(
 
     suspend fun getImageQuality(): String =
         datastore.data.map { it[IMAGE_QUALITY] }.firstOrNull() ?: "original"
+
+    suspend fun getFCMToken(): String =
+        datastore.data.map { it[FCM_TOKEN] }.firstOrNull() ?: ""
 }

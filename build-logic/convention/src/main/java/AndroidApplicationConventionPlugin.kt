@@ -60,7 +60,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                     release {
                         applicationIdSuffix = MovieAppBuildType.RELEASE.applicationIdSuffix
                         isMinifyEnabled = true
-//                        isShrinkResources = true
+                        isShrinkResources = true
                         isDebuggable = false
                         isJniDebuggable = false
                         proguardFiles(
@@ -72,7 +72,6 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                     }
                 }
 
-//                configureFlavors(this)
                 configureKotlinAndroid(this)
             }
 

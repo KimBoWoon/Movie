@@ -49,6 +49,10 @@ class UserDataRepositoryImpl @Inject constructor(
         syncManager.requestSync()
     }
 
+    override suspend fun updateFCMToken(token: String) {
+        datastore.updateFCMToken(token)
+    }
+
     override suspend fun isAdult(): Boolean = datastore.isAdult()
 
     override suspend fun isAutoPlayTrailer(): Boolean = datastore.isAutoPlayTrailer()
@@ -60,4 +64,6 @@ class UserDataRepositoryImpl @Inject constructor(
     override suspend fun getLanguage(): String = datastore.getLanguage()
 
     override suspend fun getImageQuality(): String = datastore.getImageQuality()
+
+    override suspend fun getFCMToken(): String = datastore.getFCMToken()
 }
