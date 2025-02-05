@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bowoon.common.Log
+import com.bowoon.model.DarkThemeConfig
 import com.bowoon.model.LanguageItem
 import com.bowoon.model.MyData
 import com.bowoon.model.PosterSize
@@ -40,6 +41,7 @@ fun MyScreen(
 
     MyScreen(
         state = myState,
+        updateDarkMode = viewModel::updateDarkTheme,
         updateIsAdult = viewModel::updateIsAdult,
         updateIsAutoPlayTrailer = viewModel::updateIsAutoPlayTrailer,
         updateLanguage = viewModel::updateLanguage,
@@ -51,6 +53,7 @@ fun MyScreen(
 @Composable
 fun MyScreen(
     state: MyDataState,
+    updateDarkMode: (DarkThemeConfig) -> Unit,
     updateIsAdult: (Boolean) -> Unit,
     updateIsAutoPlayTrailer: (Boolean) -> Unit,
     updateLanguage: (LanguageItem) -> Unit,
@@ -59,6 +62,15 @@ fun MyScreen(
 ) {
     val isLoading = state is MyDataState.Loading
     var myData by remember { mutableStateOf<MyData?>(null) }
+    var darkModeChecked by remember {
+        mutableStateOf(
+            when (myData?.isDarkMode) {
+                DarkThemeConfig.DARK -> true
+                DarkThemeConfig.LIGHT -> false
+                else -> false
+            }
+        )
+    }
     var adultChecked by remember { mutableStateOf(myData?.isAdult ?: true) }
     var autoPlayTrailerChecked by remember { mutableStateOf(myData?.isAutoPlayTrailer ?: true) }
 
@@ -67,6 +79,11 @@ fun MyScreen(
         is MyDataState.Success -> {
             Log.d("${state.myData}")
             myData = state.myData
+            darkModeChecked = when (state.myData?.isDarkMode) {
+                DarkThemeConfig.DARK -> true
+                DarkThemeConfig.LIGHT -> false
+                else -> false
+            }
             adultChecked = state.myData?.isAdult ?: true
             autoPlayTrailerChecked = state.myData?.isAutoPlayTrailer ?: true
         }
@@ -81,6 +98,24 @@ fun MyScreen(
         ) {
             Title(title = "마이페이지")
             Text(text = "메인 업데이트 날짜 ${myData?.mainUpdateLatestDate}")
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = "다크모드 설정")
+                Switch(
+                    checked = darkModeChecked,
+                    onCheckedChange = {
+                        darkModeChecked = it
+                        when (it) {
+                            true -> DarkThemeConfig.DARK
+                            false -> DarkThemeConfig.LIGHT
+                            else -> DarkThemeConfig.FOLLOW_SYSTEM
+                        }.run {
+                            updateDarkMode(this)
+                        }
+                    }
+                )
+            }
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
