@@ -15,10 +15,12 @@ interface UserDataRepository {
     suspend fun updateRegion(region: String)
     suspend fun updateLanguage(language: String)
     suspend fun updateImageQuality(imageQuality: String)
+    suspend fun updateFCMToken(token: String)
     suspend fun isAdult(): Boolean
     suspend fun isAutoPlayTrailer(): Boolean
     suspend fun getMainOfDate(): String
     suspend fun getRegion(): String
     suspend fun getLanguage(): String
     suspend fun getImageQuality(): String
+    suspend fun getFCMToken(): String
 }
