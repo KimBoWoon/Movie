@@ -5,7 +5,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -22,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bowoon.common.Log
@@ -31,7 +36,9 @@ import com.bowoon.model.MyData
 import com.bowoon.model.PosterSize
 import com.bowoon.model.Region
 import com.bowoon.ui.Title
+import com.bowoon.ui.dp150
 import com.bowoon.ui.dp16
+import com.bowoon.ui.dp250
 
 @Composable
 fun MyScreen(
@@ -99,7 +106,9 @@ fun MyScreen(
             Title(title = "마이페이지")
             Text(text = "메인 업데이트 날짜 ${myData?.mainUpdateLatestDate}")
             Row(
-                verticalAlignment = Alignment.CenterVertically
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(text = "다크모드 설정")
                 Switch(
@@ -117,7 +126,9 @@ fun MyScreen(
                 )
             }
             Row(
-                verticalAlignment = Alignment.CenterVertically
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(text = "성인")
                 Switch(
@@ -129,7 +140,9 @@ fun MyScreen(
                 )
             }
             Row(
-                verticalAlignment = Alignment.CenterVertically
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(text = "예고편 자동 재생")
                 Switch(
@@ -141,32 +154,33 @@ fun MyScreen(
                 )
             }
             Row(
-                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "language")
+                Text(text = "언어")
                 ExposedDropdownLanguageMenu(
                     list = myData?.language ?: emptyList(),
                     updateLanguage = updateLanguage
                 )
             }
-
             Row(
-                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "region")
+                Text(text = "지역")
                 ExposedDropdownRegionMenu(
                     list = myData?.region ?: emptyList(),
                     updateRegion = updateRegion
                 )
             }
-
             Row(
-                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "image")
+                Text(text = "이미지 퀄리티")
                 ExposedDropdownPosterSizeMenu(
                     list = myData?.posterSize ?: emptyList(),
                     updateImageQuality = updateImageQuality
@@ -192,18 +206,21 @@ fun ExposedDropdownLanguageMenu(
     var selectedItem = list.find { it.isSelected }
 
     ExposedDropdownMenuBox(
+        modifier = Modifier.width(dp150),
         expanded = expanded,
         onExpandedChange = { expanded = !expanded }
     ) {
         TextField(
-            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
+            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable).wrapContentSize(),
             readOnly = true,
             value = "${selectedItem?.iso6391} (${selectedItem?.englishName})",
             onValueChange = {},
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) }
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            maxLines = 1
         )
 
         ExposedDropdownMenu(
+            modifier = Modifier.heightIn(max = dp250),
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
@@ -212,7 +229,8 @@ fun ExposedDropdownLanguageMenu(
                     text = {
                         Text(
                             text = "${it.iso6391} (${it.englishName})",
-                            maxLines = 1
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     },
                     onClick = {
@@ -236,18 +254,21 @@ fun ExposedDropdownRegionMenu(
     var selectedItem = list.find { it.isSelected }
 
     ExposedDropdownMenuBox(
+        modifier = Modifier.width(dp150),
         expanded = expanded,
         onExpandedChange = { expanded = !expanded }
     ) {
         TextField(
-            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
+            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable).wrapContentSize(),
             readOnly = true,
             value = "${selectedItem?.iso31661} (${selectedItem?.nativeName ?: selectedItem?.englishName})",
             onValueChange = {},
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) }
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            maxLines = 1
         )
 
         ExposedDropdownMenu(
+            modifier = Modifier.heightIn(max = dp250),
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
@@ -256,7 +277,8 @@ fun ExposedDropdownRegionMenu(
                     text = {
                         Text(
                             text = "${it.iso31661} (${it.nativeName ?: it.englishName})",
-                            maxLines = 1
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     },
                     onClick = {
@@ -280,6 +302,7 @@ fun ExposedDropdownPosterSizeMenu(
     var selectedItem = list.find { it.isSelected }
 
     ExposedDropdownMenuBox(
+        modifier = Modifier.width(dp150),
         expanded = expanded,
         onExpandedChange = { expanded = !expanded }
     ) {
@@ -288,19 +311,22 @@ fun ExposedDropdownPosterSizeMenu(
             readOnly = true,
             value = "${selectedItem?.size}",
             onValueChange = {},
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) }
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            maxLines = 1
         )
 
         ExposedDropdownMenu(
+            modifier = Modifier.heightIn(max = dp250),
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
-            list.sortedBy { it.size }.forEach {
+            list.forEach {
                 DropdownMenuItem(
                     text = {
                         Text(
                             text = "${it.size}",
-                            maxLines = 1
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     },
                     onClick = {

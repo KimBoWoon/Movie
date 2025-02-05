@@ -15,6 +15,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.bowoon.common.isSystemInDarkTheme
 import com.bowoon.data.util.NetworkMonitor
 import com.bowoon.movie.rememberMovieAppState
 import com.bowoon.movie.ui.MovieMainScreen
