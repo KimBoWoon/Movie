@@ -1,13 +1,16 @@
 package com.bowoon.datastore
 
+import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.bowoon.common.isSystemInDarkTheme
 import com.bowoon.model.DarkThemeConfig
 import com.bowoon.model.MainMenu
 import com.bowoon.model.UserData
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
@@ -19,7 +22,8 @@ import javax.inject.Inject
  */
 class InternalDataSource @Inject constructor(
     private val datastore: DataStore<Preferences>,
-    private val json: Json
+    private val json: Json,
+    @ApplicationContext private val appContext: Context
 ) {
     companion object {
         private const val TAG = "datastore"
@@ -40,7 +44,7 @@ class InternalDataSource @Inject constructor(
         UserData(
             secureBaseUrl = it[SECURE_BASE_URL] ?: "",
             isAdult = it[IS_ADULT] ?: true,
-            autoPlayTrailer = it[AUTO_PLAY_TRAILER] ?: true,
+            autoPlayTrailer = it[AUTO_PLAY_TRAILER] ?: appContext.resources.configuration.isSystemInDarkTheme,
             isDarkMode = it[IS_DART_MODE]?.let { jsonString ->
                 json.decodeFromString<DarkThemeConfig>(jsonString)
             } ?: DarkThemeConfig.FOLLOW_SYSTEM,
