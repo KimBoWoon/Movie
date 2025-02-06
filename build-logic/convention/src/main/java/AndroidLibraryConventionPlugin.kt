@@ -24,9 +24,6 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
                     minSdk = Config.Library.COMPILE_SDK_VERSION
                     buildTypes {
                         release {
-//                            isMinifyEnabled = true
-//                            isShrinkResources = true
-                            isJniDebuggable = false
                             proguardFiles(
                                 getDefaultProguardFile(Config.ApplicationSetting.defaultProguardFile),
                                 Config.ApplicationSetting.proguardFile
@@ -34,13 +31,9 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
                             buildConfigField("Boolean", "IS_DEBUGGING_LOGGING", "false")
                         }
                         debug {
-                            isMinifyEnabled = false
-//                            isShrinkResources = false
                             buildConfigField("Boolean", "IS_DEBUGGING_LOGGING", "true")
                         }
                     }
-
-                    buildConfigField("String", "TMDB_OPEN_API_KEY", "\"${Config.getProp("tmdb_open_api_key")}\"")
                 }
 
                 testOptions {

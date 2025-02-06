@@ -55,12 +55,13 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                         isDebuggable = true
                         isJniDebuggable = true
                         buildConfigField("Boolean", "IS_DEBUGGING_LOGGING", "true")
+                        resValue("string", "app_name", "movie-debug")
                         signingConfig = signingConfigs.getByName(Config.Application.Movie.Sign.Debug.name)
                     }
                     release {
                         applicationIdSuffix = MovieAppBuildType.RELEASE.applicationIdSuffix
                         isMinifyEnabled = true
-//                        isShrinkResources = true
+                        isShrinkResources = true
                         isDebuggable = false
                         isJniDebuggable = false
                         proguardFiles(
@@ -72,7 +73,6 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                     }
                 }
 
-//                configureFlavors(this)
                 configureKotlinAndroid(this)
             }
 

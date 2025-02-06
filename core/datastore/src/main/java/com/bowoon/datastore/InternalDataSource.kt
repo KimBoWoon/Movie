@@ -1,13 +1,16 @@
 package com.bowoon.datastore
 
+import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.bowoon.common.isSystemInDarkTheme
 import com.bowoon.model.DarkThemeConfig
 import com.bowoon.model.MainMenu
 import com.bowoon.model.UserData
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
@@ -19,25 +22,29 @@ import javax.inject.Inject
  */
 class InternalDataSource @Inject constructor(
     private val datastore: DataStore<Preferences>,
-    private val json: Json
+    private val json: Json,
+    @ApplicationContext private val appContext: Context
 ) {
     companion object {
         private const val TAG = "datastore"
 
         private val SECURE_BASE_URL = stringPreferencesKey("secureBaseUrl")
         private val IS_ADULT = booleanPreferencesKey("isAdult")
+        private val AUTO_PLAY_TRAILER = booleanPreferencesKey("autoPlayTrailer")
         private val UPDATE_DATE = stringPreferencesKey("updateDate")
         private val MAIN_MENU = stringPreferencesKey("mainMenu")
         private val IS_DART_MODE = stringPreferencesKey("isDarkMode")
         private val REGION = stringPreferencesKey("region")
         private val LANGUAGE = stringPreferencesKey("language")
         private val IMAGE_QUALITY = stringPreferencesKey("imageQuality")
+        private val FCM_TOKEN = stringPreferencesKey("fcmToken")
     }
 
     val userData = datastore.data.map {
         UserData(
             secureBaseUrl = it[SECURE_BASE_URL] ?: "",
             isAdult = it[IS_ADULT] ?: true,
+            autoPlayTrailer = it[AUTO_PLAY_TRAILER] ?: appContext.resources.configuration.isSystemInDarkTheme,
             isDarkMode = it[IS_DART_MODE]?.let { jsonString ->
                 json.decodeFromString<DarkThemeConfig>(jsonString)
             } ?: DarkThemeConfig.FOLLOW_SYSTEM,
@@ -60,6 +67,12 @@ class InternalDataSource @Inject constructor(
     suspend fun updateIsAdult(isAdult: Boolean) {
         datastore.edit {
             it[IS_ADULT] = isAdult
+        }
+    }
+
+    suspend fun updateAutoPlayTrailer(autoPlayTrailer: Boolean) {
+        datastore.edit {
+            it[AUTO_PLAY_TRAILER] = autoPlayTrailer
         }
     }
 
@@ -99,7 +112,15 @@ class InternalDataSource @Inject constructor(
         }
     }
 
+    suspend fun updateFCMToken(token: String) {
+        datastore.edit {
+            it[FCM_TOKEN] = token
+        }
+    }
+
     suspend fun isAdult(): Boolean = datastore.data.map { it[IS_ADULT] }.firstOrNull() ?: true
+
+    suspend fun isAutoPlayTrailer(): Boolean = datastore.data.map { it[AUTO_PLAY_TRAILER] }.firstOrNull() ?: true
 
     suspend fun getMainOfDate(): String =
         datastore.data.map { it[UPDATE_DATE] }.firstOrNull() ?: ""
@@ -112,4 +133,7 @@ class InternalDataSource @Inject constructor(
 
     suspend fun getImageQuality(): String =
         datastore.data.map { it[IMAGE_QUALITY] }.firstOrNull() ?: "original"
+
+    suspend fun getFCMToken(): String =
+        datastore.data.map { it[FCM_TOKEN] }.firstOrNull() ?: ""
 }

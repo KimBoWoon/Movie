@@ -1,3 +1,5 @@
+import com.bowoon.convention.Config
+
 plugins {
     alias(libs.plugins.bowoon.android.library)
     alias(libs.plugins.bowoon.hilt)
@@ -5,6 +7,10 @@ plugins {
 
 android {
     namespace = "com.bowoon.movie.core.network"
+
+    defaultConfig {
+        buildConfigField("String", "TMDB_OPEN_API_KEY", "\"${Config.getProp("tmdb_open_api_key")}\"")
+    }
 }
 
 dependencies {

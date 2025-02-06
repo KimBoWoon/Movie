@@ -5,6 +5,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class MyData(
     val isAdult: Boolean? = null,
+    val isDarkMode: DarkThemeConfig? = null,
+    val isAutoPlayTrailer: Boolean? = null,
     val mainUpdateLatestDate: String? = null,
     val secureBaseUrl: String? = null,
     val configuration: Configuration? = null,

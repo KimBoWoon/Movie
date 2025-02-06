@@ -14,6 +14,8 @@ import javax.inject.Inject
 class MovieApplication : Application(), SingletonImageLoader.Factory {
     @Inject
     lateinit var imageLoader: dagger.Lazy<ImageLoader>
+    @Inject
+    lateinit var firebase: MovieFirebase
 
     override fun onCreate() {
         super.onCreate()
@@ -21,6 +23,8 @@ class MovieApplication : Application(), SingletonImageLoader.Factory {
         Log.d("Application", "onCreate()")
         AndroidThreeTen.init(this)
         Sync.initialize(context = this)
+        firebase.createFCMChannel(context = this)
+        firebase.checkToken()
     }
 
     override fun newImageLoader(context: PlatformContext): ImageLoader = imageLoader.get()

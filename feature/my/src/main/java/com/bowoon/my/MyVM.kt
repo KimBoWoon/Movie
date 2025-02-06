@@ -6,6 +6,7 @@ import com.bowoon.common.Result
 import com.bowoon.common.asResult
 import com.bowoon.data.repository.MyDataRepository
 import com.bowoon.data.repository.UserDataRepository
+import com.bowoon.model.DarkThemeConfig
 import com.bowoon.model.LanguageItem
 import com.bowoon.model.MyData
 import com.bowoon.model.PosterSize
@@ -40,6 +41,12 @@ class MyVM @Inject constructor(
             started = SharingStarted.Eagerly
         )
 
+    fun updateDarkTheme(darkThemeConfig: DarkThemeConfig) {
+        viewModelScope.launch {
+            userDataRepository.updateDarkModeTheme(darkThemeConfig)
+        }
+    }
+
     fun updateLanguage(language: LanguageItem) {
         viewModelScope.launch {
             language.iso6391?.let {
@@ -67,6 +74,12 @@ class MyVM @Inject constructor(
     fun updateIsAdult(isAdult: Boolean) {
         viewModelScope.launch {
             userDataRepository.updateIsAdult(isAdult)
+        }
+    }
+
+    fun updateIsAutoPlayTrailer(isAutoPlayTrailer: Boolean) {
+        viewModelScope.launch {
+            userDataRepository.updateIsAutoPlayTrailer(isAutoPlayTrailer)
         }
     }
 }

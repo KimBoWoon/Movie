@@ -18,6 +18,10 @@ class UserDataRepositoryImpl @Inject constructor(
         datastore.updateIsAdult(isAdult)
     }
 
+    override suspend fun updateIsAutoPlayTrailer(isAutoPlayTrailer: Boolean) {
+        datastore.updateAutoPlayTrailer(isAutoPlayTrailer)
+    }
+
     override suspend fun updateDarkModeTheme(config: DarkThemeConfig) {
         datastore.updateDarkTheme(config)
     }
@@ -45,7 +49,13 @@ class UserDataRepositoryImpl @Inject constructor(
         syncManager.requestSync()
     }
 
+    override suspend fun updateFCMToken(token: String) {
+        datastore.updateFCMToken(token)
+    }
+
     override suspend fun isAdult(): Boolean = datastore.isAdult()
+
+    override suspend fun isAutoPlayTrailer(): Boolean = datastore.isAutoPlayTrailer()
 
     override suspend fun getMainOfDate(): String = datastore.getMainOfDate()
 
@@ -54,4 +64,6 @@ class UserDataRepositoryImpl @Inject constructor(
     override suspend fun getLanguage(): String = datastore.getLanguage()
 
     override suspend fun getImageQuality(): String = datastore.getImageQuality()
+
+    override suspend fun getFCMToken(): String = datastore.getFCMToken()
 }

@@ -30,6 +30,7 @@ class GetMovieDetailUseCase @Inject constructor(
         ) { movie, userData, favoriteMovies, posterUrl ->
             MovieDetail(
                 adult = movie.adult,
+                autoPlayTrailer = userData.autoPlayTrailer,
                 alternativeTitles = movie.alternativeTitles,
                 backdropPath = "$posterUrl${movie.backdropPath}",
                 belongsToCollection = getBelongsToCollection(movie.belongsToCollection, posterUrl),
