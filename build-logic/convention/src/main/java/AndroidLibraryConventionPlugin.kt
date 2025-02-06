@@ -29,13 +29,13 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
                                 Config.ApplicationSetting.proguardFile
                             )
                             buildConfigField("Boolean", "IS_DEBUGGING_LOGGING", "false")
+                            buildConfigField("String", "TMDB_OPEN_API_KEY", "\"${Config.getProp("tmdb_open_api_key")}\"")
                         }
                         debug {
                             buildConfigField("Boolean", "IS_DEBUGGING_LOGGING", "true")
+                            buildConfigField("String", "TMDB_OPEN_API_KEY", "\"${Config.getProp("tmdb_open_api_key")}\"")
                         }
                     }
-
-                    buildConfigField("String", "TMDB_OPEN_API_KEY", "\"${Config.getProp("tmdb_open_api_key")}\"")
                 }
 
                 testOptions {
