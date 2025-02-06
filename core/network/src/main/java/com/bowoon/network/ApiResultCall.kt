@@ -1,5 +1,6 @@
 package com.bowoon.network
 
+import com.bowoon.common.Log
 import okhttp3.Request
 import okio.Timeout
 import retrofit2.Call
@@ -14,6 +15,10 @@ internal class ApiResultCall<R>(
     override fun enqueue(callback: Callback<ApiResponse<R>>) =
         delegate.enqueue(object : Callback<R> {
             override fun onResponse(call: Call<R>, response: Response<R>) {
+                Log.d("networkBody", response.code().toString())
+                Log.d("networkBody", response.body().toString())
+                Log.d("networkBody", response.errorBody().toString())
+                Log.d("networkBody", response.message().toString())
                 response.body()?.let { body ->
                     when (response.code()) {
                         in 200..299 -> {
