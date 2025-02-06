@@ -28,14 +28,14 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
                                 getDefaultProguardFile(Config.ApplicationSetting.defaultProguardFile),
                                 Config.ApplicationSetting.proguardFile
                             )
-                            buildConfigField("Boolean", "IS_DEBUGGING_LOGGING", "false")
-                            buildConfigField("String", "TMDB_OPEN_API_KEY", "\"${Config.getProp("tmdb_open_api_key")}\"")
+                            buildConfigField("Boolean", "IS_DEBUGGING_LOGGING", "true")
                         }
                         debug {
                             buildConfigField("Boolean", "IS_DEBUGGING_LOGGING", "true")
-                            buildConfigField("String", "TMDB_OPEN_API_KEY", "\"${Config.getProp("tmdb_open_api_key")}\"")
                         }
                     }
+
+                    buildConfigField("String", "TMDB_OPEN_API_KEY", "\"${Config.getProp("tmdb_open_api_key")}\"")
                 }
 
                 testOptions {
