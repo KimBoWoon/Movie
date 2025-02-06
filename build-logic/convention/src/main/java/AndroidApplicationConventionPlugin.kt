@@ -55,6 +55,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                         isDebuggable = true
                         isJniDebuggable = true
                         buildConfigField("Boolean", "IS_DEBUGGING_LOGGING", "true")
+                        resValue("string", "app_name", "movie-debug")
                         signingConfig = signingConfigs.getByName(Config.Application.Movie.Sign.Debug.name)
                     }
                     release {
@@ -67,7 +68,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                             getDefaultProguardFile(Config.ApplicationSetting.defaultProguardFile),
                             Config.ApplicationSetting.proguardFile
                         )
-                        buildConfigField("Boolean", "IS_DEBUGGING_LOGGING", "false")
+                        buildConfigField("Boolean", "IS_DEBUGGING_LOGGING", "true")
                         signingConfig = signingConfigs.getByName(Config.Application.Movie.Sign.Release.name)
                     }
                 }
