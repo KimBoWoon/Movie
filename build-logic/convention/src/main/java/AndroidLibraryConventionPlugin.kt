@@ -28,7 +28,7 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
                                 getDefaultProguardFile(Config.ApplicationSetting.defaultProguardFile),
                                 Config.ApplicationSetting.proguardFile
                             )
-                            buildConfigField("Boolean", "IS_DEBUGGING_LOGGING", "true")
+                            buildConfigField("Boolean", "IS_DEBUGGING_LOGGING", "false")
                         }
                         debug {
                             buildConfigField("Boolean", "IS_DEBUGGING_LOGGING", "true")
