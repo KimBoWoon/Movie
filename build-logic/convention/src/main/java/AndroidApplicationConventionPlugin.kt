@@ -68,7 +68,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                             getDefaultProguardFile(Config.ApplicationSetting.defaultProguardFile),
                             Config.ApplicationSetting.proguardFile
                         )
-                        buildConfigField("Boolean", "IS_DEBUGGING_LOGGING", "false")
+                        buildConfigField("Boolean", "IS_DEBUGGING_LOGGING", "true")
                         signingConfig = signingConfigs.getByName(Config.Application.Movie.Sign.Release.name)
                     }
                 }
