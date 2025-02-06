@@ -11,6 +11,10 @@ android {
     defaultConfig {
         buildConfigField("String", "TMDB_OPEN_API_KEY", "\"${Config.getProp("tmdb_open_api_key")}\"")
     }
+
+    buildFeatures {
+        buildConfig = true
+    }
 }
 
 dependencies {

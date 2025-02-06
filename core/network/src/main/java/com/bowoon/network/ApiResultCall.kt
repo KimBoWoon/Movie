@@ -16,8 +16,6 @@ internal class ApiResultCall<R>(
     override fun enqueue(callback: Callback<ApiResponse<R>>) =
         delegate.enqueue(object : Callback<R> {
             override fun onResponse(call: Call<R>, response: Response<R>) {
-                Log.d("networkBody", response.code().toString())
-                Log.d("networkBody", response.body().toString())
                 Log.d("networkBody", BuildConfig.TMDB_OPEN_API_KEY)
                 response.body()?.let { body ->
                     when (response.code()) {
