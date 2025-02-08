@@ -98,6 +98,7 @@ import com.bowoon.ui.dp200
 import com.bowoon.ui.dp5
 import com.bowoon.ui.image.DynamicAsyncImageLoader
 import com.bowoon.ui.sp10
+import com.bowoon.ui.sp12
 import com.bowoon.ui.sp15
 import com.bowoon.ui.sp20
 import com.bowoon.ui.theme.MovieTheme
@@ -112,6 +113,7 @@ import java.text.DecimalFormat
 fun DetailScreen(
     navController: NavController,
     onShowSnackbar: suspend (String, String?) -> Boolean,
+    firebaseLog: (String, String) -> Unit,
     viewModel: DetailVM = hiltViewModel()
 ) {
     val movieInfo by viewModel.movieInfo.collectAsStateWithLifecycle()
@@ -486,7 +488,10 @@ fun MovieInfoComponent(
     ) {
         item {
             Row(
-                modifier = Modifier.padding(start = dp16, end = dp16, top = dp10).fillMaxWidth().wrapContentHeight(),
+                modifier = Modifier
+                    .padding(start = dp16, end = dp16, top = dp10)
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -514,7 +519,11 @@ fun MovieInfoComponent(
             movie.title?.takeIf { it.isNotEmpty() }?.let {
                 Text(
                     modifier = Modifier
-                        .padding(start = dp16, end = dp16, top = if (!movie.releaseDate.isNullOrEmpty() && !movie.certification.isNullOrEmpty()) dp10 else dp20)
+                        .padding(
+                            start = dp16,
+                            end = dp16,
+                            top = if (!movie.releaseDate.isNullOrEmpty() && !movie.certification.isNullOrEmpty()) dp10 else dp20
+                        )
                         .fillMaxWidth()
                         .wrapContentHeight(),
                     text = it,
@@ -548,7 +557,10 @@ fun MovieInfoComponent(
             }
 
             Row(
-                modifier = Modifier.padding(horizontal = dp16).fillMaxWidth().wrapContentHeight(),
+                modifier = Modifier
+                    .padding(horizontal = dp16)
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -615,7 +627,8 @@ fun MovieInfoComponent(
 
             if (titles.isNotEmpty()) {
                 Row(
-                    modifier = Modifier.padding(horizontal = dp16)
+                    modifier = Modifier
+                        .padding(horizontal = dp16)
                         .fillMaxWidth()
                         .wrapContentHeight()
                         .clickable(
@@ -724,17 +737,20 @@ fun StaffComponent(
         Text(
             text = tmdbMovieDetailCast.character ?: "",
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            overflow = TextOverflow.Ellipsis,
+            fontSize = sp12,
         )
         Text(
             text = tmdbMovieDetailCast.name ?: "",
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            overflow = TextOverflow.Ellipsis,
+            fontSize = sp15
         )
         Text(
             text = tmdbMovieDetailCast.originalName ?: "",
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            overflow = TextOverflow.Ellipsis,
+            fontSize = sp15
         )
     }
 }
@@ -760,22 +776,26 @@ fun StaffComponent(
         Text(
             text = tmdbMovieDetailCrew.department ?: "",
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            overflow = TextOverflow.Ellipsis,
+            fontSize = sp12
         )
         Text(
             text = tmdbMovieDetailCrew.name ?: "",
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            overflow = TextOverflow.Ellipsis,
+            fontSize = sp15
         )
         Text(
             text = tmdbMovieDetailCrew.originalName ?: "",
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            overflow = TextOverflow.Ellipsis,
+            fontSize = sp15
         )
         Text(
             text = tmdbMovieDetailCrew.job ?: "",
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            overflow = TextOverflow.Ellipsis,
+            fontSize = sp12
         )
     }
 }

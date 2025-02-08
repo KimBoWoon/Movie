@@ -62,11 +62,15 @@ import kotlinx.coroutines.launch
 fun SearchScreen(
     onMovieClick: (Int) -> Unit,
     onPeopleClick: (Int) -> Unit,
+    firebaseLog: (String, String) -> Unit,
     viewModel: SearchVM = hiltViewModel()
 ) {
+    firebaseLog("SearchScreen", "search screen init")
+
     val state = viewModel.searchMovieState.collectAsLazyPagingItems()
 
     SearchScreen(
+        firebaseLog = firebaseLog,
         state = state,
         onMovieClick = onMovieClick,
         onPeopleClick = onPeopleClick,
@@ -77,6 +81,7 @@ fun SearchScreen(
 
 @Composable
 fun SearchScreen(
+    firebaseLog: (String, String) -> Unit,
     state: LazyPagingItems<Movie>,
     onMovieClick: (Int) -> Unit,
     onPeopleClick: (Int) -> Unit,
