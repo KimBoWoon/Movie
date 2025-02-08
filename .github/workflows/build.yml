@@ -22,6 +22,7 @@ jobs:
           java-version: 17
           distribution: 'temurin'
           cache: gradle
+          ref: develop
       - name: Grant Permission for gradlew
         run: chmod +x ./gradlew
         shell: bash
