@@ -1,8 +1,8 @@
 name: App build
 
 on:
-  push:
-    branches: [ develop ]
+  schedule:
+    - cron: "30 * * * *"
 
 jobs:
   build:
@@ -13,8 +13,6 @@ jobs:
       LOCAL_PROPERTIES: ${{ secrets.LOCAL_PROPERTIES }}
       KEY_STORE_ENCRYPT: ${{ secrets.KEY_STORE_ENCRYPT }}
       GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
-      FIREBASE_APP_ID: ${{secrets.FIREBASE_APP_ID}}
-      CREDENTIAL_FILE_CONTENT: ${{ secrets.CREDENTIAL_FILE_CONTENT }}
 
     steps:
       - uses: actions/checkout@v3
