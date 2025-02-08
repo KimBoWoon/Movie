@@ -2,7 +2,7 @@ name: App build
 
 on:
   schedule:
-    - cron: "30 * * * *"
+    - cron: "35 * * * *"
 
 jobs:
   build:
@@ -15,14 +15,16 @@ jobs:
       GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
 
     steps:
-      - uses: actions/checkout@v3
+      - name: checkout to develop
+        uses: actions/checkout@v3
+        with:
+          ref: develop
       - name: set up JDK 17
         uses: actions/setup-java@v3
         with:
           java-version: 17
           distribution: 'temurin'
           cache: gradle
-          ref: develop
       - name: Grant Permission for gradlew
         run: chmod +x ./gradlew
         shell: bash
