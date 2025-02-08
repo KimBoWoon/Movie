@@ -139,6 +139,8 @@ fun HomeScreen(
                 modifier = Modifier.align(Alignment.Center)
             )
         }
+
+        throw RuntimeException("firebase log test")
     }
 }
 
