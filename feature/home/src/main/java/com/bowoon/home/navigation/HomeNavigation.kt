@@ -21,7 +21,6 @@ fun NavController.navigateToHome(navOptions: NavOptions) = navigate(route = Home
 fun NavGraphBuilder.homeSection(
     onMovieClick: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
-    firebaseLog: (String, String) -> Unit,
     detailDestination: NavGraphBuilder.() -> Unit
 ) {
     navigation<HomeBaseRoute>(startDestination = HomeRoute) {
@@ -34,8 +33,7 @@ fun NavGraphBuilder.homeSection(
         ) {
             HomeScreen(
                 onMovieClick = onMovieClick,
-                onShowSnackbar = onShowSnackbar,
-                firebaseLog = firebaseLog
+                onShowSnackbar = onShowSnackbar
             )
         }
         detailDestination()

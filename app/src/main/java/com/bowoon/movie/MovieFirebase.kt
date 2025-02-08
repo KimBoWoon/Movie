@@ -9,6 +9,8 @@ import androidx.core.app.NotificationManagerCompat
 import com.bowoon.common.Log
 import com.bowoon.common.di.ApplicationScope
 import com.bowoon.data.repository.UserDataRepository
+import com.bowoon.firebase.FIREBASE_LOG_MESSAGE
+import com.bowoon.firebase.LogHelper
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.crashlytics.ktx.crashlytics
 import com.google.firebase.ktx.Firebase
@@ -20,11 +22,19 @@ import javax.inject.Singleton
 
 @Singleton
 class MovieFirebase @Inject constructor(
-    private val userdataRepository: UserDataRepository,
-    @ApplicationScope private val scope: CoroutineScope
-) {
+    @ApplicationScope private val scope: CoroutineScope,
+    private val userdataRepository: UserDataRepository
+) : LogHelper {
     companion object {
         private const val TAG = "FirebaseCloudMessage"
+    }
+
+    override fun sendLog(name: String?, message: String) {
+        Firebase.crashlytics.log(
+            FIREBASE_LOG_MESSAGE.replace(
+                "{name}", if (name.isNullOrEmpty()) "" else name
+            ).replace("{message}", message)
+        )
     }
 
     fun createFCMChannel(context: Context) {
@@ -65,24 +75,5 @@ class MovieFirebase @Inject constructor(
                 }
             }
         })
-    }
-}
-
-const val FIREBASE_LOG_MESSAGE = "[{stackTrace}] {name} -> {message}"
-
-fun Firebase.sendLog(name: String, message: String) {
-    Thread.currentThread().stackTrace.let { trace ->
-        var index = 3
-
-        while (index < trace.size && trace[index].fileName.isNullOrEmpty()) {
-            index++
-        }
-
-        when {
-            trace.size > index -> "${trace[index].fileName}:${trace[index].lineNumber}"
-            else -> "LinkNotFound"
-        }
-    }.run {
-        crashlytics.log(FIREBASE_LOG_MESSAGE.replace("{stackTrace}", this).replace("{name}", name).replace("{message}", message))
     }
 }

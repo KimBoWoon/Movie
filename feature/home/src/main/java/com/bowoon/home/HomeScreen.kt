@@ -35,6 +35,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bowoon.common.Log
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
+import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.MainMenu
 import com.bowoon.model.Movie
 import com.bowoon.ui.Calendar
@@ -52,10 +53,9 @@ import org.threeten.bp.LocalDate
 fun HomeScreen(
     onMovieClick: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
-    firebaseLog: (String, String) -> Unit,
     viewModel: HomeVM = hiltViewModel()
 ) {
-    firebaseLog("HomeScreen", "init screen")
+    LocalFirebaseLogHelper.current.sendLog("HomeScreen", "init screen")
 
     val homeUiState by viewModel.mainMenu.collectAsStateWithLifecycle()
     val favoriteMoviesState by viewModel.favoriteMovies.collectAsStateWithLifecycle()
@@ -64,7 +64,6 @@ fun HomeScreen(
     viewModel.createNotifications()
 
     HomeScreen(
-        firebaseLog = firebaseLog,
         isSyncing = isSyncing,
         state = homeUiState,
         favoriteMoviesState = favoriteMoviesState,
@@ -75,14 +74,13 @@ fun HomeScreen(
 
 @Composable
 fun HomeScreen(
-    firebaseLog: (String, String) -> Unit,
     isSyncing: Boolean,
     state: MainMenuState,
     favoriteMoviesState: FavoriteMoviesState,
     onShowSnackbar: suspend (String, String?) -> Boolean,
     onMovieClick: (Int) -> Unit
 ) {
-    firebaseLog("HomeScreen", "init screen")
+    LocalFirebaseLogHelper.current.sendLog("HomeScreen", "init screen")
 
     val isLoading = state is MainMenuState.Loading
     var mainMenu by remember { mutableStateOf<MainMenu>(MainMenu()) }
@@ -99,12 +97,12 @@ fun HomeScreen(
     when (state) {
         is MainMenuState.Loading -> Log.d("loading...")
         is MainMenuState.Success -> {
-            firebaseLog("HomeScreen", "data load success")
+            LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data load success")
             Log.d("${state.mainMenu}")
             mainMenu = state.mainMenu
         }
         is MainMenuState.Error -> {
-            firebaseLog("HomeScreen", "data load Error > ${state.throwable.message}")
+            LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data load Error > ${state.throwable.message}")
             Log.e("${state.throwable.message}")
         }
     }
@@ -134,13 +132,11 @@ fun HomeScreen(
         }
 
         if (isLoading) {
-            firebaseLog("HomeScreen", "data loading...")
+            LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data loading...")
             CircularProgressIndicator(
                 modifier = Modifier.align(Alignment.Center)
             )
         }
-
-        throw RuntimeException("firebase log test")
     }
 }
 

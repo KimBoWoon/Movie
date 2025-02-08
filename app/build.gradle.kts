@@ -14,6 +14,7 @@ dependencies {
         projects.core.sync,
         projects.core.model,
         projects.core.notifications,
+        projects.core.firebase,
         projects.feature.home,
         projects.feature.detail,
         projects.feature.search,
