@@ -4,8 +4,8 @@ import com.bowoon.data.util.suspendRunCatching
 import com.bowoon.datastore.InternalDataSource
 import com.bowoon.model.MainMenu
 import com.bowoon.model.Movie
-import com.bowoon.model.UpComingResult
 import com.bowoon.model.NowPlaying
+import com.bowoon.model.UpComingResult
 import com.bowoon.network.ApiResponse
 import com.bowoon.network.model.asExternalModel
 import com.bowoon.network.retrofit.Apis
@@ -78,7 +78,15 @@ class MainMenuRepositoryImpl @Inject constructor(
             }
         } while (page <= totalPage && page < 5)
 
-        return result.distinctBy { it.id }.sortedBy { it.releaseDate }
+        return result.distinctBy { it.id }.sortedWith { o1, o2 ->
+            if (o1 != null && o2 != null) {
+                if (o1.voteAverage == o2.voteAverage) {
+                    o1.title?.compareTo(o2.title ?: "") ?: 0
+                } else {
+                    o2.voteAverage?.compareTo(o1.voteAverage ?: 0.0) ?: 0
+                }
+            } else 0
+        }
     }
 
     override suspend fun getUpcomingMovies(): List<UpComingResult> {

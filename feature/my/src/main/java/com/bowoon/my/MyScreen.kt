@@ -42,11 +42,15 @@ import com.bowoon.ui.dp250
 
 @Composable
 fun MyScreen(
+    firebaseLog: (String, String) -> Unit,
     viewModel: MyVM = hiltViewModel()
 ) {
-    val myState by viewModel.myData.collectAsStateWithLifecycle(MyDataState.Loading)
+    firebaseLog("MyScreen", "my screen init")
+
+    val myState by viewModel.myData.collectAsStateWithLifecycle()
 
     MyScreen(
+        firebaseLog = firebaseLog,
         state = myState,
         updateDarkMode = viewModel::updateDarkTheme,
         updateIsAdult = viewModel::updateIsAdult,
@@ -59,6 +63,7 @@ fun MyScreen(
 
 @Composable
 fun MyScreen(
+    firebaseLog: (String, String) -> Unit,
     state: MyDataState,
     updateDarkMode: (DarkThemeConfig) -> Unit,
     updateIsAdult: (Boolean) -> Unit,

@@ -15,12 +15,16 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.bowoon.common.Log
 import com.bowoon.common.isSystemInDarkTheme
 import com.bowoon.data.util.NetworkMonitor
+import com.bowoon.data.util.SyncManager
 import com.bowoon.movie.rememberMovieAppState
+import com.bowoon.movie.sendLog
 import com.bowoon.movie.ui.MovieMainScreen
 import com.bowoon.movie.utils.isSystemInDarkTheme
 import com.bowoon.ui.theme.MovieTheme
+import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -32,14 +36,16 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val viewModel: MainVM by viewModels()
-
     @Inject
     lateinit var networkMonitor: NetworkMonitor
+    @Inject
+    lateinit var syncManager: SyncManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+
+        Firebase.sendLog(javaClass.simpleName, "create MainActivity")
 
         var darkTheme by mutableStateOf(
             ThemeSettings(
@@ -74,9 +80,26 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.myData.collect {
+                    when (it) {
+                        is MyDataState.Loading -> Log.d("main activity > my data loading...")
+                        is MyDataState.Success -> {
+                            Log.d("main activity > my data success > ${it.myData}")
+                            syncManager.syncMain()
+                        }
+                        is MyDataState.Error -> Log.e("main activity > my data error > ${it.throwable.message}")
+                    }
+                }
+            }
+        }
+
         splashScreen.setKeepOnScreenCondition { !viewModel.userdata.value.shouldKeepSplashScreen() }
 
         setContent {
+            Firebase.sendLog(javaClass.simpleName, "compose start!")
+
             MovieTheme(
                 darkTheme = darkTheme.darkTheme
             ) {

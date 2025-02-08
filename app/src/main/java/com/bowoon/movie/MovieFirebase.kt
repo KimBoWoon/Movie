@@ -10,6 +10,8 @@ import com.bowoon.common.Log
 import com.bowoon.common.di.ApplicationScope
 import com.bowoon.data.repository.UserDataRepository
 import com.google.android.gms.tasks.OnCompleteListener
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -63,5 +65,24 @@ class MovieFirebase @Inject constructor(
                 }
             }
         })
+    }
+}
+
+const val FIREBASE_LOG_MESSAGE = "[{name}] {message}"
+
+fun Firebase.sendLog(name: String, message: String) {
+    Thread.currentThread().stackTrace.let { trace ->
+        var index = 4
+
+        while (index < trace.size && trace[index].fileName.isNullOrEmpty()) {
+            index++
+        }
+
+        when {
+            trace.size > index -> "(${trace[index].fileName}:${trace[index].lineNumber})"
+            else -> "LinkNotFound"
+        }
+    }.run {
+        crashlytics.log(FIREBASE_LOG_MESSAGE.replace("{name}", this).replace("{message}", message))
     }
 }

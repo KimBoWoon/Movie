@@ -31,11 +31,11 @@ import javax.inject.Singleton
 
 @Singleton
 class MyDataRepositoryImpl @Inject constructor(
+    @ApplicationScope private val appScope: CoroutineScope,
     private val apis: Apis,
-    private val datastore: InternalDataSource,
-    @ApplicationScope scope: CoroutineScope
+    private val datastore: InternalDataSource
 ) : MyDataRepository {
-    override val myData: Flow<MyData?> = combine(
+    override val myData: Flow<MyData> = combine(
         datastore.userData,
         requestMyData()
     ) { userdata, requestData ->
@@ -79,13 +79,13 @@ class MyDataRepositoryImpl @Inject constructor(
     }.catch { e ->
         Log.printStackTrace(e)
     }.stateIn(
-        scope = scope,
+        scope = appScope,
         started = SharingStarted.Eagerly,
-        initialValue = null
+        initialValue = MyData()
     )
     override val posterUrl: Flow<String> = datastore.userData.map { "${it.secureBaseUrl}${it.imageQuality}" }
 
-    private fun requestMyData(): Flow<RequestMyData> = combine(
+    override fun requestMyData(): Flow<RequestMyData> = combine(
         getConfiguration(),
         getCertification(),
         getGenres(),
@@ -112,7 +112,7 @@ class MyDataRepositoryImpl @Inject constructor(
 
     override fun getConfiguration(): Flow<Configuration> = flow {
         when (val response = apis.tmdbApis.getConfiguration()) {
-            is ApiResponse.Failure -> Log.printStackTrace(response.throwable)//throw response.throwable
+            is ApiResponse.Failure -> throw response.throwable
             is ApiResponse.Success -> emit(response.data.asExternalModel())
         }
     }
@@ -122,7 +122,7 @@ class MyDataRepositoryImpl @Inject constructor(
         val region = datastore.getRegion()
 
         when (val response = apis.tmdbApis.getCertification(language = "$language-$region")) {
-            is ApiResponse.Failure -> Log.printStackTrace(response.throwable)//throw response.throwable
+            is ApiResponse.Failure -> throw response.throwable
             is ApiResponse.Success -> emit(response.data.asExternalModel())
         }
     }
@@ -132,21 +132,21 @@ class MyDataRepositoryImpl @Inject constructor(
         val region = datastore.getRegion()
 
         when (val response = apis.tmdbApis.getGenres(language = "$language-$region")) {
-            is ApiResponse.Failure -> Log.printStackTrace(response.throwable)//throw response.throwable
+            is ApiResponse.Failure -> throw response.throwable
             is ApiResponse.Success -> emit(response.data.asExternalModel())
         }
     }
 
     override fun getAvailableLanguage(): Flow<List<LanguageItem>> = flow {
         when (val response = apis.tmdbApis.getAvailableLanguage()) {
-            is ApiResponse.Failure -> Log.printStackTrace(response.throwable)//throw response.throwable
+            is ApiResponse.Failure -> throw response.throwable
             is ApiResponse.Success -> emit(response.data.asExternalModel())
         }
     }
 
     override fun getAvailableRegion(): Flow<RegionList> = flow {
         when (val response = apis.tmdbApis.getAvailableRegion()) {
-            is ApiResponse.Failure -> Log.printStackTrace(response.throwable)//throw response.throwable
+            is ApiResponse.Failure -> throw response.throwable
             is ApiResponse.Success -> emit(response.data.asExternalModel())
         }
     }
