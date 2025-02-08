@@ -47,6 +47,7 @@ fun MovieMainScreen(
     ) { innerPadding ->
         val isOffline by appState.isOffline.collectAsStateWithLifecycle()
         val notConnectedMessage = "인터넷에 연결되어 있지 않습니다."
+
         LaunchedEffect(isOffline) {
             if (isOffline) {
                 snackbarHostState.showSnackbar(

@@ -24,13 +24,15 @@ fun NavController.navigateToPeople(
 fun NavGraphBuilder.peopleScreen(
     navController: NavController,
     onMovieClick: (Int) -> Unit,
+    firebaseLog: (String, String) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean
 ) {
     composable<PeopleRoute>() {
         PeopleScreen(
             navController = navController,
             onMovieClick = onMovieClick,
-            onShowSnackbar = onShowSnackbar
+            onShowSnackbar = onShowSnackbar,
+            firebaseLog = firebaseLog
         )
     }
 }

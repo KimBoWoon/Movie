@@ -9,6 +9,7 @@ import org.gradle.api.Project
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.dependencies
+import java.io.ByteArrayOutputStream
 
 class AndroidApplicationConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
@@ -48,6 +49,14 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
 
                 namespace = Config.Application.Movie.applicationId
 
+                val gitHash = ByteArrayOutputStream().use {
+                    exec {
+                        commandLine("git", "rev-parse", "--short", "HEAD")
+                        standardOutput = it
+                    }
+                    it.toString().trim()
+                }
+
                 buildTypes {
                     debug {
                         applicationIdSuffix = MovieAppBuildType.DEBUG.applicationIdSuffix
@@ -55,7 +64,8 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                         isDebuggable = true
                         isJniDebuggable = true
                         buildConfigField("Boolean", "IS_DEBUGGING_LOGGING", "true")
-                        resValue("string", "app_name", "movie-debug")
+                        buildConfigField("String", "GIT_HASH", "\"$gitHash\"")
+                        resValue("string", "app_name", "Movie-debug")
                         signingConfig = signingConfigs.getByName(Config.Application.Movie.Sign.Debug.name)
                     }
                     release {
@@ -69,6 +79,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                             Config.ApplicationSetting.proguardFile
                         )
                         buildConfigField("Boolean", "IS_DEBUGGING_LOGGING", "false")
+                        buildConfigField("String", "GIT_HASH", "\"$gitHash\"")
                         signingConfig = signingConfigs.getByName(Config.Application.Movie.Sign.Release.name)
                     }
                 }

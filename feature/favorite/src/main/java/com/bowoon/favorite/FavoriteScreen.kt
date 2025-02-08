@@ -57,12 +57,16 @@ fun FavoriteScreen(
     onMovieClick: (Int) -> Unit,
     onPeopleClick: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
+    firebaseLog: (String, String) -> Unit,
     viewModel: FavoriteVM = hiltViewModel()
 ) {
+    firebaseLog("FavoriteScreen", "favorite screen init")
+
     val favoriteMoviesState by viewModel.favoriteMovies.collectAsStateWithLifecycle()
     val favoritePeoplesState by viewModel.favoritePeoples.collectAsStateWithLifecycle()
 
     FavoriteScreen(
+        firebaseLog = firebaseLog,
         favoriteMoviesState = favoriteMoviesState,
         favoritePeoplesState = favoritePeoplesState,
         onMovieClick = onMovieClick,
@@ -75,6 +79,7 @@ fun FavoriteScreen(
 
 @Composable
 fun FavoriteScreen(
+    firebaseLog: (String, String) -> Unit,
     favoriteMoviesState: FavoriteMoviesState,
     favoritePeoplesState: FavoritePeoplesState,
     onMovieClick: (Int) -> Unit,

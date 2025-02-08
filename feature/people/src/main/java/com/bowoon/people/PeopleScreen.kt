@@ -59,6 +59,7 @@ fun PeopleScreen(
     navController: NavController,
     onMovieClick: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
+    firebaseLog: (String, String) -> Unit,
     viewModel: PeopleVM = hiltViewModel()
 ) {
     val peopleState by viewModel.people.collectAsStateWithLifecycle()
