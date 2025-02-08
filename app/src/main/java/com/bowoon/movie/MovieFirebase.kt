@@ -68,21 +68,21 @@ class MovieFirebase @Inject constructor(
     }
 }
 
-const val FIREBASE_LOG_MESSAGE = "[{name}] {message}"
+const val FIREBASE_LOG_MESSAGE = "[{stackTrace}] {name} -> {message}"
 
 fun Firebase.sendLog(name: String, message: String) {
     Thread.currentThread().stackTrace.let { trace ->
-        var index = 4
+        var index = 3
 
         while (index < trace.size && trace[index].fileName.isNullOrEmpty()) {
             index++
         }
 
         when {
-            trace.size > index -> "(${trace[index].fileName}:${trace[index].lineNumber})"
+            trace.size > index -> "${trace[index].fileName}:${trace[index].lineNumber}"
             else -> "LinkNotFound"
         }
     }.run {
-        crashlytics.log(FIREBASE_LOG_MESSAGE.replace("{name}", this).replace("{message}", message))
+        crashlytics.log(FIREBASE_LOG_MESSAGE.replace("{stackTrace}", this).replace("{name}", name).replace("{message}", message))
     }
 }

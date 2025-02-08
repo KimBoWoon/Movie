@@ -134,6 +134,7 @@ fun HomeScreen(
         }
 
         if (isLoading) {
+            firebaseLog("HomeScreen", "data loading...")
             CircularProgressIndicator(
                 modifier = Modifier.align(Alignment.Center)
             )
