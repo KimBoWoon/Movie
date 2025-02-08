@@ -12,12 +12,8 @@ data object MyRoute
 
 fun NavController.navigateToMy(navOptions: NavOptions) = navigate(route = MyRoute, navOptions)
 
-fun NavGraphBuilder.myScreen(
-    firebaseLog: (String, String) -> Unit
-) {
+fun NavGraphBuilder.myScreen() {
     composable<MyRoute>() {
-        MyScreen(
-            firebaseLog = firebaseLog
-        )
+        MyScreen()
     }
 }

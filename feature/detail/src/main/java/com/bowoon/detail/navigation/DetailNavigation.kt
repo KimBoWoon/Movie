@@ -30,7 +30,6 @@ fun NavController.navigateToDetail(
 fun NavGraphBuilder.detailSection(
     navController: NavController,
     onShowSnackbar: suspend (String, String?) -> Boolean,
-    firebaseLog: (String, String) -> Unit,
     peopleDestination: NavGraphBuilder.() -> Unit
 ) {
     navigation<DetailBaseRoute>(startDestination = DetailRoute(id = 0)) {
@@ -44,7 +43,6 @@ fun NavGraphBuilder.detailSection(
             DetailScreen(
                 navController = navController,
                 onShowSnackbar = onShowSnackbar,
-                firebaseLog = firebaseLog
             )
         }
         peopleDestination()

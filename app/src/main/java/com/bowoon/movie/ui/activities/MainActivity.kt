@@ -7,6 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -19,12 +20,12 @@ import com.bowoon.common.Log
 import com.bowoon.common.isSystemInDarkTheme
 import com.bowoon.data.util.NetworkMonitor
 import com.bowoon.data.util.SyncManager
+import com.bowoon.firebase.LocalFirebaseLogHelper
+import com.bowoon.movie.MovieFirebase
 import com.bowoon.movie.rememberMovieAppState
-import com.bowoon.movie.sendLog
 import com.bowoon.movie.ui.MovieMainScreen
 import com.bowoon.movie.utils.isSystemInDarkTheme
 import com.bowoon.ui.theme.MovieTheme
-import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -40,12 +41,14 @@ class MainActivity : ComponentActivity() {
     lateinit var networkMonitor: NetworkMonitor
     @Inject
     lateinit var syncManager: SyncManager
+    @Inject
+    lateinit var movieFirebase: MovieFirebase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
 
-        Firebase.sendLog(javaClass.simpleName, "create MainActivity")
+        movieFirebase.sendLog(javaClass.simpleName, "create MainActivity")
 
         var darkTheme by mutableStateOf(
             ThemeSettings(
@@ -98,18 +101,22 @@ class MainActivity : ComponentActivity() {
         splashScreen.setKeepOnScreenCondition { !viewModel.userdata.value.shouldKeepSplashScreen() }
 
         setContent {
-            Firebase.sendLog(javaClass.simpleName, "compose start!")
-
-            MovieTheme(
-                darkTheme = darkTheme.darkTheme
+            CompositionLocalProvider(
+                LocalFirebaseLogHelper provides movieFirebase
             ) {
-                val appState = rememberMovieAppState(networkMonitor = networkMonitor)
-                val snackbarHostState = remember { SnackbarHostState() }
+                LocalFirebaseLogHelper.current.sendLog(javaClass.simpleName, "compose start!")
 
-                MovieMainScreen(
-                    appState = appState,
-                    snackbarHostState = snackbarHostState
-                )
+                MovieTheme(
+                    darkTheme = darkTheme.darkTheme
+                ) {
+                    val appState = rememberMovieAppState(networkMonitor = networkMonitor)
+                    val snackbarHostState = remember { SnackbarHostState() }
+
+                    MovieMainScreen(
+                        appState = appState,
+                        snackbarHostState = snackbarHostState
+                    )
+                }
             }
         }
     }

@@ -30,6 +30,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bowoon.common.Log
+import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.DarkThemeConfig
 import com.bowoon.model.LanguageItem
 import com.bowoon.model.MyData
@@ -42,15 +43,13 @@ import com.bowoon.ui.dp250
 
 @Composable
 fun MyScreen(
-    firebaseLog: (String, String) -> Unit,
     viewModel: MyVM = hiltViewModel()
 ) {
-    firebaseLog("MyScreen", "my screen init")
+    LocalFirebaseLogHelper.current.sendLog("MyScreen", "my screen init")
 
     val myState by viewModel.myData.collectAsStateWithLifecycle()
 
     MyScreen(
-        firebaseLog = firebaseLog,
         state = myState,
         updateDarkMode = viewModel::updateDarkTheme,
         updateIsAdult = viewModel::updateIsAdult,
@@ -63,7 +62,6 @@ fun MyScreen(
 
 @Composable
 fun MyScreen(
-    firebaseLog: (String, String) -> Unit,
     state: MyDataState,
     updateDarkMode: (DarkThemeConfig) -> Unit,
     updateIsAdult: (Boolean) -> Unit,

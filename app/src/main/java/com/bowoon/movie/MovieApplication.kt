@@ -22,7 +22,7 @@ class MovieApplication : Application(), SingletonImageLoader.Factory {
         super.onCreate()
 
         Log.d("Application", "onCreate()")
-        Firebase.sendLog(javaClass.simpleName, "Movie Application start!")
+        firebase.sendLog(javaClass.simpleName, "Movie Application start!")
         AndroidThreeTen.init(this)
         initFirebase()
     }
