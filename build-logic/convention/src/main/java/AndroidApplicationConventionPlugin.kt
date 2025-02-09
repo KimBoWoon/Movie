@@ -46,10 +46,10 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                         }
                     }
 
-                    setProperty(
-                        "archivesBaseName",
-                        "${Config.Application.Movie.appName}-v${versionName}-${SimpleDateFormat(Config.ApplicationSetting.dateFormat, Locale.KOREAN).format(System.currentTimeMillis())}"
-                    )
+//                    setProperty(
+//                        "archivesBaseName",
+//                        "${Config.Application.Movie.appName}-v${versionName}-${SimpleDateFormat(Config.ApplicationSetting.dateFormat, Locale.KOREAN).format(System.currentTimeMillis())}"
+//                    )
                 }
 
                 namespace = Config.Application.Movie.applicationId
