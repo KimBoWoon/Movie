@@ -5,9 +5,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
-import androidx.navigation.navDeepLink
 import com.bowoon.home.HomeScreen
-import com.bowoon.notifications.DEEP_LINK_URI_PATTERN
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -24,13 +22,7 @@ fun NavGraphBuilder.homeSection(
     detailDestination: NavGraphBuilder.() -> Unit
 ) {
     navigation<HomeBaseRoute>(startDestination = HomeRoute) {
-        composable<HomeRoute>(
-            deepLinks = listOf(
-                navDeepLink {
-                    uriPattern = DEEP_LINK_URI_PATTERN
-                }
-            )
-        ) {
+        composable<HomeRoute>() {
             HomeScreen(
                 onMovieClick = onMovieClick,
                 onShowSnackbar = onShowSnackbar

@@ -37,10 +37,13 @@ jobs:
           echo "$GOOGLE_SERVICES_JSON" > ./app/google-services.json
       - name: build release
         run: ./gradlew assembleProdRelease
+      - name: create release note
+        run: ./gradlew createReleaseNote
       - name: upload artifact to Firebase App Distribution
         uses: wzieba/Firebase-Distribution-Github-Action@v1.7.0
         with:
           appId: ${{ secrets.FIREBASE_APP_ID }}
           serviceCredentialsFileContent: ${{ secrets.CREDENTIAL_FILE_CONTENT }}
+          releaseNotesFile: ./releaseNote.txt
           groups: movietester
-          file: ./app/build/outputs/apk/prod/release/app-prod-release.apk
+          file: ./app/build/outputs/apk/prod/release/movie-v*.apk

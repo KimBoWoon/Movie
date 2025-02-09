@@ -676,42 +676,46 @@ fun ActorAndCrewComponent(
         modifier = Modifier.fillMaxSize()
     ) {
         item {
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = dp16),
-                text = "배우",
-                fontSize = sp20,
-                textAlign = TextAlign.Center
-            )
-            LazyRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-            ) {
-                items(
-                    items = movie.credits?.cast ?: emptyList()
-                ) { cast ->
-                    StaffComponent(tmdbMovieDetailCast = cast, onPeopleClick = onPeopleClick)
+            movie.credits?.cast?.let { casts ->
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = dp16),
+                    text = "배우",
+                    fontSize = sp20,
+                    textAlign = TextAlign.Center
+                )
+                LazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                ) {
+                    items(
+                        items = casts
+                    ) { cast ->
+                        StaffComponent(tmdbMovieDetailCast = cast, onPeopleClick = onPeopleClick)
+                    }
                 }
             }
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = dp16),
-                text = "스태프",
-                fontSize = sp20,
-                textAlign = TextAlign.Center
-            )
-            LazyRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-            ) {
-                items(
-                    items = movie.credits?.crew ?: emptyList()
-                ) { cast ->
-                    StaffComponent(tmdbMovieDetailCrew = cast, onPeopleClick = onPeopleClick)
+            movie.credits?.crew?.let { crews ->
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = dp16),
+                    text = "스태프",
+                    fontSize = sp20,
+                    textAlign = TextAlign.Center
+                )
+                LazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                ) {
+                    items(
+                        items = crews
+                    ) { crew ->
+                        StaffComponent(tmdbMovieDetailCrew = crew, onPeopleClick = onPeopleClick)
+                    }
                 }
             }
         }
