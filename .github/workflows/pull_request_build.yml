@@ -1,4 +1,4 @@
-name: App build
+name: build of pull request
 
 on:
   pull_request:
@@ -10,7 +10,6 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      LOCAL_PROPERTIES: ${{ secrets.LOCAL_PROPERTIES }}
       KEY_STORE_ENCRYPT: ${{ secrets.KEY_STORE_ENCRYPT }}
       GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
 
@@ -35,7 +34,7 @@ jobs:
           echo "$KEY_STORE_ENCRYPT" | base64 -i --decode > ./sign/bowoon.jks
       - name: Create local.properties
         run: |
-          echo "$LOCAL_PROPERTIES" > ./sign/local.properties
+          echo "${{ secrets.LOCAL_PROPERTIES }}" > ./sign/local.properties
       - name: Create google-services.json
         run: |
           echo "$GOOGLE_SERVICES_JSON" > ./app/google-services.json
