@@ -32,7 +32,7 @@ class MovieFirebase @Inject constructor(
     override fun sendLog(name: String?, message: String) {
         Firebase.crashlytics.log(
             FIREBASE_LOG_MESSAGE.replace(
-                "{name}", if (name.isNullOrEmpty()) "" else name
+                "{name}", if (name.isNullOrEmpty()) "" else "$name -> "
             ).replace("{message}", message)
         )
     }
