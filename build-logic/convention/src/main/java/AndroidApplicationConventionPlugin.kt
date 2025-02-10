@@ -10,6 +10,8 @@ import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.dependencies
 import java.io.ByteArrayOutputStream
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class AndroidApplicationConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
@@ -44,7 +46,10 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                         }
                     }
 
-//                    setProperty("archivesBaseName", "${Config.Application.Movie.appName}-v${versionName}")
+//                    setProperty(
+//                        "archivesBaseName",
+//                        "${Config.Application.Movie.appName}-v${versionName}-${SimpleDateFormat(Config.ApplicationSetting.dateFormat, Locale.KOREAN).format(System.currentTimeMillis())}"
+//                    )
                 }
 
                 namespace = Config.Application.Movie.applicationId

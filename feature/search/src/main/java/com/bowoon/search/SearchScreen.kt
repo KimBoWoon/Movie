@@ -44,6 +44,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.bowoon.common.Log
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
+import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.Movie
 import com.bowoon.model.PagingStatus
 import com.bowoon.model.SearchType
@@ -62,15 +63,13 @@ import kotlinx.coroutines.launch
 fun SearchScreen(
     onMovieClick: (Int) -> Unit,
     onPeopleClick: (Int) -> Unit,
-    firebaseLog: (String, String) -> Unit,
     viewModel: SearchVM = hiltViewModel()
 ) {
-    firebaseLog("SearchScreen", "search screen init")
+    LocalFirebaseLogHelper.current.sendLog("SearchScreen", "search screen init")
 
     val state = viewModel.searchMovieState.collectAsLazyPagingItems()
 
     SearchScreen(
-        firebaseLog = firebaseLog,
         state = state,
         onMovieClick = onMovieClick,
         onPeopleClick = onPeopleClick,
@@ -81,7 +80,6 @@ fun SearchScreen(
 
 @Composable
 fun SearchScreen(
-    firebaseLog: (String, String) -> Unit,
     state: LazyPagingItems<Movie>,
     onMovieClick: (Int) -> Unit,
     onPeopleClick: (Int) -> Unit,

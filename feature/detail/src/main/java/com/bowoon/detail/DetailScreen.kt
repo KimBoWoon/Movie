@@ -73,6 +73,7 @@ import com.bowoon.common.Log
 import com.bowoon.data.util.PEOPLE_IMAGE_RATIO
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.detail.navigation.navigateToDetail
+import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.Cast
 import com.bowoon.model.Country
 import com.bowoon.model.Crew
@@ -113,9 +114,10 @@ import java.text.DecimalFormat
 fun DetailScreen(
     navController: NavController,
     onShowSnackbar: suspend (String, String?) -> Boolean,
-    firebaseLog: (String, String) -> Unit,
     viewModel: DetailVM = hiltViewModel()
 ) {
+    LocalFirebaseLogHelper.current.sendLog("DetailScreen", "detail screen start!")
+
     val movieInfo by viewModel.movieInfo.collectAsStateWithLifecycle()
     val similarMovies = viewModel.similarMovies.collectAsLazyPagingItems()
 
@@ -674,42 +676,46 @@ fun ActorAndCrewComponent(
         modifier = Modifier.fillMaxSize()
     ) {
         item {
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = dp16),
-                text = "배우",
-                fontSize = sp20,
-                textAlign = TextAlign.Center
-            )
-            LazyRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-            ) {
-                items(
-                    items = movie.credits?.cast ?: emptyList()
-                ) { cast ->
-                    StaffComponent(tmdbMovieDetailCast = cast, onPeopleClick = onPeopleClick)
+            movie.credits?.cast?.let { casts ->
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = dp16),
+                    text = "배우",
+                    fontSize = sp20,
+                    textAlign = TextAlign.Center
+                )
+                LazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                ) {
+                    items(
+                        items = casts
+                    ) { cast ->
+                        StaffComponent(tmdbMovieDetailCast = cast, onPeopleClick = onPeopleClick)
+                    }
                 }
             }
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = dp16),
-                text = "스태프",
-                fontSize = sp20,
-                textAlign = TextAlign.Center
-            )
-            LazyRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-            ) {
-                items(
-                    items = movie.credits?.crew ?: emptyList()
-                ) { cast ->
-                    StaffComponent(tmdbMovieDetailCrew = cast, onPeopleClick = onPeopleClick)
+            movie.credits?.crew?.let { crews ->
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = dp16),
+                    text = "스태프",
+                    fontSize = sp20,
+                    textAlign = TextAlign.Center
+                )
+                LazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                ) {
+                    items(
+                        items = crews
+                    ) { crew ->
+                        StaffComponent(tmdbMovieDetailCrew = crew, onPeopleClick = onPeopleClick)
+                    }
                 }
             }
         }

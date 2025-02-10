@@ -1,9 +1,29 @@
+import java.io.ByteArrayOutputStream
+
 plugins {
     alias(libs.plugins.bowoon.android.application)
     alias(libs.plugins.bowoon.android.application.compose)
     alias(libs.plugins.bowoon.hilt)
     alias(libs.plugins.bowoon.android.application.firebase)
     alias(libs.plugins.bowoon.android.application.flavors)
+}
+
+task("createReleaseNote") {
+    val releaseNote = File("releaseNote.txt")
+    val logs = ByteArrayOutputStream().use {
+        exec {
+            commandLine("git", "log", "--oneline", "HEAD")
+            standardOutput = it
+        }
+        it.toString().trim()
+    }
+    val result = """
+---Create Release Note---
+$logs
+---End Release Note---
+""".trimIndent()
+    releaseNote.delete()
+    releaseNote.writeText(result)
 }
 
 dependencies {
@@ -14,6 +34,7 @@ dependencies {
         projects.core.sync,
         projects.core.model,
         projects.core.notifications,
+        projects.core.firebase,
         projects.feature.home,
         projects.feature.detail,
         projects.feature.search,

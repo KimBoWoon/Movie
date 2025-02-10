@@ -1,8 +1,8 @@
-name: Build & upload to Firebase App Distribution
+name: build of schedule
 
 on:
-  push:
-    branches: [ master, release/** ]
+  schedule:
+    - cron: '0 6 * * *'
 
 jobs:
   build:
@@ -14,13 +14,17 @@ jobs:
       GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
 
     steps:
-      - uses: actions/checkout@v3
+      - name: checkout to develop
+        uses: actions/checkout@v3
+        with:
+          ref: develop
       - name: set up JDK 17
         uses: actions/setup-java@v3
         with:
           java-version: 17
           distribution: 'temurin'
           cache: gradle
+          ref: develop
       - name: Grant Permission for gradlew
         run: chmod +x ./gradlew
         shell: bash
@@ -37,13 +41,3 @@ jobs:
           echo "$GOOGLE_SERVICES_JSON" > ./app/google-services.json
       - name: build release
         run: ./gradlew assembleProdRelease
-      - name: create release note
-        run: ./gradlew createReleaseNote
-      - name: upload artifact to Firebase App Distribution
-        uses: wzieba/Firebase-Distribution-Github-Action@v1.7.0
-        with:
-          appId: ${{ secrets.FIREBASE_APP_ID }}
-          serviceCredentialsFileContent: ${{ secrets.CREDENTIAL_FILE_CONTENT }}
-          releaseNotesFile: ./releaseNote.txt
-          groups: movietester
-          file: ./app/build/outputs/apk/prod/release/app-prod-release.apk

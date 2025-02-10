@@ -15,6 +15,7 @@ dependencies {
         projects.core.domain,
         projects.core.datastore,
         projects.core.model,
+        projects.core.firebase,
         libs.androidx.navigation.compose,
         libs.androidx.compose.hilt.navigation,
         libs.androidx.compose.paging

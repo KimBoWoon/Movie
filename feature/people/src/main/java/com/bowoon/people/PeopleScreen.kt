@@ -40,6 +40,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.bowoon.common.Log
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
+import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.PeopleDetail
 import com.bowoon.model.getRelatedMovie
 import com.bowoon.movie.core.ui.R
@@ -59,9 +60,10 @@ fun PeopleScreen(
     navController: NavController,
     onMovieClick: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
-    firebaseLog: (String, String) -> Unit,
     viewModel: PeopleVM = hiltViewModel()
 ) {
+    LocalFirebaseLogHelper.current.sendLog("PeopleScreen", "people screen start!")
+
     val peopleState by viewModel.people.collectAsStateWithLifecycle()
 
     PeopleScreen(

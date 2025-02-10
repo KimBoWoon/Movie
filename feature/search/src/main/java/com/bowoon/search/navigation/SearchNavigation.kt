@@ -14,14 +14,12 @@ fun NavController.navigateToSearch(navOptions: NavOptions) = navigate(route = Se
 
 fun NavGraphBuilder.searchScreen(
     onMovieClick: (Int) -> Unit,
-    onPeopleClick: (Int) -> Unit,
-    firebaseLog: (String, String) -> Unit,
+    onPeopleClick: (Int) -> Unit
 ) {
     composable<SearchRoute>() {
         SearchScreen(
             onMovieClick = onMovieClick,
-            onPeopleClick = onPeopleClick,
-            firebaseLog = firebaseLog
+            onPeopleClick = onPeopleClick
         )
     }
 }
