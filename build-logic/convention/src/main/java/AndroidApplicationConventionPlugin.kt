@@ -10,8 +10,6 @@ import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.dependencies
 import java.io.ByteArrayOutputStream
-import java.text.SimpleDateFormat
-import java.util.Locale
 
 class AndroidApplicationConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
@@ -70,7 +68,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                         isJniDebuggable = true
                         buildConfigField("Boolean", "IS_DEBUGGING_LOGGING", "true")
                         buildConfigField("String", "GIT_HASH", "\"$gitHash\"")
-                        resValue("string", "app_name", "Movie-debug")
+                        manifestPlaceholders["appName"] = "Movie-QA"
                         signingConfig = signingConfigs.getByName(Config.Application.Movie.Sign.Debug.name)
                     }
                     release {
@@ -85,6 +83,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                         )
                         buildConfigField("Boolean", "IS_DEBUGGING_LOGGING", "false")
                         buildConfigField("String", "GIT_HASH", "\"$gitHash\"")
+                        manifestPlaceholders["appName"] = "Movie"
                         signingConfig = signingConfigs.getByName(Config.Application.Movie.Sign.Release.name)
                     }
                 }
