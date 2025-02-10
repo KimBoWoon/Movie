@@ -9,6 +9,8 @@ android {
 }
 
 dependencies {
+    implementation(libs.threetenabp)
+
     arrayOf(
         libs.kotlinx.coroutines.test,
         libs.turbine

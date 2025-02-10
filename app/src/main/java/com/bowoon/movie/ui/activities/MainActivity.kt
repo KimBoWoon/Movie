@@ -2,6 +2,7 @@ package com.bowoon.movie.ui.activities
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -16,12 +17,14 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.bowoon.common.AppDoubleBackToExit
 import com.bowoon.common.Log
 import com.bowoon.common.isSystemInDarkTheme
 import com.bowoon.data.util.NetworkMonitor
 import com.bowoon.data.util.SyncManager
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.movie.MovieFirebase
+import com.bowoon.movie.R
 import com.bowoon.movie.rememberMovieAppState
 import com.bowoon.movie.ui.MovieMainScreen
 import com.bowoon.movie.utils.isSystemInDarkTheme
@@ -43,10 +46,24 @@ class MainActivity : ComponentActivity() {
     lateinit var syncManager: SyncManager
     @Inject
     lateinit var movieFirebase: MovieFirebase
+    @Inject
+    lateinit var appDoubleBackToExitFactory: AppDoubleBackToExit.AppDoubleBackToExitFactory
+    lateinit var appDoubleBackToExit: AppDoubleBackToExit
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
+
+        appDoubleBackToExit = appDoubleBackToExitFactory.create(
+            this@MainActivity,
+            getString(R.string.double_back_message)
+        )
+
+        onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                appDoubleBackToExit.onBackPressed({ finish() })
+            }
+        })
 
         movieFirebase.sendLog(javaClass.simpleName, "create MainActivity")
 
