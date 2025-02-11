@@ -9,11 +9,11 @@ import com.bowoon.model.Configuration
 import com.bowoon.model.LanguageItem
 import com.bowoon.model.MovieGenre
 import com.bowoon.model.MovieGenreList
-import com.bowoon.model.MyData
 import com.bowoon.model.PosterSize
 import com.bowoon.model.Region
 import com.bowoon.model.RegionList
 import com.bowoon.model.RequestMyData
+import com.bowoon.model.TMDBConfiguration
 import com.bowoon.network.ApiResponse
 import com.bowoon.network.model.asExternalModel
 import com.bowoon.network.retrofit.Apis
@@ -35,25 +35,20 @@ class MyDataRepositoryImpl @Inject constructor(
     private val apis: Apis,
     private val datastore: InternalDataSource
 ) : MyDataRepository {
-    override val myData: Flow<MyData> = combine(
-        datastore.userData,
-        requestMyData()
-    ) { userdata, requestData ->
-        MyData(
-            isAdult = userdata.isAdult,
-            isDarkMode = userdata.isDarkMode,
-            isAutoPlayTrailer = userdata.autoPlayTrailer,
-            mainUpdateLatestDate = userdata.updateDate,
-            secureBaseUrl = userdata.secureBaseUrl,
-            configuration = requestData.configuration,
-            certification = requestData.certification,
-            genres = requestData.genres?.genres?.map {
+    override val myData: Flow<TMDBConfiguration> = combine(
+        requestTMDBConfiguration(),
+        datastore.userData
+    ) { request, userdata ->
+        TMDBConfiguration(
+            configuration = request.configuration,
+            certification = request.certification,
+            genres = request.genres?.genres?.map {
                 MovieGenre(
                     id = it.id,
                     name = it.name
                 )
             },
-            region = requestData.region?.results?.map {
+            region = request.region?.results?.map {
                 Region(
                     englishName = it.englishName,
                     iso31661 = it.iso31661,
@@ -61,7 +56,7 @@ class MyDataRepositoryImpl @Inject constructor(
                     isSelected = userdata.region == it.iso31661
                 )
             },
-            language = requestData.language?.map {
+            language = request.language?.map {
                 LanguageItem(
                     englishName = it.englishName,
                     iso6391 = it.iso6391,
@@ -69,7 +64,7 @@ class MyDataRepositoryImpl @Inject constructor(
                     isSelected = userdata.language == it.iso6391
                 )
             },
-            posterSize = requestData.posterSize?.posterSizes?.map {
+            posterSize = request.configuration?.images?.posterSizes?.map {
                 PosterSize(
                     size = it,
                     isSelected = userdata.imageQuality == it
@@ -81,11 +76,11 @@ class MyDataRepositoryImpl @Inject constructor(
     }.stateIn(
         scope = appScope,
         started = SharingStarted.Eagerly,
-        initialValue = MyData()
+        initialValue = TMDBConfiguration()
     )
     override val posterUrl: Flow<String> = datastore.userData.map { "${it.secureBaseUrl}${it.imageQuality}" }
 
-    override fun requestMyData(): Flow<RequestMyData> = combine(
+    fun requestTMDBConfiguration(): Flow<RequestMyData> = combine(
         getConfiguration(),
         getCertification(),
         getGenres(),
@@ -118,8 +113,8 @@ class MyDataRepositoryImpl @Inject constructor(
     }
 
     override fun getCertification(): Flow<CertificationData> = flow {
-        val language = datastore.getLanguage()
-        val region = datastore.getRegion()
+        val language = datastore.getUserData().language
+        val region = datastore.getUserData().region
 
         when (val response = apis.tmdbApis.getCertification(language = "$language-$region")) {
             is ApiResponse.Failure -> throw response.throwable
@@ -128,8 +123,8 @@ class MyDataRepositoryImpl @Inject constructor(
     }
 
     override fun getGenres(): Flow<MovieGenreList> = flow {
-        val language = datastore.getLanguage()
-        val region = datastore.getRegion()
+        val language = datastore.getUserData().language
+        val region = datastore.getUserData().region
 
         when (val response = apis.tmdbApis.getGenres(language = "$language-$region")) {
             is ApiResponse.Failure -> throw response.throwable

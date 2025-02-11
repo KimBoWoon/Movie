@@ -3,6 +3,7 @@ package com.bowoon.common.di
 import com.bowoon.common.Dispatcher
 import com.bowoon.common.Dispatchers.Default
 import com.bowoon.common.Dispatchers.IO
+import com.bowoon.common.Dispatchers.Main
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -20,4 +21,8 @@ object DispatchersModule {
     @Provides
     @Dispatcher(Default)
     fun providesDefaultDispatcher(): CoroutineDispatcher = Dispatchers.Default
+
+    @Provides
+    @Dispatcher(Main)
+    fun providesMainDispatcher(): CoroutineDispatcher = Dispatchers.Main
 }

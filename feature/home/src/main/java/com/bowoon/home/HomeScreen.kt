@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.CircularProgressIndicator
@@ -22,10 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.PlatformTextStyle
@@ -82,8 +80,6 @@ fun HomeScreen(
 ) {
     LocalFirebaseLogHelper.current.sendLog("HomeScreen", "init screen")
 
-    val isLoading = state is MainMenuState.Loading
-    var mainMenu by remember { mutableStateOf<MainMenu>(MainMenu()) }
     val scope = rememberCoroutineScope()
 
     if (isSyncing) {
@@ -94,47 +90,68 @@ fun HomeScreen(
         }
     }
 
-    when (state) {
-        is MainMenuState.Loading -> Log.d("loading...")
-        is MainMenuState.Success -> {
-            LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data load success")
-            Log.d("${state.mainMenu}")
-            mainMenu = state.mainMenu
-        }
-        is MainMenuState.Error -> {
-            LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data load Error > ${state.throwable.message}")
-            Log.e("${state.throwable.message}")
-        }
-    }
-
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            Title(title = "영화 정보")
-            LazyColumn(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                nowPlayingComponent(
-                    boxOffice = mainMenu.nowPlaying,
-                    onMovieClick = onMovieClick
+        when (state) {
+            is MainMenuState.Loading -> {
+                Log.d("loading...")
+                LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data loading...")
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center)
                 )
-                upcomingComponent(
-                    upcoming = mainMenu.upcomingMovies,
-                    onMovieClick = onMovieClick
-                )
-                calendarComponent(
+            }
+            is MainMenuState.Success -> {
+                LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data load success")
+                Log.d("${state.mainMenu}")
+                MainComponent(
+                    mainMenu = state.mainMenu,
+                    onMovieClick = onMovieClick,
                     favoriteMoviesState = favoriteMoviesState
                 )
             }
+            is MainMenuState.Error -> {
+                LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data load Error > ${state.throwable.message}")
+                Log.e("${state.throwable.message}")
+            }
         }
+    }
+}
 
-        if (isLoading) {
-            LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data loading...")
-            CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center)
+@Composable
+fun MainComponent(
+    mainMenu: MainMenu,
+    onMovieClick: (Int) -> Unit,
+    favoriteMoviesState: FavoriteMoviesState
+) {
+    val scope = rememberCoroutineScope()
+    val lazyListState = rememberLazyListState()
+    val scrollEvent: () -> Unit = {
+        scope.launch {
+            lazyListState.animateScrollToItem(2)
+        }
+    }
+
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Title(title = "영화 정보")
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            state = lazyListState
+        ) {
+            nowPlayingComponent(
+                boxOffice = mainMenu.nowPlaying,
+                onMovieClick = onMovieClick
+            )
+            upcomingComponent(
+                upcoming = mainMenu.upcomingMovies,
+                onMovieClick = onMovieClick
+            )
+            calendarComponent(
+                favoriteMoviesState = favoriteMoviesState,
+                onMovieClick = onMovieClick,
+                scrollEvent = scrollEvent
             )
         }
     }
@@ -203,7 +220,9 @@ fun LazyListScope.upcomingComponent(
 }
 
 fun LazyListScope.calendarComponent(
-    favoriteMoviesState: FavoriteMoviesState
+    favoriteMoviesState: FavoriteMoviesState,
+    onMovieClick: (Int) -> Unit,
+    scrollEvent: () -> Unit
 ) {
     item {
         val calendarList = listOf(LocalDate.now().minusMonths(1), LocalDate.now(), LocalDate.now().plusMonths(1))
@@ -220,7 +239,9 @@ fun LazyListScope.calendarComponent(
         ) {index ->
             Calendar(
                 today = calendarList[index],
-                favoriteMovies = favoriteMovies
+                favoriteMovies = favoriteMovies,
+                onMovieClick = onMovieClick,
+                scrollEvent = scrollEvent
             )
         }
     }

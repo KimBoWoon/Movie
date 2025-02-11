@@ -3,11 +3,7 @@ package com.bowoon.model
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class MyData(
-    val isAdult: Boolean? = null,
-    val isDarkMode: DarkThemeConfig? = null,
-    val isAutoPlayTrailer: Boolean? = null,
-    val mainUpdateLatestDate: String? = null,
+data class TMDBConfiguration(
     val secureBaseUrl: String? = null,
     val configuration: Configuration? = null,
     val certification: Map<String, List<Certification>>? = null,

@@ -680,7 +680,8 @@ fun ActorAndCrewComponent(
                 LazyRow(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .wrapContentHeight()
+                        .wrapContentHeight(),
+                    horizontalArrangement = Arrangement.spacedBy(dp10)
                 ) {
                     items(
                         items = casts
@@ -701,7 +702,8 @@ fun ActorAndCrewComponent(
                 LazyRow(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .wrapContentHeight()
+                        .wrapContentHeight(),
+                    horizontalArrangement = Arrangement.spacedBy(dp10)
                 ) {
                     items(
                         items = crews

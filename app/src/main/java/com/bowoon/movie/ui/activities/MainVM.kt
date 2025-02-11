@@ -7,7 +7,7 @@ import com.bowoon.common.asResult
 import com.bowoon.data.repository.MyDataRepository
 import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.model.DarkThemeConfig
-import com.bowoon.model.MyData
+import com.bowoon.model.TMDBConfiguration
 import com.bowoon.model.UserData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -60,6 +60,6 @@ sealed interface UserdataState {
 
 sealed interface MyDataState {
     data object Loading : MyDataState
-    data class Success(val myData: MyData) : MyDataState
+    data class Success(val myData: TMDBConfiguration) : MyDataState
     data class Error(val throwable: Throwable) : MyDataState
 }

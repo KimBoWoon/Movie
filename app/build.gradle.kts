@@ -18,9 +18,7 @@ task("createReleaseNote") {
         it.toString().trim()
     }
     val result = """
----Create Release Note---
 $logs
----End Release Note---
 """.trimIndent()
     releaseNote.delete()
     releaseNote.writeText(result)
