@@ -10,7 +10,6 @@ import com.bowoon.network.ApiResponse
 import com.bowoon.network.model.asExternalModel
 import com.bowoon.network.retrofit.Apis
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
 import org.threeten.bp.LocalDate
 import javax.inject.Inject
 
@@ -21,7 +20,7 @@ class MainMenuRepositoryImpl @Inject constructor(
 ) : MainMenuRepository {
     override suspend fun syncWith(isForce: Boolean): Boolean =
         suspendRunCatching {
-            val date = datastore.getMainOfDate()
+            val date = datastore.getUserData().updateDate
             val targetDt = LocalDate.now().minusDays(1)
             val updateDate = when (date.isNotEmpty()) {
                 true -> LocalDate.parse(date)
@@ -45,8 +44,8 @@ class MainMenuRepositoryImpl @Inject constructor(
         val result = mutableListOf<NowPlaying>()
         var page = 1
         var totalPage = 1
-        val language = "${datastore.getLanguage()}-${datastore.getRegion()}"
-        val region = datastore.getRegion()
+        val language = "${datastore.getUserData().language}-${datastore.getUserData().region}"
+        val region = datastore.getUserData().region
 
         do {
             when (val response = apis.tmdbApis.getNowPlaying(language = language, region = region, page = page)) {
@@ -65,7 +64,7 @@ class MainMenuRepositoryImpl @Inject constructor(
                                 originalTitle = it.originalTitle,
                                 overview = it.overview,
                                 popularity = it.popularity,
-                                posterPath = "${myDataRepository.posterUrl.firstOrNull()}${it.posterPath}",
+                                posterPath = "${it.posterPath}",
                                 releaseDate = it.releaseDate,
                                 title = it.title,
                                 video = it.video,
@@ -93,8 +92,8 @@ class MainMenuRepositoryImpl @Inject constructor(
         val result = mutableListOf<UpComingResult>()
         var page = 1
         var totalPage = 1
-        val language = "${datastore.getLanguage()}-${datastore.getRegion()}"
-        val region = datastore.getRegion()
+        val language = "${datastore.getUserData().language}-${datastore.getUserData().region}"
+        val region = datastore.getUserData().region
 
         do {
             when (val response = apis.tmdbApis.getUpcomingMovie(language = language, region = region, page = page)) {
@@ -113,7 +112,7 @@ class MainMenuRepositoryImpl @Inject constructor(
                                 originalTitle = it.originalTitle,
                                 overview = it.overview,
                                 popularity = it.popularity,
-                                posterPath = "${myDataRepository.posterUrl.firstOrNull()}${it.posterPath}",
+                                posterPath = "${it.posterPath}",
                                 releaseDate = it.releaseDate,
                                 title = it.title,
                                 video = it.video,

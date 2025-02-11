@@ -16,8 +16,8 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import org.threeten.bp.Duration
 import org.threeten.bp.LocalDate
+import org.threeten.bp.Period
 import javax.inject.Inject
 
 @HiltViewModel
@@ -86,10 +86,10 @@ class HomeVM @Inject constructor(
                 .collect { movies ->
                     movies?.let {
                         val filterList = it.filter { movie ->
-                            Duration.between(
-                                LocalDate.now().atTime(0, 0, 0, 0),
-                                LocalDate.parse(movie.releaseDate).atTime(0, 0, 0, 0)
-                            ).toDays() in 0..1
+                            Period.between(
+                                LocalDate.now(),
+                                LocalDate.parse(movie.releaseDate)
+                            ).days in 0..1
                         }
                         notifier.postMovieNotifications(movies = filterList)
                     }

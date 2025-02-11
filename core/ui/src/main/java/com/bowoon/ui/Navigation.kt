@@ -95,7 +95,7 @@ fun ColumnScope.BottomNavigationRailItem(
 
 object MovieNavigationDefaults {
     @Composable
-    fun navigationBorderColor(): Color = MaterialTheme.colorScheme.primary
+    fun navigationBorderColor(): Color = Color.LightGray
 
     @Composable
     fun navigationContainerColor(): Color = MaterialTheme.colorScheme.background
