@@ -7,12 +7,8 @@ import com.bowoon.datastore.InternalDataSource
 import com.bowoon.model.CertificationData
 import com.bowoon.model.Configuration
 import com.bowoon.model.LanguageItem
-import com.bowoon.model.MovieGenre
 import com.bowoon.model.MovieGenreList
-import com.bowoon.model.PosterSize
-import com.bowoon.model.Region
 import com.bowoon.model.RegionList
-import com.bowoon.model.RequestMyData
 import com.bowoon.model.TMDBConfiguration
 import com.bowoon.network.ApiResponse
 import com.bowoon.network.model.asExternalModel
@@ -22,7 +18,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -31,56 +26,11 @@ import javax.inject.Singleton
 
 @Singleton
 class MyDataRepositoryImpl @Inject constructor(
-    @ApplicationScope private val appScope: CoroutineScope,
+    @ApplicationScope private val scope: CoroutineScope,
     private val apis: Apis,
     private val datastore: InternalDataSource
 ) : MyDataRepository {
-    override val myData: Flow<TMDBConfiguration> = combine(
-        requestTMDBConfiguration(),
-        datastore.userData
-    ) { request, userdata ->
-        TMDBConfiguration(
-            configuration = request.configuration,
-            certification = request.certification,
-            genres = request.genres?.genres?.map {
-                MovieGenre(
-                    id = it.id,
-                    name = it.name
-                )
-            },
-            region = request.region?.results?.map {
-                Region(
-                    englishName = it.englishName,
-                    iso31661 = it.iso31661,
-                    nativeName = it.nativeName,
-                    isSelected = userdata.region == it.iso31661
-                )
-            },
-            language = request.language?.map {
-                LanguageItem(
-                    englishName = it.englishName,
-                    iso6391 = it.iso6391,
-                    name = it.name,
-                    isSelected = userdata.language == it.iso6391
-                )
-            },
-            posterSize = request.configuration?.images?.posterSizes?.map {
-                PosterSize(
-                    size = it,
-                    isSelected = userdata.imageQuality == it
-                )
-            } ?: emptyList()
-        )
-    }.catch { e ->
-        Log.printStackTrace(e)
-    }.stateIn(
-        scope = appScope,
-        started = SharingStarted.Eagerly,
-        initialValue = TMDBConfiguration()
-    )
-    override val posterUrl: Flow<String> = datastore.userData.map { "${it.secureBaseUrl}${it.imageQuality}" }
-
-    fun requestTMDBConfiguration(): Flow<RequestMyData> = combine(
+    override val tmdbConfiguration: Flow<TMDBConfiguration> = combine(
         getConfiguration(),
         getCertification(),
         getGenres(),
@@ -89,7 +39,8 @@ class MyDataRepositoryImpl @Inject constructor(
     ) { configuration, certification, genres, region, language ->
         datastore.updateSecureBaseUrl(configuration.images?.secureBaseUrl ?: "")
 
-        RequestMyData(
+        TMDBConfiguration(
+            secureBaseUrl = configuration.images?.secureBaseUrl,
             configuration = configuration,
             certification = certification.certifications?.certifications,
             genres = genres,
@@ -99,10 +50,15 @@ class MyDataRepositoryImpl @Inject constructor(
         )
     }.catch { e ->
         Log.printStackTrace(e)
-    }
+    }.stateIn(
+        scope = scope,
+        started = SharingStarted.Eagerly,
+        initialValue = TMDBConfiguration()
+    )
+    override val posterUrl: Flow<String> = datastore.userData.map { "${it.secureBaseUrl}${it.imageQuality}" }
 
     override suspend fun syncWith(): Boolean = suspendRunCatching {
-        myData.first()
+//        myData.first()
     }.isSuccess
 
     override fun getConfiguration(): Flow<Configuration> = flow {

@@ -77,7 +77,7 @@ class MainActivity : ComponentActivity() {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 combine(
                     isSystemInDarkTheme(),
-                    viewModel.userdata
+                    viewModel.myData
                 ) { systemDarkTheme, userdata ->
                     ThemeSettings(
                         darkTheme = userdata.shouldUseDarkTheme(systemDarkTheme)
@@ -104,18 +104,18 @@ class MainActivity : ComponentActivity() {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.myData.collect {
                     when (it) {
-                        is MyDataState.Loading -> Log.d("main activity > my data loading...")
-                        is MyDataState.Success -> {
-                            Log.d("main activity > my data success > ${it.myData}")
+                        is UserdataState.Loading -> Log.d("main activity > my data loading...")
+                        is UserdataState.Success -> {
+                            Log.d("main activity > my data success > ${it.data}")
                             syncManager.syncMain()
                         }
-                        is MyDataState.Error -> Log.e("main activity > my data error > ${it.throwable.message}")
+                        is UserdataState.Error -> Log.e("main activity > my data error > ${it.throwable.message}")
                     }
                 }
             }
         }
 
-        splashScreen.setKeepOnScreenCondition { !viewModel.userdata.value.shouldKeepSplashScreen() }
+        splashScreen.setKeepOnScreenCondition { viewModel.myData.value.shouldKeepSplashScreen() }
 
         setContent {
             CompositionLocalProvider(

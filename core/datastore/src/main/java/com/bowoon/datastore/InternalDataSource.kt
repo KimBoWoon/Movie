@@ -1,13 +1,10 @@
 package com.bowoon.datastore
 
-import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import com.bowoon.model.MainMenu
-import com.bowoon.model.UserData
-import dagger.hilt.android.qualifiers.ApplicationContext
+import com.bowoon.model.InternalData
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
@@ -18,8 +15,7 @@ import javax.inject.Inject
  */
 class InternalDataSource @Inject constructor(
     private val datastore: DataStore<Preferences>,
-    private val json: Json,
-    @ApplicationContext private val appContext: Context
+    private val json: Json
 ) {
     companion object {
         private const val TAG = "datastore"
@@ -30,11 +26,11 @@ class InternalDataSource @Inject constructor(
 
     val userData = datastore.data.map {
         it[USER_DATA]?.let { jsonString ->
-            json.decodeFromString<UserData>(jsonString)
-        } ?: UserData()
+            json.decodeFromString<InternalData>(jsonString)
+        } ?: InternalData()
     }
 
-    suspend fun updateUserData(userData: UserData) {
+    suspend fun updateUserData(userData: InternalData) {
         datastore.edit {
             it[USER_DATA] = json.encodeToString(userData)
         }
@@ -43,27 +39,9 @@ class InternalDataSource @Inject constructor(
     suspend fun updateSecureBaseUrl(secureBaseUrl: String) {
         datastore.edit {
             val data = it[USER_DATA]?.let { jsonString ->
-                json.decodeFromString<UserData>(jsonString)
+                json.decodeFromString<InternalData>(jsonString)
             }
             it[USER_DATA] = json.encodeToString(data?.copy(secureBaseUrl = secureBaseUrl))
-        }
-    }
-
-    suspend fun updateMainOfDate(date: String) {
-        datastore.edit {
-            val data = it[USER_DATA]?.let { jsonString ->
-                json.decodeFromString<UserData>(jsonString)
-            }
-            it[USER_DATA] = json.encodeToString(data?.copy(updateDate = date))
-        }
-    }
-
-    suspend fun updateMainMenu(mainMenu: MainMenu) {
-        datastore.edit {
-            val data = it[USER_DATA]?.let { jsonString ->
-                json.decodeFromString<UserData>(jsonString)
-            }
-            it[USER_DATA] = json.encodeToString(data?.copy(mainMenu = mainMenu))
         }
     }
 
@@ -73,12 +51,12 @@ class InternalDataSource @Inject constructor(
         }
     }
 
-    suspend fun getUserData(): UserData =
+    suspend fun getUserData(): InternalData =
         datastore.data.map {
             it[USER_DATA]?.let { jsonString ->
-                json.decodeFromString<UserData>(jsonString)
-            } ?: UserData()
-        }.firstOrNull() ?: UserData()
+                json.decodeFromString<InternalData>(jsonString)
+            } ?: InternalData()
+        }.firstOrNull() ?: InternalData()
 
     suspend fun getFCMToken(): String =
         datastore.data.map { it[FCM_TOKEN] }.firstOrNull() ?: ""

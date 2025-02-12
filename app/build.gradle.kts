@@ -33,6 +33,7 @@ dependencies {
         projects.core.model,
         projects.core.notifications,
         projects.core.firebase,
+        projects.core.domain,
         projects.feature.home,
         projects.feature.detail,
         projects.feature.search,

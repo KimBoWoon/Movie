@@ -39,6 +39,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.bowoon.common.Log
+import com.bowoon.data.util.PEOPLE_IMAGE_RATIO
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.PeopleDetail
@@ -214,14 +215,14 @@ fun ImageComponent(
     var index by remember { mutableIntStateOf(0) }
     val modalBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
-    val items = people.images?.map { it.copy(filePath = "${people.posterUrl}${people.profilePath}") } ?: emptyList()
+    val items = people.images?.map { it.copy(filePath = "${people.posterUrl}${it.filePath}") } ?: emptyList()
 
     DynamicAsyncImageLoader(
-        source = "${people.posterUrl}${people.profilePath}",
+        source = people.profilePath ?: "",
         contentDescription = "PeopleImage",
         modifier = Modifier
             .width(dp100)
-            .aspectRatio(POSTER_IMAGE_RATIO)
+            .aspectRatio(PEOPLE_IMAGE_RATIO)
             .clickable {
                 index = 0
                 isShowing = true
@@ -232,7 +233,7 @@ fun ImageComponent(
         ModalBottomSheetDialog(
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(POSTER_IMAGE_RATIO),
+                .aspectRatio(PEOPLE_IMAGE_RATIO),
             state = modalBottomSheetState,
             scope = scope,
             index = index,
