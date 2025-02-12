@@ -32,11 +32,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bowoon.common.Log
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.DarkThemeConfig
+import com.bowoon.model.InitData
 import com.bowoon.model.LanguageItem
-import com.bowoon.model.TMDBConfiguration
 import com.bowoon.model.PosterSize
 import com.bowoon.model.Region
-import com.bowoon.model.UserData
+import com.bowoon.model.InternalData
 import com.bowoon.ui.Title
 import com.bowoon.ui.dp150
 import com.bowoon.ui.dp16
@@ -59,7 +59,7 @@ fun MyScreen(
 @Composable
 fun MyScreen(
     myDataState: MyDataState,
-    updateUserData: (UserData, Boolean) -> Unit
+    updateUserData: (InternalData, Boolean) -> Unit
 ) {
     Box(
         modifier = Modifier.fillMaxSize()
@@ -72,11 +72,10 @@ fun MyScreen(
                 )
             }
             is MyDataState.Success -> {
-                Log.d("myData -> ${myDataState.myData}")
-                Log.d("userData -> ${myDataState.userData}")
+                Log.d("myData -> ${myDataState.initData}")
+
                 MyDataComponent(
-                    myData = myDataState.myData,
-                    userData = myDataState.userData,
+                    initData = myDataState.initData,
                     updateUserData = updateUserData
                 )
             }
@@ -87,9 +86,8 @@ fun MyScreen(
 
 @Composable
 fun MyDataComponent(
-    myData: TMDBConfiguration,
-    userData: UserData,
-    updateUserData: (UserData, Boolean) -> Unit
+    initData: InitData,
+    updateUserData: (InternalData, Boolean) -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize()
@@ -97,7 +95,7 @@ fun MyDataComponent(
         Title(title = "마이페이지")
         Text(
             modifier = Modifier.fillMaxWidth().padding(horizontal = dp16),
-            text = "메인 업데이트 날짜 ${userData.updateDate}"
+            text = "메인 업데이트 날짜 ${initData.internalData.updateDate}"
         )
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = dp16),
@@ -106,7 +104,7 @@ fun MyDataComponent(
         ) {
             Text(text = "다크모드 설정")
             Switch(
-                checked = when (userData.isDarkMode) {
+                checked = when (initData.internalData.isDarkMode) {
                     DarkThemeConfig.DARK -> true
                     DarkThemeConfig.LIGHT -> false
                     else -> false
@@ -117,7 +115,7 @@ fun MyDataComponent(
                         false -> DarkThemeConfig.LIGHT
                         else -> DarkThemeConfig.FOLLOW_SYSTEM
                     }.run {
-                        updateUserData(userData.copy(isDarkMode = this), false)
+                        updateUserData(initData.internalData.copy(isDarkMode = this), false)
                     }
                 }
             )
@@ -129,9 +127,9 @@ fun MyDataComponent(
         ) {
             Text(text = "성인")
             Switch(
-                checked = userData.isAdult,
+                checked = initData.internalData.isAdult,
                 onCheckedChange = {
-                    updateUserData(userData.copy(isAdult = it), false)
+                    updateUserData(initData.internalData.copy(isAdult = it), false)
                 }
             )
         }
@@ -142,9 +140,9 @@ fun MyDataComponent(
         ) {
             Text(text = "예고편 자동 재생")
             Switch(
-                checked = userData.autoPlayTrailer,
+                checked = initData.internalData.autoPlayTrailer,
                 onCheckedChange = {
-                    updateUserData(userData.copy(autoPlayTrailer = it), false)
+                    updateUserData(initData.internalData.copy(autoPlayTrailer = it), false)
                 }
             )
         }
@@ -155,9 +153,9 @@ fun MyDataComponent(
         ) {
             Text(text = "언어")
             ExposedDropdownLanguageMenu(
-                list = myData.language ?: emptyList(),
+                list = initData.language ?: emptyList(),
                 updateLanguage = {
-                    updateUserData(userData.copy(language = it.iso6391 ?: ""), true)
+                    updateUserData(initData.internalData.copy(language = it.iso6391 ?: ""), true)
                 }
             )
         }
@@ -168,9 +166,9 @@ fun MyDataComponent(
         ) {
             Text(text = "지역")
             ExposedDropdownRegionMenu(
-                list = myData.region ?: emptyList(),
+                list = initData.region ?: emptyList(),
                 updateRegion = {
-                    updateUserData(userData.copy(region = it.iso31661 ?: ""), true)
+                    updateUserData(initData.internalData.copy(region = it.iso31661 ?: ""), true)
                 }
             )
         }
@@ -181,9 +179,9 @@ fun MyDataComponent(
         ) {
             Text(text = "이미지 퀄리티")
             ExposedDropdownPosterSizeMenu(
-                list = myData.posterSize ?: emptyList(),
+                list = initData.posterSize ?: emptyList(),
                 updateImageQuality = {
-                    updateUserData(userData.copy(imageQuality = it.size ?: ""), true)
+                    updateUserData(initData.internalData.copy(imageQuality = it.size ?: ""), true)
                 }
             )
         }

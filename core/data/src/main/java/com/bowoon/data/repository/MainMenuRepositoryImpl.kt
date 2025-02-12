@@ -34,8 +34,12 @@ class MainMenuRepositoryImpl @Inject constructor(
                 val upcomingMovies = getUpcomingMovies()
 
                 createMainMenu(posterUrl, nowPlaying, upcomingMovies).also {
-                    datastore.updateMainMenu(it)
-                    datastore.updateMainOfDate(targetDt.toString())
+                    datastore.updateUserData(
+                        datastore.getUserData().copy(
+                            mainMenu = it,
+                            updateDate = targetDt.toString()
+                        )
+                    )
                 }
             }
         }.isSuccess
