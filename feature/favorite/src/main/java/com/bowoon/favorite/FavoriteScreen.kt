@@ -45,7 +45,6 @@ import com.bowoon.ui.FavoriteButton
 import com.bowoon.ui.Title
 import com.bowoon.ui.bounceClick
 import com.bowoon.ui.dp10
-import com.bowoon.ui.dp100
 import com.bowoon.ui.dp120
 import com.bowoon.ui.dp15
 import com.bowoon.ui.dp200
@@ -246,7 +245,7 @@ fun FavoritePeopleList(
                 Box() {
                     DynamicAsyncImageLoader(
                         modifier = Modifier
-                            .width(dp100)
+                            .fillMaxWidth()
                             .aspectRatio(PEOPLE_IMAGE_RATIO)
                             .clip(RoundedCornerShape(dp10)),
                         source = "${people.posterUrl}${people.profilePath}",
