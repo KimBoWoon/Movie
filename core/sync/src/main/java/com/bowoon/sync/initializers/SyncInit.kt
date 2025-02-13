@@ -5,8 +5,13 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.WorkManager
 import com.bowoon.sync.workers.MainMenuSyncWorker
 import com.bowoon.sync.workers.MyDataSyncWorker
+import javax.inject.Inject
+import javax.inject.Singleton
 
-object Sync {
+@Singleton
+class Sync @Inject constructor(
+
+) {
     fun initialize(context: Context) {
         WorkManager.getInstance(context)
             .beginUniqueWork(

@@ -6,10 +6,10 @@ import com.bowoon.data.util.suspendRunCatching
 import com.bowoon.datastore.InternalDataSource
 import com.bowoon.model.CertificationData
 import com.bowoon.model.Configuration
+import com.bowoon.model.ExternalData
 import com.bowoon.model.LanguageItem
 import com.bowoon.model.MovieGenreList
 import com.bowoon.model.RegionList
-import com.bowoon.model.TMDBConfiguration
 import com.bowoon.network.ApiResponse
 import com.bowoon.network.model.asExternalModel
 import com.bowoon.network.retrofit.Apis
@@ -18,28 +18,25 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
 class MyDataRepositoryImpl @Inject constructor(
     @ApplicationScope private val scope: CoroutineScope,
     private val apis: Apis,
     private val datastore: InternalDataSource
 ) : MyDataRepository {
-    override val tmdbConfiguration: Flow<TMDBConfiguration> = combine(
+    override val externalData: Flow<ExternalData> = combine(
         getConfiguration(),
         getCertification(),
         getGenres(),
         getAvailableRegion(),
         getAvailableLanguage()
     ) { configuration, certification, genres, region, language ->
-        datastore.updateSecureBaseUrl(configuration.images?.secureBaseUrl ?: "")
-
-        TMDBConfiguration(
+        ExternalData(
             secureBaseUrl = configuration.images?.secureBaseUrl,
             configuration = configuration,
             certification = certification.certifications?.certifications,
@@ -53,12 +50,12 @@ class MyDataRepositoryImpl @Inject constructor(
     }.stateIn(
         scope = scope,
         started = SharingStarted.Eagerly,
-        initialValue = TMDBConfiguration()
+        initialValue = ExternalData()
     )
     override val posterUrl: Flow<String> = datastore.userData.map { "${it.secureBaseUrl}${it.imageQuality}" }
 
     override suspend fun syncWith(): Boolean = suspendRunCatching {
-//        myData.first()
+        externalData.first()
     }.isSuccess
 
     override fun getConfiguration(): Flow<Configuration> = flow {

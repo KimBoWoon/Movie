@@ -20,7 +20,7 @@ data class PosterSize(
     val isSelected: Boolean = false
 )
 
-data class TMDBConfiguration(
+data class ExternalData(
     val secureBaseUrl: String? = null,
     val configuration: Configuration? = null,
     val certification: Map<String, List<Certification>>? = null,
@@ -28,17 +28,4 @@ data class TMDBConfiguration(
     val region: RegionList? = null,
     val language: List<LanguageItem>? = null,
     val posterSize: Images? = null
-)
-
-data class MovieData(
-    val secureBaseUrl: String? = "",
-    val isAdult: Boolean = true,
-    val autoPlayTrailer: Boolean = true,
-    val isDarkMode: DarkThemeConfig = DarkThemeConfig.FOLLOW_SYSTEM,
-    val updateDate: String = "",
-    val mainMenu: MainMenu = MainMenu(),
-    val favoriteMovies: List<MovieDetail> = emptyList(),
-    val region: String = "KR",
-    val language: String = "ko",
-    val imageQuality: String = "original"
 )

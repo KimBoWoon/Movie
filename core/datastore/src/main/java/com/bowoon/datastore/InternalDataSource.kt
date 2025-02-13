@@ -36,15 +36,6 @@ class InternalDataSource @Inject constructor(
         }
     }
 
-    suspend fun updateSecureBaseUrl(secureBaseUrl: String) {
-        datastore.edit {
-            val data = it[USER_DATA]?.let { jsonString ->
-                json.decodeFromString<InternalData>(jsonString)
-            }
-            it[USER_DATA] = json.encodeToString(data?.copy(secureBaseUrl = secureBaseUrl))
-        }
-    }
-
     suspend fun updateFCMToken(token: String) {
         datastore.edit {
             it[FCM_TOKEN] = token
