@@ -15,9 +15,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainVM @Inject constructor(
-    getMyDataUseCase: GetInitDataUseCase
+    getInitDataUseCase: GetInitDataUseCase
 ) : ViewModel() {
-    val myData = getMyDataUseCase()
+    val initData = getInitDataUseCase()
         .asResult()
         .map {
             when (it) {
@@ -46,4 +46,5 @@ sealed interface UserdataState {
 
     fun shouldKeepSplashScreen() = this is Loading
     fun shouldUseDarkTheme(isSystemDarkTheme: Boolean): Boolean = isSystemDarkTheme
+    fun getInitData(): InitData = (this as? Success)?.data ?: InitData()
 }

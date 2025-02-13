@@ -6,16 +6,20 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -26,21 +30,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.bowoon.common.Log
+import com.bowoon.data.repository.LocalInitDataComposition
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.DarkThemeConfig
 import com.bowoon.model.InitData
+import com.bowoon.model.InternalData
 import com.bowoon.model.LanguageItem
 import com.bowoon.model.PosterSize
 import com.bowoon.model.Region
-import com.bowoon.model.InternalData
 import com.bowoon.ui.Title
 import com.bowoon.ui.dp150
 import com.bowoon.ui.dp16
 import com.bowoon.ui.dp250
+import com.bowoon.ui.dp56
 
 @Composable
 fun MyScreen(
@@ -48,39 +53,26 @@ fun MyScreen(
 ) {
     LocalFirebaseLogHelper.current.sendLog("MyScreen", "my screen init")
 
-    val myState by viewModel.myData.collectAsStateWithLifecycle()
+    val initData = LocalInitDataComposition.current
 
     MyScreen(
-        myDataState = myState,
+        initData = initData,
         updateUserData = viewModel::updateUserData
     )
 }
 
 @Composable
 fun MyScreen(
-    myDataState: MyDataState,
+    initData: InitData,
     updateUserData: (InternalData, Boolean) -> Unit
 ) {
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        when (myDataState) {
-            is MyDataState.Loading -> {
-                Log.d("myData loading...")
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            }
-            is MyDataState.Success -> {
-                Log.d("myData -> ${myDataState.initData}")
-
-                MyDataComponent(
-                    initData = myDataState.initData,
-                    updateUserData = updateUserData
-                )
-            }
-            is MyDataState.Error -> Log.e(myDataState.throwable.message ?: "something wrong...")
-        }
+        MyDataComponent(
+            initData = initData,
+            updateUserData = updateUserData
+        )
     }
 }
 
@@ -97,29 +89,10 @@ fun MyDataComponent(
             modifier = Modifier.fillMaxWidth().padding(horizontal = dp16),
             text = "메인 업데이트 날짜 ${initData.internalData.updateDate}"
         )
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = dp16),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(text = "다크모드 설정")
-            Switch(
-                checked = when (initData.internalData.isDarkMode) {
-                    DarkThemeConfig.DARK -> true
-                    DarkThemeConfig.LIGHT -> false
-                    else -> false
-                },
-                onCheckedChange = {
-                    when (it) {
-                        true -> DarkThemeConfig.DARK
-                        false -> DarkThemeConfig.LIGHT
-                        else -> DarkThemeConfig.FOLLOW_SYSTEM
-                    }.run {
-                        updateUserData(initData.internalData.copy(isDarkMode = this), false)
-                    }
-                }
-            )
-        }
+        DarkThemeConfigComponent(
+            initData = initData,
+            updateUserData = updateUserData
+        )
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = dp16),
             verticalAlignment = Alignment.CenterVertically,
@@ -184,6 +157,56 @@ fun MyDataComponent(
                     updateUserData(initData.internalData.copy(imageQuality = it.size ?: ""), true)
                 }
             )
+        }
+    }
+}
+
+@Composable
+fun DarkThemeConfigComponent(
+    initData: InitData,
+    updateUserData: (InternalData, Boolean) -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = dp16),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        val (selectedOption, onOptionSelected) = remember {
+            mutableStateOf(initData.internalData.isDarkMode)
+        }
+
+        Text(text = "다크모드 설정")
+        Column(modifier = Modifier.selectableGroup()) {
+            DarkThemeConfig.entries.forEach { darkThemeConfig ->
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .height(dp56)
+                        .selectable(
+                            selected = (darkThemeConfig == selectedOption),
+                            onClick = {
+                                onOptionSelected(darkThemeConfig)
+                                updateUserData(
+                                    initData.internalData.copy(isDarkMode = darkThemeConfig),
+                                    false
+                                )
+                            },
+                            role = Role.RadioButton
+                        )
+                        .padding(horizontal = dp16),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
+                        selected = (darkThemeConfig == selectedOption),
+                        onClick = null
+                    )
+                    Text(
+                        text = darkThemeConfig.name,
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.padding(start = dp16)
+                    )
+                }
+            }
         }
     }
 }

@@ -16,30 +16,28 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
 class GetInitDataUseCase @Inject constructor(
     @ApplicationScope private val scope: CoroutineScope,
     private val myDataRepository: MyDataRepository,
     private val userDataRepository: UserDataRepository
 ) {
     operator fun invoke(): Flow<InitData> = combine(
-        myDataRepository.tmdbConfiguration,
+        myDataRepository.externalData,
         userDataRepository.userData
-    ) { request, internalData ->
+    ) { externalData, internalData ->
         InitData(
             internalData = internalData,
-            secureBaseUrl = request.secureBaseUrl,
-            configuration = request.configuration,
-            certification = request.certification,
-            genres = request.genres?.genres?.map {
+            secureBaseUrl = externalData.secureBaseUrl,
+            configuration = externalData.configuration,
+            certification = externalData.certification,
+            genres = externalData.genres?.genres?.map {
                 MovieGenre(
                     id = it.id,
                     name = it.name
                 )
             },
-            region = request.region?.results?.map {
+            region = externalData.region?.results?.map {
                 Region(
                     englishName = it.englishName,
                     iso31661 = it.iso31661,
@@ -47,7 +45,7 @@ class GetInitDataUseCase @Inject constructor(
                     isSelected = internalData.region == it.iso31661
                 )
             },
-            language = request.language?.map {
+            language = externalData.language?.map {
                 LanguageItem(
                     englishName = it.englishName,
                     iso6391 = it.iso6391,
@@ -55,7 +53,7 @@ class GetInitDataUseCase @Inject constructor(
                     isSelected = internalData.language == it.iso6391
                 )
             },
-            posterSize = request.configuration?.images?.posterSizes?.map {
+            posterSize = externalData.configuration?.images?.posterSizes?.map {
                 PosterSize(
                     size = it,
                     isSelected = internalData.imageQuality == it

@@ -18,11 +18,12 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.bowoon.common.AppDoubleBackToExit
-import com.bowoon.common.Log
 import com.bowoon.common.isSystemInDarkTheme
+import com.bowoon.data.repository.LocalInitDataComposition
 import com.bowoon.data.util.NetworkMonitor
 import com.bowoon.data.util.SyncManager
 import com.bowoon.firebase.LocalFirebaseLogHelper
+import com.bowoon.model.InitData
 import com.bowoon.movie.MovieFirebase
 import com.bowoon.movie.R
 import com.bowoon.movie.rememberMovieAppState
@@ -72,13 +73,15 @@ class MainActivity : ComponentActivity() {
                 darkTheme = resources.configuration.isSystemInDarkTheme
             )
         )
+        var initData by mutableStateOf(InitData())
 
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 combine(
                     isSystemInDarkTheme(),
-                    viewModel.myData
+                    viewModel.initData
                 ) { systemDarkTheme, userdata ->
+                    initData = userdata.getInitData()
                     ThemeSettings(
                         darkTheme = userdata.shouldUseDarkTheme(systemDarkTheme)
                     )
@@ -100,26 +103,12 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        lifecycleScope.launch {
-            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.myData.collect {
-                    when (it) {
-                        is UserdataState.Loading -> Log.d("main activity > my data loading...")
-                        is UserdataState.Success -> {
-                            Log.d("main activity > my data success > ${it.data}")
-                            syncManager.syncMain()
-                        }
-                        is UserdataState.Error -> Log.e("main activity > my data error > ${it.throwable.message}")
-                    }
-                }
-            }
-        }
-
-        splashScreen.setKeepOnScreenCondition { viewModel.myData.value.shouldKeepSplashScreen() }
+        splashScreen.setKeepOnScreenCondition { viewModel.initData.value.shouldKeepSplashScreen() }
 
         setContent {
             CompositionLocalProvider(
-                LocalFirebaseLogHelper provides movieFirebase
+                LocalFirebaseLogHelper provides movieFirebase,
+                LocalInitDataComposition provides initData
             ) {
                 LocalFirebaseLogHelper.current.sendLog(javaClass.simpleName, "compose start!")
 
@@ -140,13 +129,13 @@ class MainActivity : ComponentActivity() {
 }
 
 /**
- * The default light scrim, as defined by androidx and the platform:
+ * 안드로이드에서 기본적으로 제공되는 라이트 모드
  * https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:activity/activity/src/main/java/androidx/activity/EdgeToEdge.kt;l=35-38;drc=27e7d52e8604a080133e8b842db10c89b4482598
  */
 private val lightScrim = android.graphics.Color.argb(0xe6, 0xFF, 0xFF, 0xFF)
 
 /**
- * The default dark scrim, as defined by androidx and the platform:
+ * 안드로이드에서 기본적으로 제공되는 다크 모드
  * https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:activity/activity/src/main/java/androidx/activity/EdgeToEdge.kt;l=40-44;drc=27e7d52e8604a080133e8b842db10c89b4482598
  */
 private val darkScrim = android.graphics.Color.argb(0x80, 0x1b, 0x1b, 0x1b)
