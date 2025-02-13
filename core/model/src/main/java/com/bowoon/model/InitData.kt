@@ -3,11 +3,8 @@ package com.bowoon.model
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class MyData(
-    val isAdult: Boolean? = null,
-    val isDarkMode: DarkThemeConfig? = null,
-    val isAutoPlayTrailer: Boolean? = null,
-    val mainUpdateLatestDate: String? = null,
+data class InitData(
+    val internalData: InternalData = InternalData(),
     val secureBaseUrl: String? = null,
     val configuration: Configuration? = null,
     val certification: Map<String, List<Certification>>? = null,
@@ -23,7 +20,8 @@ data class PosterSize(
     val isSelected: Boolean = false
 )
 
-data class RequestMyData(
+data class ExternalData(
+    val secureBaseUrl: String? = null,
     val configuration: Configuration? = null,
     val certification: Map<String, List<Certification>>? = null,
     val genres: MovieGenreList? = null,

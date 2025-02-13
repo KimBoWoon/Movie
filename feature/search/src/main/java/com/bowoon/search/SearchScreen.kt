@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.text.KeyboardActions
@@ -86,18 +87,7 @@ fun SearchScreen(
     onSearchClick: (String) -> Unit,
     viewModel: SearchVM = hiltViewModel()
 ) {
-    val scope = rememberCoroutineScope()
     val scrollState = rememberLazyGridState()
-    val focusManager = LocalFocusManager.current
-    val keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search, keyboardType = KeyboardType.Text)
-    val keyboardActions = KeyboardActions(
-        onDone = { focusManager.clearFocus() },
-        onSearch = {
-            scope.launch { scrollState.scrollToItem(0) }
-            onSearchClick(viewModel.keyword.text)
-            focusManager.clearFocus()
-        }
-    )
     var isLoading by remember { mutableStateOf(false) }
     var isAppend by remember { mutableStateOf(false) }
     var pagingStatus by remember { mutableStateOf<PagingStatus>(PagingStatus.NONE) }
@@ -139,43 +129,10 @@ fun SearchScreen(
     ) {
         Column {
             Title(title = "영화 검색")
-            Row(
-                modifier = Modifier.padding(top = dp5, bottom = dp10),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                ExposedDropdownSearchTypeMenu(
-                    modifier = Modifier.width(dp100),
-                    list = SearchType.entries.map { it.label }.toList(),
-                    viewModel = viewModel
-                )
-                TextField(
-                    modifier = Modifier
-                        .wrapContentHeight()
-                        .weight(1f)
-                        .padding(start = dp5, end = dp5),
-                    value = viewModel.keyword.text,
-                    onValueChange = {
-                        Log.d(it)
-                        viewModel.update(TextFieldValue(it))
-                    },
-                    label = { Text("검색어를 입력하세요.") },
-                    singleLine = true,
-                    maxLines = 1,
-                    keyboardOptions = keyboardOptions,
-                    keyboardActions = keyboardActions
-                )
-                Button(
-                    modifier = Modifier.padding(end = dp16),
-                    onClick = {
-                        scope.launch { scrollState.scrollToItem(0) }
-                        onSearchClick(viewModel.keyword.text)
-                        focusManager.clearFocus()
-                    }
-                ) {
-                    Text(text = "검색")
-                }
-            }
+            SearchBarComponent(
+                scrollState = scrollState,
+                onSearchClick = onSearchClick
+            )
 
             if (pagingStatus == PagingStatus.EMPTY) {
                 Text(
@@ -223,6 +180,62 @@ fun SearchScreen(
             CircularProgressIndicator(
                 modifier = Modifier.align(Alignment.Center)
             )
+        }
+    }
+}
+
+@Composable
+fun SearchBarComponent(
+    onSearchClick: (String) -> Unit,
+    scrollState: LazyGridState,
+    viewModel: SearchVM = hiltViewModel()
+) {
+    val scope = rememberCoroutineScope()
+    val focusManager = LocalFocusManager.current
+    val keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search, keyboardType = KeyboardType.Text)
+    val keyboardActions = KeyboardActions(
+        onDone = { focusManager.clearFocus() },
+        onSearch = {
+            scope.launch { scrollState.scrollToItem(0) }
+            onSearchClick(viewModel.keyword.text)
+            focusManager.clearFocus()
+        }
+    )
+
+    Row(
+        modifier = Modifier.padding(start = dp16, end = dp16, top = dp5, bottom = dp10),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        ExposedDropdownSearchTypeMenu(
+            modifier = Modifier.width(dp100),
+            list = SearchType.entries.map { it.label }.toList(),
+            viewModel = viewModel
+        )
+        TextField(
+            modifier = Modifier
+                .wrapContentHeight()
+                .weight(1f)
+                .padding(start = dp5, end = dp5),
+            value = viewModel.keyword.text,
+            onValueChange = {
+                Log.d(it)
+                viewModel.update(TextFieldValue(it))
+            },
+            label = { Text("검색어를 입력하세요.") },
+            singleLine = true,
+            maxLines = 1,
+            keyboardOptions = keyboardOptions,
+            keyboardActions = keyboardActions
+        )
+        Button(
+            onClick = {
+                scope.launch { scrollState.scrollToItem(0) }
+                onSearchClick(viewModel.keyword.text)
+                focusManager.clearFocus()
+            }
+        ) {
+            Text(text = "검색")
         }
     }
 }

@@ -18,9 +18,7 @@ task("createReleaseNote") {
         it.toString().trim()
     }
     val result = """
----Create Release Note---
 $logs
----End Release Note---
 """.trimIndent()
     releaseNote.delete()
     releaseNote.writeText(result)
@@ -35,6 +33,7 @@ dependencies {
         projects.core.model,
         projects.core.notifications,
         projects.core.firebase,
+        projects.core.domain,
         projects.feature.home,
         projects.feature.detail,
         projects.feature.search,

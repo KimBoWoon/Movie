@@ -34,7 +34,9 @@ import org.threeten.bp.format.DateTimeFormatter
 @Composable
 fun Calendar(
     today: LocalDate,
-    favoriteMovies: List<MovieDetail>
+    favoriteMovies: List<MovieDetail>,
+    onMovieClick: (Int) -> Unit,
+    scrollEvent: () -> Unit
 ) {
     var releaseDate by remember { mutableStateOf("") }
 
@@ -84,11 +86,12 @@ fun Calendar(
                         modifier = Modifier
                             .height(dp30)
                             .weight(1f)
-                            .background(color = Color.Yellow)
+                            .background(color = Color.Yellow, shape = RoundedCornerShape(dp10))
                             .bounceClick {
+                                scrollEvent()
                                 releaseDate = today
-                                .withDayOfMonth(day)
-                                .toString()
+                                    .withDayOfMonth(day)
+                                    .toString()
                             },
                         text = "$day",
                         textAlign = TextAlign.Center,
@@ -99,7 +102,7 @@ fun Calendar(
                         modifier = Modifier
                             .height(dp30)
                             .weight(1f)
-                            .background(color = Color.Transparent)
+                            .background(color = Color.Transparent, shape = RoundedCornerShape(dp10))
                             .bounceClick {
                                 releaseDate = today
                                     .withDayOfMonth(day)
@@ -128,6 +131,7 @@ fun Calendar(
                         .fillMaxWidth()
                         .wrapContentHeight()
                         .border(width = dp1, color = Color.White, shape = RoundedCornerShape(dp20))
+                        .bounceClick { onMovieClick(movie.id ?: -1) }
                 ) {
                     Text(
                         modifier = Modifier.padding(horizontal = dp10),

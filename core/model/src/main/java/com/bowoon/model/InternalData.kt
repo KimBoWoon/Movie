@@ -3,7 +3,7 @@ package com.bowoon.model
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class UserData(
+data class InternalData(
     val secureBaseUrl: String? = "",
     val isAdult: Boolean = true,
     val autoPlayTrailer: Boolean = true,

@@ -5,6 +5,7 @@ import coil3.ImageLoader
 import coil3.PlatformContext
 import coil3.SingletonImageLoader
 import com.bowoon.common.Log
+import com.bowoon.sync.initializers.Sync
 import com.google.firebase.crashlytics.ktx.crashlytics
 import com.google.firebase.ktx.Firebase
 import com.jakewharton.threetenabp.AndroidThreeTen
@@ -16,13 +17,16 @@ class MovieApplication : Application(), SingletonImageLoader.Factory {
     @Inject
     lateinit var imageLoader: dagger.Lazy<ImageLoader>
     @Inject
-    lateinit var firebase: MovieFirebase
+    lateinit var firebase: dagger.Lazy<MovieFirebase>
+    @Inject
+    lateinit var sync: dagger.Lazy<Sync>
 
     override fun onCreate() {
         super.onCreate()
 
         Log.d("Application", "onCreate()")
-        firebase.sendLog(javaClass.simpleName, "Movie Application start!")
+        firebase.get().sendLog(javaClass.simpleName, "Movie Application start!")
+        sync.get().initialize(this)
         AndroidThreeTen.init(this)
         initFirebase()
     }
@@ -35,7 +39,7 @@ class MovieApplication : Application(), SingletonImageLoader.Factory {
         Firebase.crashlytics.setCustomKey("versionName", BuildConfig.VERSION_NAME)
         Firebase.crashlytics.setCustomKey("isDebug", BuildConfig.DEBUG)
         Firebase.crashlytics.setCustomKey("appFlavor", BuildConfig.FLAVOR)
-        firebase.createFCMChannel(context = this)
-        firebase.checkToken()
+        firebase.get().createFCMChannel(context = this)
+        firebase.get().checkToken()
     }
 }

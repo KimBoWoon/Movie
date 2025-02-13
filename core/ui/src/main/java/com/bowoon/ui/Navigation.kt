@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
@@ -94,14 +95,17 @@ fun ColumnScope.BottomNavigationRailItem(
 
 object MovieNavigationDefaults {
     @Composable
-    fun navigationContainerColor() = MaterialTheme.colorScheme.background
+    fun navigationBorderColor(): Color = Color.LightGray
 
     @Composable
-    fun navigationContentColor() = MaterialTheme.colorScheme.onSurfaceVariant
+    fun navigationContainerColor(): Color = MaterialTheme.colorScheme.background
 
     @Composable
-    fun navigationSelectedItemColor() = MaterialTheme.colorScheme.onPrimaryContainer
+    fun navigationContentColor(): Color = MaterialTheme.colorScheme.onSurfaceVariant
 
     @Composable
-    fun navigationIndicatorColor() = MaterialTheme.colorScheme.primaryContainer
+    fun navigationSelectedItemColor(): Color = MaterialTheme.colorScheme.onPrimaryContainer
+
+    @Composable
+    fun navigationIndicatorColor(): Color = MaterialTheme.colorScheme.primaryContainer
 }

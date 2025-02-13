@@ -57,7 +57,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -75,15 +74,11 @@ import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.detail.navigation.navigateToDetail
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.Cast
-import com.bowoon.model.Country
 import com.bowoon.model.Crew
 import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetail
 import com.bowoon.model.MovieDetailTab
 import com.bowoon.model.PagingStatus
-import com.bowoon.model.Releases
-import com.bowoon.model.VideoInfo
-import com.bowoon.model.Videos
 import com.bowoon.people.navigation.navigateToPeople
 import com.bowoon.ui.ConfirmDialog
 import com.bowoon.ui.FavoriteButton
@@ -102,7 +97,6 @@ import com.bowoon.ui.sp10
 import com.bowoon.ui.sp12
 import com.bowoon.ui.sp15
 import com.bowoon.ui.sp20
-import com.bowoon.ui.theme.MovieTheme
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
@@ -364,11 +358,9 @@ fun TabComponent(
     val tabList = MovieDetailTab.entries
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { tabList.size })
 
-//    ScrollableTabRow(
     TabRow(
         modifier = Modifier.fillMaxWidth(),
         selectedTabIndex = pagerState.currentPage,
-//        edgePadding = dp0
     ) {
         tabList.forEachIndexed { index, moviePoster ->
             Tab(
@@ -433,7 +425,7 @@ fun ImageComponent(
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Adaptive(dp100),
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(horizontal = dp10),
+        contentPadding = PaddingValues(dp10),
         horizontalArrangement = Arrangement.spacedBy(dp10),
         verticalItemSpacing = dp10
     ) {
@@ -676,7 +668,7 @@ fun ActorAndCrewComponent(
         modifier = Modifier.fillMaxSize()
     ) {
         item {
-            movie.credits?.cast?.let { casts ->
+            movie.credits?.cast.takeIf { !it.isNullOrEmpty() }?.let { casts ->
                 Text(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -688,7 +680,8 @@ fun ActorAndCrewComponent(
                 LazyRow(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .wrapContentHeight()
+                        .wrapContentHeight(),
+                    horizontalArrangement = Arrangement.spacedBy(dp10)
                 ) {
                     items(
                         items = casts
@@ -697,7 +690,7 @@ fun ActorAndCrewComponent(
                     }
                 }
             }
-            movie.credits?.crew?.let { crews ->
+            movie.credits?.crew.takeIf { !it.isNullOrEmpty() }?.let { crews ->
                 Text(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -709,7 +702,8 @@ fun ActorAndCrewComponent(
                 LazyRow(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .wrapContentHeight()
+                        .wrapContentHeight(),
+                    horizontalArrangement = Arrangement.spacedBy(dp10)
                 ) {
                     items(
                         items = crews
@@ -891,24 +885,6 @@ fun SimilarMovieComponent(
                     }
                 )
             }
-        }
-    }
-}
-
-@Preview(showSystemUi = true, showBackground = true)
-@Composable
-fun MovieInfoComponentPreview() {
-    MovieTheme {
-        Column {
-            MovieInfoComponent(
-                MovieDetail(
-                    title = "asdf",
-                    originalTitle = "qwer",
-//                    genres = "zxcv",
-                    releases = Releases(listOf(Country(certification = "ALL"))),
-                    videos = Videos(listOf(VideoInfo(key = "")))
-                )
-            )
         }
     }
 }

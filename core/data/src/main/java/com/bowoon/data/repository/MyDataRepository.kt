@@ -1,23 +1,26 @@
 package com.bowoon.data.repository
 
+import androidx.compose.runtime.staticCompositionLocalOf
 import com.bowoon.model.CertificationData
 import com.bowoon.model.Configuration
+import com.bowoon.model.ExternalData
+import com.bowoon.model.InitData
 import com.bowoon.model.LanguageItem
 import com.bowoon.model.MovieGenreList
-import com.bowoon.model.MyData
 import com.bowoon.model.RegionList
-import com.bowoon.model.RequestMyData
 import kotlinx.coroutines.flow.Flow
 
 interface MyDataRepository {
-    val myData: Flow<MyData>
+    val externalData: Flow<ExternalData>
     val posterUrl: Flow<String>
     suspend fun syncWith(): Boolean
-
-    fun requestMyData(): Flow<RequestMyData>
     fun getConfiguration(): Flow<Configuration>
     fun getCertification(): Flow<CertificationData>
     fun getGenres(): Flow<MovieGenreList>
     fun getAvailableLanguage(): Flow<List<LanguageItem>>
     fun getAvailableRegion(): Flow<RegionList>
+}
+
+val LocalInitDataComposition = staticCompositionLocalOf {
+    InitData()
 }

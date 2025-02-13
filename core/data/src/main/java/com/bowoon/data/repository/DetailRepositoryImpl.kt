@@ -18,8 +18,8 @@ class DetailRepositoryImpl @Inject constructor(
     private val datastore: InternalDataSource
 ) : DetailRepository {
     override fun getMovieDetail(id: Int): Flow<MovieDetail> = flow {
-        val language = datastore.getLanguage()
-        val region = datastore.getRegion()
+        val language = datastore.getUserData().language
+        val region = datastore.getUserData().region
 
         when (val response = apis.tmdbApis.getMovieDetail(id = id, language = "$language-$region", region = region, includeImageLanguage = "$language,null")) {
             is ApiResponse.Failure -> throw response.throwable
@@ -31,9 +31,9 @@ class DetailRepositoryImpl @Inject constructor(
         releaseDateGte: String,
         releaseDateLte: String
     ): Flow<MovieSearchData> = flow {
-        val language = "${datastore.getLanguage()}-${datastore.getRegion()}"
-        val region = datastore.getRegion()
-        val isAdult = datastore.isAdult()
+        val language = "${datastore.getUserData().language}-${datastore.getUserData().region}"
+        val region = datastore.getUserData().region
+        val isAdult = datastore.getUserData().isAdult
 
         when (val response = apis.tmdbApis.discoverMovie(releaseDateGte = releaseDateGte, releaseDateLte = releaseDateLte, includeAdult = isAdult, language = language, region = region)) {
             is ApiResponse.Failure -> throw response.throwable
@@ -42,8 +42,8 @@ class DetailRepositoryImpl @Inject constructor(
     }
 
     override fun getPeople(personId: Int): Flow<PeopleDetail> = flow {
-        val language = datastore.getLanguage()
-        val region = datastore.getRegion()
+        val language = datastore.getUserData().language
+        val region = datastore.getUserData().region
 
         when (val response = apis.tmdbApis.getPeopleDetail(personId = personId, language = "$language-$region", includeImageLanguage = "$language,null")) {
             is ApiResponse.Failure -> throw response.throwable
@@ -52,7 +52,7 @@ class DetailRepositoryImpl @Inject constructor(
     }
 
     override fun getCombineCredits(personId: Int): Flow<CombineCredits> = flow {
-        val language = "${datastore.getLanguage()}-${datastore.getRegion()}"
+        val language = "${datastore.getUserData().language}-${datastore.getUserData().region}"
 
         when (val response = apis.tmdbApis.getCombineCredits(personId = personId, language = language)) {
             is ApiResponse.Failure -> throw response.throwable

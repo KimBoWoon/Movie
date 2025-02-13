@@ -20,9 +20,9 @@ class PagingRepositoryImpl @Inject constructor(
         type: String,
         query: String
     ): Flow<PagingData<Movie>> {
-        val language = datastore.getLanguage()
-        val region = datastore.getRegion()
-        val isAdult = datastore.isAdult()
+        val language = datastore.getUserData().language
+        val region = datastore.getUserData().region
+        val isAdult = datastore.getUserData().isAdult
 
         return Pager(
             config = PagingConfig(pageSize = 20, initialLoadSize = 20, prefetchDistance = 5),
@@ -41,8 +41,8 @@ class PagingRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getSimilarMovies(id: Int): Flow<PagingData<Movie>> {
-        val language = datastore.getLanguage()
-        val region = datastore.getRegion()
+        val language = datastore.getUserData().language
+        val region = datastore.getUserData().region
 
         return Pager(
             config = PagingConfig(pageSize = 20, initialLoadSize = 20, prefetchDistance = 5),

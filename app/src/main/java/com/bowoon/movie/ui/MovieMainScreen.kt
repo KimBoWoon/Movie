@@ -1,5 +1,6 @@
 package com.bowoon.movie.ui
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,16 +24,20 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 import com.bowoon.movie.MovieAppState
+import com.bowoon.movie.R
 import com.bowoon.movie.navigation.MovieAppNavHost
 import com.bowoon.ui.BottomNavigationBarItem
 import com.bowoon.ui.BottomNavigationRailItem
 import com.bowoon.ui.MovieNavigationDefaults
+import com.bowoon.ui.dp1
 import com.bowoon.ui.dp50
+import com.bowoon.ui.topLineBorder
 import kotlin.reflect.KClass
 
 @Composable
@@ -46,7 +51,7 @@ fun MovieMainScreen(
         bottomBar = { Navigation(appState = appState) }
     ) { innerPadding ->
         val isOffline by appState.isOffline.collectAsStateWithLifecycle()
-        val notConnectedMessage = "인터넷에 연결되어 있지 않습니다."
+        val notConnectedMessage = stringResource(R.string.not_connected)
 
         LaunchedEffect(isOffline) {
             if (isOffline) {
@@ -83,7 +88,7 @@ fun Navigation(
     when (layoutType) {
         NavigationSuiteType.NavigationBar -> {
             NavigationBar(
-                modifier = Modifier.fillMaxWidth().height(dp50),
+                modifier = Modifier.fillMaxWidth().height(dp50).topLineBorder(strokeWidth = dp1, color = MovieNavigationDefaults.navigationBorderColor()),
                 containerColor = MovieNavigationDefaults.navigationContainerColor(),
                 contentColor = MovieNavigationDefaults.navigationContentColor()
             ) {
@@ -101,7 +106,7 @@ fun Navigation(
         }
         NavigationSuiteType.NavigationRail -> {
             NavigationRail(
-                modifier = Modifier.width(dp50).fillMaxHeight(),
+                modifier = Modifier.width(dp50).fillMaxHeight().border(width = dp1, color = MovieNavigationDefaults.navigationBorderColor()),
                 containerColor = MovieNavigationDefaults.navigationContainerColor(),
                 contentColor = MovieNavigationDefaults.navigationContentColor()
             ) {
@@ -119,7 +124,7 @@ fun Navigation(
         }
         NavigationSuiteType.NavigationDrawer -> {
             NavigationRail(
-                modifier = Modifier.width(dp50).fillMaxHeight(),
+                modifier = Modifier.width(dp50).fillMaxHeight().border(width = dp1, color = MovieNavigationDefaults.navigationBorderColor()),
                 containerColor = MovieNavigationDefaults.navigationContainerColor(),
                 contentColor = MovieNavigationDefaults.navigationContentColor()
             ) {
@@ -137,7 +142,7 @@ fun Navigation(
         }
         else -> {
             NavigationBar(
-                modifier = Modifier.fillMaxWidth().height(dp50),
+                modifier = Modifier.fillMaxWidth().height(dp50).topLineBorder(strokeWidth = dp1, color = MovieNavigationDefaults.navigationBorderColor()),
                 containerColor = MovieNavigationDefaults.navigationContainerColor(),
                 contentColor = MovieNavigationDefaults.navigationContentColor()
             ) {
