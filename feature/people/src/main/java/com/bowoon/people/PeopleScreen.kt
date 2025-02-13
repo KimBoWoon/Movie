@@ -305,6 +305,22 @@ fun ExternalIdLinkComponent(people: PeopleDetail) {
                 contentDescription = "twitterId"
             )
         }
+        people.externalIds?.tiktokId?.takeIf { it.isNotEmpty() }?.let {
+            Icon(
+                modifier = Modifier
+                    .size(dp20)
+                    .clickable {
+                        context.startActivity(
+                            Intent(
+                                Intent.ACTION_VIEW,
+                                Uri.parse("https://www.tiktok.com/@$it")
+                            )
+                        )
+                    },
+                painter = painterResource(id = R.drawable.ic_tiktok),
+                contentDescription = "instagramId"
+            )
+        }
         people.externalIds?.instagramId?.takeIf { it.isNotEmpty() }?.let {
             Icon(
                 modifier = Modifier
