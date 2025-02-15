@@ -12,7 +12,12 @@ data class InitData(
     val region: List<Region>? = null,
     val language: List<LanguageItem>? = null,
     val posterSize: List<PosterSize>? = null
-)
+) {
+    fun getImageUrl(): String =
+        "$secureBaseUrl${posterSize?.find { it.isSelected } ?: "original"}"
+    fun getRegion(): String = "${region?.find { it.isSelected } ?: "KR"}"
+    fun getLanguage(): String = "${language?.find { it.isSelected } ?: "ko"}"
+}
 
 @Serializable
 data class PosterSize(

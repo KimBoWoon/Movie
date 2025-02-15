@@ -54,7 +54,7 @@ class HomeVM @Inject constructor(
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = false,
         )
-    val mainMenu = userDataRepository.userData
+    val mainMenu = userDataRepository.internalData
         .map { it.mainMenu }
         .asResult()
         .map {

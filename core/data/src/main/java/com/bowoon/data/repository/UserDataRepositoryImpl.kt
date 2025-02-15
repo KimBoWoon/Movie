@@ -10,7 +10,7 @@ class UserDataRepositoryImpl @Inject constructor(
     private val datastore: InternalDataSource,
     private val syncManager: SyncManager
 ) : UserDataRepository {
-    override val userData: Flow<InternalData> = datastore.userData
+    override val internalData: Flow<InternalData> = datastore.userData
 
     override suspend fun updateUserData(
         userData: InternalData,

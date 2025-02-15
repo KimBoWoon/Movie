@@ -1,5 +1,6 @@
 package com.bowoon.favorite
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -91,6 +92,15 @@ fun FavoriteScreen(
     val favoriteList = listOf("영화", "인물")
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { favoriteList.size })
     val scope = rememberCoroutineScope()
+    val isDarkMode = isSystemInDarkTheme()
+    val selectedContentColor = when (isDarkMode) {
+        true -> Color.Black
+        false -> Color(0xFF7C86DF)
+    }
+    val unSelectedContentColor = when (isDarkMode) {
+        true -> Color.Gray
+        false -> Color.LightGray
+    }
 
     when (favoriteMoviesState) {
         is FavoriteMoviesState.Loading -> Log.d("favorite movie list loading...")
@@ -110,7 +120,7 @@ fun FavoriteScreen(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            Title(title = "즐겨찾기")
+            Title(title = "찜")
             TabRow(
                 modifier = Modifier.fillMaxWidth(),
                 selectedTabIndex = pagerState.currentPage
@@ -125,8 +135,8 @@ fun FavoriteScreen(
                             }
                         },
                         text = { Text(text = label) },
-                        selectedContentColor = Color(0xFF7C86DF),
-                        unselectedContentColor = Color.LightGray
+                        selectedContentColor = selectedContentColor,
+                        unselectedContentColor = unSelectedContentColor
                     )
                 }
             }
@@ -208,7 +218,7 @@ fun FavoriteMovieList(
                     onClick = {
                         deleteFavoriteMovie(movieDetail)
                         scope.launch {
-                            onShowSnackbar("즐겨찾기에서 제거됐습니다.", null)
+                            onShowSnackbar("찜에서 제거됐습니다.", null)
                         }
                     }
                 )
@@ -259,7 +269,7 @@ fun FavoritePeopleList(
                         onClick = {
                             deleteFavoritePeople(people)
                             scope.launch {
-                                onShowSnackbar("즐겨찾기에서 제거됐습니다.", null)
+                                onShowSnackbar("찜에서 제거됐습니다.", null)
                             }
                         }
                     )

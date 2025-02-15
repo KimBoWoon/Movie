@@ -336,7 +336,7 @@ fun ReleaseMoviesDialog(
     releaseMovies: List<Movie>,
     onMovieClick: (Int) -> Unit
 ) {
-    val secureBaseUrl = "${LocalInitDataComposition.current.secureBaseUrl}${LocalInitDataComposition.current.posterSize?.find { it.isSelected }?.size ?: "original"}"
+    val secureBaseUrl = LocalInitDataComposition.current.getImageUrl()
 
     SubcomposeAsyncImage(
         model = "$secureBaseUrl${releaseMovies[0].posterPath}",

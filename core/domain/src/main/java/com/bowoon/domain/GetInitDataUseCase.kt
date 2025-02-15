@@ -24,7 +24,7 @@ class GetInitDataUseCase @Inject constructor(
 ) {
     operator fun invoke(): Flow<InitData> = combine(
         myDataRepository.externalData,
-        userDataRepository.userData
+        userDataRepository.internalData
     ) { externalData, internalData ->
         InitData(
             internalData = internalData,
