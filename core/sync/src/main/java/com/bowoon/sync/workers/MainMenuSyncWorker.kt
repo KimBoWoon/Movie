@@ -31,7 +31,6 @@ class MainMenuSyncWorker @AssistedInject constructor(
         fun startUpSyncWork(isForce: Boolean = false) =
             OneTimeWorkRequestBuilder<DelegatingWorker>()
                 .addTag(WORKER_NAME)
-//                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                 .setConstraints(SyncConstraints)
                 .setInputData(MainMenuSyncWorker::class.delegatedData(isForce))
                 .build()

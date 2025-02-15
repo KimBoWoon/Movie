@@ -32,17 +32,8 @@ class MyDataSyncWorker @AssistedInject constructor(
         fun startUpSyncWork() =
             OneTimeWorkRequestBuilder<DelegatingWorker>()
                 .addTag(WORKER_NAME)
-//                .setBackoffCriteria(
-//                    BackoffPolicy.LINEAR,
-//                    backoffDelay = 1,
-//                    TimeUnit.SECONDS
-//                )
-//                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-//                .setConstraints(SyncConstraints)
                 .setInputData(MyDataSyncWorker::class.delegatedData())
-                .build().also {
-                    workerId = it.id
-                }
+                .build().also { workerId = it.id }
     }
 
     override suspend fun getForegroundInfo(): ForegroundInfo =
