@@ -18,31 +18,30 @@ class MainMenuRepositoryImpl @Inject constructor(
     private val datastore: InternalDataSource,
     private val myDataRepository: MyDataRepository
 ) : MainMenuRepository {
-    override suspend fun syncWith(isForce: Boolean): Boolean =
-        suspendRunCatching {
-            val date = datastore.getUserData().updateDate
-            val targetDt = LocalDate.now().minusDays(1)
-            val updateDate = when (date.isNotEmpty()) {
-                true -> LocalDate.parse(date)
-                false -> LocalDate.MIN
-            }
-            val isUpdate = targetDt.isAfter(updateDate)
+    override suspend fun syncWith(isForce: Boolean): Boolean = suspendRunCatching {
+        val date = datastore.getUserData().updateDate
+        val targetDt = LocalDate.now().minusDays(1)
+        val updateDate = when (date.isNotEmpty()) {
+            true -> LocalDate.parse(date)
+            false -> LocalDate.MIN
+        }
+        val isUpdate = targetDt.isAfter(updateDate)
 
-            if (isUpdate || isForce) {
-                val posterUrl = myDataRepository.posterUrl.first()
-                val nowPlaying = getNowPlaying()
-                val upcomingMovies = getUpcomingMovies()
+        if (isUpdate || isForce) {
+            val posterUrl = myDataRepository.posterUrl.first()
+            val nowPlaying = getNowPlaying()
+            val upcomingMovies = getUpcomingMovies()
 
-                createMainMenu(posterUrl, nowPlaying, upcomingMovies).also {
-                    datastore.updateUserData(
-                        datastore.getUserData().copy(
-                            mainMenu = it,
-                            updateDate = targetDt.toString()
-                        )
+            createMainMenu(posterUrl, nowPlaying, upcomingMovies).also {
+                datastore.updateUserData(
+                    datastore.getUserData().copy(
+                        mainMenu = it,
+                        updateDate = targetDt.toString()
                     )
-                }
+                )
             }
-        }.isSuccess
+        }
+    }.isSuccess
 
     override suspend fun getNowPlaying(): List<NowPlaying> {
         val result = mutableListOf<NowPlaying>()

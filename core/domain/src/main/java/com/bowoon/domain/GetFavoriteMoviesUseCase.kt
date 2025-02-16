@@ -16,7 +16,7 @@ class GetFavoriteMoviesUseCase @Inject constructor(
     operator fun invoke(): Flow<List<MovieDetail>> = combine(
         myDataRepository.posterUrl,
         databaseRepository.getMovies(),
-        userDataRepository.userData
+        userDataRepository.internalData
     ) { posterUrl, favoriteMovies, userData ->
         favoriteMovies.map { movie ->
             MovieDetail(

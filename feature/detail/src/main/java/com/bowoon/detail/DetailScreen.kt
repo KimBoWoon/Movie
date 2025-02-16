@@ -69,6 +69,7 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.bowoon.common.Log
+import com.bowoon.data.repository.LocalInitDataComposition
 import com.bowoon.data.util.PEOPLE_IMAGE_RATIO
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.detail.navigation.navigateToDetail
@@ -357,6 +358,15 @@ fun TabComponent(
     val scope = rememberCoroutineScope()
     val tabList = MovieDetailTab.entries
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { tabList.size })
+    val isDarkMode = LocalInitDataComposition.current.isDarkMode()
+    val selectedContentColor = when (isDarkMode) {
+        true -> Color(0xFF7C86DF)
+        false -> Color.Black
+    }
+    val unSelectedContentColor = when (isDarkMode) {
+        true -> Color.LightGray
+        false -> Color.Gray
+    }
 
     TabRow(
         modifier = Modifier.fillMaxWidth(),
@@ -372,8 +382,8 @@ fun TabComponent(
                     }
                 },
                 text = { Text(text = moviePoster.label) },
-                selectedContentColor = Color(0xFF7C86DF),
-                unselectedContentColor = Color.LightGray
+                selectedContentColor = selectedContentColor,
+                unselectedContentColor = unSelectedContentColor
             )
         }
     }
@@ -681,6 +691,7 @@ fun ActorAndCrewComponent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .wrapContentHeight(),
+                    contentPadding = PaddingValues(horizontal = dp16),
                     horizontalArrangement = Arrangement.spacedBy(dp10)
                 ) {
                     items(
@@ -703,6 +714,7 @@ fun ActorAndCrewComponent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .wrapContentHeight(),
+                    contentPadding = PaddingValues(horizontal = dp16),
                     horizontalArrangement = Arrangement.spacedBy(dp10)
                 ) {
                     items(
