@@ -13,6 +13,11 @@ data class InitData(
     val language: List<LanguageItem>? = null,
     val posterSize: List<PosterSize>? = null
 ) {
+    fun isDarkMode(): Boolean = when (internalData.isDarkMode) {
+        DarkThemeConfig.FOLLOW_SYSTEM -> true
+        DarkThemeConfig.LIGHT -> false
+        DarkThemeConfig.DARK -> true
+    }
     fun getImageUrl(): String =
         "$secureBaseUrl${posterSize?.find { it.isSelected } ?: "original"}"
     fun getRegion(): String = "${region?.find { it.isSelected } ?: "KR"}"

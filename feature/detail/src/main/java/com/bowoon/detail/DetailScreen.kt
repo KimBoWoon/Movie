@@ -8,7 +8,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -70,6 +69,7 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.bowoon.common.Log
+import com.bowoon.data.repository.LocalInitDataComposition
 import com.bowoon.data.util.PEOPLE_IMAGE_RATIO
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.detail.navigation.navigateToDetail
@@ -358,16 +358,15 @@ fun TabComponent(
     val scope = rememberCoroutineScope()
     val tabList = MovieDetailTab.entries
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { tabList.size })
-    val isDarkMode = isSystemInDarkTheme()
+    val isDarkMode = LocalInitDataComposition.current.isDarkMode()
     val selectedContentColor = when (isDarkMode) {
-        true -> Color.Black
-        false -> Color(0xFF7C86DF)
+        true -> Color(0xFF7C86DF)
+        false -> Color.Black
     }
     val unSelectedContentColor = when (isDarkMode) {
-        true -> Color.Gray
-        false -> Color.LightGray
+        true -> Color.LightGray
+        false -> Color.Gray
     }
-
 
     TabRow(
         modifier = Modifier.fillMaxWidth(),

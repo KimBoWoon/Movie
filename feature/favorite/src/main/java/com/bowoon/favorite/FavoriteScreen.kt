@@ -1,6 +1,5 @@
 package com.bowoon.favorite
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,6 +36,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bowoon.common.Log
+import com.bowoon.data.repository.LocalInitDataComposition
 import com.bowoon.data.util.PEOPLE_IMAGE_RATIO
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.firebase.LocalFirebaseLogHelper
@@ -92,14 +92,14 @@ fun FavoriteScreen(
     val favoriteList = listOf("영화", "인물")
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { favoriteList.size })
     val scope = rememberCoroutineScope()
-    val isDarkMode = isSystemInDarkTheme()
+    val isDarkMode = LocalInitDataComposition.current.isDarkMode()
     val selectedContentColor = when (isDarkMode) {
-        true -> Color.Black
-        false -> Color(0xFF7C86DF)
+        true -> Color(0xFF7C86DF)
+        false -> Color.Black
     }
     val unSelectedContentColor = when (isDarkMode) {
-        true -> Color.Gray
-        false -> Color.LightGray
+        true -> Color.LightGray
+        false -> Color.Gray
     }
 
     when (favoriteMoviesState) {
