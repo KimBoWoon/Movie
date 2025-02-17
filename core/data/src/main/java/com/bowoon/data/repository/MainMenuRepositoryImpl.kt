@@ -9,7 +9,9 @@ import com.bowoon.model.UpComingResult
 import com.bowoon.network.ApiResponse
 import com.bowoon.network.model.asExternalModel
 import com.bowoon.network.retrofit.Apis
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import org.threeten.bp.LocalDate
 import javax.inject.Inject
 
@@ -28,7 +30,12 @@ class MainMenuRepositoryImpl @Inject constructor(
         val isUpdate = targetDt.isAfter(updateDate)
 
         if (isUpdate || isForce) {
-            val posterUrl = myDataRepository.posterUrl.first()
+            val posterUrl = combine(
+                myDataRepository.externalData,
+                datastore.userData.map { it.imageQuality }
+            ) { externalData, imageQuality ->
+                "${externalData.secureBaseUrl}$imageQuality"
+            }.first()
             val nowPlaying = getNowPlaying()
             val upcomingMovies = getUpcomingMovies()
 

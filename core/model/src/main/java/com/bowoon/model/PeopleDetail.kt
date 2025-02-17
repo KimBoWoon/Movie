@@ -20,7 +20,6 @@ data class PeopleDetail(
     val placeOfBirth: String? = null,
     val popularity: Double? = null,
     val profilePath: String? = null,
-    val posterUrl: String? = null,
     val isFavorite: Boolean = false
 )
 

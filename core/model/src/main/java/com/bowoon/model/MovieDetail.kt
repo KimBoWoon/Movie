@@ -45,7 +45,6 @@ data class MovieDetail(
     val voteCount: Int? = null,
     val certification: String? = null,
     val favoriteMovies: List<MovieDetail>? = null,
-    val posterUrl: String? = null,
     val isFavorite: Boolean = false
 ) : Parcelable
 

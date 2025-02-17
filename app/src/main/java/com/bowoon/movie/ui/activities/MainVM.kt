@@ -41,10 +41,12 @@ sealed interface UserdataState {
                 DarkThemeConfig.LIGHT -> false
                 DarkThemeConfig.DARK -> true
             }
+
+        override fun getInitData(): InitData = this.data
     }
     data class Error(val throwable: Throwable) : UserdataState
 
     fun shouldKeepSplashScreen() = this is Loading
     fun shouldUseDarkTheme(isSystemDarkTheme: Boolean): Boolean = isSystemDarkTheme
-    fun getInitData(): InitData = (this as? Success)?.data ?: InitData()
+    fun getInitData(): InitData = InitData()
 }

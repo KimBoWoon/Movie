@@ -81,7 +81,7 @@ fun CollapsingToolbar(
                     modifier = Modifier
                         .fillMaxWidth()
                         .aspectRatio(3f / 4f),
-                    source = "${people.posterUrl}${people.images?.get(index)?.filePath}",
+                    source = people.images?.get(index)?.filePath ?: "",
                     contentDescription = "PeopleImages"
                 )
             }
@@ -94,7 +94,7 @@ fun CollapsingToolbar(
                 ) {
                     CollapsingToolbarLayout (progress = progress) {
                         DynamicAsyncImageLoader(
-                            source = "${people.posterUrl}${people.images?.get(0)?.filePath}",
+                            source = people.images?.get(0)?.filePath ?: "",
                             contentDescription = null,
                             modifier = Modifier
                                 .padding(logoPadding)

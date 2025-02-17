@@ -2,7 +2,6 @@ package com.bowoon.domain
 
 import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.data.repository.DetailRepository
-import com.bowoon.data.repository.MyDataRepository
 import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.model.BelongsToCollection
 import com.bowoon.model.Cast
@@ -18,28 +17,26 @@ import javax.inject.Inject
 class GetMovieDetailUseCase @Inject constructor(
     private val detailRepository: DetailRepository,
     private val userDataRepository: UserDataRepository,
-    private val databaseRepository: DatabaseRepository,
-    private val myDataRepository: MyDataRepository
+    private val databaseRepository: DatabaseRepository
 ) {
     operator fun invoke(id: Int): Flow<MovieDetail> =
         combine(
             detailRepository.getMovieDetail(id),
             userDataRepository.internalData,
             databaseRepository.getMovies(),
-            myDataRepository.posterUrl
-        ) { movie, userData, favoriteMovies, posterUrl ->
+        ) { movie, userData, favoriteMovies ->
             MovieDetail(
                 adult = movie.adult,
                 autoPlayTrailer = userData.autoPlayTrailer,
                 alternativeTitles = movie.alternativeTitles,
-                backdropPath = "$posterUrl${movie.backdropPath}",
-                belongsToCollection = getBelongsToCollection(movie.belongsToCollection, posterUrl),
+                backdropPath = movie.backdropPath,
+                belongsToCollection = getBelongsToCollection(movie.belongsToCollection),
                 budget = movie.budget,
-                credits = getCredits(movie.credits, posterUrl),
+                credits = getCredits(movie.credits),
                 genres = movie.genres,
                 homepage = movie.homepage,
                 id = movie.id,
-                images = getImages(movie.images, posterUrl),
+                images = getImages(movie.images),
                 imdbId = movie.imdbId,
                 keywords = movie.keywords,
                 originCountry = movie.originCountry,
@@ -65,14 +62,12 @@ class GetMovieDetailUseCase @Inject constructor(
                 voteAverage = movie.voteAverage,
                 certification = movie.releases?.countries?.find { it.iso31661.equals(userData.region, true) }?.certification,
                 favoriteMovies = favoriteMovies,
-                posterUrl = posterUrl,
                 isFavorite = favoriteMovies.find { it.id == movie.id } != null
             )
         }
 
     private fun getCredits(
-        credits: Credits?,
-        posterUrl: String
+        credits: Credits?
     ): Credits = Credits(
         cast = credits?.cast?.map {
             Cast(
@@ -87,7 +82,7 @@ class GetMovieDetailUseCase @Inject constructor(
                 order = it.order,
                 originalName = it.originalName,
                 popularity = it.popularity,
-                profilePath = "$posterUrl${it.profilePath}"
+                profilePath = it.profilePath
             )
         },
         crew = credits?.crew?.map {
@@ -102,20 +97,19 @@ class GetMovieDetailUseCase @Inject constructor(
                 name = it.name,
                 originalName = it.originalName,
                 popularity = it.popularity,
-                profilePath = "$posterUrl${it.profilePath}"
+                profilePath = it.profilePath
             )
         }
     )
 
     private fun getImages(
-        images: MovieDetailImages?,
-        posterUrl: String
+        images: MovieDetailImages?
     ): MovieDetailImages =
         MovieDetailImages(
             backdrops = images?.backdrops?.map {
                 DetailImage(
                     aspectRatio = it.aspectRatio,
-                    filePath = "$posterUrl${it.filePath}",
+                    filePath = it.filePath,
                     height = it.height,
                     iso6391 = it.iso6391,
                     voteAverage = it.voteAverage,
@@ -126,7 +120,7 @@ class GetMovieDetailUseCase @Inject constructor(
             logos = images?.logos?.map {
                 DetailImage(
                     aspectRatio = it.aspectRatio,
-                    filePath = "$posterUrl${it.filePath}",
+                    filePath = it.filePath,
                     height = it.height,
                     iso6391 = it.iso6391,
                     voteAverage = it.voteAverage,
@@ -137,7 +131,7 @@ class GetMovieDetailUseCase @Inject constructor(
             posters = images?.posters?.map {
                 DetailImage(
                     aspectRatio = it.aspectRatio,
-                    filePath = "$posterUrl${it.filePath}",
+                    filePath = it.filePath,
                     height = it.height,
                     iso6391 = it.iso6391,
                     voteAverage = it.voteAverage,
@@ -148,12 +142,11 @@ class GetMovieDetailUseCase @Inject constructor(
         )
 
     private fun getBelongsToCollection(
-        belongsToCollection: BelongsToCollection?,
-        posterUrl: String
+        belongsToCollection: BelongsToCollection?
     ): BelongsToCollection = BelongsToCollection(
-        backdropPath = "$posterUrl${belongsToCollection?.backdropPath}",
+        backdropPath = belongsToCollection?.backdropPath,
         id = belongsToCollection?.id,
         name = belongsToCollection?.name,
-        posterPath = "$posterUrl${belongsToCollection?.posterPath}"
+        posterPath = belongsToCollection?.posterPath
     )
 }

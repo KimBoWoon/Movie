@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface MyDataRepository {
     val externalData: Flow<ExternalData>
-    val posterUrl: Flow<String>
     suspend fun syncWith(): Boolean
     fun getConfiguration(): Flow<Configuration>
     fun getCertification(): Flow<CertificationData>

@@ -3,11 +3,8 @@ package com.bowoon.detail
 import android.widget.FrameLayout
 import androidx.annotation.OptIn
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,15 +33,11 @@ import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,7 +45,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
@@ -85,7 +77,9 @@ import com.bowoon.ui.ConfirmDialog
 import com.bowoon.ui.FavoriteButton
 import com.bowoon.ui.ModalBottomSheetDialog
 import com.bowoon.ui.Title
+import com.bowoon.ui.animateRotation
 import com.bowoon.ui.bounceClick
+import com.bowoon.ui.components.TabComponent
 import com.bowoon.ui.dp0
 import com.bowoon.ui.dp10
 import com.bowoon.ui.dp100
@@ -226,15 +220,47 @@ fun MovieDetailComponent(
     Column {
         VideosComponent(movieDetail)
 
+        val tabList = MovieDetailTab.entries.map { it.label }
+        val pagerState = rememberPagerState(initialPage = 0, pageCount = { tabList.size })
+        val isDarkMode = LocalInitDataComposition.current.isDarkMode()
+
         TabComponent(
-            movie = movieDetail,
-            similarMovieState = similarMovieState,
-            onMovieClick = onMovieClick,
-            onPeopleClick = onPeopleClick,
-            favoriteMovies = favoriteMovies,
-            insertFavoriteMovie = insertFavoriteMovie,
-            deleteFavoriteMovie = deleteFavoriteMovie
-        )
+            isDarkMode = isDarkMode,
+            tabs = tabList,
+            pagerState = pagerState
+        ) {
+            HorizontalPager(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
+                state = pagerState,
+                userScrollEnabled = false
+            ) { index ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    when (it[index]) {
+                        MovieDetailTab.MOVIE_INFO.label -> MovieInfoComponent(movie = movieDetail)
+                        MovieDetailTab.ACTOR_AND_CREW.label -> ActorAndCrewComponent(
+                            movie = movieDetail,
+                            onPeopleClick = onPeopleClick
+                        )
+                        MovieDetailTab.IMAGES.label -> ImageComponent(movie = movieDetail)
+                        MovieDetailTab.SIMILAR.label -> SimilarMovieComponent(
+                            similarMovieState = similarMovieState,
+                            onMovieClick = onMovieClick,
+                            favoriteMovies = favoriteMovies,
+                            insertFavoriteMovie = insertFavoriteMovie,
+                            deleteFavoriteMovie = deleteFavoriteMovie
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -345,87 +371,12 @@ fun VideosComponent(movie: MovieDetail) {
     }
 }
 
-@Composable
-fun TabComponent(
-    movie: MovieDetail,
-    similarMovieState: LazyPagingItems<Movie>,
-    onMovieClick: (Int) -> Unit,
-    onPeopleClick: (Int) -> Unit,
-    favoriteMovies: List<MovieDetail>,
-    insertFavoriteMovie: (MovieDetail) -> Unit,
-    deleteFavoriteMovie: (MovieDetail) -> Unit
-) {
-    val scope = rememberCoroutineScope()
-    val tabList = MovieDetailTab.entries
-    val pagerState = rememberPagerState(initialPage = 0, pageCount = { tabList.size })
-    val isDarkMode = LocalInitDataComposition.current.isDarkMode()
-    val selectedContentColor = when (isDarkMode) {
-        true -> Color(0xFF7C86DF)
-        false -> Color.Black
-    }
-    val unSelectedContentColor = when (isDarkMode) {
-        true -> Color.LightGray
-        false -> Color.Gray
-    }
-
-    TabRow(
-        modifier = Modifier.fillMaxWidth(),
-        selectedTabIndex = pagerState.currentPage,
-    ) {
-        tabList.forEachIndexed { index, moviePoster ->
-            Tab(
-                selected = pagerState.currentPage == index,
-                onClick = {
-                    Log.d("selected tab index > $index")
-                    scope.launch {
-                        pagerState.animateScrollToPage(index)
-                    }
-                },
-                text = { Text(text = moviePoster.label) },
-                selectedContentColor = selectedContentColor,
-                unselectedContentColor = unSelectedContentColor
-            )
-        }
-    }
-
-    HorizontalPager(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight(),
-        state = pagerState,
-        userScrollEnabled = false
-    ) { index ->
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            when (tabList[index].label) {
-                MovieDetailTab.MOVIE_INFO.label -> MovieInfoComponent(movie = movie)
-                MovieDetailTab.ACTOR_AND_CREW.label -> ActorAndCrewComponent(
-                    movie = movie,
-                    onPeopleClick = onPeopleClick
-                )
-                MovieDetailTab.IMAGES.label -> ImageComponent(movie = movie)
-                MovieDetailTab.SIMILAR.label -> SimilarMovieComponent(
-                    similarMovieState = similarMovieState,
-                    onMovieClick = onMovieClick,
-                    favoriteMovies = favoriteMovies,
-                    insertFavoriteMovie = insertFavoriteMovie,
-                    deleteFavoriteMovie = deleteFavoriteMovie
-                )
-            }
-        }
-    }
-}
-
 @kotlin.OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ImageComponent(
     movie: MovieDetail
 ) {
+    val posterUrl = LocalInitDataComposition.current.getImageUrl()
     var isShowing by remember { mutableStateOf(false) }
     var index by remember { mutableIntStateOf(0) }
     val modalBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -451,7 +402,7 @@ fun ImageComponent(
                         index = items.indexOf(it)
                         isShowing = true
                     },
-                source = "${it.filePath}",
+                source = "$posterUrl${it.filePath}",
                 contentDescription = "moviePoster"
             )
         }
@@ -465,7 +416,7 @@ fun ImageComponent(
             state = modalBottomSheetState,
             scope = scope,
             index = index,
-            imageList = items,
+            imageList = items.map { it.copy(filePath = "$posterUrl${it.filePath}") },
             onClickCancel = {
                 scope.launch {
                     isShowing = false
@@ -484,8 +435,6 @@ fun MovieInfoComponent(
     var overviewMaxLine by remember { mutableIntStateOf(3) }
     val titles = movie.alternativeTitles?.titles?.fold("") { acc, title -> if (acc.isEmpty()) "${title.title}" else "$acc\n${title.title}" } ?: ""
     var expanded by remember { mutableStateOf(false) }
-    var currentRotation by remember { mutableFloatStateOf(0f) }
-    val rotation = remember { Animatable(0f) }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize()
@@ -590,30 +539,6 @@ fun MovieInfoComponent(
                 }
             }
 
-            if (expanded) {
-                LaunchedEffect(rotation) {
-                    rotation.animateTo(
-                        targetValue = currentRotation + 90f,
-                        animationSpec = tween(
-                            durationMillis = 500
-                        )
-                    ) {
-                        currentRotation = value
-                    }
-                }
-            } else {
-                LaunchedEffect(rotation) {
-                    rotation.animateTo(
-                        targetValue = 0f,
-                        animationSpec = tween(
-                            durationMillis = 500
-                        )
-                    ) {
-                        currentRotation = value
-                    }
-                }
-            }
-
             movie.overview?.takeIf { it.isNotEmpty() }?.let {
                 Text(
                     modifier = Modifier
@@ -635,13 +560,10 @@ fun MovieInfoComponent(
                         .padding(horizontal = dp16)
                         .fillMaxWidth()
                         .wrapContentHeight()
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null
-                        ) { expanded = !expanded }
+                        .clickable { expanded = !expanded }
                 ) {
                     Icon(
-                        modifier = Modifier.rotate(rotation.value),
+                        modifier = Modifier.animateRotation(expanded, 0f, 90f, 500),
                         imageVector = Icons.Rounded.PlayArrow,
                         contentDescription = "expandedArrow"
                     )
@@ -733,6 +655,8 @@ fun StaffComponent(
     tmdbMovieDetailCast: Cast,
     onPeopleClick: (Int) -> Unit
 ) {
+    val posterUrl = LocalInitDataComposition.current.getImageUrl()
+
     Column(
         modifier = Modifier
             .width(dp200)
@@ -743,7 +667,7 @@ fun StaffComponent(
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(PEOPLE_IMAGE_RATIO),
-            source = tmdbMovieDetailCast.profilePath ?: "",
+            source = "$posterUrl${tmdbMovieDetailCast.profilePath}",
             contentDescription = "ProfileImage"
         )
         Text(
@@ -772,6 +696,8 @@ fun StaffComponent(
     tmdbMovieDetailCrew: Crew,
     onPeopleClick: (Int) -> Unit
 ) {
+    val posterUrl = LocalInitDataComposition.current.getImageUrl()
+
     Column(
         modifier = Modifier
             .width(dp200)
@@ -782,7 +708,7 @@ fun StaffComponent(
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(PEOPLE_IMAGE_RATIO),
-            source = tmdbMovieDetailCrew.profilePath ?: "",
+            source = "$posterUrl${tmdbMovieDetailCrew.profilePath}",
             contentDescription = "ProfileImage"
         )
         Text(
@@ -820,6 +746,7 @@ fun SimilarMovieComponent(
     insertFavoriteMovie: (MovieDetail) -> Unit,
     deleteFavoriteMovie: (MovieDetail) -> Unit
 ) {
+    val posterUrl = LocalInitDataComposition.current.getImageUrl()
     var isLoading by remember { mutableStateOf(false) }
     var isAppend by remember { mutableStateOf(false) }
     var pagingStatus by remember { mutableStateOf<PagingStatus>(PagingStatus.NONE) }
@@ -880,7 +807,7 @@ fun SimilarMovieComponent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .aspectRatio(POSTER_IMAGE_RATIO),
-                    source = similarMovieState[index]?.posterPath ?: "",
+                    source = "$posterUrl${similarMovieState[index]?.posterPath}",
                     contentDescription = "BoxOfficePoster"
                 )
                 FavoriteButton(

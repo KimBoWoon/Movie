@@ -19,7 +19,7 @@ data class InitData(
         DarkThemeConfig.DARK -> true
     }
     fun getImageUrl(): String =
-        "$secureBaseUrl${posterSize?.find { it.isSelected } ?: "original"}"
+        "$secureBaseUrl${posterSize?.find { it.isSelected }?.size ?: "original"}"
     fun getRegion(): String = "${region?.find { it.isSelected } ?: "KR"}"
     fun getLanguage(): String = "${language?.find { it.isSelected } ?: "ko"}"
 }

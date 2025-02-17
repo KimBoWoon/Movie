@@ -27,11 +27,7 @@ fun rememberMovieAppState(
     navController: NavHostController = rememberNavController(),
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     networkMonitor: NetworkMonitor
-): MovieAppState = remember(
-    navController,
-    coroutineScope,
-    networkMonitor
-) {
+): MovieAppState = remember(navController, coroutineScope, networkMonitor) {
     MovieAppState(
         navController = navController,
         coroutineScope = coroutineScope,
