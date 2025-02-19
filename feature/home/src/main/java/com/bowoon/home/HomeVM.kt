@@ -74,12 +74,15 @@ class HomeVM @Inject constructor(
             when (state) {
                 is FavoriteMoviesState.Loading -> emptyList()
                 is FavoriteMoviesState.Success -> state.favoriteMovies
-                    .filter {
-                        !it.releaseDate.isNullOrEmpty() &&
-                                Period.between(
-                                    LocalDate.now(),
-                                    LocalDate.parse(it.releaseDate)
-                                ).days in 0..1
+                    .filter { movie ->
+                        movie.releaseDate?.takeIf { it.isNotEmpty() }?.let { releaseDate ->
+                            Period.between(
+                                LocalDate.now(),
+                                LocalDate.parse(releaseDate)
+                            ).let {
+                                !movie.releaseDate.isNullOrEmpty() && (it.years == 0 && it.months == 0 && it.days in 0..1)
+                            }
+                        } ?: false
                     }
                     .map { movieDetail ->
                         Movie(

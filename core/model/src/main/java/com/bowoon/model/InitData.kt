@@ -13,8 +13,8 @@ data class InitData(
     val language: List<LanguageItem>? = null,
     val posterSize: List<PosterSize>? = null
 ) {
-    fun isDarkMode(): Boolean = when (internalData.isDarkMode) {
-        DarkThemeConfig.FOLLOW_SYSTEM -> true
+    fun isDarkMode(isSystemInDarkMode: Boolean): Boolean = when (internalData.isDarkMode) {
+        DarkThemeConfig.FOLLOW_SYSTEM -> isSystemInDarkMode
         DarkThemeConfig.LIGHT -> false
         DarkThemeConfig.DARK -> true
     }

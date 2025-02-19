@@ -43,8 +43,8 @@ class MovieFirebase @Inject constructor(
         Log.d("create fcm notification channel")
 
         val channel = NotificationChannel(
-            "Movie release notification",
-            "Movie release notification",
+            context.getString(R.string.release_movie_notification_channel_name),
+            context.getString(R.string.release_movie_notification_channel_name),
             NotificationManager.IMPORTANCE_DEFAULT,
         ).apply {
             description = "곧 개봉하는 영화가 있습니다."

@@ -5,6 +5,7 @@ import androidx.annotation.OptIn
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -222,7 +223,7 @@ fun MovieDetailComponent(
 
         val tabList = MovieDetailTab.entries.map { it.label }
         val pagerState = rememberPagerState(initialPage = 0, pageCount = { tabList.size })
-        val isDarkMode = LocalInitDataComposition.current.isDarkMode()
+        val isDarkMode = LocalInitDataComposition.current.isDarkMode(isSystemInDarkTheme())
 
         TabComponent(
             isDarkMode = isDarkMode,
@@ -381,7 +382,9 @@ fun ImageComponent(
     var index by remember { mutableIntStateOf(0) }
     val modalBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
-    val items = (movie.images?.posters ?: emptyList()) + (movie.images?.backdrops ?: emptyList())
+    val items = ((movie.images?.posters ?: emptyList()) + (movie.images?.backdrops ?: emptyList())).map {
+        it.copy(filePath = "$posterUrl${it.filePath}")
+    }
 
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Adaptive(dp100),
@@ -402,7 +405,7 @@ fun ImageComponent(
                         index = items.indexOf(it)
                         isShowing = true
                     },
-                source = "$posterUrl${it.filePath}",
+                source = it.filePath ?: "",
                 contentDescription = "moviePoster"
             )
         }
@@ -416,7 +419,7 @@ fun ImageComponent(
             state = modalBottomSheetState,
             scope = scope,
             index = index,
-            imageList = items.map { it.copy(filePath = "$posterUrl${it.filePath}") },
+            imageList = items,
             onClickCancel = {
                 scope.launch {
                     isShowing = false

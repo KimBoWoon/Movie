@@ -1,5 +1,6 @@
 package com.bowoon.favorite
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -87,7 +88,7 @@ fun FavoriteScreen(
     val isLoading = favoriteMoviesState is FavoriteMoviesState.Loading
     val favoriteList = listOf("영화", "인물")
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { favoriteList.size })
-    val isDarkMode = LocalInitDataComposition.current.isDarkMode()
+    val isDarkMode = LocalInitDataComposition.current.isDarkMode(isSystemInDarkTheme())
 
     Box(
         modifier = Modifier.fillMaxSize()

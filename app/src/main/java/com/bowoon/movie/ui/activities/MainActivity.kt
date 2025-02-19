@@ -33,7 +33,6 @@ import com.bowoon.ui.theme.MovieTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -49,16 +48,16 @@ class MainActivity : ComponentActivity() {
     lateinit var movieFirebase: MovieFirebase
     @Inject
     lateinit var appDoubleBackToExitFactory: AppDoubleBackToExit.AppDoubleBackToExitFactory
-    lateinit var appDoubleBackToExit: AppDoubleBackToExit
+    private val appDoubleBackToExit: AppDoubleBackToExit by lazy {
+        appDoubleBackToExitFactory.create(
+            this@MainActivity,
+            getString(R.string.double_back_message)
+        )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
-
-        appDoubleBackToExit = appDoubleBackToExitFactory.create(
-            this@MainActivity,
-            getString(R.string.double_back_message)
-        )
 
         onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -68,11 +67,7 @@ class MainActivity : ComponentActivity() {
 
         movieFirebase.sendLog(javaClass.simpleName, "create MainActivity")
 
-        var darkTheme by mutableStateOf(
-            ThemeSettings(
-                darkTheme = resources.configuration.isSystemInDarkTheme
-            )
-        )
+        var darkTheme by mutableStateOf(resources.configuration.isSystemInDarkTheme)
         var initData by mutableStateOf(InitData())
 
         lifecycleScope.launch {
@@ -82,11 +77,8 @@ class MainActivity : ComponentActivity() {
                     viewModel.initData
                 ) { systemDarkTheme, userdata ->
                     initData = userdata.getInitData()
-                    ThemeSettings(
-                        darkTheme = userdata.shouldUseDarkTheme(systemDarkTheme)
-                    )
+                    userdata.shouldUseDarkTheme(systemDarkTheme)
                 }.onEach { darkTheme = it }
-                    .map { it.darkTheme }
                     .distinctUntilChanged()
                     .collect { darkTheme ->
                         enableEdgeToEdge(
@@ -113,7 +105,7 @@ class MainActivity : ComponentActivity() {
                 LocalFirebaseLogHelper.current.sendLog(javaClass.simpleName, "compose start!")
 
                 MovieTheme(
-                    darkTheme = darkTheme.darkTheme
+                    darkTheme = darkTheme
                 ) {
                     val appState = rememberMovieAppState(networkMonitor = networkMonitor)
                     val snackbarHostState = remember { SnackbarHostState() }
@@ -139,7 +131,3 @@ private val lightScrim = android.graphics.Color.argb(0xe6, 0xFF, 0xFF, 0xFF)
  * https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:activity/activity/src/main/java/androidx/activity/EdgeToEdge.kt;l=40-44;drc=27e7d52e8604a080133e8b842db10c89b4482598
  */
 private val darkScrim = android.graphics.Color.argb(0x80, 0x1b, 0x1b, 0x1b)
-
-data class ThemeSettings(
-    val darkTheme: Boolean
-)

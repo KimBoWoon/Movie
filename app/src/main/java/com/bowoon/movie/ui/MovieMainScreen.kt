@@ -29,6 +29,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
+import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.movie.MovieAppState
 import com.bowoon.movie.R
 import com.bowoon.movie.navigation.MovieAppNavHost
@@ -52,8 +53,11 @@ fun MovieMainScreen(
     ) { innerPadding ->
         val isOffline by appState.isOffline.collectAsStateWithLifecycle()
         val notConnectedMessage = stringResource(R.string.not_connected)
+        val firebaseLog = LocalFirebaseLogHelper.current
 
         LaunchedEffect(isOffline) {
+            firebaseLog.sendLog("MovieMainScreen", "isOffline $isOffline")
+
             if (isOffline) {
                 snackbarHostState.showSnackbar(
                     message = notConnectedMessage,
@@ -84,6 +88,8 @@ fun Navigation(
     val layoutType = NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(windowAdaptiveInfo)
     val context = LocalContext.current
     val currentDestination = appState.currentDestination
+
+    LocalFirebaseLogHelper.current.sendLog("Navigation", "layoutType -> $layoutType")
 
     when (layoutType) {
         NavigationSuiteType.NavigationBar -> {
