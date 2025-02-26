@@ -12,7 +12,6 @@ import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.bowoon.favorite.navigation.FavoriteRoute
-import com.bowoon.home.navigation.HomeBaseRoute
 import com.bowoon.home.navigation.HomeRoute
 import com.bowoon.my.navigation.MyRoute
 import com.bowoon.search.navigation.SearchRoute
@@ -35,7 +34,7 @@ enum class TopLevelDestination(
         iconTextId = com.bowoon.movie.feature.home.R.string.feature_home_name,
         titleTextId = com.bowoon.movie.feature.home.R.string.feature_home_name,
         route = HomeRoute::class,
-        baseRoute = HomeBaseRoute::class
+        baseRoute = HomeRoute::class
     ),
     SEARCH(
         selectedIcon = Icons.Rounded.Search,
