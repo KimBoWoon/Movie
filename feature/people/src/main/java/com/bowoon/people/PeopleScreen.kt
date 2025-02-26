@@ -39,6 +39,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.bowoon.common.Log
+import com.bowoon.data.repository.LocalInitDataComposition
 import com.bowoon.data.util.PEOPLE_IMAGE_RATIO
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.firebase.LocalFirebaseLogHelper
@@ -144,6 +145,7 @@ fun PeopleDetailComponent(
     deleteFavoritePeople: (PeopleDetail) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean
 ) {
+    val posterUrl = LocalInitDataComposition.current.getImageUrl()
     val scope = rememberCoroutineScope()
     val relatedMovie = people.combineCredits?.getRelatedMovie() ?: emptyList()
 
@@ -198,7 +200,7 @@ fun PeopleDetailComponent(
                         .fillMaxWidth()
                         .aspectRatio(POSTER_IMAGE_RATIO)
                         .bounceClick { onMovieClick(movie.id ?: -1) },
-                    source = movie.posterPath ?: "",
+                    source = "$posterUrl${movie.posterPath}",
                     contentDescription = "RelatedMovie"
                 )
             }
@@ -215,10 +217,11 @@ fun ImageComponent(
     var index by remember { mutableIntStateOf(0) }
     val modalBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
-    val items = people.images?.map { it.copy(filePath = "${people.posterUrl}${it.filePath}") } ?: emptyList()
+    val posterUrl = LocalInitDataComposition.current.getImageUrl()
+    val items = people.images?.map { it.copy(filePath = "$posterUrl${it.filePath}") } ?: emptyList()
 
     DynamicAsyncImageLoader(
-        source = people.profilePath ?: "",
+        source = "$posterUrl${people.profilePath}",
         contentDescription = "PeopleImage",
         modifier = Modifier
             .width(dp100)

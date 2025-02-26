@@ -2,7 +2,6 @@ package com.bowoon.domain
 
 import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.data.repository.DetailRepository
-import com.bowoon.data.repository.MyDataRepository
 import com.bowoon.model.CombineCredits
 import com.bowoon.model.CombineCreditsCast
 import com.bowoon.model.CombineCreditsCrew
@@ -14,17 +13,15 @@ import javax.inject.Inject
 
 class GetPeopleDetailUseCase @Inject constructor(
     private val detailRepository: DetailRepository,
-    private val databaseRepository: DatabaseRepository,
-    private val myDataRepository: MyDataRepository
+    private val databaseRepository: DatabaseRepository
 ) {
     operator fun invoke(personId: Int): Flow<PeopleDetail> =
         combine(
             detailRepository.getPeople(personId = personId),
             detailRepository.getCombineCredits(personId = personId),
             detailRepository.getExternalIds(personId = personId),
-            myDataRepository.posterUrl,
             databaseRepository.getPeople()
-        ) { tmdbPeopleDetail, tmdbCombineCredits, tmdbExternalIds, posterUrl, favoritePeoples ->
+        ) { tmdbPeopleDetail, tmdbCombineCredits, tmdbExternalIds, favoritePeoples ->
             PeopleDetail(
                 adult = tmdbPeopleDetail.adult,
                 alsoKnownAs = tmdbPeopleDetail.alsoKnownAs,
@@ -50,7 +47,7 @@ class GetPeopleDetailUseCase @Inject constructor(
                             originalTitle = it.originalTitle,
                             overview = it.overview,
                             popularity = it.popularity,
-                            posterPath = "$posterUrl${it.posterPath}",
+                            posterPath = it.posterPath,
                             releaseDate = it.releaseDate,
                             title = it.title,
                             video = it.video,
@@ -75,7 +72,7 @@ class GetPeopleDetailUseCase @Inject constructor(
                             originalTitle = it.originalTitle,
                             overview = it.overview,
                             popularity = it.popularity,
-                            posterPath = "$posterUrl${it.posterPath}",
+                            posterPath = it.posterPath,
                             releaseDate = it.releaseDate,
                             title = it.title,
                             video = it.video,
@@ -110,8 +107,7 @@ class GetPeopleDetailUseCase @Inject constructor(
                 name = tmdbPeopleDetail.name,
                 placeOfBirth = tmdbPeopleDetail.placeOfBirth,
                 popularity = tmdbPeopleDetail.popularity,
-                profilePath = "$posterUrl${tmdbPeopleDetail.profilePath}",
-                posterUrl = posterUrl,
+                profilePath = tmdbPeopleDetail.profilePath,
                 isFavorite = favoritePeoples.find { it.id == tmdbPeopleDetail.id } != null
             )
         }

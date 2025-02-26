@@ -15,23 +15,23 @@ import javax.inject.Inject
 @HiltAndroidApp
 class MovieApplication : Application(), SingletonImageLoader.Factory {
     @Inject
-    lateinit var imageLoader: dagger.Lazy<ImageLoader>
+    lateinit var imageLoader: ImageLoader
     @Inject
-    lateinit var firebase: dagger.Lazy<MovieFirebase>
+    lateinit var firebase: MovieFirebase
     @Inject
-    lateinit var sync: dagger.Lazy<Sync>
+    lateinit var sync: Sync
 
     override fun onCreate() {
         super.onCreate()
 
         Log.d("Application", "onCreate()")
-        firebase.get().sendLog(javaClass.simpleName, "Movie Application start!")
-        sync.get().initialize()
+        firebase.sendLog(javaClass.simpleName, "Movie Application start!")
+        sync.initialize()
         AndroidThreeTen.init(this)
         initFirebase()
     }
 
-    override fun newImageLoader(context: PlatformContext): ImageLoader = imageLoader.get()
+    override fun newImageLoader(context: PlatformContext): ImageLoader = imageLoader
 
     private fun initFirebase() {
         Firebase.crashlytics.setCustomKey("git_hash_code", BuildConfig.GIT_HASH)
@@ -39,7 +39,7 @@ class MovieApplication : Application(), SingletonImageLoader.Factory {
         Firebase.crashlytics.setCustomKey("versionName", BuildConfig.VERSION_NAME)
         Firebase.crashlytics.setCustomKey("isDebug", BuildConfig.DEBUG)
         Firebase.crashlytics.setCustomKey("appFlavor", BuildConfig.FLAVOR)
-        firebase.get().createFCMChannel(context = this)
-        firebase.get().checkToken()
+        firebase.createFCMChannel(context = this)
+        firebase.checkToken()
     }
 }

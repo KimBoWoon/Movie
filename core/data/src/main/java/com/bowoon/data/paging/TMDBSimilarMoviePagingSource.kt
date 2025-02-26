@@ -8,26 +8,21 @@ import com.bowoon.model.SimilarMovie
 import com.bowoon.network.ApiResponse
 import com.bowoon.network.model.asExternalModel
 import com.bowoon.network.retrofit.Apis
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
 class TMDBSimilarMoviePagingSource @Inject constructor(
     private val apis: Apis,
     private val id: Int,
     private val language: String,
-    private val region: String,
-    private val posterUrl: Flow<String>
+    private val region: String
 ) : PagingSource<Int, Movie>() {
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Movie> =
         runCatching {
-            val url = posterUrl.first()
-
             when (val response = apis.tmdbApis.getSimilarMovies(id = id, language = "$language-$region", page = params.key ?: 1)) {
                 is ApiResponse.Failure -> LoadResult.Error(response.throwable)
                 is ApiResponse.Success -> {
                     LoadResult.Page(
-                        data = getSearchItem(response.data.results?.asExternalModel(), url),
+                        data = getSearchItem(response.data.results?.asExternalModel()),
                         prevKey = null,
                         nextKey = if ((response.data.totalPages ?: 1) > (params.key ?: 1)) (params.key ?: 1) + 1 else null
                     )
@@ -45,14 +40,13 @@ class TMDBSimilarMoviePagingSource @Inject constructor(
         }
 
     private fun getSearchItem(
-        response: List<SimilarMovie>?,
-        url: String
+        response: List<SimilarMovie>?
     ): List<Movie> =
         response?.map {
             Movie(
                 id = it.id,
                 title = it.title,
-                posterPath = "$url${it.posterPath}"
+                posterPath = it.posterPath
             )
         } ?: emptyList()
 }

@@ -4,7 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class InternalData(
-    val secureBaseUrl: String? = "",
     val isAdult: Boolean = true,
     val autoPlayTrailer: Boolean = true,
     val isDarkMode: DarkThemeConfig = DarkThemeConfig.FOLLOW_SYSTEM,

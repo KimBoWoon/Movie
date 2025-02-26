@@ -1,5 +1,7 @@
 package com.bowoon.my
 
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,13 +12,17 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.RadioButton
@@ -32,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.bowoon.data.repository.LocalInitDataComposition
 import com.bowoon.firebase.LocalFirebaseLogHelper
@@ -42,6 +49,8 @@ import com.bowoon.model.LanguageItem
 import com.bowoon.model.PosterSize
 import com.bowoon.model.Region
 import com.bowoon.ui.Title
+import com.bowoon.ui.animateRotation
+import com.bowoon.ui.dp0
 import com.bowoon.ui.dp150
 import com.bowoon.ui.dp16
 import com.bowoon.ui.dp250
@@ -86,7 +95,9 @@ fun MyDataComponent(
     ) {
         Title(title = "마이페이지")
         Text(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = dp16),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = dp16),
             text = "메인 업데이트 날짜 ${initData.internalData.updateDate}"
         )
         DarkThemeConfigComponent(
@@ -94,7 +105,9 @@ fun MyDataComponent(
             updateUserData = updateUserData
         )
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = dp16),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = dp16),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -107,7 +120,9 @@ fun MyDataComponent(
             )
         }
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = dp16),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = dp16),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -120,7 +135,9 @@ fun MyDataComponent(
             )
         }
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = dp16),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = dp16),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -133,7 +150,9 @@ fun MyDataComponent(
             )
         }
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = dp16),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = dp16),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -146,7 +165,9 @@ fun MyDataComponent(
             )
         }
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = dp16),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = dp16),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -166,17 +187,37 @@ fun DarkThemeConfigComponent(
     initData: InitData,
     updateUserData: (InternalData, Boolean) -> Unit
 ) {
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = dp16),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+    var expanded by remember { mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier
+            .wrapContentHeight()
+            .fillMaxWidth()
+            .padding(horizontal = dp16)
     ) {
         val (selectedOption, onOptionSelected) = remember {
             mutableStateOf(initData.internalData.isDarkMode)
         }
 
-        Text(text = "다크모드 설정")
-        Column(modifier = Modifier.selectableGroup()) {
+        Row(
+            modifier = Modifier.fillMaxWidth().clickable { expanded = !expanded },
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(text = "다크모드 설정")
+            Icon(
+                modifier = Modifier.animateRotation(expanded = expanded, 0f, 90f, 500),
+                imageVector = Icons.Rounded.PlayArrow,
+                contentDescription = "expandedArrow"
+            )
+        }
+        Column(
+            modifier = Modifier
+                .selectableGroup()
+                .animateContentSize()
+                .height(if (expanded) Int.MAX_VALUE.dp else dp0)
+                .fillMaxWidth()
+                .padding(horizontal = dp16)
+        ) {
             DarkThemeConfig.entries.forEach { darkThemeConfig ->
                 Row(
                     Modifier
@@ -226,7 +267,9 @@ fun ExposedDropdownLanguageMenu(
         onExpandedChange = { expanded = !expanded }
     ) {
         TextField(
-            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable).wrapContentSize(),
+            modifier = Modifier
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                .wrapContentSize(),
             readOnly = true,
             value = "${selectedItem?.iso6391} (${selectedItem?.englishName})",
             onValueChange = {},
@@ -274,7 +317,9 @@ fun ExposedDropdownRegionMenu(
         onExpandedChange = { expanded = !expanded }
     ) {
         TextField(
-            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable).wrapContentSize(),
+            modifier = Modifier
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                .wrapContentSize(),
             readOnly = true,
             value = "${selectedItem?.iso31661} (${selectedItem?.nativeName ?: selectedItem?.englishName})",
             onValueChange = {},

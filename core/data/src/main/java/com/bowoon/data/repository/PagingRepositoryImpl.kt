@@ -33,8 +33,7 @@ class PagingRepositoryImpl @Inject constructor(
                     query = query,
                     language = language,
                     region = region,
-                    isAdult = isAdult,
-                    posterUrl = myDataRepository.posterUrl
+                    isAdult = isAdult
                 )
             }
         ).flow
@@ -51,8 +50,7 @@ class PagingRepositoryImpl @Inject constructor(
                     apis = apis,
                     id = id,
                     language = language,
-                    region = region,
-                    posterUrl = myDataRepository.posterUrl
+                    region = region
                 )
             }
         ).flow

@@ -20,7 +20,6 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
@@ -52,7 +51,6 @@ class MyDataRepositoryImpl @Inject constructor(
         started = SharingStarted.Eagerly,
         initialValue = ExternalData()
     )
-    override val posterUrl: Flow<String> = datastore.userData.map { "${it.secureBaseUrl}${it.imageQuality}" }
 
     override suspend fun syncWith(): Boolean = suspendRunCatching {
         externalData.first()

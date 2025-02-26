@@ -1,5 +1,6 @@
 package com.bowoon.favorite
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,8 +20,6 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -31,7 +30,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -45,6 +43,7 @@ import com.bowoon.model.PeopleDetail
 import com.bowoon.ui.FavoriteButton
 import com.bowoon.ui.Title
 import com.bowoon.ui.bounceClick
+import com.bowoon.ui.components.TabComponent
 import com.bowoon.ui.dp10
 import com.bowoon.ui.dp120
 import com.bowoon.ui.dp15
@@ -87,32 +86,9 @@ fun FavoriteScreen(
     deleteFavoritePeople: (PeopleDetail) -> Unit
 ) {
     val isLoading = favoriteMoviesState is FavoriteMoviesState.Loading
-    var favoriteMovies by remember { mutableStateOf<List<MovieDetail>>(emptyList()) }
-    var favoritePeoples by remember { mutableStateOf<List<PeopleDetail>>(emptyList()) }
     val favoriteList = listOf("영화", "인물")
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { favoriteList.size })
-    val scope = rememberCoroutineScope()
-    val isDarkMode = LocalInitDataComposition.current.isDarkMode()
-    val selectedContentColor = when (isDarkMode) {
-        true -> Color(0xFF7C86DF)
-        false -> Color.Black
-    }
-    val unSelectedContentColor = when (isDarkMode) {
-        true -> Color.LightGray
-        false -> Color.Gray
-    }
-
-    when (favoriteMoviesState) {
-        is FavoriteMoviesState.Loading -> Log.d("favorite movie list loading...")
-        is FavoriteMoviesState.Success -> favoriteMovies = favoriteMoviesState.data
-        is FavoriteMoviesState.Error -> Log.printStackTrace(favoriteMoviesState.throwable)
-    }
-
-    when (favoritePeoplesState) {
-        is FavoritePeoplesState.Loading -> Log.d("favorite people list loading...")
-        is FavoritePeoplesState.Success -> favoritePeoples = favoritePeoplesState.data
-        is FavoritePeoplesState.Error -> Log.printStackTrace(favoritePeoplesState.throwable)
-    }
+    val isDarkMode = LocalInitDataComposition.current.isDarkMode(isSystemInDarkTheme())
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -121,53 +97,39 @@ fun FavoriteScreen(
             modifier = Modifier.fillMaxSize()
         ) {
             Title(title = "찜")
-            TabRow(
-                modifier = Modifier.fillMaxWidth(),
-                selectedTabIndex = pagerState.currentPage
+            TabComponent(
+                isDarkMode = isDarkMode,
+                tabs = favoriteList,
+                pagerState = pagerState
             ) {
-                favoriteList.forEachIndexed { index, label ->
-                    Tab(
-                        selected = pagerState.currentPage == index,
-                        onClick = {
-                            Log.d("selected tab index > $index")
-                            scope.launch {
-                                pagerState.animateScrollToPage(index)
-                            }
-                        },
-                        text = { Text(text = label) },
-                        selectedContentColor = selectedContentColor,
-                        unselectedContentColor = unSelectedContentColor
-                    )
-                }
-            }
-
-            HorizontalPager(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
-                state = pagerState,
-                userScrollEnabled = false
-            ) { index ->
-                Column(
+                HorizontalPager(
                     modifier = Modifier
                         .fillMaxWidth()
                         .wrapContentHeight(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    when (favoriteList[index]) {
-                        "영화" -> FavoriteMovieList(
-                            favoriteMovies = favoriteMovies,
-                            onMovieClick = onMovieClick,
-                            deleteFavoriteMovie = deleteFavoriteMovie,
-                            onShowSnackbar = onShowSnackbar
-                        )
-                        "인물" -> FavoritePeopleList(
-                            favoritePeoples = favoritePeoples,
-                            onPeopleClick = onPeopleClick,
-                            deleteFavoritePeople = deleteFavoritePeople,
-                            onShowSnackbar = onShowSnackbar
-                        )
+                    state = pagerState,
+                    userScrollEnabled = false
+                ) { index ->
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        when (it[index]) {
+                            it[0] -> FavoriteMovieList(
+                                favoriteMoviesState = favoriteMoviesState,
+                                onMovieClick = onMovieClick,
+                                deleteFavoriteMovie = deleteFavoriteMovie,
+                                onShowSnackbar = onShowSnackbar
+                            )
+                            it[1] -> FavoritePeopleList(
+                                favoritePeoplesState = favoritePeoplesState,
+                                onPeopleClick = onPeopleClick,
+                                deleteFavoritePeople = deleteFavoritePeople,
+                                onShowSnackbar = onShowSnackbar
+                            )
+                        }
                     }
                 }
             }
@@ -183,12 +145,20 @@ fun FavoriteScreen(
 
 @Composable
 fun FavoriteMovieList(
-    favoriteMovies: List<MovieDetail>,
+    favoriteMoviesState: FavoriteMoviesState,
     onMovieClick: (Int) -> Unit,
     deleteFavoriteMovie: (MovieDetail) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean
 ) {
+    val posterUrl = LocalInitDataComposition.current.getImageUrl()
     val scope = rememberCoroutineScope()
+    var favoriteMovies by remember { mutableStateOf<List<MovieDetail>>(emptyList()) }
+
+    when (favoriteMoviesState) {
+        is FavoriteMoviesState.Loading -> Log.d("favorite movie list loading...")
+        is FavoriteMoviesState.Success -> favoriteMovies = favoriteMoviesState.data
+        is FavoriteMoviesState.Error -> Log.printStackTrace(favoriteMoviesState.throwable)
+    }
 
     LazyVerticalGrid(
         modifier = Modifier.fillMaxSize(),
@@ -207,7 +177,7 @@ fun FavoriteMovieList(
                     modifier = Modifier
                         .width(dp200)
                         .aspectRatio(POSTER_IMAGE_RATIO),
-                    source = "${movieDetail.posterUrl}${movieDetail.posterPath}",
+                    source = "$posterUrl${movieDetail.posterPath}",
                     contentDescription = "BoxOfficePoster"
                 )
                 FavoriteButton(
@@ -229,12 +199,20 @@ fun FavoriteMovieList(
 
 @Composable
 fun FavoritePeopleList(
-    favoritePeoples: List<PeopleDetail>,
+    favoritePeoplesState: FavoritePeoplesState,
     onPeopleClick: (Int) -> Unit,
     deleteFavoritePeople: (PeopleDetail) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean
 ) {
+    val posterUrl = LocalInitDataComposition.current.getImageUrl()
     val scope = rememberCoroutineScope()
+    var favoritePeoples by remember { mutableStateOf<List<PeopleDetail>>(emptyList()) }
+
+    when (favoritePeoplesState) {
+        is FavoritePeoplesState.Loading -> Log.d("favorite people list loading...")
+        is FavoritePeoplesState.Success -> favoritePeoples = favoritePeoplesState.data
+        is FavoritePeoplesState.Error -> Log.printStackTrace(favoritePeoplesState.throwable)
+    }
 
     LazyVerticalGrid(
         modifier = Modifier.fillMaxSize(),
@@ -258,7 +236,7 @@ fun FavoritePeopleList(
                             .fillMaxWidth()
                             .aspectRatio(PEOPLE_IMAGE_RATIO)
                             .clip(RoundedCornerShape(dp10)),
-                        source = "${people.posterUrl}${people.profilePath}",
+                        source = "$posterUrl${people.profilePath}",
                         contentDescription = "BoxOfficePoster"
                     )
                     FavoriteButton(

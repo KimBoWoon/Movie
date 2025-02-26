@@ -1,7 +1,6 @@
 package com.bowoon.domain
 
 import com.bowoon.data.repository.DatabaseRepository
-import com.bowoon.data.repository.MyDataRepository
 import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.model.MovieDetail
 import kotlinx.coroutines.flow.Flow
@@ -10,14 +9,12 @@ import javax.inject.Inject
 
 class GetFavoriteMoviesUseCase @Inject constructor(
     private val databaseRepository: DatabaseRepository,
-    private val userDataRepository: UserDataRepository,
-    private val myDataRepository: MyDataRepository
+    private val userDataRepository: UserDataRepository
 ) {
     operator fun invoke(): Flow<List<MovieDetail>> = combine(
-        myDataRepository.posterUrl,
         databaseRepository.getMovies(),
         userDataRepository.internalData
-    ) { posterUrl, favoriteMovies, userData ->
+    ) { favoriteMovies, userData ->
         favoriteMovies.map { movie ->
             MovieDetail(
                 adult = movie.adult,
@@ -59,7 +56,6 @@ class GetFavoriteMoviesUseCase @Inject constructor(
                     it.iso31661.equals(userData.region, true)
                 }?.certification,
                 favoriteMovies = favoriteMovies,
-                posterUrl = posterUrl,
                 isFavorite = favoriteMovies.find { it.id == movie.id } != null
             )
         }

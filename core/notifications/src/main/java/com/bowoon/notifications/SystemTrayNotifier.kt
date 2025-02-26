@@ -80,7 +80,7 @@ fun Context.ensureNotificationChannelExists() {
 
     val channel = NotificationChannel(
         MOVIE_NOTIFICATION_CHANNEL_ID,
-        "Movie",
+        getString(R.string.system_notification_channel_name),
         NotificationManager.IMPORTANCE_DEFAULT,
     ).apply {
         description = "곧 개봉하는 영화가 있습니다."
