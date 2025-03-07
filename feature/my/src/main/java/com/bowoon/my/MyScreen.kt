@@ -40,14 +40,15 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.bowoon.data.repository.LocalInitDataComposition
+import com.bowoon.data.repository.LocalMovieAppDataComposition
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.DarkThemeConfig
-import com.bowoon.model.InitData
 import com.bowoon.model.InternalData
 import com.bowoon.model.LanguageItem
+import com.bowoon.model.MovieAppData
 import com.bowoon.model.PosterSize
 import com.bowoon.model.Region
+import com.bowoon.model.asInternalData
 import com.bowoon.ui.Title
 import com.bowoon.ui.animateRotation
 import com.bowoon.ui.dp0
@@ -62,24 +63,24 @@ fun MyScreen(
 ) {
     LocalFirebaseLogHelper.current.sendLog("MyScreen", "my screen init")
 
-    val initData = LocalInitDataComposition.current
+    val movieAppData = LocalMovieAppDataComposition.current
 
     MyScreen(
-        initData = initData,
+        movieAppData = movieAppData,
         updateUserData = viewModel::updateUserData
     )
 }
 
 @Composable
 fun MyScreen(
-    initData: InitData,
+    movieAppData: MovieAppData,
     updateUserData: (InternalData, Boolean) -> Unit
 ) {
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
         MyDataComponent(
-            initData = initData,
+            movieAppData = movieAppData,
             updateUserData = updateUserData
         )
     }
@@ -87,7 +88,7 @@ fun MyScreen(
 
 @Composable
 fun MyDataComponent(
-    initData: InitData,
+    movieAppData: MovieAppData,
     updateUserData: (InternalData, Boolean) -> Unit
 ) {
     Column(
@@ -98,10 +99,10 @@ fun MyDataComponent(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = dp16),
-            text = "메인 업데이트 날짜 ${initData.internalData.updateDate}"
+            text = "메인 업데이트 날짜 ${movieAppData.updateDate}"
         )
         DarkThemeConfigComponent(
-            initData = initData,
+            movieAppData = movieAppData,
             updateUserData = updateUserData
         )
         Row(
@@ -113,9 +114,9 @@ fun MyDataComponent(
         ) {
             Text(text = "성인")
             Switch(
-                checked = initData.internalData.isAdult,
+                checked = movieAppData.isAdult,
                 onCheckedChange = {
-                    updateUserData(initData.internalData.copy(isAdult = it), false)
+                    updateUserData(movieAppData.asInternalData().copy(isAdult = it), false)
                 }
             )
         }
@@ -128,9 +129,9 @@ fun MyDataComponent(
         ) {
             Text(text = "예고편 자동 재생")
             Switch(
-                checked = initData.internalData.autoPlayTrailer,
+                checked = movieAppData.autoPlayTrailer,
                 onCheckedChange = {
-                    updateUserData(initData.internalData.copy(autoPlayTrailer = it), false)
+                    updateUserData(movieAppData.asInternalData().copy(autoPlayTrailer = it), false)
                 }
             )
         }
@@ -143,9 +144,9 @@ fun MyDataComponent(
         ) {
             Text(text = "언어")
             ExposedDropdownLanguageMenu(
-                list = initData.language ?: emptyList(),
+                list = movieAppData.language ?: emptyList(),
                 updateLanguage = {
-                    updateUserData(initData.internalData.copy(language = it.iso6391 ?: ""), true)
+                    updateUserData(movieAppData.asInternalData().copy(language = it.iso6391 ?: ""), true)
                 }
             )
         }
@@ -158,9 +159,9 @@ fun MyDataComponent(
         ) {
             Text(text = "지역")
             ExposedDropdownRegionMenu(
-                list = initData.region ?: emptyList(),
+                list = movieAppData.region ?: emptyList(),
                 updateRegion = {
-                    updateUserData(initData.internalData.copy(region = it.iso31661 ?: ""), true)
+                    updateUserData(movieAppData.asInternalData().copy(region = it.iso31661 ?: ""), true)
                 }
             )
         }
@@ -173,9 +174,9 @@ fun MyDataComponent(
         ) {
             Text(text = "이미지 퀄리티")
             ExposedDropdownPosterSizeMenu(
-                list = initData.posterSize ?: emptyList(),
+                list = movieAppData.posterSize ?: emptyList(),
                 updateImageQuality = {
-                    updateUserData(initData.internalData.copy(imageQuality = it.size ?: ""), true)
+                    updateUserData(movieAppData.asInternalData().copy(imageQuality = it.size ?: ""), true)
                 }
             )
         }
@@ -184,7 +185,7 @@ fun MyDataComponent(
 
 @Composable
 fun DarkThemeConfigComponent(
-    initData: InitData,
+    movieAppData: MovieAppData,
     updateUserData: (InternalData, Boolean) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -196,7 +197,7 @@ fun DarkThemeConfigComponent(
             .padding(horizontal = dp16)
     ) {
         val (selectedOption, onOptionSelected) = remember {
-            mutableStateOf(initData.internalData.isDarkMode)
+            mutableStateOf(movieAppData.isDarkMode)
         }
 
         Row(
@@ -227,10 +228,7 @@ fun DarkThemeConfigComponent(
                             selected = (darkThemeConfig == selectedOption),
                             onClick = {
                                 onOptionSelected(darkThemeConfig)
-                                updateUserData(
-                                    initData.internalData.copy(isDarkMode = darkThemeConfig),
-                                    false
-                                )
+                                updateUserData(movieAppData.asInternalData().copy(isDarkMode = darkThemeConfig), false)
                             },
                             role = Role.RadioButton
                         )

@@ -46,7 +46,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.SubcomposeAsyncImage
 import com.bowoon.common.Log
-import com.bowoon.data.repository.LocalInitDataComposition
+import com.bowoon.data.repository.LocalMovieAppDataComposition
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.MainMenu
@@ -336,7 +336,7 @@ fun ReleaseMoviesDialog(
     releaseMovies: List<Movie>,
     onMovieClick: (Int) -> Unit
 ) {
-    val secureBaseUrl = LocalInitDataComposition.current.getImageUrl()
+    val secureBaseUrl = LocalMovieAppDataComposition.current.getImageUrl()
 
     SubcomposeAsyncImage(
         model = "$secureBaseUrl${releaseMovies[0].posterPath}",
@@ -354,13 +354,15 @@ fun ReleaseMoviesDialog(
                 var movieIndex = 0
 
                 Column(
-                    modifier = Modifier.width(dp300)
+                    modifier = Modifier
+                        .width(dp300)
                         .background(color = Color.LightGray, shape = RoundedCornerShape(dp10)),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
                     HorizontalPager(
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
                             .clickable {
                                 onMovieClick(releaseMovies[movieIndex].id ?: -1)
                                 onDismiss()
@@ -387,7 +389,8 @@ fun ReleaseMoviesDialog(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier
+                                .weight(1f)
                                 .wrapContentHeight()
                                 .clickable {
                                     onMovieClick(releaseMovies[movieIndex].id ?: -1)
@@ -400,7 +403,8 @@ fun ReleaseMoviesDialog(
                             color = Color.Black
                         )
                         Text(
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier
+                                .weight(1f)
                                 .wrapContentHeight()
                                 .clickable { onDismiss() },
                             text = "닫기",

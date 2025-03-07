@@ -1,22 +1,20 @@
 package com.bowoon.model
 
-import kotlinx.serialization.Serializable
 
-data class Upcoming(
-    val dates: UpComingDates? = null,
+data class MovieList(
+    val dates: MovieListDate? = null,
     val page: Int? = null,
-    val results: List<UpComingResult>? = null,
+    val results: List<MovieResult>? = null,
     val totalPages: Int? = null,
     val totalResults: Int? = null
 )
 
-data class UpComingDates(
+data class MovieListDate(
     val maximum: String? = null,
     val minimum: String? = null
 )
 
-@Serializable
-data class UpComingResult(
+data class MovieResult(
     val adult: Boolean? = null,
     val backdropPath: String? = null,
     val genreIds: List<Int>? = null,
@@ -31,4 +29,21 @@ data class UpComingResult(
     val video: Boolean? = null,
     val voteAverage: Double? = null,
     val voteCount: Int? = null
+)
+
+fun MovieResult.asExternalMovie(): Movie = Movie(
+    adult = adult,
+    backdropPath = backdropPath,
+    genreIds = genreIds,
+    id = id,
+    originalLanguage = originalLanguage,
+    originalTitle = originalTitle,
+    overview = overview,
+    popularity = popularity,
+    posterPath = posterPath,
+    releaseDate = releaseDate,
+    title = title,
+    video = video,
+    voteAverage = voteAverage,
+    voteCount = voteCount
 )

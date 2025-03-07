@@ -9,10 +9,8 @@ import androidx.lifecycle.viewmodel.compose.SavedStateHandleSaveableApi
 import androidx.lifecycle.viewmodel.compose.saveable
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.data.repository.PagingRepository
 import com.bowoon.model.Movie
-import com.bowoon.model.MovieDetail
 import com.bowoon.model.SearchType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,8 +20,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SearchVM @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val pagingRepository: PagingRepository,
-    private val databaseRepository: DatabaseRepository
+    private val pagingRepository: PagingRepository
 ) : ViewModel() {
     companion object {
         private const val TAG = "SearchVM"
@@ -47,18 +44,6 @@ class SearchVM @Inject constructor(
                 .collect {
                     searchMovieState.value = it
                 }
-        }
-    }
-
-    fun insertMovie(movie: MovieDetail) {
-        viewModelScope.launch {
-            databaseRepository.insertMovie(movie)
-        }
-    }
-
-    fun deleteMovie(movie: MovieDetail) {
-        viewModelScope.launch {
-            databaseRepository.deleteMovie(movie)
         }
     }
 }

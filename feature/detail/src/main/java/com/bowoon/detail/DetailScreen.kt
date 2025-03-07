@@ -57,15 +57,13 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
-import androidx.navigation.NavController
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.bowoon.common.Log
-import com.bowoon.data.repository.LocalInitDataComposition
+import com.bowoon.data.repository.LocalMovieAppDataComposition
 import com.bowoon.data.util.PEOPLE_IMAGE_RATIO
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
-import com.bowoon.detail.navigation.navigateToDetail
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.Cast
 import com.bowoon.model.Crew
@@ -73,7 +71,6 @@ import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetail
 import com.bowoon.model.MovieDetailTab
 import com.bowoon.model.PagingStatus
-import com.bowoon.people.navigation.navigateToPeople
 import com.bowoon.ui.ConfirmDialog
 import com.bowoon.ui.FavoriteButton
 import com.bowoon.ui.ModalBottomSheetDialog
@@ -102,7 +99,9 @@ import java.text.DecimalFormat
 
 @Composable
 fun DetailScreen(
-    navController: NavController,
+    onBack: () -> Unit,
+    goToMovie: (Int) -> Unit,
+    goToPeople: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
     viewModel: DetailVM = hiltViewModel()
 ) {
@@ -118,7 +117,9 @@ fun DetailScreen(
     DetailScreen(
         movieInfoState = movieInfo,
         similarMovieState = similarMovies,
-        navController = navController,
+        goToMovie = goToMovie,
+        goToPeople = goToPeople,
+        onBack = onBack,
         insertFavoriteMovie = viewModel::insertMovie,
         deleteFavoriteMovie = viewModel::deleteMovie,
         onShowSnackbar = onShowSnackbar,
@@ -130,7 +131,9 @@ fun DetailScreen(
 fun DetailScreen(
     movieInfoState: MovieDetailState,
     similarMovieState: LazyPagingItems<Movie>,
-    navController: NavController,
+    goToMovie: (Int) -> Unit,
+    goToPeople: (Int) -> Unit,
+    onBack: () -> Unit,
     insertFavoriteMovie: (MovieDetail) -> Unit,
     deleteFavoriteMovie: (MovieDetail) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
@@ -157,7 +160,7 @@ fun DetailScreen(
                 title = "통신 실패",
                 message = "${movieInfoState.throwable.message}",
                 confirmPair = "재시도" to { restart() },
-                dismissPair = "돌아가기" to { navController.navigateUp() }
+                dismissPair = "돌아가기" to onBack
             )
         }
     }
@@ -178,7 +181,7 @@ fun DetailScreen(
                 Title(
                     title = it.title ?: "",
                     isFavorite = it.isFavorite,
-                    onBackClick = { navController.navigateUp() },
+                    onBackClick = onBack,
                     onFavoriteClick = {
                         if (it.isFavorite) {
                             deleteFavoriteMovie(it)
@@ -197,8 +200,8 @@ fun DetailScreen(
                 MovieDetailComponent(
                     movieDetail = it,
                     similarMovieState = similarMovieState,
-                    onMovieClick = { id -> navController.navigateToDetail(id) },
-                    onPeopleClick = { id -> navController.navigateToPeople(id) },
+                    onMovieClick = { id -> goToMovie(id) },
+                    onPeopleClick = { id -> goToPeople(id) },
                     favoriteMovies = it.favoriteMovies ?: emptyList(),
                     insertFavoriteMovie = insertFavoriteMovie,
                     deleteFavoriteMovie = deleteFavoriteMovie
@@ -223,12 +226,23 @@ fun MovieDetailComponent(
 
         val tabList = MovieDetailTab.entries.map { it.label }
         val pagerState = rememberPagerState(initialPage = 0, pageCount = { tabList.size })
-        val isDarkMode = LocalInitDataComposition.current.isDarkMode(isSystemInDarkTheme())
+        val isDarkMode = LocalMovieAppDataComposition.current.isDarkMode(isSystemInDarkTheme())
+        val scope = rememberCoroutineScope()
+        val tabClickEvent: (Int, Int) -> Unit = { current, index ->
+            scope.launch {
+//            if (current == index) {
+//                rememberLazyGridState().scrollToItem(0)
+//            } else {
+                pagerState.animateScrollToPage(index)
+//            }
+            }
+        }
 
         TabComponent(
             isDarkMode = isDarkMode,
             tabs = tabList,
-            pagerState = pagerState
+            pagerState = pagerState,
+            tabClickEvent = tabClickEvent
         ) {
             HorizontalPager(
                 modifier = Modifier
@@ -377,7 +391,7 @@ fun VideosComponent(movie: MovieDetail) {
 fun ImageComponent(
     movie: MovieDetail
 ) {
-    val posterUrl = LocalInitDataComposition.current.getImageUrl()
+    val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
     var isShowing by remember { mutableStateOf(false) }
     var index by remember { mutableIntStateOf(0) }
     val modalBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -658,7 +672,7 @@ fun StaffComponent(
     tmdbMovieDetailCast: Cast,
     onPeopleClick: (Int) -> Unit
 ) {
-    val posterUrl = LocalInitDataComposition.current.getImageUrl()
+    val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
 
     Column(
         modifier = Modifier
@@ -699,7 +713,7 @@ fun StaffComponent(
     tmdbMovieDetailCrew: Crew,
     onPeopleClick: (Int) -> Unit
 ) {
-    val posterUrl = LocalInitDataComposition.current.getImageUrl()
+    val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
 
     Column(
         modifier = Modifier
@@ -749,7 +763,7 @@ fun SimilarMovieComponent(
     insertFavoriteMovie: (MovieDetail) -> Unit,
     deleteFavoriteMovie: (MovieDetail) -> Unit
 ) {
-    val posterUrl = LocalInitDataComposition.current.getImageUrl()
+    val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
     var isLoading by remember { mutableStateOf(false) }
     var isAppend by remember { mutableStateOf(false) }
     var pagingStatus by remember { mutableStateOf<PagingStatus>(PagingStatus.NONE) }

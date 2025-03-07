@@ -24,7 +24,9 @@ fun NavController.navigateToDetail(
 }
 
 fun NavGraphBuilder.detailSection(
-    navController: NavController,
+    onBack: () -> Unit,
+    goToMovie: (Int) -> Unit,
+    goToPeople: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean
 ) {
     composable<DetailRoute>(
@@ -35,7 +37,9 @@ fun NavGraphBuilder.detailSection(
         )
     ) {
         DetailScreen(
-            navController = navController,
+            onBack = onBack,
+            goToMovie = goToMovie,
+            goToPeople = goToPeople,
             onShowSnackbar = onShowSnackbar,
         )
     }

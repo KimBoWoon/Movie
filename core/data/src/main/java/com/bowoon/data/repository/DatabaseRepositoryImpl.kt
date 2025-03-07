@@ -28,10 +28,7 @@ class DatabaseRepositoryImpl @Inject constructor(
             MovieEntity(
                 id = movie.id ?: -1,
                 posterPath = movie.posterPath ?: "",
-                timestamp = Instant.now().toEpochMilli(),
-                releases = movie.releases,
-                releaseDate = movie.releaseDate ?: "",
-                title = movie.title ?: ""
+                timestamp = Instant.now().toEpochMilli()
             )
         )
 
@@ -47,10 +44,7 @@ class DatabaseRepositoryImpl @Inject constructor(
                 MovieEntity(
                     id = it.id ?: -1,
                     posterPath = it.posterPath ?: "",
-                    timestamp = Instant.now().toEpochMilli(),
-                    releases = it.releases,
-                    releaseDate = it.releaseDate ?: "",
-                    title = it.title ?: ""
+                    timestamp = Instant.now().toEpochMilli()
                 )
             }
         )
@@ -69,14 +63,6 @@ class DatabaseRepositoryImpl @Inject constructor(
                 id = people.id ?: -1,
                 timestamp = Instant.now().toEpochMilli(),
                 name = people.name,
-                gender = people.gender,
-                biography = people.biography,
-                birthday = people.birthday,
-                deathday = people.deathday,
-                combineCredits = people.combineCredits,
-                externalIds = people.externalIds,
-                images = people.images,
-                placeOfBirth = people.placeOfBirth,
                 profilePath = people.profilePath
             )
         )
@@ -94,14 +80,6 @@ class DatabaseRepositoryImpl @Inject constructor(
                     id = people.id ?: -1,
                     timestamp = Instant.now().toEpochMilli(),
                     name = people.name,
-                    gender = people.gender,
-                    biography = people.biography,
-                    birthday = people.birthday,
-                    deathday = people.deathday,
-                    combineCredits = people.combineCredits,
-                    externalIds = people.externalIds,
-                    images = people.images,
-                    placeOfBirth = people.placeOfBirth,
                     profilePath = people.profilePath
                 )
             }

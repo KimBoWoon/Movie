@@ -44,7 +44,7 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.bowoon.common.Log
-import com.bowoon.data.repository.LocalInitDataComposition
+import com.bowoon.data.repository.LocalMovieAppDataComposition
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.Movie
@@ -88,7 +88,7 @@ fun SearchScreen(
     onSearchClick: (String) -> Unit,
     viewModel: SearchVM = hiltViewModel()
 ) {
-    val posterUrl = LocalInitDataComposition.current.getImageUrl()
+    val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
     val scrollState = rememberLazyGridState()
     var isLoading by remember { mutableStateOf(false) }
     var isAppend by remember { mutableStateOf(false) }

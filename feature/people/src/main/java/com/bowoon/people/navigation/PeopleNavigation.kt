@@ -22,13 +22,13 @@ fun NavController.navigateToPeople(
 }
 
 fun NavGraphBuilder.peopleScreen(
-    navController: NavController,
+    onBack: () -> Unit,
     onMovieClick: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean
 ) {
     composable<PeopleRoute>() {
         PeopleScreen(
-            navController = navController,
+            onBack = onBack,
             onMovieClick = onMovieClick,
             onShowSnackbar = onShowSnackbar
         )

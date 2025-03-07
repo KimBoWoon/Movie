@@ -242,3 +242,20 @@ data class VideoInfo(
     val size: Int? = null,
     val type: String? = null
 ) : Parcelable
+
+fun MovieDetail.asExternalModel(): Movie = Movie(
+    adult = adult,
+    backdropPath = backdropPath,
+    genreIds = genres?.mapNotNull { it.id },
+    id = id,
+    originalLanguage = originalLanguage,
+    originalTitle = originalTitle,
+    overview = overview,
+    popularity = popularity,
+    posterPath = posterPath,
+    releaseDate = releaseDate,
+    title = title,
+    video = video,
+    voteAverage = voteAverage,
+    voteCount = voteCount
+)
