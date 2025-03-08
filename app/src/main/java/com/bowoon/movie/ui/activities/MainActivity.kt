@@ -19,11 +19,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.bowoon.common.AppDoubleBackToExit
 import com.bowoon.common.isSystemInDarkTheme
-import com.bowoon.data.repository.LocalInitDataComposition
+import com.bowoon.data.repository.LocalMovieAppDataComposition
 import com.bowoon.data.util.NetworkMonitor
 import com.bowoon.data.util.SyncManager
 import com.bowoon.firebase.LocalFirebaseLogHelper
-import com.bowoon.model.InitData
+import com.bowoon.model.MovieAppData
 import com.bowoon.movie.MovieFirebase
 import com.bowoon.movie.R
 import com.bowoon.movie.rememberMovieAppState
@@ -68,15 +68,15 @@ class MainActivity : ComponentActivity() {
         movieFirebase.sendLog(javaClass.simpleName, "create MainActivity")
 
         var darkTheme by mutableStateOf(resources.configuration.isSystemInDarkTheme)
-        var initData by mutableStateOf(InitData())
+        var movieAppData by mutableStateOf(MovieAppData())
 
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 combine(
                     isSystemInDarkTheme(),
-                    viewModel.initData
+                    viewModel.movieAppData
                 ) { systemDarkTheme, userdata ->
-                    initData = userdata.getInitData()
+                    movieAppData = userdata.getMovieAppData()
                     userdata.shouldUseDarkTheme(systemDarkTheme)
                 }.onEach { darkTheme = it }
                     .distinctUntilChanged()
@@ -95,12 +95,12 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        splashScreen.setKeepOnScreenCondition { viewModel.initData.value.shouldKeepSplashScreen() }
+        splashScreen.setKeepOnScreenCondition { viewModel.movieAppData.value.shouldKeepSplashScreen() }
 
         setContent {
             CompositionLocalProvider(
                 LocalFirebaseLogHelper provides movieFirebase,
-                LocalInitDataComposition provides initData
+                LocalMovieAppDataComposition provides movieAppData
             ) {
                 LocalFirebaseLogHelper.current.sendLog(javaClass.simpleName, "compose start!")
 

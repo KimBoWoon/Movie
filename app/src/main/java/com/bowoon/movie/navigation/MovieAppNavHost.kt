@@ -32,11 +32,13 @@ fun MovieAppNavHost(
             onShowSnackbar = onShowSnackbar,
         )
         detailSection(
-            navController = navController,
+            onBack = navController::navigateUp,
+            goToMovie = navController::navigateToDetail,
+            goToPeople = navController::navigateToPeople,
             onShowSnackbar = onShowSnackbar
         )
         peopleScreen(
-            navController = navController,
+            onBack = navController::navigateUp,
             onMovieClick = navController::navigateToDetail,
             onShowSnackbar = onShowSnackbar
         )

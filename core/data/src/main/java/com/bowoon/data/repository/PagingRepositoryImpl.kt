@@ -13,9 +13,40 @@ import javax.inject.Inject
 
 class PagingRepositoryImpl @Inject constructor(
     private val apis: Apis,
-    private val datastore: InternalDataSource,
-    private val myDataRepository: MyDataRepository
+    private val datastore: InternalDataSource
 ) : PagingRepository {
+//    override suspend fun getNowPlaying(): Flow<PagingData<NowPlaying>> {
+//        val language = datastore.getUserData().language
+//        val region = datastore.getUserData().region
+//
+//        return Pager(
+//            config = PagingConfig(pageSize = 20, initialLoadSize = 20, prefetchDistance = 5),
+//            pagingSourceFactory = {
+//                NowPlayingPagingSource(
+//                    apis = apis,
+//                    language = language,
+//                    region = region
+//                )
+//            }
+//        ).flow
+//    }
+//
+//    override suspend fun getUpcomingMovies(): Flow<PagingData<UpComingResult>> {
+//        val language = datastore.getUserData().language
+//        val region = datastore.getUserData().region
+//
+//        return Pager(
+//            config = PagingConfig(pageSize = 20, initialLoadSize = 20, prefetchDistance = 5),
+//            pagingSourceFactory = {
+//                UpComingMoviePagingSource(
+//                    apis = apis,
+//                    language = language,
+//                    region = region
+//                )
+//            }
+//        ).flow
+//    }
+
     override suspend fun searchMovies(
         type: String,
         query: String

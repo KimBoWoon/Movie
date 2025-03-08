@@ -4,9 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bowoon.common.Result
 import com.bowoon.common.asResult
-import com.bowoon.domain.GetInitDataUseCase
+import com.bowoon.domain.GetMovieAppDataUseCase
 import com.bowoon.model.DarkThemeConfig
-import com.bowoon.model.InitData
+import com.bowoon.model.MovieAppData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
@@ -15,38 +15,38 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainVM @Inject constructor(
-    getInitDataUseCase: GetInitDataUseCase
+    getMovieAppDataUseCase: GetMovieAppDataUseCase
 ) : ViewModel() {
-    val initData = getInitDataUseCase()
+    val movieAppData = getMovieAppDataUseCase()
         .asResult()
         .map {
             when (it) {
-                is Result.Loading -> UserdataState.Loading
-                is Result.Success -> UserdataState.Success(it.data)
-                is Result.Error -> UserdataState.Error(it.throwable)
+                is Result.Loading -> MovieAppDataState.Loading
+                is Result.Success -> MovieAppDataState.Success(it.data)
+                is Result.Error -> MovieAppDataState.Error(it.throwable)
             }
         }.stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = UserdataState.Loading
+            started = SharingStarted.WhileSubscribed(),
+            initialValue = MovieAppDataState.Loading
         )
 }
 
-sealed interface UserdataState {
-    data object Loading : UserdataState
-    data class Success(val data: InitData) : UserdataState {
+sealed interface MovieAppDataState {
+    data object Loading : MovieAppDataState
+    data class Success(val data: MovieAppData) : MovieAppDataState {
         override fun shouldUseDarkTheme(isSystemDarkTheme: Boolean) =
-            when (data.internalData.isDarkMode) {
+            when (data.isDarkMode) {
                 DarkThemeConfig.FOLLOW_SYSTEM -> isSystemDarkTheme
                 DarkThemeConfig.LIGHT -> false
                 DarkThemeConfig.DARK -> true
             }
 
-        override fun getInitData(): InitData = this.data
+        override fun getMovieAppData(): MovieAppData = this.data
     }
-    data class Error(val throwable: Throwable) : UserdataState
+    data class Error(val throwable: Throwable) : MovieAppDataState
 
     fun shouldKeepSplashScreen() = this is Loading
     fun shouldUseDarkTheme(isSystemDarkTheme: Boolean): Boolean = isSystemDarkTheme
-    fun getInitData(): InitData = InitData()
+    fun getMovieAppData(): MovieAppData = MovieAppData()
 }

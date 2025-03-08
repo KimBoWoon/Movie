@@ -1,42 +1,35 @@
 package com.bowoon.domain
 
 import com.bowoon.common.Log
-import com.bowoon.common.di.ApplicationScope
 import com.bowoon.data.repository.MyDataRepository
 import com.bowoon.data.repository.UserDataRepository
-import com.bowoon.model.InitData
 import com.bowoon.model.LanguageItem
-import com.bowoon.model.MovieGenre
+import com.bowoon.model.MovieAppData
 import com.bowoon.model.PosterSize
 import com.bowoon.model.Region
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
-class GetInitDataUseCase @Inject constructor(
-    @ApplicationScope private val scope: CoroutineScope,
+class GetMovieAppDataUseCase @Inject constructor(
     private val myDataRepository: MyDataRepository,
     private val userDataRepository: UserDataRepository
 ) {
-    operator fun invoke(): Flow<InitData> = combine(
+    operator fun invoke(): Flow<MovieAppData> = combine(
         myDataRepository.externalData,
         userDataRepository.internalData
     ) { externalData, internalData ->
-        InitData(
-            internalData = internalData,
+        MovieAppData(
+            isAdult = internalData.isAdult,
+            autoPlayTrailer = internalData.autoPlayTrailer,
+            isDarkMode = internalData.isDarkMode,
+            updateDate = internalData.updateDate,
+            mainMenu = internalData.mainMenu,
+            imageQuality = internalData.imageQuality,
             secureBaseUrl = externalData.secureBaseUrl,
             configuration = externalData.configuration,
             certification = externalData.certification,
-            genres = externalData.genres?.genres?.map {
-                MovieGenre(
-                    id = it.id,
-                    name = it.name
-                )
-            },
             region = externalData.region?.results?.map {
                 Region(
                     englishName = it.englishName,
@@ -62,9 +55,5 @@ class GetInitDataUseCase @Inject constructor(
         )
     }.catch { e ->
         Log.printStackTrace(e)
-    }.stateIn(
-        scope = scope,
-        started = SharingStarted.Eagerly,
-        initialValue = InitData()
-    )
+    }
 }

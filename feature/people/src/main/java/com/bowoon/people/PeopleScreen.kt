@@ -37,9 +37,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import com.bowoon.common.Log
-import com.bowoon.data.repository.LocalInitDataComposition
+import com.bowoon.data.repository.LocalMovieAppDataComposition
 import com.bowoon.data.util.PEOPLE_IMAGE_RATIO
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.firebase.LocalFirebaseLogHelper
@@ -59,7 +58,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun PeopleScreen(
-    navController: NavController,
+    onBack: () -> Unit,
     onMovieClick: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
     viewModel: PeopleVM = hiltViewModel()
@@ -70,7 +69,7 @@ fun PeopleScreen(
 
     PeopleScreen(
         peopleState = peopleState,
-        navController = navController,
+        onBack = onBack,
         insertFavoritePeople = viewModel::insertPeople,
         deleteFavoritePeople = viewModel::deletePeople,
         onMovieClick = onMovieClick,
@@ -82,7 +81,7 @@ fun PeopleScreen(
 @Composable
 fun PeopleScreen(
     peopleState: PeopleState,
-    navController: NavController,
+    onBack: () -> Unit,
     insertFavoritePeople: (PeopleDetail) -> Unit,
     deleteFavoritePeople: (PeopleDetail) -> Unit,
     onMovieClick: (Int) -> Unit,
@@ -109,7 +108,7 @@ fun PeopleScreen(
                 title = "통신 실패",
                 message = "${peopleState.throwable.message}",
                 confirmPair = "재시도" to { restart() },
-                dismissPair = "돌아가기" to { navController.navigateUp() }
+                dismissPair = "돌아가기" to onBack
             )
         }
     }
@@ -120,7 +119,7 @@ fun PeopleScreen(
         people?.let {
             PeopleDetailComponent(
                 people = it,
-                navController = navController,
+                onBack = onBack,
                 onMovieClick = onMovieClick,
                 insertFavoritePeople = insertFavoritePeople,
                 deleteFavoritePeople = deleteFavoritePeople,
@@ -139,13 +138,13 @@ fun PeopleScreen(
 @Composable
 fun PeopleDetailComponent(
     people: PeopleDetail,
-    navController: NavController,
+    onBack: () -> Unit,
     onMovieClick: (Int) -> Unit,
     insertFavoritePeople: (PeopleDetail) -> Unit,
     deleteFavoritePeople: (PeopleDetail) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean
 ) {
-    val posterUrl = LocalInitDataComposition.current.getImageUrl()
+    val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
     val scope = rememberCoroutineScope()
     val relatedMovie = people.combineCredits?.getRelatedMovie() ?: emptyList()
 
@@ -154,7 +153,7 @@ fun PeopleDetailComponent(
     ) {
         Title(
             title = people.name ?: "인물 정보",
-            onBackClick = { navController.navigateUp() },
+            onBackClick = onBack,
             onFavoriteClick = {
                 if (people.isFavorite) {
                     deleteFavoritePeople(people)
@@ -217,7 +216,7 @@ fun ImageComponent(
     var index by remember { mutableIntStateOf(0) }
     val modalBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
-    val posterUrl = LocalInitDataComposition.current.getImageUrl()
+    val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
     val items = people.images?.map { it.copy(filePath = "$posterUrl${it.filePath}") } ?: emptyList()
 
     DynamicAsyncImageLoader(
@@ -371,11 +370,7 @@ fun PeopleInfoComponent(
         people.name?.takeIf { it.isNotEmpty() }?.let {
             Text(text = it)
         }
-        if (!people.birthday.isNullOrEmpty() && people.deathday.isNullOrEmpty()) {
-            Text(text = people.birthday ?: "")
-        } else if (!people.birthday.isNullOrEmpty() && !people.deathday.isNullOrEmpty()) {
-            Text(text = "${people.birthday} ~ ${people.deathday}")
-        }
+        Text(text = "${people.birthday ?: ""}${if (!people.deathday.isNullOrEmpty()) " ~ ${people.deathday}" else ""}")
         people.placeOfBirth?.takeIf { it.isNotEmpty() }?.let {
             Text(text = it)
         }

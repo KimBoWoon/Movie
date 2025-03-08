@@ -9,7 +9,7 @@ data class PeopleDetail(
     val birthday: String? = null,
     val combineCredits: CombineCredits? = null,
     val deathday: String? = null,
-    val externalIds: PeopleExternalIds? = null,
+    val externalIds: ExternalIds? = null,
     val gender: Int? = null,
     val homepage: String? = null,
     val id: Int? = null,

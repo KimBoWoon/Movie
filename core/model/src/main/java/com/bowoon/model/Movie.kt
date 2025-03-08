@@ -4,6 +4,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Movie(
+    val adult: Boolean? = null,
+    val backdropPath: String? = null,
     val genreIds: List<Int>? = null,
     val id: Int? = null,
     val originalLanguage: String? = null,
@@ -13,6 +15,7 @@ data class Movie(
     val posterPath: String? = null,
     val releaseDate: String? = null,
     val title: String? = null,
+    val video: Boolean? = null,
     val voteAverage: Double? = null,
     val voteCount: Int? = null,
     val rank: String? = null,

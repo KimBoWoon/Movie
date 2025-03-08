@@ -14,6 +14,7 @@ import com.bowoon.data.util.SyncManager
 import com.bowoon.model.MainMenu
 import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetail
+import com.bowoon.model.asExternalModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
@@ -83,15 +84,7 @@ class HomeVM @Inject constructor(
                                 !movie.releaseDate.isNullOrEmpty() && (it.years == 0 && it.months == 0 && it.days in 0..1)
                             }
                         } ?: false
-                    }
-                    .map { movieDetail ->
-                        Movie(
-                            id = movieDetail.id,
-                            title = movieDetail.title,
-                            posterPath = movieDetail.posterPath,
-                            releaseDate = movieDetail.releaseDate
-                        )
-                    }
+                    }.map(MovieDetail::asExternalModel)
                 is FavoriteMoviesState.Error -> emptyList()
             }
         }

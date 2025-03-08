@@ -6,7 +6,7 @@ kotlin = "2.1.10"
 googleService = "4.4.2"
 
 # agp
-agp = "8.8.1"
+agp = "8.9.0"
 
 # ksp
 ksp = "2.1.10-1.0.29"
@@ -18,11 +18,11 @@ jetbrainsKotlinJvm = "2.1.0"
 coreKtx = "1.15.0"
 androidxLifecycle = "2.8.7"
 appcompat = "1.7.0"
-constraintlayout = "2.2.0"
+constraintlayout = "2.2.1"
 material = "1.12.0"
-activity = "1.10.0"
-jetpack-fragment = "1.8.5"
-datastore = "1.1.2"
+activity = "1.10.1"
+jetpack-fragment = "1.8.6"
+datastore = "1.1.3"
 room = "2.6.1"
 workManager = "2.10.0"
 splash = "1.0.1"
@@ -30,12 +30,12 @@ startup = "1.2.0"
 exoPlayer = "1.5.1"
 
 # compose
-composeBom = "2025.01.01"
-activityCompose = "1.10.0"
+composeBom = "2025.02.00"
+activityCompose = "1.10.1"
 compose-compiler = "1.4.5"
-compose-navigation = "2.8.6"
+compose-navigation = "2.8.8"
 compose-hilt-navigation = "1.2.0"
-compose-paging = "3.3.5"
+compose-paging = "3.3.6"
 androidxNavigation = "2.8.4"
 
 #junit
@@ -68,8 +68,8 @@ serialization-converter = "1.0.0"
 coil = "3.0.2"
 
 # firebase
-firebaseBom = "33.8.0"
-firebaseCrashlyticsPlugin = "3.0.2"
+firebaseBom = "33.10.0"
+firebaseCrashlyticsPlugin = "3.0.3"
 firebasePerfPlugin = "1.4.2"
 
 # test

@@ -1,7 +1,6 @@
 package com.bowoon.data.repository
 
 import com.bowoon.common.Log
-import com.bowoon.common.di.ApplicationScope
 import com.bowoon.data.util.suspendRunCatching
 import com.bowoon.datastore.InternalDataSource
 import com.bowoon.model.CertificationData
@@ -13,18 +12,14 @@ import com.bowoon.model.RegionList
 import com.bowoon.network.ApiResponse
 import com.bowoon.network.model.asExternalModel
 import com.bowoon.network.retrofit.Apis
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 class MyDataRepositoryImpl @Inject constructor(
-    @ApplicationScope private val scope: CoroutineScope,
     private val apis: Apis,
     private val datastore: InternalDataSource
 ) : MyDataRepository {
@@ -46,11 +41,7 @@ class MyDataRepositoryImpl @Inject constructor(
         )
     }.catch { e ->
         Log.printStackTrace(e)
-    }.stateIn(
-        scope = scope,
-        started = SharingStarted.Eagerly,
-        initialValue = ExternalData()
-    )
+    }
 
     override suspend fun syncWith(): Boolean = suspendRunCatching {
         externalData.first()

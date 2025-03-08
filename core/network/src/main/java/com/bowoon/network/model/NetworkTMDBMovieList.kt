@@ -1,20 +1,20 @@
 package com.bowoon.network.model
 
 
-import com.bowoon.model.NowPlayingData
-import com.bowoon.model.NowPlayingDates
-import com.bowoon.model.NowPlaying
+import com.bowoon.model.MovieList
+import com.bowoon.model.MovieListDate
+import com.bowoon.model.MovieResult
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class NetworkTMDBNowPlaying(
+data class NetworkTMDBMovieList(
     @SerialName("dates")
-    val dates: NetworkTMDBNowPlayingDates? = null,
+    val dates: NetworkTMDBMovieListDate? = null,
     @SerialName("page")
     val page: Int? = null,
     @SerialName("results")
-    val results: List<NetworkTMDBNowPlayingResult>? = null,
+    val results: List<NetworkTMDBMovieListResult>? = null,
     @SerialName("total_pages")
     val totalPages: Int? = null,
     @SerialName("total_results")
@@ -22,7 +22,7 @@ data class NetworkTMDBNowPlaying(
 )
 
 @Serializable
-data class NetworkTMDBNowPlayingDates(
+data class NetworkTMDBMovieListDate(
     @SerialName("maximum")
     val maximum: String? = null,
     @SerialName("minimum")
@@ -30,7 +30,7 @@ data class NetworkTMDBNowPlayingDates(
 )
 
 @Serializable
-data class NetworkTMDBNowPlayingResult(
+data class NetworkTMDBMovieListResult(
     @SerialName("adult")
     val adult: Boolean? = null,
     @SerialName("backdrop_path")
@@ -61,8 +61,8 @@ data class NetworkTMDBNowPlayingResult(
     val voteCount: Int? = null
 )
 
-fun NetworkTMDBNowPlaying.asExternalModel(): NowPlayingData =
-    NowPlayingData(
+fun NetworkTMDBMovieList.asExternalModel(): MovieList =
+    MovieList(
         dates = dates?.asExternalModel(),
         page = page,
         results = results?.asExternalModel(),
@@ -70,15 +70,15 @@ fun NetworkTMDBNowPlaying.asExternalModel(): NowPlayingData =
         totalPages = totalPages
     )
 
-fun NetworkTMDBNowPlayingDates.asExternalModel(): NowPlayingDates =
-    NowPlayingDates(
+fun NetworkTMDBMovieListDate.asExternalModel(): MovieListDate =
+    MovieListDate(
         maximum = maximum,
         minimum = minimum
     )
 
-fun List<NetworkTMDBNowPlayingResult>.asExternalModel(): List<NowPlaying> =
+fun List<NetworkTMDBMovieListResult>.asExternalModel(): List<MovieResult> =
     map {
-        NowPlaying(
+        MovieResult(
             adult = it.adult,
             backdropPath = it.backdropPath,
             genreIds = it.genreIds,
