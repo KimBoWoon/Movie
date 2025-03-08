@@ -25,10 +25,10 @@ data class MovieAppData(
     }
 
     fun getImageUrl(): String =
-        "$secureBaseUrl${posterSize?.find { it.isSelected }?.size ?: "original"}"
+        "$secureBaseUrl${posterSize?.find { it.isSelected }?.size}"
 
-    fun getRegion(): String = "${region?.find { it.isSelected } ?: "KR"}"
-    fun getLanguage(): String = "${language?.find { it.isSelected } ?: "ko"}"
+    fun getRegion(): String = "${region?.find { it.isSelected }?.iso31661} (${region?.find { it.isSelected }?.englishName})"
+    fun getLanguage(): String = "${language?.find { it.isSelected }?.iso6391} (${language?.find { it.isSelected }?.englishName})"
 }
 
 @Serializable
