@@ -55,7 +55,8 @@ fun ModalBottomSheetDialog(
             state = pagerState
         ) {
             Box(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
             ) {
                 DynamicAsyncImageLoader(
                     modifier = Modifier
@@ -77,7 +78,7 @@ fun BoxScope.Indexer(
 ) {
     Box(
         modifier = Modifier
-            .padding(end = dp20)
+            .padding(top = dp10, end = dp20)
             .wrapContentSize()
             .background(color = Color(0x33000000), shape = RoundedCornerShape(dp20))
             .align(Alignment.TopEnd)

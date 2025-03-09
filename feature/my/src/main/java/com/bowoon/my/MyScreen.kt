@@ -133,10 +133,12 @@ fun MyScreen(
             content = movieAppData.getLanguage(),
             onClick = {
                 isShowChooseDialog = true
-                chooseDialogItem = movieAppData.language?.map { "${it.iso6391} (${it.englishName})" } ?: emptyList()
+                chooseDialogItem = movieAppData.language?.sortedBy { it.iso6391 }?.map { "${it.iso6391} (${it.englishName})" } ?: emptyList()
                 selectedOption = movieAppData.getLanguage()
-                updateData = {
-                    updateUserData(movieAppData.asInternalData().copy(language = it), false)
+                updateData = { selectedOption ->
+                    movieAppData.language?.find { "${it.iso6391} (${it.englishName})" == selectedOption }?.also {
+                        updateUserData(movieAppData.asInternalData().copy(language = it.iso6391 ?: ""), true)
+                    }
                 }
             }
         )
@@ -145,10 +147,12 @@ fun MyScreen(
             content = movieAppData.getRegion(),
             onClick = {
                 isShowChooseDialog = true
-                chooseDialogItem = movieAppData.region?.map { "${it.iso31661} (${it.englishName})" } ?: emptyList()
+                chooseDialogItem = movieAppData.region?.sortedBy { it.iso31661 }?.map { "${it.iso31661} (${it.englishName})" } ?: emptyList()
                 selectedOption = movieAppData.getRegion()
-                updateData = {
-                    updateUserData(movieAppData.asInternalData().copy(region = it), false)
+                updateData = { selectedOption ->
+                    movieAppData.region?.find { "${it.iso31661} (${it.englishName})" == selectedOption }?.also {
+                        updateUserData(movieAppData.asInternalData().copy(region = it.iso31661 ?: ""), true)
+                    }
                 }
             }
         )
