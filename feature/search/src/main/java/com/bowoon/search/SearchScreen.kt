@@ -34,7 +34,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -51,7 +50,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.DpOffset
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
@@ -70,7 +68,6 @@ import com.bowoon.ui.dp1
 import com.bowoon.ui.dp10
 import com.bowoon.ui.dp100
 import com.bowoon.ui.dp16
-import com.bowoon.ui.dp40
 import com.bowoon.ui.dp5
 import com.bowoon.ui.dp53
 import com.bowoon.ui.dp8
@@ -177,7 +174,7 @@ fun SearchScreen(
                 }
                 else -> {
                     LazyVerticalGrid(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxSize().padding(top = dp10),
                         state = scrollState,
                         columns = GridCells.Adaptive(dp100),
                         contentPadding = PaddingValues(dp10),
@@ -239,15 +236,14 @@ fun SearchBarComponent(
             focusManager.clearFocus()
         }
     )
-    var isExpand by remember { mutableStateOf(false) }
 
     BasicTextField(
         modifier = Modifier
             .fillMaxWidth()
             .height(dp53)
             .padding(top = dp10, start = dp16, end = dp16)
-            .clip(RoundedCornerShape(50))
-            .background(color = Color.DarkGray),
+            .clip(shape = RoundedCornerShape(50))
+            .background(color = Color(0xFFEAEAEA)),
         value = keyword,
         onValueChange = {
             Log.d(it)
@@ -255,7 +251,7 @@ fun SearchBarComponent(
         },
         textStyle = TextStyle(
             fontSize = sp12,
-            color = MaterialTheme.colorScheme.onBackground
+            color = Color.Black
         ),
         decorationBox = { innerTextField ->
             Row(
@@ -266,38 +262,22 @@ fun SearchBarComponent(
                     modifier = Modifier.padding(start = dp16, end = dp8),
                     imageVector = Icons.Filled.Search,
                     contentDescription = "searchBarIcon",
+                    tint = Color.Black
                 )
 
-                Text(
-                    modifier = Modifier.clickable { isExpand = !isExpand },
-                    text = SearchType.entries[searchType].label,
-                    fontSize = sp12
+                SearchTypeComponent(
+                    searchType = searchType,
+                    updateSearchType = updateSearchType
                 )
-                DropdownMenu(
-                    modifier = Modifier.wrapContentSize(),
-                    expanded = isExpand,
-                    onDismissRequest = { isExpand = false },
-                    offset = DpOffset(dp40, dp5)
-                ) {
-                    SearchType.entries.forEach { type ->
-                        DropdownMenuItem(
-                            onClick = {
-                                Log.d(type.label)
-                                updateSearchType(type)
-                                isExpand = false
-                            },
-                            text = { Text(text = type.label) }
-                        )
-                    }
-                }
 
-                Spacer(modifier = Modifier.padding(horizontal = dp5).width(dp1).height(dp10).background(color = Color.LightGray))
+                Spacer(modifier = Modifier.padding(horizontal = dp5).width(dp1).height(dp10).background(color = Color.DarkGray))
 
                 if (keyword.isEmpty()) {
                     Text(
                         modifier = Modifier.weight(1f).align(Alignment.CenterVertically),
                         text = "검색어를 입력하세요.",
                         fontSize = sp12,
+                        color = Color.Black
                     )
                 } else {
                     Box(
@@ -321,7 +301,8 @@ fun SearchBarComponent(
                                 .padding(start = dp8, end = dp8)
                                 .clickable { updateKeyword("") },
                             imageVector = Icons.Filled.Clear,
-                            contentDescription = "searchKeywordClear"
+                            contentDescription = "searchKeywordClear",
+                            tint = Color.Black
                         )
                         Icon(
                             modifier = Modifier
@@ -332,7 +313,8 @@ fun SearchBarComponent(
                                     focusManager.clearFocus()
                                 },
                             imageVector = Icons.Filled.Search,
-                            contentDescription = "searchKeywordClear"
+                            contentDescription = "searchKeywordClear",
+                            tint = Color.Black
                         )
                     }
                 }
@@ -342,4 +324,37 @@ fun SearchBarComponent(
         keyboardOptions = keyboardOptions,
         keyboardActions = keyboardActions,
     )
+}
+
+@Composable
+fun SearchTypeComponent(
+    searchType: Int,
+    updateSearchType: (SearchType) -> Unit
+) {
+    var isExpand by remember { mutableStateOf(false) }
+
+    Column {
+        Text(
+            modifier = Modifier.clickable { isExpand = !isExpand },
+            text = SearchType.entries[searchType].label,
+            fontSize = sp12,
+            color = Color.Black
+        )
+        DropdownMenu(
+            modifier = Modifier.wrapContentSize(),
+            expanded = isExpand,
+            onDismissRequest = { isExpand = false }
+        ) {
+            SearchType.entries.forEach { type ->
+                DropdownMenuItem(
+                    onClick = {
+                        Log.d(type.label)
+                        updateSearchType(type)
+                        isExpand = false
+                    },
+                    text = { Text(text = type.label) }
+                )
+            }
+        }
+    }
 }
