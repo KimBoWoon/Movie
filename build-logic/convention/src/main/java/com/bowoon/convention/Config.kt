@@ -16,7 +16,7 @@ object Config {
 
     object ApplicationSetting {
         const val COMPILE_SDK_VERSION = 35
-        const val MIN_SDK_VERSION = 23
+        const val MIN_SDK_VERSION = 24
         const val testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         const val defaultProguardFile = "proguard-android-optimize.txt"
         const val proguardFile = "proguard-rules.pro"
@@ -24,7 +24,7 @@ object Config {
     }
 
     object Library {
-        const val MIN_SDK_VERSION = 23
+        const val MIN_SDK_VERSION = 24
         const val COMPILE_SDK_VERSION = 35
     }
 

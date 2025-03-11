@@ -1,7 +1,5 @@
 package com.bowoon.favorite
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,7 +9,6 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
@@ -22,7 +19,6 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
@@ -36,7 +32,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -52,13 +47,11 @@ import com.bowoon.ui.Title
 import com.bowoon.ui.bounceClick
 import com.bowoon.ui.components.ScrollToTopComponent
 import com.bowoon.ui.components.TabComponent
-import com.bowoon.ui.dp1
 import com.bowoon.ui.dp10
 import com.bowoon.ui.dp120
 import com.bowoon.ui.dp15
 import com.bowoon.ui.dp200
 import com.bowoon.ui.dp5
-import com.bowoon.ui.dp50
 import com.bowoon.ui.image.DynamicAsyncImageLoader
 import kotlinx.coroutines.launch
 
@@ -223,12 +216,6 @@ fun FavoriteMovieList(
 
         if (visibleItemIndex >= spanCount) {
             ScrollToTopComponent(
-                modifier = Modifier
-                    .padding(end = dp10, bottom = dp10)
-                    .size(dp50)
-                    .background(color = Color.White, shape = CircleShape)
-                    .border(width = dp1, color = Color.LightGray, shape = CircleShape)
-                    .align(Alignment.BottomEnd),
                 onClick = {
                     scope.launch { lazyGridState.scrollToItem(0) }
                 }
@@ -310,12 +297,6 @@ fun FavoritePeopleList(
 
         if (visibleItemIndex >= 3) {
             ScrollToTopComponent(
-                modifier = Modifier
-                    .padding(end = dp10, bottom = dp10)
-                    .size(dp50)
-                    .background(color = Color.White, shape = CircleShape)
-                    .border(width = dp1, color = Color.LightGray, shape = CircleShape)
-                    .align(Alignment.BottomEnd),
                 onClick = {
                     scope.launch { lazyGridState.scrollToItem(0) }
                 }

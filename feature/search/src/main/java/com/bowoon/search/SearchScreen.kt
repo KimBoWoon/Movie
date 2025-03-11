@@ -1,31 +1,41 @@
 package com.bowoon.search
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.MenuAnchorType
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,11 +44,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.DpOffset
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
@@ -53,11 +66,16 @@ import com.bowoon.model.SearchType
 import com.bowoon.ui.ConfirmDialog
 import com.bowoon.ui.Title
 import com.bowoon.ui.bounceClick
+import com.bowoon.ui.dp1
 import com.bowoon.ui.dp10
 import com.bowoon.ui.dp100
 import com.bowoon.ui.dp16
+import com.bowoon.ui.dp40
 import com.bowoon.ui.dp5
+import com.bowoon.ui.dp53
+import com.bowoon.ui.dp8
 import com.bowoon.ui.image.DynamicAsyncImageLoader
+import com.bowoon.ui.sp12
 import com.bowoon.ui.sp30
 import kotlinx.coroutines.launch
 
@@ -73,35 +91,38 @@ fun SearchScreen(
 
     SearchScreen(
         state = state,
+        keyword = viewModel.keyword,
+        searchType = viewModel.searchType,
         onMovieClick = onMovieClick,
         onPeopleClick = onPeopleClick,
         onSearchClick = viewModel::searchMovies,
-        viewModel = viewModel
+        updateKeyword = viewModel::updateKeyword,
+        updateSearchType = viewModel::updateSearchType,
     )
 }
 
 @Composable
 fun SearchScreen(
     state: LazyPagingItems<Movie>,
+    keyword: String,
+    searchType: Int,
     onMovieClick: (Int) -> Unit,
     onPeopleClick: (Int) -> Unit,
     onSearchClick: (String) -> Unit,
-    viewModel: SearchVM = hiltViewModel()
+    updateKeyword: (String) -> Unit,
+    updateSearchType: (SearchType) -> Unit,
 ) {
     val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
     val scrollState = rememberLazyGridState()
-    var isLoading by remember { mutableStateOf(false) }
     var isAppend by remember { mutableStateOf(false) }
     var pagingStatus by remember { mutableStateOf<PagingStatus>(PagingStatus.NONE) }
 
     when {
         state.loadState.refresh is LoadState.Loading -> {
-            isLoading = true
             pagingStatus = PagingStatus.LOADING
         }
         state.loadState.append is LoadState.Loading -> isAppend = true
         state.loadState.refresh is LoadState.Error || state.loadState.append is LoadState.Error -> {
-            isLoading = false
             isAppend = false
 
             ConfirmDialog(
@@ -112,7 +133,6 @@ fun SearchScreen(
             )
         }
         state.loadState.refresh is LoadState.NotLoading -> {
-            isLoading = false
             isAppend = false
             pagingStatus = if (pagingStatus == PagingStatus.LOADING) {
                 if (state.itemCount == 0) PagingStatus.EMPTY else PagingStatus.NOT_EMPTY
@@ -121,81 +141,92 @@ fun SearchScreen(
             }
         }
         state.loadState.append is LoadState.NotLoading -> {
-            isLoading = false
             isAppend = false
         }
     }
 
-    Box(
+    Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        Column {
-            Title(title = "영화 검색")
-            SearchBarComponent(
-                scrollState = scrollState,
-                onSearchClick = onSearchClick
-            )
+        Title(title = "영화 검색")
+        SearchBarComponent(
+            keyword = keyword,
+            searchType = searchType,
+            scrollState = scrollState,
+            updateKeyword = updateKeyword,
+            onSearchClick = onSearchClick,
+            updateSearchType = updateSearchType
+        )
 
-            if (pagingStatus == PagingStatus.EMPTY) {
-                Text(
-                    modifier = Modifier.fillMaxSize(),
-                    text = "검색결과가 없습니다.",
-                    fontSize = sp30,
-                    textAlign = TextAlign.Center
-                )
-            } else {
-                LazyVerticalGrid(
-                    modifier = Modifier.fillMaxSize(),
-                    state = scrollState,
-                    columns = GridCells.Adaptive(dp100),
-                    contentPadding = PaddingValues(dp10),
-                    horizontalArrangement = Arrangement.spacedBy(dp10),
-                    verticalArrangement = Arrangement.spacedBy(dp10)
-                ) {
-                    items(state.itemCount) { index ->
-                        DynamicAsyncImageLoader(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .aspectRatio(POSTER_IMAGE_RATIO)
-                                .bounceClick {
-                                    when (viewModel.searchType) {
-                                        SearchType.MOVIE.ordinal -> onMovieClick(
-                                            state[index]?.id ?: -1
-                                        )
-
-                                        SearchType.PEOPLE.ordinal -> onPeopleClick(
-                                            state[index]?.id ?: -1
-                                        )
-                                    }
-                                },
-                            source = "$posterUrl${state[index]?.posterPath}",
-                            contentDescription = "SearchPoster"
-                        )
-                    }
-                    if (isAppend) {
-                        item {
-                            CircularProgressIndicator(
-                                modifier = Modifier.align(Alignment.CenterHorizontally)
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            when (pagingStatus) {
+                PagingStatus.LOADING -> {
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
+                PagingStatus.EMPTY -> {
+                    Text(
+                        modifier = Modifier.align(Alignment.Center),
+                        text = "검색결과가 없습니다.",
+                        fontSize = sp30,
+                        textAlign = TextAlign.Center
+                    )
+                }
+                else -> {
+                    LazyVerticalGrid(
+                        modifier = Modifier.fillMaxSize(),
+                        state = scrollState,
+                        columns = GridCells.Adaptive(dp100),
+                        contentPadding = PaddingValues(dp10),
+                        horizontalArrangement = Arrangement.spacedBy(dp10),
+                        verticalArrangement = Arrangement.spacedBy(dp10)
+                    ) {
+                        items(state.itemCount) { index ->
+                            DynamicAsyncImageLoader(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .aspectRatio(POSTER_IMAGE_RATIO)
+                                    .bounceClick {
+                                        when (searchType) {
+                                            SearchType.MOVIE.ordinal -> onMovieClick(
+                                                state[index]?.id ?: -1
+                                            )
+                                            SearchType.PEOPLE.ordinal -> onPeopleClick(
+                                                state[index]?.id ?: -1
+                                            )
+                                        }
+                                    },
+                                source = "$posterUrl${state[index]?.posterPath}",
+                                contentDescription = "SearchPoster"
                             )
+                        }
+                        if (isAppend) {
+                            item(span = { GridItemSpan(maxCurrentLineSpan) }) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier
+                                        .wrapContentSize()
+                                        .align(Alignment.Center)
+                                )
+                            }
                         }
                     }
                 }
             }
-        }
-
-        if (isLoading) {
-            CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center)
-            )
         }
     }
 }
 
 @Composable
 fun SearchBarComponent(
-    onSearchClick: (String) -> Unit,
+    keyword: String,
+    searchType: Int,
     scrollState: LazyGridState,
-    viewModel: SearchVM = hiltViewModel()
+    onSearchClick: (String) -> Unit,
+    updateKeyword: (String) -> Unit,
+    updateSearchType: (SearchType) -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val focusManager = LocalFocusManager.current
@@ -204,91 +235,111 @@ fun SearchBarComponent(
         onDone = { focusManager.clearFocus() },
         onSearch = {
             scope.launch { scrollState.scrollToItem(0) }
-            onSearchClick(viewModel.keyword.text)
+            onSearchClick(keyword)
             focusManager.clearFocus()
         }
     )
+    var isExpand by remember { mutableStateOf(false) }
 
-    Row(
-        modifier = Modifier.padding(start = dp16, end = dp16, top = dp5, bottom = dp10),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        ExposedDropdownSearchTypeMenu(
-            modifier = Modifier.width(dp100),
-            list = SearchType.entries.map { it.label }.toList(),
-            viewModel = viewModel
-        )
-        TextField(
-            modifier = Modifier
-                .wrapContentHeight()
-                .weight(1f)
-                .padding(start = dp5, end = dp5),
-            value = viewModel.keyword.text,
-            onValueChange = {
-                Log.d(it)
-                viewModel.update(TextFieldValue(it))
-            },
-            label = { Text("검색어를 입력하세요.") },
-            singleLine = true,
-            maxLines = 1,
-            keyboardOptions = keyboardOptions,
-            keyboardActions = keyboardActions
-        )
-        Button(
-            onClick = {
-                scope.launch { scrollState.scrollToItem(0) }
-                onSearchClick(viewModel.keyword.text)
-                focusManager.clearFocus()
-            }
-        ) {
-            Text(text = "검색")
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ExposedDropdownSearchTypeMenu(
-    modifier: Modifier,
-    list: List<String>,
-    viewModel: SearchVM = hiltViewModel()
-) {
-    var expanded by remember { mutableStateOf(false) }
-
-    ExposedDropdownMenuBox(
-        modifier = modifier,
-        expanded = expanded,
-        onExpandedChange = { expanded = !expanded }
-    ) {
-        TextField(
-            modifier = modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
-            readOnly = true,
-            value = list[viewModel.searchType],
-            onValueChange = {},
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) }
-        )
-
-        ExposedDropdownMenu(
-            modifier = modifier,
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            list.forEach {
-                DropdownMenuItem(
-                    modifier = modifier,
-                    text = {
-                        Text(
-                            text = it,
-                            maxLines = 1
-                        )
-                    },
-                    onClick = {
-                        viewModel.searchType = list.indexOf(it)
-                        expanded = false
-                    }
+    BasicTextField(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(dp53)
+            .padding(top = dp10, start = dp16, end = dp16)
+            .clip(RoundedCornerShape(50))
+            .background(color = Color.DarkGray),
+        value = keyword,
+        onValueChange = {
+            Log.d(it)
+            updateKeyword(it)
+        },
+        textStyle = TextStyle(
+            fontSize = sp12,
+            color = MaterialTheme.colorScheme.onBackground
+        ),
+        decorationBox = { innerTextField ->
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    modifier = Modifier.padding(start = dp16, end = dp8),
+                    imageVector = Icons.Filled.Search,
+                    contentDescription = "searchBarIcon",
                 )
+
+                Text(
+                    modifier = Modifier.clickable { isExpand = !isExpand },
+                    text = SearchType.entries[searchType].label,
+                    fontSize = sp12
+                )
+                DropdownMenu(
+                    modifier = Modifier.wrapContentSize(),
+                    expanded = isExpand,
+                    onDismissRequest = { isExpand = false },
+                    offset = DpOffset(dp40, dp5)
+                ) {
+                    SearchType.entries.forEach { type ->
+                        DropdownMenuItem(
+                            onClick = {
+                                Log.d(type.label)
+                                updateSearchType(type)
+                                isExpand = false
+                            },
+                            text = { Text(text = type.label) }
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.padding(horizontal = dp5).width(dp1).height(dp10).background(color = Color.LightGray))
+
+                if (keyword.isEmpty()) {
+                    Text(
+                        modifier = Modifier.weight(1f).align(Alignment.CenterVertically),
+                        text = "검색어를 입력하세요.",
+                        fontSize = sp12,
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier.weight(1f).align(Alignment.CenterVertically)
+                    ) {
+                        innerTextField()
+                    }
+                }
+
+                AnimatedVisibility(
+                    visible = keyword.isNotEmpty(),
+                    enter = fadeIn(),
+                    exit = fadeOut(),
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        Icon(
+                            modifier = Modifier
+                                .padding(start = dp8, end = dp8)
+                                .clickable { updateKeyword("") },
+                            imageVector = Icons.Filled.Clear,
+                            contentDescription = "searchKeywordClear"
+                        )
+                        Icon(
+                            modifier = Modifier
+                                .padding(end = dp16)
+                                .clickable {
+                                    scope.launch { scrollState.scrollToItem(0) }
+                                    onSearchClick(keyword)
+                                    focusManager.clearFocus()
+                                },
+                            imageVector = Icons.Filled.Search,
+                            contentDescription = "searchKeywordClear"
+                        )
+                    }
+                }
             }
-        }
-    }
+        },
+        singleLine = true,
+        keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions,
+    )
 }

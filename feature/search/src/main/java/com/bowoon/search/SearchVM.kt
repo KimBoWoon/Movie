@@ -1,12 +1,12 @@
 package com.bowoon.search
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.SavedStateHandleSaveableApi
-import androidx.lifecycle.viewmodel.compose.saveable
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.bowoon.data.repository.PagingRepository
@@ -26,15 +26,18 @@ class SearchVM @Inject constructor(
         private const val TAG = "SearchVM"
     }
 
-    @OptIn(SavedStateHandleSaveableApi::class)
-    var keyword by savedStateHandle.saveable(stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue(""))
-    }
-    var searchType = savedStateHandle.get<Int>("searchType") ?: 0
+    var keyword by mutableStateOf("")
+        private set
+
+    var searchType by mutableIntStateOf(savedStateHandle.get<Int>("searchType") ?: 0)
     val searchMovieState = MutableStateFlow<PagingData<Movie>>(PagingData.empty())
 
-    fun update(newKeyword: TextFieldValue) {
-        keyword = newKeyword
+    fun updateKeyword(keyword: String) {
+        this@SearchVM.keyword = keyword
+    }
+
+    fun updateSearchType(searchType: SearchType) {
+        this@SearchVM.searchType = searchType.ordinal
     }
 
     fun searchMovies(query: String) {
