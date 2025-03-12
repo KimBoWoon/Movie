@@ -15,16 +15,16 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 internal class WorkManagerSyncManager @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @ApplicationContext private val appContext: Context,
 ) : SyncManager {
     override val isSyncing: Flow<Boolean> =
-        WorkManager.getInstance(context)
-            .getWorkInfosByTagFlow(MainMenuSyncWorker.WORKER_NAME)
+        WorkManager.getInstance(appContext)
+            .getWorkInfosForUniqueWorkFlow(MainMenuSyncWorker.WORKER_NAME)
             .map(List<WorkInfo>::anyRunning)
             .conflate()
 
     override fun syncMain() {
-        WorkManager.getInstance(context)
+        WorkManager.getInstance(appContext)
             .enqueueUniqueWork(
                 MainMenuSyncWorker.WORKER_NAME,
                 ExistingWorkPolicy.KEEP,
@@ -33,7 +33,7 @@ internal class WorkManagerSyncManager @Inject constructor(
     }
 
     override fun myDataSync() {
-        WorkManager.getInstance(context)
+        WorkManager.getInstance(appContext)
             .enqueueUniqueWork(
                 MyDataSyncWorker.WORKER_NAME,
                 ExistingWorkPolicy.KEEP,
@@ -42,7 +42,7 @@ internal class WorkManagerSyncManager @Inject constructor(
     }
 
     override fun requestSync() {
-        WorkManager.getInstance(context)
+        WorkManager.getInstance(appContext)
             .beginUniqueWork(
                 MyDataSyncWorker.WORKER_NAME,
                 ExistingWorkPolicy.KEEP,

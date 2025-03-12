@@ -5,6 +5,7 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkerParameters
 import com.bowoon.common.Dispatcher
 import com.bowoon.common.Dispatchers
@@ -26,11 +27,12 @@ class MainMenuSyncWorker @AssistedInject constructor(
     private val mainMenuRepository: MainMenuRepository
 ) : CoroutineWorker(appContext, workerParams) {
     companion object {
-        const val WORKER_NAME = "MovieInitWorker"
+        const val WORKER_NAME = "MainMenuSyncWorker"
 
         fun startUpSyncWork(isForce: Boolean = false) =
             OneTimeWorkRequestBuilder<DelegatingWorker>()
                 .addTag(WORKER_NAME)
+                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                 .setConstraints(SyncConstraints)
                 .setInputData(MainMenuSyncWorker::class.delegatedData(isForce))
                 .build()
