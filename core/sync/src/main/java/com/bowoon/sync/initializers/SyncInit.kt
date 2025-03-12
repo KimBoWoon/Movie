@@ -3,7 +3,6 @@ package com.bowoon.sync.initializers
 import android.content.Context
 import androidx.work.ExistingWorkPolicy
 import androidx.work.WorkManager
-import com.bowoon.sync.workers.MainMenuSyncWorker
 import com.bowoon.sync.workers.MyDataSyncWorker
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -20,7 +19,6 @@ class Sync @Inject constructor(
                 ExistingWorkPolicy.KEEP,
                 MyDataSyncWorker.startUpSyncWork()
             )
-            .then(MainMenuSyncWorker.startUpSyncWork(false))
             .enqueue()
     }
 }

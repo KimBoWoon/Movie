@@ -18,6 +18,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.bowoon.common.AppDoubleBackToExit
+import com.bowoon.common.Log
 import com.bowoon.common.isSystemInDarkTheme
 import com.bowoon.data.repository.LocalMovieAppDataComposition
 import com.bowoon.data.util.NetworkMonitor
@@ -93,6 +94,17 @@ class MainActivity : ComponentActivity() {
                         )
                     }
             }
+        }
+
+        lifecycleScope.launch {
+            syncManager.checkWork(
+                context = this@MainActivity,
+                onSuccess = {
+                    Log.d("MyDataSync Success")
+                    syncManager.syncMain()
+                },
+                onFailure = { Log.e("MyDataSync Error") }
+            )
         }
 
         splashScreen.setKeepOnScreenCondition { viewModel.movieAppData.value.shouldKeepSplashScreen() }
