@@ -42,6 +42,7 @@ import com.bowoon.data.repository.LocalMovieAppDataComposition
 import com.bowoon.data.util.PEOPLE_IMAGE_RATIO
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.firebase.LocalFirebaseLogHelper
+import com.bowoon.model.Favorite
 import com.bowoon.model.PeopleDetail
 import com.bowoon.model.getRelatedMovie
 import com.bowoon.movie.core.ui.R
@@ -82,8 +83,8 @@ fun PeopleScreen(
 fun PeopleScreen(
     peopleState: PeopleState,
     onBack: () -> Unit,
-    insertFavoritePeople: (PeopleDetail) -> Unit,
-    deleteFavoritePeople: (PeopleDetail) -> Unit,
+    insertFavoritePeople: (Favorite) -> Unit,
+    deleteFavoritePeople: (Favorite) -> Unit,
     onMovieClick: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
     restart: () -> Unit
@@ -140,8 +141,8 @@ fun PeopleDetailComponent(
     people: PeopleDetail,
     onBack: () -> Unit,
     onMovieClick: (Int) -> Unit,
-    insertFavoritePeople: (PeopleDetail) -> Unit,
-    deleteFavoritePeople: (PeopleDetail) -> Unit,
+    insertFavoritePeople: (Favorite) -> Unit,
+    deleteFavoritePeople: (Favorite) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean
 ) {
     val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
@@ -155,10 +156,15 @@ fun PeopleDetailComponent(
             title = people.name ?: "인물 정보",
             onBackClick = onBack,
             onFavoriteClick = {
+                val favorite = Favorite(
+                    id = people.id,
+                    title = people.name,
+                    imagePath = people.profilePath
+                )
                 if (people.isFavorite) {
-                    deleteFavoritePeople(people)
+                    deleteFavoritePeople(favorite)
                 } else {
-                    insertFavoritePeople(people)
+                    insertFavoritePeople(favorite)
                 }
                 scope.launch {
                     onShowSnackbar(

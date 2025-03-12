@@ -15,13 +15,14 @@ import com.bowoon.database.model.PeopleEntity
         MovieEntity::class,
         PeopleEntity::class
     ],
-    version = 2,
+    version = 3,
     autoMigrations = [
         AutoMigration(
             from = 1,
             to = 2,
             spec = DatabaseMigrations.Schema1to2::class
-        )
+        ),
+        AutoMigration(from = 2, to = 3)
     ],
     exportSchema = true,
 )

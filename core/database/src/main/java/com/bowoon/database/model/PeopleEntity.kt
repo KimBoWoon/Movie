@@ -2,7 +2,7 @@ package com.bowoon.database.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.bowoon.model.PeopleDetail
+import com.bowoon.model.Favorite
 
 @Entity(tableName = "peoples")
 data class PeopleEntity(
@@ -13,8 +13,8 @@ data class PeopleEntity(
     val profilePath: String?
 )
 
-fun PeopleEntity.asExternalModel(): PeopleDetail = PeopleDetail(
+fun PeopleEntity.asExternalModel(): Favorite = Favorite(
     id = id,
-    name = name,
-    profilePath = profilePath
+    title = name,
+    imagePath = profilePath
 )

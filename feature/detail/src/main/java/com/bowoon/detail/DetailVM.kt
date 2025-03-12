@@ -13,6 +13,7 @@ import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.data.repository.PagingRepository
 import com.bowoon.detail.navigation.DetailRoute
 import com.bowoon.domain.GetMovieDetailUseCase
+import com.bowoon.model.Favorite
 import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetail
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -63,13 +64,13 @@ class DetailVM @Inject constructor(
         movieInfo.restart()
     }
 
-    fun insertMovie(movie: MovieDetail) {
+    fun insertMovie(movie: Favorite) {
         viewModelScope.launch {
             databaseRepository.insertMovie(movie)
         }
     }
 
-    fun deleteMovie(movie: MovieDetail) {
+    fun deleteMovie(movie: Favorite) {
         viewModelScope.launch {
             databaseRepository.deleteMovie(movie)
         }

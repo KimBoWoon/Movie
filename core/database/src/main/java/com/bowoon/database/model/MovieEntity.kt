@@ -1,20 +1,18 @@
 package com.bowoon.database.model
 
-import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.bowoon.model.MovieDetail
+import com.bowoon.model.Favorite
 
 @Entity(tableName = "movies")
 data class MovieEntity(
     @PrimaryKey
     val id: Int,
-    @ColumnInfo(defaultValue = "")
     val posterPath: String,
     val timestamp: Long
 )
 
-fun MovieEntity.asExternalModel(): MovieDetail = MovieDetail(
+fun MovieEntity.asExternalModel(): Favorite = Favorite(
     id = id,
-    posterPath = posterPath
+    imagePath = posterPath
 )
