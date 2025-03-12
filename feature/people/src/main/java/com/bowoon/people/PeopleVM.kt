@@ -9,6 +9,7 @@ import com.bowoon.common.asResult
 import com.bowoon.common.restartableStateIn
 import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.domain.GetPeopleDetailUseCase
+import com.bowoon.model.Favorite
 import com.bowoon.model.PeopleDetail
 import com.bowoon.people.navigation.PeopleRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -46,13 +47,13 @@ class PeopleVM @Inject constructor(
         people.restart()
     }
 
-    fun insertPeople(people: PeopleDetail) {
+    fun insertPeople(people: Favorite) {
         viewModelScope.launch {
             databaseRepository.insertPeople(people)
         }
     }
 
-    fun deletePeople(people: PeopleDetail) {
+    fun deletePeople(people: Favorite) {
         viewModelScope.launch {
             databaseRepository.deletePeople(people)
         }

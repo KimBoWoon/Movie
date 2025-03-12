@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
@@ -53,8 +54,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
 import androidx.paging.LoadState
@@ -67,12 +66,12 @@ import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.Cast
 import com.bowoon.model.Crew
+import com.bowoon.model.Favorite
 import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetail
 import com.bowoon.model.MovieDetailTab
 import com.bowoon.model.PagingStatus
 import com.bowoon.ui.ConfirmDialog
-import com.bowoon.ui.FavoriteButton
 import com.bowoon.ui.ModalBottomSheetDialog
 import com.bowoon.ui.Title
 import com.bowoon.ui.animateRotation
@@ -95,7 +94,6 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
 import kotlinx.coroutines.launch
-import java.text.DecimalFormat
 
 @Composable
 fun DetailScreen(
@@ -110,20 +108,17 @@ fun DetailScreen(
     val movieInfo by viewModel.movieInfo.collectAsStateWithLifecycle()
     val similarMovies = viewModel.similarMovies.collectAsLazyPagingItems()
 
-    LifecycleEventEffect(event = Lifecycle.Event.ON_START) {
-        viewModel.getSimilarMovies()
-    }
-
     DetailScreen(
         movieInfoState = movieInfo,
         similarMovieState = similarMovies,
         goToMovie = goToMovie,
         goToPeople = goToPeople,
         onBack = onBack,
+        onShowSnackbar = onShowSnackbar,
         insertFavoriteMovie = viewModel::insertMovie,
         deleteFavoriteMovie = viewModel::deleteMovie,
-        onShowSnackbar = onShowSnackbar,
-        restart = viewModel::restart
+        restart = viewModel::restart,
+        searchSimilarMovie = viewModel::getSimilarMovies
     )
 }
 
@@ -134,10 +129,11 @@ fun DetailScreen(
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     onBack: () -> Unit,
-    insertFavoriteMovie: (MovieDetail) -> Unit,
-    deleteFavoriteMovie: (MovieDetail) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
-    restart: () -> Unit
+    insertFavoriteMovie: (Favorite) -> Unit,
+    deleteFavoriteMovie: (Favorite) -> Unit,
+    restart: () -> Unit,
+    searchSimilarMovie: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
     var isLoading by remember { mutableStateOf(false) }
@@ -183,10 +179,15 @@ fun DetailScreen(
                     isFavorite = it.isFavorite,
                     onBackClick = onBack,
                     onFavoriteClick = {
+                        val favorite = Favorite(
+                            id = it.id,
+                            title = it.title,
+                            imagePath = it.posterPath
+                        )
                         if (it.isFavorite) {
-                            deleteFavoriteMovie(it)
+                            deleteFavoriteMovie(favorite)
                         } else {
-                            insertFavoriteMovie(it)
+                            insertFavoriteMovie(favorite)
                         }
                         scope.launch {
                             val isFavorite = it.favoriteMovies?.find { favoriteMovie -> favoriteMovie.id == it.id } != null
@@ -202,9 +203,7 @@ fun DetailScreen(
                     similarMovieState = similarMovieState,
                     onMovieClick = { id -> goToMovie(id) },
                     onPeopleClick = { id -> goToPeople(id) },
-                    favoriteMovies = it.favoriteMovies ?: emptyList(),
-                    insertFavoriteMovie = insertFavoriteMovie,
-                    deleteFavoriteMovie = deleteFavoriteMovie
+                    searchSimilarMovie = searchSimilarMovie
                 )
             }
         }
@@ -217,9 +216,7 @@ fun MovieDetailComponent(
     similarMovieState: LazyPagingItems<Movie>,
     onMovieClick: (Int) -> Unit,
     onPeopleClick: (Int) -> Unit,
-    favoriteMovies: List<MovieDetail>,
-    insertFavoriteMovie: (MovieDetail) -> Unit,
-    deleteFavoriteMovie: (MovieDetail) -> Unit
+    searchSimilarMovie: () -> Unit
 ) {
     Column {
         VideosComponent(movieDetail)
@@ -230,11 +227,10 @@ fun MovieDetailComponent(
         val scope = rememberCoroutineScope()
         val tabClickEvent: (Int, Int) -> Unit = { current, index ->
             scope.launch {
-//            if (current == index) {
-//                rememberLazyGridState().scrollToItem(0)
-//            } else {
                 pagerState.animateScrollToPage(index)
-//            }
+            }
+            if (index == MovieDetailTab.SIMILAR.ordinal) {
+                searchSimilarMovie()
             }
         }
 
@@ -267,10 +263,7 @@ fun MovieDetailComponent(
                         MovieDetailTab.IMAGES.label -> ImageComponent(movie = movieDetail)
                         MovieDetailTab.SIMILAR.label -> SimilarMovieComponent(
                             similarMovieState = similarMovieState,
-                            onMovieClick = onMovieClick,
-                            favoriteMovies = favoriteMovies,
-                            insertFavoriteMovie = insertFavoriteMovie,
-                            deleteFavoriteMovie = deleteFavoriteMovie
+                            onMovieClick = onMovieClick
                         )
                     }
                 }
@@ -448,7 +441,6 @@ fun ImageComponent(
 fun MovieInfoComponent(
     movie: MovieDetail
 ) {
-    val format = DecimalFormat("#,###")
     var overviewMaxLine by remember { mutableIntStateOf(3) }
     val titles = movie.alternativeTitles?.titles?.fold("") { acc, title -> if (acc.isEmpty()) "${title.title}" else "$acc\n${title.title}" } ?: ""
     var expanded by remember { mutableStateOf(false) }
@@ -613,53 +605,64 @@ fun ActorAndCrewComponent(
     movie: MovieDetail,
     onPeopleClick: (Int) -> Unit
 ) {
-    LazyColumn(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        item {
-            movie.credits?.cast.takeIf { !it.isNullOrEmpty() }?.let { casts ->
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = dp16),
-                    text = "배우",
-                    fontSize = sp20,
-                    textAlign = TextAlign.Center
-                )
-                LazyRow(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight(),
-                    contentPadding = PaddingValues(horizontal = dp16),
-                    horizontalArrangement = Arrangement.spacedBy(dp10)
-                ) {
-                    items(
-                        items = casts
-                    ) { cast ->
-                        StaffComponent(tmdbMovieDetailCast = cast, onPeopleClick = onPeopleClick)
+    if (movie.credits?.crew.isNullOrEmpty() && movie.credits?.cast.isNullOrEmpty()) {
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Text(
+                modifier = Modifier.align(Alignment.Center),
+                text = "등록된 배우 & 스태프 정보가 없습니다."
+            )
+        }
+    } else {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            item {
+                movie.credits?.cast.takeIf { !it.isNullOrEmpty() }?.let { casts ->
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = dp16),
+                        text = "배우",
+                        fontSize = sp20,
+                        textAlign = TextAlign.Center
+                    )
+                    LazyRow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight(),
+                        contentPadding = PaddingValues(horizontal = dp16),
+                        horizontalArrangement = Arrangement.spacedBy(dp10)
+                    ) {
+                        items(
+                            items = casts
+                        ) { cast ->
+                            StaffComponent(tmdbMovieDetailCast = cast, onPeopleClick = onPeopleClick)
+                        }
                     }
                 }
-            }
-            movie.credits?.crew.takeIf { !it.isNullOrEmpty() }?.let { crews ->
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = dp16),
-                    text = "스태프",
-                    fontSize = sp20,
-                    textAlign = TextAlign.Center
-                )
-                LazyRow(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight(),
-                    contentPadding = PaddingValues(horizontal = dp16),
-                    horizontalArrangement = Arrangement.spacedBy(dp10)
-                ) {
-                    items(
-                        items = crews
-                    ) { crew ->
-                        StaffComponent(tmdbMovieDetailCrew = crew, onPeopleClick = onPeopleClick)
+                movie.credits?.crew.takeIf { !it.isNullOrEmpty() }?.let { crews ->
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = dp16),
+                        text = "스태프",
+                        fontSize = sp20,
+                        textAlign = TextAlign.Center
+                    )
+                    LazyRow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight(),
+                        contentPadding = PaddingValues(horizontal = dp16),
+                        horizontalArrangement = Arrangement.spacedBy(dp10)
+                    ) {
+                        items(
+                            items = crews
+                        ) { crew ->
+                            StaffComponent(tmdbMovieDetailCrew = crew, onPeopleClick = onPeopleClick)
+                        }
                     }
                 }
             }
@@ -758,35 +761,30 @@ fun StaffComponent(
 @Composable
 fun SimilarMovieComponent(
     similarMovieState: LazyPagingItems<Movie>,
-    onMovieClick: (Int) -> Unit,
-    favoriteMovies: List<MovieDetail>,
-    insertFavoriteMovie: (MovieDetail) -> Unit,
-    deleteFavoriteMovie: (MovieDetail) -> Unit
+    onMovieClick: (Int) -> Unit
 ) {
     val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
-    var isLoading by remember { mutableStateOf(false) }
     var isAppend by remember { mutableStateOf(false) }
     var pagingStatus by remember { mutableStateOf<PagingStatus>(PagingStatus.NONE) }
 
     when {
-        similarMovieState.loadState.refresh is LoadState.Loading -> {
-            isLoading = true
-            pagingStatus = PagingStatus.LOADING
-        }
+        similarMovieState.loadState.refresh is LoadState.Loading -> pagingStatus = PagingStatus.LOADING
         similarMovieState.loadState.append is LoadState.Loading -> isAppend = true
         similarMovieState.loadState.refresh is LoadState.Error || similarMovieState.loadState.append is LoadState.Error -> {
-            isLoading = false
             isAppend = false
+
+            val message = (similarMovieState.loadState.refresh as? LoadState.Error)?.error?.message
+                ?: (similarMovieState.loadState.append as? LoadState.Error)?.error?.message
+                ?: "something wrong..."
 
             ConfirmDialog(
                 title = "Error",
-                message = (similarMovieState.loadState.refresh as? LoadState.Error)?.error?.message ?: "something wrong...",
+                message = message,
                 confirmPair = "재시도" to { similarMovieState.retry() },
                 dismissPair = "확인" to {}
             )
         }
         similarMovieState.loadState.refresh is LoadState.NotLoading -> {
-            isLoading = false
             isAppend = false
             pagingStatus = if (pagingStatus == PagingStatus.LOADING) {
                 if (similarMovieState.itemCount == 0) PagingStatus.EMPTY else PagingStatus.NOT_EMPTY
@@ -794,52 +792,57 @@ fun SimilarMovieComponent(
                 pagingStatus
             }
         }
-        similarMovieState.loadState.append is LoadState.NotLoading -> {
-            isLoading = false
-            isAppend = false
-        }
+        similarMovieState.loadState.append is LoadState.NotLoading -> isAppend = false
     }
 
-    LazyVerticalGrid(
-        columns = GridCells.Adaptive(dp100),
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(dp10),
-        horizontalArrangement = Arrangement.spacedBy(dp10),
-        verticalArrangement = Arrangement.spacedBy(dp10)
+    Box(
+        modifier = Modifier.fillMaxSize()
     ) {
-        items(
-            count = similarMovieState.itemCount
-        ) { index ->
-            val detail = MovieDetail(
-                id = similarMovieState[index]?.id,
-                posterPath = similarMovieState[index]?.posterPath ?: "",
+        when (pagingStatus) {
+            PagingStatus.LOADING -> CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center)
             )
-            Box(
-                modifier = Modifier
-                    .width(dp200)
-                    .wrapContentHeight()
-                    .bounceClick { onMovieClick(similarMovieState[index]?.id ?: -1) }
-            ) {
-                DynamicAsyncImageLoader(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(POSTER_IMAGE_RATIO),
-                    source = "$posterUrl${similarMovieState[index]?.posterPath}",
-                    contentDescription = "BoxOfficePoster"
-                )
-                FavoriteButton(
-                    modifier = Modifier
-                        .wrapContentSize()
-                        .align(Alignment.TopEnd),
-                    isFavorite = favoriteMovies.find { it.id == similarMovieState[index]?.id } != null,
-                    onClick = {
-                        if (favoriteMovies.find { it.id == similarMovieState[index]?.id } != null) {
-                            deleteFavoriteMovie(detail)
-                        } else {
-                            insertFavoriteMovie(detail)
+            PagingStatus.EMPTY -> Text(
+                modifier = Modifier.align(Alignment.Center),
+                text = "비슷한 영화가 없습니다."
+            )
+            else ->  {
+                LazyVerticalGrid(
+                    columns = GridCells.Adaptive(dp100),
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(dp10),
+                    horizontalArrangement = Arrangement.spacedBy(dp10),
+                    verticalArrangement = Arrangement.spacedBy(dp10)
+                ) {
+                    items(
+                        count = similarMovieState.itemCount
+                    ) { index ->
+                        Box(
+                            modifier = Modifier
+                                .width(dp200)
+                                .wrapContentHeight()
+                                .bounceClick { onMovieClick(similarMovieState[index]?.id ?: -1) }
+                        ) {
+                            DynamicAsyncImageLoader(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .aspectRatio(POSTER_IMAGE_RATIO),
+                                source = "$posterUrl${similarMovieState[index]?.posterPath}",
+                                contentDescription = "SimilarMoviePoster"
+                            )
                         }
                     }
-                )
+
+                    if (isAppend) {
+                        item(span = { GridItemSpan(maxCurrentLineSpan) }) {
+                            CircularProgressIndicator(
+                                modifier = Modifier
+                                    .wrapContentSize()
+                                    .align(Alignment.Center)
+                            )
+                        }
+                    }
+                }
             }
         }
     }

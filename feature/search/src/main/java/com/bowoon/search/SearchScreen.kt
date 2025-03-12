@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -29,6 +30,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
@@ -63,10 +65,12 @@ import com.bowoon.model.PagingStatus
 import com.bowoon.model.SearchType
 import com.bowoon.ui.ConfirmDialog
 import com.bowoon.ui.Title
+import com.bowoon.ui.animateRotation
 import com.bowoon.ui.bounceClick
 import com.bowoon.ui.dp1
 import com.bowoon.ui.dp10
 import com.bowoon.ui.dp100
+import com.bowoon.ui.dp15
 import com.bowoon.ui.dp16
 import com.bowoon.ui.dp5
 import com.bowoon.ui.dp53
@@ -334,12 +338,22 @@ fun SearchTypeComponent(
     var isExpand by remember { mutableStateOf(false) }
 
     Column {
-        Text(
-            modifier = Modifier.clickable { isExpand = !isExpand },
-            text = SearchType.entries[searchType].label,
-            fontSize = sp12,
-            color = Color.Black
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                modifier = Modifier.clickable { isExpand = !isExpand },
+                text = SearchType.entries[searchType].label,
+                fontSize = sp12,
+                color = Color.Black
+            )
+            Icon(
+                modifier = Modifier.size(dp15).animateRotation(expanded = isExpand, startAngle = 0f, endAngle = -180f, animateMillis = 200),
+                imageVector = Icons.Filled.KeyboardArrowDown,
+                contentDescription = "searchTypeArrow",
+                tint = Color.Black
+            )
+        }
         DropdownMenu(
             modifier = Modifier.wrapContentSize(),
             expanded = isExpand,

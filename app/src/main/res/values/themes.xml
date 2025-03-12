@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
+
     <style name="Theme.Movie" parent="android:Theme.Material.Light.NoActionBar" />
 
     <style name="Theme.Movie.Splash.Basic" parent="NightAdjusted.Theme.Movie">
@@ -11,15 +12,10 @@
         <item name="android:windowLightNavigationBar" tools:targetApi="27">true</item>
     </style>
 
-    <style name="Theme.Movie.Splash" parent="NightAdjusted.Theme.Splash">
-        <item name="android:windowSplashScreenBackground" tools:targetApi="31">@color/black</item>
-        <item name="android:windowSplashScreenAnimatedIcon" tools:targetApi="31">@drawable/ic_launcher_foreground</item>
-        <item name="android:windowSplashScreenIconBackgroundColor" tools:targetApi="31">@color/black</item>
-<!--        <item name="android:windowSplashScreenBrandingImage" tools:targetApi="31">@mipmap/ic_launcher</item>-->
+    <style name="Theme.App.Starting" parent="NightAdjusted.Theme.Splash">
+        <item name="windowSplashScreenBackground">@color/ic_launcher_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="windowSplashScreenIconBackgroundColor">@color/ic_launcher_background</item>
         <item name="postSplashScreenTheme">@style/Theme.Movie</item>
-<!--        <item name="android:statusBarColor">@color/black</item>-->
-<!--        <item name="android:navigationBarColor">@color/black</item>-->
-<!--        <item name="android:windowBackground">@mipmap/ic_launcher</item>-->
-<!--        <item name="windowSplashScreenBackground">@color/black</item>-->
     </style>
 </resources>
