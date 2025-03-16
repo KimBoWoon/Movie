@@ -1,6 +1,5 @@
 package com.bowoon.domain
 
-import com.bowoon.common.Log
 import com.bowoon.data.repository.MyDataRepository
 import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.model.LanguageItem
@@ -8,7 +7,6 @@ import com.bowoon.model.MovieAppData
 import com.bowoon.model.PosterSize
 import com.bowoon.model.Region
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import javax.inject.Inject
 
@@ -27,6 +25,7 @@ class GetMovieAppDataUseCase @Inject constructor(
             updateDate = internalData.updateDate,
             mainMenu = internalData.mainMenu,
             imageQuality = internalData.imageQuality,
+            genres = externalData.genres?.genres,
             secureBaseUrl = externalData.secureBaseUrl,
             configuration = externalData.configuration,
             certification = externalData.certification,
@@ -53,7 +52,5 @@ class GetMovieAppDataUseCase @Inject constructor(
                 )
             } ?: emptyList()
         )
-    }.catch { e ->
-        Log.printStackTrace(e)
     }
 }

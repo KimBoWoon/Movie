@@ -7,12 +7,12 @@ import com.bowoon.data.paging.TMDBSearchPagingSource
 import com.bowoon.data.paging.TMDBSimilarMoviePagingSource
 import com.bowoon.datastore.InternalDataSource
 import com.bowoon.model.Movie
-import com.bowoon.network.retrofit.Apis
+import com.bowoon.network.MovieNetworkDataSource
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class PagingRepositoryImpl @Inject constructor(
-    private val apis: Apis,
+    private val apis: MovieNetworkDataSource,
     private val datastore: InternalDataSource
 ) : PagingRepository {
 //    override suspend fun getNowPlaying(): Flow<PagingData<NowPlaying>> {

@@ -76,13 +76,13 @@ fun MyScreen(
         )
         DisplayMenuComponent(
             title = "다크모드 설정",
-            content = movieAppData.isDarkMode.name,
+            content = movieAppData.isDarkMode.label,
             onClick = {
                 isShowChooseDialog = true
-                chooseDialogItem = DarkThemeConfig.entries.map { it.name }
-                selectedOption = movieAppData.isDarkMode.name
+                chooseDialogItem = DarkThemeConfig.entries.map { it.label }
+                selectedOption = movieAppData.isDarkMode.label
                 updateData = {
-                    updateUserData(movieAppData.asInternalData().copy(isDarkMode = DarkThemeConfig.valueOf(it)), false)
+                    updateUserData(movieAppData.asInternalData().copy(isDarkMode = DarkThemeConfig.find(it)), false)
                 }
             }
         )

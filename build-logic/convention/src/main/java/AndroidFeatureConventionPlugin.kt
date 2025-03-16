@@ -17,13 +17,10 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
             extensions.configure<LibraryExtension> {
                 testOptions.animationsDisabled = true
                 configureGradleManagedDevices(this)
-//                configureFlavors(this)
             }
 
             dependencies {
                 add("implementation", project(":core:ui"))
-//                add("testImplementation", project(":core:testing"))
-
                 add("implementation", libs.findLibrary("androidx.compose.hilt.navigation").get())
                 add("implementation", libs.findLibrary("androidx.lifecycle.runtimeCompose").get())
                 add("implementation", libs.findLibrary("androidx.lifecycle.viewModelCompose").get())

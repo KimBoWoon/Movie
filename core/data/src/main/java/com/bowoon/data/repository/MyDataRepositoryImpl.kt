@@ -9,9 +9,7 @@ import com.bowoon.model.ExternalData
 import com.bowoon.model.LanguageItem
 import com.bowoon.model.MovieGenreList
 import com.bowoon.model.RegionList
-import com.bowoon.network.ApiResponse
-import com.bowoon.network.model.asExternalModel
-import com.bowoon.network.retrofit.Apis
+import com.bowoon.network.MovieNetworkDataSource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
@@ -20,7 +18,7 @@ import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
 class MyDataRepositoryImpl @Inject constructor(
-    private val apis: Apis,
+    private val apis: MovieNetworkDataSource,
     private val datastore: InternalDataSource
 ) : MyDataRepository {
     override val externalData: Flow<ExternalData> = combine(
@@ -48,43 +46,25 @@ class MyDataRepositoryImpl @Inject constructor(
     }.isSuccess
 
     override fun getConfiguration(): Flow<Configuration> = flow {
-        when (val response = apis.tmdbApis.getConfiguration()) {
-            is ApiResponse.Failure -> throw response.throwable
-            is ApiResponse.Success -> emit(response.data.asExternalModel())
-        }
+        emit(apis.getConfiguration())
     }
 
     override fun getCertification(): Flow<CertificationData> = flow {
-        val language = datastore.getUserData().language
-        val region = datastore.getUserData().region
-
-        when (val response = apis.tmdbApis.getCertification(language = "$language-$region")) {
-            is ApiResponse.Failure -> throw response.throwable
-            is ApiResponse.Success -> emit(response.data.asExternalModel())
-        }
+        emit(apis.getCertification())
     }
 
     override fun getGenres(): Flow<MovieGenreList> = flow {
         val language = datastore.getUserData().language
         val region = datastore.getUserData().region
 
-        when (val response = apis.tmdbApis.getGenres(language = "$language-$region")) {
-            is ApiResponse.Failure -> throw response.throwable
-            is ApiResponse.Success -> emit(response.data.asExternalModel())
-        }
+        emit(apis.getGenres(language = "$language-$region"))
     }
 
     override fun getAvailableLanguage(): Flow<List<LanguageItem>> = flow {
-        when (val response = apis.tmdbApis.getAvailableLanguage()) {
-            is ApiResponse.Failure -> throw response.throwable
-            is ApiResponse.Success -> emit(response.data.asExternalModel())
-        }
+        emit(apis.getAvailableLanguage())
     }
 
     override fun getAvailableRegion(): Flow<RegionList> = flow {
-        when (val response = apis.tmdbApis.getAvailableRegion()) {
-            is ApiResponse.Failure -> throw response.throwable
-            is ApiResponse.Success -> emit(response.data.asExternalModel())
-        }
+        emit(apis.getAvailableRegion())
     }
 }

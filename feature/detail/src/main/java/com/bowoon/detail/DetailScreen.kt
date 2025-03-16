@@ -5,7 +5,6 @@ import androidx.annotation.OptIn
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -190,9 +189,8 @@ fun DetailScreen(
                             insertFavoriteMovie(favorite)
                         }
                         scope.launch {
-                            val isFavorite = it.favoriteMovies?.find { favoriteMovie -> favoriteMovie.id == it.id } != null
                             onShowSnackbar(
-                                if (isFavorite) "보고 싶은 영화에서 제거했습니다." else "보고 싶은 영화에 추가했습니다.",
+                                if (it.isFavorite) "보고 싶은 영화에서 제거했습니다." else "보고 싶은 영화에 추가했습니다.",
                                 null
                             )
                         }
@@ -223,7 +221,6 @@ fun MovieDetailComponent(
 
         val tabList = MovieDetailTab.entries.map { it.label }
         val pagerState = rememberPagerState(initialPage = 0, pageCount = { tabList.size })
-        val isDarkMode = LocalMovieAppDataComposition.current.isDarkMode(isSystemInDarkTheme())
         val scope = rememberCoroutineScope()
         val tabClickEvent: (Int, Int) -> Unit = { current, index ->
             scope.launch {
@@ -235,7 +232,6 @@ fun MovieDetailComponent(
         }
 
         TabComponent(
-            isDarkMode = isDarkMode,
             tabs = tabList,
             pagerState = pagerState,
             tabClickEvent = tabClickEvent

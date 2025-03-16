@@ -6,13 +6,11 @@ import com.bowoon.common.Log
 import com.bowoon.model.Movie
 import com.bowoon.model.SearchResult
 import com.bowoon.model.SearchType
-import com.bowoon.network.ApiResponse
-import com.bowoon.network.model.asExternalModel
-import com.bowoon.network.retrofit.Apis
+import com.bowoon.network.MovieNetworkDataSource
 import javax.inject.Inject
 
 class TMDBSearchPagingSource @Inject constructor(
-    private val apis: Apis,
+    private val apis: MovieNetworkDataSource,
     private val type: String,
     private val query: String,
     private val language: String,
@@ -37,29 +35,25 @@ class TMDBSearchPagingSource @Inject constructor(
             anchorPage?.prevKey ?: anchorPage?.nextKey
         }
 
-    private suspend fun searchMovie(params: LoadParams<Int>, isAdult: Boolean): LoadResult<Int, Movie> =
-        when (val response = apis.tmdbApis.searchMovies(query = query, includeAdult = isAdult, language = language, region = region, page = params.key ?: 1)) {
-            is ApiResponse.Failure -> LoadResult.Error(response.throwable)
-            is ApiResponse.Success -> {
-                LoadResult.Page(
-                    data = getSearchItem(response.data.results?.asExternalModel()),
-                    prevKey = null,
-                    nextKey = if ((response.data.totalPages ?: 1) > (params.key ?: 1)) (params.key ?: 1) + 1 else null
-                )
-            }
-        }
+    private suspend fun searchMovie(params: LoadParams<Int>, isAdult: Boolean): LoadResult<Int, Movie> {
+        val response = apis.searchMovies(query = query, includeAdult = isAdult, language = language, region = region, page = params.key ?: 1)
 
-    private suspend fun searchPeople(params: LoadParams<Int>, isAdult: Boolean): LoadResult<Int, Movie> =
-        when (val response = apis.tmdbApis.searchPeople(query = query, includeAdult = isAdult, language = language, region = region, page = params.key ?: 1)) {
-            is ApiResponse.Failure -> LoadResult.Error(response.throwable)
-            is ApiResponse.Success -> {
-                LoadResult.Page(
-                    data = getSearchItem(response.data.results?.asExternalModel()),
-                    prevKey = null,
-                    nextKey = if ((response.data.totalPages ?: 1) > (params.key ?: 1)) (params.key ?: 1) + 1 else null
-                )
-            }
-        }
+        return LoadResult.Page(
+            data = getSearchItem(response.results),
+            prevKey = null,
+            nextKey = if ((response.totalPages ?: 1) > (params.key ?: 1)) (params.key ?: 1) + 1 else null
+        )
+    }
+
+    private suspend fun searchPeople(params: LoadParams<Int>, isAdult: Boolean): LoadResult<Int, Movie> {
+        val response = apis.searchPeople(query = query, includeAdult = isAdult, language = language, region = region, page = params.key ?: 1)
+
+        return LoadResult.Page(
+            data = getSearchItem(response.results),
+            prevKey = null,
+            nextKey = if ((response.totalPages ?: 1) > (params.key ?: 1)) (params.key ?: 1) + 1 else null
+        )
+    }
 
     private fun getSearchItem(
         response: List<SearchResult>?

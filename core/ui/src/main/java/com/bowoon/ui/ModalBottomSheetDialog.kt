@@ -2,7 +2,6 @@ package com.bowoon.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -65,23 +64,28 @@ fun ModalBottomSheetDialog(
                     source = imageList[it].filePath ?: "",
                     contentDescription = "PosterView"
                 )
-                Indexer(current = it + 1, size = imageList.size)
+                Indexer(
+                    modifier = Modifier
+                        .padding(top = dp10, end = dp20)
+                        .wrapContentSize()
+                        .background(color = Color(0x33000000), shape = RoundedCornerShape(dp20))
+                        .align(Alignment.TopEnd),
+                    current = it + 1,
+                    size = imageList.size
+                )
             }
         }
     }
 }
 
 @Composable
-fun BoxScope.Indexer(
+fun Indexer(
+    modifier: Modifier,
     current: Int,
     size: Int
 ) {
     Box(
-        modifier = Modifier
-            .padding(top = dp10, end = dp20)
-            .wrapContentSize()
-            .background(color = Color(0x33000000), shape = RoundedCornerShape(dp20))
-            .align(Alignment.TopEnd)
+        modifier = modifier,
     ) {
         Text(
             modifier = Modifier
