@@ -22,9 +22,7 @@ interface TMDBApis {
     suspend fun getConfiguration(): ApiResponse<NetworkTMDBConfiguration>
 
     @GET("/3/certification/movie/list")
-    suspend fun getCertification(
-        @Query("language") language: String = "ko-KR"
-    ): ApiResponse<NetworkTMDBCertificationData>
+    suspend fun getCertification(): ApiResponse<NetworkTMDBCertificationData>
 
     @GET("/3/genre/movie/list")
     suspend fun getGenres(

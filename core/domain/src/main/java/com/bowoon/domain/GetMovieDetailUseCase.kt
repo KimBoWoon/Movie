@@ -27,7 +27,6 @@ class GetMovieDetailUseCase @Inject constructor(
                 certification = movie.releases?.countries?.find {
                     it.iso31661.equals(userData.region, true)
                 }?.certification,
-                favoriteMovies = favoriteMovies,
                 isFavorite = favoriteMovies.find { it.id == movie.id } != null
             )
         }

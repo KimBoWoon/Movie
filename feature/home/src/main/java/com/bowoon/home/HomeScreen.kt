@@ -30,6 +30,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bowoon.common.Log
+import com.bowoon.data.repository.LocalMovieAppDataComposition
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.MainMenu
@@ -206,6 +207,8 @@ fun MainMovieItem(
     movie: Movie,
     onMovieClick: (Int) -> Unit
 ) {
+    val posterPath = LocalMovieAppDataComposition.current.getImageUrl()
+
     Column(
         modifier = Modifier
             .width(dp150)
@@ -219,7 +222,7 @@ fun MainMovieItem(
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(POSTER_IMAGE_RATIO),
-                source = movie.posterPath ?: "",
+                source = "$posterPath${movie.posterPath}",
                 contentDescription = "BoxOfficePoster"
             )
         }

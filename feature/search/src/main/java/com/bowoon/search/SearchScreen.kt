@@ -36,6 +36,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -119,9 +120,7 @@ fun SearchScreen(
     var pagingStatus by remember { mutableStateOf<PagingStatus>(PagingStatus.NONE) }
 
     when {
-        state.loadState.refresh is LoadState.Loading -> {
-            pagingStatus = PagingStatus.LOADING
-        }
+        state.loadState.refresh is LoadState.Loading -> pagingStatus = PagingStatus.LOADING
         state.loadState.append is LoadState.Loading -> isAppend = true
         state.loadState.refresh is LoadState.Error || state.loadState.append is LoadState.Error -> {
             isAppend = false
@@ -247,7 +246,7 @@ fun SearchBarComponent(
             .height(dp53)
             .padding(top = dp10, start = dp16, end = dp16)
             .clip(shape = RoundedCornerShape(50))
-            .background(color = Color(0xFFEAEAEA)),
+            .background(color = MaterialTheme.colorScheme.inverseOnSurface),
         value = keyword,
         onValueChange = {
             Log.d(it)
@@ -255,7 +254,7 @@ fun SearchBarComponent(
         },
         textStyle = TextStyle(
             fontSize = sp12,
-            color = Color.Black
+            color = MaterialTheme.colorScheme.onSurface
         ),
         decorationBox = { innerTextField ->
             Row(
@@ -265,8 +264,7 @@ fun SearchBarComponent(
                 Icon(
                     modifier = Modifier.padding(start = dp16, end = dp8),
                     imageVector = Icons.Filled.Search,
-                    contentDescription = "searchBarIcon",
-                    tint = Color.Black
+                    contentDescription = "searchBarIcon"
                 )
 
                 SearchTypeComponent(
@@ -281,7 +279,7 @@ fun SearchBarComponent(
                         modifier = Modifier.weight(1f).align(Alignment.CenterVertically),
                         text = "검색어를 입력하세요.",
                         fontSize = sp12,
-                        color = Color.Black
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 } else {
                     Box(
@@ -305,8 +303,7 @@ fun SearchBarComponent(
                                 .padding(start = dp8, end = dp8)
                                 .clickable { updateKeyword("") },
                             imageVector = Icons.Filled.Clear,
-                            contentDescription = "searchKeywordClear",
-                            tint = Color.Black
+                            contentDescription = "searchKeywordClear"
                         )
                         Icon(
                             modifier = Modifier
@@ -317,8 +314,7 @@ fun SearchBarComponent(
                                     focusManager.clearFocus()
                                 },
                             imageVector = Icons.Filled.Search,
-                            contentDescription = "searchKeywordClear",
-                            tint = Color.Black
+                            contentDescription = "searchKeywordClear"
                         )
                     }
                 }
@@ -345,13 +341,12 @@ fun SearchTypeComponent(
                 modifier = Modifier.clickable { isExpand = !isExpand },
                 text = SearchType.entries[searchType].label,
                 fontSize = sp12,
-                color = Color.Black
+                color = MaterialTheme.colorScheme.onSurface
             )
             Icon(
                 modifier = Modifier.size(dp15).animateRotation(expanded = isExpand, startAngle = 0f, endAngle = -180f, animateMillis = 200),
                 imageVector = Icons.Filled.KeyboardArrowDown,
-                contentDescription = "searchTypeArrow",
-                tint = Color.Black
+                contentDescription = "searchTypeArrow"
             )
         }
         DropdownMenu(

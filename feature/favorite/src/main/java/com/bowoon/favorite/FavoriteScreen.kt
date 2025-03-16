@@ -1,6 +1,5 @@
 package com.bowoon.favorite
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -86,7 +85,6 @@ fun FavoriteScreen(
     val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
     val favoriteList = FavoriteVM.FavoriteTabs.entries.map { it.label }
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { favoriteList.size })
-    val isDarkMode = LocalMovieAppDataComposition.current.isDarkMode(isSystemInDarkTheme())
     val scope = rememberCoroutineScope()
     val tabClickEvent: (Int, Int) -> Unit = { current, index ->
         scope.launch {
@@ -103,7 +101,6 @@ fun FavoriteScreen(
         ) {
             Title(title = "찜")
             TabComponent(
-                isDarkMode = isDarkMode,
                 tabs = favoriteList,
                 pagerState = pagerState,
                 tabClickEvent = tabClickEvent
