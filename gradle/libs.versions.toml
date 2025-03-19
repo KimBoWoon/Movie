@@ -30,10 +30,10 @@ startup = "1.2.0"
 exoPlayer = "1.5.1"
 
 # compose
-composeBom = "2025.02.00"
+composeBom = "2025.03.00"
 activityCompose = "1.10.1"
 compose-compiler = "1.4.5"
-compose-navigation = "2.8.8"
+compose-navigation = "2.8.9"
 compose-hilt-navigation = "1.2.0"
 compose-paging = "3.3.6"
 androidxNavigation = "2.8.4"
@@ -126,7 +126,8 @@ androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-compose-hilt-navigation = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "compose-hilt-navigation" }
-androidx-compose-paging = { module = "androidx.paging:paging-compose", version.ref = "compose-paging" }
+androidx-compose-paging = { group = "androidx.paging", name = "paging-compose", version.ref = "compose-paging" }
+androidx-paging-common = { group = "androidx.paging", name = "paging-common", version.ref = "compose-paging" }
 androidx-lifecycle-runtimeCompose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidxLifecycle" }
 androidx-lifecycle-runtimeTesting = { group = "androidx.lifecycle", name = "lifecycle-runtime-testing", version.ref = "androidxLifecycle" }
 androidx-lifecycle-viewModelCompose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "androidxLifecycle" }

@@ -65,7 +65,7 @@ import com.bowoon.model.Movie
 import com.bowoon.model.PagingStatus
 import com.bowoon.model.SearchType
 import com.bowoon.ui.ConfirmDialog
-import com.bowoon.ui.Title
+import com.bowoon.ui.components.Title
 import com.bowoon.ui.animateRotation
 import com.bowoon.ui.bounceClick
 import com.bowoon.ui.dp1

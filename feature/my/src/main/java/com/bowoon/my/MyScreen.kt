@@ -35,7 +35,7 @@ import com.bowoon.model.DarkThemeConfig
 import com.bowoon.model.InternalData
 import com.bowoon.model.MovieAppData
 import com.bowoon.model.asInternalData
-import com.bowoon.ui.Title
+import com.bowoon.ui.components.Title
 import com.bowoon.ui.dp16
 import com.bowoon.ui.dp50
 import com.bowoon.ui.dp500

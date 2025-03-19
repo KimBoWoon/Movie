@@ -2,13 +2,13 @@ package com.bowoon.data.repository
 
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import com.bowoon.datastore.InternalDataSource
-import com.bowoon.testing.utils.MainDispatcherRule
 import com.bowoon.testing.TestMovieDataSource
-import com.bowoon.testing.configurationTestData
 import com.bowoon.testing.model.certificationTestData
+import com.bowoon.testing.model.configurationTestData
 import com.bowoon.testing.model.genreListTestData
 import com.bowoon.testing.model.languageListTestData
 import com.bowoon.testing.model.regionTestData
+import com.bowoon.testing.utils.MainDispatcherRule
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher

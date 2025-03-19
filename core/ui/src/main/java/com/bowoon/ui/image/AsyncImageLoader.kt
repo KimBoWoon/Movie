@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.platform.testTag
 import coil3.Image
 import coil3.compose.AsyncImagePainter
 import coil3.compose.rememberAsyncImagePainter
@@ -64,7 +65,7 @@ fun DynamicAsyncImageLoader(
         when (isError) {
             true -> {
                 Image(
-                    modifier = modifier.clip(RoundedCornerShape(dp10)),
+                    modifier = modifier.testTag(tag = source).clip(RoundedCornerShape(dp10)),
                     contentScale = ContentScale.Crop,
                     painter = error,
                     contentDescription = contentDescription,
@@ -73,7 +74,7 @@ fun DynamicAsyncImageLoader(
             }
             false -> {
                 Image(
-                    modifier = modifier.clip(RoundedCornerShape(dp10)),
+                    modifier = modifier.testTag(tag = source).clip(RoundedCornerShape(dp10)),
                     contentScale = ContentScale.Crop,
                     painter = if (!isLocalInspection) imageLoader else placeholder,
                     contentDescription = contentDescription,

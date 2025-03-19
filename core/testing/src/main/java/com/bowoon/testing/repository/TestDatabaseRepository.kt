@@ -2,54 +2,51 @@ package com.bowoon.testing.repository
 
 import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.model.Favorite
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.MutableSharedFlow
 
 class TestDatabaseRepository : DatabaseRepository {
-    private val _movieDatabase = MutableStateFlow<List<Favorite>>(emptyList())
-    private val _peopleDatabase = MutableStateFlow<List<Favorite>>(emptyList())
-    private val currentMovieDatabase get() = _movieDatabase.replayCache.firstOrNull() ?: emptyList()
-    private val currentPeopleDatabase get() = _peopleDatabase.replayCache.firstOrNull() ?: emptyList()
-    val movieDatabase: Flow<List<Favorite>> = _movieDatabase.filterNotNull()
-    val peopleDatabase: Flow<List<Favorite>> = _peopleDatabase.filterNotNull()
+    val movieDatabase = MutableSharedFlow<List<Favorite>>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+    val peopleDatabase = MutableSharedFlow<List<Favorite>>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+    private val currentMovieDatabase get() = movieDatabase.replayCache.firstOrNull() ?: emptyList()
+    private val currentPeopleDatabase get() = peopleDatabase.replayCache.firstOrNull() ?: emptyList()
 
     override fun getMovies(): Flow<List<Favorite>> = movieDatabase
 
     override suspend fun insertMovie(movie: Favorite): Long {
-        _movieDatabase.update { currentMovieDatabase + movie }
+        movieDatabase.emit(currentMovieDatabase + movie)
         return movie.id?.toLong() ?: throw RuntimeException("room database insert failed...")
     }
 
     override suspend fun deleteMovie(movie: Favorite) {
-        _movieDatabase.update { currentMovieDatabase - movie }
+        movieDatabase.emit(currentMovieDatabase.filter { it.id != movie.id })
     }
 
     override suspend fun upsertMovies(movies: List<Favorite>) {
-        _movieDatabase.update {
+        movieDatabase.emit(
             (currentMovieDatabase + movies).map { movie ->
                 movies.find { it.id == movie.id } ?: movie
             }
-        }
+        )
     }
 
     override fun getPeople(): Flow<List<Favorite>> = peopleDatabase
 
     override suspend fun insertPeople(people: Favorite): Long {
-        _peopleDatabase.update { currentPeopleDatabase + people }
+        peopleDatabase.emit(currentPeopleDatabase + people)
         return people.id?.toLong() ?: throw RuntimeException("room database insert failed...")
     }
 
     override suspend fun deletePeople(people: Favorite) {
-        _peopleDatabase.update { currentPeopleDatabase - people }
+        peopleDatabase.emit(currentPeopleDatabase.filter { it.id != people.id })
     }
 
     override suspend fun upsertPeoples(peoples: List<Favorite>) {
-        _peopleDatabase.update {
+        peopleDatabase.emit(
             (currentPeopleDatabase + peoples).map { people ->
                 peoples.find { it.id == people.id } ?: people
             }
-        }
+        )
     }
 }

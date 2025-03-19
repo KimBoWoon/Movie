@@ -9,7 +9,7 @@ import com.bowoon.testing.utils.MainDispatcherRule
 import com.bowoon.testing.repository.TestDetailRepository
 import com.bowoon.testing.repository.combineCreditsTestData
 import com.bowoon.testing.repository.externalIdsTestData
-import com.bowoon.testing.repository.movieDetailTestData
+import com.bowoon.testing.repository.favoriteMovieDetailTestData
 import com.bowoon.testing.repository.movieSearchTestData
 import com.bowoon.testing.repository.peopleDetailTestData
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
@@ -110,12 +110,12 @@ class DetailRepositoryUseRetrofitTest {
 
     @Test
     fun getMovieDetailTest() = runTest {
-        repository.setMovieDetail()
+        repository.setMovieDetail(favoriteMovieDetailTestData)
 
-        server.enqueue(MockResponse().setBody(movieDetailTestData.toString()))
+        server.enqueue(MockResponse().setBody(favoriteMovieDetailTestData.toString()))
         val result = repository.getMovieDetail(0)
 
-        assertEquals(result.first(), movieDetailTestData)
+        assertEquals(result.first(), favoriteMovieDetailTestData)
     }
 
     @Test

@@ -35,7 +35,7 @@ import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.MainMenu
 import com.bowoon.model.Movie
-import com.bowoon.ui.Title
+import com.bowoon.ui.components.Title
 import com.bowoon.ui.bounceClick
 import com.bowoon.ui.dp150
 import com.bowoon.ui.dp16

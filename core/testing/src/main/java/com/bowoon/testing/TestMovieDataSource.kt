@@ -25,7 +25,7 @@ import com.bowoon.testing.model.similarMoviesTestData
 import com.bowoon.testing.model.upcomingMoviesTestData
 import com.bowoon.testing.repository.combineCreditsTestData
 import com.bowoon.testing.repository.externalIdsTestData
-import com.bowoon.testing.repository.movieDetailTestData
+import com.bowoon.testing.repository.favoriteMovieDetailTestData
 import com.bowoon.testing.repository.movieSearchTestData
 import com.bowoon.testing.repository.peopleDetailTestData
 
@@ -66,7 +66,7 @@ class TestMovieDataSource : MovieNetworkDataSource {
         language: String,
         includeImageLanguage: String,
         region: String
-    ): MovieDetail = movieDetailTestData
+    ): MovieDetail = favoriteMovieDetailTestData
 
     override suspend fun getSimilarMovies(id: Int, language: String, page: Int): SimilarMovies = similarMoviesTestData
 

@@ -48,7 +48,7 @@ import com.bowoon.model.getRelatedMovie
 import com.bowoon.movie.core.ui.R
 import com.bowoon.ui.ConfirmDialog
 import com.bowoon.ui.ModalBottomSheetDialog
-import com.bowoon.ui.Title
+import com.bowoon.ui.components.Title
 import com.bowoon.ui.bounceClick
 import com.bowoon.ui.dp10
 import com.bowoon.ui.dp100

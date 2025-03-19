@@ -28,6 +28,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -38,10 +39,10 @@ import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.Favorite
 import com.bowoon.ui.FavoriteButton
-import com.bowoon.ui.Title
 import com.bowoon.ui.bounceClick
 import com.bowoon.ui.components.ScrollToTopComponent
 import com.bowoon.ui.components.TabComponent
+import com.bowoon.ui.components.Title
 import com.bowoon.ui.dp10
 import com.bowoon.ui.dp15
 import com.bowoon.ui.dp200
@@ -83,8 +84,8 @@ fun FavoriteScreen(
     deleteFavoritePeople: (Favorite) -> Unit
 ) {
     val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
-    val favoriteList = FavoriteVM.FavoriteTabs.entries.map { it.label }
-    val pagerState = rememberPagerState(initialPage = 0, pageCount = { favoriteList.size })
+    val favoriteTabs = FavoriteVM.FavoriteTabs.entries.map { it.label }
+    val pagerState = rememberPagerState(initialPage = 0, pageCount = { favoriteTabs.size })
     val scope = rememberCoroutineScope()
     val tabClickEvent: (Int, Int) -> Unit = { current, index ->
         scope.launch {
@@ -101,7 +102,7 @@ fun FavoriteScreen(
         ) {
             Title(title = "찜")
             TabComponent(
-                tabs = favoriteList,
+                tabs = favoriteTabs,
                 pagerState = pagerState,
                 tabClickEvent = tabClickEvent
             ) {
@@ -121,77 +122,99 @@ fun FavoriteScreen(
                     ) {
                         when (it[index]) {
                             it[0] -> {
-                                FavoriteListComponent<Favorite>(
-                                    favoriteList = favoriteMovies,
-                                    spanCount = 2,
-                                    content = { movieDetail ->
-                                        Box(
-                                            modifier = Modifier.bounceClick { onMovieClick(movieDetail.id ?: -1) }
-                                        ) {
-                                            DynamicAsyncImageLoader(
-                                                modifier = Modifier
-                                                    .width(dp200)
-                                                    .aspectRatio(POSTER_IMAGE_RATIO),
-                                                source = "$posterUrl${movieDetail.imagePath}",
-                                                contentDescription = "BoxOfficePoster"
-                                            )
-                                            FavoriteButton(
-                                                modifier = Modifier
-                                                    .wrapContentSize()
-                                                    .align(Alignment.TopEnd),
-                                                isFavorite = true,
-                                                onClick = {
-                                                    deleteFavoriteMovie(movieDetail)
-                                                    scope.launch {
-                                                        onShowSnackbar("찜에서 제거됐습니다.", null)
-                                                    }
+                                Box(
+                                    modifier = Modifier.fillMaxSize()
+                                ) {
+                                    if (favoriteMovies.isEmpty()) {
+                                        Text(
+                                            modifier = Modifier.testTag(tag = "favoriteMovieEmpty").align(Alignment.Center),
+                                            text = "찜한 영화가 없습니다."
+                                        )
+                                    } else {
+                                        FavoriteListComponent(
+                                            favoriteList = favoriteMovies,
+                                            spanCount = 2,
+                                            content = { movieDetail ->
+                                                Box(
+                                                    modifier = Modifier.bounceClick { onMovieClick(movieDetail.id ?: -1) }
+                                                ) {
+                                                    DynamicAsyncImageLoader(
+                                                        modifier = Modifier
+                                                            .width(dp200)
+                                                            .aspectRatio(POSTER_IMAGE_RATIO),
+                                                        source = "$posterUrl${movieDetail.imagePath}",
+                                                        contentDescription = "FavoriteMoviePoster"
+                                                    )
+                                                    FavoriteButton(
+                                                        modifier = Modifier
+                                                            .wrapContentSize()
+                                                            .align(Alignment.TopEnd),
+                                                        isFavorite = true,
+                                                        onClick = {
+                                                            deleteFavoriteMovie(movieDetail)
+                                                            scope.launch {
+                                                                onShowSnackbar("찜에서 제거됐습니다.", null)
+                                                            }
+                                                        }
+                                                    )
                                                 }
-                                            )
-                                        }
+                                            }
+                                        )
                                     }
-                                )
+                                }
                             }
                             it[1] -> {
-                                FavoriteListComponent<Favorite>(
-                                    favoriteList = favoritePeoples,
-                                    spanCount = 3,
-                                    content = { peopleDetail ->
-                                        Column(
-                                            modifier = Modifier
-                                                .wrapContentSize()
-                                                .bounceClick { onPeopleClick(peopleDetail.id ?: -1) }
-                                        ) {
-                                            Box() {
-                                                DynamicAsyncImageLoader(
-                                                    modifier = Modifier
-                                                        .fillMaxWidth()
-                                                        .aspectRatio(PEOPLE_IMAGE_RATIO)
-                                                        .clip(RoundedCornerShape(dp10)),
-                                                    source = "$posterUrl${peopleDetail.imagePath}",
-                                                    contentDescription = "BoxOfficePoster"
-                                                )
-                                                FavoriteButton(
+                                Box(
+                                    modifier = Modifier.fillMaxSize()
+                                ) {
+                                    if (favoritePeoples.isEmpty()) {
+                                        Text(
+                                            modifier = Modifier.testTag(tag = "favoritePeopleEmpty").align(Alignment.Center),
+                                            text = "찜한 인물이 없습니다."
+                                        )
+                                    } else {
+                                        FavoriteListComponent(
+                                            favoriteList = favoritePeoples,
+                                            spanCount = 3,
+                                            content = { peopleDetail ->
+                                                Column(
                                                     modifier = Modifier
                                                         .wrapContentSize()
-                                                        .align(Alignment.TopEnd),
-                                                    isFavorite = true,
-                                                    onClick = {
-                                                        deleteFavoritePeople(peopleDetail)
-                                                        scope.launch {
-                                                            onShowSnackbar("찜에서 제거됐습니다.", null)
-                                                        }
+                                                        .bounceClick { onPeopleClick(peopleDetail.id ?: -1) }
+                                                ) {
+                                                    Box() {
+                                                        DynamicAsyncImageLoader(
+                                                            modifier = Modifier
+                                                                .fillMaxWidth()
+                                                                .aspectRatio(PEOPLE_IMAGE_RATIO)
+                                                                .clip(RoundedCornerShape(dp10)),
+                                                            source = "$posterUrl${peopleDetail.imagePath}",
+                                                            contentDescription = "FavoritePeopleProfileImage"
+                                                        )
+                                                        FavoriteButton(
+                                                            modifier = Modifier
+                                                                .wrapContentSize()
+                                                                .align(Alignment.TopEnd),
+                                                            isFavorite = true,
+                                                            onClick = {
+                                                                deleteFavoritePeople(peopleDetail)
+                                                                scope.launch {
+                                                                    onShowSnackbar("찜에서 제거됐습니다.", null)
+                                                                }
+                                                            }
+                                                        )
                                                     }
-                                                )
+                                                    Text(
+                                                        modifier = Modifier.wrapContentWidth().padding(top = dp5).align(Alignment.CenterHorizontally),
+                                                        text = peopleDetail.title ?: "",
+                                                        maxLines = 1,
+                                                        overflow = TextOverflow.Ellipsis
+                                                    )
+                                                }
                                             }
-                                            Text(
-                                                modifier = Modifier.wrapContentWidth().padding(top = dp5).align(Alignment.CenterHorizontally),
-                                                text = peopleDetail.title ?: "",
-                                                maxLines = 1,
-                                                overflow = TextOverflow.Ellipsis
-                                            )
-                                        }
+                                        )
                                     }
-                                )
+                                }
                             }
                         }
                     }
@@ -202,10 +225,10 @@ fun FavoriteScreen(
 }
 
 @Composable
-fun <T> FavoriteListComponent(
-    favoriteList: List<T>,
+fun FavoriteListComponent(
+    favoriteList: List<Favorite>,
     spanCount: Int,
-    content: @Composable (T) -> Unit
+    content: @Composable (Favorite) -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val lazyGridState = rememberLazyGridState()
