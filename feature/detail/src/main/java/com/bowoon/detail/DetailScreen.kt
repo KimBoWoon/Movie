@@ -48,6 +48,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -72,10 +73,10 @@ import com.bowoon.model.MovieDetailTab
 import com.bowoon.model.PagingStatus
 import com.bowoon.ui.ConfirmDialog
 import com.bowoon.ui.ModalBottomSheetDialog
-import com.bowoon.ui.Title
 import com.bowoon.ui.animateRotation
 import com.bowoon.ui.bounceClick
 import com.bowoon.ui.components.TabComponent
+import com.bowoon.ui.components.Title
 import com.bowoon.ui.dp0
 import com.bowoon.ui.dp10
 import com.bowoon.ui.dp100
@@ -116,8 +117,7 @@ fun DetailScreen(
         onShowSnackbar = onShowSnackbar,
         insertFavoriteMovie = viewModel::insertMovie,
         deleteFavoriteMovie = viewModel::deleteMovie,
-        restart = viewModel::restart,
-        searchSimilarMovie = viewModel::getSimilarMovies
+        restart = viewModel::restart
     )
 }
 
@@ -131,8 +131,7 @@ fun DetailScreen(
     onShowSnackbar: suspend (String, String?) -> Boolean,
     insertFavoriteMovie: (Favorite) -> Unit,
     deleteFavoriteMovie: (Favorite) -> Unit,
-    restart: () -> Unit,
-    searchSimilarMovie: () -> Unit
+    restart: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
     var isLoading by remember { mutableStateOf(false) }
@@ -165,7 +164,7 @@ fun DetailScreen(
     ) {
         if (isLoading) {
             CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center)
+                modifier = Modifier.testTag(tag = "detailScreenLoading").align(Alignment.Center)
             )
         }
 
@@ -200,8 +199,7 @@ fun DetailScreen(
                     movieDetail = it,
                     similarMovieState = similarMovieState,
                     onMovieClick = { id -> goToMovie(id) },
-                    onPeopleClick = { id -> goToPeople(id) },
-                    searchSimilarMovie = searchSimilarMovie
+                    onPeopleClick = { id -> goToPeople(id) }
                 )
             }
         }
@@ -213,8 +211,7 @@ fun MovieDetailComponent(
     movieDetail: MovieDetail,
     similarMovieState: LazyPagingItems<Movie>,
     onMovieClick: (Int) -> Unit,
-    onPeopleClick: (Int) -> Unit,
-    searchSimilarMovie: () -> Unit
+    onPeopleClick: (Int) -> Unit
 ) {
     Column {
         VideosComponent(movieDetail)
@@ -225,9 +222,6 @@ fun MovieDetailComponent(
         val tabClickEvent: (Int, Int) -> Unit = { current, index ->
             scope.launch {
                 pagerState.animateScrollToPage(index)
-            }
-            if (index == MovieDetailTab.SIMILAR.ordinal) {
-                searchSimilarMovie()
             }
         }
 
@@ -477,6 +471,7 @@ fun MovieInfoComponent(
             movie.title?.takeIf { it.isNotEmpty() }?.let {
                 Text(
                     modifier = Modifier
+                        .testTag(tag = "movieTitle")
                         .padding(
                             start = dp16,
                             end = dp16,
@@ -612,7 +607,7 @@ fun ActorAndCrewComponent(
         }
     } else {
         LazyColumn(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.testTag(tag = "castAndCrew").fillMaxSize()
         ) {
             item {
                 movie.credits?.cast.takeIf { !it.isNullOrEmpty() }?.let { casts ->
@@ -782,7 +777,7 @@ fun SimilarMovieComponent(
         }
         similarMovieState.loadState.refresh is LoadState.NotLoading -> {
             isAppend = false
-            pagingStatus = if (pagingStatus == PagingStatus.LOADING) {
+            pagingStatus = if (pagingStatus == PagingStatus.NONE) {
                 if (similarMovieState.itemCount == 0) PagingStatus.EMPTY else PagingStatus.NOT_EMPTY
             } else {
                 pagingStatus

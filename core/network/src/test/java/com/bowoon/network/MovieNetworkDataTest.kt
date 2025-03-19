@@ -13,7 +13,7 @@ import com.bowoon.testing.model.peopleSearchTestData
 import com.bowoon.testing.model.regionTestData
 import com.bowoon.testing.model.similarMoviesTestData
 import com.bowoon.testing.model.upcomingMoviesTestData
-import com.bowoon.testing.repository.movieDetailTestData
+import com.bowoon.testing.repository.favoriteMovieDetailTestData
 import com.bowoon.testing.repository.movieSearchTestData
 import com.bowoon.testing.repository.peopleDetailTestData
 import kotlinx.coroutines.test.runTest
@@ -79,7 +79,7 @@ class MovieNetworkDataTest {
     fun getMovieDetailTest() = runTest {
         val result = datasource.getMovieDetail(0)
 
-        assertEquals(result, movieDetailTestData)
+        assertEquals(result, favoriteMovieDetailTestData)
     }
 
     @Test

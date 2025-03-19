@@ -27,4 +27,7 @@ dependencies {
     ).forEach {
         implementation(it)
     }
+
+    testImplementation(libs.androidx.paging.common)
+    androidTestImplementation(projects.core.testing)
 }

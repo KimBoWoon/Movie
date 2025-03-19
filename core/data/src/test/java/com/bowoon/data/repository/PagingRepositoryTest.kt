@@ -1,14 +1,14 @@
 package com.bowoon.data.repository
 
 import androidx.paging.PagingSource
-import com.bowoon.data.model.movieSearchTestData
-import com.bowoon.data.model.peopleSearchTestData
-import com.bowoon.data.model.similarMoviesTestData
 import com.bowoon.data.paging.TMDBSearchPagingSource
 import com.bowoon.data.paging.TMDBSimilarMoviePagingSource
-import com.bowoon.testing.TestMovieDataSource
 import com.bowoon.model.Movie
 import com.bowoon.model.SearchType
+import com.bowoon.testing.TestMovieDataSource
+import com.bowoon.testing.model.movieSearchTestData
+import com.bowoon.testing.model.peopleSearchTestData
+import com.bowoon.testing.model.similarMoviesTestData
 import com.bowoon.testing.utils.MainDispatcherRule
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule

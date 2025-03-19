@@ -4,20 +4,21 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import androidx.paging.PagingData
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
+import com.bowoon.common.Log
 import com.bowoon.common.Result
 import com.bowoon.common.asResult
 import com.bowoon.common.restartableStateIn
 import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.data.repository.PagingRepository
+import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.detail.navigation.DetailRoute
 import com.bowoon.domain.GetMovieDetailUseCase
 import com.bowoon.model.Favorite
-import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetail
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -28,12 +29,26 @@ class DetailVM @Inject constructor(
     savedStateHandle: SavedStateHandle,
     getMovieDetail: GetMovieDetailUseCase,
     private val databaseRepository: DatabaseRepository,
-    private val pagingRepository: PagingRepository
+    private val pagingRepository: PagingRepository,
+    private val userDataRepository: UserDataRepository
 ) : ViewModel() {
     companion object {
         private const val TAG = "DetailVM"
     }
 
+    init {
+        viewModelScope.launch {
+            userDataRepository.internalData.collect {
+                Log.d(TAG, "language -> ${it.language}, region -> ${it.region}")
+
+                language = it.language
+                region = it.region
+            }
+        }
+    }
+
+    private var language = ""
+    private var region = ""
     private val id = savedStateHandle.toRoute<DetailRoute>().id
     val movieInfo = getMovieDetail(id)
         .asResult()
@@ -48,17 +63,16 @@ class DetailVM @Inject constructor(
             initialValue = MovieDetailState.Loading,
             started = SharingStarted.WhileSubscribed(5_000)
         )
-    val similarMovies = MutableStateFlow<PagingData<Movie>>(PagingData.empty())
-
-    fun getSimilarMovies() {
-        viewModelScope.launch {
-            pagingRepository.getSimilarMovies(id)
-                .cachedIn(viewModelScope)
-                .collect {
-                    similarMovies.value = it
-                }
+    val similarMovies = Pager(
+        config = PagingConfig(pageSize = 20, initialLoadSize = 20, prefetchDistance = 5),
+        pagingSourceFactory = {
+            pagingRepository.getSimilarMovies(
+                id = id,
+                language = language,
+                region = region
+            )
         }
-    }
+    ).flow.cachedIn(viewModelScope)
 
     fun restart() {
         movieInfo.restart()

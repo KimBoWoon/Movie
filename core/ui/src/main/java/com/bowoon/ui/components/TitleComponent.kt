@@ -1,4 +1,4 @@
-package com.bowoon.ui
+package com.bowoon.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -17,11 +17,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.bowoon.ui.FavoriteButton
+import com.bowoon.ui.bottomLineBorder
+import com.bowoon.ui.dp16
+import com.bowoon.ui.dp20
+import com.bowoon.ui.dp5
+import com.bowoon.ui.dp50
+import com.bowoon.ui.dp53
+import com.bowoon.ui.sp20
 import com.bowoon.ui.theme.MovieTheme
 
 @Composable
@@ -37,7 +46,7 @@ fun Title(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            modifier = Modifier.padding(horizontal = dp20),
+            modifier = Modifier.testTag(tag = "titleComponent").padding(horizontal = dp20),
             text = title,
             fontSize = sp20,
             fontWeight = FontWeight.Bold,
@@ -62,11 +71,11 @@ fun Title(
         verticalAlignment = Alignment.CenterVertically
     ) {
         FilledIconButton(
-            modifier = Modifier.padding(dp5),
+            modifier = Modifier.testTag("backButton").padding(dp5),
             onClick = { onBackClick() },
             colors = IconButtonDefaults.iconButtonColors(
                 containerColor = Color.Transparent,
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                contentColor = MaterialTheme.colorScheme.onSurface,
                 disabledContainerColor = Color.Transparent,
                 disabledContentColor = Color.Transparent
             )
@@ -77,7 +86,7 @@ fun Title(
             )
         }
         Text(
-            modifier = Modifier.weight(1f).padding(end = dp50),
+            modifier = Modifier.testTag(tag = "titleComponent").weight(1f).padding(end = dp50),
             text = title,
             fontSize = sp20,
             fontWeight = FontWeight.Bold,
@@ -104,18 +113,12 @@ fun Title(
         verticalAlignment = Alignment.CenterVertically
     ) {
         FilledIconButton(
-            modifier = Modifier.padding(dp5),
+            modifier = Modifier.testTag(tag = "backButton").padding(dp5),
             onClick = { onBackClick() },
             colors = IconButtonDefaults.iconButtonColors(
                 containerColor = Color.Transparent,
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                disabledContainerColor = if (isFavorite) {
-                    MaterialTheme.colorScheme.onBackground.copy(
-                        alpha = 0.12f
-                    )
-                } else {
-                    Color.Transparent
-                },
+                contentColor = MaterialTheme.colorScheme.onSurface,
+                disabledContainerColor = Color.Transparent,
                 disabledContentColor = Color.Transparent
             )
         ) {
@@ -125,7 +128,7 @@ fun Title(
             )
         }
         Text(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.testTag(tag = "titleComponent").weight(1f),
             text = title,
             fontSize = sp20,
             fontWeight = FontWeight.Bold,
