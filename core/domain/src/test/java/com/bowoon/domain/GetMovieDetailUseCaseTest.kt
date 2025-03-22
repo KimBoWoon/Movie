@@ -2,13 +2,16 @@ package com.bowoon.domain
 
 import com.bowoon.model.Favorite
 import com.bowoon.model.InternalData
-import com.bowoon.testing.utils.MainDispatcherRule
 import com.bowoon.testing.repository.TestDatabaseRepository
 import com.bowoon.testing.repository.TestDetailRepository
 import com.bowoon.testing.repository.TestUserDataRepository
 import com.bowoon.testing.repository.favoriteMovieDetailTestData
+import com.bowoon.testing.repository.unFavoriteMovieDetailTestData
+import com.bowoon.testing.utils.MainDispatcherRule
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import kotlin.test.assertEquals
@@ -16,19 +19,30 @@ import kotlin.test.assertEquals
 class GetMovieDetailUseCaseTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
-    private val detailRepository = TestDetailRepository()
-    private val databaseRepository = TestDatabaseRepository()
-    private val userDataRepository = TestUserDataRepository()
-    private val getMovieDetailUseCase = GetMovieDetailUseCase(
-        userDataRepository = userDataRepository,
-        detailRepository = detailRepository,
-        databaseRepository = databaseRepository
-    )
+    private lateinit var detailRepository: TestDetailRepository
+    private lateinit var databaseRepository: TestDatabaseRepository
+    private lateinit var userDataRepository: TestUserDataRepository
+    private lateinit var getMovieDetailUseCase: GetMovieDetailUseCase
+
+    @Before
+    fun setup() {
+        detailRepository = TestDetailRepository()
+        databaseRepository = TestDatabaseRepository()
+        userDataRepository = TestUserDataRepository()
+        getMovieDetailUseCase = GetMovieDetailUseCase(
+            userDataRepository = userDataRepository,
+            detailRepository = detailRepository,
+            databaseRepository = databaseRepository
+        )
+        runBlocking {
+            databaseRepository.insertMovie(Favorite(id = 23))
+            userDataRepository.updateUserData(InternalData(), false)
+        }
+    }
 
     @Test
     fun getMovieDetailTest() = runTest {
         detailRepository.setMovieDetail(favoriteMovieDetailTestData)
-        userDataRepository.updateUserData(InternalData(), false)
 
         val result = getMovieDetailUseCase(0)
 
@@ -37,12 +51,17 @@ class GetMovieDetailUseCaseTest {
 
     @Test
     fun getFavoriteMovieDetailTest() = runTest {
-        detailRepository.setMovieDetail(favoriteMovieDetailTestData)
-        userDataRepository.updateUserData(InternalData(), false)
-        databaseRepository.insertMovie(Favorite(id = 0))
+        detailRepository.setMovieDetail(unFavoriteMovieDetailTestData)
+        databaseRepository.insertMovie(
+            Favorite(
+                id = unFavoriteMovieDetailTestData.id,
+                title = unFavoriteMovieDetailTestData.title,
+                imagePath = unFavoriteMovieDetailTestData.posterPath
+            )
+        )
 
-        val result = getMovieDetailUseCase(0)
+        val result = getMovieDetailUseCase(324)
 
-        assertEquals(result.first(), favoriteMovieDetailTestData)
+        assertEquals(result.first(), unFavoriteMovieDetailTestData.copy(isFavorite = true))
     }
 }

@@ -18,6 +18,7 @@ import com.bowoon.testing.model.certificationTestData
 import com.bowoon.testing.model.configurationTestData
 import com.bowoon.testing.model.genreListTestData
 import com.bowoon.testing.model.languageListTestData
+import com.bowoon.testing.model.movieSearchTestData
 import com.bowoon.testing.model.nowPlayingMoviesTestData
 import com.bowoon.testing.model.peopleSearchTestData
 import com.bowoon.testing.model.regionTestData
@@ -26,7 +27,6 @@ import com.bowoon.testing.model.upcomingMoviesTestData
 import com.bowoon.testing.repository.combineCreditsTestData
 import com.bowoon.testing.repository.externalIdsTestData
 import com.bowoon.testing.repository.favoriteMovieDetailTestData
-import com.bowoon.testing.repository.movieSearchTestData
 import com.bowoon.testing.repository.peopleDetailTestData
 
 class TestMovieDataSource : MovieNetworkDataSource {

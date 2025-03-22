@@ -383,28 +383,37 @@ fun ImageComponent(
         it.copy(filePath = "$posterUrl${it.filePath}")
     }
 
-    LazyVerticalStaggeredGrid(
-        columns = StaggeredGridCells.Adaptive(dp100),
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(dp10),
-        horizontalArrangement = Arrangement.spacedBy(dp10),
-        verticalItemSpacing = dp10
-    ) {
-        items(
-            items = items,
-            key = { it }
+    if (items.isEmpty()) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
         ) {
-            DynamicAsyncImageLoader(
-                modifier = Modifier
-                    .width(dp200)
-                    .aspectRatio(it.aspectRatio?.toFloat() ?: 1f)
-                    .bounceClick {
-                        index = items.indexOf(it)
-                        isShowing = true
-                    },
-                source = it.filePath ?: "",
-                contentDescription = "moviePoster"
-            )
+            Text(text = "등록된 이미지가 없습니다.")
+        }
+    } else {
+        LazyVerticalStaggeredGrid(
+            columns = StaggeredGridCells.Adaptive(dp100),
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(dp10),
+            horizontalArrangement = Arrangement.spacedBy(dp10),
+            verticalItemSpacing = dp10
+        ) {
+            items(
+                items = items,
+                key = { it }
+            ) {
+                DynamicAsyncImageLoader(
+                    modifier = Modifier
+                        .width(dp200)
+                        .aspectRatio(it.aspectRatio?.toFloat() ?: 1f)
+                        .bounceClick {
+                            index = items.indexOf(it)
+                            isShowing = true
+                        },
+                    source = it.filePath ?: "",
+                    contentDescription = "moviePoster"
+                )
+            }
         }
     }
 

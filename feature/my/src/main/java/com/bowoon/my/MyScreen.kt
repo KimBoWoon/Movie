@@ -3,7 +3,6 @@ package com.bowoon.my
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,13 +27,12 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bowoon.common.Log
 import com.bowoon.data.repository.LocalMovieAppDataComposition
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.DarkThemeConfig
 import com.bowoon.model.InternalData
-import com.bowoon.model.MovieAppData
-import com.bowoon.model.asInternalData
 import com.bowoon.ui.components.Title
 import com.bowoon.ui.dp16
 import com.bowoon.ui.dp50
@@ -47,127 +45,156 @@ fun MyScreen(
 ) {
     LocalFirebaseLogHelper.current.sendLog("MyScreen", "my screen init")
 
-    val movieAppData = LocalMovieAppDataComposition.current
+    val movieAppData by viewModel.myData.collectAsStateWithLifecycle()
 
     MyScreen(
-        movieAppData = movieAppData,
+        internalData = movieAppData,
         updateUserData = viewModel::updateUserData
     )
 }
 
 @Composable
 fun MyScreen(
-    movieAppData: MovieAppData,
+    internalData: InternalData,
     updateUserData: (InternalData, Boolean) -> Unit
 ) {
+    val movieAppData = LocalMovieAppDataComposition.current
     var isShowChooseDialog by remember { mutableStateOf(false) }
     var chooseDialogItem by remember { mutableStateOf(emptyList<String>()) }
     var selectedOption by remember { mutableStateOf("") }
     var updateData by remember { mutableStateOf<(String) -> Unit>({ Log.d(it) }) }
-
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        Title(title = "마이페이지")
-        DisplayMenuComponent(
-            title = "메인 업데이트 날짜",
-            content = movieAppData.updateDate,
-            onClick = null
-        )
-        DisplayMenuComponent(
-            title = "다크모드 설정",
-            content = movieAppData.isDarkMode.label,
-            onClick = {
-                isShowChooseDialog = true
-                chooseDialogItem = DarkThemeConfig.entries.map { it.label }
-                selectedOption = movieAppData.isDarkMode.label
-                updateData = {
-                    updateUserData(movieAppData.asInternalData().copy(isDarkMode = DarkThemeConfig.find(it)), false)
-                }
-            }
-        )
-        DisplayMenuComponent(
-            title = "성인",
-            content = when (movieAppData.isAdult) {
+    val menuList = listOf<MyMenu>(
+        MyMenu(
+            label = "메인 업데이트 날짜",
+            content = internalData.updateDate
+        ),
+        MyMenu(
+            label = "다크모드 설정",
+            content = internalData.isDarkMode.label
+        ),
+        MyMenu(
+            label = "성인",
+            content = when (internalData.isAdult) {
                 true -> "성인"
                 false -> "미성년자"
-            },
-            onClick = {
-                isShowChooseDialog = true
-                chooseDialogItem = listOf("성인", "미성년자")
-                selectedOption = when (movieAppData.isAdult) {
-                    true -> "성인"
-                    false -> "미성년자"
-                }
-                updateData = {
-                    when (it) {
-                        "성인" -> updateUserData(movieAppData.asInternalData().copy(isAdult = true), false)
-                        "미성년자" -> updateUserData(movieAppData.asInternalData().copy(isAdult = false), false)
-                    }
-                }
             }
-        )
-        DisplayMenuComponent(
-            title = "예고편 자동 재생",
-            content = when (movieAppData.autoPlayTrailer) {
+        ),
+        MyMenu(
+            label = "예고편 자동 재생",
+            content = when (internalData.autoPlayTrailer) {
                 true -> "재생"
                 false -> "정지"
-            },
-            onClick = {
-                isShowChooseDialog = true
-                chooseDialogItem = listOf("재생", "정지")
-                selectedOption = when (movieAppData.autoPlayTrailer) {
-                    true -> "재생"
-                    false -> "정지"
-                }
-                updateData = {
-                    when (it) {
-                        "재생" -> updateUserData(movieAppData.asInternalData().copy(autoPlayTrailer = true), false)
-                        "정지" -> updateUserData(movieAppData.asInternalData().copy(autoPlayTrailer = false), false)
+            }
+        ),
+        MyMenu(
+            label = "언어",
+            content = movieAppData.getLanguage()
+        ),
+        MyMenu(
+            label = "지역",
+            content = movieAppData.getRegion()
+        ),
+        MyMenu(
+            label = "이미지 퀄리티",
+            content = internalData.imageQuality
+        )
+    )
+
+    LazyColumn(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        item {
+            Title(title = "마이페이지")
+        }
+        items(
+            items = menuList,
+            key = { "${it.label ?: ""}_${it.content}" }
+        ) {menu ->
+            DisplayMenuComponent(
+                title = menu.label ?: "Nothing",
+                content = menu.content ?: "Nothing",
+                onClick = when (menu.label) {
+                    "메인 업데이트 날짜" -> null
+                    "다크모드 설정" -> {
+                        {
+                            isShowChooseDialog = true
+                            chooseDialogItem = DarkThemeConfig.entries.map { it.label }
+                            selectedOption = internalData.isDarkMode.label
+                            updateData = {
+                                updateUserData(internalData.copy(isDarkMode = DarkThemeConfig.find(it)), false)
+                            }
+                        }
                     }
-                }
-            }
-        )
-        DisplayMenuComponent(
-            title = "언어",
-            content = movieAppData.getLanguage(),
-            onClick = {
-                isShowChooseDialog = true
-                chooseDialogItem = movieAppData.language?.sortedBy { it.iso6391 }?.map { "${it.iso6391} (${it.englishName})" } ?: emptyList()
-                selectedOption = movieAppData.getLanguage()
-                updateData = { selectedOption ->
-                    movieAppData.language?.find { "${it.iso6391} (${it.englishName})" == selectedOption }?.also {
-                        updateUserData(movieAppData.asInternalData().copy(language = it.iso6391 ?: ""), true)
+                    "성인" -> {
+                        {
+                            isShowChooseDialog = true
+                            chooseDialogItem = listOf("성인", "미성년자")
+                            selectedOption = when (internalData.isAdult) {
+                                true -> "성인"
+                                false -> "미성년자"
+                            }
+                            updateData = {
+                                when (it) {
+                                    "성인" -> updateUserData(internalData.copy(isAdult = true), false)
+                                    "미성년자" -> updateUserData(internalData.copy(isAdult = false), false)
+                                }
+                            }
+                        }
                     }
-                }
-            }
-        )
-        DisplayMenuComponent(
-            title = "지역",
-            content = movieAppData.getRegion(),
-            onClick = {
-                isShowChooseDialog = true
-                chooseDialogItem = movieAppData.region?.sortedBy { it.iso31661 }?.map { "${it.iso31661} (${it.englishName})" } ?: emptyList()
-                selectedOption = movieAppData.getRegion()
-                updateData = { selectedOption ->
-                    movieAppData.region?.find { "${it.iso31661} (${it.englishName})" == selectedOption }?.also {
-                        updateUserData(movieAppData.asInternalData().copy(region = it.iso31661 ?: ""), true)
+                    "예고편 자동 재생" -> {
+                        {
+                            isShowChooseDialog = true
+                            chooseDialogItem = listOf("재생", "정지")
+                            selectedOption = when (internalData.autoPlayTrailer) {
+                                true -> "재생"
+                                false -> "정지"
+                            }
+                            updateData = {
+                                when (it) {
+                                    "재생" -> updateUserData(internalData.copy(autoPlayTrailer = true), false)
+                                    "정지" -> updateUserData(internalData.copy(autoPlayTrailer = false), false)
+                                }
+                            }
+                        }
                     }
+                    "언어" -> {
+                        {
+                            isShowChooseDialog = true
+                            chooseDialogItem = movieAppData.language?.sortedBy { it.iso6391 }?.map { "${it.iso6391} (${it.englishName})" } ?: emptyList()
+                            selectedOption = movieAppData.getLanguage()
+                            updateData = { selectedOption ->
+                                movieAppData.language?.find { "${it.iso6391} (${it.englishName})" == selectedOption }?.also {
+                                        updateUserData(internalData.copy(language = it.iso6391 ?: ""), true)
+                                }
+                            }
+                        }
+                    }
+                    "지역" -> {
+                        {
+                            isShowChooseDialog = true
+                            chooseDialogItem = movieAppData.region?.sortedBy { it.iso31661 }?.map { "${it.iso31661} (${it.englishName})" } ?: emptyList()
+                            selectedOption = movieAppData.getRegion()
+                            updateData = { selectedOption ->
+                                movieAppData.region?.find { "${it.iso31661} (${it.englishName})" == selectedOption }?.also {
+                                    updateUserData(internalData.copy(language = it.iso31661 ?: ""), true)
+                                }
+                            }
+                        }
+                    }
+                    "이미지 퀄리티" -> {
+                        {
+                            isShowChooseDialog = true
+                            chooseDialogItem = movieAppData.posterSize?.mapNotNull { it.size } ?: emptyList()
+                            selectedOption = internalData.imageQuality
+                            updateData = {
+                                updateUserData(internalData.copy(imageQuality = it), true)
+                            }
+                        }
+                    }
+                    else -> null
                 }
-            }
-        )
-        DisplayMenuComponent(
-            title = "이미지 퀄리티",
-            content = movieAppData.imageQuality,
-            onClick = {
-                isShowChooseDialog = true
-                chooseDialogItem = movieAppData.posterSize?.mapNotNull { it.size } ?: emptyList()
-                selectedOption = movieAppData.imageQuality
-                updateData = {
-                    updateUserData(movieAppData.asInternalData().copy(imageQuality = it), true)
-                }
-            }
-        )
+            )
+        }
     }
 
     if (isShowChooseDialog) {

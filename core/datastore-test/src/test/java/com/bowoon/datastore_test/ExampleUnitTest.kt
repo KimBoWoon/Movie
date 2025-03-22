@@ -1,4 +1,4 @@
-package com.bowoon.people
+package com.bowoon.datastore_test
 
 import org.junit.Test
 

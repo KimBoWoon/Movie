@@ -49,7 +49,7 @@ class DetailVMTest {
 
     @Before
     fun setup() {
-        savedStateHandle = SavedStateHandle.Companion.invoke(route = DetailRoute(id = 0))
+        savedStateHandle = SavedStateHandle(route = DetailRoute(id = 0))
         viewModel = DetailVM(
             savedStateHandle = savedStateHandle,
             databaseRepository = testDataBaseRepository,

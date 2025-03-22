@@ -49,6 +49,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -65,9 +67,9 @@ import com.bowoon.model.Movie
 import com.bowoon.model.PagingStatus
 import com.bowoon.model.SearchType
 import com.bowoon.ui.ConfirmDialog
-import com.bowoon.ui.components.Title
 import com.bowoon.ui.animateRotation
 import com.bowoon.ui.bounceClick
+import com.bowoon.ui.components.Title
 import com.bowoon.ui.dp1
 import com.bowoon.ui.dp10
 import com.bowoon.ui.dp100
@@ -177,7 +179,7 @@ fun SearchScreen(
                 }
                 else -> {
                     LazyVerticalGrid(
-                        modifier = Modifier.fillMaxSize().padding(top = dp10),
+                        modifier = Modifier.semantics { contentDescription = "searchResultList" }.fillMaxSize().padding(top = dp10),
                         state = scrollState,
                         columns = GridCells.Adaptive(dp100),
                         contentPadding = PaddingValues(dp10),
@@ -200,7 +202,7 @@ fun SearchScreen(
                                         }
                                     },
                                 source = "$posterUrl${state[index]?.posterPath}",
-                                contentDescription = "SearchPoster"
+                                contentDescription = "${state[index]?.id}_${state[index]?.title}"
                             )
                         }
                         if (isAppend) {
@@ -314,7 +316,7 @@ fun SearchBarComponent(
                                     focusManager.clearFocus()
                                 },
                             imageVector = Icons.Filled.Search,
-                            contentDescription = "searchKeywordClear"
+                            contentDescription = "searchMovies"
                         )
                     }
                 }

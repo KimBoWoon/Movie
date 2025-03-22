@@ -76,24 +76,69 @@ val configurationTestData = Configuration(
 val movieSearchTestData = MovieSearchData(
     page = 1,
     results = listOf(
-        MovieFactory().createMovieItem(),
-        MovieFactory().createMovieItem(),
-        MovieFactory().createMovieItem(),
-        MovieFactory().createMovieItem(),
-        MovieFactory().createMovieItem()
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
+        MovieFactory.createMovieItem(),
     ),
-    totalPages = 1,
-    totalResults = 5
+    totalPages = 3,
+    totalResults = 50
 )
 
 val peopleSearchTestData = PeopleSearchData(
     page = 1,
     results = listOf(
-        MovieFactory().createPeopleItem(),
-        MovieFactory().createPeopleItem(),
-        MovieFactory().createPeopleItem(),
-        MovieFactory().createPeopleItem(),
-        MovieFactory().createPeopleItem()
+        MovieFactory.createPeopleItem(),
+        MovieFactory.createPeopleItem(),
+        MovieFactory.createPeopleItem(),
+        MovieFactory.createPeopleItem(),
+        MovieFactory.createPeopleItem()
     ),
     totalPages = 1,
     totalResults = 5
@@ -102,11 +147,11 @@ val peopleSearchTestData = PeopleSearchData(
 val similarMoviesTestData = SimilarMovies(
     page = 1,
     results = listOf(
-        MovieFactory().createSimilarMovie(),
-        MovieFactory().createSimilarMovie(),
-        MovieFactory().createSimilarMovie(),
-        MovieFactory().createSimilarMovie(),
-        MovieFactory().createSimilarMovie()
+        MovieFactory.createSimilarMovie(),
+        MovieFactory.createSimilarMovie(),
+        MovieFactory.createSimilarMovie(),
+        MovieFactory.createSimilarMovie(),
+        MovieFactory.createSimilarMovie()
     ),
     totalPages = 1,
     totalResults = 5
@@ -119,7 +164,7 @@ val mainMenuTestData = MainMenu(
     upcomingMovies = listOf(Movie(id = 0, title = "upcomingMovie_1", posterPath = "posterUrl/upcomingMovie_1.png"))
 )
 
-class MovieFactory {
+object MovieFactory {
     private val counter = AtomicInteger(0)
 
     fun createMovieItem(): MovieSearchItem {

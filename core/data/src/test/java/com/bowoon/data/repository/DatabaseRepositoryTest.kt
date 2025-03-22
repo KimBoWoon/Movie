@@ -102,7 +102,7 @@ class DatabaseRepositoryTest {
         }
 
         assertEquals(
-            repository.getMovies().first(),
+            repository.getMovies().first().sortedBy { it.id },
             movies
         )
 

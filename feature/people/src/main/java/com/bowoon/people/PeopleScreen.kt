@@ -1,7 +1,6 @@
 package com.bowoon.people
 
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,6 +34,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bowoon.common.Log
@@ -48,8 +50,8 @@ import com.bowoon.model.getRelatedMovie
 import com.bowoon.movie.core.ui.R
 import com.bowoon.ui.ConfirmDialog
 import com.bowoon.ui.ModalBottomSheetDialog
-import com.bowoon.ui.components.Title
 import com.bowoon.ui.bounceClick
+import com.bowoon.ui.components.Title
 import com.bowoon.ui.dp10
 import com.bowoon.ui.dp100
 import com.bowoon.ui.dp20
@@ -130,7 +132,7 @@ fun PeopleScreen(
 
         if (isLoading) {
             CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center)
+                modifier = Modifier.semantics { contentDescription = "peopleDetailLoading" }.align(Alignment.Center)
             )
         }
     }
@@ -196,7 +198,10 @@ fun PeopleDetailComponent(
             }
             item(span = { GridItemSpan(3) }) {
                 people.biography?.takeIf { it.isNotEmpty() }?.let {
-                    Text(text = it)
+                    Text(
+                        modifier = Modifier.semantics { contentDescription = "peopleBiography" },
+                        text = it
+                    )
                 }
             }
             items(items = relatedMovie) { movie ->
@@ -273,7 +278,7 @@ fun ExternalIdLinkComponent(people: PeopleDetail) {
                         context.startActivity(
                             Intent(
                                 Intent.ACTION_VIEW,
-                                Uri.parse("https://www.wikidata.org/wiki/$it")
+                                "https://www.wikidata.org/wiki/$it".toUri()
                             )
                         )
                     },
@@ -289,7 +294,7 @@ fun ExternalIdLinkComponent(people: PeopleDetail) {
                         context.startActivity(
                             Intent(
                                 Intent.ACTION_VIEW,
-                                Uri.parse("https://www.facebook.com/$it")
+                                "https://www.facebook.com/$it".toUri()
                             )
                         )
                     },
@@ -305,7 +310,7 @@ fun ExternalIdLinkComponent(people: PeopleDetail) {
                         context.startActivity(
                             Intent(
                                 Intent.ACTION_VIEW,
-                                Uri.parse("https://x.com/$it")
+                                "https://x.com/$it".toUri()
                             )
                         )
                     },
@@ -321,12 +326,12 @@ fun ExternalIdLinkComponent(people: PeopleDetail) {
                         context.startActivity(
                             Intent(
                                 Intent.ACTION_VIEW,
-                                Uri.parse("https://www.tiktok.com/@$it")
+                                "https://www.tiktok.com/@$it".toUri()
                             )
                         )
                     },
                 painter = painterResource(id = R.drawable.ic_tiktok),
-                contentDescription = "instagramId"
+                contentDescription = "tiktokId"
             )
         }
         people.externalIds?.instagramId?.takeIf { it.isNotEmpty() }?.let {
@@ -337,7 +342,7 @@ fun ExternalIdLinkComponent(people: PeopleDetail) {
                         context.startActivity(
                             Intent(
                                 Intent.ACTION_VIEW,
-                                Uri.parse("https://www.instagram.com/$it/")
+                                "https://www.instagram.com/$it/".toUri()
                             )
                         )
                     },
@@ -353,7 +358,7 @@ fun ExternalIdLinkComponent(people: PeopleDetail) {
                         context.startActivity(
                             Intent(
                                 Intent.ACTION_VIEW,
-                                Uri.parse("https://www.youtube.com/$it")
+                                "https://www.youtube.com/$it".toUri()
                             )
                         )
                     },
@@ -374,11 +379,17 @@ fun PeopleInfoComponent(
             .wrapContentHeight()
     ) {
         people.name?.takeIf { it.isNotEmpty() }?.let {
-            Text(text = it)
+            Text(
+                modifier = Modifier.semantics { contentDescription = "peopleName" },
+                text = it
+            )
         }
         Text(text = "${people.birthday ?: ""}${if (!people.deathday.isNullOrEmpty()) " ~ ${people.deathday}" else ""}")
         people.placeOfBirth?.takeIf { it.isNotEmpty() }?.let {
-            Text(text = it)
+            Text(
+                modifier = Modifier.semantics { contentDescription = "peoplePlaceOfBirth" },
+                text = it
+            )
         }
     }
 }
