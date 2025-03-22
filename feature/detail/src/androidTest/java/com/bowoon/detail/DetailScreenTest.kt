@@ -2,6 +2,10 @@ package com.bowoon.detail
 
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertTextEquals
@@ -221,8 +225,10 @@ class DetailScreenTest {
             val testDatabaseRepository = TestDatabaseRepository()
 
             setContent {
+                var movie by remember { mutableStateOf(unFavoriteMovieDetailTestData) }
+
                 DetailScreen(
-                    movieInfoState = MovieDetailState.Success(movieDetail = unFavoriteMovieDetailTestData),
+                    movieInfoState = MovieDetailState.Success(movie),
                     similarMovieState = pager.collectAsLazyPagingItems(),
                     goToMovie = {},
                     goToPeople = {},
@@ -230,9 +236,11 @@ class DetailScreenTest {
                     onShowSnackbar = { _, _ -> true },
                     insertFavoriteMovie = {
                         backgroundScope.launch(UnconfinedTestDispatcher()) { testDatabaseRepository.insertMovie(it) }
+                        movie = movie.copy(isFavorite = true)
                     },
                     deleteFavoriteMovie = {
                         backgroundScope.launch(UnconfinedTestDispatcher()) { testDatabaseRepository.deleteMovie(it) }
+                        movie = movie.copy(isFavorite = false)
                     },
                     restart = {}
                 )
@@ -245,6 +253,8 @@ class DetailScreenTest {
             onNodeWithText(text = favoriteMovieDetailTestData.originalTitle ?: "").assertExists().assertIsDisplayed()
             onNodeWithText(text = favoriteMovieDetailTestData.overview ?: "").assertExists().assertIsDisplayed()
             onNodeWithContentDescription(label = "unFavorite").performClick()
+            onNodeWithContentDescription(label = "unFavorite").assertIsNotDisplayed()
+            onNodeWithContentDescription(label = "favorite").assertIsDisplayed()
             assertEquals(
                 testDatabaseRepository.getMovies().first().find { it.id == 324 }?.id,
                 unFavoriteMovieDetailTestData.id
@@ -258,6 +268,7 @@ class DetailScreenTest {
             val testDatabaseRepository = TestDatabaseRepository()
 
             setContent {
+                var movie by remember { mutableStateOf(favoriteMovieDetailTestData) }
                 val pager = Pager(
                     config = PagingConfig(pageSize = 20, initialLoadSize = 20, prefetchDistance = 5),
                     pagingSourceFactory = {
@@ -283,7 +294,7 @@ class DetailScreenTest {
                 }
 
                 DetailScreen(
-                    movieInfoState = MovieDetailState.Success(movieDetail = favoriteMovieDetailTestData),
+                    movieInfoState = MovieDetailState.Success(movie),
                     similarMovieState = pager.collectAsLazyPagingItems(),
                     goToMovie = {},
                     goToPeople = {},
@@ -291,9 +302,11 @@ class DetailScreenTest {
                     onShowSnackbar = { _, _ -> true },
                     insertFavoriteMovie = {
                         backgroundScope.launch(UnconfinedTestDispatcher()) { testDatabaseRepository.insertMovie(it) }
+                        movie = movie.copy(isFavorite = true)
                     },
                     deleteFavoriteMovie = {
                         backgroundScope.launch(UnconfinedTestDispatcher()) { testDatabaseRepository.deleteMovie(it) }
+                        movie = movie.copy(isFavorite = false)
                     },
                     restart = {}
                 )
@@ -306,6 +319,8 @@ class DetailScreenTest {
             onNodeWithText(text = favoriteMovieDetailTestData.originalTitle ?: "").assertExists().assertIsDisplayed()
             onNodeWithText(text = favoriteMovieDetailTestData.overview ?: "").assertExists().assertIsDisplayed()
             onNodeWithContentDescription(label = "favorite").performClick()
+            onNodeWithContentDescription(label = "unFavorite").assertIsDisplayed()
+            onNodeWithContentDescription(label = "favorite").assertIsNotDisplayed()
             assertEquals(
                 testDatabaseRepository.getMovies().first().find { it.id == 0 },
                 null

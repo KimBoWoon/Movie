@@ -1,21 +1,19 @@
 package com.bowoon.data.repository
 
-import androidx.datastore.preferences.core.PreferenceDataStoreFactory
-import com.bowoon.testing.TestMovieDataSource
+import androidx.datastore.preferences.core.preferencesOf
 import com.bowoon.datastore.InternalDataSource
-import com.bowoon.model.MovieDetail
+import com.bowoon.datastore_test.InMemoryDataStore
 import com.bowoon.network.TMDBApis
-import com.bowoon.testing.utils.MainDispatcherRule
+import com.bowoon.testing.TestMovieDataSource
+import com.bowoon.testing.model.movieSearchTestData
 import com.bowoon.testing.repository.TestDetailRepository
 import com.bowoon.testing.repository.combineCreditsTestData
 import com.bowoon.testing.repository.externalIdsTestData
 import com.bowoon.testing.repository.favoriteMovieDetailTestData
-import com.bowoon.testing.repository.movieSearchTestData
 import com.bowoon.testing.repository.peopleDetailTestData
+import com.bowoon.testing.utils.MainDispatcherRule
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.test.TestScope
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
@@ -26,33 +24,35 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import retrofit2.Retrofit
-import java.io.File
 import kotlin.test.assertEquals
 
 private const val BASE_URL = "https://localhost/"
 
-private val movieApis = TestMovieDataSource()
-private val repository = DetailRepositoryImpl(
-    apis = movieApis,
-    datastore = InternalDataSource(
-        datastore = PreferenceDataStoreFactory.create(
-            scope = TestScope(UnconfinedTestDispatcher()),
-            produceFile = { File("movie-test-store.preferences_pb") }
-        ),
-        json = Json { ignoreUnknownKeys = true }
-    )
-)
-
 class DetailRepositoryTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
+    private lateinit var movieApis: TestMovieDataSource
+    private lateinit var datastore: InternalDataSource
+    private lateinit var repository: DetailRepositoryImpl
+
+    @Before
+    fun setup() {
+        movieApis = TestMovieDataSource()
+        datastore = InternalDataSource(
+            datastore = InMemoryDataStore(preferencesOf()),
+            json = Json { ignoreUnknownKeys = true }
+        )
+        repository = DetailRepositoryImpl(
+            apis = movieApis,
+            datastore = datastore
+        )
+    }
 
     @Test
     fun getMovieDetailTest() = runTest {
         val result = repository.getMovieDetail(0)
 
-//        assertEquals(result.first(), movieDetailTestData)
-        assertEquals(result.first(), MovieDetail())
+        assertEquals(result.first(), favoriteMovieDetailTestData)
     }
 
     @Test
@@ -120,7 +120,7 @@ class DetailRepositoryUseRetrofitTest {
 
     @Test
     fun getPeopleDetailTest() = runTest {
-        repository.setPeopleDetail()
+        repository.setPeopleDetail(peopleDetailTestData)
 
         server.enqueue(MockResponse().setBody(peopleDetailTestData.toString()))
         val result = repository.getPeople(0)
@@ -130,7 +130,7 @@ class DetailRepositoryUseRetrofitTest {
 
     @Test
     fun getDiscoverMovieTest() = runTest {
-        repository.setDiscoverMovie()
+        repository.setDiscoverMovie(movieSearchTestData)
 
         server.enqueue(MockResponse().setBody(movieSearchTestData.toString()))
         val result = repository.discoverMovie(releaseDateGte = "1992-06-24", releaseDateLte = "1992-06-24")
@@ -140,7 +140,7 @@ class DetailRepositoryUseRetrofitTest {
 
     @Test
     fun getCombineCreditsTest() = runTest {
-        repository.setCombineCredits()
+        repository.setCombineCredits(combineCreditsTestData)
 
         server.enqueue(MockResponse().setBody(combineCreditsTestData.toString()))
         val result = repository.getCombineCredits(0)
@@ -150,7 +150,7 @@ class DetailRepositoryUseRetrofitTest {
 
     @Test
     fun getExternalIdsTest() = runTest {
-        repository.setExternalIds()
+        repository.setExternalIds(externalIdsTestData)
 
         server.enqueue(MockResponse().setBody(externalIdsTestData.toString()))
         val result = repository.getExternalIds(0)

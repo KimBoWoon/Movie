@@ -40,7 +40,7 @@ class PagingRepositoryTest {
                 )
             } ?: emptyList(),
             prevKey = null,
-            nextKey = null
+            nextKey = 2
         )
         val b = pagingSource.load(
             PagingSource.LoadParams.Refresh(

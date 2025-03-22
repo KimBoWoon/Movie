@@ -18,6 +18,5 @@ dependencies {
 
     api(libs.androidx.datastore)
     api(projects.core.model)
-
-//    testImplementation(projects.core.testing)
+    testImplementation(projects.core.datastoreTest)
 }

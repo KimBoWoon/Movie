@@ -27,7 +27,7 @@ class MainVM @Inject constructor(
             }
         }.stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(),
+            started = SharingStarted.Eagerly,
             initialValue = MovieAppDataState.Loading
         )
 }

@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
@@ -45,7 +44,6 @@ import com.bowoon.ui.components.TabComponent
 import com.bowoon.ui.components.Title
 import com.bowoon.ui.dp10
 import com.bowoon.ui.dp15
-import com.bowoon.ui.dp200
 import com.bowoon.ui.dp5
 import com.bowoon.ui.image.DynamicAsyncImageLoader
 import kotlinx.coroutines.launch
@@ -140,7 +138,7 @@ fun FavoriteScreen(
                                                 ) {
                                                     DynamicAsyncImageLoader(
                                                         modifier = Modifier
-                                                            .width(dp200)
+                                                            .fillMaxWidth()
                                                             .aspectRatio(POSTER_IMAGE_RATIO),
                                                         source = "$posterUrl${movieDetail.imagePath}",
                                                         contentDescription = "FavoriteMoviePoster"

@@ -62,23 +62,23 @@ class TestDetailRepository : DetailRepository {
     }
 
     @VisibleForTesting
-    fun setDiscoverMovie() {
-        movieSearchData.tryEmit(movieSearchTestData)
+    fun setDiscoverMovie(movie: MovieSearchData) {
+        movieSearchData.tryEmit(movie)
     }
 
     @VisibleForTesting
-    fun setPeopleDetail() {
-        peopleDetail.tryEmit(peopleDetailTestData)
+    fun setPeopleDetail(people: PeopleDetail) {
+        peopleDetail.tryEmit(people)
     }
 
     @VisibleForTesting
-    fun setCombineCredits() {
-        combineCredits.tryEmit(combineCreditsTestData)
+    fun setCombineCredits(credits: CombineCredits) {
+        combineCredits.tryEmit(credits)
     }
 
     @VisibleForTesting
-    fun setExternalIds() {
-        externalIds.tryEmit(externalIdsTestData)
+    fun setExternalIds(ids: ExternalIds) {
+        externalIds.tryEmit(ids)
     }
 }
 
@@ -164,19 +164,12 @@ val unFavoriteMovieDetailTestData = MovieDetail(
     isFavorite = false
 )
 
-val movieSearchTestData = MovieSearchData(
-    page = 1,
-    results = listOf(),
-    totalPages = 1,
-    totalResults = 0
-)
-
 val combineCreditsTestData = CombineCredits(
     cast = listOf(
-        CombineCreditsCast()
+        CombineCreditsCast(posterPath = "/CombineCreditsCast.png")
     ),
     crew = listOf(
-        CombineCreditsCrew()
+        CombineCreditsCrew(posterPath = "/CombineCreditsCrew.png")
     )
 )
 

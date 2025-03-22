@@ -54,7 +54,7 @@ class GetMovieAppDataUseCaseTest {
         )
 
         testMyDataRepository.setExternalData(externalData)
-        testUserDataRepository.updateUserData(InternalData(), false)
+        testUserDataRepository.updateUserData(InternalData(region = "ko", language = "ko"), false)
 
         assertEquals(result.first(), movieAppData)
     }
