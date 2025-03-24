@@ -9,7 +9,6 @@ import com.bowoon.testing.utils.MainDispatcherRule
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -33,7 +32,7 @@ class HomeVMTest {
         viewModel = HomeVM(
             syncManager = testSyncManager,
             userDataRepository = testUserDataRepository,
-            pagingRepository = testPagingRepository
+//            pagingRepository = testPagingRepository
         )
 
 //        runBlocking {
