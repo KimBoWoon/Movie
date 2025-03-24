@@ -1,7 +1,6 @@
 package com.bowoon.data.repository
 
 import com.bowoon.common.Log
-import com.bowoon.data.util.suspendRunCatching
 import com.bowoon.datastore.InternalDataSource
 import com.bowoon.model.CertificationData
 import com.bowoon.model.Configuration
@@ -13,7 +12,6 @@ import com.bowoon.network.MovieNetworkDataSource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
@@ -40,10 +38,6 @@ class MyDataRepositoryImpl @Inject constructor(
     }.catch { e ->
         Log.printStackTrace(e)
     }
-
-    override suspend fun syncWith(): Boolean = suspendRunCatching {
-        externalData.first()
-    }.isSuccess
 
     override fun getConfiguration(): Flow<Configuration> = flow {
         emit(apis.getConfiguration())

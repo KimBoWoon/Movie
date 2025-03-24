@@ -24,7 +24,7 @@ class MainMenuRepositoryImpl @Inject constructor(
         if (isUpdate || isForce) {
             MainMenu(
                 nowPlaying = getNowPlaying(),
-                upcomingMovies = getUpcomingMovies()
+                upComingMovies = getUpcomingMovies()
             ).also {
                 datastore.updateUserData(
                     datastore.getUserData().copy(

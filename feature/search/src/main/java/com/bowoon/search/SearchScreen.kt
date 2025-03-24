@@ -69,6 +69,7 @@ import com.bowoon.model.SearchType
 import com.bowoon.ui.ConfirmDialog
 import com.bowoon.ui.animateRotation
 import com.bowoon.ui.bounceClick
+import com.bowoon.ui.components.PagingAppendErrorComponent
 import com.bowoon.ui.components.Title
 import com.bowoon.ui.dp1
 import com.bowoon.ui.dp10
@@ -124,7 +125,7 @@ fun SearchScreen(
     when {
         state.loadState.refresh is LoadState.Loading -> pagingStatus = PagingStatus.LOADING
         state.loadState.append is LoadState.Loading -> isAppend = true
-        state.loadState.refresh is LoadState.Error || state.loadState.append is LoadState.Error -> {
+        state.loadState.refresh is LoadState.Error -> {
             isAppend = false
 
             ConfirmDialog(
@@ -179,7 +180,10 @@ fun SearchScreen(
                 }
                 else -> {
                     LazyVerticalGrid(
-                        modifier = Modifier.semantics { contentDescription = "searchResultList" }.fillMaxSize().padding(top = dp10),
+                        modifier = Modifier
+                            .semantics { contentDescription = "searchResultList" }
+                            .fillMaxSize()
+                            .padding(top = dp10),
                         state = scrollState,
                         columns = GridCells.Adaptive(dp100),
                         contentPadding = PaddingValues(dp10),
@@ -196,6 +200,7 @@ fun SearchScreen(
                                             SearchType.MOVIE.ordinal -> onMovieClick(
                                                 state[index]?.id ?: -1
                                             )
+
                                             SearchType.PEOPLE.ordinal -> onPeopleClick(
                                                 state[index]?.id ?: -1
                                             )
@@ -206,12 +211,17 @@ fun SearchScreen(
                             )
                         }
                         if (isAppend) {
-                            item(span = { GridItemSpan(maxCurrentLineSpan) }) {
+                            item(span = { GridItemSpan(maxLineSpan) }) {
                                 CircularProgressIndicator(
                                     modifier = Modifier
                                         .wrapContentSize()
                                         .align(Alignment.Center)
                                 )
+                            }
+                        }
+                        if (state.loadState.append is LoadState.Error) {
+                            item(span = { GridItemSpan(maxLineSpan) }) {
+                                PagingAppendErrorComponent({ state.retry() })
                             }
                         }
                     }
@@ -274,18 +284,26 @@ fun SearchBarComponent(
                     updateSearchType = updateSearchType
                 )
 
-                Spacer(modifier = Modifier.padding(horizontal = dp5).width(dp1).height(dp10).background(color = Color.DarkGray))
+                Spacer(modifier = Modifier
+                    .padding(horizontal = dp5)
+                    .width(dp1)
+                    .height(dp10)
+                    .background(color = Color.DarkGray))
 
                 if (keyword.isEmpty()) {
                     Text(
-                        modifier = Modifier.weight(1f).align(Alignment.CenterVertically),
+                        modifier = Modifier
+                            .weight(1f)
+                            .align(Alignment.CenterVertically),
                         text = "검색어를 입력하세요.",
                         fontSize = sp12,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                 } else {
                     Box(
-                        modifier = Modifier.weight(1f).align(Alignment.CenterVertically)
+                        modifier = Modifier
+                            .weight(1f)
+                            .align(Alignment.CenterVertically)
                     ) {
                         innerTextField()
                     }
@@ -346,7 +364,14 @@ fun SearchTypeComponent(
                 color = MaterialTheme.colorScheme.onSurface
             )
             Icon(
-                modifier = Modifier.size(dp15).animateRotation(expanded = isExpand, startAngle = 0f, endAngle = -180f, animateMillis = 200),
+                modifier = Modifier
+                    .size(dp15)
+                    .animateRotation(
+                        expanded = isExpand,
+                        startAngle = 0f,
+                        endAngle = -180f,
+                        animateMillis = 200
+                    ),
                 imageVector = Icons.Filled.KeyboardArrowDown,
                 contentDescription = "searchTypeArrow"
             )

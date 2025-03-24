@@ -68,7 +68,7 @@ class DetailVM @Inject constructor(
         pagingSourceFactory = {
             pagingRepository.getSimilarMovies(
                 id = id,
-                language = language,
+                language = "$language-$region",
                 region = region
             )
         }

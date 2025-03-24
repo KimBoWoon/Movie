@@ -8,6 +8,7 @@ import com.bowoon.model.LanguageItem
 import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetail
 import com.bowoon.model.MovieGenreList
+import com.bowoon.model.MovieList
 import com.bowoon.model.MovieSearchData
 import com.bowoon.model.PeopleDetail
 import com.bowoon.model.PeopleSearchData
@@ -32,6 +33,9 @@ interface MovieNetworkDataSource {
         region: String = "KR",
         page: Int = 1
     ): List<Movie>
+
+    suspend fun getNowPlayingMovie(language: String, region: String, page: Int): MovieList
+    suspend fun getUpComingMovie(language: String, region: String, page: Int): MovieList
 
     suspend fun searchMovies(
         query: String,
@@ -68,7 +72,10 @@ interface MovieNetworkDataSource {
         releaseDateLte: String,
         includeAdult: Boolean = true,
         language: String = "ko-KR",
-        region: String = "KR"
+        region: String = "KR",
+        page: Int = 1,
+        sortBy: String = "primary_release_date.asc",
+        withReleaseType: String = "2|3"
     ): MovieSearchData
 
     suspend fun getAvailableLanguage(): List<LanguageItem>

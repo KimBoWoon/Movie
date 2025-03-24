@@ -75,6 +75,7 @@ import com.bowoon.ui.ConfirmDialog
 import com.bowoon.ui.ModalBottomSheetDialog
 import com.bowoon.ui.animateRotation
 import com.bowoon.ui.bounceClick
+import com.bowoon.ui.components.PagingAppendErrorComponent
 import com.bowoon.ui.components.TabComponent
 import com.bowoon.ui.components.Title
 import com.bowoon.ui.dp0
@@ -834,12 +835,17 @@ fun SimilarMovieComponent(
                     }
 
                     if (isAppend) {
-                        item(span = { GridItemSpan(maxCurrentLineSpan) }) {
+                        item(span = { GridItemSpan(maxLineSpan) }) {
                             CircularProgressIndicator(
                                 modifier = Modifier
                                     .wrapContentSize()
                                     .align(Alignment.Center)
                             )
+                        }
+                    }
+                    if (similarMovieState.loadState.append is LoadState.Error) {
+                        item(span = { GridItemSpan(maxLineSpan) }) {
+                            PagingAppendErrorComponent({ similarMovieState.retry() })
                         }
                     }
                 }

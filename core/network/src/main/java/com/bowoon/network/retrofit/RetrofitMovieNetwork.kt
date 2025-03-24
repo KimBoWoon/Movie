@@ -8,6 +8,7 @@ import com.bowoon.model.LanguageItem
 import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetail
 import com.bowoon.model.MovieGenreList
+import com.bowoon.model.MovieList
 import com.bowoon.model.MovieResult
 import com.bowoon.model.MovieSearchData
 import com.bowoon.model.PeopleDetail
@@ -124,6 +125,24 @@ class RetrofitMovieNetwork @Inject constructor(
         return result.filter { (it.releaseDate ?: "") > LocalDate.now().toString() }.distinctBy { it.id }.sortedBy { it.releaseDate }
     }
 
+    override suspend fun getNowPlayingMovie(
+        language: String,
+        region: String,
+        page: Int
+    ): MovieList = when (val response = tmdbApis.getNowPlaying(language = language, region = region, page = page)) {
+        is ApiResponse.Failure -> throw response.throwable
+        is ApiResponse.Success -> response.data.asExternalModel()
+    }
+
+    override suspend fun getUpComingMovie(
+        language: String,
+        region: String,
+        page: Int
+    ): MovieList = when (val response = tmdbApis.getUpcomingMovie(language = language, region = region, page = page)) {
+        is ApiResponse.Failure -> throw response.throwable
+        is ApiResponse.Success -> response.data.asExternalModel()
+    }
+
     override suspend fun searchMovies(
         query: String,
         includeAdult: Boolean,
@@ -194,14 +213,20 @@ class RetrofitMovieNetwork @Inject constructor(
         releaseDateLte: String,
         includeAdult: Boolean,
         language: String,
-        region: String
+        region: String,
+        page: Int,
+        sortBy: String,
+        withReleaseType: String
     ): MovieSearchData = when (
         val response = tmdbApis.discoverMovie(
             releaseDateGte = releaseDateGte,
             releaseDateLte = releaseDateLte,
             includeAdult = includeAdult,
             language = language,
-            region = region
+            region = region,
+            page = page,
+            sortBy = sortBy,
+            withReleaseType = withReleaseType
         )
     ) {
         is ApiResponse.Failure -> throw response.throwable

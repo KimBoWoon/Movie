@@ -20,8 +20,6 @@ class TestMyDataRepository : MyDataRepository {
     private val currentExternalData = _externalData.replayCache
     override val externalData: Flow<ExternalData> = _externalData.filterNotNull()
 
-    override suspend fun syncWith(): Boolean = true
-
     override fun getConfiguration(): Flow<Configuration> = externalData.mapNotNull { it.configuration }
 
     override fun getCertification(): Flow<CertificationData> = externalData.mapNotNull { CertificationData(CertificationMap(it.certification)) }

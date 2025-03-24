@@ -69,7 +69,7 @@ class SearchVM @Inject constructor(
                     pagingRepository.searchMovieSource(
                         type = SearchType.entries[searchType].label,
                         query = keyword,
-                        language = language,
+                        language = "$language-$region",
                         region = region,
                         isAdult = isAdult
                     )
