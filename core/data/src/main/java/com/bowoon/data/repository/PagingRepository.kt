@@ -4,8 +4,18 @@ import androidx.paging.PagingSource
 import com.bowoon.model.Movie
 
 interface PagingRepository {
-//    suspend fun getNowPlaying(): Flow<PagingData<NowPlaying>>
-//    suspend fun getUpcomingMovies(): Flow<PagingData<UpComingResult>>
+    fun getUpComingMovies(
+        language: String,
+        region: String,
+        releaseDateGte: String,
+        releaseDateLte: String
+    ): PagingSource<Int, Movie>
+    fun getNowPlaying(
+        language: String,
+        region: String,
+        releaseDateGte: String,
+        releaseDateLte: String
+    ): PagingSource<Int, Movie>
     fun searchMovieSource(
         type: String,
         query: String,

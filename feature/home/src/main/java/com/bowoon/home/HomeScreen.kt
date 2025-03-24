@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
@@ -37,8 +36,8 @@ import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.MainMenu
 import com.bowoon.model.Movie
-import com.bowoon.ui.components.Title
 import com.bowoon.ui.bounceClick
+import com.bowoon.ui.components.Title
 import com.bowoon.ui.dp150
 import com.bowoon.ui.dp16
 import com.bowoon.ui.image.DynamicAsyncImageLoader
@@ -56,10 +55,14 @@ fun HomeScreen(
 
     val homeUiState by viewModel.mainMenu.collectAsStateWithLifecycle()
     val isSyncing by viewModel.isSyncing.collectAsStateWithLifecycle()
+//    val nowPlaying = viewModel.nowPlaying.collectAsLazyPagingItems()
+//    val upComing = viewModel.upComing.collectAsLazyPagingItems()
 
     HomeScreen(
         isSyncing = isSyncing,
         state = homeUiState,
+//        nowPlaying = nowPlaying,
+//        upComing = upComing,
         onShowSnackbar = onShowSnackbar,
         onMovieClick = onMovieClick
     )
@@ -69,6 +72,8 @@ fun HomeScreen(
 fun HomeScreen(
     isSyncing: Boolean,
     state: MainMenuState,
+//    nowPlaying: LazyPagingItems<Movie>,
+//    upComing: LazyPagingItems<Movie>,
     onShowSnackbar: suspend (String, String?) -> Boolean,
     onMovieClick: (Int) -> Unit
 ) {
@@ -92,7 +97,9 @@ fun HomeScreen(
                 Log.d("loading...")
                 LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data loading...")
                 CircularProgressIndicator(
-                    modifier = Modifier.semantics { contentDescription = "homeLoading" }.align(Alignment.Center)
+                    modifier = Modifier
+                        .semantics { contentDescription = "homeLoading" }
+                        .align(Alignment.Center)
                 )
             }
             is MainMenuState.Success -> {
@@ -100,6 +107,8 @@ fun HomeScreen(
                 Log.d("${state.mainMenu}")
                 MainComponent(
                     mainMenu = state.mainMenu,
+//                    nowPlaying = nowPlaying,
+//                    upComing = upComing,
                     onMovieClick = onMovieClick
                 )
             }
@@ -114,6 +123,8 @@ fun HomeScreen(
 @Composable
 fun MainComponent(
     mainMenu: MainMenu,
+//    nowPlaying: LazyPagingItems<Movie>,
+//    upComing: LazyPagingItems<Movie>,
     onMovieClick: (Int) -> Unit
 ) {
     val lazyListState = rememberLazyListState()
@@ -126,79 +137,48 @@ fun MainComponent(
             modifier = Modifier.fillMaxSize(),
             state = lazyListState
         ) {
-            nowPlayingComponent(
-                boxOffice = mainMenu.nowPlaying,
-                onMovieClick = onMovieClick
-            )
-            upcomingComponent(
-                upcoming = mainMenu.upcomingMovies,
-                onMovieClick = onMovieClick
-            )
-        }
-    }
-}
-
-fun LazyListScope.nowPlayingComponent(
-    boxOffice: List<Movie>,
-    onMovieClick: (Int) -> Unit
-) {
-    item {
-        if (boxOffice.isNotEmpty()) {
-            Text(
-                modifier = Modifier
-                    .padding(dp16)
-                    .fillMaxWidth(),
-                text = "상영중인 영화"
-            )
-            LazyRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
-                contentPadding = PaddingValues(horizontal = dp16),
-                horizontalArrangement = Arrangement.spacedBy(dp16)
-            ) {
-                items(
-                    items = boxOffice,
-                    key = { "${it.rank}_${it.releaseDate}_${it.title}_${it.id}" }
-                ) { boxOffice ->
-                    MainMovieItem(
-                        movie = boxOffice,
-                        onMovieClick = onMovieClick
-                    )
-                }
+            if (mainMenu.nowPlaying.isNotEmpty()) {
+                horizontalMovieListComponent(
+                    title = "상영중인 영화",
+                    movies = mainMenu.nowPlaying,
+                    onMovieClick = onMovieClick
+                )
+            }
+            if (mainMenu.upComingMovies.isNotEmpty()) {
+                horizontalMovieListComponent(
+                    title = "개봉 예정작",
+                    movies = mainMenu.upComingMovies,
+                    onMovieClick = onMovieClick
+                )
             }
         }
     }
 }
 
-fun LazyListScope.upcomingComponent(
-    upcoming: List<Movie>,
+fun LazyListScope.horizontalMovieListComponent(
+    title: String,
+//    movies: LazyPagingItems<Movie>,
+    movies: List<Movie>,
     onMovieClick: (Int) -> Unit
 ) {
     item {
-        if (upcoming.isNotEmpty()) {
-            Text(
-                modifier = Modifier
-                    .padding(dp16)
-                    .fillMaxWidth(),
-                text = "개봉 예정작"
-            )
-            LazyRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
-                contentPadding = PaddingValues(horizontal = dp16),
-                horizontalArrangement = Arrangement.spacedBy(dp16)
-            ) {
-                items(
-                    count = upcoming.size,
-                    key = { "${upcoming[it].id}_${upcoming[it].title}_${upcoming[it].originalTitle}_${upcoming[it].releaseDate}" }
-                ) { index ->
-                    MainMovieItem(
-                        movie = upcoming[index],
-                        onMovieClick = onMovieClick
-                    )
-                }
+        Text(
+            modifier = Modifier.padding(dp16).fillMaxWidth(),
+            text = title
+        )
+        LazyRow(
+            modifier = Modifier.wrapContentSize(),
+            contentPadding = PaddingValues(horizontal = dp16),
+            horizontalArrangement = Arrangement.spacedBy(dp16)
+        ) {
+            items(
+                count = movies.size,
+                key = { index -> "${movies[index].id}_${index}_${movies[index].title}" }
+            ) { index ->
+                MainMovieItem(
+                    movie = movies[index],
+                    onMovieClick = onMovieClick
+                )
             }
         }
     }

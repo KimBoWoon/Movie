@@ -83,7 +83,10 @@ interface TMDBApis {
         @Query("release_date.lte") releaseDateLte: String,
         @Query("include_adult") includeAdult: Boolean = true,
         @Query("language") language: String = "ko-KR",
-        @Query("region") region: String = "KR"
+        @Query("region") region: String = "KR",
+        @Query("page") page: Int = 1,
+        @Query("sort_by") sortBy: String = "primary_release_date.asc",
+        @Query("with_release_type") withReleaseType: String = "2|3"
     ): ApiResponse<NetworkTMDBSearch>
 
     @GET("/3/configuration/languages")

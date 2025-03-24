@@ -1,35 +1,30 @@
 package com.bowoon.datastore
 
-import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.preferencesOf
+import com.bowoon.datastore_test.InMemoryDataStore
 import com.bowoon.model.DarkThemeConfig
 import com.bowoon.model.InternalData
 import com.bowoon.model.MainMenu
 import com.bowoon.testing.utils.MainDispatcherRule
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.TestScope
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import java.io.File
 import kotlin.test.assertEquals
-
-private val internalDataSource = InternalDataSource(
-    datastore = PreferenceDataStoreFactory.create(
-        scope = TestScope(UnconfinedTestDispatcher()),
-        produceFile = { File("movie-test-store.preferences_pb") }
-    ),
-    json = Json { ignoreUnknownKeys = true }
-)
 
 class InternalDataSourceTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
+    private lateinit var internalDataSource: InternalDataSource
 
     @Before
     fun setup() {
+        internalDataSource = InternalDataSource(
+            datastore = InMemoryDataStore(preferencesOf()),
+            json = Json { ignoreUnknownKeys = true }
+        )
         runBlocking {
             internalDataSource.updateUserData(InternalData())
             internalDataSource.updateFCMToken("")

@@ -2,21 +2,28 @@ package com.bowoon.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.cachedIn
 import com.bowoon.common.Result
 import com.bowoon.common.asResult
+import com.bowoon.data.repository.PagingRepository
 import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.data.util.SyncManager
 import com.bowoon.model.MainMenu
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import org.threeten.bp.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeVM @Inject constructor(
     syncManager: SyncManager,
     userDataRepository: UserDataRepository,
+//    pagingRepository: PagingRepository
 ) : ViewModel() {
     companion object {
         private const val TAG = "HomeVM"
@@ -42,6 +49,36 @@ class HomeVM @Inject constructor(
             initialValue = MainMenuState.Loading,
             started = SharingStarted.WhileSubscribed(5_000)
         )
+//    val nowPlaying = userDataRepository.internalData
+//        .flatMapLatest {
+//            Pager(
+//                config = PagingConfig(pageSize = 1, prefetchDistance = 1, initialLoadSize = 1, enablePlaceholders = false),
+//                initialKey = 1,
+//                pagingSourceFactory = {
+//                    pagingRepository.getNowPlaying(
+//                        language = "${it.language}-${it.region}",
+//                        region = it.region,
+//                        releaseDateGte = LocalDate.now().minusMonths(1).toString(),
+//                        releaseDateLte = LocalDate.now().toString()
+//                    )
+//                }
+//            ).flow.cachedIn(viewModelScope)
+//        }
+//    val upComing = userDataRepository.internalData
+//        .flatMapLatest {
+//            Pager(
+//                config = PagingConfig(pageSize = 1, prefetchDistance = 1, initialLoadSize = 1, enablePlaceholders = false),
+//                initialKey = 1,
+//                pagingSourceFactory = {
+//                    pagingRepository.getUpComingMovies(
+//                        language = "${it.language}-${it.region}",
+//                        region = it.region,
+//                        releaseDateGte = LocalDate.now().toString(),
+//                        releaseDateLte = LocalDate.now().plusMonths(1).toString(),
+//                    )
+//                }
+//            ).flow.cachedIn(viewModelScope)
+//        }
 }
 
 sealed interface MainMenuState {

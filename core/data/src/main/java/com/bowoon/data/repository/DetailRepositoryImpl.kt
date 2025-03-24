@@ -30,7 +30,13 @@ class DetailRepositoryImpl @Inject constructor(
         val region = datastore.getUserData().region
         val isAdult = datastore.getUserData().isAdult
 
-        emit(apis.discoverMovie(releaseDateGte = releaseDateGte, releaseDateLte = releaseDateLte, includeAdult = isAdult, language = language, region = region))
+        emit(apis.discoverMovie(
+            releaseDateGte = releaseDateGte,
+            releaseDateLte = releaseDateLte,
+            includeAdult = isAdult,
+            language = language,
+            region = region
+        ))
     }
 
     override fun getPeople(personId: Int): Flow<PeopleDetail> = flow {

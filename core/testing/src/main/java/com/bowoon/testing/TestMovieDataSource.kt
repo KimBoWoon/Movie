@@ -8,6 +8,7 @@ import com.bowoon.model.LanguageItem
 import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetail
 import com.bowoon.model.MovieGenreList
+import com.bowoon.model.MovieList
 import com.bowoon.model.MovieSearchData
 import com.bowoon.model.PeopleDetail
 import com.bowoon.model.PeopleSearchData
@@ -44,6 +45,14 @@ class TestMovieDataSource : MovieNetworkDataSource {
         page: Int
     ): List<Movie> = upcomingMoviesTestData
 
+    override suspend fun getNowPlayingMovie(
+        language: String,
+        region: String,
+        page: Int
+    ): MovieList = MovieList()
+
+    override suspend fun getUpComingMovie(language: String, region: String, page: Int): MovieList = MovieList()
+
     override suspend fun searchMovies(
         query: String,
         includeAdult: Boolean,
@@ -75,7 +84,10 @@ class TestMovieDataSource : MovieNetworkDataSource {
         releaseDateLte: String,
         includeAdult: Boolean,
         language: String,
-        region: String
+        region: String,
+        page: Int,
+        sortBy: String,
+        withReleaseType: String
     ): MovieSearchData = movieSearchTestData
 
     override suspend fun getAvailableLanguage(): List<LanguageItem> = languageListTestData

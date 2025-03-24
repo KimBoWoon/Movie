@@ -161,7 +161,7 @@ val nowPlayingMoviesTestData = listOf(Movie(id = 0, title = "nowPlaying_1", post
 val upcomingMoviesTestData = listOf(Movie(id = 0, title = "upcomingMovie_1", posterPath = "/upcomingMovie_1.png"))
 val mainMenuTestData = MainMenu(
     nowPlaying = listOf(Movie(id = 0, title = "nowPlaying_1", posterPath = "posterUrl/nowPlaying_1.png")),
-    upcomingMovies = listOf(Movie(id = 0, title = "upcomingMovie_1", posterPath = "posterUrl/upcomingMovie_1.png"))
+    upComingMovies = listOf(Movie(id = 0, title = "upcomingMovie_1", posterPath = "posterUrl/upcomingMovie_1.png"))
 )
 
 object MovieFactory {

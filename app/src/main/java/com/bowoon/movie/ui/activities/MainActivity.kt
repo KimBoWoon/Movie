@@ -18,11 +18,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.bowoon.common.AppDoubleBackToExit
-import com.bowoon.common.Log
 import com.bowoon.common.isSystemInDarkTheme
 import com.bowoon.data.repository.LocalMovieAppDataComposition
 import com.bowoon.data.util.NetworkMonitor
-import com.bowoon.data.util.SyncManager
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.MovieAppData
 import com.bowoon.movie.MovieFirebase
@@ -43,8 +41,6 @@ class MainActivity : ComponentActivity() {
     private val viewModel: MainVM by viewModels()
     @Inject
     lateinit var networkMonitor: NetworkMonitor
-    @Inject
-    lateinit var syncManager: SyncManager
     @Inject
     lateinit var movieFirebase: MovieFirebase
     @Inject
@@ -94,17 +90,6 @@ class MainActivity : ComponentActivity() {
                         )
                     }
             }
-        }
-
-        lifecycleScope.launch {
-            syncManager.checkWork(
-                context = this@MainActivity,
-                onSuccess = {
-                    Log.d("MyDataSync Success")
-                    syncManager.syncMain()
-                },
-                onFailure = { Log.e("MyDataSync Error") }
-            )
         }
 
         splashScreen.setKeepOnScreenCondition { viewModel.movieAppData.value.shouldKeepSplashScreen() }

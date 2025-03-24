@@ -1,13 +1,41 @@
 package com.bowoon.testing.repository
 
 import androidx.paging.PagingSource
+import com.bowoon.data.paging.TMDBNowPlayingPagingSource
 import com.bowoon.data.paging.TMDBSearchPagingSource
 import com.bowoon.data.paging.TMDBSimilarMoviePagingSource
+import com.bowoon.data.paging.TMDBUpComingPagingSource
 import com.bowoon.data.repository.PagingRepository
 import com.bowoon.model.Movie
 import com.bowoon.testing.TestMovieDataSource
 
 class TestPagingRepository : PagingRepository {
+    override fun getNowPlaying(
+        language: String,
+        region: String,
+        releaseDateGte: String,
+        releaseDateLte: String
+    ): PagingSource<Int, Movie> = TMDBUpComingPagingSource(
+        apis = TestMovieDataSource(),
+        language = language,
+        region = region,
+        releaseDateGte = releaseDateGte,
+        releaseDateLte = releaseDateLte
+    )
+
+    override fun getUpComingMovies(
+        language: String,
+        region: String,
+        releaseDateGte: String,
+        releaseDateLte: String
+    ): PagingSource<Int, Movie> = TMDBNowPlayingPagingSource(
+        apis = TestMovieDataSource(),
+        language = language,
+        region = region,
+        releaseDateGte = releaseDateGte,
+        releaseDateLte = releaseDateLte
+    )
+
     override fun searchMovieSource(
         type: String,
         query: String,
@@ -34,11 +62,3 @@ class TestPagingRepository : PagingRepository {
         region = region
     )
 }
-
-val testPagingData = listOf(
-    Movie(id = 0, title = "title_1"),
-    Movie(id = 1, title = "title_2"),
-    Movie(id = 2, title = "title_3"),
-    Movie(id = 3, title = "title_4"),
-    Movie(id = 4, title = "title_5")
-)
