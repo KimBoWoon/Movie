@@ -135,72 +135,62 @@ fun DetailScreen(
     restart: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
-    var isLoading by remember { mutableStateOf(false) }
-    var movieDetail by remember { mutableStateOf<MovieDetail?>(null) }
-
-    when (movieInfoState) {
-        is MovieDetailState.Loading -> {
-            Log.d("loading...")
-            isLoading = true
-        }
-        is MovieDetailState.Success -> {
-            Log.d("${movieInfoState.movieDetail}")
-            isLoading = false
-            movieDetail = movieInfoState.movieDetail
-        }
-        is MovieDetailState.Error -> {
-            Log.e("${movieInfoState.throwable.message}")
-            isLoading = false
-            ConfirmDialog(
-                title = "통신 실패",
-                message = "${movieInfoState.throwable.message}",
-                confirmPair = "재시도" to { restart() },
-                dismissPair = "돌아가기" to onBack
-            )
-        }
-    }
 
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        if (isLoading) {
-            CircularProgressIndicator(
-                modifier = Modifier.testTag(tag = "detailScreenLoading").align(Alignment.Center)
-            )
-        }
-
-        Column(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            movieDetail?.let {
-                Title(
-                    title = it.title ?: "",
-                    isFavorite = it.isFavorite,
-                    onBackClick = onBack,
-                    onFavoriteClick = {
-                        val favorite = Favorite(
-                            id = it.id,
-                            title = it.title,
-                            imagePath = it.posterPath
-                        )
-                        if (it.isFavorite) {
-                            deleteFavoriteMovie(favorite)
-                        } else {
-                            insertFavoriteMovie(favorite)
-                        }
-                        scope.launch {
-                            onShowSnackbar(
-                                if (it.isFavorite) "보고 싶은 영화에서 제거했습니다." else "보고 싶은 영화에 추가했습니다.",
-                                null
-                            )
-                        }
-                    }
+        when (movieInfoState) {
+            is MovieDetailState.Loading -> {
+                Log.d("loading...")
+                CircularProgressIndicator(
+                    modifier = Modifier.testTag(tag = "detailScreenLoading").align(Alignment.Center)
                 )
-                MovieDetailComponent(
-                    movieDetail = it,
-                    similarMovieState = similarMovieState,
-                    onMovieClick = { id -> goToMovie(id) },
-                    onPeopleClick = { id -> goToPeople(id) }
+            }
+            is MovieDetailState.Success -> {
+                Log.d("${movieInfoState.movieDetail}")
+
+                Column(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Title(
+                        title = movieInfoState.movieDetail.title ?: "",
+                        isFavorite = movieInfoState.movieDetail.isFavorite,
+                        onBackClick = onBack,
+                        onFavoriteClick = {
+                            val favorite = Favorite(
+                                id = movieInfoState.movieDetail.id,
+                                title = movieInfoState.movieDetail.title,
+                                imagePath = movieInfoState.movieDetail.posterPath
+                            )
+                            if (movieInfoState.movieDetail.isFavorite) {
+                                deleteFavoriteMovie(favorite)
+                            } else {
+                                insertFavoriteMovie(favorite)
+                            }
+                            scope.launch {
+                                onShowSnackbar(
+                                    if (movieInfoState.movieDetail.isFavorite) "보고 싶은 영화에서 제거했습니다." else "보고 싶은 영화에 추가했습니다.",
+                                    null
+                                )
+                            }
+                        }
+                    )
+                    MovieDetailComponent(
+                        movieDetail = movieInfoState.movieDetail,
+                        similarMovieState = similarMovieState,
+                        onMovieClick = { id -> goToMovie(id) },
+                        onPeopleClick = { id -> goToPeople(id) }
+                    )
+                }
+            }
+            is MovieDetailState.Error -> {
+                Log.e("${movieInfoState.throwable.message}")
+
+                ConfirmDialog(
+                    title = "통신 실패",
+                    message = "${movieInfoState.throwable.message}",
+                    confirmPair = "재시도" to { restart() },
+                    dismissPair = "돌아가기" to onBack
                 )
             }
         }
@@ -771,7 +761,7 @@ fun SimilarMovieComponent(
     when {
         similarMovieState.loadState.refresh is LoadState.Loading -> pagingStatus = PagingStatus.LOADING
         similarMovieState.loadState.append is LoadState.Loading -> isAppend = true
-        similarMovieState.loadState.refresh is LoadState.Error || similarMovieState.loadState.append is LoadState.Error -> {
+        similarMovieState.loadState.refresh is LoadState.Error -> {
             isAppend = false
 
             val message = (similarMovieState.loadState.refresh as? LoadState.Error)?.error?.message

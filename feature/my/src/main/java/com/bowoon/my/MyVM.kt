@@ -32,7 +32,12 @@ class MyVM @Inject constructor(
     }
 }
 
-data class MyMenu(
-    val label: String? = null,
-    val content: String? = null
-)
+enum class Menu(val label: String) {
+    MAIN_UPDATE_DATE("메인 업데이트 날짜"),
+    DARK_MODE_SETTING("다크모드 설정"),
+    IS_ADULT("성인"),
+    IS_AUTO_PLAYING_TRAILER("예고편 자동 재생"),
+    LANGUAGE("언어"),
+    REGION("지역"),
+    IMAGE_QUALITY("이미지 퀄리티")
+}

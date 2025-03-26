@@ -7,7 +7,6 @@ import androidx.navigation.toRoute
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
-import com.bowoon.common.Log
 import com.bowoon.common.Result
 import com.bowoon.common.asResult
 import com.bowoon.common.restartableStateIn
@@ -20,6 +19,7 @@ import com.bowoon.model.Favorite
 import com.bowoon.model.MovieDetail
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -36,19 +36,6 @@ class DetailVM @Inject constructor(
         private const val TAG = "DetailVM"
     }
 
-    init {
-        viewModelScope.launch {
-            userDataRepository.internalData.collect {
-                Log.d(TAG, "language -> ${it.language}, region -> ${it.region}")
-
-                language = it.language
-                region = it.region
-            }
-        }
-    }
-
-    private var language = ""
-    private var region = ""
     private val id = savedStateHandle.toRoute<DetailRoute>().id
     val movieInfo = getMovieDetail(id)
         .asResult()
@@ -63,16 +50,19 @@ class DetailVM @Inject constructor(
             initialValue = MovieDetailState.Loading,
             started = SharingStarted.WhileSubscribed(5_000)
         )
-    val similarMovies = Pager(
-        config = PagingConfig(pageSize = 20, initialLoadSize = 20, prefetchDistance = 5),
-        pagingSourceFactory = {
-            pagingRepository.getSimilarMovies(
-                id = id,
-                language = "$language-$region",
-                region = region
-            )
+    val similarMovies = userDataRepository.internalData
+        .flatMapLatest {
+            Pager(
+                config = PagingConfig(pageSize = 20, initialLoadSize = 20, prefetchDistance = 5),
+                pagingSourceFactory = {
+                    pagingRepository.getSimilarMovies(
+                        id = id,
+                        language = "${it.language}-${it.region}",
+                        region = it.region
+                    )
+                }
+            ).flow.cachedIn(viewModelScope)
         }
-    ).flow.cachedIn(viewModelScope)
 
     fun restart() {
         movieInfo.restart()

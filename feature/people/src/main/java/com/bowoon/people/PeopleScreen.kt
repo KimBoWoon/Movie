@@ -1,6 +1,7 @@
 package com.bowoon.people
 
 import android.content.Intent
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -262,6 +263,27 @@ fun ImageComponent(
 }
 
 @Composable
+fun ExternalIdLinkComponent(
+    link: String,
+    @DrawableRes resourceId: Int,
+    contentDescription: String
+) {
+    val context = LocalContext.current
+
+    link.takeIf { it.isNotEmpty() }?.let {
+        Icon(
+            modifier = Modifier
+                .size(dp20)
+                .clickable {
+                    context.startActivity(Intent(Intent.ACTION_VIEW, link.toUri()))
+                },
+            painter = painterResource(id = resourceId),
+            contentDescription = contentDescription
+        )
+    }
+}
+
+@Composable
 fun ExternalIdLinkComponent(people: PeopleDetail) {
     val context = LocalContext.current
 
@@ -270,99 +292,45 @@ fun ExternalIdLinkComponent(people: PeopleDetail) {
             .fillMaxWidth()
             .wrapContentHeight()
     ) {
-        people.externalIds?.wikidataId?.takeIf { it.isNotEmpty() }?.let {
-            Icon(
-                modifier = Modifier
-                    .size(dp20)
-                    .clickable {
-                        context.startActivity(
-                            Intent(
-                                Intent.ACTION_VIEW,
-                                "https://www.wikidata.org/wiki/$it".toUri()
-                            )
-                        )
-                    },
-                painter = painterResource(id = R.drawable.ic_wiki),
+        people.externalIds?.wikidataId?.let {
+            ExternalIdLinkComponent(
+                link = "https://www.wikidata.org/wiki/$it",
+                resourceId = R.drawable.ic_wiki,
                 contentDescription = "wikidataId"
             )
         }
         people.externalIds?.facebookId?.takeIf { it.isNotEmpty() }?.let {
-            Icon(
-                modifier = Modifier
-                    .size(dp20)
-                    .clickable {
-                        context.startActivity(
-                            Intent(
-                                Intent.ACTION_VIEW,
-                                "https://www.facebook.com/$it".toUri()
-                            )
-                        )
-                    },
-                painter = painterResource(id = R.drawable.ic_facebook),
+            ExternalIdLinkComponent(
+                link = "https://www.facebook.com/$it",
+                resourceId = R.drawable.ic_facebook,
                 contentDescription = "facebookId"
             )
         }
         people.externalIds?.twitterId?.takeIf { it.isNotEmpty() }?.let {
-            Icon(
-                modifier = Modifier
-                    .size(dp20)
-                    .clickable {
-                        context.startActivity(
-                            Intent(
-                                Intent.ACTION_VIEW,
-                                "https://x.com/$it".toUri()
-                            )
-                        )
-                    },
-                painter = painterResource(id = R.drawable.ic_twitter),
+            ExternalIdLinkComponent(
+                link = "https://x.com/$it",
+                resourceId = R.drawable.ic_twitter,
                 contentDescription = "twitterId"
             )
         }
         people.externalIds?.tiktokId?.takeIf { it.isNotEmpty() }?.let {
-            Icon(
-                modifier = Modifier
-                    .size(dp20)
-                    .clickable {
-                        context.startActivity(
-                            Intent(
-                                Intent.ACTION_VIEW,
-                                "https://www.tiktok.com/@$it".toUri()
-                            )
-                        )
-                    },
-                painter = painterResource(id = R.drawable.ic_tiktok),
+            ExternalIdLinkComponent(
+                link = "https://www.tiktok.com/@$it",
+                resourceId = R.drawable.ic_tiktok,
                 contentDescription = "tiktokId"
             )
         }
         people.externalIds?.instagramId?.takeIf { it.isNotEmpty() }?.let {
-            Icon(
-                modifier = Modifier
-                    .size(dp20)
-                    .clickable {
-                        context.startActivity(
-                            Intent(
-                                Intent.ACTION_VIEW,
-                                "https://www.instagram.com/$it/".toUri()
-                            )
-                        )
-                    },
-                painter = painterResource(id = R.drawable.ic_instagram),
+            ExternalIdLinkComponent(
+                link = "https://www.instagram.com/$it/",
+                resourceId = R.drawable.ic_instagram,
                 contentDescription = "instagramId"
             )
         }
         people.externalIds?.youtubeId?.takeIf { it.isNotEmpty() }?.let {
-            Icon(
-                modifier = Modifier
-                    .size(dp20)
-                    .clickable {
-                        context.startActivity(
-                            Intent(
-                                Intent.ACTION_VIEW,
-                                "https://www.youtube.com/$it".toUri()
-                            )
-                        )
-                    },
-                painter = painterResource(id = R.drawable.ic_youtube),
+            ExternalIdLinkComponent(
+                link = "https://www.youtube.com/$it",
+                resourceId = R.drawable.ic_youtube,
                 contentDescription = "youtubeId"
             )
         }
