@@ -119,7 +119,7 @@ fun FavoriteScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         when (it[index]) {
-                            it[0] -> {
+                            FavoriteVM.FavoriteTabs.MOVIE.label -> {
                                 Box(
                                     modifier = Modifier.fillMaxSize()
                                 ) {
@@ -161,7 +161,7 @@ fun FavoriteScreen(
                                     }
                                 }
                             }
-                            it[1] -> {
+                            FavoriteVM.FavoriteTabs.PEOPLE.label -> {
                                 Box(
                                     modifier = Modifier.fillMaxSize()
                                 ) {

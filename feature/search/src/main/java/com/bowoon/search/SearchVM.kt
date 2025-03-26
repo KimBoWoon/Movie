@@ -11,13 +11,13 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import com.bowoon.common.Log
 import com.bowoon.data.repository.PagingRepository
 import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.model.Movie
 import com.bowoon.model.SearchType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -30,22 +30,6 @@ class SearchVM @Inject constructor(
     companion object {
         private const val TAG = "SearchVM"
     }
-
-    init {
-        viewModelScope.launch {
-            userDataRepository.internalData.collect {
-                Log.d(TAG, "language -> ${it.language}, region -> ${it.region}, isAdult -> ${it.isAdult}")
-
-                language = it.language
-                region = it.region
-                isAdult = it.isAdult
-            }
-        }
-    }
-
-    private var language: String = ""
-    private var region: String = ""
-    private var isAdult: Boolean = true
 
     var keyword by mutableStateOf("")
         private set
@@ -63,18 +47,20 @@ class SearchVM @Inject constructor(
 
     fun searchMovies(keyword: String) {
         viewModelScope.launch {
-            Pager(
-                config = PagingConfig(pageSize = 20, initialLoadSize = 20, prefetchDistance = 5),
-                pagingSourceFactory = {
-                    pagingRepository.searchMovieSource(
-                        type = SearchType.entries[searchType].label,
-                        query = keyword,
-                        language = "$language-$region",
-                        region = region,
-                        isAdult = isAdult
-                    )
-                }
-            ).flow.cachedIn(viewModelScope).collect {
+            userDataRepository.internalData.flatMapLatest {
+                Pager(
+                    config = PagingConfig(pageSize = 20, initialLoadSize = 20, prefetchDistance = 5),
+                    pagingSourceFactory = {
+                        pagingRepository.searchMovieSource(
+                            type = SearchType.entries[searchType].label,
+                            query = keyword,
+                            language = "${it.language}-${it.region}",
+                            region = it.region,
+                            isAdult = it.isAdult
+                        )
+                    }
+                ).flow.cachedIn(viewModelScope)
+            }.collect {
                 searchMovieState.value = it
             }
         }

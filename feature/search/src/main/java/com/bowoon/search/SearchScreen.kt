@@ -47,10 +47,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -284,28 +284,28 @@ fun SearchBarComponent(
                     updateSearchType = updateSearchType
                 )
 
-                Spacer(modifier = Modifier
-                    .padding(horizontal = dp5)
-                    .width(dp1)
-                    .height(dp10)
-                    .background(color = Color.DarkGray))
+                Spacer(
+                    modifier = Modifier
+                        .padding(horizontal = dp5)
+                        .width(dp1)
+                        .height(dp10)
+                        .background(color = MaterialTheme.colorScheme.onSurface)
+                )
 
-                if (keyword.isEmpty()) {
-                    Text(
-                        modifier = Modifier
-                            .weight(1f)
-                            .align(Alignment.CenterVertically),
-                        text = "검색어를 입력하세요.",
-                        fontSize = sp12,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                } else {
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .align(Alignment.CenterVertically)
-                    ) {
-                        innerTextField()
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .align(Alignment.CenterVertically)
+                ) {
+                    innerTextField()
+                    if (keyword.isEmpty()) {
+                        Text(
+                            text = "검색어를 입력하세요.",
+                            fontSize = sp12,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            maxLines = 1,
+                            style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
+                        )
                     }
                 }
 

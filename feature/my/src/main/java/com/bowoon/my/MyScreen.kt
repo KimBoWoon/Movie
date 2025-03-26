@@ -3,6 +3,7 @@ package com.bowoon.my
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,8 +13,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -22,17 +27,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.bowoon.common.Log
 import com.bowoon.data.repository.LocalMovieAppDataComposition
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.DarkThemeConfig
 import com.bowoon.model.InternalData
+import com.bowoon.model.LanguageItem
+import com.bowoon.model.PosterSize
+import com.bowoon.model.Region
 import com.bowoon.ui.components.Title
 import com.bowoon.ui.dp16
 import com.bowoon.ui.dp50
@@ -60,140 +68,90 @@ fun MyScreen(
 ) {
     val movieAppData = LocalMovieAppDataComposition.current
     var isShowChooseDialog by remember { mutableStateOf(false) }
-    var chooseDialogItem by remember { mutableStateOf(emptyList<String>()) }
-    var selectedOption by remember { mutableStateOf("") }
-    var updateData by remember { mutableStateOf<(String) -> Unit>({ Log.d(it) }) }
-    val menuList = listOf<MyMenu>(
-        MyMenu(
-            label = "메인 업데이트 날짜",
-            content = internalData.updateDate
-        ),
-        MyMenu(
-            label = "다크모드 설정",
-            content = internalData.isDarkMode.label
-        ),
-        MyMenu(
-            label = "성인",
-            content = when (internalData.isAdult) {
-                true -> "성인"
-                false -> "미성년자"
-            }
-        ),
-        MyMenu(
-            label = "예고편 자동 재생",
-            content = when (internalData.autoPlayTrailer) {
-                true -> "재생"
-                false -> "정지"
-            }
-        ),
-        MyMenu(
-            label = "언어",
-            content = movieAppData.getLanguage()
-        ),
-        MyMenu(
-            label = "지역",
-            content = movieAppData.getRegion()
-        ),
-        MyMenu(
-            label = "이미지 퀄리티",
-            content = internalData.imageQuality
-        )
-    )
+    var chooseDialogItem by remember { mutableStateOf(listOf<Any>()) }
+    var selectedOption by remember { mutableStateOf<Any?>(null) }
 
-    LazyColumn(
+    Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        item {
-            Title(title = "마이페이지")
-        }
-        items(
-            items = menuList,
-            key = { "${it.label ?: ""}_${it.content}" }
-        ) {menu ->
-            DisplayMenuComponent(
-                title = menu.label ?: "Nothing",
-                content = menu.content ?: "Nothing",
-                onClick = when (menu.label) {
-                    "메인 업데이트 날짜" -> null
-                    "다크모드 설정" -> {
-                        {
-                            isShowChooseDialog = true
-                            chooseDialogItem = DarkThemeConfig.entries.map { it.label }
-                            selectedOption = internalData.isDarkMode.label
-                            updateData = {
-                                updateUserData(internalData.copy(isDarkMode = DarkThemeConfig.find(it)), false)
-                            }
+        Title(title = "마이페이지")
+        LazyColumn(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            item {
+                Menu.entries.forEach { menu ->
+                    when (menu) {
+                        Menu.MAIN_UPDATE_DATE -> {
+                            DisplayMenuComponent(
+                                title = menu.label,
+                                content = internalData.updateDate
+                            )
                         }
-                    }
-                    "성인" -> {
-                        {
-                            isShowChooseDialog = true
-                            chooseDialogItem = listOf("성인", "미성년자")
-                            selectedOption = when (internalData.isAdult) {
-                                true -> "성인"
-                                false -> "미성년자"
-                            }
-                            updateData = {
-                                when (it) {
-                                    "성인" -> updateUserData(internalData.copy(isAdult = true), false)
-                                    "미성년자" -> updateUserData(internalData.copy(isAdult = false), false)
+                        Menu.DARK_MODE_SETTING -> {
+                            ChooseMenuComponent(
+                                title = menu.label,
+                                content = when (internalData.isDarkMode) {
+                                    DarkThemeConfig.FOLLOW_SYSTEM -> "시스템 설정"
+                                    DarkThemeConfig.LIGHT -> "라이트"
+                                    DarkThemeConfig.DARK -> "다크"
+                                },
+                                onClick = {
+                                    isShowChooseDialog = true
+                                    chooseDialogItem = DarkThemeConfig.entries
+                                    selectedOption = internalData.isDarkMode
                                 }
-                            }
+                            )
                         }
-                    }
-                    "예고편 자동 재생" -> {
-                        {
-                            isShowChooseDialog = true
-                            chooseDialogItem = listOf("재생", "정지")
-                            selectedOption = when (internalData.autoPlayTrailer) {
-                                true -> "재생"
-                                false -> "정지"
-                            }
-                            updateData = {
-                                when (it) {
-                                    "재생" -> updateUserData(internalData.copy(autoPlayTrailer = true), false)
-                                    "정지" -> updateUserData(internalData.copy(autoPlayTrailer = false), false)
+                        Menu.IS_ADULT -> {
+                            SwitchMenuComponent(
+                                title = menu.label,
+                                checked = internalData.isAdult,
+                                onClick = { updateUserData(internalData.copy(isAdult = it), false) }
+                            )
+                        }
+                        Menu.IS_AUTO_PLAYING_TRAILER -> {
+                            SwitchMenuComponent(
+                                title = menu.label,
+                                checked = internalData.autoPlayTrailer,
+                                onClick = { updateUserData(internalData.copy(autoPlayTrailer = it), false) }
+                            )
+                        }
+                        Menu.LANGUAGE -> {
+                            ChooseMenuComponent(
+                                title = menu.label,
+                                content = movieAppData.getLanguage(),
+                                onClick = {
+                                    isShowChooseDialog = true
+                                    chooseDialogItem = movieAppData.language ?: emptyList()
+                                    selectedOption = movieAppData.language?.find { it.isSelected }
                                 }
-                            }
+                            )
                         }
-                    }
-                    "언어" -> {
-                        {
-                            isShowChooseDialog = true
-                            chooseDialogItem = movieAppData.language?.sortedBy { it.iso6391 }?.map { "${it.iso6391} (${it.englishName})" } ?: emptyList()
-                            selectedOption = movieAppData.getLanguage()
-                            updateData = { selectedOption ->
-                                movieAppData.language?.find { "${it.iso6391} (${it.englishName})" == selectedOption }?.also {
-                                        updateUserData(internalData.copy(language = it.iso6391 ?: ""), true)
+                        Menu.REGION -> {
+                            ChooseMenuComponent(
+                                title = menu.label,
+                                content = movieAppData.getRegion(),
+                                onClick = {
+                                    isShowChooseDialog = true
+                                    chooseDialogItem = movieAppData.region ?: emptyList()
+                                    selectedOption = movieAppData.region?.find { it.isSelected }
                                 }
-                            }
+                            )
                         }
-                    }
-                    "지역" -> {
-                        {
-                            isShowChooseDialog = true
-                            chooseDialogItem = movieAppData.region?.sortedBy { it.iso31661 }?.map { "${it.iso31661} (${it.englishName})" } ?: emptyList()
-                            selectedOption = movieAppData.getRegion()
-                            updateData = { selectedOption ->
-                                movieAppData.region?.find { "${it.iso31661} (${it.englishName})" == selectedOption }?.also {
-                                    updateUserData(internalData.copy(language = it.iso31661 ?: ""), true)
+                        Menu.IMAGE_QUALITY -> {
+                            ChooseMenuComponent(
+                                title = menu.label,
+                                content = internalData.imageQuality,
+                                onClick = {
+                                    isShowChooseDialog = true
+                                    chooseDialogItem = movieAppData.posterSize ?: emptyList()
+                                    selectedOption = movieAppData.posterSize?.find { it.isSelected }
                                 }
-                            }
+                            )
                         }
                     }
-                    "이미지 퀄리티" -> {
-                        {
-                            isShowChooseDialog = true
-                            chooseDialogItem = movieAppData.posterSize?.mapNotNull { it.size } ?: emptyList()
-                            selectedOption = internalData.imageQuality
-                            updateData = {
-                                updateUserData(internalData.copy(imageQuality = it), true)
-                            }
-                        }
-                    }
-                    else -> null
                 }
-            )
+            }
         }
     }
 
@@ -202,19 +160,24 @@ fun MyScreen(
             list = chooseDialogItem,
             selectedOption = selectedOption,
             dismiss = { isShowChooseDialog = false },
-            updateUserData = {
-                updateData(it)
+            updateUserData = { chooseItem ->
+                when (chooseItem) {
+                    is DarkThemeConfig -> updateUserData(internalData.copy(isDarkMode = chooseItem), false)
+                    is LanguageItem -> updateUserData(internalData.copy(language = chooseItem.iso6391 ?: ""), true)
+                    is Region -> updateUserData(internalData.copy(region = chooseItem.iso31661 ?: ""), true)
+                    is PosterSize -> updateUserData(internalData.copy(language = chooseItem.size ?: ""), true)
+                }
             }
         )
     }
 }
 
 @Composable
-fun ChooseDialog(
-    list: List<String>,
-    selectedOption: String,
+fun <T> ChooseDialog(
+    list: List<T>,
+    selectedOption: T,
     dismiss: () -> Unit,
-    updateUserData: (String) -> Unit
+    updateUserData: (T) -> Unit
 ) {
     Dialog(
         onDismissRequest = { dismiss() },
@@ -232,7 +195,15 @@ fun ChooseDialog(
         ) {
             items(
                 items = list,
-                key = { it }
+                key = {
+                    when (it) {
+                        is DarkThemeConfig -> it.label
+                        is LanguageItem -> "${it.iso6391}_${it.englishName}"
+                        is Region -> "${it.iso31661}_${it.englishName}"
+                        is PosterSize -> it.size ?: ""
+                        else -> it ?: ""
+                    }
+                }
             ) { item ->
                 Row(
                     Modifier
@@ -255,7 +226,13 @@ fun ChooseDialog(
                     )
                     Text(
                         modifier = Modifier.padding(start = dp16),
-                        text = item,
+                        text = when (item) {
+                            is DarkThemeConfig -> item.label
+                            is LanguageItem -> "${item.iso6391} (${item.englishName})"
+                            is Region -> "${item.iso31661} (${item.englishName})"
+                            is PosterSize -> item.size ?: ""
+                            else -> ""
+                        },
                         style = MaterialTheme.typography.bodyLarge,
                         color = Color.Black
                     )
@@ -267,6 +244,54 @@ fun ChooseDialog(
 
 @Composable
 fun DisplayMenuComponent(
+    title: String,
+    content: String
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(dp50),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            modifier = Modifier.padding(start = dp16),
+            text = title
+        )
+        Text(
+            modifier = Modifier.padding(end = dp16),
+            text = content
+        )
+    }
+}
+
+@Composable
+fun SwitchMenuComponent(
+    title: String,
+    checked: Boolean,
+    onClick: ((Boolean) -> Unit)
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(dp50),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            modifier = Modifier.padding(start = dp16),
+            text = title
+        )
+        Switch(
+            modifier = Modifier.padding(end = dp16),
+            checked = checked,
+            onCheckedChange = { onClick(it) }
+        )
+    }
+}
+
+@Composable
+fun ChooseMenuComponent(
     title: String,
     content: String,
     onClick: (() -> Unit)? = null
@@ -283,9 +308,16 @@ fun DisplayMenuComponent(
             modifier = Modifier.padding(start = dp16),
             text = title
         )
-        Text(
+        Row(
             modifier = Modifier.padding(end = dp16),
-            text = content
-        )
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = content)
+            Icon(
+                modifier = Modifier.rotate(90f),
+                imageVector = Icons.Filled.KeyboardArrowUp,
+                contentDescription = "moreIcon"
+            )
+        }
     }
 }
