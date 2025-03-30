@@ -34,21 +34,21 @@ class SearchVM @Inject constructor(
         private const val TAG = "SearchVM"
     }
 
-    var selectedFilter by mutableStateOf<MovieGenre?>(null)
-        private set
+//    var selectedFilter by mutableStateOf<MovieGenre?>(null)
+//        private set
     var searchQuery by mutableStateOf("")
         private set
 
     var searchType by mutableIntStateOf(savedStateHandle.get<Int>("searchType") ?: 0)
     var searchResult = MutableStateFlow<PagingData<Movie>>(PagingData.empty())
 
-    fun updateFilter(filter: MovieGenre) {
-        selectedFilter = if (selectedFilter?.id == filter.id) {
-            null
-        } else {
-            filter
-        }
-    }
+//    fun updateFilter(filter: MovieGenre) {
+//        selectedFilter = if (selectedFilter?.id == filter.id) {
+//            null
+//        } else {
+//            filter
+//        }
+//    }
 
     fun updateKeyword(keyword: String) {
         this@SearchVM.searchQuery = keyword

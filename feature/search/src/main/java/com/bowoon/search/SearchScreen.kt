@@ -19,27 +19,22 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -69,7 +64,6 @@ import com.bowoon.data.repository.LocalMovieAppDataComposition
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.Movie
-import com.bowoon.model.MovieGenre
 import com.bowoon.model.PagingStatus
 import com.bowoon.model.SearchType
 import com.bowoon.ui.ConfirmDialog
@@ -104,13 +98,13 @@ fun SearchScreen(
         state = state,
         keyword = viewModel.searchQuery,
         searchType = viewModel.searchType,
-        selectedFilter = viewModel.selectedFilter,
+//        selectedFilter = viewModel.selectedFilter,
         onMovieClick = onMovieClick,
         onPeopleClick = onPeopleClick,
         onSearchClick = viewModel::searchMovies,
         updateKeyword = viewModel::updateKeyword,
         updateSearchType = viewModel::updateSearchType,
-        updateFilter = viewModel::updateFilter
+//        updateFilter = viewModel::updateFilter
     )
 }
 
@@ -119,13 +113,13 @@ fun SearchScreen(
     state: LazyPagingItems<Movie>,
     keyword: String,
     searchType: Int,
-    selectedFilter: MovieGenre?,
+//    selectedFilter: MovieGenre?,
     onMovieClick: (Int) -> Unit,
     onPeopleClick: (Int) -> Unit,
     onSearchClick: () -> Unit,
     updateKeyword: (String) -> Unit,
     updateSearchType: (SearchType) -> Unit,
-    updateFilter: (MovieGenre) -> Unit
+//    updateFilter: (MovieGenre) -> Unit
 ) {
     val scrollState = rememberLazyGridState()
 
@@ -147,8 +141,8 @@ fun SearchScreen(
             searchType = searchType,
             onMovieClick = onMovieClick,
             onPeopleClick = onPeopleClick,
-            selectedFilter = selectedFilter,
-            updateFilter = updateFilter
+//            selectedFilter = selectedFilter,
+//            updateFilter = updateFilter
         )
     }
 }
@@ -324,11 +318,11 @@ fun SearchResultPaging(
     searchType: Int,
     onMovieClick: (Int) -> Unit,
     onPeopleClick: (Int) -> Unit,
-    selectedFilter: MovieGenre?,
-    updateFilter: (MovieGenre) -> Unit
+//    selectedFilter: MovieGenre?,
+//    updateFilter: (MovieGenre) -> Unit
 ) {
     val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
-    val genreList = LocalMovieAppDataComposition.current.genres
+//    val genreList = LocalMovieAppDataComposition.current.genres
     var isAppend by remember { mutableStateOf(false) }
     var pagingStatus by remember { mutableStateOf<PagingStatus>(PagingStatus.NONE) }
 
@@ -379,26 +373,26 @@ fun SearchResultPaging(
                 Column(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    if (state.itemCount > 0) {
-                        LazyRow(
-                            modifier = Modifier.fillMaxWidth(),
-                            contentPadding = PaddingValues(horizontal = dp16),
-                            horizontalArrangement = Arrangement.spacedBy(space = dp10)
-                        ) {
-                            items(
-                                items = genreList ?: emptyList(),
-                                key = { it.id ?: -1 }
-                            ) { genre ->
-                                genre.name?.let { name ->
-                                    MovieGenreChipComponent(
-                                        title = name,
-                                        selectedFilter = selectedFilter?.id == genre.id,
-                                        updateFilter = { updateFilter(genre) }
-                                    )
-                                }
-                            }
-                        }
-                    }
+//                    if (state.itemCount > 0) {
+//                        LazyRow(
+//                            modifier = Modifier.fillMaxWidth(),
+//                            contentPadding = PaddingValues(horizontal = dp16),
+//                            horizontalArrangement = Arrangement.spacedBy(space = dp10)
+//                        ) {
+//                            items(
+//                                items = genreList ?: emptyList(),
+//                                key = { it.id ?: -1 }
+//                            ) { genre ->
+//                                genre.name?.let { name ->
+//                                    MovieGenreChipComponent(
+//                                        title = name,
+//                                        selectedFilter = selectedFilter?.id == genre.id,
+//                                        updateFilter = { updateFilter(genre) }
+//                                    )
+//                                }
+//                            }
+//                        }
+//                    }
 
                     Box(
                         modifier = Modifier.fillMaxSize()
@@ -406,7 +400,8 @@ fun SearchResultPaging(
                         LazyVerticalGrid(
                             modifier = Modifier
                                 .semantics { contentDescription = "searchResultList" }
-                                .fillMaxSize(),
+                                .fillMaxSize()
+                                .padding(top = dp10),
                             state = scrollState,
                             columns = GridCells.Adaptive(dp100),
                             contentPadding = PaddingValues(dp10),
@@ -453,26 +448,26 @@ fun SearchResultPaging(
     }
 }
 
-@Composable
-fun MovieGenreChipComponent(
-    title: String,
-    selectedFilter: Boolean,
-    updateFilter: () -> Unit
-) {
-    FilterChip(
-        onClick = { updateFilter() },
-        label = { Text(text = title) },
-        selected = selectedFilter,
-        leadingIcon = if (selectedFilter) {
-            {
-                Icon(
-                    imageVector = Icons.Filled.Done,
-                    contentDescription = "Done icon",
-                    modifier = Modifier.size(FilterChipDefaults.IconSize)
-                )
-            }
-        } else {
-            null
-        },
-    )
-}
+//@Composable
+//fun MovieGenreChipComponent(
+//    title: String,
+//    selectedFilter: Boolean,
+//    updateFilter: () -> Unit
+//) {
+//    FilterChip(
+//        onClick = { updateFilter() },
+//        label = { Text(text = title) },
+//        selected = selectedFilter,
+//        leadingIcon = if (selectedFilter) {
+//            {
+//                Icon(
+//                    imageVector = Icons.Filled.Done,
+//                    contentDescription = "Done icon",
+//                    modifier = Modifier.size(FilterChipDefaults.IconSize)
+//                )
+//            }
+//        } else {
+//            null
+//        },
+//    )
+//}
