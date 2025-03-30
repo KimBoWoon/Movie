@@ -77,7 +77,7 @@ import com.bowoon.ui.animateRotation
 import com.bowoon.ui.bounceClick
 import com.bowoon.ui.components.PagingAppendErrorComponent
 import com.bowoon.ui.components.TabComponent
-import com.bowoon.ui.components.Title
+import com.bowoon.ui.components.TitleComponent
 import com.bowoon.ui.dp0
 import com.bowoon.ui.dp10
 import com.bowoon.ui.dp100
@@ -152,7 +152,7 @@ fun DetailScreen(
                 Column(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    Title(
+                    TitleComponent(
                         title = movieInfoState.movieDetail.title ?: "",
                         isFavorite = movieInfoState.movieDetail.isFavorite,
                         onBackClick = onBack,

@@ -42,11 +42,11 @@ class SearchVMTest {
 
     @Test
     fun updateKeywordTest() {
-        assertEquals(viewModel.keyword, "")
+        assertEquals(viewModel.searchQuery, "")
         viewModel.updateKeyword("mission")
-        assertEquals(viewModel.keyword, "mission")
+        assertEquals(viewModel.searchQuery, "mission")
         viewModel.updateKeyword("미션")
-        assertEquals(viewModel.keyword, "미션")
+        assertEquals(viewModel.searchQuery, "미션")
     }
 
     @Test
@@ -60,7 +60,7 @@ class SearchVMTest {
 
     @Test
     fun searchMovieStateTest() = runTest {
-        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.searchMovieState.collect() }
+        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.searchResult.collect() }
         viewModel.searchMovies("미션")
 
 //        assertEquals(viewModel.searchMovieState.value, PagingData.empty<Movie>())

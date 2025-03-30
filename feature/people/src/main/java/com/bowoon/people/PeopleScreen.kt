@@ -52,7 +52,7 @@ import com.bowoon.movie.core.ui.R
 import com.bowoon.ui.ConfirmDialog
 import com.bowoon.ui.ModalBottomSheetDialog
 import com.bowoon.ui.bounceClick
-import com.bowoon.ui.components.Title
+import com.bowoon.ui.components.TitleComponent
 import com.bowoon.ui.dp10
 import com.bowoon.ui.dp100
 import com.bowoon.ui.dp20
@@ -155,7 +155,7 @@ fun PeopleDetailComponent(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        Title(
+        TitleComponent(
             title = people.name ?: "인물 정보",
             onBackClick = onBack,
             onFavoriteClick = {

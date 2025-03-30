@@ -6,6 +6,7 @@ import com.bowoon.data.paging.TMDBSearchPagingSource
 import com.bowoon.data.paging.TMDBSimilarMoviePagingSource
 import com.bowoon.data.paging.TMDBUpComingPagingSource
 import com.bowoon.model.Movie
+import com.bowoon.model.SearchType
 import com.bowoon.network.MovieNetworkDataSource
 import javax.inject.Inject
 
@@ -15,12 +16,14 @@ class PagingRepositoryImpl @Inject constructor(
     override fun getNowPlaying(
         language: String,
         region: String,
+        isAdult: Boolean,
         releaseDateGte: String,
         releaseDateLte: String
     ): PagingSource<Int, Movie> = TMDBNowPlayingPagingSource(
         apis = apis,
         language = language,
         region = region,
+        isAdult = isAdult,
         releaseDateGte = releaseDateGte,
         releaseDateLte = releaseDateLte
     )
@@ -28,18 +31,20 @@ class PagingRepositoryImpl @Inject constructor(
     override fun getUpComingMovies(
         language: String,
         region: String,
+        isAdult: Boolean,
         releaseDateGte: String,
         releaseDateLte: String
     ): PagingSource<Int, Movie> = TMDBUpComingPagingSource(
         apis = apis,
         language = language,
         region = region,
+        isAdult = isAdult,
         releaseDateGte = releaseDateGte,
         releaseDateLte = releaseDateLte
     )
 
     override fun searchMovieSource(
-        type: String,
+        type: SearchType,
         query: String,
         language: String,
         region: String,

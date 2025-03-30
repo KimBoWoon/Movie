@@ -2,22 +2,25 @@ package com.bowoon.data.repository
 
 import androidx.paging.PagingSource
 import com.bowoon.model.Movie
+import com.bowoon.model.SearchType
 
 interface PagingRepository {
     fun getUpComingMovies(
         language: String,
         region: String,
+        isAdult: Boolean,
         releaseDateGte: String,
         releaseDateLte: String
     ): PagingSource<Int, Movie>
     fun getNowPlaying(
         language: String,
         region: String,
+        isAdult: Boolean,
         releaseDateGte: String,
         releaseDateLte: String
     ): PagingSource<Int, Movie>
     fun searchMovieSource(
-        type: String,
+        type: SearchType,
         query: String,
         language: String,
         region: String,

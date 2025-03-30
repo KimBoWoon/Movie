@@ -42,12 +42,12 @@ class SearchScreenTest {
         composeTestRule.apply {
             setContent {
                 SearchScreen(
-                    state = viewModel.searchMovieState.collectAsLazyPagingItems(),
-                    keyword = viewModel.keyword,
+                    state = viewModel.searchResult.collectAsLazyPagingItems(),
+                    keyword = viewModel.searchQuery,
                     searchType = viewModel.searchType,
                     onMovieClick = {},
                     onPeopleClick = {},
-                    onSearchClick = viewModel::searchMovies,
+                    onSearchClick = viewModel::searchResult,
                     updateKeyword = viewModel::updateKeyword,
                     updateSearchType = viewModel::updateSearchType
                 )
@@ -67,12 +67,12 @@ class SearchScreenTest {
                 viewModel.updateKeyword("mission")
 
                 SearchScreen(
-                    state = viewModel.searchMovieState.collectAsLazyPagingItems(),
-                    keyword = viewModel.keyword,
+                    state = viewModel.searchResult.collectAsLazyPagingItems(),
+                    keyword = viewModel.searchQuery,
                     searchType = viewModel.searchType,
                     onMovieClick = {},
                     onPeopleClick = {},
-                    onSearchClick = viewModel::searchMovies,
+                    onSearchClick = viewModel::searchResult,
                     updateKeyword = viewModel::updateKeyword,
                     updateSearchType = viewModel::updateSearchType
                 )
@@ -92,12 +92,12 @@ class SearchScreenTest {
                 viewModel.updateKeyword("mission")
 
                 SearchScreen(
-                    state = viewModel.searchMovieState.collectAsLazyPagingItems(),
-                    keyword = viewModel.keyword,
+                    state = viewModel.searchResult.collectAsLazyPagingItems(),
+                    keyword = viewModel.searchQuery,
                     searchType = viewModel.searchType,
                     onMovieClick = {},
                     onPeopleClick = {},
-                    onSearchClick = viewModel::searchMovies,
+                    onSearchClick = viewModel::searchResult,
                     updateKeyword = viewModel::updateKeyword,
                     updateSearchType = viewModel::updateSearchType
                 )

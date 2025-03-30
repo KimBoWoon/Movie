@@ -41,7 +41,7 @@ import com.bowoon.model.InternalData
 import com.bowoon.model.LanguageItem
 import com.bowoon.model.PosterSize
 import com.bowoon.model.Region
-import com.bowoon.ui.components.Title
+import com.bowoon.ui.components.TitleComponent
 import com.bowoon.ui.dp16
 import com.bowoon.ui.dp50
 import com.bowoon.ui.dp500
@@ -74,7 +74,7 @@ fun MyScreen(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        Title(title = "마이페이지")
+        TitleComponent(title = "마이페이지")
         LazyColumn(
             modifier = Modifier.fillMaxSize()
         ) {

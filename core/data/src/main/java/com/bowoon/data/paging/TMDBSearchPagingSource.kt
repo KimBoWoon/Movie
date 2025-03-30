@@ -4,6 +4,8 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.bowoon.common.Log
 import com.bowoon.model.Movie
+import com.bowoon.model.MovieSearchItem
+import com.bowoon.model.PeopleSearchItem
 import com.bowoon.model.SearchResult
 import com.bowoon.model.SearchType
 import com.bowoon.network.MovieNetworkDataSource
@@ -11,7 +13,7 @@ import javax.inject.Inject
 
 class TMDBSearchPagingSource @Inject constructor(
     private val apis: MovieNetworkDataSource,
-    private val type: String,
+    private val type: SearchType,
     private val query: String,
     private val language: String,
     private val region: String,
@@ -20,9 +22,8 @@ class TMDBSearchPagingSource @Inject constructor(
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Movie> =
         runCatching {
             when (type) {
-                SearchType.MOVIE.label -> searchMovie(params, isAdult)
-                SearchType.PEOPLE.label -> searchPeople(params, isAdult)
-                else -> searchMovie(params, isAdult)
+                SearchType.MOVIE -> searchMovie(params, isAdult)
+                SearchType.PEOPLE -> searchPeople(params, isAdult)
             }
         }.getOrElse { e ->
             Log.printStackTrace(e)
@@ -59,10 +60,29 @@ class TMDBSearchPagingSource @Inject constructor(
         response: List<SearchResult>?
     ): List<Movie> =
         response?.map {
-            Movie(
-                id = it.tmdbId,
-                title = it.searchTitle,
-                posterPath = it.imagePath
-            )
+            when (it) {
+                is MovieSearchItem -> {
+                    Movie(
+                        id = it.tmdbId,
+                        title = it.searchTitle,
+                        posterPath = it.imagePath,
+                        genreIds = it.genreIds
+                    )
+                }
+                is PeopleSearchItem -> {
+                    Movie(
+                        id = it.tmdbId,
+                        title = it.searchTitle,
+                        posterPath = it.imagePath
+                    )
+                }
+                else -> {
+                    Movie(
+                        id = it.tmdbId,
+                        title = it.searchTitle,
+                        posterPath = it.imagePath
+                    )
+                }
+            }
         } ?: emptyList()
 }
