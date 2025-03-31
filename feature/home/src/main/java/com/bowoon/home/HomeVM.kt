@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bowoon.common.Result
 import com.bowoon.common.asResult
-import com.bowoon.data.repository.PagingRepository
 import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.data.util.SyncManager
 import com.bowoon.model.MainMenu
@@ -17,8 +16,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeVM @Inject constructor(
     syncManager: SyncManager,
-    userDataRepository: UserDataRepository,
-    pagingRepository: PagingRepository
+    userDataRepository: UserDataRepository
 ) : ViewModel() {
     companion object {
         private const val TAG = "HomeVM"
