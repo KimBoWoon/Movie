@@ -56,14 +56,13 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
-import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.bowoon.common.Log
 import com.bowoon.data.repository.LocalMovieAppDataComposition
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.firebase.LocalFirebaseLogHelper
-import com.bowoon.model.Movie
 import com.bowoon.model.PagingStatus
 import com.bowoon.model.SearchType
 import com.bowoon.ui.ConfirmDialog
@@ -92,34 +91,30 @@ fun SearchScreen(
 ) {
     LocalFirebaseLogHelper.current.sendLog("SearchScreen", "search screen init")
 
-    val state = viewModel.searchResult.collectAsLazyPagingItems()
+    val searchState by viewModel.searchResult.collectAsStateWithLifecycle()
 
     SearchScreen(
-        state = state,
+        searchState = searchState,
         keyword = viewModel.searchQuery,
         searchType = viewModel.searchType,
-//        selectedFilter = viewModel.selectedFilter,
         onMovieClick = onMovieClick,
         onPeopleClick = onPeopleClick,
         onSearchClick = viewModel::searchMovies,
         updateKeyword = viewModel::updateKeyword,
         updateSearchType = viewModel::updateSearchType,
-//        updateFilter = viewModel::updateFilter
     )
 }
 
 @Composable
 fun SearchScreen(
-    state: LazyPagingItems<Movie>,
+    searchState: SearchState,
     keyword: String,
     searchType: Int,
-//    selectedFilter: MovieGenre?,
     onMovieClick: (Int) -> Unit,
     onPeopleClick: (Int) -> Unit,
     onSearchClick: () -> Unit,
     updateKeyword: (String) -> Unit,
     updateSearchType: (SearchType) -> Unit,
-//    updateFilter: (MovieGenre) -> Unit
 ) {
     val scrollState = rememberLazyGridState()
 
@@ -136,13 +131,11 @@ fun SearchScreen(
             updateSearchType = updateSearchType
         )
         SearchResultPaging(
-            state = state,
+            searchState = searchState,
             scrollState = scrollState,
             searchType = searchType,
             onMovieClick = onMovieClick,
-            onPeopleClick = onPeopleClick,
-//            selectedFilter = selectedFilter,
-//            updateFilter = updateFilter
+            onPeopleClick = onPeopleClick
         )
     }
 }
@@ -313,131 +306,110 @@ fun SearchTypeComponent(
 
 @Composable
 fun SearchResultPaging(
-    state: LazyPagingItems<Movie>,
+    searchState: SearchState,
     scrollState: LazyGridState,
     searchType: Int,
     onMovieClick: (Int) -> Unit,
     onPeopleClick: (Int) -> Unit,
-//    selectedFilter: MovieGenre?,
-//    updateFilter: (MovieGenre) -> Unit
 ) {
     val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
-//    val genreList = LocalMovieAppDataComposition.current.genres
     var isAppend by remember { mutableStateOf(false) }
     var pagingStatus by remember { mutableStateOf<PagingStatus>(PagingStatus.NONE) }
 
-    when {
-        state.loadState.refresh is LoadState.Loading -> pagingStatus = PagingStatus.LOADING
-        state.loadState.append is LoadState.Loading -> isAppend = true
-        state.loadState.refresh is LoadState.Error -> {
-            isAppend = false
+    when (searchState) {
+        is SearchState.Loading -> {}
+        is SearchState.Search -> {
+            val pagingData = searchState.pagingData.collectAsLazyPagingItems()
 
-            ConfirmDialog(
-                title = "Error",
-                message = (state.loadState.refresh as? LoadState.Error)?.error?.message ?: "something wrong...",
-                confirmPair = "재시도" to { state.retry() },
-                dismissPair = "확인" to {}
-            )
-        }
-        state.loadState.refresh is LoadState.NotLoading -> {
-            isAppend = false
-            pagingStatus = if (pagingStatus == PagingStatus.LOADING) {
-                if (state.itemCount == 0) PagingStatus.EMPTY else PagingStatus.NOT_EMPTY
-            } else {
-                pagingStatus
-            }
-        }
-        state.loadState.append is LoadState.NotLoading -> {
-            isAppend = false
-        }
-    }
+            when {
+                pagingData.loadState.refresh is LoadState.Loading -> pagingStatus = PagingStatus.LOADING
+                pagingData.loadState.append is LoadState.Loading -> isAppend = true
+                pagingData.loadState.refresh is LoadState.Error -> {
+                    isAppend = false
 
-    Box(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        when (pagingStatus) {
-            PagingStatus.LOADING -> {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center)
-                )
+                    ConfirmDialog(
+                        title = "Error",
+                        message = (pagingData.loadState.refresh as? LoadState.Error)?.error?.message ?: "something wrong...",
+                        confirmPair = "재시도" to { pagingData.retry() },
+                        dismissPair = "확인" to {}
+                    )
+                }
+                pagingData.loadState.refresh is LoadState.NotLoading -> {
+                    isAppend = false
+                    pagingStatus = if (pagingStatus == PagingStatus.LOADING) {
+                        if (pagingData.itemCount == 0) PagingStatus.EMPTY else PagingStatus.NOT_EMPTY
+                    } else {
+                        pagingStatus
+                    }
+                }
+                pagingData.loadState.append is LoadState.NotLoading -> {
+                    isAppend = false
+                }
             }
-            PagingStatus.EMPTY -> {
-                Text(
-                    modifier = Modifier.align(Alignment.Center),
-                    text = "검색결과가 없습니다.",
-                    fontSize = sp30,
-                    textAlign = TextAlign.Center
-                )
-            }
-            else -> {
-                Column(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-//                    if (state.itemCount > 0) {
-//                        LazyRow(
-//                            modifier = Modifier.fillMaxWidth(),
-//                            contentPadding = PaddingValues(horizontal = dp16),
-//                            horizontalArrangement = Arrangement.spacedBy(space = dp10)
-//                        ) {
-//                            items(
-//                                items = genreList ?: emptyList(),
-//                                key = { it.id ?: -1 }
-//                            ) { genre ->
-//                                genre.name?.let { name ->
-//                                    MovieGenreChipComponent(
-//                                        title = name,
-//                                        selectedFilter = selectedFilter?.id == genre.id,
-//                                        updateFilter = { updateFilter(genre) }
-//                                    )
-//                                }
-//                            }
-//                        }
-//                    }
 
-                    Box(
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        LazyVerticalGrid(
-                            modifier = Modifier
-                                .semantics { contentDescription = "searchResultList" }
-                                .fillMaxSize()
-                                .padding(top = dp10),
-                            state = scrollState,
-                            columns = GridCells.Adaptive(dp100),
-                            contentPadding = PaddingValues(dp10),
-                            horizontalArrangement = Arrangement.spacedBy(dp10),
-                            verticalArrangement = Arrangement.spacedBy(dp10)
+            Box(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                when (pagingStatus) {
+                    PagingStatus.LOADING -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                    PagingStatus.EMPTY -> {
+                        Text(
+                            modifier = Modifier.align(Alignment.Center),
+                            text = "검색결과가 없습니다.",
+                            fontSize = sp30,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                    else -> {
+                        Column(
+                            modifier = Modifier.fillMaxSize()
                         ) {
-                            items(
-                                count = state.itemCount,
-                                key = { index -> "${state.peek(index)?.id}_${index}_${state.peek(index)?.title}" }
-                            ) { index ->
-                                DynamicAsyncImageLoader(
+                            Box(
+                                modifier = Modifier.fillMaxSize()
+                            ) {
+                                LazyVerticalGrid(
                                     modifier = Modifier
-                                        .fillMaxWidth()
-                                        .aspectRatio(POSTER_IMAGE_RATIO)
-                                        .bounceClick {
-                                            when (searchType) {
-                                                SearchType.MOVIE.ordinal -> onMovieClick(state[index]?.id ?: -1)
-                                                SearchType.PEOPLE.ordinal -> onPeopleClick(state[index]?.id ?: -1)
-                                            }
-                                        },
-                                    source = "$posterUrl${state[index]?.posterPath}",
-                                    contentDescription = "${state[index]?.id}_${state[index]?.title}"
-                                )
-                            }
-                            if (isAppend) {
-                                item(span = { GridItemSpan(maxLineSpan) }) {
-                                    CircularProgressIndicator(
-                                        modifier = Modifier
-                                            .wrapContentSize()
-                                            .align(Alignment.Center)
-                                    )
-                                }
-                            }
-                            if (state.loadState.append is LoadState.Error) {
-                                item(span = { GridItemSpan(maxLineSpan) }) {
-                                    PagingAppendErrorComponent({ state.retry() })
+                                        .semantics { contentDescription = "searchResultList" }
+                                        .fillMaxSize()
+                                        .padding(top = dp10),
+                                    state = scrollState,
+                                    columns = GridCells.Adaptive(dp100),
+                                    contentPadding = PaddingValues(dp10),
+                                    horizontalArrangement = Arrangement.spacedBy(dp10),
+                                    verticalArrangement = Arrangement.spacedBy(dp10)
+                                ) {
+                                    items(
+                                        count = pagingData.itemCount,
+                                        key = { index -> "${pagingData.peek(index)?.id}_${index}_${pagingData.peek(index)?.title}" }
+                                    ) { index ->
+                                        DynamicAsyncImageLoader(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .aspectRatio(POSTER_IMAGE_RATIO)
+                                                .bounceClick {
+                                                    when (searchType) {
+                                                        SearchType.MOVIE.ordinal -> onMovieClick(pagingData[index]?.id ?: -1)
+                                                        SearchType.PEOPLE.ordinal -> onPeopleClick(pagingData[index]?.id ?: -1)
+                                                    }
+                                                },
+                                            source = "$posterUrl${pagingData[index]?.posterPath}",
+                                            contentDescription = "${pagingData[index]?.id}_${pagingData[index]?.title}"
+                                        )
+                                    }
+                                    if (isAppend) {
+                                        item(span = { GridItemSpan(maxLineSpan) }) {
+                                            CircularProgressIndicator(
+                                                modifier = Modifier
+                                                    .wrapContentSize()
+                                                    .align(Alignment.Center)
+                                            )
+                                        }
+                                    }
+                                    if (pagingData.loadState.append is LoadState.Error) {
+                                        item(span = { GridItemSpan(maxLineSpan) }) {
+                                            PagingAppendErrorComponent({ pagingData.retry() })
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -445,29 +417,12 @@ fun SearchResultPaging(
                 }
             }
         }
+        is SearchState.Error -> {
+            ConfirmDialog(
+                title = "",
+                message = searchState.throwable.message ?: "something wrong",
+                confirmPair = "확인" to {}
+            )
+        }
     }
 }
-
-//@Composable
-//fun MovieGenreChipComponent(
-//    title: String,
-//    selectedFilter: Boolean,
-//    updateFilter: () -> Unit
-//) {
-//    FilterChip(
-//        onClick = { updateFilter() },
-//        label = { Text(text = title) },
-//        selected = selectedFilter,
-//        leadingIcon = if (selectedFilter) {
-//            {
-//                Icon(
-//                    imageVector = Icons.Filled.Done,
-//                    contentDescription = "Done icon",
-//                    modifier = Modifier.size(FilterChipDefaults.IconSize)
-//                )
-//            }
-//        } else {
-//            null
-//        },
-//    )
-//}

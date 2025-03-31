@@ -61,13 +61,14 @@ class SearchVMTest {
     @Test
     fun searchMovieStateTest() = runTest {
         backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.searchResult.collect() }
-        viewModel.searchMovies("미션")
+        viewModel.updateKeyword("미션")
+        viewModel.searchMovies()
 
 //        assertEquals(viewModel.searchMovieState.value, PagingData.empty<Movie>())
 
         val pagingSource = TMDBSearchPagingSource(
             apis = TestMovieDataSource(),
-            type = SearchType.MOVIE.label,
+            type = SearchType.MOVIE,
             query = "미션",
             language = "ko-KR",
             region = "KR",
