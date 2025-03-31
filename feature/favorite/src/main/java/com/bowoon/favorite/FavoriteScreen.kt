@@ -41,7 +41,7 @@ import com.bowoon.ui.FavoriteButton
 import com.bowoon.ui.bounceClick
 import com.bowoon.ui.components.ScrollToTopComponent
 import com.bowoon.ui.components.TabComponent
-import com.bowoon.ui.components.Title
+import com.bowoon.ui.components.TitleComponent
 import com.bowoon.ui.dp10
 import com.bowoon.ui.dp15
 import com.bowoon.ui.dp5
@@ -98,7 +98,7 @@ fun FavoriteScreen(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            Title(title = "찜")
+            TitleComponent(title = "찜")
             TabComponent(
                 tabs = favoriteTabs,
                 pagerState = pagerState,

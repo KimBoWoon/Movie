@@ -24,7 +24,7 @@ class PagingRepositoryTest {
     fun moviePagingTest() = runTest {
         val pagingSource = TMDBSearchPagingSource(
             apis = movieApis,
-            type = SearchType.MOVIE.label,
+            type = SearchType.MOVIE,
             query = "미션",
             language = "ko-KR",
             region = "KR",
@@ -60,7 +60,7 @@ class PagingRepositoryTest {
     fun peoplePagingTest() = runTest {
         val pagingSource = TMDBSearchPagingSource(
             apis = movieApis,
-            type = SearchType.PEOPLE.label,
+            type = SearchType.PEOPLE,
             query = "톰 크루즈",
             language = "ko-KR",
             region = "KR",

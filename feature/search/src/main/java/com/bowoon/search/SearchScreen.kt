@@ -19,22 +19,27 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -56,21 +61,21 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
-import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.bowoon.common.Log
 import com.bowoon.data.repository.LocalMovieAppDataComposition
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.firebase.LocalFirebaseLogHelper
-import com.bowoon.model.Movie
+import com.bowoon.model.MovieGenre
 import com.bowoon.model.PagingStatus
 import com.bowoon.model.SearchType
 import com.bowoon.ui.ConfirmDialog
 import com.bowoon.ui.animateRotation
 import com.bowoon.ui.bounceClick
 import com.bowoon.ui.components.PagingAppendErrorComponent
-import com.bowoon.ui.components.Title
+import com.bowoon.ui.components.TitleComponent
 import com.bowoon.ui.dp1
 import com.bowoon.ui.dp10
 import com.bowoon.ui.dp100
@@ -92,66 +97,42 @@ fun SearchScreen(
 ) {
     LocalFirebaseLogHelper.current.sendLog("SearchScreen", "search screen init")
 
-    val state = viewModel.searchMovieState.collectAsLazyPagingItems()
+    val searchState by viewModel.searchResult.collectAsStateWithLifecycle()
+    val filter by viewModel.selectedFilter.collectAsStateWithLifecycle()
 
     SearchScreen(
-        state = state,
-        keyword = viewModel.keyword,
+        searchState = searchState,
+        keyword = viewModel.searchQuery,
         searchType = viewModel.searchType,
+        selectedFilter = filter,
         onMovieClick = onMovieClick,
         onPeopleClick = onPeopleClick,
         onSearchClick = viewModel::searchMovies,
         updateKeyword = viewModel::updateKeyword,
         updateSearchType = viewModel::updateSearchType,
+        updateFilter = viewModel::selectedFilter
     )
 }
 
 @Composable
 fun SearchScreen(
-    state: LazyPagingItems<Movie>,
+    searchState: SearchState,
     keyword: String,
     searchType: Int,
+    selectedFilter: MovieGenre?,
     onMovieClick: (Int) -> Unit,
     onPeopleClick: (Int) -> Unit,
-    onSearchClick: (String) -> Unit,
+    onSearchClick: () -> Unit,
     updateKeyword: (String) -> Unit,
     updateSearchType: (SearchType) -> Unit,
+    updateFilter: (MovieGenre) -> Unit
 ) {
-    val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
     val scrollState = rememberLazyGridState()
-    var isAppend by remember { mutableStateOf(false) }
-    var pagingStatus by remember { mutableStateOf<PagingStatus>(PagingStatus.NONE) }
-
-    when {
-        state.loadState.refresh is LoadState.Loading -> pagingStatus = PagingStatus.LOADING
-        state.loadState.append is LoadState.Loading -> isAppend = true
-        state.loadState.refresh is LoadState.Error -> {
-            isAppend = false
-
-            ConfirmDialog(
-                title = "Error",
-                message = (state.loadState.refresh as? LoadState.Error)?.error?.message ?: "something wrong...",
-                confirmPair = "재시도" to { state.retry() },
-                dismissPair = "확인" to {}
-            )
-        }
-        state.loadState.refresh is LoadState.NotLoading -> {
-            isAppend = false
-            pagingStatus = if (pagingStatus == PagingStatus.LOADING) {
-                if (state.itemCount == 0) PagingStatus.EMPTY else PagingStatus.NOT_EMPTY
-            } else {
-                pagingStatus
-            }
-        }
-        state.loadState.append is LoadState.NotLoading -> {
-            isAppend = false
-        }
-    }
 
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        Title(title = "영화 검색")
+        TitleComponent(title = "영화 검색")
         SearchBarComponent(
             keyword = keyword,
             searchType = searchType,
@@ -160,74 +141,15 @@ fun SearchScreen(
             onSearchClick = onSearchClick,
             updateSearchType = updateSearchType
         )
-
-        Box(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            when (pagingStatus) {
-                PagingStatus.LOADING -> {
-                    CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                }
-                PagingStatus.EMPTY -> {
-                    Text(
-                        modifier = Modifier.align(Alignment.Center),
-                        text = "검색결과가 없습니다.",
-                        fontSize = sp30,
-                        textAlign = TextAlign.Center
-                    )
-                }
-                else -> {
-                    LazyVerticalGrid(
-                        modifier = Modifier
-                            .semantics { contentDescription = "searchResultList" }
-                            .fillMaxSize()
-                            .padding(top = dp10),
-                        state = scrollState,
-                        columns = GridCells.Adaptive(dp100),
-                        contentPadding = PaddingValues(dp10),
-                        horizontalArrangement = Arrangement.spacedBy(dp10),
-                        verticalArrangement = Arrangement.spacedBy(dp10)
-                    ) {
-                        items(state.itemCount) { index ->
-                            DynamicAsyncImageLoader(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .aspectRatio(POSTER_IMAGE_RATIO)
-                                    .bounceClick {
-                                        when (searchType) {
-                                            SearchType.MOVIE.ordinal -> onMovieClick(
-                                                state[index]?.id ?: -1
-                                            )
-
-                                            SearchType.PEOPLE.ordinal -> onPeopleClick(
-                                                state[index]?.id ?: -1
-                                            )
-                                        }
-                                    },
-                                source = "$posterUrl${state[index]?.posterPath}",
-                                contentDescription = "${state[index]?.id}_${state[index]?.title}"
-                            )
-                        }
-                        if (isAppend) {
-                            item(span = { GridItemSpan(maxLineSpan) }) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier
-                                        .wrapContentSize()
-                                        .align(Alignment.Center)
-                                )
-                            }
-                        }
-                        if (state.loadState.append is LoadState.Error) {
-                            item(span = { GridItemSpan(maxLineSpan) }) {
-                                PagingAppendErrorComponent({ state.retry() })
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        SearchResultPaging(
+            searchState = searchState,
+            scrollState = scrollState,
+            searchType = searchType,
+            onMovieClick = onMovieClick,
+            onPeopleClick = onPeopleClick,
+            selectedFilter = selectedFilter,
+            updateFilter = updateFilter
+        )
     }
 }
 
@@ -236,7 +158,7 @@ fun SearchBarComponent(
     keyword: String,
     searchType: Int,
     scrollState: LazyGridState,
-    onSearchClick: (String) -> Unit,
+    onSearchClick: () -> Unit,
     updateKeyword: (String) -> Unit,
     updateSearchType: (SearchType) -> Unit
 ) {
@@ -247,7 +169,7 @@ fun SearchBarComponent(
         onDone = { focusManager.clearFocus() },
         onSearch = {
             scope.launch { scrollState.scrollToItem(0) }
-            onSearchClick(keyword)
+            onSearchClick()
             focusManager.clearFocus()
         }
     )
@@ -330,7 +252,7 @@ fun SearchBarComponent(
                                 .padding(end = dp16)
                                 .clickable {
                                     scope.launch { scrollState.scrollToItem(0) }
-                                    onSearchClick(keyword)
+                                    onSearchClick()
                                     focusManager.clearFocus()
                                 },
                             imageVector = Icons.Filled.Search,
@@ -393,4 +315,174 @@ fun SearchTypeComponent(
             }
         }
     }
+}
+
+@Composable
+fun SearchResultPaging(
+    searchState: SearchState,
+    scrollState: LazyGridState,
+    searchType: Int,
+    onMovieClick: (Int) -> Unit,
+    onPeopleClick: (Int) -> Unit,
+    selectedFilter: MovieGenre?,
+    updateFilter: (MovieGenre) -> Unit
+) {
+    val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
+    val genreList = LocalMovieAppDataComposition.current.genres
+    var isAppend by remember { mutableStateOf(false) }
+    var pagingStatus by remember { mutableStateOf<PagingStatus>(PagingStatus.NONE) }
+
+    when (searchState) {
+        is SearchState.Loading -> {}
+        is SearchState.Search -> {
+            val pagingData = searchState.pagingData.collectAsLazyPagingItems()
+
+            when {
+                pagingData.loadState.refresh is LoadState.Loading -> pagingStatus = PagingStatus.LOADING
+                pagingData.loadState.append is LoadState.Loading -> isAppend = true
+                pagingData.loadState.refresh is LoadState.Error -> {
+                    isAppend = false
+
+                    ConfirmDialog(
+                        title = "Error",
+                        message = (pagingData.loadState.refresh as? LoadState.Error)?.error?.message ?: "something wrong...",
+                        confirmPair = "재시도" to { pagingData.retry() },
+                        dismissPair = "확인" to {}
+                    )
+                }
+                pagingData.loadState.refresh is LoadState.NotLoading -> {
+                    isAppend = false
+                    pagingStatus = if (pagingStatus == PagingStatus.LOADING) {
+                        if (pagingData.itemCount == 0) PagingStatus.EMPTY else PagingStatus.NOT_EMPTY
+                    } else {
+                        pagingStatus
+                    }
+                }
+                pagingData.loadState.append is LoadState.NotLoading -> {
+                    isAppend = false
+                }
+            }
+
+            Box(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                when (pagingStatus) {
+                    PagingStatus.LOADING -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                    PagingStatus.EMPTY -> {
+                        Text(
+                            modifier = Modifier.align(Alignment.Center),
+                            text = "검색결과가 없습니다.",
+                            fontSize = sp30,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                    else -> {
+                        Column(
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            if (pagingData.itemCount > 0) {
+                                LazyRow(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    contentPadding = PaddingValues(horizontal = dp16),
+                                    horizontalArrangement = Arrangement.spacedBy(space = dp10)
+                                ) {
+                                    items(
+                                        items = genreList ?: emptyList(),
+                                        key = { it.id ?: -1 }
+                                    ) { genre ->
+                                        genre.name?.let { name ->
+                                            MovieGenreChipComponent(
+                                                title = name,
+                                                selectedFilter = selectedFilter?.id == genre.id,
+                                                updateFilter = { updateFilter(genre) }
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+
+                            Box(
+                                modifier = Modifier.fillMaxSize()
+                            ) {
+                                LazyVerticalGrid(
+                                    modifier = Modifier
+                                        .semantics { contentDescription = "searchResultList" }
+                                        .fillMaxSize(),
+                                    state = scrollState,
+                                    columns = GridCells.Adaptive(dp100),
+                                    contentPadding = PaddingValues(dp10),
+                                    horizontalArrangement = Arrangement.spacedBy(dp10),
+                                    verticalArrangement = Arrangement.spacedBy(dp10)
+                                ) {
+                                    items(
+                                        count = pagingData.itemCount,
+                                        key = { index -> "${pagingData.peek(index)?.id}_${index}_${pagingData.peek(index)?.title}" }
+                                    ) { index ->
+                                        DynamicAsyncImageLoader(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .aspectRatio(POSTER_IMAGE_RATIO)
+                                                .bounceClick {
+                                                    when (searchType) {
+                                                        SearchType.MOVIE.ordinal -> onMovieClick(pagingData[index]?.id ?: -1)
+                                                        SearchType.PEOPLE.ordinal -> onPeopleClick(pagingData[index]?.id ?: -1)
+                                                    }
+                                                },
+                                            source = "$posterUrl${pagingData[index]?.posterPath}",
+                                            contentDescription = "${pagingData[index]?.id}_${pagingData[index]?.title}"
+                                        )
+                                    }
+                                    if (isAppend) {
+                                        item(span = { GridItemSpan(maxLineSpan) }) {
+                                            CircularProgressIndicator(
+                                                modifier = Modifier
+                                                    .wrapContentSize()
+                                                    .align(Alignment.Center)
+                                            )
+                                        }
+                                    }
+                                    if (pagingData.loadState.append is LoadState.Error) {
+                                        item(span = { GridItemSpan(maxLineSpan) }) {
+                                            PagingAppendErrorComponent({ pagingData.retry() })
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        is SearchState.Error -> {
+            ConfirmDialog(
+                title = "",
+                message = searchState.throwable.message ?: "something wrong",
+                confirmPair = "확인" to {}
+            )
+        }
+    }
+}
+
+@Composable
+fun MovieGenreChipComponent(
+    title: String,
+    selectedFilter: Boolean,
+    updateFilter: () -> Unit
+) {
+    FilterChip(
+        onClick = { updateFilter() },
+        label = { Text(text = title) },
+        selected = selectedFilter,
+        leadingIcon = if (selectedFilter) {
+            {
+                Icon(
+                    imageVector = Icons.Filled.Done,
+                    contentDescription = "Done icon",
+                    modifier = Modifier.size(FilterChipDefaults.IconSize)
+                )
+            }
+        } else {
+            null
+        },
+    )
 }

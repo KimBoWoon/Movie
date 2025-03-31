@@ -30,6 +30,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.bowoon.common.Log
 import com.bowoon.data.repository.LocalMovieAppDataComposition
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
@@ -37,7 +39,7 @@ import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.MainMenu
 import com.bowoon.model.Movie
 import com.bowoon.ui.bounceClick
-import com.bowoon.ui.components.Title
+import com.bowoon.ui.components.TitleComponent
 import com.bowoon.ui.dp150
 import com.bowoon.ui.dp16
 import com.bowoon.ui.image.DynamicAsyncImageLoader
@@ -132,11 +134,25 @@ fun MainComponent(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        Title(title = "영화 정보")
+        TitleComponent(title = "영화 정보")
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             state = lazyListState
         ) {
+//            if (nowPlaying.itemCount > 0) {
+//                horizontalMovieListComponent(
+//                    title = "상영중인 영화",
+//                    movies = nowPlaying,
+//                    onMovieClick = onMovieClick
+//                )
+//            }
+//            if (upComing.itemCount > 0) {
+//                horizontalMovieListComponent(
+//                    title = "개봉 예정작",
+//                    movies = upComing,
+//                    onMovieClick = onMovieClick
+//                )
+//            }
             if (mainMenu.nowPlaying.isNotEmpty()) {
                 horizontalMovieListComponent(
                     title = "상영중인 영화",
@@ -157,7 +173,36 @@ fun MainComponent(
 
 fun LazyListScope.horizontalMovieListComponent(
     title: String,
-//    movies: LazyPagingItems<Movie>,
+    movies: LazyPagingItems<Movie>,
+    onMovieClick: (Int) -> Unit
+) {
+    item {
+        Text(
+            modifier = Modifier.padding(dp16).fillMaxWidth(),
+            text = title
+        )
+        LazyRow(
+            modifier = Modifier.wrapContentSize(),
+            contentPadding = PaddingValues(horizontal = dp16),
+            horizontalArrangement = Arrangement.spacedBy(dp16)
+        ) {
+            items(
+                count = movies.itemCount,
+                key = { index -> "${movies.peek(index)?.id}_${index}_${movies.peek(index)?.title}" }
+            ) { index ->
+                movies[index]?.let { movie ->
+                    MainMovieItem(
+                        movie = movie,
+                        onMovieClick = onMovieClick
+                    )
+                }
+            }
+        }
+    }
+}
+
+fun LazyListScope.horizontalMovieListComponent(
+    title: String,
     movies: List<Movie>,
     onMovieClick: (Int) -> Unit
 ) {
