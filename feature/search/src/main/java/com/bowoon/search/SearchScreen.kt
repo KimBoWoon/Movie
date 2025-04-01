@@ -98,19 +98,19 @@ fun SearchScreen(
     LocalFirebaseLogHelper.current.sendLog("SearchScreen", "search screen init")
 
     val searchState by viewModel.searchResult.collectAsStateWithLifecycle()
-    val filter by viewModel.selectedFilter.collectAsStateWithLifecycle()
+    val selectedGenre by viewModel.selectedGenre.collectAsStateWithLifecycle()
 
     SearchScreen(
         searchState = searchState,
         keyword = viewModel.searchQuery,
         searchType = viewModel.searchType,
-        selectedFilter = filter,
+        selectedGenre = selectedGenre,
         onMovieClick = onMovieClick,
         onPeopleClick = onPeopleClick,
         onSearchClick = viewModel::searchMovies,
         updateKeyword = viewModel::updateKeyword,
         updateSearchType = viewModel::updateSearchType,
-        updateFilter = viewModel::selectedFilter
+        updateGenre = viewModel::updateGenre
     )
 }
 
@@ -119,13 +119,13 @@ fun SearchScreen(
     searchState: SearchState,
     keyword: String,
     searchType: Int,
-    selectedFilter: MovieGenre?,
+    selectedGenre: MovieGenre?,
     onMovieClick: (Int) -> Unit,
     onPeopleClick: (Int) -> Unit,
     onSearchClick: () -> Unit,
     updateKeyword: (String) -> Unit,
     updateSearchType: (SearchType) -> Unit,
-    updateFilter: (MovieGenre) -> Unit
+    updateGenre: (MovieGenre?) -> Unit
 ) {
     val scrollState = rememberLazyGridState()
 
@@ -139,7 +139,8 @@ fun SearchScreen(
             scrollState = scrollState,
             updateKeyword = updateKeyword,
             onSearchClick = onSearchClick,
-            updateSearchType = updateSearchType
+            updateSearchType = updateSearchType,
+            updateGenre = updateGenre
         )
         SearchResultPaging(
             searchState = searchState,
@@ -147,8 +148,8 @@ fun SearchScreen(
             searchType = searchType,
             onMovieClick = onMovieClick,
             onPeopleClick = onPeopleClick,
-            selectedFilter = selectedFilter,
-            updateFilter = updateFilter
+            selectedGenre = selectedGenre,
+            updateGenre = updateGenre
         )
     }
 }
@@ -160,7 +161,8 @@ fun SearchBarComponent(
     scrollState: LazyGridState,
     onSearchClick: () -> Unit,
     updateKeyword: (String) -> Unit,
-    updateSearchType: (SearchType) -> Unit
+    updateSearchType: (SearchType) -> Unit,
+    updateGenre: (MovieGenre?) -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val focusManager = LocalFocusManager.current
@@ -252,6 +254,7 @@ fun SearchBarComponent(
                                 .padding(end = dp16)
                                 .clickable {
                                     scope.launch { scrollState.scrollToItem(0) }
+                                    updateGenre(null)
                                     onSearchClick()
                                     focusManager.clearFocus()
                                 },
@@ -324,8 +327,8 @@ fun SearchResultPaging(
     searchType: Int,
     onMovieClick: (Int) -> Unit,
     onPeopleClick: (Int) -> Unit,
-    selectedFilter: MovieGenre?,
-    updateFilter: (MovieGenre) -> Unit
+    selectedGenre: MovieGenre?,
+    updateGenre: (MovieGenre) -> Unit
 ) {
     val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
     val genreList = LocalMovieAppDataComposition.current.genres
@@ -380,7 +383,7 @@ fun SearchResultPaging(
                         Column(
                             modifier = Modifier.fillMaxSize()
                         ) {
-                            if (pagingData.itemCount > 0) {
+                            if (pagingStatus == PagingStatus.NOT_EMPTY) {
                                 LazyRow(
                                     modifier = Modifier.fillMaxWidth(),
                                     contentPadding = PaddingValues(horizontal = dp16),
@@ -393,8 +396,8 @@ fun SearchResultPaging(
                                         genre.name?.let { name ->
                                             MovieGenreChipComponent(
                                                 title = name,
-                                                selectedFilter = selectedFilter?.id == genre.id,
-                                                updateFilter = { updateFilter(genre) }
+                                                selectedFilter = selectedGenre?.id == genre.id,
+                                                updateFilter = { updateGenre(genre) }
                                             )
                                         }
                                     }
@@ -404,13 +407,21 @@ fun SearchResultPaging(
                             Box(
                                 modifier = Modifier.fillMaxSize()
                             ) {
+                                if (pagingData.itemCount == 0) {
+                                    Text(
+                                        modifier = Modifier.align(Alignment.Center),
+                                        text = "장르에 맞는 영화가 없습니다.",
+                                        fontSize = sp30,
+                                        textAlign = TextAlign.Center
+                                    )
+                                }
                                 LazyVerticalGrid(
                                     modifier = Modifier
                                         .semantics { contentDescription = "searchResultList" }
                                         .fillMaxSize(),
                                     state = scrollState,
                                     columns = GridCells.Adaptive(dp100),
-                                    contentPadding = PaddingValues(dp10),
+                                    contentPadding = PaddingValues(start = dp10, bottom = dp10, end = dp10),
                                     horizontalArrangement = Arrangement.spacedBy(dp10),
                                     verticalArrangement = Arrangement.spacedBy(dp10)
                                 ) {
@@ -456,7 +467,7 @@ fun SearchResultPaging(
         is SearchState.Error -> {
             ConfirmDialog(
                 title = "",
-                message = searchState.throwable.message ?: "something wrong",
+                message = searchState.message,
                 confirmPair = "확인" to {}
             )
         }
