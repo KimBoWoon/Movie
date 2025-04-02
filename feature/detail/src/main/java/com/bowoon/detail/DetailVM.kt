@@ -19,7 +19,6 @@ import com.bowoon.model.Favorite
 import com.bowoon.model.MovieDetail
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -36,6 +35,17 @@ class DetailVM @Inject constructor(
         private const val TAG = "DetailVM"
     }
 
+    init {
+        viewModelScope.launch {
+            userDataRepository.internalData.collect {
+                language = it.language
+                region = it.region
+            }
+        }
+    }
+
+    private var language: String = ""
+    private var region: String = ""
     private val id = savedStateHandle.toRoute<DetailRoute>().id
     val movieInfo = getMovieDetail(id)
         .asResult()
@@ -50,19 +60,17 @@ class DetailVM @Inject constructor(
             initialValue = MovieDetailState.Loading,
             started = SharingStarted.WhileSubscribed(5_000)
         )
-    val similarMovies = userDataRepository.internalData
-        .flatMapLatest {
-            Pager(
-                config = PagingConfig(pageSize = 20, initialLoadSize = 20, prefetchDistance = 5),
-                pagingSourceFactory = {
-                    pagingRepository.getSimilarMovies(
-                        id = id,
-                        language = "${it.language}-${it.region}",
-                        region = it.region
-                    )
-                }
-            ).flow.cachedIn(viewModelScope)
+    val similarMovies = Pager(
+        config = PagingConfig(pageSize = 1, initialLoadSize = 1, prefetchDistance = 5),
+        initialKey = 1,
+        pagingSourceFactory = {
+            pagingRepository.getSimilarMovies(
+                id = id,
+                language = "$language-$region",
+                region = region
+            )
         }
+    ).flow.cachedIn(viewModelScope)
 
     fun restart() {
         movieInfo.restart()

@@ -32,14 +32,11 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -74,8 +71,10 @@ import com.bowoon.model.SearchType
 import com.bowoon.ui.ConfirmDialog
 import com.bowoon.ui.animateRotation
 import com.bowoon.ui.bounceClick
+import com.bowoon.ui.components.FilterChipComponent
 import com.bowoon.ui.components.PagingAppendErrorComponent
 import com.bowoon.ui.components.TitleComponent
+import com.bowoon.ui.dp0
 import com.bowoon.ui.dp1
 import com.bowoon.ui.dp10
 import com.bowoon.ui.dp100
@@ -390,11 +389,11 @@ fun SearchResultPaging(
                                     horizontalArrangement = Arrangement.spacedBy(space = dp10)
                                 ) {
                                     items(
-                                        items = genres ?: emptyList(),
+                                        items = genres,
                                         key = { it.id ?: -1 }
                                     ) { genre ->
                                         genre.name?.let { name ->
-                                            MovieGenreChipComponent(
+                                            FilterChipComponent(
                                                 title = name,
                                                 selectedFilter = selectedGenre?.id == genre.id,
                                                 updateFilter = { updateGenre(genre) }
@@ -421,7 +420,7 @@ fun SearchResultPaging(
                                         .fillMaxSize(),
                                     state = scrollState,
                                     columns = GridCells.Adaptive(dp100),
-                                    contentPadding = PaddingValues(start = dp10, bottom = dp10, end = dp10),
+                                    contentPadding = PaddingValues(top = if (genres.all { it.name == null }) dp10 else dp0, start = dp10, bottom = dp10, end = dp10),
                                     horizontalArrangement = Arrangement.spacedBy(dp10),
                                     verticalArrangement = Arrangement.spacedBy(dp10)
                                 ) {
@@ -472,28 +471,4 @@ fun SearchResultPaging(
             )
         }
     }
-}
-
-@Composable
-fun MovieGenreChipComponent(
-    title: String,
-    selectedFilter: Boolean,
-    updateFilter: () -> Unit
-) {
-    FilterChip(
-        onClick = { updateFilter() },
-        label = { Text(text = title) },
-        selected = selectedFilter,
-        leadingIcon = if (selectedFilter) {
-            {
-                Icon(
-                    imageVector = Icons.Filled.Done,
-                    contentDescription = "Done icon",
-                    modifier = Modifier.size(FilterChipDefaults.IconSize)
-                )
-            }
-        } else {
-            null
-        },
-    )
 }

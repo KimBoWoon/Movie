@@ -185,7 +185,7 @@ fun PeopleDetailComponent(
             horizontalArrangement = Arrangement.spacedBy(dp10),
             verticalArrangement = Arrangement.spacedBy(dp10)
         ) {
-            item(span = { GridItemSpan(3) }) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
                 Row(
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -197,7 +197,7 @@ fun PeopleDetailComponent(
                     }
                 }
             }
-            item(span = { GridItemSpan(3) }) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
                 people.biography?.takeIf { it.isNotEmpty() }?.let {
                     Text(
                         modifier = Modifier.semantics { contentDescription = "peopleBiography" },
