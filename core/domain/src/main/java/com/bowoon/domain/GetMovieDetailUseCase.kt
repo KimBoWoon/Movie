@@ -23,10 +23,10 @@ class GetMovieDetailUseCase @Inject constructor(
                 autoPlayTrailer = userData.autoPlayTrailer,
                 releaseDate = movie.releases?.countries?.find {
                     it.iso31661.equals(userData.region, true)
-                }?.releaseDate,
+                }?.releaseDate ?: movie.releaseDate,
                 certification = movie.releases?.countries?.find {
                     it.iso31661.equals(userData.region, true)
-                }?.certification,
+                }?.certification ?: movie.certification,
                 isFavorite = favoriteMovies.find { it.id == movie.id } != null
             )
         }

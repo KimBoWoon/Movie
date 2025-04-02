@@ -14,14 +14,14 @@ import androidx.paging.cachedIn
 import androidx.paging.filter
 import com.bowoon.data.repository.PagingRepository
 import com.bowoon.data.repository.UserDataRepository
-import com.bowoon.model.Movie
 import com.bowoon.model.MovieGenre
+import com.bowoon.model.MovieSearchItem
+import com.bowoon.model.SearchResult
 import com.bowoon.model.SearchType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -35,6 +35,19 @@ class SearchVM @Inject constructor(
         private const val TAG = "SearchVM"
     }
 
+    init {
+        viewModelScope.launch {
+            userDataRepository.internalData.collect {
+                language = it.language
+                region = it.region
+                isAdult = it.isAdult
+            }
+        }
+    }
+
+    private var language: String = ""
+    private var region: String = ""
+    private var isAdult: Boolean = true
     val selectedGenre = savedStateHandle.getStateFlow<MovieGenre?>("genre", null)
     var searchQuery by mutableStateOf("")
         private set
@@ -62,8 +75,6 @@ class SearchVM @Inject constructor(
     fun searchMovies() {
         viewModelScope.launch {
             searchQuery.trim().takeIf { it.isNotEmpty() }?.let { query ->
-                val userdata = userDataRepository.internalData.first()
-
                 combine(
                     Pager(
                         config = PagingConfig(pageSize = 1, initialLoadSize = 1, prefetchDistance = 5),
@@ -72,16 +83,16 @@ class SearchVM @Inject constructor(
                             pagingRepository.searchMovieSource(
                                 type = SearchType.entries[searchType],
                                 query = query,
-                                language = "${userdata.language}-${userdata.region}",
-                                region = userdata.region,
-                                isAdult = userdata.isAdult
+                                language = "$language-$region",
+                                region = region,
+                                isAdult = isAdult
                             )
                         }
                     ).flow.cachedIn(viewModelScope),
                     selectedGenre
                 ) { pagingData, selectedGenre ->
                     selectedGenre?.let { genre ->
-                        pagingData.filter { genre.id in (it.genreIds ?: emptyList()) }
+                        pagingData.filter { it is MovieSearchItem && genre.id in (it.genreIds ?: emptyList()) }
                     } ?: pagingData
                 }.let {
                     searchResult.emit(SearchState.Search(it))
@@ -93,6 +104,6 @@ class SearchVM @Inject constructor(
 
 sealed interface SearchState {
     data object Loading : SearchState
-    data class Search(val pagingData: Flow<PagingData<Movie>>) : SearchState
+    data class Search(val pagingData: Flow<PagingData<SearchResult>>) : SearchState
     data class Error(val message: String) : SearchState
 }

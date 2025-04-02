@@ -7,6 +7,7 @@ import com.bowoon.data.paging.TMDBSimilarMoviePagingSource
 import com.bowoon.data.paging.TMDBUpComingPagingSource
 import com.bowoon.data.repository.PagingRepository
 import com.bowoon.model.Movie
+import com.bowoon.model.SearchResult
 import com.bowoon.model.SearchType
 import com.bowoon.testing.TestMovieDataSource
 
@@ -47,7 +48,7 @@ class TestPagingRepository : PagingRepository {
         language: String,
         region: String,
         isAdult: Boolean
-    ): PagingSource<Int, Movie> = TMDBSearchPagingSource(
+    ): PagingSource<Int, SearchResult> = TMDBSearchPagingSource(
         apis = TestMovieDataSource(),
         type = type,
         query = query,

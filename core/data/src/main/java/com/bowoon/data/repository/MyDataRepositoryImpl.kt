@@ -2,7 +2,6 @@ package com.bowoon.data.repository
 
 import com.bowoon.common.Log
 import com.bowoon.datastore.InternalDataSource
-import com.bowoon.model.CertificationData
 import com.bowoon.model.Configuration
 import com.bowoon.model.ExternalData
 import com.bowoon.model.LanguageItem
@@ -13,6 +12,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class MyDataRepositoryImpl @Inject constructor(
@@ -21,19 +21,13 @@ class MyDataRepositoryImpl @Inject constructor(
 ) : MyDataRepository {
     override val externalData: Flow<ExternalData> = combine(
         getConfiguration(),
-        getCertification(),
-        getGenres(),
         getAvailableRegion(),
         getAvailableLanguage()
-    ) { configuration, certification, genres, region, language ->
+    ) { configuration, region, language ->
         ExternalData(
-            secureBaseUrl = configuration.images?.secureBaseUrl,
             configuration = configuration,
-            certification = certification.certifications?.certifications,
-            genres = genres,
             region = region,
-            language = language,
-            posterSize = configuration.images
+            language = language
         )
     }.catch { e ->
         Log.printStackTrace(e)
@@ -43,15 +37,8 @@ class MyDataRepositoryImpl @Inject constructor(
         emit(apis.getConfiguration())
     }
 
-    override fun getCertification(): Flow<CertificationData> = flow {
-        emit(apis.getCertification())
-    }
-
-    override fun getGenres(): Flow<MovieGenreList> = flow {
-        val language = datastore.getUserData().language
-        val region = datastore.getUserData().region
-
-        emit(apis.getGenres(language = "$language-$region"))
+    override fun getGenres(): Flow<MovieGenreList> = datastore.userData.map {
+        apis.getGenres(language = "${it.language}-${it.region}")
     }
 
     override fun getAvailableLanguage(): Flow<List<LanguageItem>> = flow {

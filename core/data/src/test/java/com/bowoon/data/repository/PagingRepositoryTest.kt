@@ -4,6 +4,7 @@ import androidx.paging.PagingSource
 import com.bowoon.data.paging.TMDBSearchPagingSource
 import com.bowoon.data.paging.TMDBSimilarMoviePagingSource
 import com.bowoon.model.Movie
+import com.bowoon.model.SearchResult
 import com.bowoon.model.SearchType
 import com.bowoon.testing.TestMovieDataSource
 import com.bowoon.testing.model.movieSearchTestData
@@ -31,14 +32,8 @@ class PagingRepositoryTest {
             isAdult = true
         )
 
-        val a: PagingSource.LoadResult<Int, Movie> = PagingSource.LoadResult.Page(
-            data = movieSearchTestData.results?.map {
-                Movie(
-                    id = it.id,
-                    title = it.title,
-                    posterPath = it.posterPath
-                )
-            } ?: emptyList(),
+        val a: PagingSource.LoadResult<Int, SearchResult> = PagingSource.LoadResult.Page(
+            data = movieSearchTestData.results ?: emptyList(),
             prevKey = null,
             nextKey = 2
         )
@@ -67,14 +62,8 @@ class PagingRepositoryTest {
             isAdult = true
         )
 
-        val a: PagingSource.LoadResult<Int, Movie> = PagingSource.LoadResult.Page(
-            data = peopleSearchTestData.results?.map {
-                Movie(
-                    id = it.id,
-                    title = it.name,
-                    posterPath = it.profilePath
-                )
-            } ?: emptyList(),
+        val a: PagingSource.LoadResult<Int, SearchResult> = PagingSource.LoadResult.Page(
+            data = peopleSearchTestData.results ?: emptyList(),
             prevKey = null,
             nextKey = null
         )

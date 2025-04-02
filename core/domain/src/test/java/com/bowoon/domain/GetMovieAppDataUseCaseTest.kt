@@ -1,18 +1,16 @@
 package com.bowoon.domain
 
-import com.bowoon.model.Configuration
 import com.bowoon.model.ExternalData
-import com.bowoon.model.Images
 import com.bowoon.model.InternalData
 import com.bowoon.model.MovieAppData
 import com.bowoon.model.PosterSize
-import com.bowoon.testing.utils.MainDispatcherRule
-import com.bowoon.testing.repository.TestMyDataRepository
-import com.bowoon.testing.repository.TestUserDataRepository
-import com.bowoon.testing.model.certificationTestData
+import com.bowoon.testing.model.configurationTestData
 import com.bowoon.testing.model.genreListTestData
 import com.bowoon.testing.model.languageListTestData
 import com.bowoon.testing.model.regionTestData
+import com.bowoon.testing.repository.TestMyDataRepository
+import com.bowoon.testing.repository.TestUserDataRepository
+import com.bowoon.testing.utils.MainDispatcherRule
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
@@ -33,23 +31,17 @@ class GetMovieAppDataUseCaseTest {
     fun getMovieAppDataTest() = runTest {
         val result = getMovieAppDataUseCase()
         val externalData = ExternalData(
-            secureBaseUrl = "https://www.bowoon.com",
-            configuration = Configuration(),
-            certification = certificationTestData.certifications?.certifications,
-            genres = genreListTestData,
+            configuration = configurationTestData,
             region = regionTestData,
             language = languageListTestData,
-            posterSize = Images()
         )
         val movieAppData = MovieAppData(
-            secureBaseUrl = externalData.secureBaseUrl,
-            configuration = externalData.configuration,
-            certification = certificationTestData.certifications?.certifications,
-            genres = genreListTestData.genres,
+            secureBaseUrl = configurationTestData.images?.secureBaseUrl,
+            genres = genreListTestData.genres ?: emptyList(),
             region = regionTestData.results,
             language = languageListTestData,
-            posterSize = externalData.posterSize?.posterSizes?.map {
-                PosterSize(size = it, isSelected = false)
+            posterSize = configurationTestData.images?.posterSizes?.map {
+                PosterSize(size = it, isSelected = if (it == "original") true else false)
             } ?: emptyList()
         )
 
