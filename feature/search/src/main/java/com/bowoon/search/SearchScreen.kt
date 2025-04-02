@@ -331,7 +331,7 @@ fun SearchResultPaging(
     updateGenre: (MovieGenre) -> Unit
 ) {
     val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
-    val genreList = LocalMovieAppDataComposition.current.genres
+    val genres = LocalMovieAppDataComposition.current.genres
     var isAppend by remember { mutableStateOf(false) }
     var pagingStatus by remember { mutableStateOf<PagingStatus>(PagingStatus.NONE) }
 
@@ -390,7 +390,7 @@ fun SearchResultPaging(
                                     horizontalArrangement = Arrangement.spacedBy(space = dp10)
                                 ) {
                                     items(
-                                        items = genreList ?: emptyList(),
+                                        items = genres ?: emptyList(),
                                         key = { it.id ?: -1 }
                                     ) { genre ->
                                         genre.name?.let { name ->
@@ -427,7 +427,7 @@ fun SearchResultPaging(
                                 ) {
                                     items(
                                         count = pagingData.itemCount,
-                                        key = { index -> "${pagingData.peek(index)?.id}_${index}_${pagingData.peek(index)?.title}" }
+                                        key = { index -> "${pagingData.peek(index)?.tmdbId}_${index}_${pagingData.peek(index)?.searchTitle}" }
                                     ) { index ->
                                         DynamicAsyncImageLoader(
                                             modifier = Modifier
@@ -435,12 +435,12 @@ fun SearchResultPaging(
                                                 .aspectRatio(POSTER_IMAGE_RATIO)
                                                 .bounceClick {
                                                     when (searchType) {
-                                                        SearchType.MOVIE.ordinal -> onMovieClick(pagingData[index]?.id ?: -1)
-                                                        SearchType.PEOPLE.ordinal -> onPeopleClick(pagingData[index]?.id ?: -1)
+                                                        SearchType.MOVIE.ordinal -> onMovieClick(pagingData[index]?.tmdbId ?: -1)
+                                                        SearchType.PEOPLE.ordinal -> onPeopleClick(pagingData[index]?.tmdbId ?: -1)
                                                     }
                                                 },
-                                            source = "$posterUrl${pagingData[index]?.posterPath}",
-                                            contentDescription = "${pagingData[index]?.id}_${pagingData[index]?.title}"
+                                            source = "$posterUrl${pagingData[index]?.imagePath}",
+                                            contentDescription = "${pagingData[index]?.tmdbId}_${pagingData[index]?.searchTitle}"
                                         )
                                     }
                                     if (isAppend) {

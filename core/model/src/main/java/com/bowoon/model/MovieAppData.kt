@@ -11,9 +11,7 @@ data class MovieAppData(
     val mainMenu: MainMenu = MainMenu(),
     val imageQuality: String = "original",
     val secureBaseUrl: String? = null,
-    val configuration: Configuration? = null,
-    val certification: Map<String, List<Certification>>? = null,
-    val genres: List<MovieGenre>? = null,
+    val genres: List<MovieGenre> = emptyList(),
     val region: List<Region>? = null,
     val language: List<LanguageItem>? = null,
     val posterSize: List<PosterSize>? = null
@@ -24,9 +22,7 @@ data class MovieAppData(
         DarkThemeConfig.DARK -> true
     }
 
-    fun getImageUrl(): String =
-        "$secureBaseUrl${posterSize?.find { it.isSelected }?.size}"
-
+    fun getImageUrl(): String = "$secureBaseUrl${posterSize?.find { it.isSelected }?.size}"
     fun getRegion(): String = "${region?.find { it.isSelected }?.iso31661} (${region?.find { it.isSelected }?.englishName})"
     fun getLanguage(): String = "${language?.find { it.isSelected }?.iso6391} (${language?.find { it.isSelected }?.englishName})"
 }
@@ -38,22 +34,7 @@ data class PosterSize(
 )
 
 data class ExternalData(
-    val secureBaseUrl: String? = null,
     val configuration: Configuration? = null,
-    val certification: Map<String, List<Certification>>? = null,
-    val genres: MovieGenreList? = null,
     val region: RegionList? = null,
-    val language: List<LanguageItem>? = null,
-    val posterSize: Images? = null
-)
-
-fun MovieAppData.asInternalData(): InternalData = InternalData(
-    isAdult = isAdult,
-    autoPlayTrailer = autoPlayTrailer,
-    isDarkMode = isDarkMode,
-    updateDate = updateDate,
-    mainMenu = mainMenu,
-    region = region?.find { it.isSelected }?.iso31661 ?: "",
-    language = language?.find { it.isSelected }?.iso6391 ?: "",
-    imageQuality = imageQuality
+    val language: List<LanguageItem>? = null
 )

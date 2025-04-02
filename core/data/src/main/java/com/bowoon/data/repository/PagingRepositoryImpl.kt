@@ -6,6 +6,7 @@ import com.bowoon.data.paging.TMDBSearchPagingSource
 import com.bowoon.data.paging.TMDBSimilarMoviePagingSource
 import com.bowoon.data.paging.TMDBUpComingPagingSource
 import com.bowoon.model.Movie
+import com.bowoon.model.SearchResult
 import com.bowoon.model.SearchType
 import com.bowoon.network.MovieNetworkDataSource
 import javax.inject.Inject
@@ -49,7 +50,7 @@ class PagingRepositoryImpl @Inject constructor(
         language: String,
         region: String,
         isAdult: Boolean
-    ): PagingSource<Int, Movie> = TMDBSearchPagingSource(
+    ): PagingSource<Int, SearchResult> = TMDBSearchPagingSource(
         apis = apis,
         type = type,
         query = query,

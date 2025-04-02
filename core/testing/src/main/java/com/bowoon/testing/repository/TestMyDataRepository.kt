@@ -2,17 +2,17 @@ package com.bowoon.testing.repository
 
 import androidx.annotation.VisibleForTesting
 import com.bowoon.data.repository.MyDataRepository
-import com.bowoon.model.CertificationData
-import com.bowoon.model.CertificationMap
 import com.bowoon.model.Configuration
 import com.bowoon.model.ExternalData
 import com.bowoon.model.LanguageItem
 import com.bowoon.model.MovieGenreList
 import com.bowoon.model.RegionList
+import com.bowoon.testing.model.genreListTestData
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.mapNotNull
 
 class TestMyDataRepository : MyDataRepository {
@@ -22,9 +22,7 @@ class TestMyDataRepository : MyDataRepository {
 
     override fun getConfiguration(): Flow<Configuration> = externalData.mapNotNull { it.configuration }
 
-    override fun getCertification(): Flow<CertificationData> = externalData.mapNotNull { CertificationData(CertificationMap(it.certification)) }
-
-    override fun getGenres(): Flow<MovieGenreList> = externalData.mapNotNull { it.genres }
+    override fun getGenres(): Flow<MovieGenreList> = flowOf(genreListTestData)
 
     override fun getAvailableLanguage(): Flow<List<LanguageItem>> = externalData.mapNotNull { it.language }
 

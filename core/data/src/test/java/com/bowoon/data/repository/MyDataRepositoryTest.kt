@@ -4,7 +4,6 @@ import androidx.datastore.preferences.core.preferencesOf
 import com.bowoon.datastore.InternalDataSource
 import com.bowoon.datastore_test.InMemoryDataStore
 import com.bowoon.testing.TestMovieDataSource
-import com.bowoon.testing.model.certificationTestData
 import com.bowoon.testing.model.configurationTestData
 import com.bowoon.testing.model.genreListTestData
 import com.bowoon.testing.model.languageListTestData
@@ -43,13 +42,6 @@ class MyDataRepositoryTest {
         val result = repository.getConfiguration()
 
         assertEquals(result.first(), configurationTestData)
-    }
-
-    @Test
-    fun getCertificationTest() = runTest {
-        val result = repository.getCertification()
-
-        assertEquals(result.first(), certificationTestData)
     }
 
     @Test

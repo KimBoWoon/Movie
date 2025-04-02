@@ -122,7 +122,7 @@ fun MyScreen(
                                 content = movieAppData.getLanguage(),
                                 onClick = {
                                     isShowChooseDialog = true
-                                    chooseDialogItem = movieAppData.language ?: emptyList()
+                                    chooseDialogItem = movieAppData.language?.sortedBy { it.iso6391 } ?: emptyList()
                                     selectedOption = movieAppData.language?.find { it.isSelected }
                                 }
                             )
@@ -133,7 +133,7 @@ fun MyScreen(
                                 content = movieAppData.getRegion(),
                                 onClick = {
                                     isShowChooseDialog = true
-                                    chooseDialogItem = movieAppData.region ?: emptyList()
+                                    chooseDialogItem = movieAppData.region?.sortedBy { it.iso31661 } ?: emptyList()
                                     selectedOption = movieAppData.region?.find { it.isSelected }
                                 }
                             )
@@ -165,7 +165,7 @@ fun MyScreen(
                     is DarkThemeConfig -> updateUserData(internalData.copy(isDarkMode = chooseItem), false)
                     is LanguageItem -> updateUserData(internalData.copy(language = chooseItem.iso6391 ?: ""), true)
                     is Region -> updateUserData(internalData.copy(region = chooseItem.iso31661 ?: ""), true)
-                    is PosterSize -> updateUserData(internalData.copy(language = chooseItem.size ?: ""), true)
+                    is PosterSize -> updateUserData(internalData.copy(imageQuality = chooseItem.size ?: ""), true)
                 }
             }
         )

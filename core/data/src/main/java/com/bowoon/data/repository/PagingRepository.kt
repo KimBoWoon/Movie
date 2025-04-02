@@ -2,6 +2,7 @@ package com.bowoon.data.repository
 
 import androidx.paging.PagingSource
 import com.bowoon.model.Movie
+import com.bowoon.model.SearchResult
 import com.bowoon.model.SearchType
 
 interface PagingRepository {
@@ -25,6 +26,6 @@ interface PagingRepository {
         language: String,
         region: String,
         isAdult: Boolean
-    ): PagingSource<Int, Movie>
+    ): PagingSource<Int, SearchResult>
     fun getSimilarMovies(id: Int, language: String, region: String): PagingSource<Int, Movie>
 }
