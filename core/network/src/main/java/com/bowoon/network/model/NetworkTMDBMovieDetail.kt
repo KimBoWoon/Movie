@@ -8,12 +8,12 @@ import com.bowoon.model.Cast
 import com.bowoon.model.Country
 import com.bowoon.model.Credits
 import com.bowoon.model.Crew
-import com.bowoon.model.DetailImage
 import com.bowoon.model.Genre
+import com.bowoon.model.Image
+import com.bowoon.model.Images
 import com.bowoon.model.Keyword
 import com.bowoon.model.Keywords
 import com.bowoon.model.MovieDetail
-import com.bowoon.model.MovieDetailImages
 import com.bowoon.model.ProductionCompany
 import com.bowoon.model.ProductionCountry
 import com.bowoon.model.Releases
@@ -601,17 +601,17 @@ fun List<NetworkTMDBMovieDetailGenre>.asExternalModel(): List<Genre> =
         )
     }
 
-fun NetworkTMDBMovieDetailImages.asExternalModel(): MovieDetailImages =
-    MovieDetailImages(
+fun NetworkTMDBMovieDetailImages.asExternalModel(): Images =
+    Images(
         backdrops = backdrops?.asExternalModel(),
         logos = logos?.asExternalModel(),
         posters = posters?.asExternalModel()
     )
 
 @JvmName("NetworkTMDBMovieDetailImageAsExternalModel")
-fun List<NetworkTMDBMovieDetailImage>.asExternalModel(): List<DetailImage> =
+fun List<NetworkTMDBMovieDetailImage>.asExternalModel(): List<Image> =
     map {
-        DetailImage(
+        Image(
             aspectRatio = it.aspectRatio,
             filePath = it.filePath,
             height = it.height,

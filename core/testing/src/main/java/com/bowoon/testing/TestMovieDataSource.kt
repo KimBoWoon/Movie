@@ -4,15 +4,14 @@ import com.bowoon.model.CertificationData
 import com.bowoon.model.CombineCredits
 import com.bowoon.model.Configuration
 import com.bowoon.model.ExternalIds
-import com.bowoon.model.LanguageItem
+import com.bowoon.model.Genres
+import com.bowoon.model.Language
 import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetail
-import com.bowoon.model.MovieGenreList
 import com.bowoon.model.MovieList
-import com.bowoon.model.MovieSearchData
 import com.bowoon.model.PeopleDetail
-import com.bowoon.model.PeopleSearchData
-import com.bowoon.model.RegionList
+import com.bowoon.model.Regions
+import com.bowoon.model.SearchData
 import com.bowoon.model.SimilarMovies
 import com.bowoon.network.MovieNetworkDataSource
 import com.bowoon.testing.model.certificationTestData
@@ -35,7 +34,7 @@ class TestMovieDataSource : MovieNetworkDataSource {
 
     override suspend fun getCertification(): CertificationData = certificationTestData
 
-    override suspend fun getGenres(language: String): MovieGenreList = genreListTestData
+    override suspend fun getGenres(language: String): Genres = genreListTestData
 
     override suspend fun getNowPlaying(language: String, region: String, page: Int): List<Movie> = nowPlayingMoviesTestData
 
@@ -59,7 +58,7 @@ class TestMovieDataSource : MovieNetworkDataSource {
         language: String,
         region: String,
         page: Int
-    ): MovieSearchData = movieSearchTestData
+    ): SearchData = movieSearchTestData
 
     override suspend fun searchPeople(
         query: String,
@@ -67,7 +66,7 @@ class TestMovieDataSource : MovieNetworkDataSource {
         language: String,
         region: String,
         page: Int
-    ): PeopleSearchData = peopleSearchTestData
+    ): SearchData = peopleSearchTestData
 
     override suspend fun getMovieDetail(
         id: Int,
@@ -88,11 +87,11 @@ class TestMovieDataSource : MovieNetworkDataSource {
         page: Int,
         sortBy: String,
         withReleaseType: String
-    ): MovieSearchData = movieSearchTestData
+    ): SearchData = movieSearchTestData
 
-    override suspend fun getAvailableLanguage(): List<LanguageItem> = languageListTestData
+    override suspend fun getAvailableLanguage(): List<Language> = languageListTestData
 
-    override suspend fun getAvailableRegion(): RegionList = regionTestData
+    override suspend fun getAvailableRegion(): Regions = regionTestData
 
     override suspend fun getPeopleDetail(
         personId: Int,

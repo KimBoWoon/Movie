@@ -6,15 +6,15 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 @Parcelize
-data class MovieDetailImages(
-    val backdrops: List<DetailImage>? = null,
-    val logos: List<DetailImage>? = null,
-    val posters: List<DetailImage>? = null
+data class Images(
+    val backdrops: List<Image>? = null,
+    val logos: List<Image>? = null,
+    val posters: List<Image>? = null
 ) : Parcelable
 
 @Serializable
 @Parcelize
-data class DetailImage(
+data class Image(
     val aspectRatio: Double? = null,
     val filePath: String? = null,
     val height: Int? = null,

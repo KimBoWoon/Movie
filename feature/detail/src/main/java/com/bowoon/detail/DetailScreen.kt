@@ -67,8 +67,8 @@ import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.Cast
 import com.bowoon.model.Crew
 import com.bowoon.model.Favorite
-import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetail
+import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetailTab
 import com.bowoon.model.PagingStatus
 import com.bowoon.ui.ConfirmDialog

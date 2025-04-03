@@ -1,21 +1,20 @@
 package com.bowoon.network.retrofit
 
+import com.bowoon.model.MovieDetail
+import com.bowoon.model.Genres
+import com.bowoon.model.MovieList
+import com.bowoon.model.MovieResult
+import com.bowoon.model.PeopleDetail
+import com.bowoon.model.SimilarMovies
+import com.bowoon.model.asExternalMovie
 import com.bowoon.model.CertificationData
 import com.bowoon.model.CombineCredits
 import com.bowoon.model.Configuration
 import com.bowoon.model.ExternalIds
-import com.bowoon.model.LanguageItem
+import com.bowoon.model.Language
 import com.bowoon.model.Movie
-import com.bowoon.model.MovieDetail
-import com.bowoon.model.MovieGenreList
-import com.bowoon.model.MovieList
-import com.bowoon.model.MovieResult
-import com.bowoon.model.MovieSearchData
-import com.bowoon.model.PeopleDetail
-import com.bowoon.model.PeopleSearchData
-import com.bowoon.model.RegionList
-import com.bowoon.model.SimilarMovies
-import com.bowoon.model.asExternalMovie
+import com.bowoon.model.Regions
+import com.bowoon.model.SearchData
 import com.bowoon.network.ApiResponse
 import com.bowoon.network.CustomCallAdapter
 import com.bowoon.network.MovieNetworkDataSource
@@ -36,13 +35,14 @@ import javax.inject.Singleton
  */
 @Singleton
 class RetrofitMovieNetwork @Inject constructor(
+    tmdbUrl: String,
     client: OkHttpClient,
     customCallAdapter: CustomCallAdapter,
     serialization: Json,
     jsonMediaType: MediaType
 ) : MovieNetworkDataSource {
     private val tmdbApis = Retrofit.Builder()
-        .baseUrl("https://api.themoviedb.org/")
+        .baseUrl(tmdbUrl)
         .addCallAdapterFactory(customCallAdapter)
         .addConverterFactory(serialization.asConverterFactory(jsonMediaType))
         .client(client)
@@ -61,7 +61,7 @@ class RetrofitMovieNetwork @Inject constructor(
             is ApiResponse.Success -> response.data.asExternalModel()
         }
 
-    override suspend fun getGenres(language: String): MovieGenreList =
+    override suspend fun getGenres(language: String): Genres =
         when (val response = tmdbApis.getGenres(language = language)) {
             is ApiResponse.Failure -> throw response.throwable
             is ApiResponse.Success -> response.data.asExternalModel()
@@ -149,7 +149,7 @@ class RetrofitMovieNetwork @Inject constructor(
         language: String,
         region: String,
         page: Int
-    ): MovieSearchData = when (
+    ): SearchData = when (
         val response = tmdbApis.searchMovies(
             query = query,
             includeAdult = includeAdult,
@@ -168,7 +168,7 @@ class RetrofitMovieNetwork @Inject constructor(
         language: String,
         region: String,
         page: Int
-    ): PeopleSearchData = when (
+    ): SearchData = when (
         val response = tmdbApis.searchPeople(
             query = query,
             includeAdult = includeAdult,
@@ -217,7 +217,7 @@ class RetrofitMovieNetwork @Inject constructor(
         page: Int,
         sortBy: String,
         withReleaseType: String
-    ): MovieSearchData = when (
+    ): SearchData = when (
         val response = tmdbApis.discoverMovie(
             releaseDateGte = releaseDateGte,
             releaseDateLte = releaseDateLte,
@@ -233,12 +233,12 @@ class RetrofitMovieNetwork @Inject constructor(
         is ApiResponse.Success -> response.data.asExternalModel()
     }
 
-    override suspend fun getAvailableLanguage(): List<LanguageItem> = when (val response = tmdbApis.getAvailableLanguage()) {
+    override suspend fun getAvailableLanguage(): List<Language> = when (val response = tmdbApis.getAvailableLanguage()) {
         is ApiResponse.Failure -> throw response.throwable
         is ApiResponse.Success -> response.data.asExternalModel()
     }
 
-    override suspend fun getAvailableRegion(): RegionList = when (val response = tmdbApis.getAvailableRegion()) {
+    override suspend fun getAvailableRegion(): Regions = when (val response = tmdbApis.getAvailableRegion()) {
         is ApiResponse.Failure -> throw response.throwable
         is ApiResponse.Success -> response.data.asExternalModel()
     }

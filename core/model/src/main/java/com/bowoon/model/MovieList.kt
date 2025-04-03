@@ -1,6 +1,5 @@
 package com.bowoon.model
 
-
 data class MovieList(
     val dates: MovieListDate? = null,
     val page: Int? = null,

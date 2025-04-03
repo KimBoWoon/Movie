@@ -23,7 +23,6 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.bowoon.data.paging.TMDBSimilarMoviePagingSource
 import com.bowoon.data.repository.LocalMovieAppDataComposition
 import com.bowoon.model.Favorite
-import com.bowoon.model.Movie
 import com.bowoon.testing.TestMovieDataSource
 import com.bowoon.testing.model.similarMoviesTestData
 import com.bowoon.testing.repository.TestDatabaseRepository

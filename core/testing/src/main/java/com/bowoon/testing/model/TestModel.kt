@@ -4,18 +4,16 @@ import com.bowoon.model.Certification
 import com.bowoon.model.CertificationData
 import com.bowoon.model.CertificationMap
 import com.bowoon.model.Configuration
-import com.bowoon.model.Images
-import com.bowoon.model.LanguageItem
+import com.bowoon.model.Genre
+import com.bowoon.model.Genres
+import com.bowoon.model.ImageInfo
+import com.bowoon.model.Language
 import com.bowoon.model.MainMenu
 import com.bowoon.model.Movie
-import com.bowoon.model.MovieGenre
-import com.bowoon.model.MovieGenreList
-import com.bowoon.model.MovieSearchData
-import com.bowoon.model.MovieSearchItem
-import com.bowoon.model.PeopleSearchData
-import com.bowoon.model.PeopleSearchItem
+import com.bowoon.model.People
 import com.bowoon.model.Region
-import com.bowoon.model.RegionList
+import com.bowoon.model.Regions
+import com.bowoon.model.SearchData
 import com.bowoon.model.SimilarMovie
 import com.bowoon.model.SimilarMovies
 import java.util.concurrent.atomic.AtomicInteger
@@ -36,28 +34,28 @@ val certificationTestData = CertificationData(
 )
 
 val languageListTestData = listOf(
-    LanguageItem(englishName = "en", iso6391 = "en", name = "en", isSelected = false),
-    LanguageItem(englishName = "ko", iso6391 = "ko", name = "ko", isSelected = true)
+    Language(englishName = "en", iso6391 = "en", name = "en", isSelected = false),
+    Language(englishName = "ko", iso6391 = "ko", name = "ko", isSelected = true)
 )
 
-val regionTestData = RegionList(
+val regionTestData = Regions(
     results = listOf(
         Region(englishName = "en", iso31661 = "en", nativeName = "en", isSelected = false),
         Region(englishName = "ko", iso31661 = "ko", nativeName = "ko", isSelected = true)
     )
 )
 
-val genreListTestData = MovieGenreList(
+val genreListTestData = Genres(
     genres = listOf(
-        MovieGenre(
+        Genre(
             id = 0,
             name = "genre_1"
         ),
-        MovieGenre(
+        Genre(
             id = 1,
             name = "genre_2"
         ),
-        MovieGenre(
+        Genre(
             id = 3,
             name = "genre_3"
         )
@@ -66,14 +64,14 @@ val genreListTestData = MovieGenreList(
 
 val configurationTestData = Configuration(
     changeKeys = listOf(),
-    images = Images(
+    images = ImageInfo(
         baseUrl = "https://",
         secureBaseUrl = "https://",
         posterSizes = listOf("w92", "w182", "w342", "w540", "w720", "original")
     )
 )
 
-val movieSearchTestData = MovieSearchData(
+val movieSearchTestData = SearchData(
     page = 1,
     results = listOf(
         MovieFactory.createMovieItem(),
@@ -131,7 +129,7 @@ val movieSearchTestData = MovieSearchData(
     totalResults = 50
 )
 
-val peopleSearchTestData = PeopleSearchData(
+val peopleSearchTestData = SearchData(
     page = 1,
     results = listOf(
         MovieFactory.createPeopleItem(),
@@ -167,26 +165,22 @@ val mainMenuTestData = MainMenu(
 object MovieFactory {
     private val counter = AtomicInteger(0)
 
-    fun createMovieItem(): MovieSearchItem {
+    fun createMovieItem(): Movie {
         val id = counter.incrementAndGet()
-        val movie = MovieSearchItem(
+        val movie = Movie(
             id = id,
             title = "title_$id",
-            tmdbId = id,
-            searchTitle = "title_$id",
             imagePath = "/imagePath_$id.png",
             posterPath = "/imagePath_$id.png"
         )
         return movie
     }
 
-    fun createPeopleItem(): PeopleSearchItem {
+    fun createPeopleItem(): People {
         val id = counter.incrementAndGet()
-        val people = PeopleSearchItem(
+        val people = People(
             id = id,
             name = "name_$id",
-            tmdbId = id,
-            searchTitle = "name_$id",
             imagePath = "/imagePath_$id.png",
             profilePath = "/imagePath_$id.png"
         )

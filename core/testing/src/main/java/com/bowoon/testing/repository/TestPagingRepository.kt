@@ -7,7 +7,7 @@ import com.bowoon.data.paging.TMDBSimilarMoviePagingSource
 import com.bowoon.data.paging.TMDBUpComingPagingSource
 import com.bowoon.data.repository.PagingRepository
 import com.bowoon.model.Movie
-import com.bowoon.model.SearchResult
+import com.bowoon.model.SearchGroup
 import com.bowoon.model.SearchType
 import com.bowoon.testing.TestMovieDataSource
 
@@ -21,10 +21,7 @@ class TestPagingRepository : PagingRepository {
     ): PagingSource<Int, Movie> = TMDBUpComingPagingSource(
         apis = TestMovieDataSource(),
         language = language,
-        region = region,
-        releaseDateGte = releaseDateGte,
-        releaseDateLte = releaseDateLte,
-        isAdult = isAdult
+        region = region
     )
 
     override fun getUpComingMovies(
@@ -36,10 +33,7 @@ class TestPagingRepository : PagingRepository {
     ): PagingSource<Int, Movie> = TMDBNowPlayingPagingSource(
         apis = TestMovieDataSource(),
         language = language,
-        region = region,
-        releaseDateGte = releaseDateGte,
-        releaseDateLte = releaseDateLte,
-        isAdult = isAdult
+        region = region
     )
 
     override fun searchMovieSource(
@@ -48,7 +42,7 @@ class TestPagingRepository : PagingRepository {
         language: String,
         region: String,
         isAdult: Boolean
-    ): PagingSource<Int, SearchResult> = TMDBSearchPagingSource(
+    ): PagingSource<Int, SearchGroup> = TMDBSearchPagingSource(
         apis = TestMovieDataSource(),
         type = type,
         query = query,

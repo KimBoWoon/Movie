@@ -11,9 +11,9 @@ data class MovieAppData(
     val mainMenu: MainMenu = MainMenu(),
     val imageQuality: String = "original",
     val secureBaseUrl: String? = null,
-    val genres: List<MovieGenre> = emptyList(),
+    val genres: List<Genre> = emptyList(),
     val region: List<Region>? = null,
-    val language: List<LanguageItem>? = null,
+    val language: List<Language>? = null,
     val posterSize: List<PosterSize>? = null
 ) {
     fun isDarkMode(isSystemInDarkMode: Boolean): Boolean = when (isDarkMode) {
@@ -35,6 +35,6 @@ data class PosterSize(
 
 data class ExternalData(
     val configuration: Configuration? = null,
-    val region: RegionList? = null,
-    val language: List<LanguageItem>? = null
+    val region: Regions? = null,
+    val language: List<Language>? = null
 )

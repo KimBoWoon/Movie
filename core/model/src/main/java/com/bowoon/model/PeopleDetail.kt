@@ -11,7 +11,7 @@ data class PeopleDetail(
     val gender: Int? = null,
     val homepage: String? = null,
     val id: Int? = null,
-    val images: List<DetailImage>? = null,
+    val images: List<Image>? = null,
     val imdbId: String? = null,
     val knownForDepartment: String? = null,
     val name: String? = null,

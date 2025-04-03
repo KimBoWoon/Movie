@@ -4,9 +4,9 @@ import androidx.annotation.VisibleForTesting
 import com.bowoon.data.repository.MyDataRepository
 import com.bowoon.model.Configuration
 import com.bowoon.model.ExternalData
-import com.bowoon.model.LanguageItem
-import com.bowoon.model.MovieGenreList
-import com.bowoon.model.RegionList
+import com.bowoon.model.Language
+import com.bowoon.model.Genres
+import com.bowoon.model.Regions
 import com.bowoon.testing.model.genreListTestData
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
@@ -22,11 +22,11 @@ class TestMyDataRepository : MyDataRepository {
 
     override fun getConfiguration(): Flow<Configuration> = externalData.mapNotNull { it.configuration }
 
-    override fun getGenres(): Flow<MovieGenreList> = flowOf(genreListTestData)
+    override fun getGenres(): Flow<Genres> = flowOf(genreListTestData)
 
-    override fun getAvailableLanguage(): Flow<List<LanguageItem>> = externalData.mapNotNull { it.language }
+    override fun getAvailableLanguage(): Flow<List<Language>> = externalData.mapNotNull { it.language }
 
-    override fun getAvailableRegion(): Flow<RegionList> = externalData.mapNotNull { it.region }
+    override fun getAvailableRegion(): Flow<Regions> = externalData.mapNotNull { it.region }
 
     @VisibleForTesting
     fun setExternalData(externalData: ExternalData) {

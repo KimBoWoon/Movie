@@ -38,7 +38,7 @@ import com.bowoon.data.repository.LocalMovieAppDataComposition
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.DarkThemeConfig
 import com.bowoon.model.InternalData
-import com.bowoon.model.LanguageItem
+import com.bowoon.model.Language
 import com.bowoon.model.PosterSize
 import com.bowoon.model.Region
 import com.bowoon.ui.components.TitleComponent
@@ -163,7 +163,7 @@ fun MyScreen(
             updateUserData = { chooseItem ->
                 when (chooseItem) {
                     is DarkThemeConfig -> updateUserData(internalData.copy(isDarkMode = chooseItem), false)
-                    is LanguageItem -> updateUserData(internalData.copy(language = chooseItem.iso6391 ?: ""), true)
+                    is Language -> updateUserData(internalData.copy(language = chooseItem.iso6391 ?: ""), true)
                     is Region -> updateUserData(internalData.copy(region = chooseItem.iso31661 ?: ""), true)
                     is PosterSize -> updateUserData(internalData.copy(imageQuality = chooseItem.size ?: ""), true)
                 }
@@ -198,7 +198,7 @@ fun <T> ChooseDialog(
                 key = {
                     when (it) {
                         is DarkThemeConfig -> it.label
-                        is LanguageItem -> "${it.iso6391}_${it.englishName}"
+                        is Language -> "${it.iso6391}_${it.englishName}"
                         is Region -> "${it.iso31661}_${it.englishName}"
                         is PosterSize -> it.size ?: ""
                         else -> it ?: ""
@@ -228,7 +228,7 @@ fun <T> ChooseDialog(
                         modifier = Modifier.padding(start = dp16),
                         text = when (item) {
                             is DarkThemeConfig -> item.label
-                            is LanguageItem -> "${item.iso6391} (${item.englishName})"
+                            is Language -> "${item.iso6391} (${item.englishName})"
                             is Region -> "${item.iso31661} (${item.englishName})"
                             is PosterSize -> item.size ?: ""
                             else -> ""
