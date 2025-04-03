@@ -11,7 +11,7 @@ import com.bowoon.network.model.NetworkTMDBMovieGenres
 import com.bowoon.network.model.NetworkTMDBMovieList
 import com.bowoon.network.model.NetworkTMDBPeopleDetail
 import com.bowoon.network.model.NetworkTMDBRegion
-import com.bowoon.network.model.NetworkTMDBSearch
+import com.bowoon.network.model.NetworkTMDBSearchMovie
 import com.bowoon.network.model.NetworkTMDBSearchPeople
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -50,7 +50,7 @@ interface TMDBApis {
         @Query("language") language: String = "ko-KR",
         @Query("region") region: String = "KR",
         @Query("page") page: Int = 1
-    ): ApiResponse<NetworkTMDBSearch>
+    ): ApiResponse<NetworkTMDBSearchMovie>
 
     @GET("/3/search/person")
     suspend fun searchPeople(
@@ -87,7 +87,7 @@ interface TMDBApis {
         @Query("page") page: Int = 1,
         @Query("sort_by") sortBy: String = "primary_release_date.asc",
         @Query("with_release_type") withReleaseType: String = "2|3"
-    ): ApiResponse<NetworkTMDBSearch>
+    ): ApiResponse<NetworkTMDBSearchMovie>
 
     @GET("/3/configuration/languages")
     suspend fun getAvailableLanguage(): ApiResponse<List<NetworkTMDBLanguageItem>>

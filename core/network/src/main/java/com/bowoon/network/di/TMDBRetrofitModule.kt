@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit
 
 @Module
 @InstallIn(SingletonComponent::class)
-object BaseRetrofitModule {
+object TMDBRetrofitModule {
     @Provides
     fun provideTMDBOkHttpClient(
         httpLoggingInterceptor: HttpLoggingInterceptor,
@@ -58,4 +58,7 @@ object BaseRetrofitModule {
 
     @Provides
     fun provideOkHttpProfilerInterceptor(): OkHttpProfilerInterceptor = OkHttpProfilerInterceptor()
+
+    @Provides
+    fun provideTMDBUrl(): String = "https://api.themoviedb.org/"
 }

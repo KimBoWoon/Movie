@@ -1,7 +1,7 @@
 package com.bowoon.network.model
 
 
-import com.bowoon.model.RegionList
+import com.bowoon.model.Regions
 import com.bowoon.model.Region
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -22,8 +22,8 @@ data class NetworkTMDBRegionResult(
     val nativeName: String? = null
 )
 
-fun NetworkTMDBRegion.asExternalModel(): RegionList =
-    RegionList(
+fun NetworkTMDBRegion.asExternalModel(): Regions =
+    Regions(
         results = results?.asExternalModel()
     )
 

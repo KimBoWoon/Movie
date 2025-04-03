@@ -29,7 +29,7 @@ internal class ApiResultCall<R>(
                                     ApiResponse.Failure(
                                         code = response.code(),
                                         message = response.message(),
-                                        body = response.errorBody()?.run { string() } ?: run { null }
+                                        body = response.errorBody()?.string()
                                     )
                                 )
                             )

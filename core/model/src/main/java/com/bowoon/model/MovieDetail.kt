@@ -17,7 +17,7 @@ data class MovieDetail(
     val genres: List<Genre>? = null,
     val homepage: String? = null,
     val id: Int? = null,
-    val images: MovieDetailImages? = null,
+    val images: Images? = null,
     val imdbId: String? = null,
     val keywords: Keywords? = null,
     val lists: MovieLists? = null,
@@ -114,13 +114,6 @@ data class Crew(
     val originalName: String? = null,
     val popularity: Double? = null,
     val profilePath: String? = null
-) : Parcelable
-
-@Serializable
-@Parcelize
-data class Genre(
-    val id: Int? = null,
-    val name: String? = null
 ) : Parcelable
 
 @Serializable
@@ -240,6 +233,60 @@ data class VideoInfo(
     val site: String? = null,
     val size: Int? = null,
     val type: String? = null
+) : Parcelable
+
+@Serializable
+@Parcelize
+data class MovieLists(
+    val id: Int? = null,
+    val page: Int? = null,
+    val results: List<MovieListResult?>? = null,
+    val totalPages: Int? = null,
+    val totalResults: Int? = null
+) : Parcelable
+
+@Serializable
+@Parcelize
+data class MovieListResult(
+    val description: String? = null,
+    val favoriteCount: Int? = null,
+    val id: Int? = null,
+    val iso6391: String? = null,
+    val itemCount: Int? = null,
+    val listType: String? = null,
+    val name: String? = null,
+    val posterPath: String? = null
+) : Parcelable
+
+@Serializable
+@Parcelize
+data class Reviews(
+    val id: Int? = null,
+    val page: Int? = null,
+    val results: List<ReviewsResult?>? = null,
+    val totalPages: Int? = null,
+    val totalResults: Int? = null
+) : Parcelable
+
+@Serializable
+@Parcelize
+data class ReviewsResult(
+    val author: String? = null,
+    val authorDetails: AuthorDetails? = null,
+    val content: String? = null,
+    val createdAt: String? = null,
+    val id: String? = null,
+    val updatedAt: String? = null,
+    val url: String? = null
+) : Parcelable
+
+@Serializable
+@Parcelize
+data class AuthorDetails(
+    val avatarPath: String? = null,
+    val name: String? = null,
+    val rating: Int? = null,
+    val username: String? = null
 ) : Parcelable
 
 fun MovieDetail.asExternalModel(): Movie = Movie(

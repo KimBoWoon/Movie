@@ -4,9 +4,9 @@ import com.bowoon.common.Log
 import com.bowoon.datastore.InternalDataSource
 import com.bowoon.model.Configuration
 import com.bowoon.model.ExternalData
-import com.bowoon.model.LanguageItem
-import com.bowoon.model.MovieGenreList
-import com.bowoon.model.RegionList
+import com.bowoon.model.Language
+import com.bowoon.model.Genres
+import com.bowoon.model.Regions
 import com.bowoon.network.MovieNetworkDataSource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -37,15 +37,15 @@ class MyDataRepositoryImpl @Inject constructor(
         emit(apis.getConfiguration())
     }
 
-    override fun getGenres(): Flow<MovieGenreList> = datastore.userData.map {
+    override fun getGenres(): Flow<Genres> = datastore.userData.map {
         apis.getGenres(language = "${it.language}-${it.region}")
     }
 
-    override fun getAvailableLanguage(): Flow<List<LanguageItem>> = flow {
+    override fun getAvailableLanguage(): Flow<List<Language>> = flow {
         emit(apis.getAvailableLanguage())
     }
 
-    override fun getAvailableRegion(): Flow<RegionList> = flow {
+    override fun getAvailableRegion(): Flow<Regions> = flow {
         emit(apis.getAvailableRegion())
     }
 }

@@ -1,7 +1,7 @@
 package com.bowoon.network.model
 
 
-import com.bowoon.model.Images
+import com.bowoon.model.ImageInfo
 import com.bowoon.model.Configuration
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -38,8 +38,8 @@ fun NetworkTMDBConfiguration.asExternalModel(): Configuration =
         images = images?.asExternalModel()
     )
 
-fun NetworkTMDBImagesConfiguration.asExternalModel(): Images =
-    Images(
+fun NetworkTMDBImagesConfiguration.asExternalModel(): ImageInfo =
+    ImageInfo(
         backdropSizes = backdropSizes,
         baseUrl = baseUrl,
         logoSizes = logoSizes,

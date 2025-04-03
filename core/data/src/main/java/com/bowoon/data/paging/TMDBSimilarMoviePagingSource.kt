@@ -3,8 +3,8 @@ package com.bowoon.data.paging
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.bowoon.common.Log
-import com.bowoon.model.Movie
 import com.bowoon.model.SimilarMovie
+import com.bowoon.model.Movie
 import com.bowoon.network.MovieNetworkDataSource
 import javax.inject.Inject
 

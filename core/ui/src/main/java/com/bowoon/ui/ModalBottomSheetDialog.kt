@@ -22,7 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
-import com.bowoon.model.DetailImage
+import com.bowoon.model.Image
 import com.bowoon.ui.image.DynamicAsyncImageLoader
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -34,7 +34,7 @@ fun ModalBottomSheetDialog(
     state: SheetState,
     scope: CoroutineScope,
     index: Int,
-    imageList: List<DetailImage>,
+    imageList: List<Image>,
     onClickCancel: () -> Unit
 ) {
     ModalBottomSheet(

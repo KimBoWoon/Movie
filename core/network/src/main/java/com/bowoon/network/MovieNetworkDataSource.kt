@@ -1,26 +1,25 @@
 package com.bowoon.network
 
+import com.bowoon.model.MovieDetail
+import com.bowoon.model.Genres
+import com.bowoon.model.MovieList
+import com.bowoon.model.PeopleDetail
+import com.bowoon.model.SimilarMovies
 import com.bowoon.model.CertificationData
 import com.bowoon.model.CombineCredits
 import com.bowoon.model.Configuration
 import com.bowoon.model.ExternalIds
-import com.bowoon.model.LanguageItem
+import com.bowoon.model.Language
 import com.bowoon.model.Movie
-import com.bowoon.model.MovieDetail
-import com.bowoon.model.MovieGenreList
-import com.bowoon.model.MovieList
-import com.bowoon.model.MovieSearchData
-import com.bowoon.model.PeopleDetail
-import com.bowoon.model.PeopleSearchData
-import com.bowoon.model.RegionList
-import com.bowoon.model.SimilarMovies
+import com.bowoon.model.Regions
+import com.bowoon.model.SearchData
 
 interface MovieNetworkDataSource {
     suspend fun getConfiguration(): Configuration
 
     suspend fun getCertification(): CertificationData
 
-    suspend fun getGenres(language: String = "ko-KR"): MovieGenreList
+    suspend fun getGenres(language: String = "ko-KR"): Genres
 
     suspend fun getNowPlaying(
         language: String = "ko-KR",
@@ -43,7 +42,7 @@ interface MovieNetworkDataSource {
         language: String = "ko-KR",
         region: String = "KR",
         page: Int = 1
-    ): MovieSearchData
+    ): SearchData
 
     suspend fun searchPeople(
         query: String,
@@ -51,7 +50,7 @@ interface MovieNetworkDataSource {
         language: String = "ko-KR",
         region: String = "KR",
         page: Int = 1
-    ): PeopleSearchData
+    ): SearchData
 
     suspend fun getMovieDetail(
         id: Int,
@@ -76,11 +75,11 @@ interface MovieNetworkDataSource {
         page: Int = 1,
         sortBy: String = "primary_release_date.asc",
         withReleaseType: String = "2|3"
-    ): MovieSearchData
+    ): SearchData
 
-    suspend fun getAvailableLanguage(): List<LanguageItem>
+    suspend fun getAvailableLanguage(): List<Language>
 
-    suspend fun getAvailableRegion(): RegionList
+    suspend fun getAvailableRegion(): Regions
 
     suspend fun getPeopleDetail(
         personId: Int,

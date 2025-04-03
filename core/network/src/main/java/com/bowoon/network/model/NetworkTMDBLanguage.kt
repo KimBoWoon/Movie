@@ -1,6 +1,6 @@
 package com.bowoon.network.model
 
-import com.bowoon.model.LanguageItem
+import com.bowoon.model.Language
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -14,9 +14,9 @@ data class NetworkTMDBLanguageItem(
     val name: String? = null
 )
 
-fun List<NetworkTMDBLanguageItem>.asExternalModel(): List<LanguageItem> =
+fun List<NetworkTMDBLanguageItem>.asExternalModel(): List<Language> =
     map {
-        LanguageItem(
+        Language(
             englishName = it.englishName,
             iso6391 = it.iso6391,
             name = it.name

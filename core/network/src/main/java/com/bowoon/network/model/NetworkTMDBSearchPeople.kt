@@ -1,9 +1,9 @@
 package com.bowoon.network.model
 
 
-import com.bowoon.model.PeopleSearchData
+import com.bowoon.model.People
+import com.bowoon.model.SearchData
 import com.bowoon.model.SearchPeopleKnownFor
-import com.bowoon.model.PeopleSearchItem
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -75,8 +75,8 @@ data class NetworkTMDBSearchPeopleKnownFor(
     val voteCount: Int? = null
 )
 
-fun NetworkTMDBSearchPeople.asExternalModel(): PeopleSearchData =
-    PeopleSearchData(
+fun NetworkTMDBSearchPeople.asExternalModel(): SearchData =
+    SearchData(
         page = page,
         results = results?.asExternalModel(),
         totalPages = totalPages,
@@ -84,21 +84,19 @@ fun NetworkTMDBSearchPeople.asExternalModel(): PeopleSearchData =
     )
 
 @JvmName("NetworkTMDBSearchPeopleResultAsExternalModel")
-fun List<NetworkTMDBSearchPeopleResult>.asExternalModel(): List<PeopleSearchItem> =
+fun List<NetworkTMDBSearchPeopleResult>.asExternalModel(): List<People> =
     map {
-        PeopleSearchItem(
-            adult = it.adult,
+        People(
             gender = it.gender,
-            id = it.id,
             knownFor = it.knownFor?.asExternalModel(),
             knownForDepartment = it.knownForDepartment,
-            name = it.name,
-            originalName = it.originalName,
-            popularity = it.popularity,
             profilePath = it.profilePath,
-            searchTitle = it.name,
-            tmdbId = it.id,
-            imagePath = it.profilePath
+            adult = it.adult,
+            id = it.id,
+            name = it.name,
+            imagePath = it.profilePath,
+            originalName = it.originalName,
+            popularity = it.popularity
         )
     }
 

@@ -3,7 +3,7 @@ package com.bowoon.model
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class RegionList(
+data class Regions(
     val results: List<Region>? = null
 )
 

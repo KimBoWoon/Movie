@@ -1,7 +1,6 @@
 package com.bowoon.search
 
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
@@ -14,9 +13,9 @@ import androidx.paging.cachedIn
 import androidx.paging.filter
 import com.bowoon.data.repository.PagingRepository
 import com.bowoon.data.repository.UserDataRepository
-import com.bowoon.model.MovieGenre
-import com.bowoon.model.MovieSearchItem
-import com.bowoon.model.SearchResult
+import com.bowoon.model.Genre
+import com.bowoon.model.Movie
+import com.bowoon.model.SearchGroup
 import com.bowoon.model.SearchType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
@@ -48,13 +47,13 @@ class SearchVM @Inject constructor(
     private var language: String = ""
     private var region: String = ""
     private var isAdult: Boolean = true
-    val selectedGenre = savedStateHandle.getStateFlow<MovieGenre?>("genre", null)
     var searchQuery by mutableStateOf("")
         private set
-    var searchType by mutableIntStateOf(savedStateHandle.get<Int>("searchType") ?: 0)
+    val selectedGenre = savedStateHandle.getStateFlow<Genre?>("genre", null)
+    val searchType = savedStateHandle.getStateFlow<SearchType>("searchType", SearchType.MOVIE)
     var searchResult = MutableStateFlow<SearchState>(SearchState.Loading)
 
-    fun updateGenre(genre: MovieGenre?) {
+    fun updateGenre(genre: Genre?) {
         viewModelScope.launch {
             savedStateHandle["genre"] = if (genre == selectedGenre.value) {
                 null
@@ -69,7 +68,7 @@ class SearchVM @Inject constructor(
     }
 
     fun updateSearchType(searchType: SearchType) {
-        this@SearchVM.searchType = searchType.ordinal
+        savedStateHandle["searchType"] = searchType
     }
 
     fun searchMovies() {
@@ -81,7 +80,7 @@ class SearchVM @Inject constructor(
                         initialKey = 1,
                         pagingSourceFactory = {
                             pagingRepository.searchMovieSource(
-                                type = SearchType.entries[searchType],
+                                type = searchType.value,
                                 query = query,
                                 language = "$language-$region",
                                 region = region,
@@ -92,7 +91,7 @@ class SearchVM @Inject constructor(
                     selectedGenre
                 ) { pagingData, selectedGenre ->
                     selectedGenre?.let { genre ->
-                        pagingData.filter { it is MovieSearchItem && genre.id in (it.genreIds ?: emptyList()) }
+                        pagingData.filter { it is Movie && genre.id in (it.genreIds ?: emptyList()) }
                     } ?: pagingData
                 }.let {
                     searchResult.emit(SearchState.Search(it))
@@ -104,6 +103,6 @@ class SearchVM @Inject constructor(
 
 sealed interface SearchState {
     data object Loading : SearchState
-    data class Search(val pagingData: Flow<PagingData<SearchResult>>) : SearchState
+    data class Search(val pagingData: Flow<PagingData<SearchGroup>>) : SearchState
     data class Error(val message: String) : SearchState
 }

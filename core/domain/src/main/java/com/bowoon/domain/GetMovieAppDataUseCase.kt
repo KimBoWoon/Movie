@@ -2,7 +2,7 @@ package com.bowoon.domain
 
 import com.bowoon.data.repository.MyDataRepository
 import com.bowoon.data.repository.UserDataRepository
-import com.bowoon.model.LanguageItem
+import com.bowoon.model.Language
 import com.bowoon.model.MovieAppData
 import com.bowoon.model.PosterSize
 import com.bowoon.model.Region
@@ -37,7 +37,7 @@ class GetMovieAppDataUseCase @Inject constructor(
                 )
             },
             language = externalData.language?.map {
-                LanguageItem(
+                Language(
                     englishName = it.englishName,
                     iso6391 = it.iso6391,
                     name = it.name,

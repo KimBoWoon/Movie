@@ -58,7 +58,7 @@ class DetailVM @Inject constructor(
         }.restartableStateIn(
             scope = viewModelScope,
             initialValue = MovieDetailState.Loading,
-            started = SharingStarted.WhileSubscribed(5_000)
+            started = SharingStarted.Eagerly
         )
     val similarMovies = Pager(
         config = PagingConfig(pageSize = 1, initialLoadSize = 1, prefetchDistance = 5),

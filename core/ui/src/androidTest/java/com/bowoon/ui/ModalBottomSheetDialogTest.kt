@@ -19,7 +19,7 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import com.bowoon.model.DetailImage
+import com.bowoon.model.Image
 import org.junit.Rule
 import org.junit.Test
 
@@ -43,10 +43,10 @@ class ModalBottomSheetDialogTest {
                         scope = rememberCoroutineScope(),
                         index = 0,
                         imageList = listOf(
-                            DetailImage(),
-                            DetailImage(),
-                            DetailImage(),
-                            DetailImage()
+                            Image(),
+                            Image(),
+                            Image(),
+                            Image()
                         ),
                         onClickCancel = {}
                     )

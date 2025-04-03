@@ -8,7 +8,7 @@ import androidx.compose.ui.test.onNodeWithText
 import com.bowoon.data.repository.LocalMovieAppDataComposition
 import com.bowoon.model.DarkThemeConfig
 import com.bowoon.model.InternalData
-import com.bowoon.model.LanguageItem
+import com.bowoon.model.Language
 import com.bowoon.model.MovieAppData
 import com.bowoon.model.Region
 import com.bowoon.testing.model.mainMenuTestData
@@ -39,13 +39,13 @@ class MyScreenTest {
             )
         ),
         language = listOf(
-            LanguageItem(
+            Language(
                 englishName = "English",
                 iso6391 = "en",
                 name = "en",
                 isSelected = true
             ),
-            LanguageItem(
+            Language(
                 englishName = "Korean",
                 iso6391 = "ko",
                 name = "ko",

@@ -3,7 +3,7 @@ package com.bowoon.search
 import androidx.lifecycle.SavedStateHandle
 import androidx.paging.PagingSource
 import com.bowoon.data.paging.TMDBSearchPagingSource
-import com.bowoon.model.SearchResult
+import com.bowoon.model.SearchGroup
 import com.bowoon.model.SearchType
 import com.bowoon.testing.TestMovieDataSource
 import com.bowoon.testing.model.movieSearchTestData
@@ -51,11 +51,11 @@ class SearchVMTest {
 
     @Test
     fun updateSearchTypeTest() {
-        assertEquals(SearchType.entries[viewModel.searchType], SearchType.MOVIE)
+        assertEquals(viewModel.searchType.value, SearchType.MOVIE)
         viewModel.updateSearchType(SearchType.PEOPLE)
-        assertEquals(SearchType.entries[viewModel.searchType], SearchType.PEOPLE)
+        assertEquals(viewModel.searchType.value, SearchType.PEOPLE)
         viewModel.updateSearchType(SearchType.MOVIE)
-        assertEquals(SearchType.entries[viewModel.searchType], SearchType.MOVIE)
+        assertEquals(viewModel.searchType.value, SearchType.MOVIE)
     }
 
     @Test
@@ -75,7 +75,7 @@ class SearchVMTest {
             isAdult = true
         )
 
-        val a: PagingSource.LoadResult<Int, SearchResult> = PagingSource.LoadResult.Page(
+        val a: PagingSource.LoadResult<Int, SearchGroup> = PagingSource.LoadResult.Page(
             data = movieSearchTestData.results ?: emptyList(),
             prevKey = null,
             nextKey = 2

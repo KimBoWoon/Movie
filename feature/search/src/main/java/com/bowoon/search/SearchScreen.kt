@@ -65,7 +65,7 @@ import com.bowoon.common.Log
 import com.bowoon.data.repository.LocalMovieAppDataComposition
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.firebase.LocalFirebaseLogHelper
-import com.bowoon.model.MovieGenre
+import com.bowoon.model.Genre
 import com.bowoon.model.PagingStatus
 import com.bowoon.model.SearchType
 import com.bowoon.ui.ConfirmDialog
@@ -98,11 +98,12 @@ fun SearchScreen(
 
     val searchState by viewModel.searchResult.collectAsStateWithLifecycle()
     val selectedGenre by viewModel.selectedGenre.collectAsStateWithLifecycle()
+    val searchType by viewModel.searchType.collectAsStateWithLifecycle()
 
     SearchScreen(
         searchState = searchState,
         keyword = viewModel.searchQuery,
-        searchType = viewModel.searchType,
+        searchType = searchType,
         selectedGenre = selectedGenre,
         onMovieClick = onMovieClick,
         onPeopleClick = onPeopleClick,
@@ -117,14 +118,14 @@ fun SearchScreen(
 fun SearchScreen(
     searchState: SearchState,
     keyword: String,
-    searchType: Int,
-    selectedGenre: MovieGenre?,
+    searchType: SearchType,
+    selectedGenre: Genre?,
     onMovieClick: (Int) -> Unit,
     onPeopleClick: (Int) -> Unit,
     onSearchClick: () -> Unit,
     updateKeyword: (String) -> Unit,
     updateSearchType: (SearchType) -> Unit,
-    updateGenre: (MovieGenre?) -> Unit
+    updateGenre: (Genre?) -> Unit
 ) {
     val scrollState = rememberLazyGridState()
 
@@ -156,12 +157,12 @@ fun SearchScreen(
 @Composable
 fun SearchBarComponent(
     keyword: String,
-    searchType: Int,
+    searchType: SearchType,
     scrollState: LazyGridState,
     onSearchClick: () -> Unit,
     updateKeyword: (String) -> Unit,
     updateSearchType: (SearchType) -> Unit,
-    updateGenre: (MovieGenre?) -> Unit
+    updateGenre: (Genre?) -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val focusManager = LocalFocusManager.current
@@ -272,7 +273,7 @@ fun SearchBarComponent(
 
 @Composable
 fun SearchTypeComponent(
-    searchType: Int,
+    searchType: SearchType,
     updateSearchType: (SearchType) -> Unit
 ) {
     var isExpand by remember { mutableStateOf(false) }
@@ -283,7 +284,7 @@ fun SearchTypeComponent(
         ) {
             Text(
                 modifier = Modifier.clickable { isExpand = !isExpand },
-                text = SearchType.entries[searchType].label,
+                text = searchType.label,
                 fontSize = sp12,
                 color = MaterialTheme.colorScheme.onSurface
             )
@@ -323,11 +324,11 @@ fun SearchTypeComponent(
 fun SearchResultPaging(
     searchState: SearchState,
     scrollState: LazyGridState,
-    searchType: Int,
+    searchType: SearchType,
     onMovieClick: (Int) -> Unit,
     onPeopleClick: (Int) -> Unit,
-    selectedGenre: MovieGenre?,
-    updateGenre: (MovieGenre) -> Unit
+    selectedGenre: Genre?,
+    updateGenre: (Genre) -> Unit
 ) {
     val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
     val genres = LocalMovieAppDataComposition.current.genres
@@ -382,7 +383,7 @@ fun SearchResultPaging(
                         Column(
                             modifier = Modifier.fillMaxSize()
                         ) {
-                            if (pagingStatus == PagingStatus.NOT_EMPTY) {
+                            if (pagingStatus == PagingStatus.NOT_EMPTY && SearchType.MOVIE == searchType) {
                                 LazyRow(
                                     modifier = Modifier.fillMaxWidth(),
                                     contentPadding = PaddingValues(horizontal = dp16),
@@ -420,27 +421,29 @@ fun SearchResultPaging(
                                         .fillMaxSize(),
                                     state = scrollState,
                                     columns = GridCells.Adaptive(dp100),
-                                    contentPadding = PaddingValues(top = if (genres.all { it.name == null }) dp10 else dp0, start = dp10, bottom = dp10, end = dp10),
+                                    contentPadding = PaddingValues(top = if (genres.all { it.name == null } || searchType == SearchType.PEOPLE) dp10 else dp0, start = dp10, bottom = dp10, end = dp10),
                                     horizontalArrangement = Arrangement.spacedBy(dp10),
                                     verticalArrangement = Arrangement.spacedBy(dp10)
                                 ) {
                                     items(
                                         count = pagingData.itemCount,
-                                        key = { index -> "${pagingData.peek(index)?.tmdbId}_${index}_${pagingData.peek(index)?.searchTitle}" }
+                                        key = { index -> "${pagingData.peek(index)?.id}_${index}_${pagingData.peek(index)?.name}" }
                                     ) { index ->
-                                        DynamicAsyncImageLoader(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .aspectRatio(POSTER_IMAGE_RATIO)
-                                                .bounceClick {
-                                                    when (searchType) {
-                                                        SearchType.MOVIE.ordinal -> onMovieClick(pagingData[index]?.tmdbId ?: -1)
-                                                        SearchType.PEOPLE.ordinal -> onPeopleClick(pagingData[index]?.tmdbId ?: -1)
-                                                    }
-                                                },
-                                            source = "$posterUrl${pagingData[index]?.imagePath}",
-                                            contentDescription = "${pagingData[index]?.tmdbId}_${pagingData[index]?.searchTitle}"
-                                        )
+                                        pagingData[index]?.let { item ->
+                                            DynamicAsyncImageLoader(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .aspectRatio(POSTER_IMAGE_RATIO)
+                                                    .bounceClick {
+                                                        when (searchType) {
+                                                            SearchType.MOVIE -> onMovieClick(item.id ?: -1)
+                                                            SearchType.PEOPLE -> onPeopleClick(item.id ?: -1)
+                                                        }
+                                                    },
+                                                source = "$posterUrl${item.imagePath}",
+                                                contentDescription = "${item.id}_${item.name}"
+                                            )
+                                        }
                                     }
                                     if (isAppend) {
                                         item(span = { GridItemSpan(maxLineSpan) }) {

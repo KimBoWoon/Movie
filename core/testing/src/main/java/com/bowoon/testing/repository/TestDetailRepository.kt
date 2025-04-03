@@ -11,20 +11,20 @@ import com.bowoon.model.CombineCreditsCrew
 import com.bowoon.model.Country
 import com.bowoon.model.Credits
 import com.bowoon.model.Crew
-import com.bowoon.model.DetailImage
 import com.bowoon.model.ExternalIds
 import com.bowoon.model.Genre
+import com.bowoon.model.Image
+import com.bowoon.model.Images
 import com.bowoon.model.Keyword
 import com.bowoon.model.Keywords
 import com.bowoon.model.MovieDetail
-import com.bowoon.model.MovieDetailImages
 import com.bowoon.model.MovieLists
-import com.bowoon.model.MovieSearchData
 import com.bowoon.model.PeopleDetail
 import com.bowoon.model.ProductionCompany
 import com.bowoon.model.ProductionCountry
 import com.bowoon.model.Releases
 import com.bowoon.model.Reviews
+import com.bowoon.model.SearchData
 import com.bowoon.model.SpokenLanguage
 import com.bowoon.model.Translation
 import com.bowoon.model.TranslationInfo
@@ -38,7 +38,7 @@ import org.jetbrains.annotations.VisibleForTesting
 
 class TestDetailRepository : DetailRepository {
     private val movieDetail = MutableSharedFlow<MovieDetail>(replay = 1, onBufferOverflow = DROP_OLDEST)
-    private val movieSearchData = MutableSharedFlow<MovieSearchData>(replay = 1, onBufferOverflow = DROP_OLDEST)
+    private val movieSearchData = MutableSharedFlow<SearchData>(replay = 1, onBufferOverflow = DROP_OLDEST)
     private val peopleDetail = MutableSharedFlow<PeopleDetail>(replay = 1, onBufferOverflow = DROP_OLDEST)
     private val combineCredits = MutableSharedFlow<CombineCredits>(replay = 1, onBufferOverflow = DROP_OLDEST)
     private val externalIds = MutableSharedFlow<ExternalIds>(replay = 1, onBufferOverflow = DROP_OLDEST)
@@ -48,7 +48,7 @@ class TestDetailRepository : DetailRepository {
     override fun discoverMovie(
         releaseDateGte: String,
         releaseDateLte: String
-    ): Flow<MovieSearchData> = movieSearchData
+    ): Flow<SearchData> = movieSearchData
 
     override fun getPeople(personId: Int): Flow<PeopleDetail> = peopleDetail
 
@@ -62,7 +62,7 @@ class TestDetailRepository : DetailRepository {
     }
 
     @VisibleForTesting
-    fun setDiscoverMovie(movie: MovieSearchData) {
+    fun setDiscoverMovie(movie: SearchData) {
         movieSearchData.tryEmit(movie)
     }
 
@@ -93,7 +93,7 @@ val favoriteMovieDetailTestData = MovieDetail(
     genres = listOf(Genre(id = 0, name = "genre")),
     homepage = "homepage",
     id = 0,
-    images = MovieDetailImages(backdrops = listOf(DetailImage(filePath = "/backdrops_1.png")), logos = listOf(), posters = listOf(DetailImage(filePath = "/poster_1.png"), DetailImage(filePath = "/poster_2.png"), DetailImage(filePath = "/poster_3.png"))),
+    images = Images(backdrops = listOf(Image(filePath = "/backdrops_1.png")), logos = listOf(), posters = listOf(Image(filePath = "/poster_1.png"), Image(filePath = "/poster_2.png"), Image(filePath = "/poster_3.png"))),
     imdbId = "imdbId",
     keywords = Keywords(keywords = listOf(Keyword(id = 0, name = "name"))),
     lists = MovieLists(id = 0, page = 1, results = listOf(), totalPages = 1, totalResults = 0),
@@ -134,7 +134,7 @@ val unFavoriteMovieDetailTestData = MovieDetail(
     genres = listOf(Genre(id = 0, name = "genre")),
     homepage = "homepage",
     id = 324,
-    images = MovieDetailImages(backdrops = listOf(), logos = listOf(), posters = listOf()),
+    images = Images(backdrops = listOf(), logos = listOf(), posters = listOf()),
     imdbId = "imdbId",
     keywords = Keywords(keywords = listOf(Keyword(id = 0, name = "name"))),
     lists = MovieLists(id = 0, page = 1, results = listOf(), totalPages = 1, totalResults = 0),
@@ -190,7 +190,7 @@ val peopleDetailTestData = PeopleDetail(
     gender = 1,
     homepage = "homepage",
     id = 0,
-    images = listOf(DetailImage()),
+    images = listOf(Image()),
     imdbId = "imdbId",
     knownForDepartment = "knownForDepartment",
     name = "name",

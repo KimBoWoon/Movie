@@ -1,17 +1,18 @@
 package com.bowoon.network.model
 
 
-import com.bowoon.model.MovieSearchData
-import com.bowoon.model.MovieSearchItem
+import com.bowoon.model.Movie
+import com.bowoon.model.SearchData
+import com.bowoon.model.SearchGroup
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class NetworkTMDBSearch(
+data class NetworkTMDBSearchMovie(
     @SerialName("page")
     val page: Int? = null,
     @SerialName("results")
-    val results: List<NetworkTMDBSearchResult>? = null,
+    val results: List<NetworkTMDBSearchMovieResult>? = null,
     @SerialName("total_pages")
     val totalPages: Int? = null,
     @SerialName("total_results")
@@ -19,7 +20,7 @@ data class NetworkTMDBSearch(
 )
 
 @Serializable
-data class NetworkTMDBSearchResult(
+data class NetworkTMDBSearchMovieResult(
     @SerialName("adult")
     val adult: Boolean? = null,
     @SerialName("backdrop_path")
@@ -50,33 +51,33 @@ data class NetworkTMDBSearchResult(
     val voteCount: Int? = null
 )
 
-fun NetworkTMDBSearch.asExternalModel(): MovieSearchData =
-    MovieSearchData(
+fun NetworkTMDBSearchMovie.asExternalModel(): SearchData =
+    SearchData(
         page = page,
         results = results?.asExternalModel(),
         totalPages = totalPages,
         totalResults = totalResults
     )
 
-fun List<NetworkTMDBSearchResult>.asExternalModel(): List<MovieSearchItem> =
+fun List<NetworkTMDBSearchMovieResult>.asExternalModel(): List<SearchGroup> =
     map {
-        MovieSearchItem(
-            adult = it.adult,
+        Movie(
             backdropPath = it.backdropPath,
             genreIds = it.genreIds,
-            id = it.id,
             originalLanguage = it.originalLanguage,
             originalTitle = it.originalTitle,
             overview = it.overview,
-            popularity = it.popularity,
             posterPath = it.posterPath,
             releaseDate = it.releaseDate,
             title = it.title,
             video = it.video,
             voteAverage = it.voteAverage,
             voteCount = it.voteCount,
-            searchTitle = it.title,
-            tmdbId = it.id,
-            imagePath = it.posterPath
+            adult = it.adult,
+            id = it.id,
+            name = it.title,
+            imagePath = it.posterPath,
+            originalName = it.originalTitle,
+            popularity = it.popularity
         )
     }
