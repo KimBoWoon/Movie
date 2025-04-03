@@ -5,14 +5,11 @@ import com.bowoon.data.repository.MyDataRepository
 import com.bowoon.model.Configuration
 import com.bowoon.model.ExternalData
 import com.bowoon.model.Language
-import com.bowoon.model.Genres
 import com.bowoon.model.Regions
-import com.bowoon.testing.model.genreListTestData
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.mapNotNull
 
 class TestMyDataRepository : MyDataRepository {
@@ -21,8 +18,6 @@ class TestMyDataRepository : MyDataRepository {
     override val externalData: Flow<ExternalData> = _externalData.filterNotNull()
 
     override fun getConfiguration(): Flow<Configuration> = externalData.mapNotNull { it.configuration }
-
-    override fun getGenres(): Flow<Genres> = flowOf(genreListTestData)
 
     override fun getAvailableLanguage(): Flow<List<Language>> = externalData.mapNotNull { it.language }
 

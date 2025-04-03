@@ -32,6 +32,8 @@ class SearchVM @Inject constructor(
 ) : ViewModel() {
     companion object {
         private const val TAG = "SearchVM"
+        private const val GENRE = "genre"
+        private const val SEARCH_TYPE = "searchType"
     }
 
     init {
@@ -49,18 +51,12 @@ class SearchVM @Inject constructor(
     private var isAdult: Boolean = true
     var searchQuery by mutableStateOf("")
         private set
-    val selectedGenre = savedStateHandle.getStateFlow<Genre?>("genre", null)
-    val searchType = savedStateHandle.getStateFlow<SearchType>("searchType", SearchType.MOVIE)
+    val selectedGenre = savedStateHandle.getStateFlow<Genre?>(GENRE, null)
+    val searchType = savedStateHandle.getStateFlow<SearchType>(SEARCH_TYPE, SearchType.MOVIE)
     var searchResult = MutableStateFlow<SearchState>(SearchState.Loading)
 
     fun updateGenre(genre: Genre?) {
-        viewModelScope.launch {
-            savedStateHandle["genre"] = if (genre == selectedGenre.value) {
-                null
-            } else {
-                genre
-            }
-        }
+        savedStateHandle[GENRE] = if (genre == selectedGenre.value) null else genre
     }
 
     fun updateKeyword(keyword: String) {
@@ -68,7 +64,7 @@ class SearchVM @Inject constructor(
     }
 
     fun updateSearchType(searchType: SearchType) {
-        savedStateHandle["searchType"] = searchType
+        savedStateHandle[SEARCH_TYPE] = searchType
     }
 
     fun searchMovies() {
