@@ -17,6 +17,7 @@ import com.bowoon.model.SearchData
 import com.bowoon.model.SimilarMovie
 import com.bowoon.model.SimilarMovies
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.random.Random
 
 val certificationTestData = CertificationData(
     certifications = CertificationMap(
@@ -171,7 +172,8 @@ object MovieFactory {
             id = id,
             title = "title_$id",
             imagePath = "/imagePath_$id.png",
-            posterPath = "/imagePath_$id.png"
+            posterPath = "/imagePath_$id.png",
+            genreIds = listOf(Random(System.currentTimeMillis()).nextInt(0, 5))
         )
         return movie
     }

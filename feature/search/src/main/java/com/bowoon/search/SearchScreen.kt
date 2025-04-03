@@ -50,6 +50,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.PlatformTextStyle
@@ -283,7 +284,7 @@ fun SearchTypeComponent(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                modifier = Modifier.clickable { isExpand = !isExpand },
+                modifier = Modifier.testTag(tag = "searchType").clickable { isExpand = !isExpand },
                 text = searchType.label,
                 fontSize = sp12,
                 color = MaterialTheme.colorScheme.onSurface
@@ -308,6 +309,7 @@ fun SearchTypeComponent(
         ) {
             SearchType.entries.forEach { type ->
                 DropdownMenuItem(
+                    modifier = Modifier.testTag(tag = type.label),
                     onClick = {
                         Log.d(type.label)
                         updateSearchType(type)
@@ -385,7 +387,7 @@ fun SearchResultPaging(
                         ) {
                             if (pagingStatus == PagingStatus.NOT_EMPTY && SearchType.MOVIE == searchType) {
                                 LazyRow(
-                                    modifier = Modifier.fillMaxWidth(),
+                                    modifier = Modifier.testTag(tag = "FilterRow").fillMaxWidth(),
                                     contentPadding = PaddingValues(horizontal = dp16),
                                     horizontalArrangement = Arrangement.spacedBy(space = dp10)
                                 ) {

@@ -11,5 +11,6 @@ data class InternalData(
     val mainMenu: MainMenu = MainMenu(),
     val region: String = "KR",
     val language: String = "ko",
-    val imageQuality: String = "original"
+    val imageQuality: String = "original",
+    val genres: List<Genre> = emptyList()
 )

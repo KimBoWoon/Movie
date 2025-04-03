@@ -5,7 +5,6 @@ import com.bowoon.datastore.InternalDataSource
 import com.bowoon.datastore_test.InMemoryDataStore
 import com.bowoon.testing.TestMovieDataSource
 import com.bowoon.testing.model.configurationTestData
-import com.bowoon.testing.model.genreListTestData
 import com.bowoon.testing.model.languageListTestData
 import com.bowoon.testing.model.regionTestData
 import com.bowoon.testing.utils.MainDispatcherRule
@@ -32,8 +31,7 @@ class MyDataRepositoryTest {
             json = Json { ignoreUnknownKeys = true }
         )
         repository = MyDataRepositoryImpl(
-            apis = movieApis,
-            datastore = datastore
+            apis = movieApis
         )
     }
 
@@ -56,12 +54,5 @@ class MyDataRepositoryTest {
         val result = repository.getAvailableLanguage()
 
         assertEquals(result.first(), languageListTestData)
-    }
-
-    @Test
-    fun getGenresTest() = runTest {
-        val result = repository.getGenres()
-
-        assertEquals(result.first(), genreListTestData)
     }
 }

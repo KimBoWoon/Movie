@@ -16,9 +16,8 @@ class GetMovieAppDataUseCase @Inject constructor(
 ) {
     operator fun invoke(): Flow<MovieAppData> = combine(
         myDataRepository.externalData,
-        userDataRepository.internalData,
-        myDataRepository.getGenres()
-    ) { externalData, internalData, genres ->
+        userDataRepository.internalData
+    ) { externalData, internalData ->
         MovieAppData(
             isAdult = internalData.isAdult,
             autoPlayTrailer = internalData.autoPlayTrailer,
@@ -27,7 +26,7 @@ class GetMovieAppDataUseCase @Inject constructor(
             mainMenu = internalData.mainMenu,
             imageQuality = internalData.imageQuality,
             secureBaseUrl = externalData.configuration?.images?.secureBaseUrl,
-            genres = genres.genres ?: emptyList(),
+            genres = internalData.genres,
             region = externalData.region?.results?.map {
                 Region(
                     englishName = it.englishName,
