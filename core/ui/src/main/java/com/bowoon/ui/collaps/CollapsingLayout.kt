@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import com.bowoon.model.PeopleDetail
 import com.bowoon.ui.collaps.scrollflags.ExitUntilCollapsedState
-import com.bowoon.ui.dp80
+import com.bowoon.ui.utils.dp80
 import com.bowoon.ui.image.DynamicAsyncImageLoader
 
 private val ContentPadding = 8.dp

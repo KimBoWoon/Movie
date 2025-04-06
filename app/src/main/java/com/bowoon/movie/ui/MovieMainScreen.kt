@@ -38,9 +38,9 @@ import com.bowoon.movie.navigation.MovieAppNavHost
 import com.bowoon.ui.BottomNavigationBarItem
 import com.bowoon.ui.BottomNavigationRailItem
 import com.bowoon.ui.MovieNavigationDefaults
-import com.bowoon.ui.dp1
-import com.bowoon.ui.dp50
-import com.bowoon.ui.topLineBorder
+import com.bowoon.ui.utils.dp1
+import com.bowoon.ui.utils.dp50
+import com.bowoon.ui.utils.topLineBorder
 import kotlin.reflect.KClass
 
 @Composable

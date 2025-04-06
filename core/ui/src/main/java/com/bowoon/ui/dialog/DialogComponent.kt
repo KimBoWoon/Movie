@@ -1,4 +1,4 @@
-package com.bowoon.ui
+package com.bowoon.ui.dialog
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -31,6 +31,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.zIndex
+import com.bowoon.ui.utils.bounceClick
+import com.bowoon.ui.utils.dp0
+import com.bowoon.ui.utils.dp1
+import com.bowoon.ui.utils.dp16
+import com.bowoon.ui.utils.dp20
+import com.bowoon.ui.utils.dp30
+import com.bowoon.ui.utils.dp90
 import com.bowoon.ui.theme.MovieTheme
 
 @Composable

@@ -17,6 +17,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
+import com.bowoon.ui.utils.bounceClick
+import com.bowoon.ui.utils.dp24
+import com.bowoon.ui.utils.dp5
+import com.bowoon.ui.utils.sp12
 
 @Composable
 fun RowScope.BottomNavigationBarItem(

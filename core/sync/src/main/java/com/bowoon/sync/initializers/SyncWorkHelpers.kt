@@ -9,7 +9,6 @@ import androidx.core.app.NotificationCompat
 import androidx.work.Constraints
 import androidx.work.ForegroundInfo
 import androidx.work.NetworkType
-import com.bowoon.movie.core.sync.R
 
 const val SYNC_TOPIC = "sync"
 const val UNIQUE_SYNC_WORKER = "UNIQUE_SYNC_WORKER"
@@ -46,7 +45,7 @@ private fun Context.syncWorkNotification(): Notification {
         this,
         SYNC_NOTIFICATION_CHANNEL_ID,
     )
-        .setSmallIcon(R.drawable.ic_launcher_round)
+        .setSmallIcon(com.bowoon.movie.core.notifications.R.drawable.ic_launcher_round)
         .setContentTitle("MovieInfo")
         .setPriority(NotificationCompat.PRIORITY_DEFAULT)
         .build()

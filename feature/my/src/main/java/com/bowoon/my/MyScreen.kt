@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -41,11 +42,12 @@ import com.bowoon.model.InternalData
 import com.bowoon.model.Language
 import com.bowoon.model.PosterSize
 import com.bowoon.model.Region
+import com.bowoon.movie.feature.my.R
 import com.bowoon.ui.components.TitleComponent
-import com.bowoon.ui.dp16
-import com.bowoon.ui.dp50
-import com.bowoon.ui.dp500
-import com.bowoon.ui.dp56
+import com.bowoon.ui.utils.dp16
+import com.bowoon.ui.utils.dp50
+import com.bowoon.ui.utils.dp500
+import com.bowoon.ui.utils.dp56
 
 @Composable
 fun MyScreen(
@@ -74,7 +76,7 @@ fun MyScreen(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        TitleComponent(title = "마이페이지")
+        TitleComponent(title = stringResource(R.string.title_my_page))
         LazyColumn(
             modifier = Modifier.fillMaxSize()
         ) {
@@ -83,17 +85,17 @@ fun MyScreen(
                     when (menu) {
                         Menu.MAIN_UPDATE_DATE -> {
                             DisplayMenuComponent(
-                                title = menu.label,
+                                title = stringResource(R.string.main_update_data_setting),
                                 content = internalData.updateDate
                             )
                         }
                         Menu.DARK_MODE_SETTING -> {
                             ChooseMenuComponent(
-                                title = menu.label,
+                                title = stringResource(R.string.dark_mode_setting),
                                 content = when (internalData.isDarkMode) {
-                                    DarkThemeConfig.FOLLOW_SYSTEM -> "시스템 설정"
-                                    DarkThemeConfig.LIGHT -> "라이트"
-                                    DarkThemeConfig.DARK -> "다크"
+                                    DarkThemeConfig.FOLLOW_SYSTEM -> stringResource(R.string.dark_mode_setting_system_follow)
+                                    DarkThemeConfig.LIGHT -> stringResource(R.string.dark_mode_setting_light)
+                                    DarkThemeConfig.DARK -> stringResource(R.string.dark_mode_setting_dark)
                                 },
                                 onClick = {
                                     isShowChooseDialog = true
@@ -104,21 +106,21 @@ fun MyScreen(
                         }
                         Menu.IS_ADULT -> {
                             SwitchMenuComponent(
-                                title = menu.label,
+                                title = stringResource(R.string.is_adult_setting),
                                 checked = internalData.isAdult,
                                 onClick = { updateUserData(internalData.copy(isAdult = it), false) }
                             )
                         }
                         Menu.IS_AUTO_PLAYING_TRAILER -> {
                             SwitchMenuComponent(
-                                title = menu.label,
+                                title = stringResource(R.string.auto_playing_trailer_setting),
                                 checked = internalData.autoPlayTrailer,
                                 onClick = { updateUserData(internalData.copy(autoPlayTrailer = it), false) }
                             )
                         }
                         Menu.LANGUAGE -> {
                             ChooseMenuComponent(
-                                title = menu.label,
+                                title = stringResource(R.string.language_setting),
                                 content = movieAppData.getLanguage(),
                                 onClick = {
                                     isShowChooseDialog = true
@@ -129,7 +131,7 @@ fun MyScreen(
                         }
                         Menu.REGION -> {
                             ChooseMenuComponent(
-                                title = menu.label,
+                                title = stringResource(R.string.region_setting),
                                 content = movieAppData.getRegion(),
                                 onClick = {
                                     isShowChooseDialog = true
@@ -140,7 +142,7 @@ fun MyScreen(
                         }
                         Menu.IMAGE_QUALITY -> {
                             ChooseMenuComponent(
-                                title = menu.label,
+                                title = stringResource(R.string.image_quality_setting),
                                 content = internalData.imageQuality,
                                 onClick = {
                                     isShowChooseDialog = true

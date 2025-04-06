@@ -49,6 +49,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -67,29 +68,30 @@ import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.Cast
 import com.bowoon.model.Crew
 import com.bowoon.model.Favorite
-import com.bowoon.model.MovieDetail
 import com.bowoon.model.Movie
+import com.bowoon.model.MovieDetail
 import com.bowoon.model.MovieDetailTab
 import com.bowoon.model.PagingStatus
-import com.bowoon.ui.ConfirmDialog
-import com.bowoon.ui.ModalBottomSheetDialog
-import com.bowoon.ui.animateRotation
-import com.bowoon.ui.bounceClick
+import com.bowoon.movie.core.network.R
+import com.bowoon.ui.dialog.ConfirmDialog
+import com.bowoon.ui.dialog.ModalBottomSheetDialog
+import com.bowoon.ui.utils.animateRotation
+import com.bowoon.ui.utils.bounceClick
 import com.bowoon.ui.components.PagingAppendErrorComponent
 import com.bowoon.ui.components.TabComponent
 import com.bowoon.ui.components.TitleComponent
-import com.bowoon.ui.dp0
-import com.bowoon.ui.dp10
-import com.bowoon.ui.dp100
-import com.bowoon.ui.dp16
-import com.bowoon.ui.dp20
-import com.bowoon.ui.dp200
-import com.bowoon.ui.dp5
+import com.bowoon.ui.utils.dp0
+import com.bowoon.ui.utils.dp10
+import com.bowoon.ui.utils.dp100
+import com.bowoon.ui.utils.dp16
+import com.bowoon.ui.utils.dp20
+import com.bowoon.ui.utils.dp200
+import com.bowoon.ui.utils.dp5
 import com.bowoon.ui.image.DynamicAsyncImageLoader
-import com.bowoon.ui.sp10
-import com.bowoon.ui.sp12
-import com.bowoon.ui.sp15
-import com.bowoon.ui.sp20
+import com.bowoon.ui.utils.sp10
+import com.bowoon.ui.utils.sp12
+import com.bowoon.ui.utils.sp15
+import com.bowoon.ui.utils.sp20
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
@@ -187,10 +189,10 @@ fun DetailScreen(
                 Log.e("${movieInfoState.throwable.message}")
 
                 ConfirmDialog(
-                    title = "통신 실패",
+                    title = stringResource(R.string.network_failed),
                     message = "${movieInfoState.throwable.message}",
-                    confirmPair = "재시도" to { restart() },
-                    dismissPair = "돌아가기" to onBack
+                    confirmPair = stringResource(com.bowoon.movie.core.ui.R.string.retry_message) to { restart() },
+                    dismissPair = stringResource(com.bowoon.movie.core.ui.R.string.back_message) to onBack
                 )
             }
         }
@@ -771,8 +773,8 @@ fun SimilarMovieComponent(
             ConfirmDialog(
                 title = "Error",
                 message = message,
-                confirmPair = "재시도" to { similarMovieState.retry() },
-                dismissPair = "확인" to {}
+                confirmPair = stringResource(com.bowoon.movie.core.ui.R.string.retry_message) to { similarMovieState.retry() },
+                dismissPair = stringResource(com.bowoon.movie.core.ui.R.string.confirm_message) to {}
             )
         }
         similarMovieState.loadState.refresh is LoadState.NotLoading -> {

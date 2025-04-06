@@ -23,11 +23,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.bowoon.ui.FavoriteButton
-import com.bowoon.ui.bottomLineBorder
-import com.bowoon.ui.dp16
-import com.bowoon.ui.dp5
-import com.bowoon.ui.dp53
-import com.bowoon.ui.sp20
+import com.bowoon.ui.utils.bottomLineBorder
+import com.bowoon.ui.utils.dp16
+import com.bowoon.ui.utils.dp5
+import com.bowoon.ui.utils.dp53
+import com.bowoon.ui.utils.sp20
 
 @Composable
 fun TitleComponent(

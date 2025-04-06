@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_people">People Info</string>
+    <string name="add_favorite">"좋아하는 인물에 추가했습니다."</string>
+    <string name="remove_favorite">"좋아하는 인물에서 제거했습니다."</string>
+</resources>

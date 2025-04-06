@@ -13,6 +13,7 @@ import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import com.bowoon.ui.dialog.ConfirmDialog
 import org.junit.Rule
 import org.junit.Test
 import kotlin.test.assertEquals

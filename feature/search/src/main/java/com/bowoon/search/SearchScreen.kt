@@ -51,6 +51,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.PlatformTextStyle
@@ -69,24 +70,25 @@ import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.Genre
 import com.bowoon.model.PagingStatus
 import com.bowoon.model.SearchType
-import com.bowoon.ui.ConfirmDialog
-import com.bowoon.ui.animateRotation
-import com.bowoon.ui.bounceClick
+import com.bowoon.movie.feature.search.R
+import com.bowoon.ui.dialog.ConfirmDialog
+import com.bowoon.ui.utils.animateRotation
+import com.bowoon.ui.utils.bounceClick
 import com.bowoon.ui.components.FilterChipComponent
 import com.bowoon.ui.components.PagingAppendErrorComponent
 import com.bowoon.ui.components.TitleComponent
-import com.bowoon.ui.dp0
-import com.bowoon.ui.dp1
-import com.bowoon.ui.dp10
-import com.bowoon.ui.dp100
-import com.bowoon.ui.dp15
-import com.bowoon.ui.dp16
-import com.bowoon.ui.dp5
-import com.bowoon.ui.dp53
-import com.bowoon.ui.dp8
+import com.bowoon.ui.utils.dp0
+import com.bowoon.ui.utils.dp1
+import com.bowoon.ui.utils.dp10
+import com.bowoon.ui.utils.dp100
+import com.bowoon.ui.utils.dp15
+import com.bowoon.ui.utils.dp16
+import com.bowoon.ui.utils.dp5
+import com.bowoon.ui.utils.dp53
+import com.bowoon.ui.utils.dp8
 import com.bowoon.ui.image.DynamicAsyncImageLoader
-import com.bowoon.ui.sp12
-import com.bowoon.ui.sp30
+import com.bowoon.ui.utils.sp12
+import com.bowoon.ui.utils.sp30
 import kotlinx.coroutines.launch
 
 @Composable
@@ -133,7 +135,7 @@ fun SearchScreen(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        TitleComponent(title = "영화 검색")
+        TitleComponent(title = stringResource(R.string.title_search))
         SearchBarComponent(
             keyword = keyword,
             searchType = searchType,
@@ -225,7 +227,7 @@ fun SearchBarComponent(
                     innerTextField()
                     if (keyword.isEmpty()) {
                         Text(
-                            text = "검색어를 입력하세요.",
+                            text = stringResource(R.string.input_search_hint),
                             fontSize = sp12,
                             color = MaterialTheme.colorScheme.onSurface,
                             maxLines = 1,
@@ -351,8 +353,8 @@ fun SearchResultPaging(
                     ConfirmDialog(
                         title = "Error",
                         message = (pagingData.loadState.refresh as? LoadState.Error)?.error?.message ?: "something wrong...",
-                        confirmPair = "재시도" to { pagingData.retry() },
-                        dismissPair = "확인" to {}
+                        confirmPair = stringResource(com.bowoon.movie.core.ui.R.string.retry_message) to { pagingData.retry() },
+                        dismissPair = stringResource(com.bowoon.movie.core.ui.R.string.confirm_message) to {}
                     )
                 }
                 pagingData.loadState.refresh is LoadState.NotLoading -> {
@@ -376,7 +378,7 @@ fun SearchResultPaging(
                     PagingStatus.EMPTY -> {
                         Text(
                             modifier = Modifier.align(Alignment.Center),
-                            text = "검색결과가 없습니다.",
+                            text = stringResource(R.string.search_result_empty),
                             fontSize = sp30,
                             textAlign = TextAlign.Center
                         )
@@ -412,7 +414,7 @@ fun SearchResultPaging(
                                 if (pagingData.itemCount == 0) {
                                     Text(
                                         modifier = Modifier.align(Alignment.Center),
-                                        text = "장르에 맞는 영화가 없습니다.",
+                                        text = stringResource(R.string.filter_not_found),
                                         fontSize = sp30,
                                         textAlign = TextAlign.Center
                                     )
@@ -468,11 +470,12 @@ fun SearchResultPaging(
                 }
             }
         }
-        is SearchState.Error -> {
+        is SearchState.Error -> LocalFirebaseLogHelper.current.sendLog("SearchResultPaging", searchState.message)
+        is SearchState.InputKeyword -> {
             ConfirmDialog(
                 title = "",
-                message = searchState.message,
-                confirmPair = "확인" to {}
+                message = stringResource(R.string.input_keyword),
+                confirmPair = stringResource(com.bowoon.movie.core.ui.R.string.confirm_message) to {}
             )
         }
     }

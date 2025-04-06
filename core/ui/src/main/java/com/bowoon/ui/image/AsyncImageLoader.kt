@@ -30,7 +30,7 @@ import coil3.Image
 import coil3.compose.AsyncImagePainter
 import coil3.compose.rememberAsyncImagePainter
 import com.bowoon.common.Log
-import com.bowoon.ui.dp10
+import com.bowoon.ui.utils.dp10
 import com.bowoon.ui.theme.LocalTintTheme
 
 @Composable

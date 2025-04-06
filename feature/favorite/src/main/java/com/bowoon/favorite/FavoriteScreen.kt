@@ -38,13 +38,13 @@ import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.Favorite
 import com.bowoon.ui.FavoriteButton
-import com.bowoon.ui.bounceClick
+import com.bowoon.ui.utils.bounceClick
 import com.bowoon.ui.components.ScrollToTopComponent
 import com.bowoon.ui.components.TabComponent
 import com.bowoon.ui.components.TitleComponent
-import com.bowoon.ui.dp10
-import com.bowoon.ui.dp15
-import com.bowoon.ui.dp5
+import com.bowoon.ui.utils.dp10
+import com.bowoon.ui.utils.dp15
+import com.bowoon.ui.utils.dp5
 import com.bowoon.ui.image.DynamicAsyncImageLoader
 import kotlinx.coroutines.launch
 

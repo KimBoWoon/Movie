@@ -1,20 +1,20 @@
 package com.bowoon.network.retrofit
 
-import com.bowoon.model.MovieDetail
-import com.bowoon.model.Genres
-import com.bowoon.model.MovieList
-import com.bowoon.model.MovieResult
-import com.bowoon.model.PeopleDetail
-import com.bowoon.model.SimilarMovies
-import com.bowoon.model.asExternalMovie
 import com.bowoon.model.CertificationData
 import com.bowoon.model.CombineCredits
 import com.bowoon.model.Configuration
 import com.bowoon.model.ExternalIds
+import com.bowoon.model.Genres
 import com.bowoon.model.Language
 import com.bowoon.model.Movie
+import com.bowoon.model.MovieDetail
+import com.bowoon.model.MovieList
+import com.bowoon.model.MovieResult
+import com.bowoon.model.PeopleDetail
 import com.bowoon.model.Regions
 import com.bowoon.model.SearchData
+import com.bowoon.model.SimilarMovies
+import com.bowoon.model.asExternalMovie
 import com.bowoon.network.ApiResponse
 import com.bowoon.network.CustomCallAdapter
 import com.bowoon.network.MovieNetworkDataSource
@@ -87,7 +87,7 @@ class RetrofitMovieNetwork @Inject constructor(
                     )
                 }
             }
-        } while (currentPage <= totalPage && currentPage <= 5)
+        } while (currentPage <= totalPage)
 
         return result.distinctBy { it.id }.sortedWith { o1, o2 ->
             if (o1 != null && o2 != null) {
@@ -120,7 +120,7 @@ class RetrofitMovieNetwork @Inject constructor(
                     )
                 }
             }
-        } while (currentPage <= totalPage && currentPage <= 5)
+        } while (currentPage <= totalPage)
 
         return result.filter { (it.releaseDate ?: "") > LocalDate.now().toString() }.distinctBy { it.id }.sortedBy { it.releaseDate }
     }

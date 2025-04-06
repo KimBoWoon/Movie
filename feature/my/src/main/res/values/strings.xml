@@ -1,4 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="feature_my_name">마이</string>
+    <string name="feature_my_name">My</string>
+    <string name="title_my_page">My Page</string>
+    <string name="dark_mode_setting_system_follow">System follow</string>
+    <string name="dark_mode_setting_light">Light</string>
+    <string name="dark_mode_setting_dark">Dark</string>
+    <string name="main_update_data_setting">Main Update Date</string>
+    <string name="dark_mode_setting">Dark Mode Setting</string>
+    <string name="is_adult_setting">Adult</string>
+    <string name="auto_playing_trailer_setting">Auto Playing Trailer</string>
+    <string name="language_setting">Language</string>
+    <string name="region_setting">Region</string>
+    <string name="image_quality_setting">Image Quality</string>
 </resources>

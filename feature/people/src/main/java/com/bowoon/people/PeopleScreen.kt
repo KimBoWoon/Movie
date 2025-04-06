@@ -35,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.core.net.toUri
@@ -49,14 +50,14 @@ import com.bowoon.model.Favorite
 import com.bowoon.model.PeopleDetail
 import com.bowoon.model.getRelatedMovie
 import com.bowoon.movie.core.ui.R
-import com.bowoon.ui.ConfirmDialog
-import com.bowoon.ui.ModalBottomSheetDialog
-import com.bowoon.ui.bounceClick
+import com.bowoon.ui.dialog.ConfirmDialog
+import com.bowoon.ui.dialog.ModalBottomSheetDialog
+import com.bowoon.ui.utils.bounceClick
 import com.bowoon.ui.components.TitleComponent
-import com.bowoon.ui.dp10
-import com.bowoon.ui.dp100
-import com.bowoon.ui.dp20
-import com.bowoon.ui.dp5
+import com.bowoon.ui.utils.dp10
+import com.bowoon.ui.utils.dp100
+import com.bowoon.ui.utils.dp20
+import com.bowoon.ui.utils.dp5
 import com.bowoon.ui.image.DynamicAsyncImageLoader
 import kotlinx.coroutines.launch
 
@@ -109,10 +110,10 @@ fun PeopleScreen(
             Log.e("${peopleState.throwable.message}")
             isLoading = false
             ConfirmDialog(
-                title = "통신 실패",
+                title = stringResource(com.bowoon.movie.core.network.R.string.network_failed),
                 message = "${peopleState.throwable.message}",
-                confirmPair = "재시도" to { restart() },
-                dismissPair = "돌아가기" to onBack
+                confirmPair = stringResource(R.string.retry_message) to { restart() },
+                dismissPair = stringResource(R.string.back_message) to onBack
             )
         }
     }
@@ -155,8 +156,10 @@ fun PeopleDetailComponent(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
+        val snackbarMessage = if (people.isFavorite) stringResource(com.bowoon.movie.feature.people.R.string.remove_favorite) else stringResource(com.bowoon.movie.feature.people.R.string.add_favorite)
+
         TitleComponent(
-            title = people.name ?: "인물 정보",
+            title = people.name ?: stringResource(com.bowoon.movie.feature.people.R.string.title_people),
             onBackClick = onBack,
             onFavoriteClick = {
                 val favorite = Favorite(
@@ -170,10 +173,7 @@ fun PeopleDetailComponent(
                     insertFavoritePeople(favorite)
                 }
                 scope.launch {
-                    onShowSnackbar(
-                        if (people.isFavorite) "좋아하는 인물에서 제거했습니다." else "좋아하는 인물에 추가했습니다.",
-                        null
-                    )
+                    onShowSnackbar(snackbarMessage, null)
                 }
             },
             isFavorite = people.isFavorite

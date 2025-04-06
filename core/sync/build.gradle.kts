@@ -13,6 +13,7 @@ dependencies {
         projects.core.model,
         projects.core.network,
         projects.core.data,
+        projects.core.notifications,
         libs.androidx.work.ktx,
         libs.hilt.ext.work,
         libs.threetenabp

@@ -1,4 +1,4 @@
-package com.bowoon.ui
+package com.bowoon.ui.dialog
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -23,7 +23,11 @@ import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import com.bowoon.model.Image
+import com.bowoon.ui.utils.dp10
+import com.bowoon.ui.utils.dp20
+import com.bowoon.ui.utils.dp5
 import com.bowoon.ui.image.DynamicAsyncImageLoader
+import com.bowoon.ui.utils.sp10
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 

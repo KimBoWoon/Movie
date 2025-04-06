@@ -1,4 +1,4 @@
-package com.bowoon.ui
+package com.bowoon.ui.utils
 
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
