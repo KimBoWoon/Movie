@@ -40,7 +40,7 @@ class PeopleVM @Inject constructor(
         }.restartableStateIn(
             scope = viewModelScope,
             initialValue = PeopleState.Loading,
-            started = SharingStarted.Eagerly
+            started = SharingStarted.Lazily
         )
 
     fun restart() {

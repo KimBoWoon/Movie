@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="add_favorite_movie">보고 싶은 영화에서 제거했습니다.</string>
+    <string name="remove_favorite_movie">보고 싶은 영화에 추가했습니다.</string>
+    <string name="similar_movie_not_found">비슷한 영화가 없습니다.</string>
+</resources>

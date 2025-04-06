@@ -156,7 +156,7 @@ fun PeopleDetailComponent(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        val snackbarMessage = if (people.isFavorite) stringResource(com.bowoon.movie.feature.people.R.string.remove_favorite) else stringResource(com.bowoon.movie.feature.people.R.string.add_favorite)
+        val snackbarMessage = if (people.isFavorite) stringResource(com.bowoon.movie.feature.people.R.string.remove_favorite_people) else stringResource(com.bowoon.movie.feature.people.R.string.add_favorite_people)
 
         TitleComponent(
             title = people.name ?: stringResource(com.bowoon.movie.feature.people.R.string.title_people),

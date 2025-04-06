@@ -40,7 +40,7 @@ class HomeVM @Inject constructor(
         }.stateIn(
             scope = viewModelScope,
             initialValue = MainMenuState.Loading,
-            started = SharingStarted.Eagerly
+            started = SharingStarted.Lazily
         )
 }
 

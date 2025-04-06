@@ -38,6 +38,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -50,6 +51,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -72,14 +75,15 @@ import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetail
 import com.bowoon.model.MovieDetailTab
 import com.bowoon.model.PagingStatus
-import com.bowoon.movie.core.network.R
-import com.bowoon.ui.dialog.ConfirmDialog
-import com.bowoon.ui.dialog.ModalBottomSheetDialog
-import com.bowoon.ui.utils.animateRotation
-import com.bowoon.ui.utils.bounceClick
+import com.bowoon.movie.feature.detail.R
 import com.bowoon.ui.components.PagingAppendErrorComponent
 import com.bowoon.ui.components.TabComponent
 import com.bowoon.ui.components.TitleComponent
+import com.bowoon.ui.dialog.ConfirmDialog
+import com.bowoon.ui.dialog.ModalBottomSheetDialog
+import com.bowoon.ui.image.DynamicAsyncImageLoader
+import com.bowoon.ui.utils.animateRotation
+import com.bowoon.ui.utils.bounceClick
 import com.bowoon.ui.utils.dp0
 import com.bowoon.ui.utils.dp10
 import com.bowoon.ui.utils.dp100
@@ -87,7 +91,6 @@ import com.bowoon.ui.utils.dp16
 import com.bowoon.ui.utils.dp20
 import com.bowoon.ui.utils.dp200
 import com.bowoon.ui.utils.dp5
-import com.bowoon.ui.image.DynamicAsyncImageLoader
 import com.bowoon.ui.utils.sp10
 import com.bowoon.ui.utils.sp12
 import com.bowoon.ui.utils.sp15
@@ -137,6 +140,7 @@ fun DetailScreen(
     restart: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
+    var movie by remember { mutableStateOf<MovieDetail>(MovieDetail()) }
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -150,52 +154,50 @@ fun DetailScreen(
             }
             is MovieDetailState.Success -> {
                 Log.d("${movieInfoState.movieDetail}")
-
-                Column(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    TitleComponent(
-                        title = movieInfoState.movieDetail.title ?: "",
-                        isFavorite = movieInfoState.movieDetail.isFavorite,
-                        onBackClick = onBack,
-                        onFavoriteClick = {
-                            val favorite = Favorite(
-                                id = movieInfoState.movieDetail.id,
-                                title = movieInfoState.movieDetail.title,
-                                imagePath = movieInfoState.movieDetail.posterPath
-                            )
-                            if (movieInfoState.movieDetail.isFavorite) {
-                                deleteFavoriteMovie(favorite)
-                            } else {
-                                insertFavoriteMovie(favorite)
-                            }
-                            scope.launch {
-                                onShowSnackbar(
-                                    if (movieInfoState.movieDetail.isFavorite) "보고 싶은 영화에서 제거했습니다." else "보고 싶은 영화에 추가했습니다.",
-                                    null
-                                )
-                            }
-                        }
-                    )
-                    MovieDetailComponent(
-                        movieDetail = movieInfoState.movieDetail,
-                        similarMovieState = similarMovieState,
-                        onMovieClick = { id -> goToMovie(id) },
-                        onPeopleClick = { id -> goToPeople(id) }
-                    )
-                }
+                movie = movieInfoState.movieDetail
             }
             is MovieDetailState.Error -> {
                 Log.e("${movieInfoState.throwable.message}")
 
                 ConfirmDialog(
-                    title = stringResource(R.string.network_failed),
+                    title = stringResource(com.bowoon.movie.core.network.R.string.network_failed),
                     message = "${movieInfoState.throwable.message}",
                     confirmPair = stringResource(com.bowoon.movie.core.ui.R.string.retry_message) to { restart() },
                     dismissPair = stringResource(com.bowoon.movie.core.ui.R.string.back_message) to onBack
                 )
             }
         }
+    }
+
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        val favoriteMessage = if (movie.isFavorite) stringResource(R.string.remove_favorite_movie) else stringResource(
+            R.string.add_favorite_movie)
+
+        TitleComponent(
+            title = movie.title ?: "",
+            isFavorite = movie.isFavorite,
+            onBackClick = onBack,
+            onFavoriteClick = {
+                val favorite = Favorite(
+                    id = movie.id,
+                    title = movie.title,
+                    imagePath = movie.posterPath
+                )
+                if (movie.isFavorite) deleteFavoriteMovie(favorite) else insertFavoriteMovie(favorite)
+                scope.launch {
+                    onShowSnackbar(favoriteMessage, null)
+                }
+            }
+        )
+
+        MovieDetailComponent(
+            movieDetail = movie,
+            similarMovieState = similarMovieState,
+            onMovieClick = { id -> goToMovie(id) },
+            onPeopleClick = { id -> goToPeople(id) }
+        )
     }
 }
 
@@ -209,12 +211,25 @@ fun MovieDetailComponent(
     Column {
         VideosComponent(movieDetail)
 
-        val tabList = MovieDetailTab.entries.map { it.label }
-        val pagerState = rememberPagerState(initialPage = 0, pageCount = { tabList.size })
+        val tabList = if (movieDetail.belongsToCollection != null) {
+            listOf("시리즈") + MovieDetailTab.entries.map { it.label }
+        } else {
+            MovieDetailTab.entries.map { it.label }
+        }
+        val pagerState = rememberPagerState(
+            initialPage = 0,
+            pageCount = { tabList.size }
+        )
         val scope = rememberCoroutineScope()
         val tabClickEvent: (Int, Int) -> Unit = { current, index ->
             scope.launch {
                 pagerState.animateScrollToPage(index)
+            }
+        }
+
+        LaunchedEffect(key1 = tabList) {
+            scope.launch {
+                pagerState.scrollToPage(if (tabList.contains("시리즈")) 1 else 0)
             }
         }
 
@@ -238,6 +253,7 @@ fun MovieDetailComponent(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     when (it[index]) {
+                        "시리즈" -> SeriesInfoComponent(movie = movieDetail)
                         MovieDetailTab.MOVIE_INFO.label -> MovieInfoComponent(movie = movieDetail)
                         MovieDetailTab.ACTOR_AND_CREW.label -> ActorAndCrewComponent(
                             movie = movieDetail,
@@ -426,6 +442,44 @@ fun ImageComponent(
                 }
             }
         )
+    }
+}
+
+@Composable
+fun SeriesInfoComponent(
+    movie: MovieDetail
+) {
+    val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
+
+    LazyColumn(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        item {
+            Text(
+                modifier = Modifier
+                    .semantics { contentDescription = "belongsToCollectionName" }
+                    .padding(dp16)
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
+                text = movie.belongsToCollection?.name ?: "",
+                fontSize = sp20,
+                textAlign = TextAlign.Center
+            )
+        }
+        item {
+            DynamicAsyncImageLoader(
+                modifier = Modifier.fillMaxWidth(),
+                source = "${posterUrl}${movie.belongsToCollection?.posterPath}",
+                contentDescription = "${posterUrl}${movie.belongsToCollection?.posterPath}"
+            )
+        }
+        item {
+            DynamicAsyncImageLoader(
+                modifier = Modifier.fillMaxWidth(),
+                source = "${posterUrl}${movie.belongsToCollection?.backdropPath}",
+                contentDescription = "${posterUrl}${movie.belongsToCollection?.backdropPath}"
+            )
+        }
     }
 }
 
@@ -768,10 +822,10 @@ fun SimilarMovieComponent(
 
             val message = (similarMovieState.loadState.refresh as? LoadState.Error)?.error?.message
                 ?: (similarMovieState.loadState.append as? LoadState.Error)?.error?.message
-                ?: "something wrong..."
+                ?: stringResource(com.bowoon.movie.core.network.R.string.something_wrong)
 
             ConfirmDialog(
-                title = "Error",
+                title = stringResource(com.bowoon.movie.core.network.R.string.network_failed),
                 message = message,
                 confirmPair = stringResource(com.bowoon.movie.core.ui.R.string.retry_message) to { similarMovieState.retry() },
                 dismissPair = stringResource(com.bowoon.movie.core.ui.R.string.confirm_message) to {}
@@ -797,7 +851,7 @@ fun SimilarMovieComponent(
             )
             PagingStatus.EMPTY -> Text(
                 modifier = Modifier.align(Alignment.Center),
-                text = "비슷한 영화가 없습니다."
+                text = stringResource(R.string.similar_movie_not_found)
             )
             else ->  {
                 LazyVerticalGrid(

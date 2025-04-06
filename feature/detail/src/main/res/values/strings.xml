@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="add_favorite_movie">Add Favorite Movie</string>
+    <string name="remove_favorite_movie">Remove Favorite Movie</string>
+    <string name="similar_movie_not_found">Similar Movie Not Found...</string>
+</resources>

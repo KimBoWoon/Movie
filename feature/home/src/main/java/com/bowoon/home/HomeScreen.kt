@@ -38,11 +38,11 @@ import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.MainMenu
 import com.bowoon.model.Movie
 import com.bowoon.movie.feature.home.R
-import com.bowoon.ui.utils.bounceClick
 import com.bowoon.ui.components.TitleComponent
+import com.bowoon.ui.image.DynamicAsyncImageLoader
+import com.bowoon.ui.utils.bounceClick
 import com.bowoon.ui.utils.dp150
 import com.bowoon.ui.utils.dp16
-import com.bowoon.ui.image.DynamicAsyncImageLoader
 import com.bowoon.ui.utils.sp10
 import com.bowoon.ui.utils.sp8
 import kotlinx.coroutines.launch
@@ -84,6 +84,10 @@ fun HomeScreen(
                 onShowSnackbar(checkingMainData, null)
             }
         }
+        CircularProgressIndicator(
+            modifier = Modifier
+                .semantics { contentDescription = "mainDataSync" }
+        )
     }
 
     Box(
