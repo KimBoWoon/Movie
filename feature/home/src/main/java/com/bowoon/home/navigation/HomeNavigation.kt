@@ -13,12 +13,12 @@ data object HomeRoute
 fun NavController.navigateToHome(navOptions: NavOptions) = navigate(route = HomeRoute, navOptions)
 
 fun NavGraphBuilder.homeSection(
-    onMovieClick: (Int) -> Unit,
+    goToMovie: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean
 ) {
     composable<HomeRoute>() {
         HomeScreen(
-            onMovieClick = onMovieClick,
+            goToMovie = goToMovie,
             onShowSnackbar = onShowSnackbar
         )
     }

@@ -38,7 +38,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -67,6 +66,7 @@ import com.bowoon.common.Log
 import com.bowoon.data.repository.LocalMovieAppDataComposition
 import com.bowoon.data.util.PEOPLE_IMAGE_RATIO
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
+import com.bowoon.data.util.VIDEO_RATIO
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.Cast
 import com.bowoon.model.Crew
@@ -106,6 +106,7 @@ fun DetailScreen(
     onBack: () -> Unit,
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
+    goToSeries: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
     viewModel: DetailVM = hiltViewModel()
 ) {
@@ -119,6 +120,7 @@ fun DetailScreen(
         similarMovieState = similarMovies,
         goToMovie = goToMovie,
         goToPeople = goToPeople,
+        goToSeries = goToSeries,
         onBack = onBack,
         onShowSnackbar = onShowSnackbar,
         insertFavoriteMovie = viewModel::insertMovie,
@@ -133,6 +135,7 @@ fun DetailScreen(
     similarMovieState: LazyPagingItems<Movie>,
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
+    goToSeries: (Int) -> Unit,
     onBack: () -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
     insertFavoriteMovie: (Favorite) -> Unit,
@@ -195,8 +198,9 @@ fun DetailScreen(
         MovieDetailComponent(
             movieDetail = movie,
             similarMovieState = similarMovieState,
-            onMovieClick = { id -> goToMovie(id) },
-            onPeopleClick = { id -> goToPeople(id) }
+            goToMovie = { id -> goToMovie(id) },
+            goToPeople = { id -> goToPeople(id) },
+            goToSeries = { id -> goToSeries(id) }
         )
     }
 }
@@ -205,8 +209,9 @@ fun DetailScreen(
 fun MovieDetailComponent(
     movieDetail: MovieDetail,
     similarMovieState: LazyPagingItems<Movie>,
-    onMovieClick: (Int) -> Unit,
-    onPeopleClick: (Int) -> Unit
+    goToMovie: (Int) -> Unit,
+    goToPeople: (Int) -> Unit,
+    goToSeries: (Int) -> Unit,
 ) {
     Column {
         VideosComponent(movieDetail)
@@ -216,20 +221,21 @@ fun MovieDetailComponent(
         } else {
             MovieDetailTab.entries.map { it.label }
         }
-        val pagerState = rememberPagerState(
-            initialPage = 0,
-            pageCount = { tabList.size }
-        )
+        val pagerState = if (movieDetail.belongsToCollection != null) {
+            rememberPagerState(
+                initialPage = 1,
+                pageCount = { tabList.size }
+            )
+        } else {
+            rememberPagerState(
+                initialPage = 0,
+                pageCount = { tabList.size }
+            )
+        }
         val scope = rememberCoroutineScope()
         val tabClickEvent: (Int, Int) -> Unit = { current, index ->
             scope.launch {
                 pagerState.animateScrollToPage(index)
-            }
-        }
-
-        LaunchedEffect(key1 = tabList) {
-            scope.launch {
-                pagerState.scrollToPage(if (tabList.contains("시리즈")) 1 else 0)
             }
         }
 
@@ -253,16 +259,19 @@ fun MovieDetailComponent(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     when (it[index]) {
-                        "시리즈" -> SeriesInfoComponent(movie = movieDetail)
+                        "시리즈" -> SeriesInfoComponent(
+                            movie = movieDetail,
+                            goToSeries = goToSeries
+                        )
                         MovieDetailTab.MOVIE_INFO.label -> MovieInfoComponent(movie = movieDetail)
                         MovieDetailTab.ACTOR_AND_CREW.label -> ActorAndCrewComponent(
                             movie = movieDetail,
-                            onPeopleClick = onPeopleClick
+                            goToPeople = goToPeople
                         )
                         MovieDetailTab.IMAGES.label -> ImageComponent(movie = movieDetail)
                         MovieDetailTab.SIMILAR.label -> SimilarMovieComponent(
                             similarMovieState = similarMovieState,
-                            onMovieClick = onMovieClick
+                            goToMovie = goToMovie
                         )
                     }
                 }
@@ -280,12 +289,12 @@ fun VideosComponent(movie: MovieDetail) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(16f / 9f)
+                .aspectRatio(VIDEO_RATIO)
                 .background(color = Color.Black)
         ) {
             Text(
                 modifier = Modifier.align(Alignment.Center),
-                text = "영상이 없습니다.",
+                text = stringResource(R.string.trailer_video_not_found),
                 color = Color.White,
                 textAlign = TextAlign.Center,
                 maxLines = 1,
@@ -313,7 +322,7 @@ fun VideosComponent(movie: MovieDetail) {
                 factory = {
                     view.layoutParams = FrameLayout.LayoutParams(
                         FrameLayout.LayoutParams.MATCH_PARENT,
-                        (screenWidth / (16f / 9f)).toInt()
+                        (screenWidth / (VIDEO_RATIO)).toInt()
                     )
                     view.addYouTubePlayerListener(
                         object : AbstractYouTubePlayerListener() {
@@ -447,7 +456,8 @@ fun ImageComponent(
 
 @Composable
 fun SeriesInfoComponent(
-    movie: MovieDetail
+    movie: MovieDetail,
+    goToSeries: (Int) -> Unit,
 ) {
     val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
 
@@ -468,7 +478,7 @@ fun SeriesInfoComponent(
         }
         item {
             DynamicAsyncImageLoader(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().bounceClick { goToSeries(movie.belongsToCollection?.id ?: -1) },
                 source = "${posterUrl}${movie.belongsToCollection?.posterPath}",
                 contentDescription = "${posterUrl}${movie.belongsToCollection?.posterPath}"
             )
@@ -650,7 +660,7 @@ fun MovieInfoComponent(
 @Composable
 fun ActorAndCrewComponent(
     movie: MovieDetail,
-    onPeopleClick: (Int) -> Unit
+    goToPeople: (Int) -> Unit
 ) {
     if (movie.credits?.crew.isNullOrEmpty() && movie.credits?.cast.isNullOrEmpty()) {
         Box(
@@ -685,7 +695,7 @@ fun ActorAndCrewComponent(
                         items(
                             items = casts
                         ) { cast ->
-                            StaffComponent(tmdbMovieDetailCast = cast, onPeopleClick = onPeopleClick)
+                            StaffComponent(tmdbMovieDetailCast = cast, goToPeople = goToPeople)
                         }
                     }
                 }
@@ -708,7 +718,7 @@ fun ActorAndCrewComponent(
                         items(
                             items = crews
                         ) { crew ->
-                            StaffComponent(tmdbMovieDetailCrew = crew, onPeopleClick = onPeopleClick)
+                            StaffComponent(tmdbMovieDetailCrew = crew, goToPeople = goToPeople)
                         }
                     }
                 }
@@ -720,7 +730,7 @@ fun ActorAndCrewComponent(
 @Composable
 fun StaffComponent(
     tmdbMovieDetailCast: Cast,
-    onPeopleClick: (Int) -> Unit
+    goToPeople: (Int) -> Unit
 ) {
     val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
 
@@ -728,7 +738,7 @@ fun StaffComponent(
         modifier = Modifier
             .width(dp200)
             .wrapContentHeight()
-            .bounceClick { onPeopleClick(tmdbMovieDetailCast.id ?: -1) }
+            .bounceClick { goToPeople(tmdbMovieDetailCast.id ?: -1) }
     ) {
         DynamicAsyncImageLoader(
             modifier = Modifier
@@ -761,7 +771,7 @@ fun StaffComponent(
 @Composable
 fun StaffComponent(
     tmdbMovieDetailCrew: Crew,
-    onPeopleClick: (Int) -> Unit
+    goToPeople: (Int) -> Unit
 ) {
     val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
 
@@ -769,7 +779,7 @@ fun StaffComponent(
         modifier = Modifier
             .width(dp200)
             .wrapContentHeight()
-            .bounceClick { onPeopleClick(tmdbMovieDetailCrew.id ?: -1) }
+            .bounceClick { goToPeople(tmdbMovieDetailCrew.id ?: -1) }
     ) {
         DynamicAsyncImageLoader(
             modifier = Modifier
@@ -808,7 +818,7 @@ fun StaffComponent(
 @Composable
 fun SimilarMovieComponent(
     similarMovieState: LazyPagingItems<Movie>,
-    onMovieClick: (Int) -> Unit
+    goToMovie: (Int) -> Unit
 ) {
     val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
     var isAppend by remember { mutableStateOf(false) }
@@ -868,7 +878,7 @@ fun SimilarMovieComponent(
                             modifier = Modifier
                                 .width(dp200)
                                 .wrapContentHeight()
-                                .bounceClick { onMovieClick(similarMovieState[index]?.id ?: -1) }
+                                .bounceClick { goToMovie(similarMovieState[index]?.id ?: -1) }
                         ) {
                             DynamicAsyncImageLoader(
                                 modifier = Modifier

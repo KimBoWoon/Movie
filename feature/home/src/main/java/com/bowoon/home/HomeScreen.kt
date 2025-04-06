@@ -49,7 +49,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen(
-    onMovieClick: (Int) -> Unit,
+    goToMovie: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
     viewModel: HomeVM = hiltViewModel()
 ) {
@@ -62,7 +62,7 @@ fun HomeScreen(
         isSyncing = isSyncing,
         state = homeUiState,
         onShowSnackbar = onShowSnackbar,
-        onMovieClick = onMovieClick
+        goToMovie = goToMovie
     )
 }
 
@@ -71,7 +71,7 @@ fun HomeScreen(
     isSyncing: Boolean,
     state: MainMenuState,
     onShowSnackbar: suspend (String, String?) -> Boolean,
-    onMovieClick: (Int) -> Unit
+    goToMovie: (Int) -> Unit
 ) {
     LocalFirebaseLogHelper.current.sendLog("HomeScreen", "init screen")
 
@@ -108,7 +108,7 @@ fun HomeScreen(
                 Log.d("${state.mainMenu}")
                 MainComponent(
                     mainMenu = state.mainMenu,
-                    onMovieClick = onMovieClick
+                    goToMovie = goToMovie
                 )
             }
             is MainMenuState.Error -> {
@@ -122,7 +122,7 @@ fun HomeScreen(
 @Composable
 fun MainComponent(
     mainMenu: MainMenu,
-    onMovieClick: (Int) -> Unit
+    goToMovie: (Int) -> Unit
 ) {
     val lazyListState = rememberLazyListState()
 
@@ -141,14 +141,14 @@ fun MainComponent(
                 horizontalMovieListComponent(
                     title = nowPlayingMoviesTitle,
                     movies = mainMenu.nowPlaying,
-                    onMovieClick = onMovieClick
+                    goToMovie = goToMovie
                 )
             }
             if (mainMenu.upComingMovies.isNotEmpty()) {
                 horizontalMovieListComponent(
                     title = upcomingMoviesTitle,
                     movies = mainMenu.upComingMovies,
-                    onMovieClick = onMovieClick
+                    goToMovie = goToMovie
                 )
             }
         }
@@ -158,7 +158,7 @@ fun MainComponent(
 fun LazyListScope.horizontalMovieListComponent(
     title: String,
     movies: List<Movie>,
-    onMovieClick: (Int) -> Unit
+    goToMovie: (Int) -> Unit
 ) {
     item {
         Text(
@@ -176,7 +176,7 @@ fun LazyListScope.horizontalMovieListComponent(
             ) { index ->
                 MainMovieItem(
                     movie = movies[index],
-                    onMovieClick = onMovieClick
+                    goToMovie = goToMovie
                 )
             }
         }
@@ -186,7 +186,7 @@ fun LazyListScope.horizontalMovieListComponent(
 @Composable
 fun MainMovieItem(
     movie: Movie,
-    onMovieClick: (Int) -> Unit
+    goToMovie: (Int) -> Unit
 ) {
     val posterPath = LocalMovieAppDataComposition.current.getImageUrl()
 
@@ -194,7 +194,7 @@ fun MainMovieItem(
         modifier = Modifier
             .width(dp150)
             .wrapContentHeight()
-            .bounceClick { onMovieClick(movie.id ?: -1) }
+            .bounceClick { goToMovie(movie.id ?: -1) }
     ) {
         Box(
             modifier = Modifier.wrapContentSize()

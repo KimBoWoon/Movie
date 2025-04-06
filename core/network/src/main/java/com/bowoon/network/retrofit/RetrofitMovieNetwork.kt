@@ -10,6 +10,7 @@ import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetail
 import com.bowoon.model.MovieList
 import com.bowoon.model.MovieResult
+import com.bowoon.model.MovieSeries
 import com.bowoon.model.PeopleDetail
 import com.bowoon.model.Regions
 import com.bowoon.model.SearchData
@@ -180,6 +181,12 @@ class RetrofitMovieNetwork @Inject constructor(
         is ApiResponse.Failure -> throw response.throwable
         is ApiResponse.Success -> response.data.asExternalModel()
     }
+
+    override suspend fun getMovieSeries(collectionId: Int, language: String): MovieSeries =
+        when (val response = tmdbApis.getMovieSeries(collectionId = collectionId, language = language)) {
+            is ApiResponse.Failure -> throw response.throwable
+            is ApiResponse.Success -> response.data.asExternalModel()
+        }
 
     override suspend fun getMovieDetail(
         id: Int,

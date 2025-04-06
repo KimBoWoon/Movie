@@ -35,7 +35,7 @@
 //fun Calendar(
 //    today: LocalDate,
 //    favoriteMovies: List<Favorite>,
-//    onMovieClick: (Int) -> Unit,
+//    goToMovie: (Int) -> Unit,
 //    scrollEvent: () -> Unit
 //) {
 //    var releaseDate by remember { mutableStateOf("") }
@@ -131,7 +131,7 @@
 //                        .fillMaxWidth()
 //                        .wrapContentHeight()
 //                        .border(width = dp1, color = Color.White, shape = RoundedCornerShape(dp20))
-//                        .bounceClick { onMovieClick(movie.id ?: -1) }
+//                        .bounceClick { goToMovie(movie.id ?: -1) }
 //                ) {
 //                    Text(
 //                        modifier = Modifier.padding(horizontal = dp10),

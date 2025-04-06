@@ -13,6 +13,8 @@ import com.bowoon.my.navigation.myScreen
 import com.bowoon.people.navigation.navigateToPeople
 import com.bowoon.people.navigation.peopleScreen
 import com.bowoon.search.navigation.searchScreen
+import com.bowoon.series.navigation.navigateToSeries
+import com.bowoon.series.navigation.seriesScreen
 
 @Composable
 fun MovieAppNavHost(
@@ -27,30 +29,42 @@ fun MovieAppNavHost(
         startDestination = HomeRoute,
         modifier = modifier
     ) {
+        /**
+         * main navigation
+         */
         homeSection(
-            onMovieClick = navController::navigateToDetail,
+            goToMovie = navController::navigateToDetail,
             onShowSnackbar = onShowSnackbar,
         )
+        searchScreen(
+            goToMovie = navController::navigateToDetail,
+            goToPeople = navController::navigateToPeople,
+        )
+        favoriteScreen(
+            goToMovie = navController::navigateToDetail,
+            goToPeople = navController::navigateToPeople,
+            onShowSnackbar = onShowSnackbar,
+        )
+        myScreen()
+
+        /**
+         * other screen
+         */
         detailSection(
             onBack = navController::navigateUp,
             goToMovie = navController::navigateToDetail,
             goToPeople = navController::navigateToPeople,
+            goToSeries = navController::navigateToSeries,
             onShowSnackbar = onShowSnackbar
         )
         peopleScreen(
             onBack = navController::navigateUp,
-            onMovieClick = navController::navigateToDetail,
+            goToMovie = navController::navigateToDetail,
             onShowSnackbar = onShowSnackbar
         )
-        searchScreen(
-            onMovieClick = navController::navigateToDetail,
-            onPeopleClick = navController::navigateToPeople,
+        seriesScreen(
+            onBack = navController::navigateUp,
+            goToMovie = navController::navigateToDetail
         )
-        favoriteScreen(
-            onMovieClick = navController::navigateToDetail,
-            onPeopleClick = navController::navigateToPeople,
-            onShowSnackbar = onShowSnackbar,
-        )
-        myScreen()
     }
 }

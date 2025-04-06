@@ -9,6 +9,7 @@ import com.bowoon.network.model.NetworkTMDBMovieDetail
 import com.bowoon.network.model.NetworkTMDBMovieDetailSimilar
 import com.bowoon.network.model.NetworkTMDBMovieGenres
 import com.bowoon.network.model.NetworkTMDBMovieList
+import com.bowoon.network.model.NetworkTMDBMovieSeries
 import com.bowoon.network.model.NetworkTMDBPeopleDetail
 import com.bowoon.network.model.NetworkTMDBRegion
 import com.bowoon.network.model.NetworkTMDBSearchMovie
@@ -60,6 +61,12 @@ interface TMDBApis {
         @Query("region") region: String = "KR",
         @Query("page") page: Int = 1
     ): ApiResponse<NetworkTMDBSearchPeople>
+
+    @GET("/3/collection/{collection_id}")
+    suspend fun getMovieSeries(
+        @Path("collection_id") collectionId: Int,
+        @Query("language") language: String = "ko-KR",
+    ): ApiResponse<NetworkTMDBMovieSeries>
 
     @GET("/3/movie/{movie_id}")
     suspend fun getMovieDetail(
