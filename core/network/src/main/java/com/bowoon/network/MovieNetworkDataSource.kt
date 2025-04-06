@@ -1,18 +1,19 @@
 package com.bowoon.network
 
-import com.bowoon.model.MovieDetail
-import com.bowoon.model.Genres
-import com.bowoon.model.MovieList
-import com.bowoon.model.PeopleDetail
-import com.bowoon.model.SimilarMovies
 import com.bowoon.model.CertificationData
 import com.bowoon.model.CombineCredits
 import com.bowoon.model.Configuration
 import com.bowoon.model.ExternalIds
+import com.bowoon.model.Genres
 import com.bowoon.model.Language
 import com.bowoon.model.Movie
+import com.bowoon.model.MovieDetail
+import com.bowoon.model.MovieList
+import com.bowoon.model.MovieSeries
+import com.bowoon.model.PeopleDetail
 import com.bowoon.model.Regions
 import com.bowoon.model.SearchData
+import com.bowoon.model.SimilarMovies
 
 interface MovieNetworkDataSource {
     suspend fun getConfiguration(): Configuration
@@ -51,6 +52,11 @@ interface MovieNetworkDataSource {
         region: String = "KR",
         page: Int = 1
     ): SearchData
+
+    suspend fun getMovieSeries(
+        collectionId: Int,
+        language: String = "ko-KR"
+    ): MovieSeries
 
     suspend fun getMovieDetail(
         id: Int,

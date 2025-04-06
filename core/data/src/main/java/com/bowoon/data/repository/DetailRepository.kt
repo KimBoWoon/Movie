@@ -1,10 +1,11 @@
 package com.bowoon.data.repository
 
-import com.bowoon.model.MovieDetail
-import com.bowoon.model.PeopleDetail
-import com.bowoon.model.SearchData
 import com.bowoon.model.CombineCredits
 import com.bowoon.model.ExternalIds
+import com.bowoon.model.MovieDetail
+import com.bowoon.model.MovieSeries
+import com.bowoon.model.PeopleDetail
+import com.bowoon.model.SearchData
 import kotlinx.coroutines.flow.Flow
 
 interface DetailRepository {
@@ -16,4 +17,5 @@ interface DetailRepository {
     fun getPeople(personId: Int): Flow<PeopleDetail>
     fun getCombineCredits(personId: Int): Flow<CombineCredits>
     fun getExternalIds(personId: Int): Flow<ExternalIds>
+    fun getMovieSeries(collectionId: Int): Flow<MovieSeries>
 }

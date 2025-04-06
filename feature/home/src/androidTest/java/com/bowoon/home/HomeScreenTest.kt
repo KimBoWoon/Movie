@@ -21,7 +21,7 @@ class HomeScreenTest {
                     isSyncing = false,
                     state = MainMenuState.Loading,
                     onShowSnackbar = { _, _ -> true },
-                    onMovieClick = {}
+                    goToMovie = {}
                 )
             }
 
@@ -37,7 +37,7 @@ class HomeScreenTest {
                     isSyncing = false,
                     state = MainMenuState.Success(mainMenuTestData),
                     onShowSnackbar = { _, _ -> true },
-                    onMovieClick = {}
+                    goToMovie = {}
                 )
             }
 

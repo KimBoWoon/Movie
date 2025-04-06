@@ -71,12 +71,13 @@ import com.bowoon.model.Genre
 import com.bowoon.model.PagingStatus
 import com.bowoon.model.SearchType
 import com.bowoon.movie.feature.search.R
-import com.bowoon.ui.dialog.ConfirmDialog
-import com.bowoon.ui.utils.animateRotation
-import com.bowoon.ui.utils.bounceClick
 import com.bowoon.ui.components.FilterChipComponent
 import com.bowoon.ui.components.PagingAppendErrorComponent
 import com.bowoon.ui.components.TitleComponent
+import com.bowoon.ui.dialog.ConfirmDialog
+import com.bowoon.ui.image.DynamicAsyncImageLoader
+import com.bowoon.ui.utils.animateRotation
+import com.bowoon.ui.utils.bounceClick
 import com.bowoon.ui.utils.dp0
 import com.bowoon.ui.utils.dp1
 import com.bowoon.ui.utils.dp10
@@ -86,15 +87,14 @@ import com.bowoon.ui.utils.dp16
 import com.bowoon.ui.utils.dp5
 import com.bowoon.ui.utils.dp53
 import com.bowoon.ui.utils.dp8
-import com.bowoon.ui.image.DynamicAsyncImageLoader
 import com.bowoon.ui.utils.sp12
 import com.bowoon.ui.utils.sp30
 import kotlinx.coroutines.launch
 
 @Composable
 fun SearchScreen(
-    onMovieClick: (Int) -> Unit,
-    onPeopleClick: (Int) -> Unit,
+    goToMovie: (Int) -> Unit,
+    goToPeople: (Int) -> Unit,
     viewModel: SearchVM = hiltViewModel()
 ) {
     LocalFirebaseLogHelper.current.sendLog("SearchScreen", "search screen init")
@@ -108,8 +108,8 @@ fun SearchScreen(
         keyword = viewModel.searchQuery,
         searchType = searchType,
         selectedGenre = selectedGenre,
-        onMovieClick = onMovieClick,
-        onPeopleClick = onPeopleClick,
+        goToMovie = goToMovie,
+        goToPeople = goToPeople,
         onSearchClick = viewModel::searchMovies,
         updateKeyword = viewModel::updateKeyword,
         updateSearchType = viewModel::updateSearchType,
@@ -123,8 +123,8 @@ fun SearchScreen(
     keyword: String,
     searchType: SearchType,
     selectedGenre: Genre?,
-    onMovieClick: (Int) -> Unit,
-    onPeopleClick: (Int) -> Unit,
+    goToMovie: (Int) -> Unit,
+    goToPeople: (Int) -> Unit,
     onSearchClick: () -> Unit,
     updateKeyword: (String) -> Unit,
     updateSearchType: (SearchType) -> Unit,
@@ -149,8 +149,8 @@ fun SearchScreen(
             searchState = searchState,
             scrollState = scrollState,
             searchType = searchType,
-            onMovieClick = onMovieClick,
-            onPeopleClick = onPeopleClick,
+            goToMovie = goToMovie,
+            goToPeople = goToPeople,
             selectedGenre = selectedGenre,
             updateGenre = updateGenre
         )
@@ -329,8 +329,8 @@ fun SearchResultPaging(
     searchState: SearchState,
     scrollState: LazyGridState,
     searchType: SearchType,
-    onMovieClick: (Int) -> Unit,
-    onPeopleClick: (Int) -> Unit,
+    goToMovie: (Int) -> Unit,
+    goToPeople: (Int) -> Unit,
     selectedGenre: Genre?,
     updateGenre: (Genre) -> Unit
 ) {
@@ -351,8 +351,8 @@ fun SearchResultPaging(
                     isAppend = false
 
                     ConfirmDialog(
-                        title = "Error",
-                        message = (pagingData.loadState.refresh as? LoadState.Error)?.error?.message ?: "something wrong...",
+                        title = stringResource(com.bowoon.movie.core.network.R.string.network_failed),
+                        message = (pagingData.loadState.refresh as? LoadState.Error)?.error?.message ?: stringResource(com.bowoon.movie.core.network.R.string.something_wrong),
                         confirmPair = stringResource(com.bowoon.movie.core.ui.R.string.retry_message) to { pagingData.retry() },
                         dismissPair = stringResource(com.bowoon.movie.core.ui.R.string.confirm_message) to {}
                     )
@@ -440,8 +440,8 @@ fun SearchResultPaging(
                                                     .aspectRatio(POSTER_IMAGE_RATIO)
                                                     .bounceClick {
                                                         when (searchType) {
-                                                            SearchType.MOVIE -> onMovieClick(item.id ?: -1)
-                                                            SearchType.PEOPLE -> onPeopleClick(item.id ?: -1)
+                                                            SearchType.MOVIE -> goToMovie(item.id ?: -1)
+                                                            SearchType.PEOPLE -> goToPeople(item.id ?: -1)
                                                         }
                                                     },
                                                 source = "$posterUrl${item.imagePath}",

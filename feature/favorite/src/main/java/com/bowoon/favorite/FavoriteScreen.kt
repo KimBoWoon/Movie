@@ -50,8 +50,8 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun FavoriteScreen(
-    onMovieClick: (Int) -> Unit,
-    onPeopleClick: (Int) -> Unit,
+    goToMovie: (Int) -> Unit,
+    goToPeople: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
     viewModel: FavoriteVM = hiltViewModel()
 ) {
@@ -64,8 +64,8 @@ fun FavoriteScreen(
         favoriteMovies = favoriteMovies,
         favoritePeoples = favoritePeoples,
         onShowSnackbar = onShowSnackbar,
-        onMovieClick = onMovieClick,
-        onPeopleClick = onPeopleClick,
+        goToMovie = goToMovie,
+        goToPeople = goToPeople,
         deleteFavoriteMovie = viewModel::deleteMovie,
         deleteFavoritePeople = viewModel::deletePeople
     )
@@ -76,8 +76,8 @@ fun FavoriteScreen(
     favoriteMovies: List<Favorite>,
     favoritePeoples: List<Favorite>,
     onShowSnackbar: suspend (String, String?) -> Boolean,
-    onMovieClick: (Int) -> Unit,
-    onPeopleClick: (Int) -> Unit,
+    goToMovie: (Int) -> Unit,
+    goToPeople: (Int) -> Unit,
     deleteFavoriteMovie: (Favorite) -> Unit,
     deleteFavoritePeople: (Favorite) -> Unit
 ) {
@@ -134,7 +134,7 @@ fun FavoriteScreen(
                                             spanCount = 2,
                                             content = { movieDetail ->
                                                 Box(
-                                                    modifier = Modifier.bounceClick { onMovieClick(movieDetail.id ?: -1) }
+                                                    modifier = Modifier.bounceClick { goToMovie(movieDetail.id ?: -1) }
                                                 ) {
                                                     DynamicAsyncImageLoader(
                                                         modifier = Modifier
@@ -178,7 +178,7 @@ fun FavoriteScreen(
                                                 Column(
                                                     modifier = Modifier
                                                         .wrapContentSize()
-                                                        .bounceClick { onPeopleClick(peopleDetail.id ?: -1) }
+                                                        .bounceClick { goToPeople(peopleDetail.id ?: -1) }
                                                 ) {
                                                     Box() {
                                                         DynamicAsyncImageLoader(

@@ -40,7 +40,7 @@ class PeopleScreenTest {
                     onBack = {},
                     insertFavoritePeople = {},
                     deleteFavoritePeople = {},
-                    onMovieClick = {},
+                    goToMovie = {},
                     onShowSnackbar = { _, _ -> true },
                     restart = {}
                 )
@@ -59,7 +59,7 @@ class PeopleScreenTest {
                     onBack = {},
                     insertFavoritePeople = {},
                     deleteFavoritePeople = {},
-                    onMovieClick = {},
+                    goToMovie = {},
                     onShowSnackbar = { _, _ -> true },
                     restart = {}
                 )
@@ -83,7 +83,7 @@ class PeopleScreenTest {
                     onBack = {},
                     insertFavoritePeople = {},
                     deleteFavoritePeople = {},
-                    onMovieClick = {},
+                    goToMovie = {},
                     onShowSnackbar = { _, _ -> true },
                     restart = {}
                 )
@@ -124,7 +124,7 @@ class PeopleScreenTest {
                         backgroundScope.launch(UnconfinedTestDispatcher()) { testDatabaseRepository.deletePeople(it) }
                         people = people.copy(isFavorite = false)
                     },
-                    onMovieClick = {},
+                    goToMovie = {},
                     onShowSnackbar = { _, _ -> true },
                     restart = {}
                 )
@@ -186,7 +186,7 @@ class PeopleScreenTest {
                         backgroundScope.launch(UnconfinedTestDispatcher()) { testDatabaseRepository.deletePeople(it) }
                         people = people.copy(isFavorite = false)
                     },
-                    onMovieClick = {},
+                    goToMovie = {},
                     onShowSnackbar = { _, _ -> true },
                     restart = {}
                 )

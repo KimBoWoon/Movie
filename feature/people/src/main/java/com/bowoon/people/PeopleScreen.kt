@@ -64,7 +64,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun PeopleScreen(
     onBack: () -> Unit,
-    onMovieClick: (Int) -> Unit,
+    goToMovie: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
     viewModel: PeopleVM = hiltViewModel()
 ) {
@@ -77,7 +77,7 @@ fun PeopleScreen(
         onBack = onBack,
         insertFavoritePeople = viewModel::insertPeople,
         deleteFavoritePeople = viewModel::deletePeople,
-        onMovieClick = onMovieClick,
+        goToMovie = goToMovie,
         onShowSnackbar = onShowSnackbar,
         restart = viewModel::restart
     )
@@ -89,7 +89,7 @@ fun PeopleScreen(
     onBack: () -> Unit,
     insertFavoritePeople: (Favorite) -> Unit,
     deleteFavoritePeople: (Favorite) -> Unit,
-    onMovieClick: (Int) -> Unit,
+    goToMovie: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
     restart: () -> Unit
 ) {
@@ -125,7 +125,7 @@ fun PeopleScreen(
             PeopleDetailComponent(
                 people = it,
                 onBack = onBack,
-                onMovieClick = onMovieClick,
+                goToMovie = goToMovie,
                 insertFavoritePeople = insertFavoritePeople,
                 deleteFavoritePeople = deleteFavoritePeople,
                 onShowSnackbar = onShowSnackbar
@@ -144,7 +144,7 @@ fun PeopleScreen(
 fun PeopleDetailComponent(
     people: PeopleDetail,
     onBack: () -> Unit,
-    onMovieClick: (Int) -> Unit,
+    goToMovie: (Int) -> Unit,
     insertFavoritePeople: (Favorite) -> Unit,
     deleteFavoritePeople: (Favorite) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean
@@ -156,7 +156,7 @@ fun PeopleDetailComponent(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        val snackbarMessage = if (people.isFavorite) stringResource(com.bowoon.movie.feature.people.R.string.remove_favorite) else stringResource(com.bowoon.movie.feature.people.R.string.add_favorite)
+        val snackbarMessage = if (people.isFavorite) stringResource(com.bowoon.movie.feature.people.R.string.remove_favorite_people) else stringResource(com.bowoon.movie.feature.people.R.string.add_favorite_people)
 
         TitleComponent(
             title = people.name ?: stringResource(com.bowoon.movie.feature.people.R.string.title_people),
@@ -210,7 +210,7 @@ fun PeopleDetailComponent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .aspectRatio(POSTER_IMAGE_RATIO)
-                        .bounceClick { onMovieClick(movie.id ?: -1) },
+                        .bounceClick { goToMovie(movie.id ?: -1) },
                     source = "$posterUrl${movie.posterPath}",
                     contentDescription = "RelatedMovie"
                 )
