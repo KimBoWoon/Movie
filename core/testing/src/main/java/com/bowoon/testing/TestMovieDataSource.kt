@@ -9,6 +9,7 @@ import com.bowoon.model.Language
 import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetail
 import com.bowoon.model.MovieList
+import com.bowoon.model.MovieSeries
 import com.bowoon.model.PeopleDetail
 import com.bowoon.model.Regions
 import com.bowoon.model.SearchData
@@ -19,6 +20,7 @@ import com.bowoon.testing.model.configurationTestData
 import com.bowoon.testing.model.genreListTestData
 import com.bowoon.testing.model.languageListTestData
 import com.bowoon.testing.model.movieSearchTestData
+import com.bowoon.testing.model.movieSeriesTestData
 import com.bowoon.testing.model.nowPlayingMoviesTestData
 import com.bowoon.testing.model.peopleSearchTestData
 import com.bowoon.testing.model.regionTestData
@@ -67,6 +69,8 @@ class TestMovieDataSource : MovieNetworkDataSource {
         region: String,
         page: Int
     ): SearchData = peopleSearchTestData
+
+    override suspend fun getMovieSeries(collectionId: Int, language: String): MovieSeries = movieSeriesTestData
 
     override suspend fun getMovieDetail(
         id: Int,

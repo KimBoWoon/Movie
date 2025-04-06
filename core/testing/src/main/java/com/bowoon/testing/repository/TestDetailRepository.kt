@@ -19,6 +19,7 @@ import com.bowoon.model.Keyword
 import com.bowoon.model.Keywords
 import com.bowoon.model.MovieDetail
 import com.bowoon.model.MovieLists
+import com.bowoon.model.MovieSeries
 import com.bowoon.model.PeopleDetail
 import com.bowoon.model.ProductionCompany
 import com.bowoon.model.ProductionCountry
@@ -42,6 +43,7 @@ class TestDetailRepository : DetailRepository {
     private val peopleDetail = MutableSharedFlow<PeopleDetail>(replay = 1, onBufferOverflow = DROP_OLDEST)
     private val combineCredits = MutableSharedFlow<CombineCredits>(replay = 1, onBufferOverflow = DROP_OLDEST)
     private val externalIds = MutableSharedFlow<ExternalIds>(replay = 1, onBufferOverflow = DROP_OLDEST)
+    private val movieSeries = MutableSharedFlow<MovieSeries>(replay = 1, onBufferOverflow = DROP_OLDEST)
 
     override fun getMovieDetail(id: Int): Flow<MovieDetail> = movieDetail
 
@@ -55,6 +57,8 @@ class TestDetailRepository : DetailRepository {
     override fun getCombineCredits(personId: Int): Flow<CombineCredits> = combineCredits
 
     override fun getExternalIds(personId: Int): Flow<ExternalIds> = externalIds
+
+    override fun getMovieSeries(collectionId: Int): Flow<MovieSeries> = movieSeries
 
     @VisibleForTesting
     fun setMovieDetail(detail: MovieDetail) {
@@ -79,6 +83,11 @@ class TestDetailRepository : DetailRepository {
     @VisibleForTesting
     fun setExternalIds(ids: ExternalIds) {
         externalIds.tryEmit(ids)
+    }
+
+    @VisibleForTesting
+    fun setMovieSeries(movieSeries: MovieSeries) {
+        this@TestDetailRepository.movieSeries.tryEmit(movieSeries)
     }
 }
 
