@@ -18,10 +18,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import com.bowoon.ui.dp1
-import com.bowoon.ui.dp10
-import com.bowoon.ui.dp25
-import com.bowoon.ui.dp50
+import com.bowoon.ui.utils.dp1
+import com.bowoon.ui.utils.dp10
+import com.bowoon.ui.utils.dp25
+import com.bowoon.ui.utils.dp50
 
 @Composable
 fun BoxScope.ScrollToTopComponent(

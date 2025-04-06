@@ -28,8 +28,8 @@ class FavoriteScreenTest {
                     favoriteMovies = emptyList(),
                     favoritePeoples = emptyList(),
                     onShowSnackbar = { _, _ -> true},
-                    onMovieClick = {},
-                    onPeopleClick = {},
+                    goToMovie = {},
+                    goToPeople = {},
                     deleteFavoriteMovie = {},
                     deleteFavoritePeople = {}
                 )
@@ -49,8 +49,8 @@ class FavoriteScreenTest {
                     favoriteMovies = emptyList(),
                     favoritePeoples = emptyList(),
                     onShowSnackbar = { _, _ -> true},
-                    onMovieClick = {},
-                    onPeopleClick = {},
+                    goToMovie = {},
+                    goToPeople = {},
                     deleteFavoriteMovie = {},
                     deleteFavoritePeople = {}
                 )
@@ -70,8 +70,8 @@ class FavoriteScreenTest {
                     favoriteMovies = listOf(Favorite(id = 0, title = "movie_1", imagePath = "/movieImage.png")),
                     favoritePeoples = listOf(Favorite(id = 0, title = "people_1", imagePath = "/peopleImage.png")),
                     onShowSnackbar = { _, _ -> true},
-                    onMovieClick = {},
-                    onPeopleClick = {},
+                    goToMovie = {},
+                    goToPeople = {},
                     deleteFavoriteMovie = {},
                     deleteFavoritePeople = {}
                 )
@@ -92,8 +92,8 @@ class FavoriteScreenTest {
                     favoriteMovies = listOf(Favorite(id = 0, title = "movie_1", imagePath = "/movieImage.png")),
                     favoritePeoples = listOf(Favorite(id = 0, title = "people_1", imagePath = "/peopleImage.png")),
                     onShowSnackbar = { _, _ -> true},
-                    onMovieClick = {},
-                    onPeopleClick = {},
+                    goToMovie = {},
+                    goToPeople = {},
                     deleteFavoriteMovie = {},
                     deleteFavoritePeople = {}
                 )
@@ -116,8 +116,8 @@ class FavoriteScreenTest {
                     favoriteMovies = movieList,
                     favoritePeoples = listOf(Favorite(id = 0, title = "people_1", imagePath = "/peopleImage.png")),
                     onShowSnackbar = { _, _ -> true},
-                    onMovieClick = {},
-                    onPeopleClick = {},
+                    goToMovie = {},
+                    goToPeople = {},
                     deleteFavoriteMovie = { movieList = movieList.filter { favorite -> favorite.id != it.id } },
                     deleteFavoritePeople = {}
                 )
@@ -144,8 +144,8 @@ class FavoriteScreenTest {
                     favoriteMovies = listOf(Favorite(id = 0, title = "movie_1", imagePath = "/movieImage.png")),
                     favoritePeoples = peopleList,
                     onShowSnackbar = { _, _ -> true},
-                    onMovieClick = {},
-                    onPeopleClick = {},
+                    goToMovie = {},
+                    goToPeople = {},
                     deleteFavoriteMovie = {},
                     deleteFavoritePeople = { peopleList = peopleList.filter { favorite -> favorite.id != it.id } }
                 )

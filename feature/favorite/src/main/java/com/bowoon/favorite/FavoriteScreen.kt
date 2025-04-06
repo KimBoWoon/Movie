@@ -38,20 +38,20 @@ import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.Favorite
 import com.bowoon.ui.FavoriteButton
-import com.bowoon.ui.bounceClick
+import com.bowoon.ui.utils.bounceClick
 import com.bowoon.ui.components.ScrollToTopComponent
 import com.bowoon.ui.components.TabComponent
 import com.bowoon.ui.components.TitleComponent
-import com.bowoon.ui.dp10
-import com.bowoon.ui.dp15
-import com.bowoon.ui.dp5
+import com.bowoon.ui.utils.dp10
+import com.bowoon.ui.utils.dp15
+import com.bowoon.ui.utils.dp5
 import com.bowoon.ui.image.DynamicAsyncImageLoader
 import kotlinx.coroutines.launch
 
 @Composable
 fun FavoriteScreen(
-    onMovieClick: (Int) -> Unit,
-    onPeopleClick: (Int) -> Unit,
+    goToMovie: (Int) -> Unit,
+    goToPeople: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
     viewModel: FavoriteVM = hiltViewModel()
 ) {
@@ -64,8 +64,8 @@ fun FavoriteScreen(
         favoriteMovies = favoriteMovies,
         favoritePeoples = favoritePeoples,
         onShowSnackbar = onShowSnackbar,
-        onMovieClick = onMovieClick,
-        onPeopleClick = onPeopleClick,
+        goToMovie = goToMovie,
+        goToPeople = goToPeople,
         deleteFavoriteMovie = viewModel::deleteMovie,
         deleteFavoritePeople = viewModel::deletePeople
     )
@@ -76,8 +76,8 @@ fun FavoriteScreen(
     favoriteMovies: List<Favorite>,
     favoritePeoples: List<Favorite>,
     onShowSnackbar: suspend (String, String?) -> Boolean,
-    onMovieClick: (Int) -> Unit,
-    onPeopleClick: (Int) -> Unit,
+    goToMovie: (Int) -> Unit,
+    goToPeople: (Int) -> Unit,
     deleteFavoriteMovie: (Favorite) -> Unit,
     deleteFavoritePeople: (Favorite) -> Unit
 ) {
@@ -134,7 +134,7 @@ fun FavoriteScreen(
                                             spanCount = 2,
                                             content = { movieDetail ->
                                                 Box(
-                                                    modifier = Modifier.bounceClick { onMovieClick(movieDetail.id ?: -1) }
+                                                    modifier = Modifier.bounceClick { goToMovie(movieDetail.id ?: -1) }
                                                 ) {
                                                     DynamicAsyncImageLoader(
                                                         modifier = Modifier
@@ -178,7 +178,7 @@ fun FavoriteScreen(
                                                 Column(
                                                     modifier = Modifier
                                                         .wrapContentSize()
-                                                        .bounceClick { onPeopleClick(peopleDetail.id ?: -1) }
+                                                        .bounceClick { goToPeople(peopleDetail.id ?: -1) }
                                                 ) {
                                                     Box() {
                                                         DynamicAsyncImageLoader(

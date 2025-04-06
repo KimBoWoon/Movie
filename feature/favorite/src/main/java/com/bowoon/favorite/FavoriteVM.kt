@@ -26,13 +26,13 @@ class FavoriteVM @Inject constructor(
         .stateIn(
             scope = viewModelScope,
             initialValue = emptyList(),
-            started = SharingStarted.WhileSubscribed(5_000)
+            started = SharingStarted.WhileSubscribed()
         )
     val favoritePeoples = databaseRepository.getPeople()
         .stateIn(
             scope = viewModelScope,
             initialValue = emptyList(),
-            started = SharingStarted.WhileSubscribed(5_000)
+            started = SharingStarted.WhileSubscribed()
         )
 
     fun deleteMovie(movie: Favorite) {

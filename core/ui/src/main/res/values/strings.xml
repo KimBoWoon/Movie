@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="confirm_message">OK</string>
+    <string name="dismiss_message">Cancel</string>
+    <string name="retry_message">Retry</string>
+    <string name="back_message">Back</string>
+</resources>

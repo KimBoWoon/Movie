@@ -27,6 +27,7 @@ fun NavGraphBuilder.detailSection(
     onBack: () -> Unit,
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
+    goToSeries: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean
 ) {
     composable<DetailRoute>(
@@ -40,6 +41,7 @@ fun NavGraphBuilder.detailSection(
             onBack = onBack,
             goToMovie = goToMovie,
             goToPeople = goToPeople,
+            goToSeries = goToSeries,
             onShowSnackbar = onShowSnackbar,
         )
     }

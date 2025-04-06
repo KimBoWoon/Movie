@@ -10,6 +10,8 @@ import com.bowoon.model.ImageInfo
 import com.bowoon.model.Language
 import com.bowoon.model.MainMenu
 import com.bowoon.model.Movie
+import com.bowoon.model.MovieSeries
+import com.bowoon.model.MovieSeriesPart
 import com.bowoon.model.People
 import com.bowoon.model.Region
 import com.bowoon.model.Regions
@@ -156,11 +158,41 @@ val similarMoviesTestData = SimilarMovies(
     totalResults = 5
 )
 
-val nowPlayingMoviesTestData = listOf(Movie(id = 0, title = "nowPlaying_1", posterPath = "/nowPlaying_1.png"))
-val upcomingMoviesTestData = listOf(Movie(id = 0, title = "upcomingMovie_1", posterPath = "/upcomingMovie_1.png"))
+val nowPlayingMoviesTestData =
+    listOf(Movie(id = 0, title = "nowPlaying_1", posterPath = "/nowPlaying_1.png"))
+val upcomingMoviesTestData =
+    listOf(Movie(id = 0, title = "upcomingMovie_1", posterPath = "/upcomingMovie_1.png"))
 val mainMenuTestData = MainMenu(
-    nowPlaying = listOf(Movie(id = 0, title = "nowPlaying_1", posterPath = "posterUrl/nowPlaying_1.png")),
-    upComingMovies = listOf(Movie(id = 0, title = "upcomingMovie_1", posterPath = "posterUrl/upcomingMovie_1.png"))
+    nowPlaying = listOf(
+        Movie(
+            id = 0,
+            title = "nowPlaying_1",
+            posterPath = "posterUrl/nowPlaying_1.png"
+        )
+    ),
+    upComingMovies = listOf(
+        Movie(
+            id = 0,
+            title = "upcomingMovie_1",
+            posterPath = "posterUrl/upcomingMovie_1.png"
+        )
+    )
+)
+val movieSeriesTestData = MovieSeries(
+    backdropPath = "/backdropPath.png",
+    id = 0,
+    name = "movieSeries",
+    overview = "movieSeriesOverview",
+    parts = listOf(
+        MovieSeriesPart(
+            id = 0,
+            title = "movieSeries_1",
+            releaseDate = "2024-09-23",
+            overview = "movieSeries_1_overview"
+        ),
+        MovieSeriesPart(id = 1, title = "movieSeries_2", releaseDate = "2025-09-23", overview = "")
+    ),
+    posterPath = "/movieSeriesPosterPath.png"
 )
 
 object MovieFactory {

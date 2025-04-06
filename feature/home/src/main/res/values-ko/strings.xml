@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="feature_home_name">홈</string>
+    <string name="check_main_data">데이터를 확인하고 있습니다.</string>
+    <string name="title_movie_info">영화 정보</string>
+    <string name="now_playing_movies">상영중인 영화</string>
+    <string name="upcoming_movies">개봉예정 영화</string>
+</resources>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="feature_my_name">마이</string>
+    <string name="title_my_page">마이 페이지</string>
+    <string name="dark_mode_setting_system_follow">시스템 설정</string>
+    <string name="dark_mode_setting_light">라이트</string>
+    <string name="dark_mode_setting_dark">다크</string>
+    <string name="main_update_data_setting">메인 업데이트 날짜</string>
+    <string name="dark_mode_setting">다크 모드 설정</string>
+    <string name="is_adult_setting">성인</string>
+    <string name="auto_playing_trailer_setting">예고편 자동 재생</string>
+    <string name="language_setting">언어</string>
+    <string name="region_setting">지역</string>
+    <string name="image_quality_setting">이미지 퀄리티</string>
+</resources>

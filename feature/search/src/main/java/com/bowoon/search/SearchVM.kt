@@ -92,7 +92,7 @@ class SearchVM @Inject constructor(
                 }.let {
                     searchResult.emit(SearchState.Search(it))
                 }
-            } ?: searchResult.emit(SearchState.Error("검색어를 입력하세요."))
+            } ?: searchResult.emit(SearchState.InputKeyword)
         }
     }
 }
@@ -101,4 +101,5 @@ sealed interface SearchState {
     data object Loading : SearchState
     data class Search(val pagingData: Flow<PagingData<SearchGroup>>) : SearchState
     data class Error(val message: String) : SearchState
+    data object InputKeyword : SearchState
 }

@@ -20,6 +20,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.bowoon.model.Image
+import com.bowoon.ui.dialog.ModalBottomSheetDialog
 import org.junit.Rule
 import org.junit.Test
 

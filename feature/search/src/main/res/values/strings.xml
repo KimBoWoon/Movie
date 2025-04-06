@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="feature_search_name">검색</string>
+    <string name="feature_search_name">Search</string>
+    <string name="title_search">Search Movie</string>
+    <string name="input_search_hint">Input Search Keyword</string>
+    <string name="search_result_empty">Not Found…</string>
+    <string name="filter_not_found">Not Found…</string>
+    <string name="input_keyword">Input Keyword</string>
 </resources>
