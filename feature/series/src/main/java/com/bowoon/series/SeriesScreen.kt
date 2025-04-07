@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -124,7 +123,8 @@ fun SeriesComponent(
     ) {
         item {
             Row(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(dp5)
             ) {
                 DynamicAsyncImageLoader(
                     modifier = Modifier.width(dp150).aspectRatio(POSTER_IMAGE_RATIO),
@@ -140,21 +140,20 @@ fun SeriesComponent(
             }
         }
         items(
-            items = series.parts ?: emptyList(),
+            items = series.parts?.sortedBy { it?.releaseDate } ?: emptyList(),
             key = { seriesMovie -> seriesMovie?.id ?: -1 }
         ) { seriesMovie ->
             seriesMovie?.let {
                 Row(
-                    modifier = Modifier.fillMaxWidth().bounceClick { goToMovie(it.id ?: -1) }
+                    modifier = Modifier.fillMaxWidth().bounceClick { goToMovie(it.id ?: -1) },
+                    horizontalArrangement = Arrangement.spacedBy(dp5)
                 ) {
                     DynamicAsyncImageLoader(
                         modifier = Modifier.width(dp150).aspectRatio(POSTER_IMAGE_RATIO),
                         source = "$posterUrl${it.posterPath}",
                         contentDescription = "$posterUrl${it.posterPath}"
                     )
-                    Column(
-                        modifier = Modifier.padding(start = dp5)
-                    ) {
+                    Column {
                         Text(
                             modifier = Modifier.semantics { contentDescription = "seriesTitle_${it.id}" },
                             text = it.title ?: "",

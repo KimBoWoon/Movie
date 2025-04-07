@@ -474,10 +474,11 @@ fun SeriesInfoComponent(
     ) {
         item {
             Row(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(dp5)
             ) {
                 DynamicAsyncImageLoader(
-                    modifier = Modifier.width(dp150).aspectRatio(POSTER_IMAGE_RATIO).padding(end = dp5),
+                    modifier = Modifier.width(dp150).aspectRatio(POSTER_IMAGE_RATIO),
                     source = "${posterUrl}${movieSeries?.posterPath}",
                     contentDescription = "${posterUrl}${movieSeries?.posterPath}"
                 )
@@ -502,7 +503,7 @@ fun SeriesInfoComponent(
             }
         }
         items(
-            items = movieSeries?.parts ?: emptyList(),
+            items = movieSeries?.parts?.sortedBy { it?.releaseDate } ?: emptyList(),
             key = { movieSeries -> movieSeries?.id ?: -1 }
         ) { movieSeries ->
             movieSeries?.let {
