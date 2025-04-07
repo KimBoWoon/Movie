@@ -14,12 +14,14 @@ fun NavController.navigateToSearch(navOptions: NavOptions) = navigate(route = Se
 
 fun NavGraphBuilder.searchScreen(
     goToMovie: (Int) -> Unit,
-    goToPeople: (Int) -> Unit
+    goToPeople: (Int) -> Unit,
+    goToSeries: (Int) -> Unit
 ) {
     composable<SearchRoute>() {
         SearchScreen(
             goToMovie = goToMovie,
-            goToPeople = goToPeople
+            goToPeople = goToPeople,
+            goToSeries = goToSeries
         )
     }
 }

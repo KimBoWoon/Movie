@@ -95,6 +95,7 @@ import kotlinx.coroutines.launch
 fun SearchScreen(
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
+    goToSeries: (Int) -> Unit,
     viewModel: SearchVM = hiltViewModel()
 ) {
     LocalFirebaseLogHelper.current.sendLog("SearchScreen", "search screen init")
@@ -110,6 +111,7 @@ fun SearchScreen(
         selectedGenre = selectedGenre,
         goToMovie = goToMovie,
         goToPeople = goToPeople,
+        goToSeries = goToSeries,
         onSearchClick = viewModel::searchMovies,
         updateKeyword = viewModel::updateKeyword,
         updateSearchType = viewModel::updateSearchType,
@@ -125,6 +127,7 @@ fun SearchScreen(
     selectedGenre: Genre?,
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
+    goToSeries: (Int) -> Unit,
     onSearchClick: () -> Unit,
     updateKeyword: (String) -> Unit,
     updateSearchType: (SearchType) -> Unit,
@@ -151,6 +154,7 @@ fun SearchScreen(
             searchType = searchType,
             goToMovie = goToMovie,
             goToPeople = goToPeople,
+            goToSeries = goToSeries,
             selectedGenre = selectedGenre,
             updateGenre = updateGenre
         )
@@ -331,6 +335,7 @@ fun SearchResultPaging(
     searchType: SearchType,
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
+    goToSeries: (Int) -> Unit,
     selectedGenre: Genre?,
     updateGenre: (Genre) -> Unit
 ) {
@@ -425,7 +430,7 @@ fun SearchResultPaging(
                                         .fillMaxSize(),
                                     state = scrollState,
                                     columns = GridCells.Adaptive(dp100),
-                                    contentPadding = PaddingValues(top = if (genres.all { it.name == null } || searchType == SearchType.PEOPLE) dp10 else dp0, start = dp10, bottom = dp10, end = dp10),
+                                    contentPadding = PaddingValues(top = if (genres.all { it.name == null } || searchType != SearchType.MOVIE) dp10 else dp0, start = dp10, bottom = dp10, end = dp10),
                                     horizontalArrangement = Arrangement.spacedBy(dp10),
                                     verticalArrangement = Arrangement.spacedBy(dp10)
                                 ) {
@@ -442,6 +447,7 @@ fun SearchResultPaging(
                                                         when (searchType) {
                                                             SearchType.MOVIE -> goToMovie(item.id ?: -1)
                                                             SearchType.PEOPLE -> goToPeople(item.id ?: -1)
+                                                            SearchType.SERIES -> goToSeries(item.id ?: -1)
                                                         }
                                                     },
                                                 source = "$posterUrl${item.imagePath}",

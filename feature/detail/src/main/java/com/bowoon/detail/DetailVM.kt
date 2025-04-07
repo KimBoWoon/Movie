@@ -11,13 +11,16 @@ import com.bowoon.common.Result
 import com.bowoon.common.asResult
 import com.bowoon.common.restartableStateIn
 import com.bowoon.data.repository.DatabaseRepository
+import com.bowoon.data.repository.DetailRepository
 import com.bowoon.data.repository.PagingRepository
 import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.detail.navigation.DetailRoute
 import com.bowoon.domain.GetMovieDetailUseCase
 import com.bowoon.model.Favorite
 import com.bowoon.model.MovieDetail
+import com.bowoon.model.MovieSeries
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -29,7 +32,8 @@ class DetailVM @Inject constructor(
     getMovieDetail: GetMovieDetailUseCase,
     private val databaseRepository: DatabaseRepository,
     private val pagingRepository: PagingRepository,
-    private val userDataRepository: UserDataRepository
+    private val userDataRepository: UserDataRepository,
+    private val detailRepository: DetailRepository
 ) : ViewModel() {
     companion object {
         private const val TAG = "DetailVM"
@@ -71,6 +75,9 @@ class DetailVM @Inject constructor(
             )
         }
     ).flow.cachedIn(viewModelScope)
+
+    fun getMovieSeries(collectionId: Int): Flow<MovieSeries> =
+        detailRepository.getMovieSeries(collectionId = collectionId)
 
     fun restart() {
         movieInfo.restart()

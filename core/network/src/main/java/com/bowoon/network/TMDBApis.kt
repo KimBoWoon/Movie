@@ -14,6 +14,7 @@ import com.bowoon.network.model.NetworkTMDBPeopleDetail
 import com.bowoon.network.model.NetworkTMDBRegion
 import com.bowoon.network.model.NetworkTMDBSearchMovie
 import com.bowoon.network.model.NetworkTMDBSearchPeople
+import com.bowoon.network.model.NetworkTMDBSearchSeries
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -67,6 +68,15 @@ interface TMDBApis {
         @Path("collection_id") collectionId: Int,
         @Query("language") language: String = "ko-KR",
     ): ApiResponse<NetworkTMDBMovieSeries>
+
+    @GET("/3/search/collection")
+    suspend fun searchMovieSeries(
+        @Query("query") query: String,
+        @Query("include_adult") includeAdult: Boolean = true,
+        @Query("page") page: Int = 1,
+        @Query("language") language: String = "ko-KR",
+        @Query("region") region: String = "KR"
+    ): ApiResponse<NetworkTMDBSearchSeries>
 
     @GET("/3/movie/{movie_id}")
     suspend fun getMovieDetail(
