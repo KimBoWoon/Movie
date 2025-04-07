@@ -9,6 +9,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -23,12 +24,15 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.bowoon.data.paging.TMDBSimilarMoviePagingSource
 import com.bowoon.data.repository.LocalMovieAppDataComposition
 import com.bowoon.model.Favorite
+import com.bowoon.model.Movie
 import com.bowoon.testing.TestMovieDataSource
+import com.bowoon.testing.model.movieSeriesTestData
 import com.bowoon.testing.model.similarMoviesTestData
 import com.bowoon.testing.repository.TestDatabaseRepository
 import com.bowoon.testing.repository.favoriteMovieDetailTestData
 import com.bowoon.testing.repository.unFavoriteMovieDetailTestData
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -63,6 +67,7 @@ class DetailScreenTest {
                     onShowSnackbar = { _, _ -> true },
                     insertFavoriteMovie = {},
                     deleteFavoriteMovie = {},
+                    getMovieSeries = { flowOf() },
                     restart = {}
                 )
             }
@@ -84,6 +89,7 @@ class DetailScreenTest {
                     onShowSnackbar = { _, _ -> true },
                     insertFavoriteMovie = {},
                     deleteFavoriteMovie = {},
+                    getMovieSeries = { flowOf() },
                     restart = {}
                 )
             }
@@ -105,6 +111,7 @@ class DetailScreenTest {
                     onShowSnackbar = { _, _ -> true },
                     insertFavoriteMovie = {},
                     deleteFavoriteMovie = {},
+                    getMovieSeries = { flowOf() },
                     restart = {}
                 )
             }
@@ -114,6 +121,42 @@ class DetailScreenTest {
             onNodeWithTag(testTag = "movieTitle").assertTextEquals(favoriteMovieDetailTestData.title ?: "").assertIsDisplayed()
             onNodeWithText(text = favoriteMovieDetailTestData.originalTitle ?: "").assertExists().assertIsDisplayed()
             onNodeWithText(text = favoriteMovieDetailTestData.overview ?: "").assertExists().assertIsDisplayed()
+        }
+    }
+
+    @Test
+    fun seriesTest() = runTest {
+        composeTestRule.apply {
+            var posterUrl = ""
+
+            setContent {
+                posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
+
+                DetailScreen(
+                    movieInfoState = MovieDetailState.Success(movieDetail = favoriteMovieDetailTestData),
+                    similarMovieState = pager.collectAsLazyPagingItems(),
+                    goToMovie = {},
+                    goToPeople = {},
+                    onBack = {},
+                    onShowSnackbar = { _, _ -> true },
+                    insertFavoriteMovie = {},
+                    deleteFavoriteMovie = {},
+                    getMovieSeries = { flowOf(movieSeriesTestData) },
+                    restart = {}
+                )
+            }
+
+            onNodeWithText(text = "시리즈").assertIsDisplayed()
+            onNodeWithText(text = "시리즈").performClick()
+            onNodeWithText(text = movieSeriesTestData.name!!).assertExists().assertIsDisplayed()
+            onNodeWithText(text = movieSeriesTestData.overview!!).assertExists().assertIsDisplayed()
+            onNodeWithContentDescription(label = "$posterUrl${movieSeriesTestData.posterPath}").assertExists().assertIsDisplayed()
+            movieSeriesTestData.parts?.forEach {
+                onNodeWithContentDescription(label = "seriesList").performScrollToNode(hasContentDescription(value = "$posterUrl${it?.posterPath}")).assertExists().assertIsDisplayed()
+                onNodeWithContentDescription(label = "seriesList").performScrollToNode(hasText(text = it?.title!!)).assertExists().assertIsDisplayed()
+                onNodeWithContentDescription(label = "seriesList").performScrollToNode(hasText(text = it.releaseDate!!)).assertExists().assertIsDisplayed()
+                onNodeWithContentDescription(label = "seriesList").performScrollToNode(hasText(text = it.overview!!)).assertExists().assertIsDisplayed()
+            }
         }
     }
 
@@ -130,6 +173,7 @@ class DetailScreenTest {
                     onShowSnackbar = { _, _ -> true },
                     insertFavoriteMovie = {},
                     deleteFavoriteMovie = {},
+                    getMovieSeries = { flowOf() },
                     restart = {}
                 )
             }
@@ -158,6 +202,7 @@ class DetailScreenTest {
                     onShowSnackbar = { _, _ -> true },
                     insertFavoriteMovie = {},
                     deleteFavoriteMovie = {},
+                    getMovieSeries = { flowOf() },
                     restart = {}
                 )
             }
@@ -189,6 +234,7 @@ class DetailScreenTest {
                     onShowSnackbar = { _, _ -> true },
                     insertFavoriteMovie = {},
                     deleteFavoriteMovie = {},
+                    getMovieSeries = { flowOf() },
                     restart = {}
                 )
             }
@@ -241,6 +287,7 @@ class DetailScreenTest {
                         backgroundScope.launch(UnconfinedTestDispatcher()) { testDatabaseRepository.deleteMovie(it) }
                         movie = movie.copy(isFavorite = false)
                     },
+                    getMovieSeries = { flowOf() },
                     restart = {}
                 )
             }
@@ -307,6 +354,7 @@ class DetailScreenTest {
                         backgroundScope.launch(UnconfinedTestDispatcher()) { testDatabaseRepository.deleteMovie(it) }
                         movie = movie.copy(isFavorite = false)
                     },
+                    getMovieSeries = { flowOf() },
                     restart = {}
                 )
             }

@@ -21,6 +21,7 @@ class TMDBSearchPagingSource @Inject constructor(
             when (type) {
                 SearchType.MOVIE -> searchMovie(params, isAdult)
                 SearchType.PEOPLE -> searchPeople(params, isAdult)
+                SearchType.SERIES -> searchSeries(params, isAdult)
             }
         }.getOrElse { e ->
             Log.printStackTrace(e)
@@ -45,6 +46,16 @@ class TMDBSearchPagingSource @Inject constructor(
 
     private suspend fun searchPeople(params: LoadParams<Int>, isAdult: Boolean): LoadResult<Int, SearchGroup> {
         val response = apis.searchPeople(query = query, includeAdult = isAdult, language = language, region = region, page = params.key ?: 1)
+
+        return LoadResult.Page(
+            data = response.results ?: emptyList(),
+            prevKey = null,
+            nextKey = if ((response.totalPages ?: 1) > (params.key ?: 1)) (params.key ?: 1) + 1 else null
+        )
+    }
+
+    private suspend fun searchSeries(params: LoadParams<Int>, isAdult: Boolean): LoadResult<Int, SearchGroup> {
+        val response = apis.searchSeries(query = query, includeAdult = isAdult, language = language, region = region, page = params.key ?: 1)
 
         return LoadResult.Page(
             data = response.results ?: emptyList(),

@@ -39,6 +39,7 @@ fun MovieAppNavHost(
         searchScreen(
             goToMovie = navController::navigateToDetail,
             goToPeople = navController::navigateToPeople,
+            goToSeries = navController::navigateToSeries
         )
         favoriteScreen(
             goToMovie = navController::navigateToDetail,
@@ -54,7 +55,6 @@ fun MovieAppNavHost(
             onBack = navController::navigateUp,
             goToMovie = navController::navigateToDetail,
             goToPeople = navController::navigateToPeople,
-            goToSeries = navController::navigateToSeries,
             onShowSnackbar = onShowSnackbar
         )
         peopleScreen(

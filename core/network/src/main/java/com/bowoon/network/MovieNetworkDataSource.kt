@@ -53,6 +53,14 @@ interface MovieNetworkDataSource {
         page: Int = 1
     ): SearchData
 
+    suspend fun searchSeries(
+        query: String,
+        includeAdult: Boolean = true,
+        language: String = "ko-KR",
+        region: String = "KR",
+        page: Int = 1
+    ): SearchData
+
     suspend fun getMovieSeries(
         collectionId: Int,
         language: String = "ko-KR"

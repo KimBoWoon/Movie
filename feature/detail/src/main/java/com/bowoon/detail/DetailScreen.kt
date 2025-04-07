@@ -52,6 +52,9 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -74,6 +77,7 @@ import com.bowoon.model.Favorite
 import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetail
 import com.bowoon.model.MovieDetailTab
+import com.bowoon.model.MovieSeries
 import com.bowoon.model.PagingStatus
 import com.bowoon.movie.feature.detail.R
 import com.bowoon.ui.components.PagingAppendErrorComponent
@@ -87,6 +91,7 @@ import com.bowoon.ui.utils.bounceClick
 import com.bowoon.ui.utils.dp0
 import com.bowoon.ui.utils.dp10
 import com.bowoon.ui.utils.dp100
+import com.bowoon.ui.utils.dp150
 import com.bowoon.ui.utils.dp16
 import com.bowoon.ui.utils.dp20
 import com.bowoon.ui.utils.dp200
@@ -99,6 +104,7 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstan
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 @Composable
@@ -106,7 +112,6 @@ fun DetailScreen(
     onBack: () -> Unit,
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
-    goToSeries: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
     viewModel: DetailVM = hiltViewModel()
 ) {
@@ -120,11 +125,11 @@ fun DetailScreen(
         similarMovieState = similarMovies,
         goToMovie = goToMovie,
         goToPeople = goToPeople,
-        goToSeries = goToSeries,
         onBack = onBack,
         onShowSnackbar = onShowSnackbar,
         insertFavoriteMovie = viewModel::insertMovie,
         deleteFavoriteMovie = viewModel::deleteMovie,
+        getMovieSeries = viewModel::getMovieSeries,
         restart = viewModel::restart
     )
 }
@@ -135,15 +140,16 @@ fun DetailScreen(
     similarMovieState: LazyPagingItems<Movie>,
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
-    goToSeries: (Int) -> Unit,
     onBack: () -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
     insertFavoriteMovie: (Favorite) -> Unit,
     deleteFavoriteMovie: (Favorite) -> Unit,
+    getMovieSeries: (Int) -> Flow<MovieSeries>,
     restart: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
     var movie by remember { mutableStateOf<MovieDetail>(MovieDetail()) }
+    var series by remember { mutableStateOf<MovieSeries?>(null) }
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -158,6 +164,7 @@ fun DetailScreen(
             is MovieDetailState.Success -> {
                 Log.d("${movieInfoState.movieDetail}")
                 movie = movieInfoState.movieDetail
+                series = movie.belongsToCollection?.id?.let { collectionId -> getMovieSeries(collectionId) }?.collectAsStateWithLifecycle(null)?.value
             }
             is MovieDetailState.Error -> {
                 Log.e("${movieInfoState.throwable.message}")
@@ -175,8 +182,7 @@ fun DetailScreen(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        val favoriteMessage = if (movie.isFavorite) stringResource(R.string.remove_favorite_movie) else stringResource(
-            R.string.add_favorite_movie)
+        val favoriteMessage = if (movie.isFavorite) stringResource(R.string.remove_favorite_movie) else stringResource(R.string.add_favorite_movie)
 
         TitleComponent(
             title = movie.title ?: "",
@@ -197,10 +203,10 @@ fun DetailScreen(
 
         MovieDetailComponent(
             movieDetail = movie,
+            movieSeries = series,
             similarMovieState = similarMovieState,
             goToMovie = { id -> goToMovie(id) },
-            goToPeople = { id -> goToPeople(id) },
-            goToSeries = { id -> goToSeries(id) }
+            goToPeople = { id -> goToPeople(id) }
         )
     }
 }
@@ -208,10 +214,10 @@ fun DetailScreen(
 @Composable
 fun MovieDetailComponent(
     movieDetail: MovieDetail,
+    movieSeries: MovieSeries?,
     similarMovieState: LazyPagingItems<Movie>,
     goToMovie: (Int) -> Unit,
-    goToPeople: (Int) -> Unit,
-    goToSeries: (Int) -> Unit,
+    goToPeople: (Int) -> Unit
 ) {
     Column {
         VideosComponent(movieDetail)
@@ -260,8 +266,8 @@ fun MovieDetailComponent(
                 ) {
                     when (it[index]) {
                         "시리즈" -> SeriesInfoComponent(
-                            movie = movieDetail,
-                            goToSeries = goToSeries
+                            movieSeries = movieSeries,
+                            goToMovie = goToMovie
                         )
                         MovieDetailTab.MOVIE_INFO.label -> MovieInfoComponent(movie = movieDetail)
                         MovieDetailTab.ACTOR_AND_CREW.label -> ActorAndCrewComponent(
@@ -406,7 +412,7 @@ fun ImageComponent(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            Text(text = "등록된 이미지가 없습니다.")
+            Text(text = stringResource(R.string.movie_image_not_found))
         }
     } else {
         LazyVerticalStaggeredGrid(
@@ -456,39 +462,84 @@ fun ImageComponent(
 
 @Composable
 fun SeriesInfoComponent(
-    movie: MovieDetail,
-    goToSeries: (Int) -> Unit,
+    movieSeries: MovieSeries?,
+    goToMovie: (Int) -> Unit,
 ) {
     val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
 
     LazyColumn(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.semantics { contentDescription = "seriesList" }.fillMaxSize(),
+        contentPadding = PaddingValues(horizontal = dp16, vertical = dp10),
+        verticalArrangement = Arrangement.spacedBy(dp10)
     ) {
         item {
-            Text(
-                modifier = Modifier
-                    .semantics { contentDescription = "belongsToCollectionName" }
-                    .padding(dp16)
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
-                text = movie.belongsToCollection?.name ?: "",
-                fontSize = sp20,
-                textAlign = TextAlign.Center
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                DynamicAsyncImageLoader(
+                    modifier = Modifier.width(dp150).aspectRatio(POSTER_IMAGE_RATIO).padding(end = dp5),
+                    source = "${posterUrl}${movieSeries?.posterPath}",
+                    contentDescription = "${posterUrl}${movieSeries?.posterPath}"
+                )
+                Column {
+                    Text(
+                        modifier = Modifier
+                            .semantics { contentDescription = "belongsToCollectionName" }
+                            .fillMaxWidth()
+                            .wrapContentHeight(),
+                        text = movieSeries?.name ?: "",
+                        fontSize = sp20,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = movieSeries?.overview ?: "",
+                        maxLines = 5,
+                        overflow = TextOverflow.Ellipsis,
+                        fontSize = sp15,
+                        style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
+                    )
+                }
+            }
         }
-        item {
-            DynamicAsyncImageLoader(
-                modifier = Modifier.fillMaxWidth().bounceClick { goToSeries(movie.belongsToCollection?.id ?: -1) },
-                source = "${posterUrl}${movie.belongsToCollection?.posterPath}",
-                contentDescription = "${posterUrl}${movie.belongsToCollection?.posterPath}"
-            )
-        }
-        item {
-            DynamicAsyncImageLoader(
-                modifier = Modifier.fillMaxWidth(),
-                source = "${posterUrl}${movie.belongsToCollection?.backdropPath}",
-                contentDescription = "${posterUrl}${movie.belongsToCollection?.backdropPath}"
-            )
+        items(
+            items = movieSeries?.parts ?: emptyList(),
+            key = { movieSeries -> movieSeries?.id ?: -1 }
+        ) { movieSeries ->
+            movieSeries?.let {
+                Row(
+                    modifier = Modifier.fillMaxWidth().bounceClick { goToMovie(it.id ?: -1) }
+                ) {
+                    DynamicAsyncImageLoader(
+                        modifier = Modifier.width(dp150).aspectRatio(POSTER_IMAGE_RATIO),
+                        source = "$posterUrl${it.posterPath}",
+                        contentDescription = "$posterUrl${it.posterPath}"
+                    )
+                    Column(
+                        modifier = Modifier.padding(start = dp5)
+                    ) {
+                        Text(
+                            text = it.title ?: "",
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            fontSize = sp20,
+                            fontWeight = FontWeight.Bold
+                        )
+                        it.releaseDate?.takeIf { it.isNotEmpty() }?.let {
+                            Text(
+                                text = it,
+                                fontSize = sp10
+                            )
+                        }
+                        Text(
+                            text = it.overview ?: "",
+                            maxLines = 5,
+                            overflow = TextOverflow.Ellipsis,
+                            fontSize = sp15,
+                            style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
+                        )
+                    }
+                }
+            }
         }
     }
 }

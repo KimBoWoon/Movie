@@ -3,6 +3,7 @@ package com.bowoon.detail
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.testing.invoke
 import androidx.paging.PagingSource
+import app.cash.turbine.test
 import com.bowoon.data.paging.TMDBSimilarMoviePagingSource
 import com.bowoon.detail.navigation.DetailRoute
 import com.bowoon.domain.GetMovieDetailUseCase
@@ -10,6 +11,7 @@ import com.bowoon.model.Favorite
 import com.bowoon.model.InternalData
 import com.bowoon.model.Movie
 import com.bowoon.testing.TestMovieDataSource
+import com.bowoon.testing.model.movieSeriesTestData
 import com.bowoon.testing.model.similarMoviesTestData
 import com.bowoon.testing.repository.TestDatabaseRepository
 import com.bowoon.testing.repository.TestDetailRepository
@@ -55,11 +57,13 @@ class DetailVMTest {
             databaseRepository = testDataBaseRepository,
             pagingRepository = testPagingRepository,
             getMovieDetail = getMovieDetailUseCase,
-            userDataRepository = testUserDataRepository
+            userDataRepository = testUserDataRepository,
+            detailRepository = testDetailRepository
         )
         runBlocking {
             testUserDataRepository.updateUserData(InternalData(), false)
             testDataBaseRepository.insertMovie(Favorite(id = 0, title = "movie_1", imagePath = "/movieImagePath.png"))
+            testDetailRepository.setMovieSeries(movieSeriesTestData)
         }
     }
 
@@ -175,5 +179,12 @@ class DetailVMTest {
 //        getMovieDetailUseCase(0)
 
         assertEquals(viewModel.movieInfo.value, MovieDetailState.Success(favoriteMovieDetailTestData))
+    }
+
+    @Test
+    fun getMovieSeriesTest() = runTest {
+        viewModel.getMovieSeries(0).test {
+            assertEquals(movieSeriesTestData, awaitItem())
+        }
     }
 }

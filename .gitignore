@@ -33,4 +33,4 @@ google-services.json
 *.hprof
 
 # release note
-./releaseNote.txt
+releaseNote.txt

@@ -182,6 +182,25 @@ class RetrofitMovieNetwork @Inject constructor(
         is ApiResponse.Success -> response.data.asExternalModel()
     }
 
+    override suspend fun searchSeries(
+        query: String,
+        includeAdult: Boolean,
+        language: String,
+        region: String,
+        page: Int
+    ): SearchData = when (
+        val response = tmdbApis.searchMovieSeries(
+            query = query,
+            includeAdult = includeAdult,
+            language = language,
+            region = region,
+            page = page
+        )
+    ) {
+        is ApiResponse.Failure -> throw response.throwable
+        is ApiResponse.Success -> response.data.asExternalModel()
+    }
+
     override suspend fun getMovieSeries(collectionId: Int, language: String): MovieSeries =
         when (val response = tmdbApis.getMovieSeries(collectionId = collectionId, language = language)) {
             is ApiResponse.Failure -> throw response.throwable

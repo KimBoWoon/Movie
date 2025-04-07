@@ -73,3 +73,17 @@ data class SearchPeopleKnownFor(
     val voteAverage: Double? = null,
     val voteCount: Int? = null
 )
+
+data class Series(
+    val backdropPath: String? = null,
+    val originalLanguage: String? = null,
+    val overview: String? = null,
+    val posterPath: String? = null,
+
+    override val adult: Boolean? = null,
+    override val id: Int? = null,
+    override val name: String? = null,
+    override val imagePath: String? = null,
+    override val originalName: String? = null,
+    override val popularity: Double? = null
+) : SearchGroup

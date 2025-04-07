@@ -16,6 +16,7 @@ import com.bowoon.model.People
 import com.bowoon.model.Region
 import com.bowoon.model.Regions
 import com.bowoon.model.SearchData
+import com.bowoon.model.Series
 import com.bowoon.model.SimilarMovie
 import com.bowoon.model.SimilarMovies
 import java.util.concurrent.atomic.AtomicInteger
@@ -145,6 +146,19 @@ val peopleSearchTestData = SearchData(
     totalResults = 5
 )
 
+val seriesSearchTestData = SearchData(
+    page = 1,
+    results = listOf(
+        MovieFactory.createSeriesItem(),
+        MovieFactory.createSeriesItem(),
+        MovieFactory.createSeriesItem(),
+        MovieFactory.createSeriesItem(),
+        MovieFactory.createSeriesItem()
+    ),
+    totalPages = 1,
+    totalResults = 5
+)
+
 val similarMoviesTestData = SimilarMovies(
     page = 1,
     results = listOf(
@@ -190,7 +204,9 @@ val movieSeriesTestData = MovieSeries(
             releaseDate = "2024-09-23",
             overview = "movieSeries_1_overview"
         ),
-        MovieSeriesPart(id = 1, title = "movieSeries_2", releaseDate = "2025-09-23", overview = "")
+        MovieSeriesPart(id = 1, title = "movieSeries_2", releaseDate = "2025-09-23", overview = ""),
+        MovieSeriesPart(adult = true, id = 2, title = "seriesPart_2", releaseDate = "2025-09-23", overview = "seriesPartOverview_2"),
+        MovieSeriesPart(adult = false, id = 3, title = "seriesPart_3", releaseDate = "2025-09-23", overview = "seriesPartOverview_3")
     ),
     posterPath = "/movieSeriesPosterPath.png"
 )
@@ -219,6 +235,20 @@ object MovieFactory {
             profilePath = "/imagePath_$id.png"
         )
         return people
+    }
+
+    fun createSeriesItem(): Series {
+        val id = counter.incrementAndGet()
+        val series = Series(
+            id = id,
+            name = "name_$id",
+            imagePath = "/imagePath_$id.png",
+            originalLanguage = "ko-KR",
+            originalName = "originalName",
+            overview = "Series_${id}_overview",
+            adult = true
+        )
+        return series
     }
 
     fun createSimilarMovie(): SimilarMovie {
