@@ -24,6 +24,7 @@ import com.bowoon.testing.model.movieSeriesTestData
 import com.bowoon.testing.model.nowPlayingMoviesTestData
 import com.bowoon.testing.model.peopleSearchTestData
 import com.bowoon.testing.model.regionTestData
+import com.bowoon.testing.model.seriesSearchTestData
 import com.bowoon.testing.model.similarMoviesTestData
 import com.bowoon.testing.model.upcomingMoviesTestData
 import com.bowoon.testing.repository.combineCreditsTestData
@@ -69,6 +70,14 @@ class TestMovieDataSource : MovieNetworkDataSource {
         region: String,
         page: Int
     ): SearchData = peopleSearchTestData
+
+    override suspend fun searchSeries(
+        query: String,
+        includeAdult: Boolean,
+        language: String,
+        region: String,
+        page: Int
+    ): SearchData = seriesSearchTestData
 
     override suspend fun getMovieSeries(collectionId: Int, language: String): MovieSeries = movieSeriesTestData
 

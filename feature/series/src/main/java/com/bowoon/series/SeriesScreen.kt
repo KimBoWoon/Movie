@@ -88,7 +88,7 @@ fun SeriesScreen(
 
                 ConfirmDialog(
                     title = stringResource(com.bowoon.movie.core.network.R.string.network_failed),
-                    message = stringResource(com.bowoon.movie.core.network.R.string.network_failed),
+                    message = seriesState.throwable.message ?: stringResource(com.bowoon.movie.core.network.R.string.something_wrong),
                     confirmPair = stringResource(com.bowoon.movie.core.ui.R.string.retry_message) to {},
                     dismissPair = stringResource(com.bowoon.movie.core.ui.R.string.confirm_message) to {}
                 )
@@ -118,12 +118,26 @@ fun SeriesComponent(
     val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
 
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.semantics { contentDescription = "seriesList" }.fillMaxSize(),
         contentPadding = PaddingValues(horizontal = dp16, vertical = dp10),
         verticalArrangement = Arrangement.spacedBy(dp10)
     ) {
-        series.overview?.takeIf { it.isNotEmpty() }?.let {
-            item { Text(text = it) }
+        item {
+            Row(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                DynamicAsyncImageLoader(
+                    modifier = Modifier.width(dp150).aspectRatio(POSTER_IMAGE_RATIO),
+                    source = "$posterUrl${series.posterPath}",
+                    contentDescription = "$posterUrl${series.posterPath}"
+                )
+                series.overview?.takeIf { it.isNotEmpty() }?.let {
+                    Text(
+                        modifier = Modifier.semantics { contentDescription = "seriesOverview" },
+                        text = it
+                    )
+                }
+            }
         }
         items(
             items = series.parts ?: emptyList(),
@@ -142,19 +156,22 @@ fun SeriesComponent(
                         modifier = Modifier.padding(start = dp5)
                     ) {
                         Text(
+                            modifier = Modifier.semantics { contentDescription = "seriesTitle_${it.id}" },
                             text = it.title ?: "",
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             fontSize = sp20,
                             fontWeight = FontWeight.Bold
                         )
-                        it.releaseDate?.takeIf { it.isNotEmpty() }?.let {
+                        it.releaseDate?.takeIf { it.isNotEmpty() }?.let { releaseDate ->
                             Text(
-                                text = it,
+                                modifier = Modifier.semantics { contentDescription = "seriesReleaseDate_${it.id}" },
+                                text = releaseDate,
                                 fontSize = sp10
                             )
                         }
                         Text(
+                            modifier = Modifier.semantics { contentDescription = "seriesOverview_${it.id}" },
                             text = it.overview ?: "",
                             maxLines = 5,
                             overflow = TextOverflow.Ellipsis,

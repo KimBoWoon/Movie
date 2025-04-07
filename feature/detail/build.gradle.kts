@@ -29,5 +29,6 @@ dependencies {
     }
 
     testImplementation(libs.androidx.paging.common)
+    testImplementation(libs.turbine)
     androidTestImplementation(projects.core.testing)
 }

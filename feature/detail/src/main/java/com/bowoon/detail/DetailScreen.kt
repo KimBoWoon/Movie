@@ -468,7 +468,7 @@ fun SeriesInfoComponent(
     val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
 
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.semantics { contentDescription = "seriesList" }.fillMaxSize(),
         contentPadding = PaddingValues(horizontal = dp16, vertical = dp10),
         verticalArrangement = Arrangement.spacedBy(dp10)
     ) {
