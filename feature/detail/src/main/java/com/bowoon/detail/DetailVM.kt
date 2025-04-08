@@ -20,7 +20,7 @@ import com.bowoon.model.Favorite
 import com.bowoon.model.MovieDetail
 import com.bowoon.model.MovieSeries
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -75,9 +75,15 @@ class DetailVM @Inject constructor(
             )
         }
     ).flow.cachedIn(viewModelScope)
+    val movieSeries = MutableStateFlow<MovieSeries?>(null)
 
-    fun getMovieSeries(collectionId: Int): Flow<MovieSeries> =
-        detailRepository.getMovieSeries(collectionId = collectionId)
+    fun getMovieSeries(collectionId: Int) {
+        viewModelScope.launch {
+            detailRepository.getMovieSeries(collectionId = collectionId).collect {
+                movieSeries.emit(it)
+            }
+        }
+    }
 
     fun restart() {
         movieInfo.restart()
@@ -100,4 +106,10 @@ sealed interface MovieDetailState {
     data object Loading : MovieDetailState
     data class Success(val movieDetail: MovieDetail) : MovieDetailState
     data class Error(val throwable: Throwable) : MovieDetailState
+}
+
+sealed interface MovieSeriesState {
+    data object Loading : MovieSeriesState
+    data class Success(val movieSeries: MovieSeries) : MovieSeriesState
+    data class Error(val throwable: Throwable) : MovieSeriesState
 }
