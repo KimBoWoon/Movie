@@ -3,7 +3,6 @@ package com.bowoon.detail
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.testing.invoke
 import androidx.paging.PagingSource
-import app.cash.turbine.test
 import com.bowoon.data.paging.TMDBSimilarMoviePagingSource
 import com.bowoon.detail.navigation.DetailRoute
 import com.bowoon.domain.GetMovieDetailUseCase
@@ -183,8 +182,12 @@ class DetailVMTest {
 
     @Test
     fun getMovieSeriesTest() = runTest {
-        viewModel.getMovieSeries(0).test {
-            assertEquals(movieSeriesTestData, awaitItem())
-        }
+        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.movieSeries.collect() }
+
+        assertEquals(viewModel.movieSeries.value, null)
+
+        viewModel.getMovieSeries(0)
+
+        assertEquals(viewModel.movieSeries.value, movieSeriesTestData)
     }
 }
