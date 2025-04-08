@@ -9,10 +9,10 @@ googleService = "4.4.2"
 agp = "8.9.1"
 
 # ksp
-ksp = "2.1.10-1.0.29"
+ksp = "2.1.10-1.0.31"
 
 # jvm
-jetbrainsKotlinJvm = "2.1.0"
+jetbrainsKotlinJvm = "2.1.10"
 
 # jetpack
 coreKtx = "1.15.0"
@@ -22,21 +22,22 @@ constraintlayout = "2.2.1"
 material = "1.12.0"
 activity = "1.10.1"
 jetpack-fragment = "1.8.6"
-datastore = "1.1.3"
+datastore = "1.1.4"
 room = "2.6.1"
 workManager = "2.10.0"
 splash = "1.0.1"
 startup = "1.2.0"
-exoPlayer = "1.5.1"
+exoPlayer = "1.6.0"
 
 # compose
-composeBom = "2025.03.00"
+composeBom = "2025.03.01"
 activityCompose = "1.10.1"
 compose-compiler = "1.4.5"
 compose-navigation = "2.8.9"
 compose-hilt-navigation = "1.2.0"
 compose-paging = "3.3.6"
 androidxNavigation = "2.8.4"
+constraintLayout = "1.1.1"
 
 #junit
 junit = "4.13.2"
@@ -49,7 +50,7 @@ kotlinxCoroutines = "1.10.1"
 espressoCore = "3.6.1"
 
 # hilt
-hilt = "2.55"
+hilt = "2.56"
 hiltExt = "1.2.0"
 
 # retrofit2
@@ -68,7 +69,7 @@ serialization-converter = "1.0.0"
 coil = "3.0.2"
 
 # firebase
-firebaseBom = "33.10.0"
+firebaseBom = "33.12.0"
 firebaseCrashlyticsPlugin = "3.0.3"
 firebasePerfPlugin = "1.4.2"
 
@@ -134,6 +135,7 @@ androidx-lifecycle-viewModelCompose = { group = "androidx.lifecycle", name = "li
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "compose-navigation" }
 androidx-navigation-testing = { group = "androidx.navigation", name = "navigation-testing", version.ref = "compose-navigation" }
 androidx-compose-material3-navigationSuite = { group = "androidx.compose.material3", name = "material3-adaptive-navigation-suite" }
+androidx-compose-constraintLayout = { group = "androidx.constraintlayout", name = "constraintlayout-compose", version.ref = "constraintLayout"}
 
 # material
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }

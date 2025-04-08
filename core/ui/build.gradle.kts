@@ -12,12 +12,14 @@ dependencies {
     arrayOf(
         projects.core.common,
         projects.core.model,
+        projects.core.data,
         libs.androidx.compose.material3,
         libs.androidx.compose.material3.adaptive,
         libs.androidx.compose.material3.navigationSuite,
         libs.coil.okhttp,
         libs.coil.compose,
-        libs.threetenabp
+        libs.threetenabp,
+        libs.androidx.compose.constraintLayout
     ).forEach {
         implementation(it)
     }

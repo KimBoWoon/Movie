@@ -23,10 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.PlatformTextStyle
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bowoon.data.repository.LocalMovieAppDataComposition
@@ -34,17 +30,15 @@ import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.MovieSeries
 import com.bowoon.movie.feature.series.R
+import com.bowoon.ui.components.SeriesMovieInfoComponent
 import com.bowoon.ui.components.TitleComponent
 import com.bowoon.ui.dialog.ConfirmDialog
 import com.bowoon.ui.image.DynamicAsyncImageLoader
-import com.bowoon.ui.utils.bounceClick
 import com.bowoon.ui.utils.dp10
 import com.bowoon.ui.utils.dp150
 import com.bowoon.ui.utils.dp16
 import com.bowoon.ui.utils.dp5
-import com.bowoon.ui.utils.sp10
-import com.bowoon.ui.utils.sp15
-import com.bowoon.ui.utils.sp20
+import org.threeten.bp.LocalDate
 
 @Composable
 fun SeriesScreen(
@@ -140,45 +134,15 @@ fun SeriesComponent(
             }
         }
         items(
-            items = series.parts?.sortedBy { it?.releaseDate } ?: emptyList(),
+            items = series.parts?.sortedBy { it?.releaseDate?.trim()?.takeIf { date -> date.isNotEmpty() }?.let { date -> LocalDate.parse(date) } } ?: emptyList(),
             key = { seriesMovie -> seriesMovie?.id ?: -1 }
         ) { seriesMovie ->
             seriesMovie?.let {
-                Row(
-                    modifier = Modifier.fillMaxWidth().bounceClick { goToMovie(it.id ?: -1) },
-                    horizontalArrangement = Arrangement.spacedBy(dp5)
-                ) {
-                    DynamicAsyncImageLoader(
-                        modifier = Modifier.width(dp150).aspectRatio(POSTER_IMAGE_RATIO),
-                        source = "$posterUrl${it.posterPath}",
-                        contentDescription = "$posterUrl${it.posterPath}"
-                    )
-                    Column {
-                        Text(
-                            modifier = Modifier.semantics { contentDescription = "seriesTitle_${it.id}" },
-                            text = it.title ?: "",
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            fontSize = sp20,
-                            fontWeight = FontWeight.Bold
-                        )
-                        it.releaseDate?.takeIf { it.isNotEmpty() }?.let { releaseDate ->
-                            Text(
-                                modifier = Modifier.semantics { contentDescription = "seriesReleaseDate_${it.id}" },
-                                text = releaseDate,
-                                fontSize = sp10
-                            )
-                        }
-                        Text(
-                            modifier = Modifier.semantics { contentDescription = "seriesOverview_${it.id}" },
-                            text = it.overview ?: "",
-                            maxLines = 5,
-                            overflow = TextOverflow.Ellipsis,
-                            fontSize = sp15,
-                            style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
-                        )
-                    }
-                }
+                SeriesMovieInfoComponent(
+                    movieSeriesPart = it,
+                    posterUrl = posterUrl,
+                    goToMovie = goToMovie
+                )
             }
         }
     }

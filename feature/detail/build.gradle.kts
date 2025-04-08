@@ -23,7 +23,8 @@ dependencies {
         libs.androidx.media3.exoplayer,
         libs.androidx.media3.ui,
         libs.youtube.player,
-        libs.androidx.compose.paging
+        libs.androidx.compose.paging,
+        libs.threetenabp
     ).forEach {
         implementation(it)
     }
