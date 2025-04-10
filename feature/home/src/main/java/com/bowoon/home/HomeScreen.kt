@@ -78,21 +78,22 @@ fun HomeScreen(
     val scope = rememberCoroutineScope()
     val checkingMainData = stringResource(R.string.check_main_data)
 
-    if (isSyncing) {
-        LaunchedEffect(isSyncing) {
-            scope.launch {
-                onShowSnackbar(checkingMainData, null)
-            }
-        }
-        CircularProgressIndicator(
-            modifier = Modifier
-                .semantics { contentDescription = "mainDataSync" }
-        )
-    }
-
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
+        if (isSyncing) {
+            LaunchedEffect(scope) {
+                scope.launch {
+                    onShowSnackbar(checkingMainData, null)
+                }
+            }
+            CircularProgressIndicator(
+                modifier = Modifier
+                    .semantics { contentDescription = "mainDataSync" }
+                    .align(Alignment.Center)
+            )
+        }
+
         when (state) {
             is MainMenuState.Loading -> {
                 Log.d("loading...")

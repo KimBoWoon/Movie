@@ -131,7 +131,6 @@ fun DetailScreen(
         onShowSnackbar = onShowSnackbar,
         insertFavoriteMovie = viewModel::insertMovie,
         deleteFavoriteMovie = viewModel::deleteMovie,
-        getMovieSeries = viewModel::getMovieSeries,
         restart = viewModel::restart
     )
 }
@@ -147,7 +146,6 @@ fun DetailScreen(
     onShowSnackbar: suspend (String, String?) -> Boolean,
     insertFavoriteMovie: (Favorite) -> Unit,
     deleteFavoriteMovie: (Favorite) -> Unit,
-    getMovieSeries: (Int) -> Unit,
     restart: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
@@ -168,9 +166,6 @@ fun DetailScreen(
             is MovieDetailState.Success -> {
                 Log.d("${movieInfoState.movieDetail}")
                 movie = movieInfoState.movieDetail
-                movieInfoState.movieDetail.belongsToCollection?.id?.let {
-                    getMovieSeries(it)
-                }
             }
             is MovieDetailState.Error -> {
                 Log.e("${movieInfoState.throwable.message}")

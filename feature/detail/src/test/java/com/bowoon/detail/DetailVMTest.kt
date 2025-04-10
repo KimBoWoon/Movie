@@ -95,8 +95,7 @@ class DetailVMTest {
         val source = TMDBSimilarMoviePagingSource(
             apis = TestMovieDataSource(),
             id = 0,
-            language = "ko",
-            region = "KR"
+            language = "ko"
         )
 
         assertEquals(
@@ -128,9 +127,9 @@ class DetailVMTest {
 
         testDetailRepository.setMovieDetail(favoriteMovieDetailTestData.copy(id = 23))
 
-        assertNotEquals(
+        assertEquals(
             (viewModel.movieInfo.value as? MovieDetailState.Success)?.movieDetail?.isFavorite,
-            true
+            false
         )
         viewModel.insertMovie(movie)
         assertEquals(
@@ -182,11 +181,13 @@ class DetailVMTest {
 
     @Test
     fun getMovieSeriesTest() = runTest {
+        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.movieInfo.collect() }
         backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.movieSeries.collect() }
 
         assertEquals(viewModel.movieSeries.value, null)
 
-        viewModel.getMovieSeries(0)
+        testDetailRepository.setMovieDetail(favoriteMovieDetailTestData)
+        testDetailRepository.setMovieSeries(movieSeriesTestData)
 
         assertEquals(viewModel.movieSeries.value, movieSeriesTestData)
     }

@@ -96,7 +96,7 @@ val favoriteMovieDetailTestData = MovieDetail(
     autoPlayTrailer = true,
     alternativeTitles = AlternativeTitles(titles = listOf(AlternativeTitle(iso31661 = "KR", title = "title_KR", type = "type_kr"))),
     backdropPath = "backdropPath",
-    belongsToCollection = BelongsToCollection(backdropPath = "/backdropPath.png", id = 0, name = "name", posterPath = "/posterPath.png"),
+    belongsToCollection = BelongsToCollection(backdropPath = "/backdropPath.png", id = 896, name = "name", posterPath = "/posterPath.png"),
     budget = 30_000_000_000,
     credits = Credits(cast = listOf(Cast(castId = 0, name = "cast_1")), crew = listOf(Crew(id = 0, name = "crew_1"))),
     genres = listOf(Genre(id = 0, name = "genre")),

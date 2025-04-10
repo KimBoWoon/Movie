@@ -194,7 +194,7 @@ val mainMenuTestData = MainMenu(
 )
 val movieSeriesTestData = MovieSeries(
     backdropPath = "/backdropPath.png",
-    id = 0,
+    id = 896,
     name = "movieSeries",
     overview = "movieSeriesOverview",
     parts = listOf(
