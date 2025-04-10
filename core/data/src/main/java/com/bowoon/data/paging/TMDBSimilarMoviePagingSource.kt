@@ -3,20 +3,19 @@ package com.bowoon.data.paging
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.bowoon.common.Log
-import com.bowoon.model.SimilarMovie
 import com.bowoon.model.Movie
+import com.bowoon.model.SimilarMovie
 import com.bowoon.network.MovieNetworkDataSource
 import javax.inject.Inject
 
 class TMDBSimilarMoviePagingSource @Inject constructor(
     private val apis: MovieNetworkDataSource,
     private val id: Int,
-    private val language: String,
-    private val region: String
+    private val language: String
 ) : PagingSource<Int, Movie>() {
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Movie> =
         runCatching {
-            val response = apis.getSimilarMovies(id = id, language = "$language-$region", page = params.key ?: 1)
+            val response = apis.getSimilarMovies(id = id, language = language, page = params.key ?: 1)
 
             LoadResult.Page(
                 data = getSearchItem(response.results),
