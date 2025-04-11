@@ -35,6 +35,7 @@ val dp27 = 27.dp
 val dp28 = 28.dp
 val dp29 = 29.dp
 val dp30 = 30.dp
+val dp32 = 32.dp
 val dp40 = 40.dp
 val dp50 = 50.dp
 val dp53 = 53.dp

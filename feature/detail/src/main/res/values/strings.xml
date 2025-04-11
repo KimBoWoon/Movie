@@ -5,4 +5,12 @@
     <string name="similar_movie_not_found">Similar Movie Not Found…</string>
     <string name="trailer_video_not_found">Trailer Video Not Found…</string>
     <string name="movie_image_not_found">Movie Image Not Found…</string>
+    <string name="movie_crew_not_found">Movie Crew &amp; Actor Not Found…</string>
+    <string name="movie_actor">Actor</string>
+    <string name="movie_staff">Staff</string>
+    <string name="movie_runtime">%d runtime</string>
+    <string name="movie_info_separator">|</string>
+    <string name="movie_vote_average">vote %.2f</string>
+    <string name="movie_alternative_title">Alternative Title</string>
+    <string name="movie_production_companies">Production Companies</string>
 </resources>

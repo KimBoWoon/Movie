@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -24,17 +26,35 @@ import com.bowoon.ui.utils.dp5
 import com.bowoon.ui.utils.sp10
 import com.bowoon.ui.utils.sp13
 import com.bowoon.ui.utils.sp20
+import org.threeten.bp.LocalDate
+
+fun LazyListScope.movieSeriesListComponent(
+    series: List<MovieSeriesPart>,
+    posterUrl: String,
+    goToMovie: (Int) -> Unit
+) {
+    items(
+        items = series.sortedBy { it.releaseDate?.trim()?.takeIf { date -> date.isNotEmpty() }?.let { date -> LocalDate.parse(date) } },
+        key = { movieSeries -> movieSeries.id ?: -1 }
+    ) { movieSeries ->
+        SeriesMovieInfoComponent(
+            seriesPart = movieSeries,
+            posterUrl = posterUrl,
+            goToMovie = goToMovie
+        )
+    }
+}
 
 @Composable
 fun SeriesMovieInfoComponent(
-    movieSeriesPart: MovieSeriesPart,
+    seriesPart: MovieSeriesPart,
     posterUrl: String,
     goToMovie: (Int) -> Unit
 ) {
     ConstraintLayout(
         modifier = Modifier
             .fillMaxWidth()
-            .bounceClick { goToMovie(movieSeriesPart.id ?: -1) }
+            .bounceClick { goToMovie(seriesPart.id ?: -1) }
     ) {
         val poster = createRef()
         val title = createRef()
@@ -54,8 +74,8 @@ fun SeriesMovieInfoComponent(
         ) {
             DynamicAsyncImageLoader(
                 modifier = Modifier.fillMaxSize(),
-                source = "$posterUrl${movieSeriesPart.posterPath}",
-                contentDescription = "$posterUrl${movieSeriesPart.posterPath}"
+                source = "$posterUrl${seriesPart.posterPath}",
+                contentDescription = "$posterUrl${seriesPart.posterPath}"
             )
         }
         Text(
@@ -64,13 +84,13 @@ fun SeriesMovieInfoComponent(
                 end.linkTo(anchor = parent.end)
                 width = Dimension.fillToConstraints
             },
-            text = movieSeriesPart.title ?: "",
+            text = seriesPart.title ?: "",
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             fontSize = sp20,
             fontWeight = FontWeight.Bold
         )
-        movieSeriesPart.releaseDate?.takeIf { it.isNotEmpty() }?.let {
+        seriesPart.releaseDate?.takeIf { it.isNotEmpty() }?.let {
             Text(
                 modifier = Modifier.constrainAs(date) {
                     start.linkTo(anchor = poster.end, margin = dp5)
@@ -92,7 +112,7 @@ fun SeriesMovieInfoComponent(
                 width = Dimension.preferredWrapContent
                 height = Dimension.fillToConstraints
             },
-            text = movieSeriesPart.overview ?: "",
+            text = seriesPart.overview ?: "",
             overflow = TextOverflow.Ellipsis,
             fontSize = sp13,
             style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))

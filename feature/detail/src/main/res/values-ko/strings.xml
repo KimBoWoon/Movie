@@ -5,4 +5,12 @@
     <string name="similar_movie_not_found">비슷한 영화가 없습니다.</string>
     <string name="trailer_video_not_found">예고편이 없습니다.</string>
     <string name="movie_image_not_found">등록된 이미지가 없습니다.</string>
+    <string name="movie_crew_not_found">등록된 배우 &amp; 스태프 정보가 없습니다.</string>
+    <string name="movie_actor">배우</string>
+    <string name="movie_staff">스태프</string>
+    <string name="movie_runtime">%d분</string>
+    <string name="movie_info_separator">|</string>
+    <string name="movie_vote_average">별점 %.2f</string>
+    <string name="movie_alternative_title">다른 이름</string>
+    <string name="movie_production_companies">제작사 정보</string>
 </resources>
