@@ -54,6 +54,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -80,9 +81,10 @@ import com.bowoon.model.MovieSeries
 import com.bowoon.model.PagingStatus
 import com.bowoon.movie.feature.detail.R
 import com.bowoon.ui.components.PagingAppendErrorComponent
-import com.bowoon.ui.components.SeriesMovieInfoComponent
 import com.bowoon.ui.components.TabComponent
 import com.bowoon.ui.components.TitleComponent
+import com.bowoon.ui.components.movieSeriesListComponent
+import com.bowoon.ui.components.seriesInfoComponent
 import com.bowoon.ui.dialog.ConfirmDialog
 import com.bowoon.ui.dialog.ModalBottomSheetDialog
 import com.bowoon.ui.image.DynamicAsyncImageLoader
@@ -91,11 +93,13 @@ import com.bowoon.ui.utils.bounceClick
 import com.bowoon.ui.utils.dp0
 import com.bowoon.ui.utils.dp10
 import com.bowoon.ui.utils.dp100
-import com.bowoon.ui.utils.dp150
 import com.bowoon.ui.utils.dp16
 import com.bowoon.ui.utils.dp20
 import com.bowoon.ui.utils.dp200
+import com.bowoon.ui.utils.dp300
+import com.bowoon.ui.utils.dp32
 import com.bowoon.ui.utils.dp5
+import com.bowoon.ui.utils.dp8
 import com.bowoon.ui.utils.sp10
 import com.bowoon.ui.utils.sp12
 import com.bowoon.ui.utils.sp15
@@ -105,7 +109,6 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
 import kotlinx.coroutines.launch
-import org.threeten.bp.LocalDate
 
 @Composable
 fun DetailScreen(
@@ -260,9 +263,12 @@ fun MovieDetailComponent(
                 ) {
                     when (it[index]) {
                         MovieDetailTab.MOVIE_INFO.label -> MovieInfoComponent(movie = movieDetail)
-                        MovieDetailTab.SERIES.label -> SeriesInfoComponent(
+                        MovieDetailTab.SERIES.label -> MovieSeriesComponent(
                             movieSeries = movieSeries,
                             goToMovie = goToMovie
+                        )
+                        MovieDetailTab.ADDITIONAL_INFO.label -> MovieAdditionalInfoComponent(
+                            movie = movieDetail
                         )
                         MovieDetailTab.ACTOR_AND_CREW.label -> ActorAndCrewComponent(
                             movie = movieDetail,
@@ -455,197 +461,79 @@ fun ImageComponent(
 }
 
 @Composable
-fun SeriesInfoComponent(
+fun MovieSeriesComponent(
     movieSeries: MovieSeries?,
     goToMovie: (Int) -> Unit,
 ) {
     val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
 
-    Box(
-        modifier = Modifier.fillMaxSize()
+    LazyColumn(
+        modifier = Modifier
+            .semantics { contentDescription = "seriesList" }
+            .fillMaxSize(),
+        contentPadding = PaddingValues(horizontal = dp16, vertical = dp10),
+        verticalArrangement = Arrangement.spacedBy(dp10)
     ) {
-        LazyColumn(
-            modifier = Modifier
-                .semantics { contentDescription = "seriesList" }
-                .fillMaxSize(),
-            contentPadding = PaddingValues(horizontal = dp16, vertical = dp10),
-            verticalArrangement = Arrangement.spacedBy(dp10)
-        ) {
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(dp5)
-                ) {
-                    DynamicAsyncImageLoader(
-                        modifier = Modifier
-                            .width(dp150)
-                            .aspectRatio(POSTER_IMAGE_RATIO),
-                        source = "${posterUrl}${movieSeries?.posterPath}",
-                        contentDescription = "${posterUrl}${movieSeries?.posterPath}"
-                    )
-                    Column {
-                        Text(
-                            modifier = Modifier
-                                .semantics { contentDescription = "belongsToCollectionName" }
-                                .fillMaxWidth()
-                                .wrapContentHeight(),
-                            text = movieSeries?.name ?: "",
-                            fontSize = sp20,
-                            textAlign = TextAlign.Center
-                        )
-                        Text(
-                            text = movieSeries?.overview ?: "",
-                            maxLines = 5,
-                            overflow = TextOverflow.Ellipsis,
-                            fontSize = sp15,
-                            style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
-                        )
-                    }
-                }
-            }
-            items(
-                items = movieSeries?.parts?.sortedBy { it?.releaseDate?.trim()?.takeIf { date -> date.isNotEmpty() }?.let { date -> LocalDate.parse(date) } } ?: emptyList(),
-                key = { movieSeries -> movieSeries?.id ?: -1 }
-            ) { movieSeries ->
-                movieSeries?.let {
-                    SeriesMovieInfoComponent(
-                        movieSeriesPart = it,
-                        posterUrl = posterUrl,
-                        goToMovie = goToMovie
-                    )
-                }
-            }
+        movieSeries?.let {
+            seriesInfoComponent(
+                series = movieSeries,
+                posterUrl = posterUrl
+            )
+            movieSeriesListComponent(
+                series = movieSeries.parts ?: emptyList(),
+                posterUrl = posterUrl,
+                goToMovie = goToMovie
+            )
         }
     }
 }
 
 @Composable
-fun MovieInfoComponent(
+fun MovieAdditionalInfoComponent(
     movie: MovieDetail
 ) {
-    var overviewMaxLine by remember { mutableIntStateOf(3) }
-    val titles = movie.alternativeTitles?.titles?.fold("") { acc, title -> if (acc.isEmpty()) "${title.title}" else "$acc\n${title.title}" } ?: ""
+    val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
     var expanded by remember { mutableStateOf(false) }
+    val titles = movie.alternativeTitles?.titles?.fold("") { acc, title -> if (acc.isEmpty()) "${title.title}" else "$acc\n${title.title}" } ?: ""
 
     LazyColumn(
         modifier = Modifier.fillMaxSize()
     ) {
         item {
-            Row(
-                modifier = Modifier
-                    .padding(start = dp16, end = dp16, top = dp10)
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                movie.releaseDate?.takeIf { it.isNotEmpty() }?.let {
-                    Text(
-                        text = it,
-                        fontSize = sp10
-                    )
-                }
-                if (!movie.releaseDate.isNullOrEmpty() && !movie.certification.isNullOrEmpty()) {
-                    Text(
-                        modifier = Modifier.padding(horizontal = dp5),
-                        text = "|",
-                        fontSize = sp10,
-                        color = Color.LightGray
-                    )
-                }
-                movie.certification?.takeIf { it.isNotEmpty() }?.let {
-                    Text(
-                        text = it,
-                        fontSize = sp10
-                    )
-                }
-            }
-            movie.title?.takeIf { it.isNotEmpty() }?.let {
+            movie.productionCompanies?.let { production ->
                 Text(
-                    modifier = Modifier
-                        .testTag(tag = "movieTitle")
-                        .padding(
-                            start = dp16,
-                            end = dp16,
-                            top = if (!movie.releaseDate.isNullOrEmpty() && !movie.certification.isNullOrEmpty()) dp10 else dp20
-                        )
-                        .fillMaxWidth()
-                        .wrapContentHeight(),
-                    text = it,
+                    modifier = Modifier.fillMaxWidth().padding(vertical = dp10, horizontal = dp16),
+                    text = stringResource(R.string.movie_production_companies),
+                    textAlign = TextAlign.Center,
                     fontSize = sp20,
-                    textAlign = TextAlign.Center
+                    fontWeight = FontWeight.Bold
                 )
-            }
-
-            movie.originalTitle?.takeIf { it.isNotEmpty() }?.let {
-                Text(
-                    modifier = Modifier
-                        .padding(top = dp5, start = dp16, end = dp16)
-                        .fillMaxWidth()
-                        .wrapContentHeight(),
-                    text = it,
-                    fontSize = sp10,
-                    textAlign = TextAlign.Center
-                )
-            }
-
-            movie.genres?.takeIf { it.isNotEmpty() }?.let {
-                Text(
-                    modifier = Modifier
-                        .padding(horizontal = dp16)
-                        .fillMaxWidth()
-                        .wrapContentHeight(),
-                    text = it.fold("") { acc, tmdbMovieDetailGenre -> if (acc.isEmpty()) "${tmdbMovieDetailGenre.name}" else "$acc, ${tmdbMovieDetailGenre.name}" },
-                    fontSize = sp10,
-                    textAlign = TextAlign.Center
-                )
-            }
-
-            Row(
-                modifier = Modifier
-                    .padding(horizontal = dp16)
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                movie.runtime?.let {
-                    Text(
-                        text = "${it}분",
-                        fontSize = sp10,
-                        textAlign = TextAlign.Center
-                    )
-                }
-                Text(
-                    modifier = Modifier.padding(horizontal = dp5),
-                    text = "|",
-                    fontSize = sp10,
-                    color = Color.LightGray
-                )
-                movie.voteAverage?.let {
-                    Text(
-                        text = "별점 $it",
-                        fontSize = sp10,
-                        textAlign = TextAlign.Center
-                    )
+                HorizontalPager(
+                    modifier = Modifier.fillMaxWidth().height(dp300),
+                    state = rememberPagerState { production.size ?: 0 },
+                    contentPadding = PaddingValues(horizontal = dp32),
+                    key = { index -> production[index].id ?: -1 }
+                ) { index ->
+                    Column(
+                        modifier = Modifier.padding(horizontal = dp8)
+                    ) {
+                        production[index].logoPath?.let {
+                            DynamicAsyncImageLoader(
+                                modifier = Modifier.fillMaxWidth(),
+                                source = "$posterUrl$it",
+                                contentDescription = "$posterUrl$it"
+                            )
+                        }
+                        Text(
+                            modifier = Modifier.fillMaxWidth(),
+                            text = production[index].name ?: "",
+                            textAlign = TextAlign.Center
+                        )
+                    }
                 }
             }
-
-            movie.overview?.takeIf { it.isNotEmpty() }?.let {
-                Text(
-                    modifier = Modifier
-                        .padding(horizontal = dp16)
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                        .clickable {
-                            overviewMaxLine = if (overviewMaxLine == 3) Int.MAX_VALUE else 3
-                        },
-                    text = it,
-                    maxLines = overviewMaxLine,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-
+        }
+        item {
             if (titles.isNotEmpty()) {
                 Row(
                     modifier = Modifier
@@ -663,7 +551,7 @@ fun MovieInfoComponent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .wrapContentHeight(),
-                        text = "다른 이름",
+                        text = stringResource(R.string.movie_alternative_title),
                         fontSize = sp15
                     )
                 }
@@ -684,6 +572,155 @@ fun MovieInfoComponent(
 }
 
 @Composable
+fun MovieInfoComponent(
+    movie: MovieDetail
+) {
+    var overviewMaxLine by remember { mutableIntStateOf(3) }
+
+    LazyColumn(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        // release date
+        item {
+            Row(
+                modifier = Modifier
+                    .padding(start = dp16, end = dp16, top = dp10)
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                movie.releaseDate?.takeIf { it.isNotEmpty() }?.let {
+                    Text(
+                        text = it,
+                        fontSize = sp10,
+                        style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
+                    )
+                }
+                if (!movie.releaseDate.isNullOrEmpty() && !movie.certification.isNullOrEmpty()) {
+                    Text(
+                        modifier = Modifier.padding(horizontal = dp5),
+                        text = stringResource(R.string.movie_info_separator),
+                        fontSize = sp10,
+                        style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
+                    )
+                }
+                movie.certification?.takeIf { it.isNotEmpty() }?.let {
+                    Text(
+                        text = it,
+                        fontSize = sp10,
+                        style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
+                    )
+                }
+            }
+        }
+        // movie title
+        item {
+            movie.tagline?.takeIf { it.isNotEmpty() }?.let {
+                Text(
+                    modifier = Modifier
+                        .testTag(tag = "movieTagline")
+                        .padding(
+                            start = dp16,
+                            end = dp16,
+                            top = if (!movie.releaseDate.isNullOrEmpty() && !movie.certification.isNullOrEmpty()) dp10 else dp20
+                        )
+                        .fillMaxWidth()
+                        .wrapContentHeight(),
+                    text = it,
+                    fontSize = sp15,
+                    textAlign = TextAlign.Center
+                )
+            }
+            movie.title?.takeIf { it.isNotEmpty() }?.let {
+                Text(
+                    modifier = Modifier
+                        .testTag(tag = "movieTitle")
+                        .padding(
+                            start = dp16,
+                            end = dp16,
+                            top = if (!movie.tagline.isNullOrEmpty()) dp0 else dp20
+                        )
+                        .fillMaxWidth()
+                        .wrapContentHeight(),
+                    text = it,
+                    fontSize = sp20,
+                    textAlign = TextAlign.Center
+                )
+            }
+            movie.originalTitle?.takeIf { it.isNotEmpty() }?.let {
+                Text(
+                    modifier = Modifier
+                        .padding(top = dp5, bottom = dp5, start = dp16, end = dp16)
+                        .fillMaxWidth()
+                        .wrapContentHeight(),
+                    text = it,
+                    fontSize = sp10,
+                    textAlign = TextAlign.Center,
+                    style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
+                )
+            }
+            movie.genres?.takeIf { it.isNotEmpty() }?.let {
+                Text(
+                    modifier = Modifier
+                        .padding(horizontal = dp16)
+                        .fillMaxWidth()
+                        .wrapContentHeight(),
+                    text = it.fold("") { acc, tmdbMovieDetailGenre -> if (acc.isEmpty()) "${tmdbMovieDetailGenre.name}" else "$acc, ${tmdbMovieDetailGenre.name}" },
+                    fontSize = sp10,
+                    textAlign = TextAlign.Center,
+                    style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
+                )
+            }
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = dp16)
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                movie.runtime?.let {
+                    Text(
+                        text = stringResource(R.string.movie_runtime, it),
+                        fontSize = sp10,
+                        textAlign = TextAlign.Center
+                    )
+                }
+                if (movie.runtime != null && movie.voteAverage != null) {
+                    Text(
+                        modifier = Modifier.padding(horizontal = dp5),
+                        text = stringResource(R.string.movie_info_separator),
+                        fontSize = sp10
+                    )
+                }
+                movie.voteAverage?.let {
+                    Text(
+                        text = stringResource(R.string.movie_vote_average, it),
+                        fontSize = sp10,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+            movie.overview?.takeIf { it.isNotEmpty() }?.let {
+                Text(
+                    modifier = Modifier
+                        .padding(horizontal = dp16)
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .clickable {
+                            overviewMaxLine = if (overviewMaxLine == 3) Int.MAX_VALUE else 3
+                        },
+                    text = it,
+                    maxLines = overviewMaxLine,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+    }
+}
+
+@Composable
 fun ActorAndCrewComponent(
     movie: MovieDetail,
     goToPeople: (Int) -> Unit
@@ -694,7 +731,7 @@ fun ActorAndCrewComponent(
         ) {
             Text(
                 modifier = Modifier.align(Alignment.Center),
-                text = "등록된 배우 & 스태프 정보가 없습니다."
+                text = stringResource(R.string.movie_crew_not_found)
             )
         }
     } else {
@@ -709,7 +746,7 @@ fun ActorAndCrewComponent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = dp16),
-                        text = "배우",
+                        text = stringResource(R.string.movie_actor),
                         fontSize = sp20,
                         textAlign = TextAlign.Center
                     )
@@ -732,7 +769,7 @@ fun ActorAndCrewComponent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = dp16),
-                        text = "스태프",
+                        text = stringResource(R.string.movie_staff),
                         fontSize = sp20,
                         textAlign = TextAlign.Center
                     )
