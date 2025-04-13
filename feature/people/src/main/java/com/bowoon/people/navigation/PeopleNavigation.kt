@@ -1,36 +1,10 @@
 package com.bowoon.people.navigation
 
-import androidx.navigation.NavController
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavOptionsBuilder
-import androidx.navigation.compose.composable
-import com.bowoon.people.PeopleScreen
-import kotlinx.serialization.Serializable
+import com.slack.circuit.runtime.Navigator
+import com.slack.circuit.runtime.screen.Screen
+import kotlinx.parcelize.Parcelize
 
-@Serializable
-data class PeopleRoute(
-    val id: Int
-)
+@Parcelize
+data class People(val id: Int) : Screen
 
-fun NavController.navigateToPeople(
-    id: Int,
-    navOptions: NavOptionsBuilder.() -> Unit = {}
-) {
-    navigate(route = PeopleRoute(id)) {
-        navOptions()
-    }
-}
-
-fun NavGraphBuilder.peopleScreen(
-    onBack: () -> Unit,
-    goToMovie: (Int) -> Unit,
-    onShowSnackbar: suspend (String, String?) -> Boolean
-) {
-    composable<PeopleRoute>() {
-        PeopleScreen(
-            onBack = onBack,
-            goToMovie = goToMovie,
-            onShowSnackbar = onShowSnackbar
-        )
-    }
-}
+fun Navigator.goToPeople(id: Int) { goTo(People(id = id) )}

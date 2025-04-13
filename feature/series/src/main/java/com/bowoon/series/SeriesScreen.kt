@@ -17,8 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bowoon.data.repository.LocalMovieAppDataComposition
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.MovieSeries
@@ -32,19 +30,26 @@ import com.bowoon.ui.utils.dp16
 
 @Composable
 fun SeriesScreen(
-    onBack: () -> Unit,
-    goToMovie: (Int) -> Unit,
-    viewModel: SeriesVM = hiltViewModel()
+    state: SeriesUiState,
+    modifier: Modifier = Modifier
 ) {
     LocalFirebaseLogHelper.current.sendLog("SeriesScreen", "series screen init")
 
-    val seriesState by viewModel.series.collectAsStateWithLifecycle()
-
-    SeriesScreen(
-        seriesState = seriesState,
-        onBack = onBack,
-        goToMovie = goToMovie
-    )
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        when (state.series) {
+            is SeriesState.Loading -> CircularProgressIndicator(modifier = Modifier.align(alignment = Alignment.Center))
+            is SeriesState.Success -> {
+                SeriesScreen(
+                    seriesState = state.series,
+                    onBack = { state.eventSink(SeriesEvent.GoToBack) },
+                    goToMovie = { id -> state.eventSink(SeriesEvent.GoToMovie(id = id)) }
+                )
+            }
+            is SeriesState.Error -> {}
+        }
+    }
 }
 
 @Composable

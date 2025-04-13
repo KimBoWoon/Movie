@@ -4,6 +4,7 @@ import com.bowoon.convention.Config.getProp
 import com.bowoon.convention.MovieAppBuildType
 import com.bowoon.convention.configureKotlinAndroid
 import com.bowoon.convention.libs
+import com.google.devtools.ksp.gradle.KspExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.apply
@@ -16,6 +17,12 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
         with(target) {
             apply(plugin = "com.android.application")
             apply(plugin = "org.jetbrains.kotlin.android")
+            apply(plugin = "com.google.devtools.ksp")
+            apply(plugin = "kotlin-parcelize")
+
+            extensions.configure<KspExtension> {
+                arg("circuit.codegen.mode", "hilt")
+            }
 
             extensions.configure<ApplicationExtension> {
                 defaultConfig {
@@ -94,6 +101,9 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
 
             dependencies {
                 add("testImplementation", project(":core:testing"))
+                add("implementation", libs.findLibrary("circuit.foundation").get())
+                add("implementation", libs.findLibrary("circuit.codegen.annotation").get())
+                add("ksp", libs.findLibrary("circuit.codegen.ksp").get())
                 add("implementation", libs.findLibrary("androidx.core.ktx").get())
                 add("implementation", libs.findLibrary("androidx.appcompat").get())
                 add("testImplementation", libs.findLibrary("junit").get())

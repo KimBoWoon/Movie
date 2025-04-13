@@ -33,10 +33,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bowoon.data.repository.LocalMovieAppDataComposition
-import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.DarkThemeConfig
 import com.bowoon.model.InternalData
 import com.bowoon.model.Language
@@ -51,15 +48,12 @@ import com.bowoon.ui.utils.dp56
 
 @Composable
 fun MyScreen(
-    viewModel: MyVM = hiltViewModel()
+    state: MyUiState,
+    modifier: Modifier = Modifier
 ) {
-    LocalFirebaseLogHelper.current.sendLog("MyScreen", "my screen init")
-
-    val movieAppData by viewModel.myData.collectAsStateWithLifecycle()
-
     MyScreen(
-        internalData = movieAppData,
-        updateUserData = viewModel::updateUserData
+        internalData = state.internalData,
+        updateUserData = { internalData, isSync ->state.eventSink(MyEvent.UpdateInternalData(internalData = internalData, isSync = isSync)) }
     )
 }
 

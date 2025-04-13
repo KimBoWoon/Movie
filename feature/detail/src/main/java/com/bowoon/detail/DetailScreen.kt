@@ -1,7 +1,6 @@
 package com.bowoon.detail
 
 import android.widget.FrameLayout
-import androidx.annotation.OptIn
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -59,9 +58,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.media3.common.util.UnstableApi
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -70,7 +67,7 @@ import com.bowoon.data.repository.LocalMovieAppDataComposition
 import com.bowoon.data.util.PEOPLE_IMAGE_RATIO
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.data.util.VIDEO_RATIO
-import com.bowoon.firebase.LocalFirebaseLogHelper
+import com.bowoon.detail.navigation.Detail
 import com.bowoon.model.Cast
 import com.bowoon.model.Crew
 import com.bowoon.model.Favorite
@@ -108,110 +105,63 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstan
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
+import com.slack.circuit.codegen.annotations.CircuitInject
+import dagger.hilt.android.components.ActivityRetainedComponent
 import kotlinx.coroutines.launch
 
+@CircuitInject(Detail::class, ActivityRetainedComponent::class)
 @Composable
 fun DetailScreen(
-    onBack: () -> Unit,
-    goToMovie: (Int) -> Unit,
-    goToPeople: (Int) -> Unit,
-    onShowSnackbar: suspend (String, String?) -> Boolean,
-    viewModel: DetailVM = hiltViewModel()
+    state: DetailState,
+    modifier: Modifier = Modifier,
 ) {
-    LocalFirebaseLogHelper.current.sendLog("DetailScreen", "detail screen start!")
-
-    val movieInfo by viewModel.movieInfo.collectAsStateWithLifecycle()
-    val similarMovies = viewModel.similarMovies.collectAsLazyPagingItems()
-    val movieSeries by viewModel.movieSeries.collectAsStateWithLifecycle()
-
-    DetailScreen(
-        movieInfoState = movieInfo,
-        similarMovieState = similarMovies,
-        movieSeries = movieSeries,
-        goToMovie = goToMovie,
-        goToPeople = goToPeople,
-        onBack = onBack,
-        onShowSnackbar = onShowSnackbar,
-        insertFavoriteMovie = viewModel::insertMovie,
-        deleteFavoriteMovie = viewModel::deleteMovie,
-        restart = viewModel::restart
-    )
-}
-
-@Composable
-fun DetailScreen(
-    movieInfoState: MovieDetailState,
-    similarMovieState: LazyPagingItems<Movie>,
-    movieSeries: MovieSeries?,
-    goToMovie: (Int) -> Unit,
-    goToPeople: (Int) -> Unit,
-    onBack: () -> Unit,
-    onShowSnackbar: suspend (String, String?) -> Boolean,
-    insertFavoriteMovie: (Favorite) -> Unit,
-    deleteFavoriteMovie: (Favorite) -> Unit,
-    restart: () -> Unit
-) {
-    val scope = rememberCoroutineScope()
-    var movie by remember { mutableStateOf<MovieDetail>(MovieDetail()) }
+//    val scope = rememberCoroutineScope()
 
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        when (movieInfoState) {
-            is MovieDetailState.Loading -> {
-                Log.d("loading...")
-                CircularProgressIndicator(
-                    modifier = Modifier
-                        .testTag(tag = "detailScreenLoading")
-                        .align(Alignment.Center)
-                )
-            }
+        when (state.movieDetail) {
+            is MovieDetailState.Loading -> CircularProgressIndicator(modifier = Modifier.align(alignment = Alignment.Center))
             is MovieDetailState.Success -> {
-                Log.d("${movieInfoState.movieDetail}")
-                movie = movieInfoState.movieDetail
-            }
-            is MovieDetailState.Error -> {
-                Log.e("${movieInfoState.throwable.message}")
+                Column(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    val favoriteMessage = if (state.movieDetail.movieDetail.isFavorite) stringResource(R.string.remove_favorite_movie) else stringResource(R.string.add_favorite_movie)
 
-                ConfirmDialog(
-                    title = stringResource(com.bowoon.movie.core.network.R.string.network_failed),
-                    message = "${movieInfoState.throwable.message}",
-                    confirmPair = stringResource(com.bowoon.movie.core.ui.R.string.retry_message) to { restart() },
-                    dismissPair = stringResource(com.bowoon.movie.core.ui.R.string.back_message) to onBack
-                )
-            }
-        }
-    }
+                    TitleComponent(
+                        title = state.movieDetail.movieDetail.title ?: "",
+                        isFavorite = state.movieDetail.movieDetail.isFavorite,
+                        onBackClick = { state.eventSink(DetailEvent.GoToBack) },
+                        onFavoriteClick = {
+                            val favorite = Favorite(
+                                id = state.movieDetail.movieDetail.id,
+                                title = state.movieDetail.movieDetail.title,
+                                imagePath = state.movieDetail.movieDetail.posterPath
+                            )
+                            if (state.movieDetail.movieDetail.isFavorite) {
+                                state.eventSink(DetailEvent.RemoveFavorite(favorite))
+                            } else {
+                                state.eventSink(DetailEvent.AddFavorite(favorite))
+                            }
+//                        scope.launch {
+//                            onShowSnackbar(favoriteMessage, null)
+//                        }
+                        }
+                    )
 
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        val favoriteMessage = if (movie.isFavorite) stringResource(R.string.remove_favorite_movie) else stringResource(R.string.add_favorite_movie)
+                    val movieSeries by state.movieSeries.collectAsStateWithLifecycle(initialValue = null)
 
-        TitleComponent(
-            title = movie.title ?: "",
-            isFavorite = movie.isFavorite,
-            onBackClick = onBack,
-            onFavoriteClick = {
-                val favorite = Favorite(
-                    id = movie.id,
-                    title = movie.title,
-                    imagePath = movie.posterPath
-                )
-                if (movie.isFavorite) deleteFavoriteMovie(favorite) else insertFavoriteMovie(favorite)
-                scope.launch {
-                    onShowSnackbar(favoriteMessage, null)
+                    MovieDetailComponent(
+                        movieDetail = state.movieDetail.movieDetail,
+                        movieSeries = movieSeries,
+                        similarMovieState = state.similarMovies.collectAsLazyPagingItems(),
+                        goToMovie = { id -> state.eventSink(DetailEvent.GoToMovie(id = id)) },
+                        goToPeople = { id -> state.eventSink(DetailEvent.GoToPeople(id = id)) }
+                    )
                 }
             }
-        )
-
-        MovieDetailComponent(
-            movieDetail = movie,
-            movieSeries = movieSeries,
-            similarMovieState = similarMovieState,
-            goToMovie = { id -> goToMovie(id) },
-            goToPeople = { id -> goToPeople(id) }
-        )
+            is MovieDetailState.Error -> {}
+        }
     }
 }
 
@@ -286,7 +236,6 @@ fun MovieDetailComponent(
     }
 }
 
-@OptIn(UnstableApi::class)
 @Composable
 fun VideosComponent(movie: MovieDetail) {
     val vodList = movie.videos?.results?.mapNotNull { it.key } ?: emptyList()
@@ -502,14 +451,18 @@ fun MovieAdditionalInfoComponent(
         item {
             movie.productionCompanies?.let { production ->
                 Text(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = dp10, horizontal = dp16),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = dp10, horizontal = dp16),
                     text = stringResource(R.string.movie_production_companies),
                     textAlign = TextAlign.Center,
                     fontSize = sp20,
                     fontWeight = FontWeight.Bold
                 )
                 HorizontalPager(
-                    modifier = Modifier.fillMaxWidth().height(dp300),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(dp300),
                     state = rememberPagerState { production.size ?: 0 },
                     contentPadding = PaddingValues(horizontal = dp32),
                     key = { index -> production[index].id ?: -1 }

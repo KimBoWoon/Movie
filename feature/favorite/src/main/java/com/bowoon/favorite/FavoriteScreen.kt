@@ -29,45 +29,35 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bowoon.common.Log
 import com.bowoon.data.repository.LocalMovieAppDataComposition
 import com.bowoon.data.util.PEOPLE_IMAGE_RATIO
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
-import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.Favorite
 import com.bowoon.ui.FavoriteButton
-import com.bowoon.ui.utils.bounceClick
 import com.bowoon.ui.components.ScrollToTopComponent
 import com.bowoon.ui.components.TabComponent
 import com.bowoon.ui.components.TitleComponent
+import com.bowoon.ui.image.DynamicAsyncImageLoader
+import com.bowoon.ui.utils.bounceClick
 import com.bowoon.ui.utils.dp10
 import com.bowoon.ui.utils.dp15
 import com.bowoon.ui.utils.dp5
-import com.bowoon.ui.image.DynamicAsyncImageLoader
 import kotlinx.coroutines.launch
 
 @Composable
 fun FavoriteScreen(
-    goToMovie: (Int) -> Unit,
-    goToPeople: (Int) -> Unit,
-    onShowSnackbar: suspend (String, String?) -> Boolean,
-    viewModel: FavoriteVM = hiltViewModel()
+    state: FavoriteUiState,
+    modifier: Modifier = Modifier
 ) {
-    LocalFirebaseLogHelper.current.sendLog("FavoriteScreen", "favorite screen init")
-
-    val favoriteMovies by viewModel.favoriteMovies.collectAsStateWithLifecycle()
-    val favoritePeoples by viewModel.favoritePeoples.collectAsStateWithLifecycle()
-
     FavoriteScreen(
-        favoriteMovies = favoriteMovies,
-        favoritePeoples = favoritePeoples,
-        onShowSnackbar = onShowSnackbar,
-        goToMovie = goToMovie,
-        goToPeople = goToPeople,
-        deleteFavoriteMovie = viewModel::deleteMovie,
-        deleteFavoritePeople = viewModel::deletePeople
+        favoriteMovies = state.favoriteMovies,
+        favoritePeoples = state.favoritePeoples,
+        onShowSnackbar = { _, _ -> true },
+        goToMovie = { id -> state.eventSink(FavoriteEvent.GoToMovie(id = id)) },
+        goToPeople = { id -> state.eventSink(FavoriteEvent.GoToPeople(id = id)) },
+        deleteFavoriteMovie = { favorite -> state.eventSink(FavoriteEvent.DeleteFavoriteMovie(favorite)) },
+        deleteFavoritePeople = { favorite -> state.eventSink(FavoriteEvent.DeleteFavoritePeople(favorite)) }
     )
 }
 
@@ -82,7 +72,7 @@ fun FavoriteScreen(
     deleteFavoritePeople: (Favorite) -> Unit
 ) {
     val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
-    val favoriteTabs = FavoriteVM.FavoriteTabs.entries.map { it.label }
+    val favoriteTabs = FavoritePresenter.FavoriteTabs.entries.map { it.label }
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { favoriteTabs.size })
     val scope = rememberCoroutineScope()
     val tabClickEvent: (Int, Int) -> Unit = { current, index ->
@@ -119,7 +109,7 @@ fun FavoriteScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         when (it[index]) {
-                            FavoriteVM.FavoriteTabs.MOVIE.label -> {
+                            FavoritePresenter.FavoriteTabs.MOVIE.label -> {
                                 Box(
                                     modifier = Modifier.fillMaxSize()
                                 ) {
@@ -161,7 +151,7 @@ fun FavoriteScreen(
                                     }
                                 }
                             }
-                            FavoriteVM.FavoriteTabs.PEOPLE.label -> {
+                            FavoritePresenter.FavoriteTabs.PEOPLE.label -> {
                                 Box(
                                     modifier = Modifier.fillMaxSize()
                                 ) {

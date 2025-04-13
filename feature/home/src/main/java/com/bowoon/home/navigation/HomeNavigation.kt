@@ -1,25 +1,7 @@
 package com.bowoon.home.navigation
 
-import androidx.navigation.NavController
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavOptions
-import androidx.navigation.compose.composable
-import com.bowoon.home.HomeScreen
-import kotlinx.serialization.Serializable
+import com.slack.circuit.runtime.screen.Screen
+import kotlinx.parcelize.Parcelize
 
-@Serializable
-data object HomeRoute
-
-fun NavController.navigateToHome(navOptions: NavOptions) = navigate(route = HomeRoute, navOptions)
-
-fun NavGraphBuilder.homeSection(
-    goToMovie: (Int) -> Unit,
-    onShowSnackbar: suspend (String, String?) -> Boolean
-) {
-    composable<HomeRoute>() {
-        HomeScreen(
-            goToMovie = goToMovie,
-            onShowSnackbar = onShowSnackbar
-        )
-    }
-}
+@Parcelize
+data object Home : Screen

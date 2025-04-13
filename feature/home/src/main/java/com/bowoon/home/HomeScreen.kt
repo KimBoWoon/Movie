@@ -18,24 +18,15 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.bowoon.common.Log
 import com.bowoon.data.repository.LocalMovieAppDataComposition
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
-import com.bowoon.firebase.LocalFirebaseLogHelper
-import com.bowoon.model.MainMenu
+import com.bowoon.home.navigation.Home
 import com.bowoon.model.Movie
 import com.bowoon.movie.feature.home.R
 import com.bowoon.ui.components.TitleComponent
@@ -45,112 +36,65 @@ import com.bowoon.ui.utils.dp150
 import com.bowoon.ui.utils.dp16
 import com.bowoon.ui.utils.sp10
 import com.bowoon.ui.utils.sp8
-import kotlinx.coroutines.launch
+import com.slack.circuit.codegen.annotations.CircuitInject
+import dagger.hilt.android.components.ActivityRetainedComponent
 
+@CircuitInject(Home::class, ActivityRetainedComponent::class)
 @Composable
 fun HomeScreen(
-    goToMovie: (Int) -> Unit,
-    onShowSnackbar: suspend (String, String?) -> Boolean,
-    viewModel: HomeVM = hiltViewModel()
-) {
-    LocalFirebaseLogHelper.current.sendLog("HomeScreen", "init screen")
-
-    val homeUiState by viewModel.mainMenu.collectAsStateWithLifecycle()
-    val isSyncing by viewModel.isSyncing.collectAsStateWithLifecycle()
-
-    HomeScreen(
-        isSyncing = isSyncing,
-        state = homeUiState,
-        onShowSnackbar = onShowSnackbar,
-        goToMovie = goToMovie
-    )
-}
-
-@Composable
-fun HomeScreen(
-    isSyncing: Boolean,
-    state: MainMenuState,
-    onShowSnackbar: suspend (String, String?) -> Boolean,
-    goToMovie: (Int) -> Unit
-) {
-    LocalFirebaseLogHelper.current.sendLog("HomeScreen", "init screen")
-
-    val scope = rememberCoroutineScope()
-    val checkingMainData = stringResource(R.string.check_main_data)
-
-    Box(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        if (isSyncing) {
-            LaunchedEffect(scope) {
-                scope.launch {
-                    onShowSnackbar(checkingMainData, null)
-                }
-            }
-            CircularProgressIndicator(
-                modifier = Modifier
-                    .semantics { contentDescription = "mainDataSync" }
-                    .align(Alignment.Center)
-            )
-        }
-
-        when (state) {
-            is MainMenuState.Loading -> {
-                Log.d("loading...")
-                LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data loading...")
-                CircularProgressIndicator(
-                    modifier = Modifier
-                        .semantics { contentDescription = "homeLoading" }
-                        .align(Alignment.Center)
-                )
-            }
-            is MainMenuState.Success -> {
-                LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data load success")
-                Log.d("${state.mainMenu}")
-                MainComponent(
-                    mainMenu = state.mainMenu,
-                    goToMovie = goToMovie
-                )
-            }
-            is MainMenuState.Error -> {
-                LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data load Error > ${state.throwable.message}")
-                Log.e("${state.throwable.message}")
-            }
-        }
-    }
-}
-
-@Composable
-fun MainComponent(
-    mainMenu: MainMenu,
-    goToMovie: (Int) -> Unit
+    state: HomeUiState,
+    modifier: Modifier = Modifier,
 ) {
     val lazyListState = rememberLazyListState()
+    val nowPlayingMoviesTitle = stringResource(R.string.now_playing_movies)
+    val upcomingMoviesTitle = stringResource(R.string.upcoming_movies)
 
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        val nowPlayingMoviesTitle = stringResource(R.string.now_playing_movies)
-        val upcomingMoviesTitle = stringResource(R.string.upcoming_movies)
-
         TitleComponent(title = stringResource(R.string.title_movie_info))
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            state = lazyListState
+
+        Box(
+            modifier = Modifier.fillMaxSize()
         ) {
-            if (mainMenu.nowPlaying.isNotEmpty()) {
-                horizontalMovieListComponent(
-                    title = nowPlayingMoviesTitle,
-                    movies = mainMenu.nowPlaying,
-                    goToMovie = goToMovie
+            if (state.isSyncing) {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center)
                 )
             }
-            if (mainMenu.upComingMovies.isNotEmpty()) {
-                horizontalMovieListComponent(
-                    title = upcomingMoviesTitle,
-                    movies = mainMenu.upComingMovies,
-                    goToMovie = goToMovie
-                )
+
+            when (state.mainMenuState) {
+                is MainMenuState.Loading -> {
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
+                is MainMenuState.Success -> {
+                    Column(
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            state = lazyListState
+                        ) {
+                            if (state.mainMenuState.mainMenu.nowPlaying.isNotEmpty()) {
+                                horizontalMovieListComponent(
+                                    title = nowPlayingMoviesTitle,
+                                    movies = state.mainMenuState.mainMenu.nowPlaying,
+                                    goToMovie = { id -> state.eventSink(HomeEvent.GoToMovie(id = id)) }
+                                )
+                            }
+                            if (state.mainMenuState.mainMenu.upComingMovies.isNotEmpty()) {
+                                horizontalMovieListComponent(
+                                    title = upcomingMoviesTitle,
+                                    movies = state.mainMenuState.mainMenu.upComingMovies,
+                                    goToMovie = { id -> state.eventSink(HomeEvent.GoToMovie(id = id)) }
+                                )
+                            }
+                        }
+                    }
+                }
+                is MainMenuState.Error -> {}
             }
         }
     }
@@ -163,7 +107,9 @@ fun LazyListScope.horizontalMovieListComponent(
 ) {
     item {
         Text(
-            modifier = Modifier.padding(dp16).fillMaxWidth(),
+            modifier = Modifier
+                .padding(dp16)
+                .fillMaxWidth(),
             text = title
         )
         LazyRow(
@@ -224,3 +170,181 @@ fun MainMovieItem(
         )
     }
 }
+
+//@Composable
+//fun HomeScreen(
+//    goToMovie: (Int) -> Unit,
+//    onShowSnackbar: suspend (String, String?) -> Boolean,
+//    viewModel: HomeVM = hiltViewModel()
+//) {
+//    LocalFirebaseLogHelper.current.sendLog("HomeScreen", "init screen")
+//
+//    val homeUiState by viewModel.mainMenu.collectAsStateWithLifecycle()
+//    val isSyncing by viewModel.isSyncing.collectAsStateWithLifecycle()
+//
+//    HomeScreen(
+//        isSyncing = isSyncing,
+//        state = homeUiState,
+//        onShowSnackbar = onShowSnackbar,
+//        goToMovie = goToMovie
+//    )
+//}
+//
+//@Composable
+//fun HomeScreen(
+//    isSyncing: Boolean,
+//    state: MainMenuState,
+//    onShowSnackbar: suspend (String, String?) -> Boolean,
+//    goToMovie: (Int) -> Unit
+//) {
+//    LocalFirebaseLogHelper.current.sendLog("HomeScreen", "init screen")
+//
+//    val scope = rememberCoroutineScope()
+//    val checkingMainData = stringResource(R.string.check_main_data)
+//
+//    Box(
+//        modifier = Modifier.fillMaxSize()
+//    ) {
+//        if (isSyncing) {
+//            LaunchedEffect(scope) {
+//                scope.launch {
+//                    onShowSnackbar(checkingMainData, null)
+//                }
+//            }
+//            CircularProgressIndicator(
+//                modifier = Modifier
+//                    .semantics { contentDescription = "mainDataSync" }
+//                    .align(Alignment.Center)
+//            )
+//        }
+//
+//        when (state) {
+//            is MainMenuState.Loading -> {
+//                Log.d("loading...")
+//                LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data loading...")
+//                CircularProgressIndicator(
+//                    modifier = Modifier
+//                        .semantics { contentDescription = "homeLoading" }
+//                        .align(Alignment.Center)
+//                )
+//            }
+//            is MainMenuState.Success -> {
+//                LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data load success")
+//                Log.d("${state.mainMenu}")
+//                MainComponent(
+//                    mainMenu = state.mainMenu,
+//                    goToMovie = goToMovie
+//                )
+//            }
+//            is MainMenuState.Error -> {
+//                LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data load Error > ${state.throwable.message}")
+//                Log.e("${state.throwable.message}")
+//            }
+//        }
+//    }
+//}
+//
+//@Composable
+//fun MainComponent(
+//    mainMenu: MainMenu,
+//    goToMovie: (Int) -> Unit
+//) {
+//    val lazyListState = rememberLazyListState()
+//
+//    Column(
+//        modifier = Modifier.fillMaxSize()
+//    ) {
+//        val nowPlayingMoviesTitle = stringResource(R.string.now_playing_movies)
+//        val upcomingMoviesTitle = stringResource(R.string.upcoming_movies)
+//
+//        TitleComponent(title = stringResource(R.string.title_movie_info))
+//        LazyColumn(
+//            modifier = Modifier.fillMaxSize(),
+//            state = lazyListState
+//        ) {
+//            if (mainMenu.nowPlaying.isNotEmpty()) {
+//                horizontalMovieListComponent(
+//                    title = nowPlayingMoviesTitle,
+//                    movies = mainMenu.nowPlaying,
+//                    goToMovie = goToMovie
+//                )
+//            }
+//            if (mainMenu.upComingMovies.isNotEmpty()) {
+//                horizontalMovieListComponent(
+//                    title = upcomingMoviesTitle,
+//                    movies = mainMenu.upComingMovies,
+//                    goToMovie = goToMovie
+//                )
+//            }
+//        }
+//    }
+//}
+//
+//fun LazyListScope.horizontalMovieListComponent(
+//    title: String,
+//    movies: List<Movie>,
+//    goToMovie: (Int) -> Unit
+//) {
+//    item {
+//        Text(
+//            modifier = Modifier.padding(dp16).fillMaxWidth(),
+//            text = title
+//        )
+//        LazyRow(
+//            modifier = Modifier.wrapContentSize(),
+//            contentPadding = PaddingValues(horizontal = dp16),
+//            horizontalArrangement = Arrangement.spacedBy(dp16)
+//        ) {
+//            items(
+//                count = movies.size,
+//                key = { index -> "${movies[index].id}_${index}_${movies[index].title}" }
+//            ) { index ->
+//                MainMovieItem(
+//                    movie = movies[index],
+//                    goToMovie = goToMovie
+//                )
+//            }
+//        }
+//    }
+//}
+//
+//@Composable
+//fun MainMovieItem(
+//    movie: Movie,
+//    goToMovie: (Int) -> Unit
+//) {
+//    val posterPath = LocalMovieAppDataComposition.current.getImageUrl()
+//
+//    Column(
+//        modifier = Modifier
+//            .width(dp150)
+//            .wrapContentHeight()
+//            .bounceClick { goToMovie(movie.id ?: -1) }
+//    ) {
+//        Box(
+//            modifier = Modifier.wrapContentSize()
+//        ) {
+//            DynamicAsyncImageLoader(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .aspectRatio(POSTER_IMAGE_RATIO),
+//                source = "$posterPath${movie.posterPath}",
+//                contentDescription = "BoxOfficePoster"
+//            )
+//        }
+//        Text(
+//            text = movie.title ?: "",
+//            fontSize = sp10,
+//            style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false)),
+//            maxLines = 1,
+//            overflow = TextOverflow.Ellipsis
+//        )
+//        Text(
+//            text = movie.releaseDate ?: "",
+//            fontSize = sp8,
+//            style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false)),
+//            maxLines = 1,
+//            overflow = TextOverflow.Ellipsis
+//        )
+//    }
+//}

@@ -59,7 +59,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -93,70 +92,35 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun SearchScreen(
-    goToMovie: (Int) -> Unit,
-    goToPeople: (Int) -> Unit,
-    goToSeries: (Int) -> Unit,
-    viewModel: SearchVM = hiltViewModel()
+    state: SearchUiState,
+    modifier: Modifier = Modifier
 ) {
-    LocalFirebaseLogHelper.current.sendLog("SearchScreen", "search screen init")
-
-    val searchState by viewModel.searchResult.collectAsStateWithLifecycle()
-    val selectedGenre by viewModel.selectedGenre.collectAsStateWithLifecycle()
-    val searchType by viewModel.searchType.collectAsStateWithLifecycle()
-
-    SearchScreen(
-        searchState = searchState,
-        keyword = viewModel.searchQuery,
-        searchType = searchType,
-        selectedGenre = selectedGenre,
-        goToMovie = goToMovie,
-        goToPeople = goToPeople,
-        goToSeries = goToSeries,
-        onSearchClick = viewModel::searchMovies,
-        updateKeyword = viewModel::updateKeyword,
-        updateSearchType = viewModel::updateSearchType,
-        updateGenre = viewModel::updateGenre
-    )
-}
-
-@Composable
-fun SearchScreen(
-    searchState: SearchState,
-    keyword: String,
-    searchType: SearchType,
-    selectedGenre: Genre?,
-    goToMovie: (Int) -> Unit,
-    goToPeople: (Int) -> Unit,
-    goToSeries: (Int) -> Unit,
-    onSearchClick: () -> Unit,
-    updateKeyword: (String) -> Unit,
-    updateSearchType: (SearchType) -> Unit,
-    updateGenre: (Genre?) -> Unit
-) {
+    var query by remember { mutableStateOf("") }
     val scrollState = rememberLazyGridState()
+    val searchState by state.searchState.collectAsStateWithLifecycle(initialValue = SearchState.Loading)
 
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
         TitleComponent(title = stringResource(R.string.title_search))
         SearchBarComponent(
-            keyword = keyword,
-            searchType = searchType,
+            keyword = query,
+            searchType = state.searchType,
             scrollState = scrollState,
-            updateKeyword = updateKeyword,
-            onSearchClick = onSearchClick,
-            updateSearchType = updateSearchType,
-            updateGenre = updateGenre
+            updateKeyword = { keyword -> query = keyword },
+            onSearchClick = { state.eventSink(SearchEvent.Search(keyword = query)) },
+            updateSearchType = { searchType -> state.eventSink(SearchEvent.SelectedSearchType(searchType = searchType)) },
+            updateGenre = { genre -> state.eventSink(SearchEvent.SelectedGenre(genre = genre)) }
         )
         SearchResultPaging(
             searchState = searchState,
             scrollState = scrollState,
-            searchType = searchType,
-            goToMovie = goToMovie,
-            goToPeople = goToPeople,
-            goToSeries = goToSeries,
-            selectedGenre = selectedGenre,
-            updateGenre = updateGenre
+            searchType = state.searchType,
+            selectedGenre = state.selectedGenre,
+            goToMovie = { id -> state.eventSink(SearchEvent.GoToMovie(id = id)) },
+            goToPeople = { id -> state.eventSink(SearchEvent.GoToPeople(id = id)) },
+            goToSeries = { id -> state.eventSink(SearchEvent.GoToSeries(id = id)) },
+            updateGenre = { genre -> state.eventSink(SearchEvent.SelectedGenre(genre = genre)) }
         )
     }
 }

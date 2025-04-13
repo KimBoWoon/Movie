@@ -22,13 +22,20 @@ import com.bowoon.common.isSystemInDarkTheme
 import com.bowoon.data.repository.LocalMovieAppDataComposition
 import com.bowoon.data.util.NetworkMonitor
 import com.bowoon.firebase.LocalFirebaseLogHelper
+import com.bowoon.home.navigation.Home
 import com.bowoon.model.MovieAppData
 import com.bowoon.movie.MovieFirebase
 import com.bowoon.movie.R
+import com.bowoon.movie.factory.PresenterFactory
+import com.bowoon.movie.factory.ScreenFactory
 import com.bowoon.movie.rememberMovieAppState
 import com.bowoon.movie.ui.MovieMainScreen
 import com.bowoon.movie.utils.isSystemInDarkTheme
 import com.bowoon.ui.theme.MovieTheme
+import com.slack.circuit.backstack.rememberSaveableBackStack
+import com.slack.circuit.foundation.Circuit
+import com.slack.circuit.foundation.CircuitCompositionLocals
+import com.slack.circuit.foundation.rememberCircuitNavigator
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -51,6 +58,10 @@ class MainActivity : ComponentActivity() {
             getString(R.string.double_back_message)
         )
     }
+    @Inject
+    lateinit var presenterFactory: PresenterFactory
+    @Inject
+    lateinit var screenFactory: ScreenFactory
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
@@ -95,22 +106,32 @@ class MainActivity : ComponentActivity() {
         splashScreen.setKeepOnScreenCondition { viewModel.movieAppData.value.shouldKeepSplashScreen() }
 
         setContent {
-            CompositionLocalProvider(
-                LocalFirebaseLogHelper provides movieFirebase,
-                LocalMovieAppDataComposition provides movieAppData
-            ) {
-                LocalFirebaseLogHelper.current.sendLog(javaClass.simpleName, "compose start!")
-
-                MovieTheme(
-                    darkTheme = darkTheme
+            val backStack = rememberSaveableBackStack(root = Home)
+            val navigator = rememberCircuitNavigator(backStack)
+            val circuit: Circuit = Circuit.Builder()
+                .addPresenterFactory(presenterFactory)
+                .addUiFactory(screenFactory)
+                .build()
+            CircuitCompositionLocals(circuit) {
+                CompositionLocalProvider(
+                    LocalFirebaseLogHelper provides movieFirebase,
+                    LocalMovieAppDataComposition provides movieAppData
                 ) {
-                    val appState = rememberMovieAppState(networkMonitor = networkMonitor)
-                    val snackbarHostState = remember { SnackbarHostState() }
+                    LocalFirebaseLogHelper.current.sendLog(javaClass.simpleName, "compose start!")
 
-                    MovieMainScreen(
-                        appState = appState,
-                        snackbarHostState = snackbarHostState
-                    )
+                    MovieTheme(
+                        darkTheme = darkTheme
+                    ) {
+                        val appState = rememberMovieAppState(navigator = navigator, networkMonitor = networkMonitor)
+                        val snackbarHostState = remember { SnackbarHostState() }
+
+                        MovieMainScreen(
+                            appState = appState,
+                            navigator = navigator,
+                            backStack = backStack,
+                            snackbarHostState = snackbarHostState
+                        )
+                    }
                 }
             }
         }

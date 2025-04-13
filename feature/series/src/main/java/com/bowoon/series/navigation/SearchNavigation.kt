@@ -1,32 +1,10 @@
 package com.bowoon.series.navigation
 
-import androidx.navigation.NavController
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavOptionsBuilder
-import androidx.navigation.compose.composable
-import com.bowoon.series.SeriesScreen
-import kotlinx.serialization.Serializable
+import com.slack.circuit.runtime.Navigator
+import com.slack.circuit.runtime.screen.Screen
+import kotlinx.parcelize.Parcelize
 
-@Serializable
-data class SeriesRoute(
-    val id: Int
-)
+@Parcelize
+data class Series(val id: Int) : Screen
 
-fun NavController.navigateToSeries(
-    id: Int,
-    navOptions: NavOptionsBuilder.() -> Unit = {}
-) = navigate(route = SeriesRoute(id)) {
-    navOptions()
-}
-
-fun NavGraphBuilder.seriesScreen(
-    onBack: () -> Unit,
-    goToMovie: (Int) -> Unit
-) {
-    composable<SeriesRoute>() {
-        SeriesScreen(
-            onBack = onBack,
-            goToMovie = goToMovie
-        )
-    }
-}
+fun Navigator.goToSeries(id: Int) { goTo(Series(id = id)) }

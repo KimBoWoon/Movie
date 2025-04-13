@@ -24,6 +24,10 @@ $logs
     releaseNote.writeText(result)
 }
 
+ksp {
+    arg("circuit.codegen.mode", "hilt")
+}
+
 dependencies {
     arrayOf(
         projects.core.common,

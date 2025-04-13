@@ -90,6 +90,9 @@ threentenabp = "1.4.8"
 # youtube player
 youtubePlayer = "12.1.1"
 
+# circuit
+circuit = "0.27.0"
+
 [libraries]
 # gradle plugin
 android-gradle = { module = "com.android.tools.build:gradle", version.ref = "agp" }
@@ -211,6 +214,12 @@ javax-inject = { module = "javax.inject:javax.inject", version = "1" }
 # plugin
 ksp-gradlePlugin = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
 room-gradlePlugin = { group = "androidx.room", name = "room-gradle-plugin", version.ref = "room" }
+
+# circuit
+circuit-foundation = { module = "com.slack.circuit:circuit-foundation", version.ref = "circuit" }
+circuit-codegen-annotation = { module = "com.slack.circuit:circuit-codegen-annotations", version.ref = "circuit" }
+circuit-codegen-ksp = { module = "com.slack.circuit:circuit-codegen", version.ref = "circuit" }
+circuitx-android = { module = "com.slack.circuit:circuitx-android", version.ref = "circuit" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

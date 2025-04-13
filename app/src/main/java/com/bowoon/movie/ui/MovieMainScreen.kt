@@ -11,10 +11,8 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration.Indefinite
-import androidx.compose.material3.SnackbarDuration.Short
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult.ActionPerformed
 import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
@@ -34,18 +32,22 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.movie.MovieAppState
 import com.bowoon.movie.R
-import com.bowoon.movie.navigation.MovieAppNavHost
 import com.bowoon.ui.BottomNavigationBarItem
 import com.bowoon.ui.BottomNavigationRailItem
 import com.bowoon.ui.MovieNavigationDefaults
 import com.bowoon.ui.utils.dp1
 import com.bowoon.ui.utils.dp50
 import com.bowoon.ui.utils.topLineBorder
+import com.slack.circuit.backstack.SaveableBackStack
+import com.slack.circuit.foundation.NavigableCircuitContent
+import com.slack.circuit.runtime.Navigator
 import kotlin.reflect.KClass
 
 @Composable
 fun MovieMainScreen(
     appState: MovieAppState,
+    navigator: Navigator,
+    backStack: SaveableBackStack,
     snackbarHostState: SnackbarHostState
 ) {
     Scaffold(
@@ -68,16 +70,10 @@ fun MovieMainScreen(
             }
         }
 
-        MovieAppNavHost(
+        NavigableCircuitContent(
             modifier = Modifier.padding(innerPadding),
-            appState = appState,
-            onShowSnackbar = { message, action ->
-                snackbarHostState.showSnackbar(
-                    message = message,
-                    actionLabel = action,
-                    duration = Short,
-                ) == ActionPerformed
-            }
+            navigator = navigator,
+            backStack = backStack
         )
     }
 }
@@ -101,7 +97,7 @@ fun Navigation(
                 contentColor = MovieNavigationDefaults.navigationContentColor()
             ) {
                 appState.topLevelDestinations.forEach { destination ->
-                    val selected = currentDestination.isRouteInHierarchy(destination.baseRoute)
+                    val selected = currentDestination == destination.screen
                     BottomNavigationBarItem(
                         selected = selected,
                         label = context.getString(destination.titleTextId),
@@ -119,7 +115,7 @@ fun Navigation(
                 contentColor = MovieNavigationDefaults.navigationContentColor()
             ) {
                 appState.topLevelDestinations.forEach { destination ->
-                    val selected = currentDestination.isRouteInHierarchy(destination.baseRoute)
+                    val selected = currentDestination == destination.screen
                     BottomNavigationRailItem(
                         selected = selected,
                         label = context.getString(destination.titleTextId),
@@ -137,7 +133,7 @@ fun Navigation(
                 contentColor = MovieNavigationDefaults.navigationContentColor()
             ) {
                 appState.topLevelDestinations.forEach { destination ->
-                    val selected = currentDestination.isRouteInHierarchy(destination.baseRoute)
+                    val selected = currentDestination == destination.screen
                     BottomNavigationRailItem(
                         selected = selected,
                         label = context.getString(destination.titleTextId),
@@ -155,7 +151,7 @@ fun Navigation(
                 contentColor = MovieNavigationDefaults.navigationContentColor()
             ) {
                 appState.topLevelDestinations.forEach { destination ->
-                    val selected = currentDestination.isRouteInHierarchy(destination.baseRoute)
+                    val selected = currentDestination == destination.screen
                     BottomNavigationBarItem(
                         selected = selected,
                         label = context.getString(destination.titleTextId),

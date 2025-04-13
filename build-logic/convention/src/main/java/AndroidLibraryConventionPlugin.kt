@@ -3,6 +3,7 @@ import com.bowoon.convention.Config
 import com.bowoon.convention.configureFlavors
 import com.bowoon.convention.configureKotlinAndroid
 import com.bowoon.convention.libs
+import com.google.devtools.ksp.gradle.KspExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.apply
@@ -17,6 +18,11 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
             apply(plugin = "org.jetbrains.kotlin.android")
             apply(plugin = "kotlin-parcelize")
             apply(plugin = "org.jetbrains.kotlin.plugin.serialization")
+            apply(plugin = "com.google.devtools.ksp")
+
+            extensions.configure<KspExtension> {
+                arg("circuit.codegen.mode", "hilt")
+            }
 
             extensions.configure<LibraryExtension> {
                 defaultConfig {
@@ -50,6 +56,9 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
             dependencies {
                 add("testImplementation", project(":core:testing"))
                 add("androidTestImplementation", project(":core:testing"))
+                add("implementation", libs.findLibrary("circuit.foundation").get())
+                add("implementation", libs.findLibrary("circuit.codegen.annotation").get())
+                add("ksp", libs.findLibrary("circuit.codegen.ksp").get())
                 add("implementation", libs.findLibrary("androidx.core.ktx").get())
                 add("implementation", libs.findLibrary("androidx.appcompat").get())
                 add("implementation", libs.findLibrary("material").get())

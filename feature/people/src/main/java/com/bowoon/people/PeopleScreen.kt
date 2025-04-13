@@ -63,24 +63,30 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun PeopleScreen(
-    onBack: () -> Unit,
-    goToMovie: (Int) -> Unit,
-    onShowSnackbar: suspend (String, String?) -> Boolean,
-    viewModel: PeopleVM = hiltViewModel()
+    state: PeopleUiState,
+    modifier: Modifier = Modifier
 ) {
-    LocalFirebaseLogHelper.current.sendLog("PeopleScreen", "people screen start!")
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        when (state.people) {
+            is PeopleState.Loading -> CircularProgressIndicator(modifier = Modifier.align(alignment = Alignment.Center))
+            is PeopleState.Success -> {
+                PeopleScreen(
+                    peopleState = state.people,
+                    onBack = { state.eventSink(PeopleEvent.GoToBack) },
+                    insertFavoritePeople = { state.eventSink(PeopleEvent.AddFavorite(it)) },
+                    deleteFavoritePeople = { state.eventSink(PeopleEvent.RemoveFavorite(it)) },
+                    goToMovie = { state.eventSink(PeopleEvent.GoToMovie(it)) },
+                    onShowSnackbar = { _, _ -> true },
+                    restart = {  },
+                )
+            }
+            is PeopleState.Error -> {
 
-    val peopleState by viewModel.people.collectAsStateWithLifecycle()
-
-    PeopleScreen(
-        peopleState = peopleState,
-        onBack = onBack,
-        insertFavoritePeople = viewModel::insertPeople,
-        deleteFavoritePeople = viewModel::deletePeople,
-        goToMovie = goToMovie,
-        onShowSnackbar = onShowSnackbar,
-        restart = viewModel::restart
-    )
+            }
+        }
+    }
 }
 
 @Composable
@@ -134,7 +140,9 @@ fun PeopleScreen(
 
         if (isLoading) {
             CircularProgressIndicator(
-                modifier = Modifier.semantics { contentDescription = "peopleDetailLoading" }.align(Alignment.Center)
+                modifier = Modifier
+                    .semantics { contentDescription = "peopleDetailLoading" }
+                    .align(Alignment.Center)
             )
         }
     }

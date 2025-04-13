@@ -1,125 +1,127 @@
 package com.bowoon.detail
 
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import androidx.navigation.toRoute
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import com.bowoon.common.Result
-import com.bowoon.common.asResult
-import com.bowoon.common.restartableStateIn
+import com.bowoon.common.di.ApplicationScope
 import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.data.repository.DetailRepository
 import com.bowoon.data.repository.PagingRepository
 import com.bowoon.data.repository.UserDataRepository
-import com.bowoon.detail.navigation.DetailRoute
+import com.bowoon.detail.navigation.Detail
 import com.bowoon.domain.GetMovieDetailUseCase
 import com.bowoon.model.Favorite
 import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetail
 import com.bowoon.model.MovieSeries
-import dagger.hilt.android.lifecycle.HiltViewModel
+import com.slack.circuit.codegen.annotations.CircuitInject
+import com.slack.circuit.retained.collectAsRetainedState
+import com.slack.circuit.retained.produceRetainedState
+import com.slack.circuit.runtime.CircuitUiState
+import com.slack.circuit.runtime.Navigator
+import com.slack.circuit.runtime.presenter.Presenter
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
+import dagger.hilt.android.components.ActivityRetainedComponent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class DetailVM @Inject constructor(
-    savedStateHandle: SavedStateHandle,
-    getMovieDetail: GetMovieDetailUseCase,
+class DetailPresenter @AssistedInject constructor(
+    @Assisted private val navigator: Navigator,
+    @Assisted private val screen: Detail,
+    @Assisted("goToMovie") private val goToMovie: (Int) -> Unit,
+    @Assisted("goToPeople") private val goToPeople: (Int) -> Unit,
+    @ApplicationScope private val appScope: CoroutineScope,
+    private val getMovieDetail: GetMovieDetailUseCase,
     private val databaseRepository: DatabaseRepository,
     private val pagingRepository: PagingRepository,
     private val userDataRepository: UserDataRepository,
     private val detailRepository: DetailRepository
-) : ViewModel() {
-    companion object {
-        private const val TAG = "DetailVM"
-    }
+) : Presenter<DetailState> {
+    private val movieSeries = MutableStateFlow<MovieSeries?>(null)
 
-    init {
-        viewModelScope.launch {
-            userDataRepository.internalData.collect {
-                language = it.language
-                region = it.region
-            }
-        }
-    }
-
-    private var language: String = ""
-    private var region: String = ""
-    private val id = savedStateHandle.toRoute<DetailRoute>().id
-    val movieInfo = getMovieDetail(id)
-        .asResult()
-        .onEach { state ->
-            when (state) {
-                is Result.Loading, is Result.Error -> {}
-                is Result.Success -> {
-                    state.data.belongsToCollection?.id?.let { seriesId ->
-                        _movieSeries.emit(detailRepository.getMovieSeries(seriesId).first())
+    @Composable
+    override fun present(): DetailState {
+        val scope = rememberCoroutineScope()
+        val internalData by userDataRepository.internalData.collectAsRetainedState(initial = null)
+        val movie by getMovieDetail(screen.id)
+            .map<MovieDetail, MovieDetailState> {MovieDetailState.Success(it) }
+            .catch { emit(MovieDetailState.Error(it)) }
+            .onEach {
+                when (it) {
+                    is MovieDetailState.Loading, is MovieDetailState.Error -> {}
+                    is MovieDetailState.Success -> {
+                        it.movieDetail.belongsToCollection?.id?.let { seriesId ->
+                            movieSeries.emit(detailRepository.getMovieSeries(seriesId).first())
+                        }
                     }
-                    getSimilarMovies()
                 }
-            }
-        }
-        .map {
-            when (it) {
-                is Result.Loading -> MovieDetailState.Loading
-                is Result.Success -> MovieDetailState.Success(it.data)
-                is Result.Error -> MovieDetailState.Error(it.throwable)
-            }
-        }.restartableStateIn(
-            scope = viewModelScope,
-            initialValue = MovieDetailState.Loading,
-            started = SharingStarted.Lazily
-        )
-    val similarMovies = MutableStateFlow<PagingData<Movie>>(PagingData.empty())
-    private val _movieSeries = MutableStateFlow<MovieSeries?>(null)
-    val movieSeries = _movieSeries.stateIn(
-        scope = viewModelScope,
-        initialValue = null,
-        started = SharingStarted.Lazily
-    )
-
-    private fun getSimilarMovies() {
-        viewModelScope.launch {
-            Pager(
+            }.collectAsRetainedState(initial = MovieDetailState.Loading)
+        val similarMovies by produceRetainedState<Flow<PagingData<Movie>>>(initialValue = emptyFlow()) {
+            value = Pager(
                 config = PagingConfig(pageSize = 1, initialLoadSize = 1, prefetchDistance = 5),
                 initialKey = 1,
                 pagingSourceFactory = {
                     pagingRepository.getSimilarMovies(
-                        id = id,
-                        language = "$language-$region"
+                        id = screen.id,
+                        language = "${internalData?.language}-${internalData?.region}"
                     )
                 }
-            ).flow.cachedIn(viewModelScope).collect {
-                similarMovies.emit(it)
+            ).flow.cachedIn(scope)
+        }
+
+        return DetailState(
+            movieDetail = movie,
+            movieSeries = movieSeries,
+            similarMovies = similarMovies
+        ) { event ->
+            when (event) {
+                is DetailEvent.GoToBack -> navigator.pop()
+                is DetailEvent.AddFavorite -> scope.launch { databaseRepository.insertMovie(event.favorite) }
+                is DetailEvent.RemoveFavorite -> scope.launch { databaseRepository.deleteMovie(event.favorite) }
+                is DetailEvent.GoToMovie -> goToMovie(event.id)
+                is DetailEvent.GoToPeople -> goToPeople(event.id)
             }
         }
     }
 
-    fun restart() {
-        movieInfo.restart()
+    @CircuitInject(Detail::class, ActivityRetainedComponent::class)
+    @AssistedFactory
+    interface Factory {
+        fun create(
+            navigator: Navigator,
+            screen: Detail,
+            @Assisted("goToMovie") goToMovie: ((Int) -> Unit) = {},
+            @Assisted("goToPeople") goToPeople: ((Int) -> Unit) = {}
+        ): DetailPresenter
     }
+}
 
-    fun insertMovie(movie: Favorite) {
-        viewModelScope.launch {
-            databaseRepository.insertMovie(movie)
-        }
-    }
+class DetailState(
+    val movieDetail: MovieDetailState,
+    val movieSeries: Flow<MovieSeries?>,
+    val similarMovies: Flow<PagingData<Movie>>,
+    val eventSink: (DetailEvent) -> Unit
+) : CircuitUiState
 
-    fun deleteMovie(movie: Favorite) {
-        viewModelScope.launch {
-            databaseRepository.deleteMovie(movie)
-        }
-    }
+sealed interface DetailEvent {
+    data object GoToBack : DetailEvent
+    data class GoToMovie(val id: Int) : DetailEvent
+    data class GoToPeople(val id: Int) : DetailEvent
+    data class AddFavorite(val favorite: Favorite) : DetailEvent
+    data class RemoveFavorite(val favorite: Favorite) : DetailEvent
 }
 
 sealed interface MovieDetailState {
