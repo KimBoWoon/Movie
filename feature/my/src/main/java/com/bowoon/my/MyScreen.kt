@@ -40,12 +40,16 @@ import com.bowoon.model.Language
 import com.bowoon.model.PosterSize
 import com.bowoon.model.Region
 import com.bowoon.movie.feature.my.R
+import com.bowoon.my.navigation.My
 import com.bowoon.ui.components.TitleComponent
 import com.bowoon.ui.utils.dp16
 import com.bowoon.ui.utils.dp50
 import com.bowoon.ui.utils.dp500
 import com.bowoon.ui.utils.dp56
+import com.slack.circuit.codegen.annotations.CircuitInject
+import dagger.hilt.android.components.ActivityRetainedComponent
 
+@CircuitInject(My::class, ActivityRetainedComponent::class)
 @Composable
 fun MyScreen(
     state: MyUiState,

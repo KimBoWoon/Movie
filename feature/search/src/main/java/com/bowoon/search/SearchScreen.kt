@@ -70,6 +70,7 @@ import com.bowoon.model.Genre
 import com.bowoon.model.PagingStatus
 import com.bowoon.model.SearchType
 import com.bowoon.movie.feature.search.R
+import com.bowoon.search.navigation.Search
 import com.bowoon.ui.components.FilterChipComponent
 import com.bowoon.ui.components.PagingAppendErrorComponent
 import com.bowoon.ui.components.TitleComponent
@@ -88,8 +89,11 @@ import com.bowoon.ui.utils.dp53
 import com.bowoon.ui.utils.dp8
 import com.bowoon.ui.utils.sp12
 import com.bowoon.ui.utils.sp30
+import com.slack.circuit.codegen.annotations.CircuitInject
+import dagger.hilt.android.components.ActivityRetainedComponent
 import kotlinx.coroutines.launch
 
+@CircuitInject(Search::class, ActivityRetainedComponent::class)
 @Composable
 fun SearchScreen(
     state: SearchUiState,

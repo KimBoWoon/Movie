@@ -3,14 +3,13 @@ package com.bowoon.home
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import com.bowoon.common.Log
-import com.bowoon.common.Result
-import com.bowoon.common.asResult
 import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.data.util.SyncManager
 import com.bowoon.home.navigation.Home
 import com.bowoon.model.MainMenu
 import com.slack.circuit.codegen.annotations.CircuitInject
-import com.slack.circuit.retained.produceRetainedState
+import com.slack.circuit.retained.collectAsRetainedState
+import com.slack.circuit.runtime.CircuitUiEvent
 import com.slack.circuit.runtime.CircuitUiState
 import com.slack.circuit.runtime.Navigator
 import com.slack.circuit.runtime.presenter.Presenter
@@ -28,22 +27,10 @@ class HomePresenter @AssistedInject constructor(
 ) : Presenter<HomeUiState> {
     @Composable
     override fun present(): HomeUiState {
-        val isSyncing by produceRetainedState<Boolean>(false) {
-            syncManager.isSyncing.collect { value = it }
-        }
-
-        val mainMenu by produceRetainedState<MainMenuState>(initialValue = MainMenuState.Loading) {
-            userDataRepository.internalData
-                .map { it.mainMenu }
-                .asResult()
-                .map {
-                    when (it) {
-                        is Result.Loading -> MainMenuState.Loading
-                        is Result.Success -> MainMenuState.Success(it.data)
-                        is Result.Error -> MainMenuState.Error(it.throwable)
-                    }
-                }.collect { value = it }
-        }
+        val isSyncing by syncManager.isSyncing.collectAsRetainedState(initial = false)
+        val mainMenu by userDataRepository.internalData
+            .map { MainMenuState.Success(it.mainMenu) }
+            .collectAsRetainedState(initial = MainMenuState.Loading)
 
         return HomeUiState(
             isSyncing = isSyncing,
@@ -72,7 +59,7 @@ class HomeUiState(
     val eventSink: (HomeEvent) -> Unit
 ) : CircuitUiState
 
-sealed interface HomeEvent {
+sealed interface HomeEvent : CircuitUiEvent {
     data class GoToMovie(val id: Int) : HomeEvent
 }
 

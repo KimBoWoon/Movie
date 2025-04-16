@@ -1,5 +1,9 @@
 package com.bowoon.movie.factory
 
+import com.bowoon.data.repository.DatabaseRepository
+import com.bowoon.data.repository.PagingRepository
+import com.bowoon.data.repository.UserDataRepository
+import com.bowoon.detail.DetailMovie
 import com.bowoon.detail.DetailPresenter
 import com.bowoon.detail.DetailScreen
 import com.bowoon.detail.DetailState
@@ -61,7 +65,12 @@ class PresenterFactory @Inject constructor(
     private val myPresenter: MyPresenter,
     private val detailPresenterFactory: DetailPresenter.Factory,
     private val peoplePresenterFactory: PeoplePresenter.Factory,
-    private val seriesPresenterFactory: SeriesPresenter.Factory
+    private val seriesPresenterFactory: SeriesPresenter.Factory,
+
+    private val detailMovie: DetailMovie,
+    private val userDataRepository: UserDataRepository,
+    private val pagingRepository: PagingRepository,
+    private val databaseRepository: DatabaseRepository
 ) : Presenter.Factory {
     override fun create(
         screen: Screen,
@@ -73,6 +82,7 @@ class PresenterFactory @Inject constructor(
         is Favorite -> favoritePresenterFactory.create(navigator = navigator, goToMovie = navigator::goToMovie, goToPeople = navigator::goToPeople)
         is My -> myPresenter
         is Detail -> detailPresenterFactory.create(navigator = navigator, screen = screen, goToMovie = navigator::goToMovie, goToPeople = navigator::goToPeople)
+//        is Detail -> presenterOf { detailPresenter(navigator = navigator, screen = screen, goToMovie = navigator::goToMovie, goToPeople = navigator::goToPeople, detailMovie = detailMovie, databaseRepository = databaseRepository, pagingRepository = pagingRepository, userDataRepository = userDataRepository) }
         is People -> peoplePresenterFactory.create(navigator = navigator, screen = screen, goToMovie = navigator::goToMovie)
         is Series -> seriesPresenterFactory.create(navigator = navigator, screen = screen, goToMovie = navigator::goToMovie)
         else -> null

@@ -39,28 +39,29 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.core.net.toUri
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bowoon.common.Log
 import com.bowoon.data.repository.LocalMovieAppDataComposition
 import com.bowoon.data.util.PEOPLE_IMAGE_RATIO
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
-import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.Favorite
 import com.bowoon.model.PeopleDetail
 import com.bowoon.model.getRelatedMovie
 import com.bowoon.movie.core.ui.R
+import com.bowoon.people.navigation.People
+import com.bowoon.ui.components.TitleComponent
 import com.bowoon.ui.dialog.ConfirmDialog
 import com.bowoon.ui.dialog.ModalBottomSheetDialog
+import com.bowoon.ui.image.DynamicAsyncImageLoader
 import com.bowoon.ui.utils.bounceClick
-import com.bowoon.ui.components.TitleComponent
 import com.bowoon.ui.utils.dp10
 import com.bowoon.ui.utils.dp100
 import com.bowoon.ui.utils.dp20
 import com.bowoon.ui.utils.dp5
-import com.bowoon.ui.image.DynamicAsyncImageLoader
+import com.slack.circuit.codegen.annotations.CircuitInject
+import dagger.hilt.android.components.ActivityRetainedComponent
 import kotlinx.coroutines.launch
 
+@CircuitInject(People::class, ActivityRetainedComponent::class)
 @Composable
 fun PeopleScreen(
     state: PeopleUiState,

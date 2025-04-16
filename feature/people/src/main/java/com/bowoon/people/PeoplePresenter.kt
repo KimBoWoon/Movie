@@ -12,6 +12,7 @@ import com.bowoon.model.PeopleDetail
 import com.bowoon.people.navigation.People
 import com.slack.circuit.codegen.annotations.CircuitInject
 import com.slack.circuit.retained.produceRetainedState
+import com.slack.circuit.runtime.CircuitUiEvent
 import com.slack.circuit.runtime.CircuitUiState
 import com.slack.circuit.runtime.Navigator
 import com.slack.circuit.runtime.presenter.Presenter
@@ -72,7 +73,7 @@ data class PeopleUiState(
     val eventSink: (PeopleEvent) -> Unit
 ) : CircuitUiState
 
-sealed interface PeopleEvent {
+sealed interface PeopleEvent : CircuitUiEvent {
     data object GoToBack : PeopleEvent
     data class GoToMovie(val id: Int) : PeopleEvent
     data class AddFavorite(val favorite: Favorite) : PeopleEvent

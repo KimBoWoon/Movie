@@ -58,7 +58,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -121,47 +120,88 @@ fun DetailScreen(
         modifier = Modifier.fillMaxSize()
     ) {
         when (state.movieDetail) {
-            is MovieDetailState.Loading -> CircularProgressIndicator(modifier = Modifier.align(alignment = Alignment.Center))
-            is MovieDetailState.Success -> {
+            null -> CircularProgressIndicator(modifier = Modifier.align(alignment = Alignment.Center))
+            else -> {
                 Column(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    val favoriteMessage = if (state.movieDetail.movieDetail.isFavorite) stringResource(R.string.remove_favorite_movie) else stringResource(R.string.add_favorite_movie)
+                    val favoriteMessage = if (state.movieDetail.isFavorite) stringResource(R.string.remove_favorite_movie) else stringResource(R.string.add_favorite_movie)
 
                     TitleComponent(
-                        title = state.movieDetail.movieDetail.title ?: "",
-                        isFavorite = state.movieDetail.movieDetail.isFavorite,
+                        title = state.movieDetail.title ?: "",
+                        isFavorite = state.movieDetail.isFavorite,
                         onBackClick = { state.eventSink(DetailEvent.GoToBack) },
                         onFavoriteClick = {
                             val favorite = Favorite(
-                                id = state.movieDetail.movieDetail.id,
-                                title = state.movieDetail.movieDetail.title,
-                                imagePath = state.movieDetail.movieDetail.posterPath
+                                id = state.movieDetail.id,
+                                title = state.movieDetail.title,
+                                imagePath = state.movieDetail.posterPath
                             )
-                            if (state.movieDetail.movieDetail.isFavorite) {
+                            if (state.movieDetail.isFavorite) {
                                 state.eventSink(DetailEvent.RemoveFavorite(favorite))
                             } else {
                                 state.eventSink(DetailEvent.AddFavorite(favorite))
                             }
-//                        scope.launch {
-//                            onShowSnackbar(favoriteMessage, null)
-//                        }
+//                            scope.launch {
+//                                onShowSnackbar(favoriteMessage, null)
+//                            }
                         }
                     )
 
-                    val movieSeries by state.movieSeries.collectAsStateWithLifecycle(initialValue = null)
+//                    val movieSeries by state.movieSeries.collectAsStateWithLifecycle(initialValue = null)
 
                     MovieDetailComponent(
-                        movieDetail = state.movieDetail.movieDetail,
-                        movieSeries = movieSeries,
+                        movieDetail = state.movieDetail,
+                        movieSeries = state.movieSeries,
                         similarMovieState = state.similarMovies.collectAsLazyPagingItems(),
                         goToMovie = { id -> state.eventSink(DetailEvent.GoToMovie(id = id)) },
                         goToPeople = { id -> state.eventSink(DetailEvent.GoToPeople(id = id)) }
                     )
                 }
             }
-            is MovieDetailState.Error -> {}
         }
+//        when (state.movieDetail) {
+//            is MovieDetailState.Loading -> CircularProgressIndicator(modifier = Modifier.align(alignment = Alignment.Center))
+//            is MovieDetailState.Success -> {
+//                Column(
+//                    modifier = Modifier.fillMaxSize()
+//                ) {
+//                    val favoriteMessage = if (state.movieDetail.movieDetail.isFavorite) stringResource(R.string.remove_favorite_movie) else stringResource(R.string.add_favorite_movie)
+//
+//                    TitleComponent(
+//                        title = state.movieDetail.movieDetail.title ?: "",
+//                        isFavorite = state.movieDetail.movieDetail.isFavorite,
+//                        onBackClick = { state.eventSink(DetailEvent.GoToBack) },
+//                        onFavoriteClick = {
+//                            val favorite = Favorite(
+//                                id = state.movieDetail.movieDetail.id,
+//                                title = state.movieDetail.movieDetail.title,
+//                                imagePath = state.movieDetail.movieDetail.posterPath
+//                            )
+//                            if (state.movieDetail.movieDetail.isFavorite) {
+//                                state.eventSink(DetailEvent.RemoveFavorite(favorite))
+//                            } else {
+//                                state.eventSink(DetailEvent.AddFavorite(favorite))
+//                            }
+////                            scope.launch {
+////                                onShowSnackbar(favoriteMessage, null)
+////                            }
+//                        }
+//                    )
+//
+////                    val movieSeries by state.movieSeries.collectAsStateWithLifecycle(initialValue = null)
+//
+//                    MovieDetailComponent(
+//                        movieDetail = state.movieDetail.movieDetail,
+//                        movieSeries = state.movieSeries,
+//                        similarMovieState = state.similarMovies.collectAsLazyPagingItems(),
+//                        goToMovie = { id -> state.eventSink(DetailEvent.GoToMovie(id = id)) },
+//                        goToPeople = { id -> state.eventSink(DetailEvent.GoToPeople(id = id)) }
+//                    )
+//                }
+//            }
+//            is MovieDetailState.Error -> {}
+//        }
     }
 }
 

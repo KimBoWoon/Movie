@@ -1,5 +1,11 @@
 package com.bowoon.model
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.Serializable
+
+@Serializable
+@Parcelize
 data class MovieSeries(
     val backdropPath: String? = null,
     val id: Int? = null,
@@ -7,8 +13,10 @@ data class MovieSeries(
     val overview: String? = null,
     val parts: List<MovieSeriesPart>? = null,
     val posterPath: String? = null
-)
+) : Parcelable
 
+@Serializable
+@Parcelize
 data class MovieSeriesPart(
     val adult: Boolean? = null,
     val backdropPath: String? = null,
@@ -25,4 +33,4 @@ data class MovieSeriesPart(
     val video: Boolean? = null,
     val voteAverage: Double? = null,
     val voteCount: Int? = null
-)
+) : Parcelable

@@ -43,8 +43,11 @@ import com.bowoon.ui.utils.bounceClick
 import com.bowoon.ui.utils.dp10
 import com.bowoon.ui.utils.dp15
 import com.bowoon.ui.utils.dp5
+import com.slack.circuit.codegen.annotations.CircuitInject
+import dagger.hilt.android.components.ActivityRetainedComponent
 import kotlinx.coroutines.launch
 
+@CircuitInject(com.bowoon.favorite.navigation.Favorite::class, ActivityRetainedComponent::class)
 @Composable
 fun FavoriteScreen(
     state: FavoriteUiState,

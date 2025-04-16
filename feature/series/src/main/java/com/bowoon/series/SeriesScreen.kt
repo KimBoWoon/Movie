@@ -21,13 +21,17 @@ import com.bowoon.data.repository.LocalMovieAppDataComposition
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.MovieSeries
 import com.bowoon.movie.feature.series.R
+import com.bowoon.series.navigation.Series
 import com.bowoon.ui.components.TitleComponent
 import com.bowoon.ui.components.movieSeriesListComponent
 import com.bowoon.ui.components.seriesInfoComponent
 import com.bowoon.ui.dialog.ConfirmDialog
 import com.bowoon.ui.utils.dp10
 import com.bowoon.ui.utils.dp16
+import com.slack.circuit.codegen.annotations.CircuitInject
+import dagger.hilt.android.components.ActivityRetainedComponent
 
+@CircuitInject(Series::class, ActivityRetainedComponent::class)
 @Composable
 fun SeriesScreen(
     state: SeriesUiState,
