@@ -186,7 +186,7 @@ fun DetailScreen(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        val favoriteMessage = if (movie.isFavorite) stringResource(R.string.remove_favorite_movie) else stringResource(R.string.add_favorite_movie)
+        val favoriteMessage = if (movie.isFavorite) stringResource(R.string.add_favorite_movie) else stringResource(R.string.remove_favorite_movie)
 
         TitleComponent(
             title = movie.title ?: "",
