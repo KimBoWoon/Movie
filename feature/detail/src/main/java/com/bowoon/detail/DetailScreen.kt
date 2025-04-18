@@ -60,13 +60,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
-import androidx.paging.compose.collectAsLazyPagingItems
 import com.bowoon.common.Log
 import com.bowoon.data.repository.LocalMovieAppDataComposition
 import com.bowoon.data.util.PEOPLE_IMAGE_RATIO
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.data.util.VIDEO_RATIO
 import com.bowoon.detail.navigation.Detail
+import com.bowoon.detail.navigation.Detail.DetailEvent
+import com.bowoon.detail.navigation.Detail.DetailState
 import com.bowoon.model.Cast
 import com.bowoon.model.Crew
 import com.bowoon.model.Favorite
@@ -153,7 +154,7 @@ fun DetailScreen(
                     MovieDetailComponent(
                         movieDetail = state.movieDetail,
                         movieSeries = state.movieSeries,
-                        similarMovieState = state.similarMovies.collectAsLazyPagingItems(),
+                        similarMovieState = state.similarMovies,
                         goToMovie = { id -> state.eventSink(DetailEvent.GoToMovie(id = id)) },
                         goToPeople = { id -> state.eventSink(DetailEvent.GoToPeople(id = id)) }
                     )

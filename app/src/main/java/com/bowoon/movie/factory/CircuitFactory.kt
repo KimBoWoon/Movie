@@ -76,15 +76,17 @@ class PresenterFactory @Inject constructor(
         screen: Screen,
         navigator: Navigator,
         context: CircuitContext
-    ): Presenter<*>? = when (screen) {
-        is Home -> homePresenterFactory.create(navigator = navigator, goToMovie = navigator::goToMovie)
-        is Search -> searchPresenterFactory.create(navigator = navigator, goToMovie = navigator::goToMovie, goToPeople = navigator::goToPeople, goToSeries = navigator::goToSeries)
-        is Favorite -> favoritePresenterFactory.create(navigator = navigator, goToMovie = navigator::goToMovie, goToPeople = navigator::goToPeople)
-        is My -> myPresenter
-        is Detail -> detailPresenterFactory.create(navigator = navigator, screen = screen, goToMovie = navigator::goToMovie, goToPeople = navigator::goToPeople)
-//        is Detail -> presenterOf { detailPresenter(navigator = navigator, screen = screen, goToMovie = navigator::goToMovie, goToPeople = navigator::goToPeople, detailMovie = detailMovie, databaseRepository = databaseRepository, pagingRepository = pagingRepository, userDataRepository = userDataRepository) }
-        is People -> peoplePresenterFactory.create(navigator = navigator, screen = screen, goToMovie = navigator::goToMovie)
-        is Series -> seriesPresenterFactory.create(navigator = navigator, screen = screen, goToMovie = navigator::goToMovie)
-        else -> null
+    ): Presenter<*>? {
+        return when (screen) {
+            is Home -> homePresenterFactory.create(navigator = navigator, goToMovie = navigator::goToMovie)
+            is Search -> searchPresenterFactory.create(navigator = navigator, goToMovie = navigator::goToMovie, goToPeople = navigator::goToPeople, goToSeries = navigator::goToSeries)
+            is Favorite -> favoritePresenterFactory.create(navigator = navigator, goToMovie = navigator::goToMovie, goToPeople = navigator::goToPeople)
+            is My -> myPresenter
+            is Detail -> detailPresenterFactory.create(navigator = navigator, screen = screen, goToMovie = navigator::goToMovie, goToPeople = navigator::goToPeople)
+//        is Detail -> presenterOf { detailPresenter(navigator = navigator, screen = screen, goToMovie = navigator::goToMovie, goToPeople = navigator::goToPeople, detailMovie = detailMovie, databaseRepository = databaseRepository) }
+            is People -> peoplePresenterFactory.create(navigator = navigator, screen = screen, goToMovie = navigator::goToMovie)
+            is Series -> seriesPresenterFactory.create(navigator = navigator, screen = screen, goToMovie = navigator::goToMovie)
+            else -> null
+        }
     }
 }
