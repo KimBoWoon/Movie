@@ -30,14 +30,15 @@ import coil3.Image
 import coil3.compose.AsyncImagePainter
 import coil3.compose.rememberAsyncImagePainter
 import com.bowoon.common.Log
-import com.bowoon.ui.utils.dp10
 import com.bowoon.ui.theme.LocalTintTheme
+import com.bowoon.ui.utils.dp10
 
 @Composable
 fun DynamicAsyncImageLoader(
     source: String,
     contentDescription: String?,
     modifier: Modifier = Modifier,
+    contentScale: ContentScale = ContentScale.Crop,
     placeholder: Painter = ColorPainter(Color.Gray),
     error: Painter = ColorPainter(Color.Gray)
 ) {
@@ -75,7 +76,7 @@ fun DynamicAsyncImageLoader(
             false -> {
                 Image(
                     modifier = modifier.testTag(tag = source).clip(RoundedCornerShape(dp10)),
-                    contentScale = ContentScale.Crop,
+                    contentScale = contentScale,
                     painter = if (!isLocalInspection) imageLoader else placeholder,
                     contentDescription = contentDescription,
                     colorFilter = if (iconTint != Unspecified) ColorFilter.tint(iconTint) else null,

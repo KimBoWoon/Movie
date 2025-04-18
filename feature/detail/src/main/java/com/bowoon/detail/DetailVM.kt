@@ -35,26 +35,21 @@ import javax.inject.Inject
 class DetailVM @Inject constructor(
     savedStateHandle: SavedStateHandle,
     getMovieDetail: GetMovieDetailUseCase,
+    userDataRepository: UserDataRepository,
     private val databaseRepository: DatabaseRepository,
     private val pagingRepository: PagingRepository,
-    private val userDataRepository: UserDataRepository,
     private val detailRepository: DetailRepository
 ) : ViewModel() {
     companion object {
         private const val TAG = "DetailVM"
     }
 
-    init {
-        viewModelScope.launch {
-            userDataRepository.internalData.collect {
-                language = it.language
-                region = it.region
-            }
-        }
-    }
-
-    private var language: String = ""
-    private var region: String = ""
+    private val internalData = userDataRepository.internalData
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = null
+        )
     private val id = savedStateHandle.toRoute<DetailRoute>().id
     val movieInfo = getMovieDetail(id)
         .asResult()
@@ -96,7 +91,7 @@ class DetailVM @Inject constructor(
                 pagingSourceFactory = {
                     pagingRepository.getSimilarMovies(
                         id = id,
-                        language = "$language-$region"
+                        language = "${internalData.value?.language}-${internalData.value?.region}"
                     )
                 }
             ).flow.cachedIn(viewModelScope).collect {

@@ -20,15 +20,17 @@ import com.bowoon.model.SearchType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class SearchVM @Inject constructor(
+    userDataRepository: UserDataRepository,
     private val savedStateHandle: SavedStateHandle,
     private val pagingRepository: PagingRepository,
-    private val userDataRepository: UserDataRepository
 ) : ViewModel() {
     companion object {
         private const val TAG = "SearchVM"
@@ -36,24 +38,16 @@ class SearchVM @Inject constructor(
         private const val SEARCH_TYPE = "searchType"
     }
 
-    init {
-        viewModelScope.launch {
-            userDataRepository.internalData.collect {
-                language = it.language
-                region = it.region
-                isAdult = it.isAdult
-            }
-        }
-    }
-
-    private var language: String = ""
-    private var region: String = ""
-    private var isAdult: Boolean = true
     var searchQuery by mutableStateOf("")
         private set
     val selectedGenre = savedStateHandle.getStateFlow<Genre?>(GENRE, null)
     val searchType = savedStateHandle.getStateFlow<SearchType>(SEARCH_TYPE, SearchType.MOVIE)
     var searchResult = MutableStateFlow<SearchState>(SearchState.Loading)
+    private val internalData = userDataRepository.internalData.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = null
+    )
 
     fun updateGenre(genre: Genre?) {
         savedStateHandle[GENRE] = if (genre == selectedGenre.value) null else genre
@@ -78,9 +72,9 @@ class SearchVM @Inject constructor(
                             pagingRepository.searchMovieSource(
                                 type = searchType.value,
                                 query = query,
-                                language = "$language-$region",
-                                region = region,
-                                isAdult = isAdult
+                                language = "${internalData.value?.language}-${internalData.value?.region}",
+                                region = internalData.value?.region ?: "",
+                                isAdult = internalData.value?.isAdult ?: true
                             )
                         }
                     ).flow.cachedIn(viewModelScope),

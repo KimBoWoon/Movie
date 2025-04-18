@@ -47,6 +47,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -500,7 +501,7 @@ fun MovieAdditionalInfoComponent(
         modifier = Modifier.fillMaxSize()
     ) {
         item {
-            movie.productionCompanies?.let { production ->
+            movie.productionCompanies.takeIf { !it.isNullOrEmpty() }?.let { production ->
                 Text(
                     modifier = Modifier.fillMaxWidth().padding(vertical = dp10, horizontal = dp16),
                     text = stringResource(R.string.movie_production_companies),
@@ -509,8 +510,8 @@ fun MovieAdditionalInfoComponent(
                     fontWeight = FontWeight.Bold
                 )
                 HorizontalPager(
-                    modifier = Modifier.fillMaxWidth().height(dp300),
-                    state = rememberPagerState { production.size ?: 0 },
+                    modifier = Modifier.fillMaxWidth(),
+                    state = rememberPagerState { production.size },
                     contentPadding = PaddingValues(horizontal = dp32),
                     key = { index -> production[index].id ?: -1 }
                 ) { index ->
@@ -519,7 +520,8 @@ fun MovieAdditionalInfoComponent(
                     ) {
                         production[index].logoPath?.let {
                             DynamicAsyncImageLoader(
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier.fillMaxWidth().height(dp300),
+                                contentScale = ContentScale.Fit,
                                 source = "$posterUrl$it",
                                 contentDescription = "$posterUrl$it"
                             )
@@ -575,8 +577,6 @@ fun MovieAdditionalInfoComponent(
 fun MovieInfoComponent(
     movie: MovieDetail
 ) {
-    var overviewMaxLine by remember { mutableIntStateOf(3) }
-
     LazyColumn(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -707,12 +707,8 @@ fun MovieInfoComponent(
                     modifier = Modifier
                         .padding(horizontal = dp16)
                         .fillMaxWidth()
-                        .wrapContentHeight()
-                        .clickable {
-                            overviewMaxLine = if (overviewMaxLine == 3) Int.MAX_VALUE else 3
-                        },
+                        .wrapContentHeight(),
                     text = it,
-                    maxLines = overviewMaxLine,
                     overflow = TextOverflow.Ellipsis
                 )
             }
