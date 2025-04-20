@@ -33,7 +33,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 
 @RunWith(RobolectricTestRunner::class)
-class DetailVMTest {
+class DetailScreenVMTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
     private val testDataBaseRepository = TestDatabaseRepository()

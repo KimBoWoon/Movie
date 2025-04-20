@@ -6,9 +6,8 @@ import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.detail.DetailMovie
 import com.bowoon.detail.DetailPresenter
 import com.bowoon.detail.DetailScreen
-import com.bowoon.detail.DetailState
-import com.bowoon.detail.navigation.Detail
-import com.bowoon.detail.navigation.goToMovie
+import com.bowoon.detail.MovieDetail
+import com.bowoon.detail.goToMovie
 import com.bowoon.favorite.FavoritePresenter
 import com.bowoon.favorite.FavoriteScreen
 import com.bowoon.favorite.FavoriteUiState
@@ -51,7 +50,7 @@ class ScreenFactory @Inject constructor(
         is Search -> ui<SearchUiState> { state, _ -> SearchScreen(state = state) }
         is Favorite -> ui<FavoriteUiState> { state, _ -> FavoriteScreen(state = state) }
         is My -> ui<MyUiState> { state, _ -> MyScreen(state = state) }
-        is Detail -> ui<DetailState> { state, _ -> DetailScreen(state = state) }
+        is DetailScreen -> ui<DetailScreen.DetailState> { state, _ -> MovieDetail(state = state) }
         is People -> ui<PeopleUiState> { state, _ -> PeopleScreen(state = state) }
         is Series -> ui<SeriesUiState> { state, _ -> SeriesScreen(state = state) }
         else -> null
@@ -82,8 +81,8 @@ class PresenterFactory @Inject constructor(
             is Search -> searchPresenterFactory.create(navigator = navigator, goToMovie = navigator::goToMovie, goToPeople = navigator::goToPeople, goToSeries = navigator::goToSeries)
             is Favorite -> favoritePresenterFactory.create(navigator = navigator, goToMovie = navigator::goToMovie, goToPeople = navigator::goToPeople)
             is My -> myPresenter
-            is Detail -> detailPresenterFactory.create(navigator = navigator, screen = screen, goToMovie = navigator::goToMovie, goToPeople = navigator::goToPeople)
-//        is Detail -> presenterOf { detailPresenter(navigator = navigator, screen = screen, goToMovie = navigator::goToMovie, goToPeople = navigator::goToPeople, detailMovie = detailMovie, databaseRepository = databaseRepository) }
+            is DetailScreen -> detailPresenterFactory.create(navigator = navigator, screen = screen, goToMovie = navigator::goToMovie, goToPeople = navigator::goToPeople)
+//            is DetailScreen -> presenterOf { detailPresenter(navigator = navigator, screen = screen, goToMovie = navigator::goToMovie, goToPeople = navigator::goToPeople, detailMovie = detailMovie, databaseRepository = databaseRepository) }
             is People -> peoplePresenterFactory.create(navigator = navigator, screen = screen, goToMovie = navigator::goToMovie)
             is Series -> seriesPresenterFactory.create(navigator = navigator, screen = screen, goToMovie = navigator::goToMovie)
             else -> null

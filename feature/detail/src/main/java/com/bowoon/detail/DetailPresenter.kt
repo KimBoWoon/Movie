@@ -15,9 +15,8 @@ import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.data.repository.DetailRepository
 import com.bowoon.data.repository.PagingRepository
 import com.bowoon.data.repository.UserDataRepository
-import com.bowoon.detail.navigation.Detail
-import com.bowoon.detail.navigation.Detail.DetailEvent
-import com.bowoon.detail.navigation.Detail.DetailState
+import com.bowoon.detail.DetailScreen.DetailEvent
+import com.bowoon.detail.DetailScreen.DetailState
 import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetail
 import com.bowoon.model.MovieSeries
@@ -97,50 +96,50 @@ class DetailMovie @Inject constructor(
         ).flow.cachedIn(scope)
 }
 
-////@CircuitInject(Detail::class, ActivityRetainedComponent::class)
-//@Composable
-//fun detailPresenter(
-//    navigator: Navigator,
-//    screen: Detail,
-//    goToMovie: (Int) -> Unit,
-//    goToPeople: (Int) -> Unit,
-//    detailMovie: DetailMovie,
-//    databaseRepository: DatabaseRepository,
-//): DetailState {
-//    val scope = rememberCoroutineScope()
-//    var movie by rememberRetained { mutableStateOf<MovieDetail?>(null) }
-//    var movieSeries by rememberRetained { mutableStateOf<MovieSeries?>(null) }
-//    var similarMovies by rememberRetained { mutableStateOf<Flow<PagingData<Movie>>>(emptyFlow()) }
-//
-//    LaunchedEffect(key1 = screen.id) {
-//        detailMovie.getMovieDetail(screen.id)
-//        scope.launch {
-//            detailMovie.movieDetail.collect { movie = it }
-//        }
-//        scope.launch {
-//            detailMovie.movieSeries.collect { movieSeries = it }
-//        }
-//        similarMovies = detailMovie.getMovieSimilar(id = screen.id, scope = scope)
-//    }
-//
-//    return DetailState(
-//        movieDetail = movie,
-//        movieSeries = movieSeries,
-//        similarMovies = similarMovies.collectAsLazyPagingItems()
-//    ) { event ->
-//        when (event) {
-//            is DetailEvent.GoToBack -> navigator.pop()
-//            is DetailEvent.AddFavorite -> scope.launch { databaseRepository.insertMovie(event.favorite) }
-//            is DetailEvent.RemoveFavorite -> scope.launch { databaseRepository.deleteMovie(event.favorite) }
-//            is DetailEvent.GoToMovie -> goToMovie(event.id)
-//            is DetailEvent.GoToPeople -> goToPeople(event.id)
-//        }
-//    }
-//}
+//@CircuitInject(Detail::class, ActivityRetainedComponent::class)
+@Composable
+fun detailPresenter(
+    navigator: Navigator,
+    screen: DetailScreen,
+    goToMovie: (Int) -> Unit,
+    goToPeople: (Int) -> Unit,
+    detailMovie: DetailMovie,
+    databaseRepository: DatabaseRepository,
+): DetailState {
+    val scope = rememberCoroutineScope()
+    var movie by rememberRetained { mutableStateOf<MovieDetail?>(null) }
+    var movieSeries by rememberRetained { mutableStateOf<MovieSeries?>(null) }
+    var similarMovies by rememberRetained { mutableStateOf<Flow<PagingData<Movie>>>(emptyFlow()) }
+
+    LaunchedEffect(key1 = screen.id) {
+        detailMovie.getMovieDetail(screen.id)
+        scope.launch {
+            detailMovie.movieDetail.collect { movie = it }
+        }
+        scope.launch {
+            detailMovie.movieSeries.collect { movieSeries = it }
+        }
+        similarMovies = detailMovie.getMovieSimilar(id = screen.id, scope = scope)
+    }
+
+    return DetailState(
+        movieDetail = movie,
+        movieSeries = movieSeries,
+        similarMovies = similarMovies.collectAsLazyPagingItems()
+    ) { event ->
+        when (event) {
+            is DetailEvent.GoToBack -> navigator.pop()
+            is DetailEvent.AddFavorite -> scope.launch { databaseRepository.insertMovie(event.favorite) }
+            is DetailEvent.RemoveFavorite -> scope.launch { databaseRepository.deleteMovie(event.favorite) }
+            is DetailEvent.GoToMovie -> goToMovie(event.id)
+            is DetailEvent.GoToPeople -> goToPeople(event.id)
+        }
+    }
+}
 
 class DetailPresenter @AssistedInject constructor(
     @Assisted private val navigator: Navigator,
-    @Assisted private val screen: Detail,
+    @Assisted private val screen: DetailScreen,
     @Assisted("goToMovie") private val goToMovie: (Int) -> Unit,
     @Assisted("goToPeople") private val goToPeople: (Int) -> Unit,
     private val databaseRepository: DatabaseRepository,
@@ -148,6 +147,7 @@ class DetailPresenter @AssistedInject constructor(
 ) : Presenter<DetailState> {
     @Composable
     override fun present(): DetailState {
+        var detailState by rememberRetained { mutableStateOf<DetailState?>(null) }
         val scope = rememberCoroutineScope()
         val movie by detailMovie.movieDetail.collectAsRetainedState()
         val movieSeries by detailMovie.movieSeries.collectAsRetainedState()
@@ -173,12 +173,12 @@ class DetailPresenter @AssistedInject constructor(
         }
     }
 
-    @CircuitInject(Detail::class, ActivityRetainedComponent::class)
+    @CircuitInject(DetailScreen::class, ActivityRetainedComponent::class)
     @AssistedFactory
     interface Factory {
         fun create(
             navigator: Navigator,
-            screen: Detail,
+            screen: DetailScreen,
             @Assisted("goToMovie") goToMovie: ((Int) -> Unit) = {},
             @Assisted("goToPeople") goToPeople: ((Int) -> Unit) = {}
         ): DetailPresenter

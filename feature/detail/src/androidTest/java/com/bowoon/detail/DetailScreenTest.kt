@@ -58,7 +58,7 @@ class DetailScreenTest {
     fun detailLoadingTest() = runTest {
         composeTestRule.apply {
             setContent {
-                DetailScreen(
+                MovieDetail(
                     movieInfoState = MovieDetailState.Loading,
                     similarMovieState = pager.collectAsLazyPagingItems(),
                     goToMovie = {},
@@ -80,7 +80,7 @@ class DetailScreenTest {
     fun detailErrorTest() = runTest {
         composeTestRule.apply {
             setContent {
-                DetailScreen(
+                MovieDetail(
                     movieInfoState = MovieDetailState.Error(throwable = Throwable("something wrong...")),
                     similarMovieState = pager.collectAsLazyPagingItems(),
                     goToMovie = {},
@@ -102,7 +102,7 @@ class DetailScreenTest {
     fun detailSuccessTest() = runTest {
         composeTestRule.apply {
             setContent {
-                DetailScreen(
+                MovieDetail(
                     movieInfoState = MovieDetailState.Success(movieDetail = favoriteMovieDetailTestData),
                     similarMovieState = pager.collectAsLazyPagingItems(),
                     goToMovie = {},
@@ -132,7 +132,7 @@ class DetailScreenTest {
             setContent {
                 posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
 
-                DetailScreen(
+                MovieDetail(
                     movieInfoState = MovieDetailState.Success(movieDetail = favoriteMovieDetailTestData),
                     similarMovieState = pager.collectAsLazyPagingItems(),
                     goToMovie = {},
@@ -164,7 +164,7 @@ class DetailScreenTest {
     fun castAndCrewTest() = runTest {
         composeTestRule.apply {
             setContent {
-                DetailScreen(
+                MovieDetail(
                     movieInfoState = MovieDetailState.Success(movieDetail = favoriteMovieDetailTestData),
                     similarMovieState = pager.collectAsLazyPagingItems(),
                     goToMovie = {},
@@ -193,7 +193,7 @@ class DetailScreenTest {
             setContent {
                 posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
 
-                DetailScreen(
+                MovieDetail(
                     movieInfoState = MovieDetailState.Success(movieDetail = favoriteMovieDetailTestData),
                     similarMovieState = pager.collectAsLazyPagingItems(),
                     goToMovie = {},
@@ -225,7 +225,7 @@ class DetailScreenTest {
     fun similarMovieTest() = runTest {
         composeTestRule.apply {
             setContent {
-                DetailScreen(
+                MovieDetail(
                     movieInfoState = MovieDetailState.Success(movieDetail = favoriteMovieDetailTestData),
                     similarMovieState = pager.collectAsLazyPagingItems(),
                     goToMovie = {},
@@ -272,7 +272,7 @@ class DetailScreenTest {
             setContent {
                 var movie by remember { mutableStateOf(unFavoriteMovieDetailTestData) }
 
-                DetailScreen(
+                MovieDetail(
                     movieInfoState = MovieDetailState.Success(movie),
                     similarMovieState = pager.collectAsLazyPagingItems(),
                     goToMovie = {},
@@ -339,7 +339,7 @@ class DetailScreenTest {
                     }
                 }
 
-                DetailScreen(
+                MovieDetail(
                     movieInfoState = MovieDetailState.Success(movie),
                     similarMovieState = pager.collectAsLazyPagingItems(),
                     goToMovie = {},
