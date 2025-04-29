@@ -68,26 +68,26 @@ class DetailVMTest {
 
     @Test
     fun getFavoriteMovieDetailTest() = runTest {
-        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.movieInfo.collect() }
+        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.detail.collect() }
 
-        assertEquals(viewModel.movieInfo.value, MovieDetailState.Loading)
+        assertEquals(viewModel.detail.value, DetailState.Loading)
 
         testDetailRepository.setMovieDetail(favoriteMovieDetailTestData)
         getMovieDetailUseCase(0)
 
-        assertEquals(viewModel.movieInfo.value, MovieDetailState.Success(favoriteMovieDetailTestData))
+        assertEquals(viewModel.detail.value, DetailState.Success(favoriteMovieDetailTestData))
     }
 
     @Test
     fun getUnFavoriteMovieDetailFlowTest() = runTest {
-        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.movieInfo.collect() }
+        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.detail.collect() }
 
-        assertEquals(viewModel.movieInfo.value, MovieDetailState.Loading)
+        assertEquals(viewModel.detail.value, DetailState.Loading)
 
         testDetailRepository.setMovieDetail(unFavoriteMovieDetailTestData)
         getMovieDetailUseCase(324)
 
-        assertEquals(viewModel.movieInfo.value, MovieDetailState.Success(unFavoriteMovieDetailTestData))
+        assertEquals(viewModel.detail.value, DetailState.Success(unFavoriteMovieDetailTestData))
     }
 
     @Test
@@ -122,50 +122,50 @@ class DetailVMTest {
 
     @Test
     fun insertFavoriteTest() = runTest {
-        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.movieInfo.collect() }
+        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.detail.collect() }
         val movie = Favorite(id = 23, title = "movie_0", imagePath = "/imagePath.png")
 
         testDetailRepository.setMovieDetail(favoriteMovieDetailTestData.copy(id = 23))
 
         assertEquals(
-            (viewModel.movieInfo.value as? MovieDetailState.Success)?.movieDetail?.isFavorite,
+            (viewModel.detail.value as? DetailState.Success)?.detail?.isFavorite,
             false
         )
         viewModel.insertMovie(movie)
         assertEquals(
-            (viewModel.movieInfo.value as? MovieDetailState.Success)?.movieDetail?.isFavorite,
+            (viewModel.detail.value as? DetailState.Success)?.detail?.isFavorite,
             true
         )
     }
 
     @Test
     fun deleteFavoriteTest() = runTest {
-        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.movieInfo.collect() }
+        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.detail.collect() }
         val movie = Favorite(id = 0, title = "movie_20", imagePath = "/imagePath.png")
 
         testDetailRepository.setMovieDetail(favoriteMovieDetailTestData)
 
         assertEquals(
-            (viewModel.movieInfo.value as? MovieDetailState.Success)?.movieDetail?.isFavorite,
+            (viewModel.detail.value as? DetailState.Success)?.detail?.isFavorite,
             true
         )
         viewModel.deleteMovie(movie)
         assertNotEquals(
-            (viewModel.movieInfo.value as? MovieDetailState.Success)?.movieDetail?.isFavorite,
+            (viewModel.detail.value as? DetailState.Success)?.detail?.isFavorite,
             true
         )
     }
 
     @Test
     fun restartFlowTest() = runTest {
-        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.movieInfo.collect() }
+        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.detail.collect() }
 
-        assertEquals(viewModel.movieInfo.value, MovieDetailState.Loading)
+        assertEquals(viewModel.detail.value, DetailState.Loading)
 
         testDetailRepository.setMovieDetail(favoriteMovieDetailTestData)
         getMovieDetailUseCase(0)
 
-        assertEquals(viewModel.movieInfo.value, MovieDetailState.Success(favoriteMovieDetailTestData))
+        assertEquals(viewModel.detail.value, DetailState.Success(favoriteMovieDetailTestData))
 
         viewModel.restart()
 
@@ -176,12 +176,12 @@ class DetailVMTest {
 //        testDataBaseRepository.insertMovie(Favorite(id = 0, title = "title_1"))
 //        getMovieDetailUseCase(0)
 
-        assertEquals(viewModel.movieInfo.value, MovieDetailState.Success(favoriteMovieDetailTestData))
+        assertEquals(viewModel.detail.value, DetailState.Success(favoriteMovieDetailTestData))
     }
 
     @Test
     fun getMovieSeriesTest() = runTest {
-        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.movieInfo.collect() }
+        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.detail.collect() }
         backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.movieSeries.collect() }
 
         assertEquals(viewModel.movieSeries.value, null)

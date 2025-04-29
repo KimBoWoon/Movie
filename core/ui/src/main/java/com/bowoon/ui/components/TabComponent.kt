@@ -9,6 +9,8 @@ import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import com.bowoon.common.Log
 import com.bowoon.ui.utils.dp0
 
@@ -21,7 +23,7 @@ fun TabComponent(
 ) {
     if (tabs.size < 5) {
         TabRow(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.semantics { contentDescription = "detailTabRow" }.fillMaxWidth(),
             selectedTabIndex = pagerState.currentPage
         ) {
             tabs.forEachIndexed { index, label ->
@@ -39,7 +41,7 @@ fun TabComponent(
         }
     } else {
         ScrollableTabRow(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.semantics { contentDescription = "detailTabRow" }.fillMaxWidth(),
             selectedTabIndex = pagerState.currentPage,
             edgePadding = dp0
         ) {

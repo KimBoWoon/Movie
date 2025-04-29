@@ -32,7 +32,7 @@ import com.bowoon.ui.utils.dp16
 
 @Composable
 fun SeriesScreen(
-    onBack: () -> Unit,
+    goToBack: () -> Unit,
     goToMovie: (Int) -> Unit,
     viewModel: SeriesVM = hiltViewModel()
 ) {
@@ -42,7 +42,7 @@ fun SeriesScreen(
 
     SeriesScreen(
         seriesState = seriesState,
-        onBack = onBack,
+        goToBack = goToBack,
         goToMovie = goToMovie
     )
 }
@@ -50,7 +50,7 @@ fun SeriesScreen(
 @Composable
 fun SeriesScreen(
     seriesState: SeriesState,
-    onBack: () -> Unit,
+    goToBack: () -> Unit,
     goToMovie: (Int) -> Unit
 ) {
     var series by remember { mutableStateOf<MovieSeries>(MovieSeries()) }
@@ -83,7 +83,7 @@ fun SeriesScreen(
         ) {
             TitleComponent(
                 title = series.name ?: stringResource(R.string.title_series),
-                onBackClick = { onBack() }
+                goToBack = { goToBack() }
             )
             SeriesComponent(
                 series = series,
@@ -106,8 +106,7 @@ fun SeriesComponent(
         verticalArrangement = Arrangement.spacedBy(dp10)
     ) {
         seriesInfoComponent(
-            series = series,
-            posterUrl = posterUrl
+            series = series
         )
         movieSeriesListComponent(
             series = series.parts ?: emptyList(),

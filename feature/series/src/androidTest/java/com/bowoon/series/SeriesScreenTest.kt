@@ -37,7 +37,7 @@ class SeriesScreenTest {
             setContent {
                 SeriesScreen(
                     seriesState = SeriesState.Loading,
-                    onBack = {},
+                    goToBack = {},
                     goToMovie = {}
                 )
             }
@@ -52,7 +52,7 @@ class SeriesScreenTest {
             setContent {
                 SeriesScreen(
                     seriesState = SeriesState.Error(Throwable(message)),
-                    onBack = {},
+                    goToBack = {},
                     goToMovie = {}
                 )
             }
@@ -74,7 +74,7 @@ class SeriesScreenTest {
 
                 SeriesScreen(
                     seriesState = SeriesState.Success(movieSeriesTestData),
-                    onBack = {},
+                    goToBack = {},
                     goToMovie = {}
                 )
             }

@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.constraintlayout.compose.ChainStyle
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -115,7 +116,8 @@ fun SeriesMovieInfoComponent(
             text = seriesPart.overview ?: "",
             overflow = TextOverflow.Ellipsis,
             fontSize = sp13,
-            style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
+            style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false)),
+            textAlign = TextAlign.Justify
         )
     }
 }

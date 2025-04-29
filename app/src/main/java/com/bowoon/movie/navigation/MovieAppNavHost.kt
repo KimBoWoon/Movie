@@ -52,18 +52,18 @@ fun MovieAppNavHost(
          * other screen
          */
         detailSection(
-            onBack = navController::navigateUp,
+            goToBack = navController::navigateUp,
             goToMovie = navController::navigateToDetail,
             goToPeople = navController::navigateToPeople,
             onShowSnackbar = onShowSnackbar
         )
         peopleScreen(
-            onBack = navController::navigateUp,
+            goToBack = navController::navigateUp,
             goToMovie = navController::navigateToDetail,
             onShowSnackbar = onShowSnackbar
         )
         seriesScreen(
-            onBack = navController::navigateUp,
+            goToBack = navController::navigateUp,
             goToMovie = navController::navigateToDetail
         )
     }

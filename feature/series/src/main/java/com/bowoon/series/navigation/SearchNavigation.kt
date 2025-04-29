@@ -20,12 +20,12 @@ fun NavController.navigateToSeries(
 }
 
 fun NavGraphBuilder.seriesScreen(
-    onBack: () -> Unit,
+    goToBack: () -> Unit,
     goToMovie: (Int) -> Unit
 ) {
     composable<SeriesRoute>() {
         SeriesScreen(
-            onBack = onBack,
+            goToBack = goToBack,
             goToMovie = goToMovie
         )
     }

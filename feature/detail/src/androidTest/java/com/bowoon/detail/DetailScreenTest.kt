@@ -20,7 +20,6 @@ import androidx.compose.ui.test.performScrollToNode
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
-import androidx.paging.compose.collectAsLazyPagingItems
 import com.bowoon.data.paging.TMDBSimilarMoviePagingSource
 import com.bowoon.data.repository.LocalMovieAppDataComposition
 import com.bowoon.model.Favorite
@@ -32,7 +31,6 @@ import com.bowoon.testing.repository.TestDatabaseRepository
 import com.bowoon.testing.repository.favoriteMovieDetailTestData
 import com.bowoon.testing.repository.unFavoriteMovieDetailTestData
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -46,8 +44,7 @@ class DetailScreenTest {
     private val source = TMDBSimilarMoviePagingSource(
         apis = TestMovieDataSource(),
         id = 0,
-        language = "ko",
-        region = "KR"
+        language = "ko"
     )
     private val pager = Pager(
         config = PagingConfig(pageSize = 20, initialLoadSize = 20, prefetchDistance = 5),
@@ -59,15 +56,13 @@ class DetailScreenTest {
         composeTestRule.apply {
             setContent {
                 DetailScreen(
-                    movieInfoState = MovieDetailState.Loading,
-                    similarMovieState = pager.collectAsLazyPagingItems(),
+                    detailState = DetailState.Loading,
                     goToMovie = {},
                     goToPeople = {},
-                    onBack = {},
+                    goToBack = {},
                     onShowSnackbar = { _, _ -> true },
                     insertFavoriteMovie = {},
                     deleteFavoriteMovie = {},
-                    getMovieSeries = { flowOf() },
                     restart = {}
                 )
             }
@@ -81,15 +76,13 @@ class DetailScreenTest {
         composeTestRule.apply {
             setContent {
                 DetailScreen(
-                    movieInfoState = MovieDetailState.Error(throwable = Throwable("something wrong...")),
-                    similarMovieState = pager.collectAsLazyPagingItems(),
+                    detailState = DetailState.Error(throwable = Throwable("something wrong...")),
                     goToMovie = {},
                     goToPeople = {},
-                    onBack = {},
+                    goToBack = {},
                     onShowSnackbar = { _, _ -> true },
                     insertFavoriteMovie = {},
                     deleteFavoriteMovie = {},
-                    getMovieSeries = { flowOf() },
                     restart = {}
                 )
             }
@@ -103,15 +96,13 @@ class DetailScreenTest {
         composeTestRule.apply {
             setContent {
                 DetailScreen(
-                    movieInfoState = MovieDetailState.Success(movieDetail = favoriteMovieDetailTestData),
-                    similarMovieState = pager.collectAsLazyPagingItems(),
+                    detailState = DetailState.Success(detail = favoriteMovieDetailTestData, null, pager),
                     goToMovie = {},
                     goToPeople = {},
-                    onBack = {},
+                    goToBack = {},
                     onShowSnackbar = { _, _ -> true },
                     insertFavoriteMovie = {},
                     deleteFavoriteMovie = {},
-                    getMovieSeries = { flowOf() },
                     restart = {}
                 )
             }
@@ -133,15 +124,13 @@ class DetailScreenTest {
                 posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
 
                 DetailScreen(
-                    movieInfoState = MovieDetailState.Success(movieDetail = favoriteMovieDetailTestData),
-                    similarMovieState = pager.collectAsLazyPagingItems(),
+                    detailState = DetailState.Success(detail = favoriteMovieDetailTestData, movieSeriesTestData, pager),
                     goToMovie = {},
                     goToPeople = {},
-                    onBack = {},
+                    goToBack = {},
                     onShowSnackbar = { _, _ -> true },
                     insertFavoriteMovie = {},
                     deleteFavoriteMovie = {},
-                    getMovieSeries = { flowOf(movieSeriesTestData) },
                     restart = {}
                 )
             }
@@ -150,10 +139,9 @@ class DetailScreenTest {
             onNodeWithText(text = "시리즈").performClick()
             onNodeWithText(text = movieSeriesTestData.name!!).assertExists().assertIsDisplayed()
             onNodeWithText(text = movieSeriesTestData.overview!!).assertExists().assertIsDisplayed()
-            onNodeWithContentDescription(label = "$posterUrl${movieSeriesTestData.posterPath}").assertExists().assertIsDisplayed()
             movieSeriesTestData.parts?.forEach {
-                onNodeWithContentDescription(label = "seriesList").performScrollToNode(hasContentDescription(value = "$posterUrl${it?.posterPath}")).assertExists().assertIsDisplayed()
-                onNodeWithContentDescription(label = "seriesList").performScrollToNode(hasText(text = it?.title!!)).assertExists().assertIsDisplayed()
+                onNodeWithContentDescription(label = "seriesList").performScrollToNode(hasContentDescription(value = "$posterUrl${it.posterPath}")).assertExists().assertIsDisplayed()
+                onNodeWithContentDescription(label = "seriesList").performScrollToNode(hasText(text = it.title!!)).assertExists().assertIsDisplayed()
                 onNodeWithContentDescription(label = "seriesList").performScrollToNode(hasText(text = it.releaseDate!!)).assertExists().assertIsDisplayed()
                 onNodeWithContentDescription(label = "seriesList").performScrollToNode(hasText(text = it.overview!!)).assertExists().assertIsDisplayed()
             }
@@ -165,15 +153,13 @@ class DetailScreenTest {
         composeTestRule.apply {
             setContent {
                 DetailScreen(
-                    movieInfoState = MovieDetailState.Success(movieDetail = favoriteMovieDetailTestData),
-                    similarMovieState = pager.collectAsLazyPagingItems(),
+                    detailState = DetailState.Success(detail = favoriteMovieDetailTestData, null, pager),
                     goToMovie = {},
                     goToPeople = {},
-                    onBack = {},
+                    goToBack = {},
                     onShowSnackbar = { _, _ -> true },
                     insertFavoriteMovie = {},
                     deleteFavoriteMovie = {},
-                    getMovieSeries = { flowOf() },
                     restart = {}
                 )
             }
@@ -194,15 +180,13 @@ class DetailScreenTest {
                 posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
 
                 DetailScreen(
-                    movieInfoState = MovieDetailState.Success(movieDetail = favoriteMovieDetailTestData),
-                    similarMovieState = pager.collectAsLazyPagingItems(),
+                    detailState = DetailState.Success(detail = favoriteMovieDetailTestData, null, pager),
                     goToMovie = {},
                     goToPeople = {},
-                    onBack = {},
+                    goToBack = {},
                     onShowSnackbar = { _, _ -> true },
                     insertFavoriteMovie = {},
                     deleteFavoriteMovie = {},
-                    getMovieSeries = { flowOf() },
                     restart = {}
                 )
             }
@@ -226,21 +210,18 @@ class DetailScreenTest {
         composeTestRule.apply {
             setContent {
                 DetailScreen(
-                    movieInfoState = MovieDetailState.Success(movieDetail = favoriteMovieDetailTestData),
-                    similarMovieState = pager.collectAsLazyPagingItems(),
+                    detailState = DetailState.Success(detail = favoriteMovieDetailTestData, null, pager),
                     goToMovie = {},
                     goToPeople = {},
-                    onBack = {},
+                    goToBack = {},
                     onShowSnackbar = { _, _ -> true },
                     insertFavoriteMovie = {},
                     deleteFavoriteMovie = {},
-                    getMovieSeries = { flowOf() },
                     restart = {}
                 )
             }
 
-            onNodeWithText(text = "다른 영화").assertIsDisplayed()
-            onNodeWithText(text = "다른 영화").performClick()
+            onNodeWithContentDescription(label = "detailTabRow").performScrollToNode(hasText(text = "다른 영화")).assertExists().assertIsDisplayed().performClick()
             assertEquals(
                 expected = PagingSource.LoadResult.Page<Int, Movie>(
                     data = similarMoviesTestData.results?.map {
@@ -273,11 +254,10 @@ class DetailScreenTest {
                 var movie by remember { mutableStateOf(unFavoriteMovieDetailTestData) }
 
                 DetailScreen(
-                    movieInfoState = MovieDetailState.Success(movie),
-                    similarMovieState = pager.collectAsLazyPagingItems(),
+                    detailState = DetailState.Success(movie, null, pager),
                     goToMovie = {},
                     goToPeople = {},
-                    onBack = {},
+                    goToBack = {},
                     onShowSnackbar = { _, _ -> true },
                     insertFavoriteMovie = {
                         backgroundScope.launch(UnconfinedTestDispatcher()) { testDatabaseRepository.insertMovie(it) }
@@ -287,7 +267,6 @@ class DetailScreenTest {
                         backgroundScope.launch(UnconfinedTestDispatcher()) { testDatabaseRepository.deleteMovie(it) }
                         movie = movie.copy(isFavorite = false)
                     },
-                    getMovieSeries = { flowOf() },
                     restart = {}
                 )
             }
@@ -321,8 +300,7 @@ class DetailScreenTest {
                         TMDBSimilarMoviePagingSource(
                             apis = TestMovieDataSource(),
                             id = 0,
-                            language = "ko",
-                            region = "KR"
+                            language = "ko"
                         )
                     }
                 ).flow
@@ -340,11 +318,10 @@ class DetailScreenTest {
                 }
 
                 DetailScreen(
-                    movieInfoState = MovieDetailState.Success(movie),
-                    similarMovieState = pager.collectAsLazyPagingItems(),
+                    detailState = DetailState.Success(movie, null, pager),
                     goToMovie = {},
                     goToPeople = {},
-                    onBack = {},
+                    goToBack = {},
                     onShowSnackbar = { _, _ -> true },
                     insertFavoriteMovie = {
                         backgroundScope.launch(UnconfinedTestDispatcher()) { testDatabaseRepository.insertMovie(it) }
@@ -354,7 +331,6 @@ class DetailScreenTest {
                         backgroundScope.launch(UnconfinedTestDispatcher()) { testDatabaseRepository.deleteMovie(it) }
                         movie = movie.copy(isFavorite = false)
                     },
-                    getMovieSeries = { flowOf() },
                     restart = {}
                 )
             }

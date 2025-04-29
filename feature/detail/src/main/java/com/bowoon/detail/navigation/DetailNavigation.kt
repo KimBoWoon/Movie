@@ -24,7 +24,7 @@ fun NavController.navigateToDetail(
 }
 
 fun NavGraphBuilder.detailSection(
-    onBack: () -> Unit,
+    goToBack: () -> Unit,
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean
@@ -37,7 +37,7 @@ fun NavGraphBuilder.detailSection(
         )
     ) {
         DetailScreen(
-            onBack = onBack,
+            goToBack = goToBack,
             goToMovie = goToMovie,
             goToPeople = goToPeople,
             onShowSnackbar = onShowSnackbar,

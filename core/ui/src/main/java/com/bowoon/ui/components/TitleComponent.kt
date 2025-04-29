@@ -37,7 +37,7 @@ import com.bowoon.ui.utils.sp20
 fun TitleComponent(
     title: String,
     isFavorite: Boolean? = null,
-    onBackClick: (() -> Unit)? = null,
+    goToBack: (() -> Unit)? = null,
     onFavoriteClick: (() -> Unit)? = null
 ) {
     Row(
@@ -48,10 +48,10 @@ fun TitleComponent(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        onBackClick?.let { onBack ->
+        goToBack?.let { goToBack ->
             FilledIconButton(
                 modifier = Modifier.testTag(tag = "backButton").padding(dp5),
-                onClick = { onBack() },
+                onClick = { goToBack() },
                 colors = IconButtonDefaults.iconButtonColors(
                     containerColor = Color.Transparent,
                     contentColor = MaterialTheme.colorScheme.onSurface,
@@ -61,7 +61,7 @@ fun TitleComponent(
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "onBackClick"
+                    contentDescription = "goToBackClick"
                 )
             }
         } ?: Spacer(modifier = Modifier.size(dp24).padding(start = dp16).background(color = Color.Transparent))
