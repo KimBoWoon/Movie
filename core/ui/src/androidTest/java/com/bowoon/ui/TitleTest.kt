@@ -12,7 +12,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import com.bowoon.ui.components.Title
+import com.bowoon.ui.components.TitleComponent
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
@@ -26,7 +26,7 @@ class TitleTest {
     fun baseTitleTest() = runTest {
         composeTestRule.apply {
             setContent {
-                Title(title = "showTitle")
+                TitleComponent(title = "showTitle")
             }
 
             onNodeWithText(text = "showTitle").assertIsDisplayed()
@@ -39,9 +39,9 @@ class TitleTest {
             var isBackClick = false
 
             setContent {
-                Title(
+                TitleComponent(
                     title = "showTitle",
-                    onBackClick = { isBackClick = true }
+                    goToBack = { isBackClick = true }
                 )
             }
 
@@ -57,9 +57,9 @@ class TitleTest {
             setContent {
                 var isFavorite by remember { mutableStateOf(false) }
 
-                Title(
+                TitleComponent(
                     title = "showTitle",
-                    onBackClick = {},
+                    goToBack = {},
                     isFavorite = isFavorite,
                     onFavoriteClick = { isFavorite = !isFavorite }
                 )

@@ -47,6 +47,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -108,11 +109,12 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstan
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
 
 @Composable
 fun DetailScreen(
-    onBack: () -> Unit,
+    goToBack: () -> Unit,
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
@@ -120,17 +122,13 @@ fun DetailScreen(
 ) {
     LocalFirebaseLogHelper.current.sendLog("DetailScreen", "detail screen start!")
 
-    val movieInfo by viewModel.movieInfo.collectAsStateWithLifecycle()
-    val similarMovies = viewModel.similarMovies.collectAsLazyPagingItems()
-    val movieSeries by viewModel.movieSeries.collectAsStateWithLifecycle()
+    val detailState by viewModel.detail.collectAsStateWithLifecycle()
 
     DetailScreen(
-        movieInfoState = movieInfo,
-        similarMovieState = similarMovies,
-        movieSeries = movieSeries,
+        detailState = detailState,
         goToMovie = goToMovie,
         goToPeople = goToPeople,
-        onBack = onBack,
+        goToBack = goToBack,
         onShowSnackbar = onShowSnackbar,
         insertFavoriteMovie = viewModel::insertMovie,
         deleteFavoriteMovie = viewModel::deleteMovie,
@@ -140,25 +138,23 @@ fun DetailScreen(
 
 @Composable
 fun DetailScreen(
-    movieInfoState: MovieDetailState,
-    similarMovieState: LazyPagingItems<Movie>,
-    movieSeries: MovieSeries?,
+    detailState: DetailState,
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
-    onBack: () -> Unit,
+    goToBack: () -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
     insertFavoriteMovie: (Favorite) -> Unit,
     deleteFavoriteMovie: (Favorite) -> Unit,
     restart: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
-    var movie by remember { mutableStateOf<MovieDetail>(MovieDetail()) }
+    var detail by remember { mutableStateOf(DetailState.Success(null, null, emptyFlow())) }
 
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        when (movieInfoState) {
-            is MovieDetailState.Loading -> {
+        when (detailState) {
+            is DetailState.Loading -> {
                 Log.d("loading...")
                 CircularProgressIndicator(
                     modifier = Modifier
@@ -166,18 +162,18 @@ fun DetailScreen(
                         .align(Alignment.Center)
                 )
             }
-            is MovieDetailState.Success -> {
-                Log.d("${movieInfoState.movieDetail}")
-                movie = movieInfoState.movieDetail
+            is DetailState.Success -> {
+                Log.d("${detailState.detail}")
+                detail = detailState
             }
-            is MovieDetailState.Error -> {
-                Log.e("${movieInfoState.throwable.message}")
+            is DetailState.Error -> {
+                Log.e("${detailState.throwable.message}")
 
                 ConfirmDialog(
                     title = stringResource(com.bowoon.movie.core.network.R.string.network_failed),
-                    message = "${movieInfoState.throwable.message}",
+                    message = "${detailState.throwable.message}",
                     confirmPair = stringResource(com.bowoon.movie.core.ui.R.string.retry_message) to { restart() },
-                    dismissPair = stringResource(com.bowoon.movie.core.ui.R.string.back_message) to onBack
+                    dismissPair = stringResource(com.bowoon.movie.core.ui.R.string.back_message) to goToBack
                 )
             }
         }
@@ -186,32 +182,34 @@ fun DetailScreen(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        val favoriteMessage = if (movie.isFavorite) stringResource(R.string.add_favorite_movie) else stringResource(R.string.remove_favorite_movie)
+        detail.detail?.let {
+            val favoriteMessage = if (it.isFavorite) stringResource(R.string.add_favorite_movie) else stringResource(R.string.remove_favorite_movie)
 
-        TitleComponent(
-            title = movie.title ?: "",
-            isFavorite = movie.isFavorite,
-            onBackClick = onBack,
-            onFavoriteClick = {
-                val favorite = Favorite(
-                    id = movie.id,
-                    title = movie.title,
-                    imagePath = movie.posterPath
-                )
-                if (movie.isFavorite) deleteFavoriteMovie(favorite) else insertFavoriteMovie(favorite)
-                scope.launch {
-                    onShowSnackbar(favoriteMessage, null)
+            TitleComponent(
+                title = it.title ?: "",
+                isFavorite = it.isFavorite,
+                goToBack = goToBack,
+                onFavoriteClick = {
+                    val favorite = Favorite(
+                        id = it.id,
+                        title = it.title,
+                        imagePath = it.posterPath
+                    )
+                    if (it.isFavorite) deleteFavoriteMovie(favorite) else insertFavoriteMovie(favorite)
+                    scope.launch {
+                        onShowSnackbar(favoriteMessage, null)
+                    }
                 }
-            }
-        )
+            )
 
-        MovieDetailComponent(
-            movieDetail = movie,
-            movieSeries = movieSeries,
-            similarMovieState = similarMovieState,
-            goToMovie = { id -> goToMovie(id) },
-            goToPeople = { id -> goToPeople(id) }
-        )
+            MovieDetailComponent(
+                movieDetail = it,
+                movieSeries = detail.series,
+                similarMovieState = detail.similarMovies.collectAsLazyPagingItems(),
+                goToMovie = { id -> goToMovie(id) },
+                goToPeople = { id -> goToPeople(id) }
+            )
+        }
     }
 }
 
@@ -476,8 +474,7 @@ fun MovieSeriesComponent(
     ) {
         movieSeries?.let {
             seriesInfoComponent(
-                series = movieSeries,
-                posterUrl = posterUrl
+                series = movieSeries
             )
             movieSeriesListComponent(
                 series = movieSeries.parts ?: emptyList(),
@@ -500,7 +497,7 @@ fun MovieAdditionalInfoComponent(
         modifier = Modifier.fillMaxSize()
     ) {
         item {
-            movie.productionCompanies?.let { production ->
+            movie.productionCompanies.takeIf { !it.isNullOrEmpty() }?.let { production ->
                 Text(
                     modifier = Modifier.fillMaxWidth().padding(vertical = dp10, horizontal = dp16),
                     text = stringResource(R.string.movie_production_companies),
@@ -509,8 +506,8 @@ fun MovieAdditionalInfoComponent(
                     fontWeight = FontWeight.Bold
                 )
                 HorizontalPager(
-                    modifier = Modifier.fillMaxWidth().height(dp300),
-                    state = rememberPagerState { production.size ?: 0 },
+                    modifier = Modifier.fillMaxWidth(),
+                    state = rememberPagerState { production.size },
                     contentPadding = PaddingValues(horizontal = dp32),
                     key = { index -> production[index].id ?: -1 }
                 ) { index ->
@@ -519,7 +516,8 @@ fun MovieAdditionalInfoComponent(
                     ) {
                         production[index].logoPath?.let {
                             DynamicAsyncImageLoader(
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier.fillMaxWidth().height(dp300),
+                                contentScale = ContentScale.Fit,
                                 source = "$posterUrl$it",
                                 contentDescription = "$posterUrl$it"
                             )
@@ -575,8 +573,6 @@ fun MovieAdditionalInfoComponent(
 fun MovieInfoComponent(
     movie: MovieDetail
 ) {
-    var overviewMaxLine by remember { mutableIntStateOf(3) }
-
     LazyColumn(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -707,12 +703,8 @@ fun MovieInfoComponent(
                     modifier = Modifier
                         .padding(horizontal = dp16)
                         .fillMaxWidth()
-                        .wrapContentHeight()
-                        .clickable {
-                            overviewMaxLine = if (overviewMaxLine == 3) Int.MAX_VALUE else 3
-                        },
+                        .wrapContentHeight(),
                     text = it,
-                    maxLines = overviewMaxLine,
                     overflow = TextOverflow.Ellipsis
                 )
             }

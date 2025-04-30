@@ -15,4 +15,5 @@ dependencies {
     implementation(libs.hilt.android.testing)
     implementation(libs.androidx.test.rules)
     implementation(libs.androidx.compose.paging)
+    implementation(libs.androidx.paging.testing)
 }

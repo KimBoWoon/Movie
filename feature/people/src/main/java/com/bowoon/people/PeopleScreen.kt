@@ -63,7 +63,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun PeopleScreen(
-    onBack: () -> Unit,
+    goToBack: () -> Unit,
     goToMovie: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
     viewModel: PeopleVM = hiltViewModel()
@@ -74,7 +74,7 @@ fun PeopleScreen(
 
     PeopleScreen(
         peopleState = peopleState,
-        onBack = onBack,
+        goToBack = goToBack,
         insertFavoritePeople = viewModel::insertPeople,
         deleteFavoritePeople = viewModel::deletePeople,
         goToMovie = goToMovie,
@@ -86,7 +86,7 @@ fun PeopleScreen(
 @Composable
 fun PeopleScreen(
     peopleState: PeopleState,
-    onBack: () -> Unit,
+    goToBack: () -> Unit,
     insertFavoritePeople: (Favorite) -> Unit,
     deleteFavoritePeople: (Favorite) -> Unit,
     goToMovie: (Int) -> Unit,
@@ -113,7 +113,7 @@ fun PeopleScreen(
                 title = stringResource(com.bowoon.movie.core.network.R.string.network_failed),
                 message = "${peopleState.throwable.message}",
                 confirmPair = stringResource(R.string.retry_message) to { restart() },
-                dismissPair = stringResource(R.string.back_message) to onBack
+                dismissPair = stringResource(R.string.back_message) to goToBack
             )
         }
     }
@@ -124,7 +124,7 @@ fun PeopleScreen(
         people?.let {
             PeopleDetailComponent(
                 people = it,
-                onBack = onBack,
+                goToBack = goToBack,
                 goToMovie = goToMovie,
                 insertFavoritePeople = insertFavoritePeople,
                 deleteFavoritePeople = deleteFavoritePeople,
@@ -143,7 +143,7 @@ fun PeopleScreen(
 @Composable
 fun PeopleDetailComponent(
     people: PeopleDetail,
-    onBack: () -> Unit,
+    goToBack: () -> Unit,
     goToMovie: (Int) -> Unit,
     insertFavoritePeople: (Favorite) -> Unit,
     deleteFavoritePeople: (Favorite) -> Unit,
@@ -160,7 +160,7 @@ fun PeopleDetailComponent(
 
         TitleComponent(
             title = people.name ?: stringResource(com.bowoon.movie.feature.people.R.string.title_people),
-            onBackClick = onBack,
+            goToBack = goToBack,
             onFavoriteClick = {
                 val favorite = Favorite(
                     id = people.id,

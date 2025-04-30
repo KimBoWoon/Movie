@@ -37,7 +37,7 @@ class PeopleScreenTest {
             setContent {
                 PeopleScreen(
                     peopleState = PeopleState.Loading,
-                    onBack = {},
+                    goToBack = {},
                     insertFavoritePeople = {},
                     deleteFavoritePeople = {},
                     goToMovie = {},
@@ -56,7 +56,7 @@ class PeopleScreenTest {
             setContent {
                 PeopleScreen(
                     peopleState = PeopleState.Error(Throwable("something wrong...")),
-                    onBack = {},
+                    goToBack = {},
                     insertFavoritePeople = {},
                     deleteFavoritePeople = {},
                     goToMovie = {},
@@ -80,7 +80,7 @@ class PeopleScreenTest {
                 posterPath = LocalMovieAppDataComposition.current.getImageUrl()
                 PeopleScreen(
                     peopleState = PeopleState.Success(peopleDetailTestData),
-                    onBack = {},
+                    goToBack = {},
                     insertFavoritePeople = {},
                     deleteFavoritePeople = {},
                     goToMovie = {},
@@ -115,7 +115,7 @@ class PeopleScreenTest {
 
                 PeopleScreen(
                     peopleState = PeopleState.Success(people),
-                    onBack = {},
+                    goToBack = {},
                     insertFavoritePeople = {
                         backgroundScope.launch(UnconfinedTestDispatcher()) { testDatabaseRepository.insertPeople(it) }
                         people = people.copy(isFavorite = true)
@@ -177,7 +177,7 @@ class PeopleScreenTest {
 
                 PeopleScreen(
                     peopleState = PeopleState.Success(people),
-                    onBack = {},
+                    goToBack = {},
                     insertFavoritePeople = {
                         backgroundScope.launch(UnconfinedTestDispatcher()) { testDatabaseRepository.insertPeople(it) }
                         people = people.copy(isFavorite = true)

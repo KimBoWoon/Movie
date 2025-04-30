@@ -178,6 +178,7 @@ fun SearchBarComponent(
         onDone = { focusManager.clearFocus() },
         onSearch = {
             scope.launch { scrollState.scrollToItem(0) }
+            updateGenre(null)
             onSearchClick()
             focusManager.clearFocus()
         }
