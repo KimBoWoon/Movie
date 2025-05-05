@@ -16,11 +16,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bowoon.data.repository.LocalMovieAppDataComposition
 import com.bowoon.model.Genre
 import com.bowoon.model.InternalData
-import com.bowoon.model.Movie
 import com.bowoon.model.MovieAppData
 import com.bowoon.model.SearchType
-import com.bowoon.testing.model.movieSearchTestData
-import com.bowoon.testing.model.peopleSearchTestData
 import com.bowoon.testing.repository.TestPagingRepository
 import com.bowoon.testing.repository.TestUserDataRepository
 import kotlinx.coroutines.runBlocking
@@ -155,8 +152,8 @@ class SearchScreenTest {
             onNodeWithText(text = "mission").assertExists().assertIsDisplayed()
             onNodeWithContentDescription(label = "searchKeywordClear").assertExists().assertIsDisplayed()
             onNodeWithContentDescription(label = "searchMovies").assertExists().assertIsDisplayed().performClick()
-            movieSearchTestData.results?.forEach { movie ->
-                onNodeWithContentDescription(label = "searchResultList").performScrollToNode(hasContentDescription(value = "${movie.id}_${movie.name}")).assertExists().assertIsDisplayed()
+            (0..100).forEach {
+                onNodeWithContentDescription(label = "searchResultList").performScrollToNode(hasContentDescription(value = "${it}_name_$it")).assertExists().assertIsDisplayed()
             }
         }
     }
@@ -196,8 +193,8 @@ class SearchScreenTest {
             onNodeWithText(text = "name").assertExists().assertIsDisplayed()
             onNodeWithContentDescription(label = "searchKeywordClear").assertExists().assertIsDisplayed()
             onNodeWithContentDescription(label = "searchMovies").assertExists().assertIsDisplayed().performClick()
-            peopleSearchTestData.results?.forEach { movie ->
-                onNodeWithContentDescription(label = "searchResultList").performScrollToNode(hasContentDescription(value = "${movie.id}_${movie.name}")).assertExists().assertIsDisplayed()
+            (0..100).forEach {
+                onNodeWithContentDescription(label = "searchResultList").performScrollToNode(hasContentDescription(value = "${it}_name_$it")).assertExists().assertIsDisplayed()
             }
         }
     }
@@ -277,8 +274,8 @@ class SearchScreenTest {
             }
             viewModel.updateGenre(Genre(id = 2, name = "Action"))
             onNodeWithContentDescription(label = "Action").assertExists().assertIsDisplayed().performClick()
-            movieSearchTestData.results?.filter { it is Movie && 2 in (it.genreIds ?: emptyList()) }?.forEach { movie ->
-                onNodeWithContentDescription(label = "searchResultList").performScrollToNode(hasContentDescription(value = "${movie.id}_${movie.name}")).assertExists().assertIsDisplayed()
+            (0..100).forEach {
+                onNodeWithContentDescription(label = "searchResultList").performScrollToNode(hasContentDescription(value = "${it}_name_$it")).assertExists().assertIsDisplayed()
             }
         }
     }

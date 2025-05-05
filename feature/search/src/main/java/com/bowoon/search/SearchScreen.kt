@@ -84,10 +84,11 @@ import com.bowoon.ui.utils.dp10
 import com.bowoon.ui.utils.dp100
 import com.bowoon.ui.utils.dp15
 import com.bowoon.ui.utils.dp16
+import com.bowoon.ui.utils.dp40
 import com.bowoon.ui.utils.dp5
-import com.bowoon.ui.utils.dp53
 import com.bowoon.ui.utils.dp8
 import com.bowoon.ui.utils.sp12
+import com.bowoon.ui.utils.sp20
 import com.bowoon.ui.utils.sp30
 import kotlinx.coroutines.launch
 
@@ -186,9 +187,9 @@ fun SearchBarComponent(
 
     BasicTextField(
         modifier = Modifier
+            .padding(top = dp10, bottom = if (searchType == SearchType.MOVIE) dp0 else dp10, start = dp16, end = dp16)
             .fillMaxWidth()
-            .height(dp53)
-            .padding(top = dp10, start = dp16, end = dp16)
+            .height(dp40)
             .clip(shape = RoundedCornerShape(50))
             .background(color = MaterialTheme.colorScheme.inverseOnSurface),
         value = keyword,
@@ -346,7 +347,17 @@ fun SearchResultPaging(
     var pagingStatus by remember { mutableStateOf<PagingStatus>(PagingStatus.NONE) }
 
     when (searchState) {
-        is SearchState.Loading -> {}
+        is SearchState.Loading -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "검색어를 입력해 검색해보세요!",
+                    fontSize = sp20
+                )
+            }
+        }
         is SearchState.Search -> {
             val pagingData = searchState.pagingData.collectAsLazyPagingItems()
 
