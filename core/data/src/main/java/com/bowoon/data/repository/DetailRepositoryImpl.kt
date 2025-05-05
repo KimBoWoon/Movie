@@ -10,6 +10,7 @@ import com.bowoon.model.SearchData
 import com.bowoon.network.MovieNetworkDataSource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import org.threeten.bp.LocalDate
 import javax.inject.Inject
 
 class DetailRepositoryImpl @Inject constructor(
@@ -60,6 +61,17 @@ class DetailRepositoryImpl @Inject constructor(
     override fun getMovieSeries(collectionId: Int): Flow<MovieSeries> = flow {
         val language = "${datastore.getUserData().language}-${datastore.getUserData().region}"
 
-        emit(apis.getMovieSeries(collectionId = collectionId, language = language))
+        apis.getMovieSeries(collectionId = collectionId, language = language).let { movieSeries ->
+            movieSeries.copy(
+                parts = movieSeries.parts
+                    ?.sortedBy { movie ->
+                        movie.releaseDate
+                            .takeIf { !it.isNullOrEmpty() }
+                            .let { releaseDate ->
+                                LocalDate.parse(releaseDate ?: "9999-12-31")
+                            }
+                }
+            )
+        }.run { emit(this) }
     }
 }

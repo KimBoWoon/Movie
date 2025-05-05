@@ -1,7 +1,7 @@
 import com.android.build.api.dsl.ApplicationExtension
+import com.bowoon.convention.AppBuildType
 import com.bowoon.convention.Config
 import com.bowoon.convention.Config.getProp
-import com.bowoon.convention.MovieAppBuildType
 import com.bowoon.convention.configureKotlinAndroid
 import com.bowoon.convention.libs
 import org.gradle.api.Plugin
@@ -27,7 +27,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                         targetSdk = Config.Application.Movie.targetSdkVersion
                         versionName = Config.Application.Movie.versionName
                         versionCode = Config.Application.Movie.versionCode
-                        testInstrumentationRunner = Config.ApplicationSetting.testInstrumentationRunner
+                        testInstrumentationRunner = Config.ApplicationSetting.TEST_INSTRUMENTATION_RUNNER
 
                         signingConfigs {
                             register(Config.Application.Movie.Sign.Release.name) {
@@ -63,7 +63,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
 
                 buildTypes {
                     debug {
-                        applicationIdSuffix = MovieAppBuildType.DEBUG.applicationIdSuffix
+                        applicationIdSuffix = AppBuildType.DEBUG.applicationIdSuffix
                         isMinifyEnabled = false
                         isDebuggable = true
                         isJniDebuggable = true
@@ -73,14 +73,14 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                         signingConfig = signingConfigs.getByName(Config.Application.Movie.Sign.Debug.name)
                     }
                     release {
-                        applicationIdSuffix = MovieAppBuildType.RELEASE.applicationIdSuffix
+                        applicationIdSuffix = AppBuildType.RELEASE.applicationIdSuffix
                         isMinifyEnabled = true
                         isShrinkResources = true
                         isDebuggable = false
                         isJniDebuggable = false
                         proguardFiles(
-                            getDefaultProguardFile(Config.ApplicationSetting.defaultProguardFile),
-                            Config.ApplicationSetting.proguardFile
+                            getDefaultProguardFile(Config.ApplicationSetting.DEFAULT_PROGUARD_FILE),
+                            Config.ApplicationSetting.PROGUARD_FILE
                         )
                         buildConfigField("Boolean", "IS_DEBUGGING_LOGGING", "false")
                         buildConfigField("String", "GIT_HASH", "\"$gitHash\"")

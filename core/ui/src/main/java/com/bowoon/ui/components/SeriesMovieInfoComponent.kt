@@ -13,7 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.constraintlayout.compose.ChainStyle
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -27,7 +26,6 @@ import com.bowoon.ui.utils.dp5
 import com.bowoon.ui.utils.sp10
 import com.bowoon.ui.utils.sp13
 import com.bowoon.ui.utils.sp20
-import org.threeten.bp.LocalDate
 
 fun LazyListScope.movieSeriesListComponent(
     series: List<MovieSeriesPart>,
@@ -35,7 +33,7 @@ fun LazyListScope.movieSeriesListComponent(
     goToMovie: (Int) -> Unit
 ) {
     items(
-        items = series.sortedBy { it.releaseDate?.trim()?.takeIf { date -> date.isNotEmpty() }?.let { date -> LocalDate.parse(date) } },
+        items = series,
         key = { movieSeries -> movieSeries.id ?: -1 }
     ) { movieSeries ->
         SeriesMovieInfoComponent(
@@ -116,8 +114,7 @@ fun SeriesMovieInfoComponent(
             text = seriesPart.overview ?: "",
             overflow = TextOverflow.Ellipsis,
             fontSize = sp13,
-            style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false)),
-            textAlign = TextAlign.Justify
+            style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
         )
     }
 }

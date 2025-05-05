@@ -79,7 +79,7 @@ class DetailVM @Inject constructor(
                         language = "${internalData.value?.language}-${internalData.value?.region}"
                     )
                 }
-            ).flow.cachedIn(viewModelScope)
+            ).flow.cachedIn(viewModelScope),
         ),
         seriesId.flatMapLatest { id ->
             id?.let { detailRepository.getMovieSeries(it) } ?: flowOf(null)

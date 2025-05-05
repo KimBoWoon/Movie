@@ -59,6 +59,9 @@ class SearchVM @Inject constructor(
 
     fun updateSearchType(searchType: SearchType) {
         savedStateHandle[SEARCH_TYPE] = searchType
+        viewModelScope.launch {
+            searchResult.emit(SearchState.Loading)
+        }
     }
 
     fun searchMovies() {
