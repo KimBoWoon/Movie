@@ -13,6 +13,8 @@ import com.bowoon.model.MovieSeries
 import com.bowoon.model.PeopleDetail
 import com.bowoon.model.Regions
 import com.bowoon.model.SearchData
+import com.bowoon.model.SearchKeyword
+import com.bowoon.model.SearchKeywordData
 import com.bowoon.model.SimilarMovies
 import com.bowoon.network.MovieNetworkDataSource
 import com.bowoon.testing.model.certificationTestData
@@ -116,4 +118,17 @@ class TestMovieDataSource : MovieNetworkDataSource {
     override suspend fun getCombineCredits(personId: Int, language: String): CombineCredits = combineCreditsTestData
 
     override suspend fun getExternalIds(personId: Int): ExternalIds = externalIdsTestData
+
+    override suspend fun getSearchKeyword(query: String, page: Int): SearchKeywordData = SearchKeywordData(
+        page = 1,
+        results = listOf(
+            SearchKeyword(id = 1, name = "mission1"),
+            SearchKeyword(id = 2, name = "mission2"),
+            SearchKeyword(id = 3, name = "mission3"),
+            SearchKeyword(id = 4, name = "mission4"),
+            SearchKeyword(id = 5, name = "mission5")
+        ),
+        totalPages = 1,
+        totalResults = 5
+    )
 }

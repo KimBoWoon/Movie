@@ -11,14 +11,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -49,19 +52,24 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.bowoon.common.Log
 import com.bowoon.data.repository.LocalMovieAppDataComposition
@@ -69,6 +77,7 @@ import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.Genre
 import com.bowoon.model.PagingStatus
+import com.bowoon.model.SearchKeyword
 import com.bowoon.model.SearchType
 import com.bowoon.movie.feature.search.R
 import com.bowoon.ui.components.FilterChipComponent
@@ -84,6 +93,7 @@ import com.bowoon.ui.utils.dp10
 import com.bowoon.ui.utils.dp100
 import com.bowoon.ui.utils.dp15
 import com.bowoon.ui.utils.dp16
+import com.bowoon.ui.utils.dp35
 import com.bowoon.ui.utils.dp40
 import com.bowoon.ui.utils.dp5
 import com.bowoon.ui.utils.dp8
@@ -104,9 +114,11 @@ fun SearchScreen(
     val searchState by viewModel.searchResult.collectAsStateWithLifecycle()
     val selectedGenre by viewModel.selectedGenre.collectAsStateWithLifecycle()
     val searchType by viewModel.searchType.collectAsStateWithLifecycle()
+    val recommendedKeyword = viewModel.recommendedKeywordPaging.collectAsLazyPagingItems()
 
     SearchScreen(
         searchState = searchState,
+        recommendedKeyword = recommendedKeyword,
         keyword = viewModel.searchQuery,
         searchType = searchType,
         selectedGenre = selectedGenre,
@@ -123,6 +135,7 @@ fun SearchScreen(
 @Composable
 fun SearchScreen(
     searchState: SearchState,
+    recommendedKeyword: LazyPagingItems<SearchKeyword>,
     keyword: String,
     searchType: SearchType,
     selectedGenre: Genre?,
@@ -135,6 +148,8 @@ fun SearchScreen(
     updateGenre: (Genre?) -> Unit
 ) {
     val scrollState = rememberLazyGridState()
+    val isVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
+    val focusManager = LocalFocusManager.current
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -149,16 +164,31 @@ fun SearchScreen(
             updateSearchType = updateSearchType,
             updateGenre = updateGenre
         )
-        SearchResultPaging(
-            searchState = searchState,
-            scrollState = scrollState,
-            searchType = searchType,
-            goToMovie = goToMovie,
-            goToPeople = goToPeople,
-            goToSeries = goToSeries,
-            selectedGenre = selectedGenre,
-            updateGenre = updateGenre
-        )
+
+        if (isVisible) {
+            RecommendedKeywordComponent(
+                recommendedKeyword = recommendedKeyword,
+                keyword = keyword,
+                updateKeyword = updateKeyword,
+                onSearchClick = onSearchClick
+            )
+        } else {
+            focusManager.clearFocus()
+            SearchResultPaging(
+                searchState = searchState,
+                recommendedKeyword = recommendedKeyword,
+                scrollState = scrollState,
+                searchType = searchType,
+                goToMovie = goToMovie,
+                goToPeople = goToPeople,
+                goToSeries = goToSeries,
+                selectedGenre = selectedGenre,
+                updateGenre = updateGenre,
+                updateKeyword = updateKeyword,
+                onSearchClick = onSearchClick,
+                keyword = keyword
+            )
+        }
     }
 }
 
@@ -187,7 +217,12 @@ fun SearchBarComponent(
 
     BasicTextField(
         modifier = Modifier
-            .padding(top = dp10, bottom = if (searchType == SearchType.MOVIE) dp0 else dp10, start = dp16, end = dp16)
+            .padding(
+                top = dp10,
+                bottom = if (searchType == SearchType.MOVIE) dp0 else dp10,
+                start = dp16,
+                end = dp16
+            )
             .fillMaxWidth()
             .height(dp40)
             .clip(shape = RoundedCornerShape(50))
@@ -292,7 +327,9 @@ fun SearchTypeComponent(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                modifier = Modifier.testTag(tag = "searchType").clickable { isExpand = !isExpand },
+                modifier = Modifier
+                    .testTag(tag = "searchType")
+                    .clickable { isExpand = !isExpand },
                 text = searchType.label,
                 fontSize = sp12,
                 color = MaterialTheme.colorScheme.onSurface
@@ -333,13 +370,17 @@ fun SearchTypeComponent(
 @Composable
 fun SearchResultPaging(
     searchState: SearchState,
+    recommendedKeyword: LazyPagingItems<SearchKeyword>,
     scrollState: LazyGridState,
     searchType: SearchType,
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     goToSeries: (Int) -> Unit,
     selectedGenre: Genre?,
-    updateGenre: (Genre) -> Unit
+    updateGenre: (Genre) -> Unit,
+    updateKeyword: (String) -> Unit,
+    onSearchClick: () -> Unit,
+    keyword: String
 ) {
     val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
     val genres = LocalMovieAppDataComposition.current.genres
@@ -347,18 +388,18 @@ fun SearchResultPaging(
     var pagingStatus by remember { mutableStateOf<PagingStatus>(PagingStatus.NONE) }
 
     when (searchState) {
-        is SearchState.Loading -> {
+        is SearchState.SearchEntry -> {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "검색어를 입력해 검색해보세요!",
+                    text = stringResource(R.string.do_search),
                     fontSize = sp20
                 )
             }
         }
-        is SearchState.Search -> {
+        is SearchState.SearchResult -> {
             val pagingData = searchState.pagingData.collectAsLazyPagingItems()
 
             when {
@@ -405,24 +446,10 @@ fun SearchResultPaging(
                             modifier = Modifier.fillMaxSize()
                         ) {
                             if (pagingStatus == PagingStatus.NOT_EMPTY && SearchType.MOVIE == searchType) {
-                                LazyRow(
-                                    modifier = Modifier.testTag(tag = "FilterRow").fillMaxWidth(),
-                                    contentPadding = PaddingValues(horizontal = dp16),
-                                    horizontalArrangement = Arrangement.spacedBy(space = dp10)
-                                ) {
-                                    items(
-                                        items = genres,
-                                        key = { it.id ?: -1 }
-                                    ) { genre ->
-                                        genre.name?.let { name ->
-                                            FilterChipComponent(
-                                                title = name,
-                                                selectedFilter = selectedGenre?.id == genre.id,
-                                                updateFilter = { updateGenre(genre) }
-                                            )
-                                        }
-                                    }
-                                }
+                                MovieFilterRowComponent(
+                                    selectedGenre = selectedGenre,
+                                    updateGenre = updateGenre
+                                )
                             }
 
                             Box(
@@ -457,9 +484,17 @@ fun SearchResultPaging(
                                                     .aspectRatio(POSTER_IMAGE_RATIO)
                                                     .bounceClick {
                                                         when (searchType) {
-                                                            SearchType.MOVIE -> goToMovie(item.id ?: -1)
-                                                            SearchType.PEOPLE -> goToPeople(item.id ?: -1)
-                                                            SearchType.SERIES -> goToSeries(item.id ?: -1)
+                                                            SearchType.MOVIE -> goToMovie(
+                                                                item.id ?: -1
+                                                            )
+
+                                                            SearchType.PEOPLE -> goToPeople(
+                                                                item.id ?: -1
+                                                            )
+
+                                                            SearchType.SERIES -> goToSeries(
+                                                                item.id ?: -1
+                                                            )
                                                         }
                                                     },
                                                 source = "$posterUrl${item.imagePath}",
@@ -489,12 +524,122 @@ fun SearchResultPaging(
             }
         }
         is SearchState.Error -> LocalFirebaseLogHelper.current.sendLog("SearchResultPaging", searchState.message)
-        is SearchState.InputKeyword -> {
+        is SearchState.EmptyKeyword -> {
             ConfirmDialog(
                 title = "",
                 message = stringResource(R.string.input_keyword),
                 confirmPair = stringResource(com.bowoon.movie.core.ui.R.string.confirm_message) to {}
             )
+        }
+    }
+}
+
+@Composable
+fun RecommendedKeywordComponent(
+    recommendedKeyword: LazyPagingItems<SearchKeyword>,
+    keyword: String,
+    updateKeyword: (String) -> Unit,
+    onSearchClick: () -> Unit
+) {
+    val focusManager = LocalFocusManager.current
+    var isAppend by remember { mutableStateOf(false) }
+    var pagingStatus by remember { mutableStateOf<PagingStatus>(PagingStatus.NONE) }
+
+    when {
+        recommendedKeyword.loadState.append is LoadState.Loading -> isAppend = true
+        recommendedKeyword.loadState.append is LoadState.NotLoading -> isAppend = false
+        recommendedKeyword.loadState.refresh is LoadState.Loading -> pagingStatus = PagingStatus.LOADING
+        recommendedKeyword.loadState.refresh is LoadState.NotLoading -> pagingStatus = PagingStatus.NOT_EMPTY
+    }
+
+    Box(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        when (pagingStatus) {
+            PagingStatus.LOADING -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            PagingStatus.EMPTY -> {}
+            else -> {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    item {
+                        Text(
+                            modifier = Modifier
+                                .padding(start = dp16, end = dp16, top = dp10)
+                                .fillMaxWidth(),
+                            text = stringResource(R.string.recommended_keyword),
+                            fontSize = sp20,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                    items(
+                        count = recommendedKeyword.itemCount,
+                        key = { index -> recommendedKeyword.peek(index)?.id ?: -1 }
+                    ) { index ->
+                        recommendedKeyword[index]?.let { recommendedKeyword ->
+                            val annotatedString = buildAnnotatedString {
+                                append(recommendedKeyword.name ?: "")
+                                recommendedKeyword.name?.let { searchKeyword ->
+                                    if (searchKeyword.contains(other = keyword)) {
+                                        searchKeyword.indexOf(string = keyword).also { start ->
+                                            addStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary), start = start, end = start + keyword.length)
+                                        }
+                                    }
+                                }
+                            }
+                            Text(
+                                modifier = Modifier
+                                    .padding(start = dp16, end = dp16, top = dp10)
+                                    .fillMaxWidth()
+                                    .height(dp35)
+                                    .bounceClick {
+                                        updateKeyword(recommendedKeyword.name ?: "")
+                                        onSearchClick()
+                                        focusManager.clearFocus()
+                                    },
+                                text = annotatedString,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
+                    if (isAppend) {
+                        item {
+                            CircularProgressIndicator(modifier = Modifier.wrapContentSize())
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun MovieFilterRowComponent(
+    selectedGenre: Genre?,
+    updateGenre: (Genre) -> Unit
+) {
+    val genres = LocalMovieAppDataComposition.current.genres
+
+    LazyRow(
+        modifier = Modifier
+            .testTag(tag = "FilterRow")
+            .fillMaxWidth(),
+        contentPadding = PaddingValues(horizontal = dp16),
+        horizontalArrangement = Arrangement.spacedBy(space = dp10)
+    ) {
+        items(
+            items = genres,
+            key = { it.id ?: -1 }
+        ) { genre ->
+            genre.name?.let { name ->
+                FilterChipComponent(
+                    title = name,
+                    selectedFilter = selectedGenre?.id == genre.id,
+                    updateFilter = { updateGenre(genre) }
+                )
+            }
         }
     }
 }

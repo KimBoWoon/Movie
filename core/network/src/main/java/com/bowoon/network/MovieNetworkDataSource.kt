@@ -13,6 +13,7 @@ import com.bowoon.model.MovieSeries
 import com.bowoon.model.PeopleDetail
 import com.bowoon.model.Regions
 import com.bowoon.model.SearchData
+import com.bowoon.model.SearchKeywordData
 import com.bowoon.model.SimilarMovies
 
 interface MovieNetworkDataSource {
@@ -110,4 +111,9 @@ interface MovieNetworkDataSource {
     suspend fun getExternalIds(
         personId: Int
     ): ExternalIds
+
+    suspend fun getSearchKeyword(
+        query: String,
+        page: Int
+    ): SearchKeywordData
 }

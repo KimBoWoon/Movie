@@ -14,6 +14,7 @@ import com.bowoon.model.MovieSeries
 import com.bowoon.model.PeopleDetail
 import com.bowoon.model.Regions
 import com.bowoon.model.SearchData
+import com.bowoon.model.SearchKeywordData
 import com.bowoon.model.SimilarMovies
 import com.bowoon.model.asExternalMovie
 import com.bowoon.network.ApiResponse
@@ -295,6 +296,11 @@ class RetrofitMovieNetwork @Inject constructor(
     }
 
     override suspend fun getExternalIds(personId: Int): ExternalIds = when (val response = tmdbApis.getExternalIds(personId)) {
+        is ApiResponse.Failure -> throw response.throwable
+        is ApiResponse.Success -> response.data.asExternalModel()
+    }
+
+    override suspend fun getSearchKeyword(query: String, page: Int): SearchKeywordData = when (val response = tmdbApis.getSearchKeyword(query = query, page = page)) {
         is ApiResponse.Failure -> throw response.throwable
         is ApiResponse.Success -> response.data.asExternalModel()
     }

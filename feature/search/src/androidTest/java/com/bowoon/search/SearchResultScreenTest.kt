@@ -25,7 +25,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-class SearchScreenTest {
+class SearchResultScreenTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<ComponentActivity>()
     private lateinit var viewModel: SearchVM

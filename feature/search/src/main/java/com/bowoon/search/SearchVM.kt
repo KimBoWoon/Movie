@@ -16,16 +16,22 @@ import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.model.Genre
 import com.bowoon.model.Movie
 import com.bowoon.model.SearchGroup
+import com.bowoon.model.SearchKeyword
 import com.bowoon.model.SearchType
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class SearchVM @Inject constructor(
     userDataRepository: UserDataRepository,
@@ -42,12 +48,31 @@ class SearchVM @Inject constructor(
         private set
     val selectedGenre = savedStateHandle.getStateFlow<Genre?>(GENRE, null)
     val searchType = savedStateHandle.getStateFlow<SearchType>(SEARCH_TYPE, SearchType.MOVIE)
-    var searchResult = MutableStateFlow<SearchState>(SearchState.Loading)
+    var searchResult = MutableStateFlow<SearchState>(SearchState.SearchEntry)
     private val internalData = userDataRepository.internalData.stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
         initialValue = null
     )
+    var recommendedKeywordPaging = MutableStateFlow<PagingData<SearchKeyword>>(PagingData.empty())
+    private val recommendedKeywordFlow = MutableStateFlow<String>("")
+
+    init {
+        @OptIn(FlowPreview::class)
+        viewModelScope.launch {
+            recommendedKeywordFlow
+                .debounce(300L)
+                .flatMapLatest {
+                    Pager(
+                        config = PagingConfig(pageSize = 1, initialLoadSize = 1, prefetchDistance = 5),
+                        initialKey = 1,
+                        pagingSourceFactory = { pagingRepository.getSearchKeyword(query = it) }
+                    ).flow.cachedIn(viewModelScope)
+                }.collect {
+                    recommendedKeywordPaging.emit(it)
+                }
+        }
+    }
 
     fun updateGenre(genre: Genre?) {
         savedStateHandle[GENRE] = if (genre == selectedGenre.value) null else genre
@@ -55,12 +80,15 @@ class SearchVM @Inject constructor(
 
     fun updateKeyword(keyword: String) {
         searchQuery = keyword
+        viewModelScope.launch {
+            recommendedKeywordFlow.emit(keyword)
+        }
     }
 
     fun updateSearchType(searchType: SearchType) {
         savedStateHandle[SEARCH_TYPE] = searchType
         viewModelScope.launch {
-            searchResult.emit(SearchState.Loading)
+            searchResult.emit(SearchState.SearchEntry)
         }
     }
 
@@ -87,16 +115,16 @@ class SearchVM @Inject constructor(
                         pagingData.filter { it is Movie && genre.id in (it.genreIds ?: emptyList()) }
                     } ?: pagingData
                 }.let {
-                    searchResult.emit(SearchState.Search(it))
+                    searchResult.emit(SearchState.SearchResult(it))
                 }
-            } ?: searchResult.emit(SearchState.InputKeyword)
+            } ?: searchResult.emit(SearchState.EmptyKeyword)
         }
     }
 }
 
 sealed interface SearchState {
-    data object Loading : SearchState
-    data class Search(val pagingData: Flow<PagingData<SearchGroup>>) : SearchState
+    data object SearchEntry : SearchState
+    data class SearchResult(val pagingData: Flow<PagingData<SearchGroup>>) : SearchState
     data class Error(val message: String) : SearchState
-    data object InputKeyword : SearchState
+    data object EmptyKeyword : SearchState
 }

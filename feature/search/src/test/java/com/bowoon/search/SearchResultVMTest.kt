@@ -20,7 +20,7 @@ import org.junit.Rule
 import org.junit.Test
 import kotlin.test.assertEquals
 
-class SearchVMTest {
+class SearchResultVMTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
     private lateinit var viewModel: SearchVM
