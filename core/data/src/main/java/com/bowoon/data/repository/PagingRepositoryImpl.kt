@@ -1,12 +1,14 @@
 package com.bowoon.data.repository
 
 import androidx.paging.PagingSource
+import com.bowoon.data.paging.SearchKeywordPagingSource
 import com.bowoon.data.paging.TMDBNowPlayingPagingSource
 import com.bowoon.data.paging.TMDBSearchPagingSource
 import com.bowoon.data.paging.TMDBSimilarMoviePagingSource
 import com.bowoon.data.paging.TMDBUpComingPagingSource
 import com.bowoon.model.Movie
 import com.bowoon.model.SearchGroup
+import com.bowoon.model.SearchKeyword
 import com.bowoon.model.SearchType
 import com.bowoon.network.MovieNetworkDataSource
 import javax.inject.Inject
@@ -61,4 +63,10 @@ class PagingRepositoryImpl @Inject constructor(
         id = id,
         language = language
     )
+
+    override fun getSearchKeyword(query: String): PagingSource<Int, SearchKeyword> =
+        SearchKeywordPagingSource(
+            apis = apis,
+            query = query
+        )
 }

@@ -12,6 +12,7 @@ import com.bowoon.network.model.NetworkTMDBMovieList
 import com.bowoon.network.model.NetworkTMDBMovieSeries
 import com.bowoon.network.model.NetworkTMDBPeopleDetail
 import com.bowoon.network.model.NetworkTMDBRegion
+import com.bowoon.network.model.NetworkTMDBSearchKeywordData
 import com.bowoon.network.model.NetworkTMDBSearchMovie
 import com.bowoon.network.model.NetworkTMDBSearchPeople
 import com.bowoon.network.model.NetworkTMDBSearchSeries
@@ -130,4 +131,10 @@ interface TMDBApis {
     suspend fun getExternalIds(
         @Path("person_id") personId: Int
     ): ApiResponse<NetworkTMDBExternalIds>
+
+    @GET("/3/search/keyword")
+    suspend fun getSearchKeyword(
+        @Query("query") query: String,
+        @Query("page") page: Int
+    ): ApiResponse<NetworkTMDBSearchKeywordData>
 }

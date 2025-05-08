@@ -7,6 +7,7 @@ import com.bowoon.data.repository.PagingRepository
 import com.bowoon.model.Movie
 import com.bowoon.model.People
 import com.bowoon.model.SearchGroup
+import com.bowoon.model.SearchKeyword
 import com.bowoon.model.SearchPeopleKnownFor
 import com.bowoon.model.SearchType
 import com.bowoon.model.Series
@@ -115,4 +116,10 @@ class TestPagingRepository : PagingRepository {
     }
 
     override fun getSimilarMovies(id: Int, language: String): PagingSource<Int, Movie> = testPagingSource
+
+    @SuppressLint("VisibleForTests")
+    override fun getSearchKeyword(query: String): PagingSource<Int, SearchKeyword> =
+        (1..5).map {
+            SearchKeyword(id = it, name = "mission$it")
+        }.asPagingSourceFactory().invoke()
 }
