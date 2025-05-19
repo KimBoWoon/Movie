@@ -24,18 +24,11 @@ kotlin {
     }
 }
 
-//tasks.withType<KotlinCompile>().configureEach {
-//    kotlinOptions {
-//        jvmTarget = JavaVersion.VERSION_23.toString()
-//    }
-//}
-
 dependencies {
     compileOnly(libs.android.gradle)
     compileOnly(libs.android.plugin)
     compileOnly(libs.firebase.crashlytics.gradlePlugin)
     compileOnly(libs.firebase.performance.gradlePlugin)
-    compileOnly(libs.android.plugin)
     compileOnly(libs.ksp.gradlePlugin)
     compileOnly(libs.room.gradlePlugin)
 }

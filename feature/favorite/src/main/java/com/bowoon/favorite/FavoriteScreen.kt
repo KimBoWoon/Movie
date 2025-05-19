@@ -38,14 +38,14 @@ import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.Favorite
 import com.bowoon.ui.FavoriteButton
-import com.bowoon.ui.utils.bounceClick
 import com.bowoon.ui.components.ScrollToTopComponent
 import com.bowoon.ui.components.TabComponent
 import com.bowoon.ui.components.TitleComponent
+import com.bowoon.ui.image.DynamicAsyncImageLoader
+import com.bowoon.ui.utils.bounceClick
 import com.bowoon.ui.utils.dp10
 import com.bowoon.ui.utils.dp15
 import com.bowoon.ui.utils.dp5
-import com.bowoon.ui.image.DynamicAsyncImageLoader
 import kotlinx.coroutines.launch
 
 @Composable
@@ -92,127 +92,115 @@ fun FavoriteScreen(
         }
     }
 
-    Box(
+    Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize()
+        TitleComponent(title = "찜")
+        TabComponent(
+            tabs = favoriteTabs,
+            pagerState = pagerState,
+            tabClickEvent = tabClickEvent
         ) {
-            TitleComponent(title = "찜")
-            TabComponent(
-                tabs = favoriteTabs,
-                pagerState = pagerState,
-                tabClickEvent = tabClickEvent
-            ) {
-                HorizontalPager(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight(),
-                    state = pagerState,
-                    userScrollEnabled = false
-                ) { index ->
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .wrapContentHeight(),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        when (it[index]) {
-                            FavoriteVM.FavoriteTabs.MOVIE.label -> {
-                                Box(
-                                    modifier = Modifier.fillMaxSize()
-                                ) {
-                                    if (favoriteMovies.isEmpty()) {
-                                        Text(
-                                            modifier = Modifier.testTag(tag = "favoriteMovieEmpty").align(Alignment.Center),
-                                            text = "찜한 영화가 없습니다."
-                                        )
-                                    } else {
-                                        FavoriteListComponent(
-                                            favoriteList = favoriteMovies,
-                                            spanCount = 2,
-                                            content = { movieDetail ->
-                                                Box(
-                                                    modifier = Modifier.bounceClick { goToMovie(movieDetail.id ?: -1) }
-                                                ) {
-                                                    DynamicAsyncImageLoader(
-                                                        modifier = Modifier
-                                                            .fillMaxWidth()
-                                                            .aspectRatio(POSTER_IMAGE_RATIO),
-                                                        source = "$posterUrl${movieDetail.imagePath}",
-                                                        contentDescription = "FavoriteMoviePoster"
-                                                    )
-                                                    FavoriteButton(
-                                                        modifier = Modifier
-                                                            .wrapContentSize()
-                                                            .align(Alignment.TopEnd),
-                                                        isFavorite = true,
-                                                        onClick = {
-                                                            deleteFavoriteMovie(movieDetail)
-                                                            scope.launch {
-                                                                onShowSnackbar("찜에서 제거됐습니다.", null)
-                                                            }
-                                                        }
-                                                    )
+            HorizontalPager(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
+                state = pagerState,
+                userScrollEnabled = false
+            ) { index ->
+                when (it[index]) {
+                    FavoriteVM.FavoriteTabs.MOVIE.label -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            if (favoriteMovies.isEmpty()) {
+                                Text(
+                                    modifier = Modifier.testTag(tag = "favoriteMovieEmpty").align(Alignment.Center),
+                                    text = "찜한 영화가 없습니다."
+                                )
+                            } else {
+                                FavoriteListComponent(
+                                    favoriteList = favoriteMovies,
+                                    spanCount = 2,
+                                    content = { movieDetail ->
+                                        Box(
+                                            modifier = Modifier.bounceClick { goToMovie(movieDetail.id ?: -1) }
+                                        ) {
+                                            DynamicAsyncImageLoader(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .aspectRatio(POSTER_IMAGE_RATIO),
+                                                source = "$posterUrl${movieDetail.imagePath}",
+                                                contentDescription = "FavoriteMoviePoster"
+                                            )
+                                            FavoriteButton(
+                                                modifier = Modifier
+                                                    .wrapContentSize()
+                                                    .align(Alignment.TopEnd),
+                                                isFavorite = true,
+                                                onClick = {
+                                                    deleteFavoriteMovie(movieDetail)
+                                                    scope.launch {
+                                                        onShowSnackbar("찜에서 제거됐습니다.", null)
+                                                    }
                                                 }
-                                            }
-                                        )
+                                            )
+                                        }
                                     }
-                                }
+                                )
                             }
-                            FavoriteVM.FavoriteTabs.PEOPLE.label -> {
-                                Box(
-                                    modifier = Modifier.fillMaxSize()
-                                ) {
-                                    if (favoritePeoples.isEmpty()) {
-                                        Text(
-                                            modifier = Modifier.testTag(tag = "favoritePeopleEmpty").align(Alignment.Center),
-                                            text = "찜한 인물이 없습니다."
-                                        )
-                                    } else {
-                                        FavoriteListComponent(
-                                            favoriteList = favoritePeoples,
-                                            spanCount = 3,
-                                            content = { peopleDetail ->
-                                                Column(
+                        }
+                    }
+                    FavoriteVM.FavoriteTabs.PEOPLE.label -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            if (favoritePeoples.isEmpty()) {
+                                Text(
+                                    modifier = Modifier.testTag(tag = "favoritePeopleEmpty").align(Alignment.Center),
+                                    text = "찜한 인물이 없습니다."
+                                )
+                            } else {
+                                FavoriteListComponent(
+                                    favoriteList = favoritePeoples,
+                                    spanCount = 3,
+                                    content = { peopleDetail ->
+                                        Column(
+                                            modifier = Modifier
+                                                .wrapContentSize()
+                                                .bounceClick { goToPeople(peopleDetail.id ?: -1) }
+                                        ) {
+                                            Box() {
+                                                DynamicAsyncImageLoader(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .aspectRatio(PEOPLE_IMAGE_RATIO)
+                                                        .clip(RoundedCornerShape(dp10)),
+                                                    source = "$posterUrl${peopleDetail.imagePath}",
+                                                    contentDescription = "FavoritePeopleProfileImage"
+                                                )
+                                                FavoriteButton(
                                                     modifier = Modifier
                                                         .wrapContentSize()
-                                                        .bounceClick { goToPeople(peopleDetail.id ?: -1) }
-                                                ) {
-                                                    Box() {
-                                                        DynamicAsyncImageLoader(
-                                                            modifier = Modifier
-                                                                .fillMaxWidth()
-                                                                .aspectRatio(PEOPLE_IMAGE_RATIO)
-                                                                .clip(RoundedCornerShape(dp10)),
-                                                            source = "$posterUrl${peopleDetail.imagePath}",
-                                                            contentDescription = "FavoritePeopleProfileImage"
-                                                        )
-                                                        FavoriteButton(
-                                                            modifier = Modifier
-                                                                .wrapContentSize()
-                                                                .align(Alignment.TopEnd),
-                                                            isFavorite = true,
-                                                            onClick = {
-                                                                deleteFavoritePeople(peopleDetail)
-                                                                scope.launch {
-                                                                    onShowSnackbar("찜에서 제거됐습니다.", null)
-                                                                }
-                                                            }
-                                                        )
+                                                        .align(Alignment.TopEnd),
+                                                    isFavorite = true,
+                                                    onClick = {
+                                                        deleteFavoritePeople(peopleDetail)
+                                                        scope.launch {
+                                                            onShowSnackbar("찜에서 제거됐습니다.", null)
+                                                        }
                                                     }
-                                                    Text(
-                                                        modifier = Modifier.wrapContentWidth().padding(top = dp5).align(Alignment.CenterHorizontally),
-                                                        text = peopleDetail.title ?: "",
-                                                        maxLines = 1,
-                                                        overflow = TextOverflow.Ellipsis
-                                                    )
-                                                }
+                                                )
                                             }
-                                        )
+                                            Text(
+                                                modifier = Modifier.wrapContentWidth().padding(top = dp5).align(Alignment.CenterHorizontally),
+                                                text = peopleDetail.title ?: "",
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                        }
                                     }
-                                }
+                                )
                             }
                         }
                     }
