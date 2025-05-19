@@ -2,11 +2,13 @@ package com.bowoon.search
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.paging.PagingSource
+import androidx.paging.testing.asSnapshot
 import com.bowoon.data.paging.TMDBSearchPagingSource
 import com.bowoon.model.SearchGroup
 import com.bowoon.model.SearchType
 import com.bowoon.testing.TestMovieDataSource
 import com.bowoon.testing.model.movieSearchTestData
+import com.bowoon.testing.model.testRecommendedKeyword
 import com.bowoon.testing.repository.TestPagingRepository
 import com.bowoon.testing.repository.TestUserDataRepository
 import com.bowoon.testing.utils.MainDispatcherRule
@@ -20,7 +22,7 @@ import org.junit.Rule
 import org.junit.Test
 import kotlin.test.assertEquals
 
-class SearchResultVMTest {
+class SearchVMTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
     private lateinit var viewModel: SearchVM
@@ -91,6 +93,18 @@ class SearchResultVMTest {
         assertEquals(
             expected = a,
             actual = b,
+        )
+    }
+
+    @Test
+    fun recommendedKeywordTest() = runTest {
+        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.recommendedKeywordPaging.collect() }
+
+        viewModel.updateKeyword("mission")
+
+        assertEquals(
+            viewModel.recommendedKeywordPaging.asSnapshot(),
+            testRecommendedKeyword
         )
     }
 }

@@ -1,5 +1,6 @@
 package com.bowoon.testing.model
 
+import androidx.paging.testing.asPagingSourceFactory
 import com.bowoon.model.Certification
 import com.bowoon.model.CertificationData
 import com.bowoon.model.CertificationMap
@@ -16,6 +17,7 @@ import com.bowoon.model.People
 import com.bowoon.model.Region
 import com.bowoon.model.Regions
 import com.bowoon.model.SearchData
+import com.bowoon.model.SearchKeyword
 import com.bowoon.model.Series
 import com.bowoon.model.SimilarMovie
 import com.bowoon.model.SimilarMovies
@@ -210,6 +212,9 @@ val movieSeriesTestData = MovieSeries(
     ),
     posterPath = "/movieSeriesPosterPath.png"
 )
+val testRecommendedKeyword = (1..5).map {
+    SearchKeyword(id = it, name = "mission$it")
+}
 
 object MovieFactory {
     private val counter = AtomicInteger(0)

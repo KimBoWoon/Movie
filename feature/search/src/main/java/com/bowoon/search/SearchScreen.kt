@@ -11,12 +11,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -35,6 +33,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
@@ -52,7 +51,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -96,6 +94,7 @@ import com.bowoon.ui.utils.dp16
 import com.bowoon.ui.utils.dp35
 import com.bowoon.ui.utils.dp40
 import com.bowoon.ui.utils.dp5
+import com.bowoon.ui.utils.dp60
 import com.bowoon.ui.utils.dp8
 import com.bowoon.ui.utils.sp12
 import com.bowoon.ui.utils.sp20
@@ -148,8 +147,8 @@ fun SearchScreen(
     updateGenre: (Genre?) -> Unit
 ) {
     val scrollState = rememberLazyGridState()
-    val isVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
     val focusManager = LocalFocusManager.current
+    var isVisible by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -162,7 +161,8 @@ fun SearchScreen(
             updateKeyword = updateKeyword,
             onSearchClick = onSearchClick,
             updateSearchType = updateSearchType,
-            updateGenre = updateGenre
+            updateGenre = updateGenre,
+            recommendedKeywordVisible = { isVisible = it }
         )
 
         if (isVisible) {
@@ -170,23 +170,20 @@ fun SearchScreen(
                 recommendedKeyword = recommendedKeyword,
                 keyword = keyword,
                 updateKeyword = updateKeyword,
-                onSearchClick = onSearchClick
+                onSearchClick = onSearchClick,
+                recommendedKeywordVisible = { isVisible = it }
             )
         } else {
             focusManager.clearFocus()
             SearchResultPaging(
                 searchState = searchState,
-                recommendedKeyword = recommendedKeyword,
                 scrollState = scrollState,
                 searchType = searchType,
                 goToMovie = goToMovie,
                 goToPeople = goToPeople,
                 goToSeries = goToSeries,
                 selectedGenre = selectedGenre,
-                updateGenre = updateGenre,
-                updateKeyword = updateKeyword,
-                onSearchClick = onSearchClick,
-                keyword = keyword
+                updateGenre = updateGenre
             )
         }
     }
@@ -200,18 +197,23 @@ fun SearchBarComponent(
     onSearchClick: () -> Unit,
     updateKeyword: (String) -> Unit,
     updateSearchType: (SearchType) -> Unit,
-    updateGenre: (Genre?) -> Unit
+    updateGenre: (Genre?) -> Unit,
+    recommendedKeywordVisible: (Boolean) -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val focusManager = LocalFocusManager.current
     val keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search, keyboardType = KeyboardType.Text)
     val keyboardActions = KeyboardActions(
-        onDone = { focusManager.clearFocus() },
+        onDone = {
+            focusManager.clearFocus()
+            recommendedKeywordVisible(false)
+        },
         onSearch = {
             scope.launch { scrollState.scrollToItem(0) }
             updateGenre(null)
             onSearchClick()
             focusManager.clearFocus()
+            recommendedKeywordVisible(false)
         }
     )
 
@@ -231,6 +233,9 @@ fun SearchBarComponent(
         onValueChange = {
             Log.d(it)
             updateKeyword(it)
+            if (it.isNotEmpty()) {
+                recommendedKeywordVisible(true)
+            }
         },
         textStyle = TextStyle(
             fontSize = sp12,
@@ -289,7 +294,10 @@ fun SearchBarComponent(
                         Icon(
                             modifier = Modifier
                                 .padding(start = dp8, end = dp8)
-                                .clickable { updateKeyword("") },
+                                .clickable {
+                                    updateKeyword("")
+                                    recommendedKeywordVisible(false)
+                                },
                             imageVector = Icons.Filled.Clear,
                             contentDescription = "searchKeywordClear"
                         )
@@ -370,7 +378,6 @@ fun SearchTypeComponent(
 @Composable
 fun SearchResultPaging(
     searchState: SearchState,
-    recommendedKeyword: LazyPagingItems<SearchKeyword>,
     scrollState: LazyGridState,
     searchType: SearchType,
     goToMovie: (Int) -> Unit,
@@ -378,9 +385,6 @@ fun SearchResultPaging(
     goToSeries: (Int) -> Unit,
     selectedGenre: Genre?,
     updateGenre: (Genre) -> Unit,
-    updateKeyword: (String) -> Unit,
-    onSearchClick: () -> Unit,
-    keyword: String
 ) {
     val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
     val genres = LocalMovieAppDataComposition.current.genres
@@ -487,11 +491,9 @@ fun SearchResultPaging(
                                                             SearchType.MOVIE -> goToMovie(
                                                                 item.id ?: -1
                                                             )
-
                                                             SearchType.PEOPLE -> goToPeople(
                                                                 item.id ?: -1
                                                             )
-
                                                             SearchType.SERIES -> goToSeries(
                                                                 item.id ?: -1
                                                             )
@@ -539,7 +541,8 @@ fun RecommendedKeywordComponent(
     recommendedKeyword: LazyPagingItems<SearchKeyword>,
     keyword: String,
     updateKeyword: (String) -> Unit,
-    onSearchClick: () -> Unit
+    onSearchClick: () -> Unit,
+    recommendedKeywordVisible: (Boolean) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
     var isAppend by remember { mutableStateOf(false) }
@@ -560,19 +563,27 @@ fun RecommendedKeywordComponent(
             PagingStatus.EMPTY -> {}
             else -> {
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    modifier = Modifier.fillMaxSize()
                 ) {
                     item {
-                        Text(
-                            modifier = Modifier
-                                .padding(start = dp16, end = dp16, top = dp10)
-                                .fillMaxWidth(),
-                            text = stringResource(R.string.recommended_keyword),
-                            fontSize = sp20,
-                            fontWeight = FontWeight.Bold,
-                            textAlign = TextAlign.Center
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth().height(height = dp60),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                modifier = Modifier.padding(start = dp16),
+                                text = stringResource(R.string.recommended_keyword),
+                                fontSize = sp20,
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.Center
+                            )
+                            Icon(
+                                modifier = Modifier.clickable { recommendedKeywordVisible(false) }.padding(end = dp16),
+                                imageVector = Icons.Filled.Close,
+                                contentDescription = "recommendedKeywordClose"
+                            )
+                        }
                     }
                     items(
                         count = recommendedKeyword.itemCount,
@@ -598,6 +609,7 @@ fun RecommendedKeywordComponent(
                                         updateKeyword(recommendedKeyword.name ?: "")
                                         onSearchClick()
                                         focusManager.clearFocus()
+                                        recommendedKeywordVisible(false)
                                     },
                                 text = annotatedString,
                                 textAlign = TextAlign.Center

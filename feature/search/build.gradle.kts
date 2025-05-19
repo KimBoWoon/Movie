@@ -22,4 +22,6 @@ dependencies {
     ).forEach {
         implementation(it)
     }
+
+    testImplementation(libs.androidx.paging.testing)
 }
