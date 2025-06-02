@@ -34,12 +34,13 @@ fun MovieAppNavHost(
          */
         homeSection(
             goToMovie = navController::navigateToDetail,
-            onShowSnackbar = onShowSnackbar,
+            onShowSnackbar = onShowSnackbar
         )
         searchScreen(
             goToMovie = navController::navigateToDetail,
             goToPeople = navController::navigateToPeople,
-            goToSeries = navController::navigateToSeries
+            goToSeries = navController::navigateToSeries,
+            onShowSnackbar = onShowSnackbar
         )
         favoriteScreen(
             goToMovie = navController::navigateToDetail,

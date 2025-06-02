@@ -21,7 +21,10 @@ import com.bowoon.model.SearchType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
@@ -48,7 +51,7 @@ class SearchVM @Inject constructor(
         private set
     val selectedGenre = savedStateHandle.getStateFlow<Genre?>(GENRE, null)
     val searchType = savedStateHandle.getStateFlow<SearchType>(SEARCH_TYPE, SearchType.MOVIE)
-    var searchResult = MutableStateFlow<SearchState>(SearchState.SearchEntry)
+    var searchResult = MutableStateFlow<SearchUiState>(SearchUiState.SearchHint)
     private val internalData = userDataRepository.internalData.stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
@@ -56,10 +59,12 @@ class SearchVM @Inject constructor(
     )
     var recommendedKeywordPaging = MutableStateFlow<PagingData<SearchKeyword>>(PagingData.empty())
     private val recommendedKeywordFlow = MutableStateFlow<String>("")
+    private var recommendedKeywordJob: Job? = null
+    val showSnackbar = MutableSharedFlow<Unit>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
 
     init {
         @OptIn(FlowPreview::class)
-        viewModelScope.launch {
+        recommendedKeywordJob = viewModelScope.launch {
             recommendedKeywordFlow
                 .debounce(300L)
                 .flatMapLatest {
@@ -71,6 +76,15 @@ class SearchVM @Inject constructor(
                 }.collect {
                     recommendedKeywordPaging.emit(it)
                 }
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+
+        if (recommendedKeywordJob != null) {
+            recommendedKeywordJob?.cancel()
+            recommendedKeywordJob = null
         }
     }
 
@@ -88,43 +102,44 @@ class SearchVM @Inject constructor(
     fun updateSearchType(searchType: SearchType) {
         savedStateHandle[SEARCH_TYPE] = searchType
         viewModelScope.launch {
-            searchResult.emit(SearchState.SearchEntry)
+            searchResult.emit(SearchUiState.SearchHint)
         }
     }
 
     fun searchMovies() {
         viewModelScope.launch {
             searchQuery.trim().takeIf { it.isNotEmpty() }?.let { query ->
-                combine(
-                    Pager(
-                        config = PagingConfig(pageSize = 1, initialLoadSize = 1, prefetchDistance = 5),
-                        initialKey = 1,
-                        pagingSourceFactory = {
-                            pagingRepository.searchMovieSource(
-                                type = searchType.value,
-                                query = query,
-                                language = "${internalData.value?.language}-${internalData.value?.region}",
-                                region = internalData.value?.region ?: "",
-                                isAdult = internalData.value?.isAdult ?: true
-                            )
+                searchResult.emit(
+                    SearchUiState.Success(
+                        combine(
+                            Pager(
+                                config = PagingConfig(pageSize = 1, initialLoadSize = 1, prefetchDistance = 5),
+                                initialKey = 1,
+                                pagingSourceFactory = {
+                                    pagingRepository.searchMovieSource(
+                                        type = searchType.value,
+                                        query = query,
+                                        language = "${internalData.value?.language}-${internalData.value?.region}",
+                                        region = internalData.value?.region ?: "",
+                                        isAdult = internalData.value?.isAdult ?: true
+                                    )
+                                }
+                            ).flow.cachedIn(viewModelScope),
+                            selectedGenre
+                        ) { pagingData, selectedGenre ->
+                            selectedGenre?.let { genre ->
+                                pagingData.filter { it is Movie && genre.id in (it.genreIds ?: emptyList()) }
+                            } ?: pagingData
                         }
-                    ).flow.cachedIn(viewModelScope),
-                    selectedGenre
-                ) { pagingData, selectedGenre ->
-                    selectedGenre?.let { genre ->
-                        pagingData.filter { it is Movie && genre.id in (it.genreIds ?: emptyList()) }
-                    } ?: pagingData
-                }.let {
-                    searchResult.emit(SearchState.SearchResult(it))
-                }
-            } ?: searchResult.emit(SearchState.EmptyKeyword)
+                    )
+                )
+            } ?: showSnackbar.emit(Unit)
         }
     }
 }
 
-sealed interface SearchState {
-    data object SearchEntry : SearchState
-    data class SearchResult(val pagingData: Flow<PagingData<SearchGroup>>) : SearchState
-    data class Error(val message: String) : SearchState
-    data object EmptyKeyword : SearchState
+sealed interface SearchUiState {
+    data object SearchHint : SearchUiState
+    data class Success(val pagingData: Flow<PagingData<SearchGroup>>) : SearchUiState
+    data class Error(val throwable: Throwable) : SearchUiState
 }

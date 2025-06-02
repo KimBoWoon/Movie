@@ -43,6 +43,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -106,17 +107,25 @@ fun SearchScreen(
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     goToSeries: (Int) -> Unit,
+    onShowSnackbar: suspend (String, String?) -> Boolean,
     viewModel: SearchVM = hiltViewModel()
 ) {
     LocalFirebaseLogHelper.current.sendLog("SearchScreen", "search screen init")
 
-    val searchState by viewModel.searchResult.collectAsStateWithLifecycle()
+    val searchUiState by viewModel.searchResult.collectAsStateWithLifecycle()
     val selectedGenre by viewModel.selectedGenre.collectAsStateWithLifecycle()
     val searchType by viewModel.searchType.collectAsStateWithLifecycle()
     val recommendedKeyword = viewModel.recommendedKeywordPaging.collectAsLazyPagingItems()
+    val inputKeyword = stringResource(R.string.input_keyword)
+
+    LaunchedEffect(key1 = inputKeyword) {
+        viewModel.showSnackbar.collect {
+            onShowSnackbar(inputKeyword, null)
+        }
+    }
 
     SearchScreen(
-        searchState = searchState,
+        searchUiState = searchUiState,
         recommendedKeyword = recommendedKeyword,
         keyword = viewModel.searchQuery,
         searchType = searchType,
@@ -133,7 +142,7 @@ fun SearchScreen(
 
 @Composable
 fun SearchScreen(
-    searchState: SearchState,
+    searchUiState: SearchUiState,
     recommendedKeyword: LazyPagingItems<SearchKeyword>,
     keyword: String,
     searchType: SearchType,
@@ -176,7 +185,7 @@ fun SearchScreen(
         } else {
             focusManager.clearFocus()
             SearchResultPaging(
-                searchState = searchState,
+                searchUiState = searchUiState,
                 scrollState = scrollState,
                 searchType = searchType,
                 goToMovie = goToMovie,
@@ -377,7 +386,7 @@ fun SearchTypeComponent(
 
 @Composable
 fun SearchResultPaging(
-    searchState: SearchState,
+    searchUiState: SearchUiState,
     scrollState: LazyGridState,
     searchType: SearchType,
     goToMovie: (Int) -> Unit,
@@ -391,50 +400,46 @@ fun SearchResultPaging(
     var isAppend by remember { mutableStateOf(false) }
     var pagingStatus by remember { mutableStateOf<PagingStatus>(PagingStatus.NONE) }
 
-    when (searchState) {
-        is SearchState.SearchEntry -> {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        when (searchUiState) {
+            is SearchUiState.SearchHint -> {
                 Text(
+                    modifier = Modifier.align(Alignment.Center),
                     text = stringResource(R.string.do_search),
                     fontSize = sp20
                 )
             }
-        }
-        is SearchState.SearchResult -> {
-            val pagingData = searchState.pagingData.collectAsLazyPagingItems()
+            is SearchUiState.Success -> {
+                val pagingData = searchUiState.pagingData.collectAsLazyPagingItems()
 
-            when {
-                pagingData.loadState.refresh is LoadState.Loading -> pagingStatus = PagingStatus.LOADING
-                pagingData.loadState.append is LoadState.Loading -> isAppend = true
-                pagingData.loadState.refresh is LoadState.Error -> {
-                    isAppend = false
+                when {
+                    pagingData.loadState.refresh is LoadState.Loading -> pagingStatus = PagingStatus.LOADING
+                    pagingData.loadState.append is LoadState.Loading -> isAppend = true
+                    pagingData.loadState.refresh is LoadState.Error -> {
+                        isAppend = false
 
-                    ConfirmDialog(
-                        title = stringResource(com.bowoon.movie.core.network.R.string.network_failed),
-                        message = (pagingData.loadState.refresh as? LoadState.Error)?.error?.message ?: stringResource(com.bowoon.movie.core.network.R.string.something_wrong),
-                        confirmPair = stringResource(com.bowoon.movie.core.ui.R.string.retry_message) to { pagingData.retry() },
-                        dismissPair = stringResource(com.bowoon.movie.core.ui.R.string.confirm_message) to {}
-                    )
-                }
-                pagingData.loadState.refresh is LoadState.NotLoading -> {
-                    isAppend = false
-                    pagingStatus = if (pagingStatus == PagingStatus.LOADING) {
-                        if (pagingData.itemCount == 0) PagingStatus.EMPTY else PagingStatus.NOT_EMPTY
-                    } else {
-                        pagingStatus
+                        ConfirmDialog(
+                            title = stringResource(com.bowoon.movie.core.network.R.string.network_failed),
+                            message = (pagingData.loadState.refresh as? LoadState.Error)?.error?.message ?: stringResource(com.bowoon.movie.core.network.R.string.something_wrong),
+                            confirmPair = stringResource(com.bowoon.movie.core.ui.R.string.retry_message) to { pagingData.retry() },
+                            dismissPair = stringResource(com.bowoon.movie.core.ui.R.string.confirm_message) to {}
+                        )
+                    }
+                    pagingData.loadState.refresh is LoadState.NotLoading -> {
+                        isAppend = false
+                        pagingStatus = if (pagingStatus == PagingStatus.LOADING) {
+                            if (pagingData.itemCount == 0) PagingStatus.EMPTY else PagingStatus.NOT_EMPTY
+                        } else {
+                            pagingStatus
+                        }
+                    }
+                    pagingData.loadState.append is LoadState.NotLoading -> {
+                        isAppend = false
                     }
                 }
-                pagingData.loadState.append is LoadState.NotLoading -> {
-                    isAppend = false
-                }
-            }
 
-            Box(
-                modifier = Modifier.fillMaxSize()
-            ) {
                 when (pagingStatus) {
                     PagingStatus.LOADING -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                     PagingStatus.EMPTY -> {
@@ -488,15 +493,9 @@ fun SearchResultPaging(
                                                     .aspectRatio(POSTER_IMAGE_RATIO)
                                                     .bounceClick {
                                                         when (searchType) {
-                                                            SearchType.MOVIE -> goToMovie(
-                                                                item.id ?: -1
-                                                            )
-                                                            SearchType.PEOPLE -> goToPeople(
-                                                                item.id ?: -1
-                                                            )
-                                                            SearchType.SERIES -> goToSeries(
-                                                                item.id ?: -1
-                                                            )
+                                                            SearchType.MOVIE -> goToMovie(item.id ?: -1)
+                                                            SearchType.PEOPLE -> goToPeople(item.id ?: -1)
+                                                            SearchType.SERIES -> goToSeries(item.id ?: -1)
                                                         }
                                                     },
                                                 source = "$posterUrl${item.imagePath}",
@@ -524,14 +523,15 @@ fun SearchResultPaging(
                     }
                 }
             }
-        }
-        is SearchState.Error -> LocalFirebaseLogHelper.current.sendLog("SearchResultPaging", searchState.message)
-        is SearchState.EmptyKeyword -> {
-            ConfirmDialog(
-                title = "",
-                message = stringResource(R.string.input_keyword),
-                confirmPair = stringResource(com.bowoon.movie.core.ui.R.string.confirm_message) to {}
-            )
+            is SearchUiState.Error -> {
+                LocalFirebaseLogHelper.current.sendLog("SearchResultPaging", searchUiState.throwable.message ?: stringResource(com.bowoon.movie.core.network.R.string.something_wrong))
+
+                ConfirmDialog(
+                    title = stringResource(com.bowoon.movie.core.network.R.string.network_failed),
+                    message = searchUiState.throwable.message ?: stringResource(com.bowoon.movie.core.network.R.string.something_wrong),
+                    confirmPair = stringResource(com.bowoon.movie.core.ui.R.string.confirm_message) to {}
+                )
+            }
         }
     }
 }
