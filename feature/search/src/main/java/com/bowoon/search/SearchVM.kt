@@ -11,13 +11,16 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.filter
+import androidx.paging.map
 import com.bowoon.data.repository.PagingRepository
-import com.bowoon.data.repository.UserDataRepository
+import com.bowoon.domain.GetMovieAppDataUseCase
 import com.bowoon.model.Genre
 import com.bowoon.model.Movie
+import com.bowoon.model.People
 import com.bowoon.model.SearchGroup
 import com.bowoon.model.SearchKeyword
 import com.bowoon.model.SearchType
+import com.bowoon.model.Series
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -30,6 +33,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -37,9 +41,9 @@ import javax.inject.Inject
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class SearchVM @Inject constructor(
-    userDataRepository: UserDataRepository,
+    movieAppDataUseCase: GetMovieAppDataUseCase,
     private val savedStateHandle: SavedStateHandle,
-    private val pagingRepository: PagingRepository,
+    private val pagingRepository: PagingRepository
 ) : ViewModel() {
     companion object {
         private const val TAG = "SearchVM"
@@ -52,7 +56,7 @@ class SearchVM @Inject constructor(
     val selectedGenre = savedStateHandle.getStateFlow<Genre?>(GENRE, null)
     val searchType = savedStateHandle.getStateFlow<SearchType>(SEARCH_TYPE, SearchType.MOVIE)
     var searchResult = MutableStateFlow<SearchUiState>(SearchUiState.SearchHint)
-    private val internalData = userDataRepository.internalData.stateIn(
+    private val movieAppData = movieAppDataUseCase().stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
         initialValue = null
@@ -119,12 +123,20 @@ class SearchVM @Inject constructor(
                                     pagingRepository.searchMovieSource(
                                         type = searchType.value,
                                         query = query,
-                                        language = "${internalData.value?.language}-${internalData.value?.region}",
-                                        region = internalData.value?.region ?: "",
-                                        isAdult = internalData.value?.isAdult ?: true
+                                        language = "${movieAppData.value?.getLanguage()}-${movieAppData.value?.getRegion()}",
+                                        region = movieAppData.value?.getRegion() ?: "",
+                                        isAdult = movieAppData.value?.isAdult ?: true
                                     )
                                 }
-                            ).flow.cachedIn(viewModelScope),
+                            ).flow.cachedIn(viewModelScope).map {
+                                it.map { searchGroup ->
+                                    when (searchGroup) {
+                                        is Movie -> searchGroup.copy(imagePath = "${movieAppData.value?.getImageUrl() ?: ""}${searchGroup.imagePath}")
+                                        is People -> searchGroup.copy(imagePath = "${movieAppData.value?.getImageUrl() ?: ""}${searchGroup.imagePath}")
+                                        is Series -> searchGroup.copy(imagePath = "${movieAppData.value?.getImageUrl() ?: ""}${searchGroup.imagePath}")
+                                    }
+                                }
+                            },
                             selectedGenre
                         ) { pagingData, selectedGenre ->
                             selectedGenre?.let { genre ->
