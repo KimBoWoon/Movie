@@ -4,11 +4,13 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.paging.PagingSource
 import androidx.paging.testing.asSnapshot
 import com.bowoon.data.paging.TMDBSearchPagingSource
+import com.bowoon.domain.GetMovieAppDataUseCase
 import com.bowoon.model.SearchGroup
 import com.bowoon.model.SearchType
 import com.bowoon.testing.TestMovieDataSource
 import com.bowoon.testing.model.movieSearchTestData
 import com.bowoon.testing.model.testRecommendedKeyword
+import com.bowoon.testing.repository.TestMyDataRepository
 import com.bowoon.testing.repository.TestPagingRepository
 import com.bowoon.testing.repository.TestUserDataRepository
 import com.bowoon.testing.utils.MainDispatcherRule
@@ -29,16 +31,23 @@ class SearchVMTest {
     private lateinit var savedStateHandle: SavedStateHandle
     private lateinit var testPagingRepository: TestPagingRepository
     private lateinit var testUserDataRepository: TestUserDataRepository
+    private lateinit var movieAppDataUseCase: GetMovieAppDataUseCase
+    private lateinit var testMyDataRepository: TestMyDataRepository
 
     @Before
     fun setup() {
         savedStateHandle = SavedStateHandle()
         testPagingRepository = TestPagingRepository()
         testUserDataRepository = TestUserDataRepository()
+        testMyDataRepository = TestMyDataRepository()
+        movieAppDataUseCase = GetMovieAppDataUseCase(
+            myDataRepository = testMyDataRepository,
+            userDataRepository = testUserDataRepository
+        )
         viewModel = SearchVM(
             savedStateHandle = savedStateHandle,
             pagingRepository = testPagingRepository,
-            userDataRepository = testUserDataRepository
+            movieAppDataUseCase = movieAppDataUseCase
         )
     }
 
