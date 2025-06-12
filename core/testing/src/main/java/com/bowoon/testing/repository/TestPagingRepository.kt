@@ -53,10 +53,12 @@ class TestPagingRepository : PagingRepository {
 
     override fun getSimilarMovies(
         id: Int,
-        language: String
+        language: String,
+        imageUrl: String?
     ): PagingSource<Int, Movie> = TMDBSimilarMoviePagingSource(
         apis = TestMovieDataSource(),
         id = id,
-        language = language
+        language = language,
+        imageUrl = imageUrl
     )
 }

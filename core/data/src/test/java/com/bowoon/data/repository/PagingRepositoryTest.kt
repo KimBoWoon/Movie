@@ -86,7 +86,8 @@ class PagingRepositoryTest {
         val pagingSource = TMDBSimilarMoviePagingSource(
             apis = movieApis,
             id = 0,
-            language = "ko-KR"
+            language = "ko-KR",
+            imageUrl = imageUrl
         )
 
         val a: PagingSource.LoadResult<Int, Movie> = PagingSource.LoadResult.Page(

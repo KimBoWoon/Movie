@@ -11,12 +11,13 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.log
 import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.data.repository.DetailRepository
 import com.bowoon.data.repository.PagingRepository
-import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.detail.DetailScreen.DetailEvent
 import com.bowoon.detail.DetailScreen.DetailState
+import com.bowoon.domain.GetMovieAppDataUseCase
 import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetail
 import com.bowoon.model.MovieSeries
@@ -35,6 +36,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -43,7 +45,7 @@ import javax.inject.Inject
 class DetailMovie @Inject constructor(
     private val detailRepository: DetailRepository,
     private val pagingRepository: PagingRepository,
-    private val userDataRepository: UserDataRepository
+    private val movieAppDataUseCase: GetMovieAppDataUseCase
 ) {
     private val backgroundScope = CoroutineScope(Dispatchers.IO)
     private val _movieDetail = MutableStateFlow<MovieDetail?>(null)
@@ -58,7 +60,7 @@ class DetailMovie @Inject constructor(
         started = SharingStarted.Lazily,
         initialValue = null
     )
-    private val internalData = userDataRepository.internalData.stateIn(
+    private val movieAppData = movieAppDataUseCase().stateIn(
         scope = backgroundScope,
         started = SharingStarted.Eagerly,
         initialValue = null
@@ -67,7 +69,23 @@ class DetailMovie @Inject constructor(
     fun getMovieDetail(id: Int) {
         backgroundScope.launch {
             detailRepository.getMovieDetail(id)
-                .onEach { movieDetail ->
+                .map { movieDetail ->
+                    movieDetail.copy(
+                        posterPath = "${movieAppData.value?.getImageUrl()}${movieDetail.posterPath}",
+                        productionCompanies = movieDetail.productionCompanies?.map {
+                            it.copy(logoPath = "${movieAppData.value?.getImageUrl()}${it.logoPath}")
+                        },
+                        credits = movieDetail.credits?.copy(
+                            cast = movieDetail.credits?.cast?.map { it.copy(profilePath = "${movieAppData.value?.getImageUrl()}${it.profilePath}") },
+                            crew = movieDetail.credits?.crew?.map { it.copy(profilePath = "${movieAppData.value?.getImageUrl()}${it.profilePath}") }
+                        ),
+                        images = movieDetail.images?.copy(
+                            backdrops = movieDetail.images?.backdrops?.map { it.copy(filePath = "${movieAppData.value?.getImageUrl()}${it.filePath}") },
+                            logos = movieDetail.images?.logos?.map { it.copy(filePath = "${movieAppData.value?.getImageUrl()}${it.filePath}") },
+                            posters = movieDetail.images?.posters?.map { it.copy(filePath = "${movieAppData.value?.getImageUrl()}${it.filePath}") }
+                        )
+                    )
+                }.onEach { movieDetail ->
                     movieDetail.belongsToCollection?.id?.let { seriesId ->
                         getMovieSeries(seriesId)
                     }
@@ -77,7 +95,20 @@ class DetailMovie @Inject constructor(
 
     private fun getMovieSeries(id: Int) {
         backgroundScope.launch {
-            detailRepository.getMovieSeries(id).collect {
+            detailRepository.getMovieSeries(id)
+                .map { movieSeries ->
+                    movieSeries.copy(
+                        backdropPath = "${movieAppData.value?.getImageUrl()}${movieSeries.backdropPath}",
+                        posterPath = "${movieAppData.value?.getImageUrl()}${movieSeries.posterPath}",
+                        parts = movieSeries.parts?.map {
+                            it.copy(
+                                backdropPath = "${movieAppData.value?.getImageUrl()}${it.backdropPath}",
+                                posterPath = "${movieAppData.value?.getImageUrl()}${it.posterPath}"
+                            )
+                        }
+                    )
+
+                }.collect {
                 _movieSeries.emit(it)
             }
         }
@@ -90,7 +121,8 @@ class DetailMovie @Inject constructor(
             pagingSourceFactory = {
                 pagingRepository.getSimilarMovies(
                     id = id,
-                    language = "${internalData.value?.language}-${internalData.value?.region}"
+                    language = "${movieAppData.value?.getLanguage()}-${movieAppData.value?.getRegion()}",
+                    imageUrl = movieAppData.value?.getImageUrl()
                 )
             }
         ).flow.cachedIn(scope)

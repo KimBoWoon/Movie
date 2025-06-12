@@ -95,7 +95,8 @@ class DetailScreenVMTest {
         val source = TMDBSimilarMoviePagingSource(
             apis = TestMovieDataSource(),
             id = 0,
-            language = "ko"
+            language = "ko",
+            imageUrl = imageUrl
         )
 
         assertEquals(

@@ -7,6 +7,7 @@ import com.bowoon.detail.DetailMovie
 import com.bowoon.detail.DetailPresenter
 import com.bowoon.detail.DetailScreen
 import com.bowoon.detail.MovieDetail
+import com.bowoon.detail.detailPresenter
 import com.bowoon.detail.goToMovie
 import com.bowoon.favorite.FavoritePresenter
 import com.bowoon.favorite.FavoriteScreen
@@ -37,6 +38,7 @@ import com.bowoon.series.navigation.goToSeries
 import com.slack.circuit.runtime.CircuitContext
 import com.slack.circuit.runtime.Navigator
 import com.slack.circuit.runtime.presenter.Presenter
+import com.slack.circuit.runtime.presenter.presenterOf
 import com.slack.circuit.runtime.screen.Screen
 import com.slack.circuit.runtime.ui.Ui
 import com.slack.circuit.runtime.ui.ui
@@ -81,8 +83,8 @@ class PresenterFactory @Inject constructor(
             is Search -> searchPresenterFactory.create(navigator = navigator, goToMovie = navigator::goToMovie, goToPeople = navigator::goToPeople, goToSeries = navigator::goToSeries)
             is Favorite -> favoritePresenterFactory.create(navigator = navigator, goToMovie = navigator::goToMovie, goToPeople = navigator::goToPeople)
             is My -> myPresenter
-            is DetailScreen -> detailPresenterFactory.create(navigator = navigator, screen = screen, goToMovie = navigator::goToMovie, goToPeople = navigator::goToPeople)
-//            is DetailScreen -> presenterOf { detailPresenter(navigator = navigator, screen = screen, goToMovie = navigator::goToMovie, goToPeople = navigator::goToPeople, detailMovie = detailMovie, databaseRepository = databaseRepository) }
+//            is DetailScreen -> detailPresenterFactory.create(navigator = navigator, screen = screen, goToMovie = navigator::goToMovie, goToPeople = navigator::goToPeople)
+            is DetailScreen -> presenterOf { detailPresenter(navigator = navigator, screen = screen, goToMovie = navigator::goToMovie, goToPeople = navigator::goToPeople, detailMovie = detailMovie, databaseRepository = databaseRepository) }
             is People -> peoplePresenterFactory.create(navigator = navigator, screen = screen, goToMovie = navigator::goToMovie)
             is Series -> seriesPresenterFactory.create(navigator = navigator, screen = screen, goToMovie = navigator::goToMovie)
             else -> null

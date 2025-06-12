@@ -27,5 +27,5 @@ interface PagingRepository {
         region: String,
         isAdult: Boolean
     ): PagingSource<Int, SearchGroup>
-    fun getSimilarMovies(id: Int, language: String): PagingSource<Int, Movie>
+    fun getSimilarMovies(id: Int, language: String, imageUrl: String?): PagingSource<Int, Movie>
 }

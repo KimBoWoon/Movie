@@ -27,8 +27,7 @@ import com.bowoon.ui.utils.sp15
 import com.bowoon.ui.utils.sp20
 
 fun LazyListScope.seriesInfoComponent(
-    series: MovieSeries,
-    posterUrl: String
+    series: MovieSeries
 ) {
     item {
         Column(
@@ -53,8 +52,8 @@ fun LazyListScope.seriesInfoComponent(
                     modifier = Modifier
                         .width(dp150)
                         .aspectRatio(POSTER_IMAGE_RATIO),
-                    source = "${posterUrl}${series.posterPath}",
-                    contentDescription = "${posterUrl}${series.posterPath}"
+                    source = series.posterPath ?: "",
+                    contentDescription = series.posterPath
                 )
                 Text(
                     text = series.overview ?: "",

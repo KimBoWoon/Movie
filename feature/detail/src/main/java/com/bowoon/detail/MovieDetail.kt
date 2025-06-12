@@ -64,7 +64,6 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import com.bowoon.common.Log
-import com.bowoon.data.repository.LocalMovieAppDataComposition
 import com.bowoon.data.util.PEOPLE_IMAGE_RATIO
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.data.util.VIDEO_RATIO
@@ -396,18 +395,17 @@ fun VideosComponent(movie: MovieDetail) {
     }
 }
 
-@kotlin.OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ImageComponent(
     movie: MovieDetail
 ) {
-    val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
     var isShowing by remember { mutableStateOf(false) }
     var index by remember { mutableIntStateOf(0) }
     val modalBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
     val items = ((movie.images?.posters ?: emptyList()) + (movie.images?.backdrops ?: emptyList())).map {
-        it.copy(filePath = "$posterUrl${it.filePath}")
+        it.copy(filePath = it.filePath)
     }
 
     if (items.isEmpty()) {
@@ -468,8 +466,6 @@ fun MovieSeriesComponent(
     movieSeries: MovieSeries?,
     goToMovie: (Int) -> Unit,
 ) {
-    val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
-
     LazyColumn(
         modifier = Modifier
             .semantics { contentDescription = "seriesList" }
@@ -478,13 +474,9 @@ fun MovieSeriesComponent(
         verticalArrangement = Arrangement.spacedBy(dp10)
     ) {
         movieSeries?.let {
-            seriesInfoComponent(
-                series = movieSeries,
-                posterUrl = posterUrl
-            )
+            seriesInfoComponent(series = movieSeries)
             movieSeriesListComponent(
                 series = movieSeries.parts ?: emptyList(),
-                posterUrl = posterUrl,
                 goToMovie = goToMovie
             )
         }
@@ -495,7 +487,6 @@ fun MovieSeriesComponent(
 fun MovieAdditionalInfoComponent(
     movie: MovieDetail
 ) {
-    val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
     var expanded by remember { mutableStateOf(false) }
     val titles = movie.alternativeTitles?.titles?.fold("") { acc, title -> if (acc.isEmpty()) "${title.title}" else "$acc\n${title.title}" } ?: ""
 
@@ -527,8 +518,8 @@ fun MovieAdditionalInfoComponent(
                         production[index].logoPath?.let {
                             DynamicAsyncImageLoader(
                                 modifier = Modifier.fillMaxWidth(),
-                                source = "$posterUrl$it",
-                                contentDescription = "$posterUrl$it"
+                                source = it,
+                                contentDescription = it
                             )
                         }
                         Text(
@@ -804,8 +795,6 @@ fun StaffComponent(
     tmdbMovieDetailCast: Cast,
     goToPeople: (Int) -> Unit
 ) {
-    val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
-
     Column(
         modifier = Modifier
             .width(dp200)
@@ -816,7 +805,7 @@ fun StaffComponent(
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(PEOPLE_IMAGE_RATIO),
-            source = "$posterUrl${tmdbMovieDetailCast.profilePath}",
+            source = tmdbMovieDetailCast.profilePath ?: "",
             contentDescription = "ProfileImage"
         )
         Text(
@@ -845,8 +834,6 @@ fun StaffComponent(
     tmdbMovieDetailCrew: Crew,
     goToPeople: (Int) -> Unit
 ) {
-    val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
-
     Column(
         modifier = Modifier
             .width(dp200)
@@ -857,7 +844,7 @@ fun StaffComponent(
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(PEOPLE_IMAGE_RATIO),
-            source = "$posterUrl${tmdbMovieDetailCrew.profilePath}",
+            source = tmdbMovieDetailCrew.profilePath ?: "",
             contentDescription = "ProfileImage"
         )
         Text(
@@ -892,7 +879,6 @@ fun SimilarMovieComponent(
     similarMovieState: LazyPagingItems<Movie>,
     goToMovie: (Int) -> Unit
 ) {
-    val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
     var isAppend by remember { mutableStateOf(false) }
     var pagingStatus by remember { mutableStateOf<PagingStatus>(PagingStatus.NONE) }
 
@@ -956,7 +942,7 @@ fun SimilarMovieComponent(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .aspectRatio(POSTER_IMAGE_RATIO),
-                                source = "$posterUrl${similarMovieState[index]?.posterPath}",
+                                source = similarMovieState[index]?.posterPath ?: "",
                                 contentDescription = "SimilarMoviePoster"
                             )
                         }
