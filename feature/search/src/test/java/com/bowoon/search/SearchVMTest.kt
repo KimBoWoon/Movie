@@ -33,6 +33,7 @@ class SearchVMTest {
     private lateinit var testUserDataRepository: TestUserDataRepository
     private lateinit var movieAppDataUseCase: GetMovieAppDataUseCase
     private lateinit var testMyDataRepository: TestMyDataRepository
+    private lateinit var apis: TestMovieDataSource
 
     @Before
     fun setup() {
@@ -40,14 +41,16 @@ class SearchVMTest {
         testPagingRepository = TestPagingRepository()
         testUserDataRepository = TestUserDataRepository()
         testMyDataRepository = TestMyDataRepository()
+        apis = TestMovieDataSource()
         movieAppDataUseCase = GetMovieAppDataUseCase(
             myDataRepository = testMyDataRepository,
-            userDataRepository = testUserDataRepository
+            userDataRepository = testUserDataRepository,
+            apis = apis
         )
         viewModel = SearchVM(
             savedStateHandle = savedStateHandle,
             pagingRepository = testPagingRepository,
-            movieAppDataUseCase = movieAppDataUseCase
+            userDataRepository = testUserDataRepository
         )
     }
 

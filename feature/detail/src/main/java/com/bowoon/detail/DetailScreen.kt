@@ -109,7 +109,6 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstan
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
 
 @Composable
@@ -148,7 +147,6 @@ fun DetailScreen(
     restart: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
-    var detail by remember { mutableStateOf(DetailState.Success(null, null, emptyFlow())) }
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -164,7 +162,39 @@ fun DetailScreen(
             }
             is DetailState.Success -> {
                 Log.d("${detailState.detail}")
-                detail = detailState
+
+                Column(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    detailState.detail?.let {
+                        val favoriteMessage = if (it.isFavorite) stringResource(R.string.add_favorite_movie) else stringResource(R.string.remove_favorite_movie)
+
+                        TitleComponent(
+                            title = it.title ?: "",
+                            isFavorite = it.isFavorite,
+                            goToBack = goToBack,
+                            onFavoriteClick = {
+                                val favorite = Favorite(
+                                    id = it.id,
+                                    title = it.title,
+                                    imagePath = it.posterPath
+                                )
+                                if (it.isFavorite) deleteFavoriteMovie(favorite) else insertFavoriteMovie(favorite)
+                                scope.launch {
+                                    onShowSnackbar(favoriteMessage, null)
+                                }
+                            }
+                        )
+
+                        MovieDetailComponent(
+                            movieDetail = it,
+                            movieSeries = detailState.series,
+                            similarMovieState = detailState.similarMovies.collectAsLazyPagingItems(),
+                            goToMovie = { id -> goToMovie(id) },
+                            goToPeople = { id -> goToPeople(id) }
+                        )
+                    }
+                }
             }
             is DetailState.Error -> {
                 Log.e("${detailState.throwable.message}")
@@ -176,39 +206,6 @@ fun DetailScreen(
                     dismissPair = stringResource(com.bowoon.movie.core.ui.R.string.back_message) to goToBack
                 )
             }
-        }
-    }
-
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        detail.detail?.let {
-            val favoriteMessage = if (it.isFavorite) stringResource(R.string.add_favorite_movie) else stringResource(R.string.remove_favorite_movie)
-
-            TitleComponent(
-                title = it.title ?: "",
-                isFavorite = it.isFavorite,
-                goToBack = goToBack,
-                onFavoriteClick = {
-                    val favorite = Favorite(
-                        id = it.id,
-                        title = it.title,
-                        imagePath = it.posterPath
-                    )
-                    if (it.isFavorite) deleteFavoriteMovie(favorite) else insertFavoriteMovie(favorite)
-                    scope.launch {
-                        onShowSnackbar(favoriteMessage, null)
-                    }
-                }
-            )
-
-            MovieDetailComponent(
-                movieDetail = it,
-                movieSeries = detail.series,
-                similarMovieState = detail.similarMovies.collectAsLazyPagingItems(),
-                goToMovie = { id -> goToMovie(id) },
-                goToPeople = { id -> goToPeople(id) }
-            )
         }
     }
 }

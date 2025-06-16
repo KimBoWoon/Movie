@@ -479,6 +479,7 @@ fun BoxScope.SearchPagingComponent(
     isAppend: Boolean
 ) {
     val genres = LocalMovieAppDataComposition.current.genres
+    val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
 
     when (pagingStatus) {
         PagingStatus.LOADING -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
@@ -538,7 +539,7 @@ fun BoxScope.SearchPagingComponent(
                                                 SearchType.SERIES -> goToSeries(item.id ?: -1)
                                             }
                                         },
-                                    source = item.imagePath ?: "",
+                                    source = "$posterUrl${item.imagePath}",
                                     contentDescription = "${item.id}_${item.name}"
                                 )
                             }
@@ -595,7 +596,9 @@ fun RecommendedKeywordComponent(
                 ) {
                     item {
                         Row(
-                            modifier = Modifier.fillMaxWidth().height(height = dp60),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(height = dp60),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -607,7 +610,9 @@ fun RecommendedKeywordComponent(
                                 textAlign = TextAlign.Center
                             )
                             Icon(
-                                modifier = Modifier.clickable { recommendedKeywordVisible(false) }.padding(end = dp16),
+                                modifier = Modifier
+                                    .clickable { recommendedKeywordVisible(false) }
+                                    .padding(end = dp16),
                                 imageVector = Icons.Filled.Close,
                                 contentDescription = "recommendedKeywordClose"
                             )

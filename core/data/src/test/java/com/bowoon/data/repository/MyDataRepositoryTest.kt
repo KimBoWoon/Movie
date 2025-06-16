@@ -31,7 +31,8 @@ class MyDataRepositoryTest {
             json = Json { ignoreUnknownKeys = true }
         )
         repository = MyDataRepositoryImpl(
-            apis = movieApis
+            apis = movieApis,
+            dataStore = datastore
         )
     }
 

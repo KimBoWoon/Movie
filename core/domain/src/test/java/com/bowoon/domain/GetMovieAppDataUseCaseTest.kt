@@ -4,6 +4,7 @@ import com.bowoon.model.ExternalData
 import com.bowoon.model.InternalData
 import com.bowoon.model.MovieAppData
 import com.bowoon.model.PosterSize
+import com.bowoon.testing.TestMovieDataSource
 import com.bowoon.testing.model.configurationTestData
 import com.bowoon.testing.model.genreListTestData
 import com.bowoon.testing.model.languageListTestData
@@ -22,9 +23,11 @@ class GetMovieAppDataUseCaseTest {
     val mainDispatcherRule = MainDispatcherRule()
     private val testMyDataRepository = TestMyDataRepository()
     private val testUserDataRepository = TestUserDataRepository()
+    private val apis = TestMovieDataSource()
     private val getMovieAppDataUseCase = GetMovieAppDataUseCase(
         myDataRepository = testMyDataRepository,
-        userDataRepository = testUserDataRepository
+        userDataRepository = testUserDataRepository,
+        apis = apis
     )
 
     @Test
@@ -41,12 +44,12 @@ class GetMovieAppDataUseCaseTest {
             region = regionTestData.results,
             language = languageListTestData,
             posterSize = configurationTestData.images?.posterSizes?.map {
-                PosterSize(size = it, isSelected = if (it == "original") true else false)
+                PosterSize(size = it, isSelected = it == "original")
             } ?: emptyList()
         )
 
         testMyDataRepository.setExternalData(externalData)
-        testUserDataRepository.updateUserData(InternalData(region = "ko", language = "ko", genres = genreListTestData.genres ?: emptyList()), false)
+        testUserDataRepository.updateUserData(InternalData(region = "ko", language = "ko"), false)
 
         assertEquals(result.first(), movieAppData)
     }

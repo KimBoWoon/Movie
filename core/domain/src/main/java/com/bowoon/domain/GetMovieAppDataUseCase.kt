@@ -6,11 +6,13 @@ import com.bowoon.model.Language
 import com.bowoon.model.MovieAppData
 import com.bowoon.model.PosterSize
 import com.bowoon.model.Region
+import com.bowoon.network.MovieNetworkDataSource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import javax.inject.Inject
 
 class GetMovieAppDataUseCase @Inject constructor(
+    private val apis: MovieNetworkDataSource,
     private val myDataRepository: MyDataRepository,
     private val userDataRepository: UserDataRepository
 ) {
@@ -18,6 +20,8 @@ class GetMovieAppDataUseCase @Inject constructor(
         myDataRepository.externalData,
         userDataRepository.internalData
     ) { externalData, internalData ->
+        val genres = apis.getGenres(internalData.language)
+
         MovieAppData(
             isAdult = internalData.isAdult,
             autoPlayTrailer = internalData.autoPlayTrailer,
@@ -26,7 +30,7 @@ class GetMovieAppDataUseCase @Inject constructor(
             mainMenu = internalData.mainMenu,
             imageQuality = internalData.imageQuality,
             secureBaseUrl = externalData.configuration?.images?.secureBaseUrl,
-            genres = internalData.genres,
+            genres = genres.genres ?: emptyList(),
             region = externalData.region?.results?.map {
                 Region(
                     englishName = it.englishName,
