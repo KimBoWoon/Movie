@@ -36,5 +36,6 @@ data class PosterSize(
 data class ExternalData(
     val configuration: Configuration? = null,
     val region: Regions? = null,
-    val language: List<Language>? = null
+    val language: List<Language>? = null,
+    val genres: Genres? = null
 )

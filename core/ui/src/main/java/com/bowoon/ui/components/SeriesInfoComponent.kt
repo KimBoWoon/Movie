@@ -17,6 +17,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import com.bowoon.data.repository.LocalMovieAppDataComposition
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.model.MovieSeries
 import com.bowoon.ui.image.DynamicAsyncImageLoader
@@ -27,7 +28,8 @@ import com.bowoon.ui.utils.sp15
 import com.bowoon.ui.utils.sp20
 
 fun LazyListScope.seriesInfoComponent(
-    series: MovieSeries
+    series: MovieSeries,
+    posterUrl: String
 ) {
     item {
         Column(
@@ -52,7 +54,7 @@ fun LazyListScope.seriesInfoComponent(
                     modifier = Modifier
                         .width(dp150)
                         .aspectRatio(POSTER_IMAGE_RATIO),
-                    source = series.posterPath ?: "",
+                    source = "$posterUrl${series.posterPath}",
                     contentDescription = series.posterPath
                 )
                 Text(

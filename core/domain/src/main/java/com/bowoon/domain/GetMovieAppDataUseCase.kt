@@ -25,9 +25,9 @@ class GetMovieAppDataUseCase @Inject constructor(
             updateDate = internalData.updateDate,
             mainMenu = internalData.mainMenu,
             imageQuality = internalData.imageQuality,
-            secureBaseUrl = externalData.configuration?.images?.secureBaseUrl,
-            genres = internalData.genres,
-            region = externalData.region?.results?.map {
+            secureBaseUrl = externalData?.configuration?.images?.secureBaseUrl,
+            genres = externalData?.genres?.genres ?: emptyList(),
+            region = externalData?.region?.results?.map {
                 Region(
                     englishName = it.englishName,
                     iso31661 = it.iso31661,
@@ -35,7 +35,7 @@ class GetMovieAppDataUseCase @Inject constructor(
                     isSelected = internalData.region == it.iso31661
                 )
             },
-            language = externalData.language?.map {
+            language = externalData?.language?.map {
                 Language(
                     englishName = it.englishName,
                     iso6391 = it.iso6391,
@@ -43,7 +43,7 @@ class GetMovieAppDataUseCase @Inject constructor(
                     isSelected = internalData.language == it.iso6391
                 )
             },
-            posterSize = externalData.configuration?.images?.posterSizes?.map {
+            posterSize = externalData?.configuration?.images?.posterSizes?.map {
                 PosterSize(
                     size = it,
                     isSelected = internalData.imageQuality == it

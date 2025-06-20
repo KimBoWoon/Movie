@@ -7,7 +7,6 @@ import com.bowoon.detail.DetailMovie
 import com.bowoon.detail.DetailPresenter
 import com.bowoon.detail.DetailScreen
 import com.bowoon.detail.MovieDetail
-import com.bowoon.detail.detailPresenter
 import com.bowoon.detail.goToMovie
 import com.bowoon.favorite.FavoritePresenter
 import com.bowoon.favorite.FavoriteScreen
@@ -38,7 +37,6 @@ import com.bowoon.series.navigation.goToSeries
 import com.slack.circuit.runtime.CircuitContext
 import com.slack.circuit.runtime.Navigator
 import com.slack.circuit.runtime.presenter.Presenter
-import com.slack.circuit.runtime.presenter.presenterOf
 import com.slack.circuit.runtime.screen.Screen
 import com.slack.circuit.runtime.ui.Ui
 import com.slack.circuit.runtime.ui.ui
@@ -52,7 +50,7 @@ class ScreenFactory @Inject constructor(
         is Search -> ui<SearchUiState> { state, _ -> SearchScreen(state = state) }
         is Favorite -> ui<FavoriteUiState> { state, _ -> FavoriteScreen(state = state) }
         is My -> ui<MyUiState> { state, _ -> MyScreen(state = state) }
-        is DetailScreen -> ui<DetailScreen.DetailState> { state, _ -> MovieDetail(state = state) }
+        is DetailScreen -> ui<DetailScreen.State> { state, _ -> MovieDetail(state = state) }
         is People -> ui<PeopleUiState> { state, _ -> PeopleScreen(state = state) }
         is Series -> ui<SeriesUiState> { state, _ -> SeriesScreen(state = state) }
         else -> null
@@ -84,7 +82,8 @@ class PresenterFactory @Inject constructor(
             is Favorite -> favoritePresenterFactory.create(navigator = navigator, goToMovie = navigator::goToMovie, goToPeople = navigator::goToPeople)
             is My -> myPresenter
 //            is DetailScreen -> detailPresenterFactory.create(navigator = navigator, screen = screen, goToMovie = navigator::goToMovie, goToPeople = navigator::goToPeople)
-            is DetailScreen -> presenterOf { detailPresenter(navigator = navigator, screen = screen, goToMovie = navigator::goToMovie, goToPeople = navigator::goToPeople, detailMovie = detailMovie, databaseRepository = databaseRepository) }
+//            is DetailScreen -> presenterOf { youtubePresenter(navigator = navigator, screen = screen, goToMovie = navigator::goToMovie, goToPeople = navigator::goToPeople, detailMovie = detailMovie, databaseRepository = databaseRepository) }
+            is DetailScreen -> detailPresenterFactory.create(navigator = navigator, screen = screen, goToMovie = navigator::goToMovie, goToPeople = navigator::goToPeople)
             is People -> peoplePresenterFactory.create(navigator = navigator, screen = screen, goToMovie = navigator::goToMovie)
             is Series -> seriesPresenterFactory.create(navigator = navigator, screen = screen, goToMovie = navigator::goToMovie)
             else -> null

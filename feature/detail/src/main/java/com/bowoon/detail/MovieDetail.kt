@@ -33,13 +33,10 @@ import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -63,12 +60,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.bowoon.common.Log
+import com.bowoon.data.repository.LocalMovieAppDataComposition
 import com.bowoon.data.util.PEOPLE_IMAGE_RATIO
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.data.util.VIDEO_RATIO
-import com.bowoon.detail.DetailScreen.DetailEvent
-import com.bowoon.detail.DetailScreen.DetailState
+import com.bowoon.detail.DetailScreen.State
 import com.bowoon.model.Cast
 import com.bowoon.model.Crew
 import com.bowoon.model.Favorite
@@ -113,108 +111,59 @@ import kotlinx.coroutines.launch
 @CircuitInject(DetailScreen::class, ActivityRetainedComponent::class)
 @Composable
 fun MovieDetail(
-    state: DetailState,
+    state: State,
     modifier: Modifier = Modifier,
 ) {
-    val scope = rememberCoroutineScope()
-    val snackbarHostState = remember { SnackbarHostState() }
-    var isShowSnackbar by remember { mutableStateOf(false) }
-
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        when (state.movieDetail) {
-            null -> CircularProgressIndicator(modifier = Modifier.align(alignment = Alignment.Center))
-            else -> {
-                val favoriteMessage = if (state.movieDetail.isFavorite) stringResource(R.string.remove_favorite_movie) else stringResource(R.string.add_favorite_movie)
-
-                if (isShowSnackbar) {
-                    SnackbarHost(
-                        modifier = Modifier.align(Alignment.BottomCenter),
-                        hostState = snackbarHostState
-                    ) {
-                        LaunchedEffect(key1 = Unit) {
-                            scope.launch {
-                                snackbarHostState.showSnackbar(favoriteMessage, actionLabel = null)
-                            }
-                        }
-                    }
-                }
-
+        when (state.state) {
+            is MovieDetailState.Loading -> CircularProgressIndicator(modifier = Modifier.align(alignment = Alignment.Center))
+            is MovieDetailState.Success -> {
                 Column(
                     modifier = Modifier.fillMaxSize()
                 ) {
+                    val favoriteMessage = if (state.state.movieInfo.movieDetail.isFavorite) stringResource(R.string.remove_favorite_movie) else stringResource(R.string.add_favorite_movie)
+
                     TitleComponent(
-                        title = state.movieDetail.title ?: "",
-                        isFavorite = state.movieDetail.isFavorite,
-                        onBackClick = { state.eventSink(DetailEvent.GoToBack) },
+                        title = state.state.movieInfo.movieDetail.title ?: "",
+                        isFavorite = state.state.movieInfo.movieDetail.isFavorite,
+                        onBackClick = { state.eventSink(DetailScreen.Event.GoToBack) },
                         onFavoriteClick = {
                             val favorite = Favorite(
-                                id = state.movieDetail.id,
-                                title = state.movieDetail.title,
-                                imagePath = state.movieDetail.posterPath
+                                id = state.state.movieInfo.movieDetail.id,
+                                title = state.state.movieInfo.movieDetail.title,
+                                imagePath = state.state.movieInfo.movieDetail.posterPath
                             )
-                            if (state.movieDetail.isFavorite) {
-                                state.eventSink(DetailEvent.RemoveFavorite(favorite))
+                            if (state.state.movieInfo.movieDetail.isFavorite) {
+                                state.eventSink(DetailScreen.Event.RemoveFavorite(favorite))
                             } else {
-                                state.eventSink(DetailEvent.AddFavorite(favorite))
+                                state.eventSink(DetailScreen.Event.AddFavorite(favorite))
                             }
-                            isShowSnackbar = true
+//                            scope.launch {
+//                                onShowSnackbar(favoriteMessage, null)
+//                            }
                         }
                     )
 
                     MovieDetailComponent(
-                        movieDetail = state.movieDetail,
-                        movieSeries = state.movieSeries,
-                        similarMovieState = state.similarMovies,
-                        goToMovie = { id -> state.eventSink(DetailEvent.GoToMovie(id = id)) },
-                        goToPeople = { id -> state.eventSink(DetailEvent.GoToPeople(id = id)) }
+                        movieDetail = state.state.movieInfo.movieDetail,
+                        movieSeries = state.state.movieInfo.movieSeries,
+                        similarMovieState = state.state.movieInfo.similarMovies.collectAsLazyPagingItems(),
+                        goToMovie = { id -> state.eventSink(DetailScreen.Event.GoToMovie(id = id)) },
+                        goToPeople = { id -> state.eventSink(DetailScreen.Event.GoToPeople(id = id)) }
                     )
                 }
             }
+            is MovieDetailState.Error -> {
+                ConfirmDialog(
+                    title = "통신 실패",
+                    message = state.state.throwable.message ?: stringResource(com.bowoon.movie.core.network.R.string.something_wrong),
+                    confirmPair = "확인" to {},
+                    dismissPair = "취소" to { state.eventSink(DetailScreen.Event.GoToBack) }
+                )
+            }
         }
-//        when (state.movieDetail) {
-//            is MovieDetailState.Loading -> CircularProgressIndicator(modifier = Modifier.align(alignment = Alignment.Center))
-//            is MovieDetailState.Success -> {
-//                Column(
-//                    modifier = Modifier.fillMaxSize()
-//                ) {
-//                    val favoriteMessage = if (state.movieDetail.movieDetail.isFavorite) stringResource(R.string.remove_favorite_movie) else stringResource(R.string.add_favorite_movie)
-//
-//                    TitleComponent(
-//                        title = state.movieDetail.movieDetail.title ?: "",
-//                        isFavorite = state.movieDetail.movieDetail.isFavorite,
-//                        onBackClick = { state.eventSink(DetailEvent.GoToBack) },
-//                        onFavoriteClick = {
-//                            val favorite = Favorite(
-//                                id = state.movieDetail.movieDetail.id,
-//                                title = state.movieDetail.movieDetail.title,
-//                                imagePath = state.movieDetail.movieDetail.posterPath
-//                            )
-//                            if (state.movieDetail.movieDetail.isFavorite) {
-//                                state.eventSink(DetailEvent.RemoveFavorite(favorite))
-//                            } else {
-//                                state.eventSink(DetailEvent.AddFavorite(favorite))
-//                            }
-////                            scope.launch {
-////                                onShowSnackbar(favoriteMessage, null)
-////                            }
-//                        }
-//                    )
-//
-////                    val movieSeries by state.movieSeries.collectAsStateWithLifecycle(initialValue = null)
-//
-//                    MovieDetailComponent(
-//                        movieDetail = state.movieDetail.movieDetail,
-//                        movieSeries = state.movieSeries,
-//                        similarMovieState = state.similarMovies.collectAsLazyPagingItems(),
-//                        goToMovie = { id -> state.eventSink(DetailEvent.GoToMovie(id = id)) },
-//                        goToPeople = { id -> state.eventSink(DetailEvent.GoToPeople(id = id)) }
-//                    )
-//                }
-//            }
-//            is MovieDetailState.Error -> {}
-//        }
     }
 }
 
@@ -407,6 +356,7 @@ fun ImageComponent(
     val items = ((movie.images?.posters ?: emptyList()) + (movie.images?.backdrops ?: emptyList())).map {
         it.copy(filePath = it.filePath)
     }
+    val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
 
     if (items.isEmpty()) {
         Box(
@@ -435,7 +385,7 @@ fun ImageComponent(
                             index = items.indexOf(it)
                             isShowing = true
                         },
-                    source = it.filePath ?: "",
+                    source = "$posterUrl${it.filePath}",
                     contentDescription = "moviePoster"
                 )
             }
@@ -466,6 +416,8 @@ fun MovieSeriesComponent(
     movieSeries: MovieSeries?,
     goToMovie: (Int) -> Unit,
 ) {
+    val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
+
     LazyColumn(
         modifier = Modifier
             .semantics { contentDescription = "seriesList" }
@@ -474,10 +426,14 @@ fun MovieSeriesComponent(
         verticalArrangement = Arrangement.spacedBy(dp10)
     ) {
         movieSeries?.let {
-            seriesInfoComponent(series = movieSeries)
+            seriesInfoComponent(
+                series = movieSeries,
+                posterUrl = posterUrl
+            )
             movieSeriesListComponent(
                 series = movieSeries.parts ?: emptyList(),
-                goToMovie = goToMovie
+                goToMovie = goToMovie,
+                posterUrl = posterUrl
             )
         }
     }
@@ -489,6 +445,7 @@ fun MovieAdditionalInfoComponent(
 ) {
     var expanded by remember { mutableStateOf(false) }
     val titles = movie.alternativeTitles?.titles?.fold("") { acc, title -> if (acc.isEmpty()) "${title.title}" else "$acc\n${title.title}" } ?: ""
+    val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
 
     LazyColumn(
         modifier = Modifier.fillMaxSize()
@@ -518,7 +475,7 @@ fun MovieAdditionalInfoComponent(
                         production[index].logoPath?.let {
                             DynamicAsyncImageLoader(
                                 modifier = Modifier.fillMaxWidth(),
-                                source = it,
+                                source = "$posterUrl$it",
                                 contentDescription = it
                             )
                         }
@@ -795,6 +752,8 @@ fun StaffComponent(
     tmdbMovieDetailCast: Cast,
     goToPeople: (Int) -> Unit
 ) {
+    val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
+
     Column(
         modifier = Modifier
             .width(dp200)
@@ -805,7 +764,7 @@ fun StaffComponent(
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(PEOPLE_IMAGE_RATIO),
-            source = tmdbMovieDetailCast.profilePath ?: "",
+            source = "$posterUrl${tmdbMovieDetailCast.profilePath}",
             contentDescription = "ProfileImage"
         )
         Text(
@@ -834,6 +793,8 @@ fun StaffComponent(
     tmdbMovieDetailCrew: Crew,
     goToPeople: (Int) -> Unit
 ) {
+    val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
+
     Column(
         modifier = Modifier
             .width(dp200)
@@ -844,7 +805,7 @@ fun StaffComponent(
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(PEOPLE_IMAGE_RATIO),
-            source = tmdbMovieDetailCrew.profilePath ?: "",
+            source = "$posterUrl${tmdbMovieDetailCrew.profilePath}",
             contentDescription = "ProfileImage"
         )
         Text(
@@ -881,6 +842,7 @@ fun SimilarMovieComponent(
 ) {
     var isAppend by remember { mutableStateOf(false) }
     var pagingStatus by remember { mutableStateOf<PagingStatus>(PagingStatus.NONE) }
+    val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
 
     when {
         similarMovieState.loadState.refresh is LoadState.Loading -> pagingStatus = PagingStatus.LOADING
@@ -942,7 +904,7 @@ fun SimilarMovieComponent(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .aspectRatio(POSTER_IMAGE_RATIO),
-                                source = similarMovieState[index]?.posterPath ?: "",
+                                source = "$posterUrl${similarMovieState[index]?.posterPath}",
                                 contentDescription = "SimilarMoviePoster"
                             )
                         }

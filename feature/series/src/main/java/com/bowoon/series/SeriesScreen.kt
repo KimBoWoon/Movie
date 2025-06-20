@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import com.bowoon.data.repository.LocalMovieAppDataComposition
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.MovieSeries
 import com.bowoon.movie.feature.series.R
@@ -106,15 +107,21 @@ fun SeriesComponent(
     series: MovieSeries,
     goToMovie: (Int) -> Unit
 ) {
+    val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
+
     LazyColumn(
         modifier = Modifier.semantics { contentDescription = "seriesList" }.fillMaxSize(),
         contentPadding = PaddingValues(horizontal = dp16, vertical = dp10),
         verticalArrangement = Arrangement.spacedBy(dp10)
     ) {
-        seriesInfoComponent(series = series)
+        seriesInfoComponent(
+            series = series,
+            posterUrl = posterUrl
+        )
         movieSeriesListComponent(
             series = series.parts ?: emptyList(),
-            goToMovie = goToMovie
+            goToMovie = goToMovie,
+            posterUrl = posterUrl
         )
     }
 }

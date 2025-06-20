@@ -5,6 +5,7 @@ import coil3.ImageLoader
 import coil3.PlatformContext
 import coil3.SingletonImageLoader
 import com.bowoon.common.Log
+import com.bowoon.data.util.SyncManager
 import com.google.firebase.crashlytics.ktx.crashlytics
 import com.google.firebase.ktx.Firebase
 import com.jakewharton.threetenabp.AndroidThreeTen
@@ -17,6 +18,8 @@ class MovieApplication : Application(), SingletonImageLoader.Factory {
     lateinit var imageLoader: ImageLoader
     @Inject
     lateinit var firebase: MovieFirebase
+    @Inject
+    lateinit var workManager: SyncManager
 
     override fun onCreate() {
         super.onCreate()
@@ -24,6 +27,7 @@ class MovieApplication : Application(), SingletonImageLoader.Factory {
         Log.d("Application", "onCreate()")
         firebase.sendLog(javaClass.simpleName, "Movie Application start!")
         AndroidThreeTen.init(this)
+        workManager.syncMain()
         initFirebase()
     }
 

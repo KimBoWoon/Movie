@@ -1,10 +1,6 @@
 package com.bowoon.detail
 
-import androidx.paging.compose.LazyPagingItems
 import com.bowoon.model.Favorite
-import com.bowoon.model.Movie
-import com.bowoon.model.MovieDetail
-import com.bowoon.model.MovieSeries
 import com.slack.circuit.runtime.CircuitUiEvent
 import com.slack.circuit.runtime.CircuitUiState
 import com.slack.circuit.runtime.Navigator
@@ -13,19 +9,17 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class DetailScreen(val id: Int) : Screen {
-    class DetailState(
-        val movieDetail: MovieDetail?,
-        val movieSeries: MovieSeries?,
-        val similarMovies: LazyPagingItems<Movie>,
-        val eventSink: (DetailEvent) -> Unit
+    data class State(
+        val state: MovieDetailState,
+        val eventSink: (Event) -> Unit
     ) : CircuitUiState
 
-    sealed interface DetailEvent : CircuitUiEvent {
-        data object GoToBack : DetailEvent
-        data class GoToMovie(val id: Int) : DetailEvent
-        data class GoToPeople(val id: Int) : DetailEvent
-        data class AddFavorite(val favorite: Favorite) : DetailEvent
-        data class RemoveFavorite(val favorite: Favorite) : DetailEvent
+    sealed interface Event : CircuitUiEvent {
+        data object GoToBack : Event
+        data class GoToMovie(val id: Int) : Event
+        data class GoToPeople(val id: Int) : Event
+        data class AddFavorite(val favorite: Favorite) : Event
+        data class RemoveFavorite(val favorite: Favorite) : Event
     }
 }
 

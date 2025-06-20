@@ -11,8 +11,7 @@ import javax.inject.Inject
 class TMDBSimilarMoviePagingSource @Inject constructor(
     private val apis: MovieNetworkDataSource,
     private val id: Int,
-    private val language: String,
-    private val imageUrl: String?
+    private val language: String
 ) : PagingSource<Int, Movie>() {
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Movie> =
         runCatching {
@@ -41,7 +40,7 @@ class TMDBSimilarMoviePagingSource @Inject constructor(
             Movie(
                 id = it.id,
                 title = it.title,
-                posterPath = "$imageUrl${it.posterPath}"
+                posterPath = it.posterPath
             )
         } ?: emptyList()
 }

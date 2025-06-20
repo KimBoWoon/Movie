@@ -55,12 +55,10 @@ class PagingRepositoryImpl @Inject constructor(
 
     override fun getSimilarMovies(
         id: Int,
-        language: String,
-        imageUrl: String?
+        language: String
     ): PagingSource<Int, Movie> = TMDBSimilarMoviePagingSource(
         apis = apis,
         id = id,
-        language = language,
-        imageUrl = imageUrl
+        language = language
     )
 }

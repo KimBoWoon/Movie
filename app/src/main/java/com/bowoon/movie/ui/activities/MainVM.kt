@@ -16,26 +16,26 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainVM @Inject constructor(
-    syncManager: SyncManager,
-    getMovieAppDataUseCase: GetMovieAppDataUseCase
+//    syncManager: SyncManager,
+//    getMovieAppDataUseCase: GetMovieAppDataUseCase
 ) : ViewModel() {
-    init {
-        syncManager.syncMain()
-    }
+//    init {
+//        syncManager.syncMain()
+//    }
 
-    val movieAppData = getMovieAppDataUseCase()
-        .asResult()
-        .map {
-            when (it) {
-                is Result.Loading -> MovieAppDataState.Loading
-                is Result.Success -> MovieAppDataState.Success(it.data)
-                is Result.Error -> MovieAppDataState.Error(it.throwable)
-            }
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.Eagerly,
-            initialValue = MovieAppDataState.Loading
-        )
+//    val movieAppData = getMovieAppDataUseCase()
+//        .asResult()
+//        .map {
+//            when (it) {
+//                is Result.Loading -> MovieAppDataState.Loading
+//                is Result.Success -> MovieAppDataState.Success(it.data)
+//                is Result.Error -> MovieAppDataState.Error(it.throwable)
+//            }
+//        }.stateIn(
+//            scope = viewModelScope,
+//            started = SharingStarted.Eagerly,
+//            initialValue = MovieAppDataState.Loading
+//        )
 }
 
 sealed interface MovieAppDataState {

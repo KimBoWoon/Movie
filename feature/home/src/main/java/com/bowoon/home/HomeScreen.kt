@@ -135,8 +135,6 @@ fun MainMovieItem(
     movie: Movie,
     goToMovie: (Int) -> Unit
 ) {
-    val posterPath = LocalMovieAppDataComposition.current.getImageUrl()
-
     Column(
         modifier = Modifier
             .width(dp150)
@@ -150,7 +148,7 @@ fun MainMovieItem(
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(POSTER_IMAGE_RATIO),
-                source = "$posterPath${movie.posterPath}",
+                source = movie.posterPath ?: "",
                 contentDescription = "BoxOfficePoster"
             )
         }

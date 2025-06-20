@@ -80,30 +80,42 @@ class MainActivity : ComponentActivity() {
 
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                combine(
-                    isSystemInDarkTheme(),
-                    viewModel.movieAppData
-                ) { systemDarkTheme, userdata ->
-                    movieAppData = userdata.getMovieAppData()
-                    userdata.shouldUseDarkTheme(systemDarkTheme)
-                }.onEach { darkTheme = it }
-                    .distinctUntilChanged()
-                    .collect { darkTheme ->
-                        enableEdgeToEdge(
-                            statusBarStyle = SystemBarStyle.auto(
-                                lightScrim = android.graphics.Color.TRANSPARENT,
-                                darkScrim = android.graphics.Color.TRANSPARENT,
-                            ) { darkTheme },
-                            navigationBarStyle = SystemBarStyle.auto(
-                                lightScrim = lightScrim,
-                                darkScrim = darkScrim,
-                            ) { darkTheme },
-                        )
-                    }
+                isSystemInDarkTheme().collect { darkTheme ->
+                    enableEdgeToEdge(
+                        statusBarStyle = SystemBarStyle.auto(
+                            lightScrim = android.graphics.Color.TRANSPARENT,
+                            darkScrim = android.graphics.Color.TRANSPARENT,
+                        ) { darkTheme },
+                        navigationBarStyle = SystemBarStyle.auto(
+                            lightScrim = lightScrim,
+                            darkScrim = darkScrim,
+                        ) { darkTheme },
+                    )
+                }
+//                combine(
+//                    isSystemInDarkTheme(),
+//                    viewModel.movieAppData
+//                ) { systemDarkTheme, userdata ->
+//                    movieAppData = userdata.getMovieAppData()
+//                    userdata.shouldUseDarkTheme(systemDarkTheme)
+//                }.onEach { darkTheme = it }
+//                    .distinctUntilChanged()
+//                    .collect { darkTheme ->
+//                        enableEdgeToEdge(
+//                            statusBarStyle = SystemBarStyle.auto(
+//                                lightScrim = android.graphics.Color.TRANSPARENT,
+//                                darkScrim = android.graphics.Color.TRANSPARENT,
+//                            ) { darkTheme },
+//                            navigationBarStyle = SystemBarStyle.auto(
+//                                lightScrim = lightScrim,
+//                                darkScrim = darkScrim,
+//                            ) { darkTheme },
+//                        )
+//                    }
             }
         }
 
-        splashScreen.setKeepOnScreenCondition { viewModel.movieAppData.value.shouldKeepSplashScreen() }
+//        splashScreen.setKeepOnScreenCondition { viewModel.movieAppData.value.shouldKeepSplashScreen() }
 
         setContent {
             val backStack = rememberSaveableBackStack(root = Home)

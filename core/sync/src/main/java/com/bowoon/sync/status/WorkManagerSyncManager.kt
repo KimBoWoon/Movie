@@ -6,6 +6,7 @@ import androidx.work.WorkInfo
 import androidx.work.WorkInfo.State
 import androidx.work.WorkManager
 import com.bowoon.data.util.SyncManager
+import com.bowoon.sync.workers.AppStartWorker
 import com.bowoon.sync.workers.MainMenuSyncWorker
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -25,10 +26,16 @@ internal class WorkManagerSyncManager @Inject constructor(
     override fun syncMain() {
         WorkManager.getInstance(appContext)
             .enqueueUniqueWork(
-                MainMenuSyncWorker.WORKER_NAME,
-                ExistingWorkPolicy.KEEP,
-                MainMenuSyncWorker.startUpSyncWork(false)
+                uniqueWorkName = AppStartWorker.WORKER_NAME,
+                existingWorkPolicy = ExistingWorkPolicy.KEEP,
+                request = AppStartWorker.startUpSyncWork()
             )
+//        WorkManager.getInstance(appContext)
+//            .enqueueUniqueWork(
+//                uniqueWorkName = "AppStartSyncWorker",
+//                existingWorkPolicy = ExistingWorkPolicy.KEEP,
+//                requests = listOf(MainMenuSyncWorker.startUpSyncWork(false), MyDataWorker.startUpSyncWork())
+//            )
     }
 
     override fun requestSync() {
@@ -37,8 +44,7 @@ internal class WorkManagerSyncManager @Inject constructor(
                 MainMenuSyncWorker.WORKER_NAME,
                 ExistingWorkPolicy.KEEP,
                 MainMenuSyncWorker.startUpSyncWork(true)
-            )
-            .enqueue()
+            ).enqueue()
     }
 }
 

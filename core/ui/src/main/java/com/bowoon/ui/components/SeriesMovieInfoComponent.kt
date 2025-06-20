@@ -30,7 +30,8 @@ import org.threeten.bp.LocalDate
 
 fun LazyListScope.movieSeriesListComponent(
     series: List<MovieSeriesPart>,
-    goToMovie: (Int) -> Unit
+    goToMovie: (Int) -> Unit,
+    posterUrl: String
 ) {
     items(
         items = series.sortedBy { it.releaseDate?.trim()?.takeIf { date -> date.isNotEmpty() }?.let { date -> LocalDate.parse(date) } },
@@ -38,7 +39,8 @@ fun LazyListScope.movieSeriesListComponent(
     ) { movieSeries ->
         SeriesMovieInfoComponent(
             seriesPart = movieSeries,
-            goToMovie = goToMovie
+            goToMovie = goToMovie,
+            posterUrl = posterUrl
         )
     }
 }
@@ -46,7 +48,8 @@ fun LazyListScope.movieSeriesListComponent(
 @Composable
 fun SeriesMovieInfoComponent(
     seriesPart: MovieSeriesPart,
-    goToMovie: (Int) -> Unit
+    goToMovie: (Int) -> Unit,
+    posterUrl: String
 ) {
     ConstraintLayout(
         modifier = Modifier
@@ -71,7 +74,7 @@ fun SeriesMovieInfoComponent(
         ) {
             DynamicAsyncImageLoader(
                 modifier = Modifier.fillMaxSize(),
-                source = seriesPart.posterPath ?: "",
+                source = "$posterUrl${seriesPart.posterPath}",
                 contentDescription = seriesPart.posterPath
             )
         }
