@@ -42,7 +42,6 @@ import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bowoon.common.Log
-import com.bowoon.data.repository.LocalMovieAppDataComposition
 import com.bowoon.data.util.PEOPLE_IMAGE_RATIO
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.firebase.LocalFirebaseLogHelper
@@ -50,15 +49,15 @@ import com.bowoon.model.Favorite
 import com.bowoon.model.PeopleDetail
 import com.bowoon.model.getRelatedMovie
 import com.bowoon.movie.core.ui.R
+import com.bowoon.ui.components.TitleComponent
 import com.bowoon.ui.dialog.ConfirmDialog
 import com.bowoon.ui.dialog.ModalBottomSheetDialog
+import com.bowoon.ui.image.DynamicAsyncImageLoader
 import com.bowoon.ui.utils.bounceClick
-import com.bowoon.ui.components.TitleComponent
 import com.bowoon.ui.utils.dp10
 import com.bowoon.ui.utils.dp100
 import com.bowoon.ui.utils.dp20
 import com.bowoon.ui.utils.dp5
-import com.bowoon.ui.image.DynamicAsyncImageLoader
 import kotlinx.coroutines.launch
 
 @Composable
@@ -149,7 +148,6 @@ fun PeopleDetailComponent(
     deleteFavoritePeople: (Favorite) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean
 ) {
-    val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
     val scope = rememberCoroutineScope()
     val relatedMovie = people.combineCredits?.getRelatedMovie() ?: emptyList()
 
@@ -211,7 +209,7 @@ fun PeopleDetailComponent(
                         .fillMaxWidth()
                         .aspectRatio(POSTER_IMAGE_RATIO)
                         .bounceClick { goToMovie(movie.id ?: -1) },
-                    source = "$posterUrl${movie.posterPath}",
+                    source = movie.posterPath ?: "",
                     contentDescription = "RelatedMovie"
                 )
             }
@@ -228,11 +226,9 @@ fun ImageComponent(
     var index by remember { mutableIntStateOf(0) }
     val modalBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
-    val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
-    val items = people.images?.map { it.copy(filePath = "$posterUrl${it.filePath}") } ?: emptyList()
 
     DynamicAsyncImageLoader(
-        source = "$posterUrl${people.profilePath}",
+        source = people.profilePath ?: "",
         contentDescription = "PeopleImage",
         modifier = Modifier
             .width(dp100)
@@ -251,7 +247,7 @@ fun ImageComponent(
             state = modalBottomSheetState,
             scope = scope,
             index = index,
-            imageList = items,
+            imageList = people.images ?: emptyList(),
             onClickCancel = {
                 scope.launch {
                     isShowing = false

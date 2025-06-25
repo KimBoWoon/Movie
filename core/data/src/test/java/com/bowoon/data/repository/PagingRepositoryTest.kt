@@ -1,8 +1,8 @@
 package com.bowoon.data.repository
 
 import androidx.paging.PagingSource
-import com.bowoon.data.paging.TMDBSearchPagingSource
-import com.bowoon.data.paging.TMDBSimilarMoviePagingSource
+import com.bowoon.data.paging.SearchPagingSource
+import com.bowoon.data.paging.SimilarMoviePagingSource
 import com.bowoon.model.Movie
 import com.bowoon.model.SearchGroup
 import com.bowoon.model.SearchType
@@ -23,7 +23,7 @@ class PagingRepositoryTest {
 
     @Test
     fun moviePagingTest() = runTest {
-        val pagingSource = TMDBSearchPagingSource(
+        val pagingSource = SearchPagingSource(
             apis = movieApis,
             type = SearchType.MOVIE,
             query = "미션",
@@ -53,7 +53,7 @@ class PagingRepositoryTest {
 
     @Test
     fun peoplePagingTest() = runTest {
-        val pagingSource = TMDBSearchPagingSource(
+        val pagingSource = SearchPagingSource(
             apis = movieApis,
             type = SearchType.PEOPLE,
             query = "톰 크루즈",
@@ -83,7 +83,7 @@ class PagingRepositoryTest {
 
     @Test
     fun similarMoviePagingTest() = runTest {
-        val pagingSource = TMDBSimilarMoviePagingSource(
+        val pagingSource = SimilarMoviePagingSource(
             apis = movieApis,
             id = 0,
             language = "ko-KR"

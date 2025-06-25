@@ -7,27 +7,27 @@ import com.bowoon.model.SearchKeyword
 import com.bowoon.model.SearchType
 
 interface PagingRepository {
-    fun getUpComingMovies(
+    fun getUpComingMoviePagingSource(
         language: String,
         region: String,
         isAdult: Boolean,
         releaseDateGte: String,
         releaseDateLte: String
     ): PagingSource<Int, Movie>
-    fun getNowPlaying(
+    fun getNowPlayingMoviePagingSource(
         language: String,
         region: String,
         isAdult: Boolean,
         releaseDateGte: String,
         releaseDateLte: String
     ): PagingSource<Int, Movie>
-    fun searchMovieSource(
+    fun getSearchPagingSource(
         type: SearchType,
         query: String,
         language: String,
         region: String,
         isAdult: Boolean
     ): PagingSource<Int, SearchGroup>
-    fun getSimilarMovies(id: Int, language: String): PagingSource<Int, Movie>
-    fun getSearchKeyword(query: String): PagingSource<Int, SearchKeyword>
+    fun getSimilarMoviePagingSource(id: Int, language: String): PagingSource<Int, Movie>
+    fun getRecommendKeywordPagingSource(query: String): PagingSource<Int, SearchKeyword>
 }

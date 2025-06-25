@@ -32,7 +32,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bowoon.common.Log
-import com.bowoon.data.repository.LocalMovieAppDataComposition
 import com.bowoon.data.util.PEOPLE_IMAGE_RATIO
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.firebase.LocalFirebaseLogHelper
@@ -81,7 +80,6 @@ fun FavoriteScreen(
     deleteFavoriteMovie: (Favorite) -> Unit,
     deleteFavoritePeople: (Favorite) -> Unit
 ) {
-    val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
     val favoriteTabs = FavoriteVM.FavoriteTabs.entries.map { it.label }
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { favoriteTabs.size })
     val scope = rememberCoroutineScope()
@@ -130,7 +128,7 @@ fun FavoriteScreen(
                                                 modifier = Modifier
                                                     .fillMaxWidth()
                                                     .aspectRatio(POSTER_IMAGE_RATIO),
-                                                source = "$posterUrl${movieDetail.imagePath}",
+                                                source = movieDetail.imagePath ?: "",
                                                 contentDescription = "FavoriteMoviePoster"
                                             )
                                             FavoriteButton(
@@ -176,7 +174,7 @@ fun FavoriteScreen(
                                                         .fillMaxWidth()
                                                         .aspectRatio(PEOPLE_IMAGE_RATIO)
                                                         .clip(RoundedCornerShape(dp10)),
-                                                    source = "$posterUrl${peopleDetail.imagePath}",
+                                                    source = peopleDetail.imagePath ?: "",
                                                     contentDescription = "FavoritePeopleProfileImage"
                                                 )
                                                 FavoriteButton(

@@ -35,11 +35,11 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.bowoon.data.repository.LocalMovieAppDataComposition
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.DarkThemeConfig
 import com.bowoon.model.InternalData
 import com.bowoon.model.Language
+import com.bowoon.model.MovieAppData
 import com.bowoon.model.PosterSize
 import com.bowoon.model.Region
 import com.bowoon.movie.feature.my.R
@@ -55,10 +55,12 @@ fun MyScreen(
 ) {
     LocalFirebaseLogHelper.current.sendLog("MyScreen", "my screen init")
 
-    val movieAppData by viewModel.myData.collectAsStateWithLifecycle()
+    val internalData by viewModel.myData.collectAsStateWithLifecycle()
+    val movieAppData by viewModel.movieAppData.collectAsStateWithLifecycle()
 
     MyScreen(
-        internalData = movieAppData,
+        internalData = internalData,
+        movieAppData = movieAppData,
         updateUserData = viewModel::updateUserData
     )
 }
@@ -66,9 +68,9 @@ fun MyScreen(
 @Composable
 fun MyScreen(
     internalData: InternalData,
+    movieAppData: MovieAppData,
     updateUserData: (InternalData, Boolean) -> Unit
 ) {
-    val movieAppData = LocalMovieAppDataComposition.current
     var isShowChooseDialog by remember { mutableStateOf(false) }
     var chooseDialogItem by remember { mutableStateOf(listOf<Any>()) }
     var selectedOption by remember { mutableStateOf<Any?>(null) }

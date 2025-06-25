@@ -8,6 +8,8 @@ import com.bowoon.testing.model.configurationTestData
 import com.bowoon.testing.model.languageListTestData
 import com.bowoon.testing.model.regionTestData
 import com.bowoon.testing.utils.MainDispatcherRule
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
@@ -21,7 +23,7 @@ class MyDataRepositoryTest {
     val mainDispatcherRule = MainDispatcherRule()
     private lateinit var movieApis: TestMovieDataSource
     private lateinit var datastore: InternalDataSource
-    private lateinit var repository: MyDataRepositoryImpl
+    private lateinit var repository: MovieAppDataRepositoryImpl
 
     @Before
     fun setup() {
@@ -30,9 +32,10 @@ class MyDataRepositoryTest {
             datastore = InMemoryDataStore(preferencesOf()),
             json = Json { ignoreUnknownKeys = true }
         )
-        repository = MyDataRepositoryImpl(
+        repository = MovieAppDataRepositoryImpl(
             apis = movieApis,
-            dataStore = datastore
+            datastore = datastore,
+            appScope = CoroutineScope(Dispatchers.IO)
         )
     }
 

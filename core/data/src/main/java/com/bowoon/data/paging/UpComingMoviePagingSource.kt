@@ -8,14 +8,14 @@ import com.bowoon.model.Movie
 import com.bowoon.network.MovieNetworkDataSource
 import javax.inject.Inject
 
-class TMDBNowPlayingPagingSource @Inject constructor(
+class UpComingMoviePagingSource @Inject constructor(
     private val apis: MovieNetworkDataSource,
     private val language: String,
     private val region: String
 ) : PagingSource<Int, Movie>() {
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Movie> =
         runCatching {
-            val response = apis.getNowPlayingMovie(language = language, region = region, page = params.key ?: 1)
+            val response = apis.getUpComingMovie(language = language, region = region, page = params.key ?: 1)
 
             LoadResult.Page(
                 data = response.results?.map { it.asExternalMovie() } ?: emptyList(),

@@ -72,10 +72,10 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.bowoon.common.Log
-import com.bowoon.data.repository.LocalMovieAppDataComposition
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.Genre
+import com.bowoon.model.MovieAppData
 import com.bowoon.model.PagingStatus
 import com.bowoon.model.SearchGroup
 import com.bowoon.model.SearchKeyword
@@ -119,6 +119,7 @@ fun SearchScreen(
     val searchType by viewModel.searchType.collectAsStateWithLifecycle()
     val recommendedKeyword = viewModel.recommendedKeywordPaging.collectAsLazyPagingItems()
     val inputKeyword = stringResource(R.string.input_keyword)
+    val movieAppData by viewModel.movieAppData.collectAsStateWithLifecycle()
 
     LaunchedEffect(key1 = inputKeyword) {
         viewModel.showSnackbar.collect {
@@ -131,6 +132,7 @@ fun SearchScreen(
         recommendedKeyword = recommendedKeyword,
         keyword = viewModel.searchQuery,
         searchType = searchType,
+        movieAppData = movieAppData,
         selectedGenre = selectedGenre,
         goToMovie = goToMovie,
         goToPeople = goToPeople,
@@ -148,6 +150,7 @@ fun SearchScreen(
     recommendedKeyword: LazyPagingItems<SearchKeyword>,
     keyword: String,
     searchType: SearchType,
+    movieAppData: MovieAppData,
     selectedGenre: Genre?,
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
@@ -193,6 +196,7 @@ fun SearchScreen(
                 goToMovie = goToMovie,
                 goToPeople = goToPeople,
                 goToSeries = goToSeries,
+                movieAppData = movieAppData,
                 selectedGenre = selectedGenre,
                 updateGenre = updateGenre
             )
@@ -394,6 +398,7 @@ fun SearchResultComponent(
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     goToSeries: (Int) -> Unit,
+    movieAppData: MovieAppData,
     selectedGenre: Genre?,
     updateGenre: (Genre) -> Unit,
 ) {
@@ -444,6 +449,7 @@ fun SearchResultComponent(
                     pagingStatus = pagingStatus,
                     scrollState = scrollState,
                     searchType = searchType,
+                    movieAppData = movieAppData,
                     selectedGenre = selectedGenre,
                     updateGenre = updateGenre,
                     goToMovie = goToMovie,
@@ -471,6 +477,7 @@ fun BoxScope.SearchPagingComponent(
     pagingStatus: PagingStatus,
     scrollState: LazyGridState,
     searchType: SearchType,
+    movieAppData: MovieAppData,
     selectedGenre: Genre?,
     updateGenre: (Genre) -> Unit,
     goToMovie: (Int) -> Unit,
@@ -478,9 +485,6 @@ fun BoxScope.SearchPagingComponent(
     goToSeries: (Int) -> Unit,
     isAppend: Boolean
 ) {
-    val genres = LocalMovieAppDataComposition.current.genres
-    val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
-
     when (pagingStatus) {
         PagingStatus.LOADING -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
         PagingStatus.EMPTY -> {
@@ -497,6 +501,7 @@ fun BoxScope.SearchPagingComponent(
             ) {
                 if (pagingStatus == PagingStatus.NOT_EMPTY && SearchType.MOVIE == searchType) {
                     MovieFilterRowComponent(
+                        movieAppData = movieAppData,
                         selectedGenre = selectedGenre,
                         updateGenre = updateGenre
                     )
@@ -519,7 +524,7 @@ fun BoxScope.SearchPagingComponent(
                             .fillMaxSize(),
                         state = scrollState,
                         columns = GridCells.Adaptive(dp100),
-                        contentPadding = PaddingValues(top = if (genres.all { it.name == null } || searchType != SearchType.MOVIE) dp10 else dp0, start = dp10, bottom = dp10, end = dp10),
+                        contentPadding = PaddingValues(top = if (movieAppData.genres.all { it.name == null } || searchType != SearchType.MOVIE) dp10 else dp0, start = dp10, bottom = dp10, end = dp10),
                         horizontalArrangement = Arrangement.spacedBy(dp10),
                         verticalArrangement = Arrangement.spacedBy(dp10)
                     ) {
@@ -539,7 +544,7 @@ fun BoxScope.SearchPagingComponent(
                                                 SearchType.SERIES -> goToSeries(item.id ?: -1)
                                             }
                                         },
-                                    source = "$posterUrl${item.imagePath}",
+                                    source = item.imagePath ?: "",
                                     contentDescription = "${item.id}_${item.name}"
                                 )
                             }
@@ -662,11 +667,10 @@ fun RecommendedKeywordComponent(
 
 @Composable
 fun MovieFilterRowComponent(
+    movieAppData: MovieAppData,
     selectedGenre: Genre?,
     updateGenre: (Genre) -> Unit
 ) {
-    val genres = LocalMovieAppDataComposition.current.genres
-
     LazyRow(
         modifier = Modifier
             .testTag(tag = "FilterRow")
@@ -675,7 +679,7 @@ fun MovieFilterRowComponent(
         horizontalArrangement = Arrangement.spacedBy(space = dp10)
     ) {
         items(
-            items = genres,
+            items = movieAppData.genres,
             key = { it.id ?: -1 }
         ) { genre ->
             genre.name?.let { name ->

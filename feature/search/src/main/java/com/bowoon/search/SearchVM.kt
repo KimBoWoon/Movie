@@ -6,40 +6,31 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import androidx.paging.cachedIn
-import androidx.paging.filter
+import com.bowoon.data.repository.MovieAppDataRepository
 import com.bowoon.data.repository.PagingRepository
-import com.bowoon.data.repository.UserDataRepository
+import com.bowoon.domain.GetRecommendKeywordUseCase
+import com.bowoon.domain.GetSearchUseCase
 import com.bowoon.model.Genre
-import com.bowoon.model.Movie
 import com.bowoon.model.SearchGroup
 import com.bowoon.model.SearchKeyword
 import com.bowoon.model.SearchType
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class SearchVM @Inject constructor(
-    private val userDataRepository: UserDataRepository,
     private val savedStateHandle: SavedStateHandle,
-    private val pagingRepository: PagingRepository
+    private val getSearchUseCase: GetSearchUseCase,
+    private val getRecommendKeywordUseCase: GetRecommendKeywordUseCase,
+    private val pagingRepository: PagingRepository,
+    movieAppDataRepository: MovieAppDataRepository
 ) : ViewModel() {
     companion object {
         private const val TAG = "SearchVM"
@@ -47,33 +38,20 @@ class SearchVM @Inject constructor(
         private const val SEARCH_TYPE = "searchType"
     }
 
+    private var recommendedKeywordJob: Job? = null
+    val movieAppData = movieAppDataRepository.movieAppData
     var searchQuery by mutableStateOf("")
         private set
     val selectedGenre = savedStateHandle.getStateFlow<Genre?>(GENRE, null)
     val searchType = savedStateHandle.getStateFlow<SearchType>(SEARCH_TYPE, SearchType.MOVIE)
-    var searchResult = MutableStateFlow<SearchUiState>(SearchUiState.SearchHint)
-    private val userData = userDataRepository.internalData.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.Eagerly,
-        initialValue = null
-    )
-    var recommendedKeywordPaging = MutableStateFlow<PagingData<SearchKeyword>>(PagingData.empty())
-    private val recommendedKeywordFlow = MutableStateFlow<String>("")
-    private var recommendedKeywordJob: Job? = null
+    val searchResult = MutableStateFlow<SearchUiState>(SearchUiState.SearchHint)
+    val recommendedKeywordPaging = MutableStateFlow<PagingData<SearchKeyword>>(PagingData.empty())
     val showSnackbar = MutableSharedFlow<Unit>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
 
     init {
-        @OptIn(FlowPreview::class)
         recommendedKeywordJob = viewModelScope.launch {
-            recommendedKeywordFlow
-                .debounce(300L)
-                .flatMapLatest {
-                    Pager(
-                        config = PagingConfig(pageSize = 1, initialLoadSize = 1, prefetchDistance = 5),
-                        initialKey = 1,
-                        pagingSourceFactory = { pagingRepository.getSearchKeyword(query = it) }
-                    ).flow.cachedIn(viewModelScope)
-                }.collect {
+            getRecommendKeywordUseCase(scope = this)
+                .collect {
                     recommendedKeywordPaging.emit(it)
                 }
         }
@@ -95,7 +73,7 @@ class SearchVM @Inject constructor(
     fun updateKeyword(keyword: String) {
         searchQuery = keyword
         viewModelScope.launch {
-            recommendedKeywordFlow.emit(keyword)
+            getRecommendKeywordUseCase.setKeyword(keyword)
         }
     }
 
@@ -111,26 +89,12 @@ class SearchVM @Inject constructor(
             searchQuery.trim().takeIf { it.isNotEmpty() }?.let { query ->
                 searchResult.emit(
                     SearchUiState.Success(
-                        combine(
-                            Pager(
-                                config = PagingConfig(pageSize = 1, initialLoadSize = 1, prefetchDistance = 5),
-                                initialKey = 1,
-                                pagingSourceFactory = {
-                                    pagingRepository.searchMovieSource(
-                                        type = searchType.value,
-                                        query = query,
-                                        language = "${userData.value?.language}-${userData.value?.region}",
-                                        region = userData.value?.region ?: "",
-                                        isAdult = userData.value?.isAdult ?: true
-                                    )
-                                }
-                            ).flow.cachedIn(viewModelScope),
-                            selectedGenre
-                        ) { pagingData, selectedGenre ->
-                            selectedGenre?.let { genre ->
-                                pagingData.filter { it is Movie && genre.id in (it.genreIds ?: emptyList()) }
-                            } ?: pagingData
-                        }
+                        getSearchUseCase(
+                            scope = viewModelScope,
+                            searchType = searchType.value,
+                            query = query,
+                            selectedGenre = selectedGenre
+                        )
                     )
                 )
             } ?: showSnackbar.emit(Unit)

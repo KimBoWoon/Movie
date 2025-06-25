@@ -8,7 +8,7 @@ import com.bowoon.model.SearchType
 import com.bowoon.network.MovieNetworkDataSource
 import javax.inject.Inject
 
-class TMDBSearchPagingSource @Inject constructor(
+class SearchPagingSource @Inject constructor(
     private val apis: MovieNetworkDataSource,
     private val type: SearchType,
     private val query: String,

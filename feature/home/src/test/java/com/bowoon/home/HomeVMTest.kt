@@ -3,6 +3,7 @@ package com.bowoon.home
 import com.bowoon.model.InternalData
 import com.bowoon.testing.TestSyncManager
 import com.bowoon.testing.model.mainMenuTestData
+import com.bowoon.testing.repository.TestMovieAppDataRepository
 import com.bowoon.testing.repository.TestPagingRepository
 import com.bowoon.testing.repository.TestUserDataRepository
 import com.bowoon.testing.utils.MainDispatcherRule
@@ -23,15 +24,18 @@ class HomeVMTest {
     private lateinit var testSyncManager: TestSyncManager
     private lateinit var testUserDataRepository: TestUserDataRepository
     private lateinit var testPagingRepository: TestPagingRepository
+    private lateinit var testMovieAppDataRepository: TestMovieAppDataRepository
 
     @Before
     fun setup() {
         testSyncManager = TestSyncManager()
         testUserDataRepository = TestUserDataRepository()
         testPagingRepository = TestPagingRepository()
+        testMovieAppDataRepository = TestMovieAppDataRepository()
         viewModel = HomeVM(
             syncManager = testSyncManager,
             userDataRepository = testUserDataRepository,
+            movieAppDataRepository = testMovieAppDataRepository
 //            pagingRepository = testPagingRepository
         )
 
@@ -58,7 +62,27 @@ class HomeVMTest {
         backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.mainMenu.collect() }
         assertEquals(viewModel.mainMenu.value, MainMenuState.Loading)
         testUserDataRepository.updateUserData(InternalData(mainMenu = mainMenuTestData), false)
-        assertEquals(viewModel.mainMenu.value, MainMenuState.Success(mainMenuTestData))
+        assertEquals(
+            viewModel.mainMenu.value,
+            MainMenuState.Success(
+                mainMenuTestData.copy(
+                    nowPlaying = mainMenuTestData.nowPlaying.map {
+                        it.copy(
+                            backdropPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.backdropPath}",
+                            posterPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.posterPath}",
+                            imagePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.imagePath}"
+                        )
+                    },
+                    upComingMovies = mainMenuTestData.upComingMovies.map {
+                        it.copy(
+                            backdropPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.backdropPath}",
+                            posterPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.posterPath}",
+                            imagePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.imagePath}"
+                        )
+                    }
+                )
+            )
+        )
     }
 
 //    @Test

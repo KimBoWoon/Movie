@@ -37,7 +37,7 @@ class TestPagingRepository : PagingRepository {
         )
     }.asPagingSourceFactory().invoke()
 
-    override fun getUpComingMovies(
+    override fun getUpComingMoviePagingSource(
         language: String,
         region: String,
         isAdult: Boolean,
@@ -45,7 +45,7 @@ class TestPagingRepository : PagingRepository {
         releaseDateLte: String
     ): PagingSource<Int, Movie> = testPagingSource
 
-    override fun getNowPlaying(
+    override fun getNowPlayingMoviePagingSource(
         language: String,
         region: String,
         isAdult: Boolean,
@@ -54,7 +54,7 @@ class TestPagingRepository : PagingRepository {
     ): PagingSource<Int, Movie> = testPagingSource
 
     @SuppressLint("VisibleForTests")
-    override fun searchMovieSource(
+    override fun getSearchPagingSource(
         type: SearchType,
         query: String,
         language: String,
@@ -116,8 +116,8 @@ class TestPagingRepository : PagingRepository {
         }.asPagingSourceFactory().invoke()
     }
 
-    override fun getSimilarMovies(id: Int, language: String): PagingSource<Int, Movie> = testPagingSource
+    override fun getSimilarMoviePagingSource(id: Int, language: String): PagingSource<Int, Movie> = testPagingSource
 
     @SuppressLint("VisibleForTests")
-    override fun getSearchKeyword(query: String): PagingSource<Int, SearchKeyword> = testRecommendedKeyword.asPagingSourceFactory().invoke()
+    override fun getRecommendKeywordPagingSource(query: String): PagingSource<Int, SearchKeyword> = testRecommendedKeyword.asPagingSourceFactory().invoke()
 }

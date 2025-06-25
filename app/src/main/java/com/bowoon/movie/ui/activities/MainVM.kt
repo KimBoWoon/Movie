@@ -4,8 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bowoon.common.Result
 import com.bowoon.common.asResult
+import com.bowoon.data.repository.MovieAppDataRepository
 import com.bowoon.data.util.SyncManager
-import com.bowoon.domain.GetMovieAppDataUseCase
 import com.bowoon.model.DarkThemeConfig
 import com.bowoon.model.MovieAppData
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,13 +17,13 @@ import javax.inject.Inject
 @HiltViewModel
 class MainVM @Inject constructor(
     syncManager: SyncManager,
-    getMovieAppDataUseCase: GetMovieAppDataUseCase
+    movieAppDataRepository: MovieAppDataRepository
 ) : ViewModel() {
     init {
         syncManager.syncMain()
     }
 
-    val movieAppData = getMovieAppDataUseCase()
+    val movieAppData = movieAppDataRepository.movieAppData
         .asResult()
         .map {
             when (it) {

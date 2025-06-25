@@ -2,6 +2,7 @@ package com.bowoon.my
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bowoon.data.repository.MovieAppDataRepository
 import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.model.InternalData
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -12,7 +13,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MyVM @Inject constructor(
-    private val userDataRepository: UserDataRepository
+    private val userDataRepository: UserDataRepository,
+    private val movieAppDataRepository: MovieAppDataRepository
 ) : ViewModel() {
     companion object {
         private const val TAG = "MyVM"
@@ -24,6 +26,7 @@ class MyVM @Inject constructor(
             started = SharingStarted.WhileSubscribed(),
             initialValue = InternalData()
         )
+    val movieAppData = movieAppDataRepository.movieAppData
 
     fun updateUserData(userData: InternalData, isSync: Boolean) {
         viewModelScope.launch {
