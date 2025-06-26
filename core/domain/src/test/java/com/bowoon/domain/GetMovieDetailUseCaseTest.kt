@@ -7,10 +7,12 @@ import com.bowoon.model.PosterSize
 import com.bowoon.testing.model.configurationTestData
 import com.bowoon.testing.model.genreListTestData
 import com.bowoon.testing.model.languageListTestData
+import com.bowoon.testing.model.movieSeriesTestData
 import com.bowoon.testing.model.regionTestData
 import com.bowoon.testing.repository.TestDatabaseRepository
 import com.bowoon.testing.repository.TestDetailRepository
 import com.bowoon.testing.repository.TestMovieAppDataRepository
+import com.bowoon.testing.repository.TestPagingRepository
 import com.bowoon.testing.repository.TestUserDataRepository
 import com.bowoon.testing.repository.favoriteMovieDetailTestData
 import com.bowoon.testing.repository.unFavoriteMovieDetailTestData
@@ -31,6 +33,7 @@ class GetMovieDetailUseCaseTest {
     private lateinit var userDataRepository: TestUserDataRepository
     private lateinit var getMovieDetailUseCase: GetMovieDetailUseCase
     private lateinit var movieAppDataRepository: TestMovieAppDataRepository
+    private lateinit var testPagingRepository: TestPagingRepository
 
     @Before
     fun setup() {
@@ -38,11 +41,13 @@ class GetMovieDetailUseCaseTest {
         databaseRepository = TestDatabaseRepository()
         userDataRepository = TestUserDataRepository()
         movieAppDataRepository = TestMovieAppDataRepository()
+        testPagingRepository = TestPagingRepository()
         getMovieDetailUseCase = GetMovieDetailUseCase(
             userDataRepository = userDataRepository,
             detailRepository = detailRepository,
             databaseRepository = databaseRepository,
-            movieAppDataRepository = movieAppDataRepository
+            movieAppDataRepository = movieAppDataRepository,
+            pagingRepository = testPagingRepository
         )
         runBlocking {
             databaseRepository.insertMovie(Favorite(id = 23))
@@ -64,11 +69,12 @@ class GetMovieDetailUseCaseTest {
     @Test
     fun getMovieDetailTest() = runTest {
         detailRepository.setMovieDetail(favoriteMovieDetailTestData)
+        detailRepository.setMovieSeries(movieSeriesTestData)
 
-        val result = getMovieDetailUseCase(0)
+        val result = getMovieDetailUseCase(id = 0).first()
 
         assertEquals(
-            result.first(),
+            result.first,
             favoriteMovieDetailTestData.copy(
                 backdropPath = "${movieAppDataRepository.movieAppData.value.getImageUrl()}${favoriteMovieDetailTestData.backdropPath}",
                 belongsToCollection = favoriteMovieDetailTestData.belongsToCollection?.copy(
@@ -89,11 +95,26 @@ class GetMovieDetailUseCaseTest {
                 isFavorite = false
             )
         )
+
+        assertEquals(
+            result.second,
+            movieSeriesTestData.copy(
+                backdropPath = "${movieAppDataRepository.movieAppData.value.getImageUrl()}${movieSeriesTestData.backdropPath}",
+                posterPath = "${movieAppDataRepository.movieAppData.value.getImageUrl()}${movieSeriesTestData.posterPath}",
+                parts = movieSeriesTestData.parts?.map {
+                    it.copy(
+                        backdropPath = "${movieAppDataRepository.movieAppData.value.getImageUrl()}${it.backdropPath}",
+                        posterPath = "${movieAppDataRepository.movieAppData.value.getImageUrl()}${it.posterPath}"
+                    )
+                }
+            )
+        )
     }
 
     @Test
     fun getFavoriteMovieDetailTest() = runTest {
         detailRepository.setMovieDetail(unFavoriteMovieDetailTestData)
+        detailRepository.setMovieSeries(movieSeriesTestData)
         databaseRepository.insertMovie(
             Favorite(
                 id = unFavoriteMovieDetailTestData.id,
@@ -102,10 +123,10 @@ class GetMovieDetailUseCaseTest {
             )
         )
 
-        val result = getMovieDetailUseCase(324)
+        val result = getMovieDetailUseCase(id = 324).first()
 
         assertEquals(
-            result.first(),
+            result.first,
             unFavoriteMovieDetailTestData.copy(
                 backdropPath = "${movieAppDataRepository.movieAppData.value.getImageUrl()}${unFavoriteMovieDetailTestData.backdropPath}",
                 belongsToCollection = unFavoriteMovieDetailTestData.belongsToCollection?.copy(
@@ -124,6 +145,20 @@ class GetMovieDetailUseCaseTest {
                 ),
                 productionCompanies = unFavoriteMovieDetailTestData.productionCompanies?.map { it.copy(logoPath = "${movieAppDataRepository.movieAppData.value.getImageUrl()}${it.logoPath}") },
                 isFavorite = true
+            )
+        )
+
+        assertEquals(
+            result.second,
+            movieSeriesTestData.copy(
+                backdropPath = "${movieAppDataRepository.movieAppData.value.getImageUrl()}${movieSeriesTestData.backdropPath}",
+                posterPath = "${movieAppDataRepository.movieAppData.value.getImageUrl()}${movieSeriesTestData.posterPath}",
+                parts = movieSeriesTestData.parts?.map {
+                    it.copy(
+                        backdropPath = "${movieAppDataRepository.movieAppData.value.getImageUrl()}${it.backdropPath}",
+                        posterPath = "${movieAppDataRepository.movieAppData.value.getImageUrl()}${it.posterPath}"
+                    )
+                }
             )
         )
     }

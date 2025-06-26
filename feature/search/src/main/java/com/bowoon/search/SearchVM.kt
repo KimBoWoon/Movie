@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import com.bowoon.data.repository.MovieAppDataRepository
-import com.bowoon.data.repository.PagingRepository
 import com.bowoon.domain.GetRecommendKeywordUseCase
 import com.bowoon.domain.GetSearchUseCase
 import com.bowoon.model.Genre
@@ -29,7 +28,6 @@ class SearchVM @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val getSearchUseCase: GetSearchUseCase,
     private val getRecommendKeywordUseCase: GetRecommendKeywordUseCase,
-    private val pagingRepository: PagingRepository,
     movieAppDataRepository: MovieAppDataRepository
 ) : ViewModel() {
     companion object {
@@ -50,7 +48,7 @@ class SearchVM @Inject constructor(
 
     init {
         recommendedKeywordJob = viewModelScope.launch {
-            getRecommendKeywordUseCase(scope = this)
+            getRecommendKeywordUseCase()
                 .collect {
                     recommendedKeywordPaging.emit(it)
                 }
@@ -90,7 +88,6 @@ class SearchVM @Inject constructor(
                 searchResult.emit(
                     SearchUiState.Success(
                         getSearchUseCase(
-                            scope = viewModelScope,
                             searchType = searchType.value,
                             query = query,
                             selectedGenre = selectedGenre

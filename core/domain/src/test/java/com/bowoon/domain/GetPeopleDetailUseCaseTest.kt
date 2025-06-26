@@ -3,6 +3,7 @@ package com.bowoon.domain
 import com.bowoon.model.Favorite
 import com.bowoon.testing.repository.TestDatabaseRepository
 import com.bowoon.testing.repository.TestDetailRepository
+import com.bowoon.testing.repository.TestMovieAppDataRepository
 import com.bowoon.testing.repository.combineCreditsTestData
 import com.bowoon.testing.repository.externalIdsTestData
 import com.bowoon.testing.repository.peopleDetailTestData
@@ -20,15 +21,18 @@ class GetPeopleDetailUseCaseTest {
     val mainDispatcherRule = MainDispatcherRule()
     private lateinit var detailRepository: TestDetailRepository
     private lateinit var databaseRepository: TestDatabaseRepository
+    private lateinit var movieAppDataRepository: TestMovieAppDataRepository
     private lateinit var getPeopleDetailUseCase: GetPeopleDetailUseCase
 
     @Before
     fun setup() {
         detailRepository = TestDetailRepository()
         databaseRepository = TestDatabaseRepository()
+        movieAppDataRepository = TestMovieAppDataRepository()
         getPeopleDetailUseCase = GetPeopleDetailUseCase(
             detailRepository = detailRepository,
-            databaseRepository = databaseRepository
+            databaseRepository = databaseRepository,
+            movieAppDataRepository = movieAppDataRepository
         )
 
         runBlocking { databaseRepository.insertPeople(Favorite(id = 489)) }
@@ -42,7 +46,30 @@ class GetPeopleDetailUseCaseTest {
 
         val result = getPeopleDetailUseCase(0)
 
-        assertEquals(result.first(), peopleDetailTestData.copy(isFavorite = false))
+        assertEquals(
+            result.first(),
+            peopleDetailTestData.copy(
+                combineCredits = peopleDetailTestData.combineCredits?.copy(
+                    cast = peopleDetailTestData.combineCredits?.cast?.map {
+                        it.copy(
+                            backdropPath = "${movieAppDataRepository.movieAppData.value.getImageUrl()}${it.backdropPath}",
+                            posterPath = "${movieAppDataRepository.movieAppData.value.getImageUrl()}${it.posterPath}"
+                        )
+                    },
+                    crew = peopleDetailTestData.combineCredits?.crew?.map {
+                        it.copy(
+                            backdropPath = "${movieAppDataRepository.movieAppData.value.getImageUrl()}${it.backdropPath}",
+                            posterPath = "${movieAppDataRepository.movieAppData.value.getImageUrl()}${it.posterPath}"
+                        )
+                    }
+                ),
+                profilePath = "${movieAppDataRepository.movieAppData.value.getImageUrl()}${peopleDetailTestData.profilePath}",
+                images = peopleDetailTestData.images?.map {
+                    it.copy(filePath = "${movieAppDataRepository.movieAppData.value.getImageUrl()}${it.filePath}")
+                },
+                isFavorite = false
+            )
+        )
     }
 
     @Test
@@ -54,6 +81,28 @@ class GetPeopleDetailUseCaseTest {
 
         val result = getPeopleDetailUseCase(0)
 
-        assertEquals(result.first(), peopleDetailTestData)
+        assertEquals(
+            result.first(),
+            peopleDetailTestData.copy(
+                combineCredits = peopleDetailTestData.combineCredits?.copy(
+                    cast = peopleDetailTestData.combineCredits?.cast?.map {
+                        it.copy(
+                            backdropPath = "${movieAppDataRepository.movieAppData.value.getImageUrl()}${it.backdropPath}",
+                            posterPath = "${movieAppDataRepository.movieAppData.value.getImageUrl()}${it.posterPath}"
+                        )
+                    },
+                    crew = peopleDetailTestData.combineCredits?.crew?.map {
+                        it.copy(
+                            backdropPath = "${movieAppDataRepository.movieAppData.value.getImageUrl()}${it.backdropPath}",
+                            posterPath = "${movieAppDataRepository.movieAppData.value.getImageUrl()}${it.posterPath}"
+                        )
+                    }
+                ),
+                profilePath = "${movieAppDataRepository.movieAppData.value.getImageUrl()}${peopleDetailTestData.profilePath}",
+                images = peopleDetailTestData.images?.map {
+                    it.copy(filePath = "${movieAppDataRepository.movieAppData.value.getImageUrl()}${it.filePath}")
+                },
+            )
+        )
     }
 }

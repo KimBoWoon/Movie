@@ -4,15 +4,17 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
 import androidx.paging.map
-import com.bowoon.common.di.ApplicationScope
 import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.data.repository.DetailRepository
 import com.bowoon.data.repository.MovieAppDataRepository
 import com.bowoon.data.repository.PagingRepository
 import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.model.InternalData
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
@@ -24,29 +26,32 @@ import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 class GetMovieDetailUseCase @Inject constructor(
-    @ApplicationScope private val appScope: CoroutineScope,
     userDataRepository: UserDataRepository,
     databaseRepository: DatabaseRepository,
     movieAppDataRepository: MovieAppDataRepository,
     private val detailRepository: DetailRepository,
     private val pagingRepository: PagingRepository
 ) {
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
+        close(message = throwable.message ?: "something wrong...", throwable = throwable)
+    }
+    private val backgroundScope = CoroutineScope(Dispatchers.IO + coroutineExceptionHandler)
     private val movieAppData = movieAppDataRepository.movieAppData
     private val seriesId = MutableStateFlow<Int?>(null)
     private val internalData = userDataRepository.internalData
         .stateIn(
-            scope = appScope,
+            scope = backgroundScope,
             started = SharingStarted.Eagerly,
             initialValue = InternalData()
         )
     private val favoriteMovies = databaseRepository.getMovies()
         .stateIn(
-            scope = appScope,
+            scope = backgroundScope,
             started = SharingStarted.Eagerly,
             initialValue = emptyList()
         )
 
-    operator fun invoke(id: Int, scope: CoroutineScope) = combine(
+    operator fun invoke(id: Int) = combine(
         detailRepository.getMovieDetail(id)
             .map { movieDetail ->
                 movieDetail.copy(
@@ -91,7 +96,7 @@ class GetMovieDetailUseCase @Inject constructor(
                         language = "${internalData.value.language}-${internalData.value.region}"
                     )
                 }
-            ).flow.cachedIn(scope).map { pagingData ->
+            ).flow.cachedIn(scope = backgroundScope).map { pagingData ->
                 pagingData.map { movie ->
                     movie.copy(
                         backdropPath = "${movieAppData.value.getImageUrl()}${movie.backdropPath}",
@@ -120,5 +125,9 @@ class GetMovieDetailUseCase @Inject constructor(
         }
     ) { movieDetail, similarMovie, series ->
         Triple(movieDetail, series, similarMovie)
+    }
+
+    private fun close(message: String, throwable: Throwable?) {
+        backgroundScope.cancel(message = message, cause = throwable)
     }
 }

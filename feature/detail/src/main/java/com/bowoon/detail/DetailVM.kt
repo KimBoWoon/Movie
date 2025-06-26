@@ -33,7 +33,7 @@ class DetailVM @Inject constructor(
     }
 
     private val id = savedStateHandle.toRoute<DetailRoute>().id
-    val detail = getMovieDetail(id = id, scope = viewModelScope)
+    val detail = getMovieDetail(id = id)
         .asResult()
         .map { result ->
             when (result) {
