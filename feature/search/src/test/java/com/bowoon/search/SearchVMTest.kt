@@ -4,6 +4,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.paging.PagingSource
 import androidx.paging.testing.asSnapshot
 import com.bowoon.data.paging.SearchPagingSource
+import com.bowoon.domain.GetRecommendKeywordUseCase
+import com.bowoon.domain.GetSearchUseCase
 import com.bowoon.model.SearchGroup
 import com.bowoon.model.SearchType
 import com.bowoon.testing.TestMovieDataSource
@@ -31,6 +33,8 @@ class SearchVMTest {
     private lateinit var testPagingRepository: TestPagingRepository
     private lateinit var testUserDataRepository: TestUserDataRepository
     private lateinit var testMovieAppDataRepository: TestMovieAppDataRepository
+    private lateinit var getSearchUseCase: GetSearchUseCase
+    private lateinit var getRecommendKeywordUseCase: GetRecommendKeywordUseCase
     private lateinit var apis: TestMovieDataSource
 
     @Before
@@ -39,12 +43,20 @@ class SearchVMTest {
         testPagingRepository = TestPagingRepository()
         testUserDataRepository = TestUserDataRepository()
         testMovieAppDataRepository = TestMovieAppDataRepository()
-        apis = TestMovieDataSource()
-        viewModel = SearchVM(
-            savedStateHandle = savedStateHandle,
+        getSearchUseCase = GetSearchUseCase(
             pagingRepository = testPagingRepository,
             userDataRepository = testUserDataRepository,
             movieAppDataRepository = testMovieAppDataRepository
+        )
+        getRecommendKeywordUseCase = GetRecommendKeywordUseCase(
+            pagingRepository = testPagingRepository
+        )
+        apis = TestMovieDataSource()
+        viewModel = SearchVM(
+            savedStateHandle = savedStateHandle,
+            movieAppDataRepository = testMovieAppDataRepository,
+            getSearchUseCase = getSearchUseCase,
+            getRecommendKeywordUseCase = getRecommendKeywordUseCase
         )
     }
 

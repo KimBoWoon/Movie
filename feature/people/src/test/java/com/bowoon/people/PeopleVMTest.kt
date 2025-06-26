@@ -44,13 +44,13 @@ class PeopleVMTest {
         testMovieAppDataRepository = TestMovieAppDataRepository()
         getPeopleDetailUseCase = GetPeopleDetailUseCase(
             detailRepository = testDetailRepository,
-            databaseRepository = testDatabaseRepository
+            databaseRepository = testDatabaseRepository,
+            movieAppDataRepository = testMovieAppDataRepository
         )
         viewModel = PeopleVM(
             savedStateHandle = savedStateHandle,
             getPeopleDetail = getPeopleDetailUseCase,
-            databaseRepository =testDatabaseRepository,
-            movieAppDataRepository = testMovieAppDataRepository
+            databaseRepository =testDatabaseRepository
         )
         runBlocking {
             testDatabaseRepository.insertPeople(Favorite(id = 0, title = "people_1", imagePath = "/peopleImagePath.png"))

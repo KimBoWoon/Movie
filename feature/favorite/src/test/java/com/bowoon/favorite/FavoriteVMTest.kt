@@ -1,9 +1,8 @@
 package com.bowoon.favorite
 
+import com.bowoon.domain.GetFavoriteMovieListUseCase
+import com.bowoon.domain.GetFavoritePeopleListUseCase
 import com.bowoon.model.Favorite
-import com.bowoon.model.MovieAppData
-import com.bowoon.model.PosterSize
-import com.bowoon.testing.model.configurationTestData
 import com.bowoon.testing.repository.TestDatabaseRepository
 import com.bowoon.testing.repository.TestMovieAppDataRepository
 import com.bowoon.testing.utils.MainDispatcherRule
@@ -22,6 +21,14 @@ class FavoriteVMTest {
     val mainDispatcherRule = MainDispatcherRule()
     private val testDatabaseRepository = TestDatabaseRepository()
     private val testMovieAppDataRepository = TestMovieAppDataRepository()
+    private val getFavoriteMovieListUseCase = GetFavoriteMovieListUseCase(
+        databaseRepository = testDatabaseRepository,
+        movieAppDataRepository = testMovieAppDataRepository
+    )
+    private val getFavoritePeopleListUseCase = GetFavoritePeopleListUseCase(
+        databaseRepository = testDatabaseRepository,
+        movieAppDataRepository = testMovieAppDataRepository
+    )
     private lateinit var viewModel: FavoriteVM
     private val movie1 = Favorite(id = 0, title = "movie_1", imagePath = "/movieImagePath_0.png")
     private val movie2 = Favorite(id = 1, title = "movie_2", imagePath = "/movieImagePath_1.png")
@@ -32,7 +39,8 @@ class FavoriteVMTest {
     fun setup() {
         viewModel = FavoriteVM(
             databaseRepository = testDatabaseRepository,
-            movieAppDataRepository = testMovieAppDataRepository
+            getFavoritePeopleListUseCase = getFavoritePeopleListUseCase,
+            getFavoriteMovieListUseCase = getFavoriteMovieListUseCase
         )
         runBlocking {
             testDatabaseRepository.insertMovie(movie1)

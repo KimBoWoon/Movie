@@ -1,5 +1,6 @@
 package com.bowoon.home
 
+import com.bowoon.domain.GetMainMenuUseCase
 import com.bowoon.model.InternalData
 import com.bowoon.testing.TestSyncManager
 import com.bowoon.testing.model.mainMenuTestData
@@ -25,6 +26,7 @@ class HomeVMTest {
     private lateinit var testUserDataRepository: TestUserDataRepository
     private lateinit var testPagingRepository: TestPagingRepository
     private lateinit var testMovieAppDataRepository: TestMovieAppDataRepository
+    private lateinit var getMainMenuUseCase: GetMainMenuUseCase
 
     @Before
     fun setup() {
@@ -32,16 +34,14 @@ class HomeVMTest {
         testUserDataRepository = TestUserDataRepository()
         testPagingRepository = TestPagingRepository()
         testMovieAppDataRepository = TestMovieAppDataRepository()
-        viewModel = HomeVM(
-            syncManager = testSyncManager,
+        getMainMenuUseCase = GetMainMenuUseCase(
             userDataRepository = testUserDataRepository,
             movieAppDataRepository = testMovieAppDataRepository
-//            pagingRepository = testPagingRepository
         )
-
-//        runBlocking {
-//            testUserDataRepository.updateUserData(InternalData(), false)
-//        }
+        viewModel = HomeVM(
+            syncManager = testSyncManager,
+            getMainMenuUseCase = getMainMenuUseCase
+        )
     }
 
     @Test
