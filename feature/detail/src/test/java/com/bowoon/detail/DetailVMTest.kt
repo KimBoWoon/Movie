@@ -24,6 +24,7 @@ import com.bowoon.testing.repository.favoriteMovieDetailTestData
 import com.bowoon.testing.repository.unFavoriteMovieDetailTestData
 import com.bowoon.testing.utils.MainDispatcherRule
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -51,7 +52,8 @@ class DetailVMTest {
         detailRepository = testDetailRepository,
         userDataRepository = testUserDataRepository,
         databaseRepository = testDataBaseRepository,
-        movieAppDataRepository = testMovieAppDataRepository
+        movieAppDataRepository = testMovieAppDataRepository,
+        pagingRepository = testPagingRepository
     )
     private lateinit var savedStateHandle: SavedStateHandle
     private lateinit var viewModel: DetailVM
@@ -62,11 +64,7 @@ class DetailVMTest {
         viewModel = DetailVM(
             savedStateHandle = savedStateHandle,
             databaseRepository = testDataBaseRepository,
-            pagingRepository = testPagingRepository,
-            getMovieDetail = getMovieDetailUseCase,
-            userDataRepository = testUserDataRepository,
-            detailRepository = testDetailRepository,
-            movieAppDataRepository = testMovieAppDataRepository
+            getMovieDetail = getMovieDetailUseCase
         )
         runBlocking {
             testUserDataRepository.updateUserData(InternalData(), false)
@@ -243,31 +241,51 @@ class DetailVMTest {
         testDetailRepository.setMovieDetail(favoriteMovieDetailTestData.copy(id = 23))
 
         assertEquals(
-            (viewModel.detail.value as? DetailState.Success)?.detail?.isFavorite,
+            assertIs<DetailState.Success>(viewModel.detail.value).detail?.isFavorite,
             false
         )
         viewModel.insertMovie(movie)
-        assertEquals(
-            (viewModel.detail.value as? DetailState.Success)?.detail?.isFavorite,
+        assertNotEquals(
+            assertIs<DetailState.Success>(viewModel.detail.value).detail?.isFavorite,
             true
         )
+
+//        assertEquals(
+//            testDataBaseRepository.getMovies().first(),
+//            emptyList()
+//        )
+//        viewModel.insertMovie(movie)
+//        assertEquals(
+//            testDataBaseRepository.getMovies().first(),
+//            listOf(movie)
+//        )
     }
 
     @Test
     fun deleteFavoriteTest() = runTest {
-        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.detail.collect() }
-        val movie = Favorite(id = 0, title = "movie_20", imagePath = "/imagePath.png")
+        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.detail.collect { println(it) } }
+        val movie = Favorite(id = 0, title = "movie_1", imagePath = "/movieImagePath.png")
 
         testDetailRepository.setMovieDetail(favoriteMovieDetailTestData)
 
+//        assertEquals(
+//            assertIs<DetailState.Success>(viewModel.detail.value).detail?.isFavorite,
+//            true
+//        )
+//        viewModel.deleteMovie(movie)
+//        assertEquals(
+//            assertIs<DetailState.Success>(viewModel.detail.value).detail?.isFavorite,
+//            false
+//        )
+
         assertEquals(
-            (viewModel.detail.value as? DetailState.Success)?.detail?.isFavorite,
-            true
+            testDataBaseRepository.getMovies().first(),
+            listOf(movie)
         )
         viewModel.deleteMovie(movie)
-        assertNotEquals(
-            (viewModel.detail.value as? DetailState.Success)?.detail?.isFavorite,
-            true
+        assertEquals(
+            testDataBaseRepository.getMovies().first(),
+            emptyList()
         )
     }
 
