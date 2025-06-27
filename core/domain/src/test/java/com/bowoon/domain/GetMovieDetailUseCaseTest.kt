@@ -74,7 +74,7 @@ class GetMovieDetailUseCaseTest {
         val result = getMovieDetailUseCase(id = 0).first()
 
         assertEquals(
-            result.first,
+            result.detail,
             favoriteMovieDetailTestData.copy(
                 backdropPath = "${movieAppDataRepository.movieAppData.value.getImageUrl()}${favoriteMovieDetailTestData.backdropPath}",
                 belongsToCollection = favoriteMovieDetailTestData.belongsToCollection?.copy(
@@ -97,7 +97,7 @@ class GetMovieDetailUseCaseTest {
         )
 
         assertEquals(
-            result.second,
+            result.series,
             movieSeriesTestData.copy(
                 backdropPath = "${movieAppDataRepository.movieAppData.value.getImageUrl()}${movieSeriesTestData.backdropPath}",
                 posterPath = "${movieAppDataRepository.movieAppData.value.getImageUrl()}${movieSeriesTestData.posterPath}",
@@ -126,7 +126,7 @@ class GetMovieDetailUseCaseTest {
         val result = getMovieDetailUseCase(id = 324).first()
 
         assertEquals(
-            result.first,
+            result.detail,
             unFavoriteMovieDetailTestData.copy(
                 backdropPath = "${movieAppDataRepository.movieAppData.value.getImageUrl()}${unFavoriteMovieDetailTestData.backdropPath}",
                 belongsToCollection = unFavoriteMovieDetailTestData.belongsToCollection?.copy(
@@ -149,7 +149,7 @@ class GetMovieDetailUseCaseTest {
         )
 
         assertEquals(
-            result.second,
+            result.series,
             movieSeriesTestData.copy(
                 backdropPath = "${movieAppDataRepository.movieAppData.value.getImageUrl()}${movieSeriesTestData.backdropPath}",
                 posterPath = "${movieAppDataRepository.movieAppData.value.getImageUrl()}${movieSeriesTestData.posterPath}",

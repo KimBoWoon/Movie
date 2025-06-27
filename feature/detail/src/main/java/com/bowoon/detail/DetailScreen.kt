@@ -37,7 +37,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -64,7 +63,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
 import androidx.paging.LoadState
-import androidx.paging.compose.LazyPagingItems
+import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.bowoon.common.Log
 import com.bowoon.data.util.PEOPLE_IMAGE_RATIO
@@ -77,6 +76,7 @@ import com.bowoon.model.Favorite
 import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetail
 import com.bowoon.model.MovieDetailTab
+import com.bowoon.model.MovieInfo
 import com.bowoon.model.MovieSeries
 import com.bowoon.model.PagingStatus
 import com.bowoon.movie.feature.detail.R
@@ -106,8 +106,9 @@ import com.bowoon.ui.utils.sp15
 import com.bowoon.ui.utils.sp20
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 @Composable
@@ -160,39 +161,35 @@ fun DetailScreen(
                 )
             }
             is DetailState.Success -> {
-                Log.d("${detailState.detail}")
+                Log.d("${detailState.movieInfo.detail}")
 
                 Column(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    detailState.detail?.let {
-                        val favoriteMessage = if (it.isFavorite) stringResource(R.string.add_favorite_movie) else stringResource(R.string.remove_favorite_movie)
+                    val favoriteMessage = if (detailState.movieInfo.detail.isFavorite) stringResource(R.string.add_favorite_movie) else stringResource(R.string.remove_favorite_movie)
 
-                        TitleComponent(
-                            title = it.title ?: "",
-                            isFavorite = it.isFavorite,
-                            goToBack = goToBack,
-                            onFavoriteClick = {
-                                val favorite = Favorite(
-                                    id = it.id,
-                                    title = it.title,
-                                    imagePath = it.posterPath
-                                )
-                                if (it.isFavorite) deleteFavoriteMovie(favorite) else insertFavoriteMovie(favorite)
-                                scope.launch {
-                                    onShowSnackbar(favoriteMessage, null)
-                                }
+                    TitleComponent(
+                        title = detailState.movieInfo.detail.title ?: "",
+                        isFavorite = detailState.movieInfo.detail.isFavorite,
+                        goToBack = goToBack,
+                        onFavoriteClick = {
+                            val favorite = Favorite(
+                                id = detailState.movieInfo.detail.id,
+                                title = detailState.movieInfo.detail.title,
+                                imagePath = detailState.movieInfo.detail.posterPath
+                            )
+                            if (detailState.movieInfo.detail.isFavorite) deleteFavoriteMovie(favorite) else insertFavoriteMovie(favorite)
+                            scope.launch {
+                                onShowSnackbar(favoriteMessage, null)
                             }
-                        )
+                        }
+                    )
 
-                        MovieDetailComponent(
-                            movieDetail = it,
-                            movieSeries = detailState.series,
-                            similarMovieState = detailState.similarMovies.collectAsLazyPagingItems(),
-                            goToMovie = { id -> goToMovie(id) },
-                            goToPeople = { id -> goToPeople(id) }
-                        )
-                    }
+                    MovieDetailComponent(
+                        movieInfo = detailState.movieInfo,
+                        goToMovie = { id -> goToMovie(id) },
+                        goToPeople = { id -> goToPeople(id) }
+                    )
                 }
             }
             is DetailState.Error -> {
@@ -211,16 +208,14 @@ fun DetailScreen(
 
 @Composable
 fun MovieDetailComponent(
-    movieDetail: MovieDetail,
-    movieSeries: MovieSeries?,
-    similarMovieState: LazyPagingItems<Movie>,
+    movieInfo: MovieInfo,
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit
 ) {
     Column {
-        VideosComponent(movieDetail)
+        VideosComponent(movieInfo.detail)
 
-        val tabList = if (movieDetail.belongsToCollection == null) {
+        val tabList = if (movieInfo.detail.belongsToCollection == null) {
             MovieDetailTab.entries.map { it.label }.filter { it != MovieDetailTab.SERIES.label }
         } else {
             MovieDetailTab.entries.map { it.label }
@@ -256,21 +251,21 @@ fun MovieDetailComponent(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     when (it[index]) {
-                        MovieDetailTab.MOVIE_INFO.label -> MovieInfoComponent(movie = movieDetail)
+                        MovieDetailTab.MOVIE_INFO.label -> MovieInfoComponent(movie = movieInfo.detail)
                         MovieDetailTab.SERIES.label -> MovieSeriesComponent(
-                            movieSeries = movieSeries,
+                            movieSeries = movieInfo.series,
                             goToMovie = goToMovie
                         )
                         MovieDetailTab.ADDITIONAL_INFO.label -> MovieAdditionalInfoComponent(
-                            movie = movieDetail
+                            movie = movieInfo.detail
                         )
                         MovieDetailTab.ACTOR_AND_CREW.label -> ActorAndCrewComponent(
-                            movie = movieDetail,
+                            movie = movieInfo.detail,
                             goToPeople = goToPeople
                         )
-                        MovieDetailTab.IMAGES.label -> ImageComponent(movie = movieDetail)
+                        MovieDetailTab.IMAGES.label -> ImageComponent(movie = movieInfo.detail)
                         MovieDetailTab.SIMILAR.label -> SimilarMovieComponent(
-                            similarMovieState = similarMovieState,
+                            similarMovies = movieInfo.similarMovies,
                             goToMovie = goToMovie
                         )
                     }
@@ -311,76 +306,109 @@ fun VideosComponent(movie: MovieDetail) {
             val screenWidth = context.resources.displayMetrics.widthPixels
             val view = YouTubePlayerView(context)
             val scope = rememberCoroutineScope()
+            val listener = object : YouTubePlayerListener {
+                override fun onApiChange(youTubePlayer: YouTubePlayer) {
+                    Log.d("onApiChange")
+                }
 
-            DisposableEffect(key1 = view) {
-                onDispose {
-                    view.release()
+                override fun onCurrentSecond(youTubePlayer: YouTubePlayer, second: Float) {
+                    Log.d("onCurrentSecond > $second")
+                }
+
+                override fun onError(
+                    youTubePlayer: YouTubePlayer,
+                    error: PlayerConstants.PlayerError
+                ) {
+                    when (error) {
+                        PlayerConstants.PlayerError.UNKNOWN -> Log.e("UNKNOWN")
+                        PlayerConstants.PlayerError.INVALID_PARAMETER_IN_REQUEST -> Log.e("INVALID_PARAMETER_IN_REQUEST")
+                        PlayerConstants.PlayerError.HTML_5_PLAYER -> Log.e("HTML_5_PLAYER")
+                        PlayerConstants.PlayerError.VIDEO_NOT_FOUND -> {
+                            Log.e("VIDEO_NOT_FOUND")
+                            scope.launch {
+                                pagerState.scrollToPage(index + 1)
+                            }
+                        }
+                        PlayerConstants.PlayerError.VIDEO_NOT_PLAYABLE_IN_EMBEDDED_PLAYER -> {
+                            Log.e("VIDEO_NOT_PLAYABLE_IN_EMBEDDED_PLAYER")
+                            scope.launch {
+                                pagerState.scrollToPage(index + 1)
+                            }
+                        }
+                    }
+                }
+
+                override fun onPlaybackQualityChange(
+                    youTubePlayer: YouTubePlayer,
+                    playbackQuality: PlayerConstants.PlaybackQuality
+                ) {
+                    Log.d("onPlaybackQualityChange > $playbackQuality")
+                }
+
+                override fun onPlaybackRateChange(
+                    youTubePlayer: YouTubePlayer,
+                    playbackRate: PlayerConstants.PlaybackRate
+                ) {
+                    Log.d("onPlaybackRateChange > ${playbackRate.name}")
+                }
+
+                override fun onReady(youTubePlayer: YouTubePlayer) {
+                    when (movie.autoPlayTrailer) {
+                        true -> youTubePlayer.loadVideo(vodList[index], 0f)
+                        false -> youTubePlayer.cueVideo(vodList[index], 0f)
+                        else -> youTubePlayer.cueVideo(vodList[index], 0f)
+                    }
+                }
+
+                override fun onStateChange(
+                    youTubePlayer: YouTubePlayer,
+                    state: PlayerConstants.PlayerState
+                ) {
+                    when (state) {
+                        PlayerConstants.PlayerState.UNKNOWN -> Log.d("UNKNOWN")
+                        PlayerConstants.PlayerState.UNSTARTED -> Log.d("UNSTARTED")
+                        PlayerConstants.PlayerState.ENDED -> {
+                            Log.d("ENDED")
+                            scope.launch {
+                                pagerState.scrollToPage(index + 1)
+                            }
+                        }
+                        PlayerConstants.PlayerState.PLAYING -> Log.d("PLAYING")
+                        PlayerConstants.PlayerState.PAUSED -> Log.d("PAUSED")
+                        PlayerConstants.PlayerState.BUFFERING -> Log.d("BUFFERING")
+                        PlayerConstants.PlayerState.VIDEO_CUED -> Log.d("VIDEO_CUED")
+                    }
+                }
+
+                override fun onVideoDuration(youTubePlayer: YouTubePlayer, duration: Float) {
+                    Log.d("onVideoDuration > $duration")
+                }
+
+                override fun onVideoId(youTubePlayer: YouTubePlayer, videoId: String) {
+                    Log.d("onVideoId > $videoId")
+                }
+
+                override fun onVideoLoadedFraction(
+                    youTubePlayer: YouTubePlayer,
+                    loadedFraction: Float
+                ) {
+                    Log.d("onVideoLoadedFraction > $loadedFraction")
                 }
             }
 
             AndroidView(
                 factory = {
-                    view.layoutParams = FrameLayout.LayoutParams(
-                        FrameLayout.LayoutParams.MATCH_PARENT,
-                        (screenWidth / (VIDEO_RATIO)).toInt()
-                    )
-                    view.addYouTubePlayerListener(
-                        object : AbstractYouTubePlayerListener() {
-                            override fun onReady(youTubePlayer: YouTubePlayer) {
-                                super.onReady(youTubePlayer)
-
-                                when (movie.autoPlayTrailer) {
-                                    true -> youTubePlayer.loadVideo(vodList[index], 0f)
-                                    false -> youTubePlayer.cueVideo(vodList[index], 0f)
-                                    else -> youTubePlayer.cueVideo(vodList[index], 0f)
-                                }
-                            }
-
-                            override fun onStateChange(
-                                youTubePlayer: YouTubePlayer,
-                                state: PlayerConstants.PlayerState
-                            ) {
-                                when (state) {
-                                    PlayerConstants.PlayerState.UNKNOWN -> Log.d("UNKNOWN")
-                                    PlayerConstants.PlayerState.UNSTARTED -> Log.d("UNSTARTED")
-                                    PlayerConstants.PlayerState.ENDED -> {
-                                        Log.d("ENDED")
-                                        scope.launch {
-                                            pagerState.scrollToPage(index + 1)
-                                        }
-                                    }
-                                    PlayerConstants.PlayerState.PLAYING -> Log.d("PLAYING")
-                                    PlayerConstants.PlayerState.PAUSED -> Log.d("PAUSED")
-                                    PlayerConstants.PlayerState.BUFFERING -> Log.d("BUFFERING")
-                                    PlayerConstants.PlayerState.VIDEO_CUED -> Log.d("VIDEO_CUED")
-                                }
-                            }
-
-                            override fun onError(
-                                youTubePlayer: YouTubePlayer,
-                                error: PlayerConstants.PlayerError
-                            ) {
-                                when (error) {
-                                    PlayerConstants.PlayerError.UNKNOWN -> Log.e("UNKNOWN")
-                                    PlayerConstants.PlayerError.INVALID_PARAMETER_IN_REQUEST -> Log.e("INVALID_PARAMETER_IN_REQUEST")
-                                    PlayerConstants.PlayerError.HTML_5_PLAYER -> Log.e("HTML_5_PLAYER")
-                                    PlayerConstants.PlayerError.VIDEO_NOT_FOUND -> {
-                                        Log.e("VIDEO_NOT_FOUND")
-                                        scope.launch {
-                                            pagerState.scrollToPage(index + 1)
-                                        }
-                                    }
-                                    PlayerConstants.PlayerError.VIDEO_NOT_PLAYABLE_IN_EMBEDDED_PLAYER -> {
-                                        Log.e("VIDEO_NOT_PLAYABLE_IN_EMBEDDED_PLAYER")
-                                        scope.launch {
-                                            pagerState.scrollToPage(index + 1)
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    )
-                    view
+                    view.apply {
+                        layoutParams = FrameLayout.LayoutParams(
+                            FrameLayout.LayoutParams.MATCH_PARENT,
+                            (screenWidth / (VIDEO_RATIO)).toInt()
+                        )
+                        addYouTubePlayerListener(listener)
+                    }
+                },
+                onRelease = {
+                    it.removeYouTubePlayerListener(listener)
+                    it.release()
                 }
             )
         }
@@ -488,7 +516,9 @@ fun MovieAdditionalInfoComponent(
         item {
             movie.productionCompanies.takeIf { !it.isNullOrEmpty() }?.let { production ->
                 Text(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = dp10, horizontal = dp16),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = dp10, horizontal = dp16),
                     text = stringResource(R.string.movie_production_companies),
                     textAlign = TextAlign.Center,
                     fontSize = sp20,
@@ -505,7 +535,9 @@ fun MovieAdditionalInfoComponent(
                     ) {
                         production[index].logoPath?.let {
                             DynamicAsyncImageLoader(
-                                modifier = Modifier.fillMaxWidth().height(dp300),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(dp300),
                                 contentScale = ContentScale.Fit,
                                 source = it,
                                 contentDescription = it
@@ -859,38 +891,39 @@ fun StaffComponent(
 
 @Composable
 fun SimilarMovieComponent(
-    similarMovieState: LazyPagingItems<Movie>,
+    similarMovies: Flow<PagingData<Movie>>,
     goToMovie: (Int) -> Unit
 ) {
+    val similarMovie = similarMovies.collectAsLazyPagingItems()
     var isAppend by remember { mutableStateOf(false) }
     var pagingStatus by remember { mutableStateOf<PagingStatus>(PagingStatus.NONE) }
 
     when {
-        similarMovieState.loadState.refresh is LoadState.Loading -> pagingStatus = PagingStatus.LOADING
-        similarMovieState.loadState.append is LoadState.Loading -> isAppend = true
-        similarMovieState.loadState.refresh is LoadState.Error -> {
+        similarMovie.loadState.refresh is LoadState.Loading -> pagingStatus = PagingStatus.LOADING
+        similarMovie.loadState.append is LoadState.Loading -> isAppend = true
+        similarMovie.loadState.refresh is LoadState.Error -> {
             isAppend = false
 
-            val message = (similarMovieState.loadState.refresh as? LoadState.Error)?.error?.message
-                ?: (similarMovieState.loadState.append as? LoadState.Error)?.error?.message
+            val message = (similarMovie.loadState.refresh as? LoadState.Error)?.error?.message
+                ?: (similarMovie.loadState.append as? LoadState.Error)?.error?.message
                 ?: stringResource(com.bowoon.movie.core.network.R.string.something_wrong)
 
             ConfirmDialog(
                 title = stringResource(com.bowoon.movie.core.network.R.string.network_failed),
                 message = message,
-                confirmPair = stringResource(com.bowoon.movie.core.ui.R.string.retry_message) to { similarMovieState.retry() },
+                confirmPair = stringResource(com.bowoon.movie.core.ui.R.string.retry_message) to { similarMovie.retry() },
                 dismissPair = stringResource(com.bowoon.movie.core.ui.R.string.confirm_message) to {}
             )
         }
-        similarMovieState.loadState.refresh is LoadState.NotLoading -> {
+        similarMovie.loadState.refresh is LoadState.NotLoading -> {
             isAppend = false
             pagingStatus = if (pagingStatus == PagingStatus.NONE) {
-                if (similarMovieState.itemCount == 0) PagingStatus.EMPTY else PagingStatus.NOT_EMPTY
+                if (similarMovie.itemCount == 0) PagingStatus.EMPTY else PagingStatus.NOT_EMPTY
             } else {
                 pagingStatus
             }
         }
-        similarMovieState.loadState.append is LoadState.NotLoading -> isAppend = false
+        similarMovie.loadState.append is LoadState.NotLoading -> isAppend = false
     }
 
     Box(
@@ -913,19 +946,19 @@ fun SimilarMovieComponent(
                     verticalArrangement = Arrangement.spacedBy(dp10)
                 ) {
                     items(
-                        count = similarMovieState.itemCount
+                        count = similarMovie.itemCount
                     ) { index ->
                         Box(
                             modifier = Modifier
                                 .width(dp200)
                                 .wrapContentHeight()
-                                .bounceClick { goToMovie(similarMovieState[index]?.id ?: -1) }
+                                .bounceClick { goToMovie(similarMovie[index]?.id ?: -1) }
                         ) {
                             DynamicAsyncImageLoader(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .aspectRatio(POSTER_IMAGE_RATIO),
-                                source = similarMovieState[index]?.posterPath ?: "",
+                                source = similarMovie[index]?.posterPath ?: "",
                                 contentDescription = "SimilarMoviePoster"
                             )
                         }
@@ -940,9 +973,9 @@ fun SimilarMovieComponent(
                             )
                         }
                     }
-                    if (similarMovieState.loadState.append is LoadState.Error) {
+                    if (similarMovie.loadState.append is LoadState.Error) {
                         item(span = { GridItemSpan(maxLineSpan) }) {
-                            PagingAppendErrorComponent({ similarMovieState.retry() })
+                            PagingAppendErrorComponent({ similarMovie.retry() })
                         }
                     }
                 }

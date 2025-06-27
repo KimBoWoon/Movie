@@ -4,7 +4,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import androidx.paging.PagingData
 import com.bowoon.common.Result
 import com.bowoon.common.asResult
 import com.bowoon.common.restartableStateIn
@@ -12,11 +11,8 @@ import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.detail.navigation.DetailRoute
 import com.bowoon.domain.GetMovieDetailUseCase
 import com.bowoon.model.Favorite
-import com.bowoon.model.Movie
-import com.bowoon.model.MovieDetail
-import com.bowoon.model.MovieSeries
+import com.bowoon.model.MovieInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -25,7 +21,7 @@ import javax.inject.Inject
 @HiltViewModel
 class DetailVM @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    getMovieDetail: GetMovieDetailUseCase,
+    private val getMovieDetail: GetMovieDetailUseCase,
     private val databaseRepository: DatabaseRepository,
 ) : ViewModel() {
     companion object {
@@ -38,7 +34,7 @@ class DetailVM @Inject constructor(
         .map { result ->
             when (result) {
                 is Result.Loading -> DetailState.Loading
-                is Result.Success -> DetailState.Success(result.data.first, result.data.second, result.data.third)
+                is Result.Success -> DetailState.Success(result.data)
                 is Result.Error -> DetailState.Error(result.throwable)
             }
         }.restartableStateIn(
@@ -62,14 +58,14 @@ class DetailVM @Inject constructor(
             databaseRepository.deleteMovie(movie)
         }
     }
+
+    override fun onCleared() {
+        getMovieDetail.close(message = "DetailVM is destroy", cause = null)
+    }
 }
 
 sealed interface DetailState {
     data object Loading : DetailState
-    data class Success(
-        val detail: MovieDetail?,
-        val series: MovieSeries?,
-        val similarMovies: Flow<PagingData<Movie>>
-    ) : DetailState
+    data class Success(val movieInfo: MovieInfo) : DetailState
     data class Error(val throwable: Throwable) : DetailState
 }

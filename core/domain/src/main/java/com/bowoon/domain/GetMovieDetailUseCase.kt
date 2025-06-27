@@ -10,6 +10,7 @@ import com.bowoon.data.repository.MovieAppDataRepository
 import com.bowoon.data.repository.PagingRepository
 import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.model.InternalData
+import com.bowoon.model.MovieInfo
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -33,7 +34,7 @@ class GetMovieDetailUseCase @Inject constructor(
     private val pagingRepository: PagingRepository
 ) {
     private val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
-        close(message = throwable.message ?: "something wrong...", throwable = throwable)
+        close(message = throwable.message ?: "something wrong...", cause = throwable)
     }
     private val backgroundScope = CoroutineScope(Dispatchers.IO + coroutineExceptionHandler)
     private val movieAppData = movieAppDataRepository.movieAppData
@@ -124,10 +125,10 @@ class GetMovieDetailUseCase @Inject constructor(
             } ?: flowOf(null)
         }
     ) { movieDetail, similarMovie, series ->
-        Triple(movieDetail, series, similarMovie)
+        MovieInfo(detail = movieDetail, series = series, similarMovies = similarMovie)
     }
 
-    private fun close(message: String, throwable: Throwable?) {
-        backgroundScope.cancel(message = message, cause = throwable)
+    fun close(message: String, cause: Throwable?) {
+        backgroundScope.cancel(message = message, cause = cause)
     }
 }

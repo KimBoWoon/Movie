@@ -62,6 +62,9 @@ class SearchVM @Inject constructor(
             recommendedKeywordJob?.cancel()
             recommendedKeywordJob = null
         }
+
+        getSearchUseCase.close(message = "SearchVM is destroy", cause = null)
+        getRecommendKeywordUseCase.close(message = "SearchVM is destroy", cause = null)
     }
 
     fun updateGenre(genre: Genre?) {

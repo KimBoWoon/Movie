@@ -75,7 +75,7 @@ class GetSearchUseCase @Inject constructor(
         }
     }
 
-    private fun close(message: String, cause: Throwable) {
+    fun close(message: String, cause: Throwable?) {
         backgroundScope.cancel(message = message, cause = cause)
     }
 }
