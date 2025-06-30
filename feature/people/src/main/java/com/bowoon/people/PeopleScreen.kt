@@ -92,49 +92,36 @@ fun PeopleScreen(
     onShowSnackbar: suspend (String, String?) -> Boolean,
     restart: () -> Unit
 ) {
-    var isLoading by remember { mutableStateOf(false) }
-    var people by remember { mutableStateOf<PeopleDetail?>(null) }
-
-    when (peopleState) {
-        is PeopleState.Loading -> {
-            Log.d("loading...")
-            isLoading = true
-        }
-        is PeopleState.Success -> {
-            Log.d("${peopleState.data}")
-            isLoading = false
-            people = peopleState.data
-        }
-        is PeopleState.Error -> {
-            Log.e("${peopleState.throwable.message}")
-            isLoading = false
-            ConfirmDialog(
-                title = stringResource(com.bowoon.movie.core.network.R.string.network_failed),
-                message = "${peopleState.throwable.message}",
-                confirmPair = stringResource(R.string.retry_message) to { restart() },
-                dismissPair = stringResource(R.string.back_message) to goToBack
-            )
-        }
-    }
-
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        people?.let {
-            PeopleDetailComponent(
-                people = it,
-                goToBack = goToBack,
-                goToMovie = goToMovie,
-                insertFavoritePeople = insertFavoritePeople,
-                deleteFavoritePeople = deleteFavoritePeople,
-                onShowSnackbar = onShowSnackbar
-            )
-        }
-
-        if (isLoading) {
-            CircularProgressIndicator(
-                modifier = Modifier.semantics { contentDescription = "peopleDetailLoading" }.align(Alignment.Center)
-            )
+        when (peopleState) {
+            is PeopleState.Loading -> {
+                Log.d("loading...")
+                CircularProgressIndicator(
+                    modifier = Modifier.semantics { contentDescription = "peopleDetailLoading" }.align(Alignment.Center)
+                )
+            }
+            is PeopleState.Success -> {
+                Log.d("${peopleState.data}")
+                PeopleDetailComponent(
+                    people = peopleState.data,
+                    goToBack = goToBack,
+                    goToMovie = goToMovie,
+                    insertFavoritePeople = insertFavoritePeople,
+                    deleteFavoritePeople = deleteFavoritePeople,
+                    onShowSnackbar = onShowSnackbar
+                )
+            }
+            is PeopleState.Error -> {
+                Log.e("${peopleState.throwable.message}")
+                ConfirmDialog(
+                    title = stringResource(com.bowoon.movie.core.network.R.string.network_failed),
+                    message = "${peopleState.throwable.message}",
+                    confirmPair = stringResource(R.string.retry_message) to { restart() },
+                    dismissPair = stringResource(R.string.back_message) to goToBack
+                )
+            }
         }
     }
 }

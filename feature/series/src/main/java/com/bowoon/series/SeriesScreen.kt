@@ -9,9 +9,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -52,8 +49,6 @@ fun SeriesScreen(
     goToBack: () -> Unit,
     goToMovie: (Int) -> Unit
 ) {
-    var series by remember { mutableStateOf<MovieSeries>(MovieSeries()) }
-
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -64,7 +59,20 @@ fun SeriesScreen(
                         .align(Alignment.Center)
                 )
             }
-            is SeriesState.Success -> series = seriesState.series
+            is SeriesState.Success -> {
+                Column(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    TitleComponent(
+                        title = seriesState.series.name ?: stringResource(R.string.title_series),
+                        goToBack = { goToBack() }
+                    )
+                    SeriesComponent(
+                        series = seriesState.series,
+                        goToMovie = goToMovie
+                    )
+                }
+            }
             is SeriesState.Error -> {
                 LocalFirebaseLogHelper.current.sendLog("SeriesScreen", "Series state Error")
 
@@ -75,19 +83,6 @@ fun SeriesScreen(
                     dismissPair = stringResource(com.bowoon.movie.core.ui.R.string.confirm_message) to {}
                 )
             }
-        }
-
-        Column(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            TitleComponent(
-                title = series.name ?: stringResource(R.string.title_series),
-                goToBack = { goToBack() }
-            )
-            SeriesComponent(
-                series = series,
-                goToMovie = goToMovie
-            )
         }
     }
 }

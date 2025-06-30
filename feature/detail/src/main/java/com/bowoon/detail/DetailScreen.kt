@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -47,7 +48,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -64,6 +64,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
 import androidx.paging.LoadState
 import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.bowoon.common.Log
 import com.bowoon.data.util.PEOPLE_IMAGE_RATIO
@@ -73,12 +74,12 @@ import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.Cast
 import com.bowoon.model.Crew
 import com.bowoon.model.Favorite
+import com.bowoon.model.Image
 import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetail
 import com.bowoon.model.MovieDetailTab
 import com.bowoon.model.MovieInfo
 import com.bowoon.model.MovieSeries
-import com.bowoon.model.PagingStatus
 import com.bowoon.movie.feature.detail.R
 import com.bowoon.ui.components.PagingAppendErrorComponent
 import com.bowoon.ui.components.TabComponent
@@ -213,7 +214,10 @@ fun MovieDetailComponent(
     goToPeople: (Int) -> Unit
 ) {
     Column {
-        VideosComponent(movieInfo.detail)
+        VideosComponent(
+            vodList = movieInfo.detail.videos?.results?.mapNotNull { it.key } ?: emptyList(),
+            autoPlayTrailer = movieInfo.detail.autoPlayTrailer
+        )
 
         val tabList = if (movieInfo.detail.belongsToCollection == null) {
             MovieDetailTab.entries.map { it.label }.filter { it != MovieDetailTab.SERIES.label }
@@ -263,9 +267,13 @@ fun MovieDetailComponent(
                             movie = movieInfo.detail,
                             goToPeople = goToPeople
                         )
-                        MovieDetailTab.IMAGES.label -> ImageComponent(movie = movieInfo.detail)
+                        MovieDetailTab.IMAGES.label -> {
+                            val posters = movieInfo.detail.images?.posters ?: emptyList()
+                            val backdrops = movieInfo.detail.images?.backdrops ?: emptyList()
+                            ImageComponent(images = posters + backdrops)
+                        }
                         MovieDetailTab.SIMILAR.label -> SimilarMovieComponent(
-                            similarMovies = movieInfo.similarMovies,
+                            pagingData = movieInfo.similarMovies,
                             goToMovie = goToMovie
                         )
                     }
@@ -277,19 +285,20 @@ fun MovieDetailComponent(
 
 @OptIn(UnstableApi::class)
 @Composable
-fun VideosComponent(movie: MovieDetail) {
-    val vodList = movie.videos?.results?.mapNotNull { it.key } ?: emptyList()
-
+fun VideosComponent(
+    vodList: List<String>,
+    autoPlayTrailer: Boolean?
+) {
     if (vodList.isEmpty()) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(VIDEO_RATIO)
+                .aspectRatio(ratio = VIDEO_RATIO)
                 .background(color = Color.Black)
         ) {
             Text(
-                modifier = Modifier.align(Alignment.Center),
-                text = stringResource(R.string.trailer_video_not_found),
+                modifier = Modifier.align(alignment = Alignment.Center),
+                text = stringResource(id = R.string.trailer_video_not_found),
                 color = Color.White,
                 textAlign = TextAlign.Center,
                 maxLines = 1,
@@ -297,14 +306,11 @@ fun VideosComponent(movie: MovieDetail) {
             )
         }
     } else {
-        val context = LocalContext.current
         val pagerState = rememberPagerState { vodList.size }
 
         HorizontalPager(
             state = pagerState
         ) { index ->
-            val screenWidth = context.resources.displayMetrics.widthPixels
-            val view = YouTubePlayerView(context)
             val scope = rememberCoroutineScope()
             val listener = object : YouTubePlayerListener {
                 override fun onApiChange(youTubePlayer: YouTubePlayer) {
@@ -353,7 +359,7 @@ fun VideosComponent(movie: MovieDetail) {
                 }
 
                 override fun onReady(youTubePlayer: YouTubePlayer) {
-                    when (movie.autoPlayTrailer) {
+                    when (autoPlayTrailer) {
                         true -> youTubePlayer.loadVideo(vodList[index], 0f)
                         false -> youTubePlayer.cueVideo(vodList[index], 0f)
                         else -> youTubePlayer.cueVideo(vodList[index], 0f)
@@ -397,11 +403,11 @@ fun VideosComponent(movie: MovieDetail) {
             }
 
             AndroidView(
-                factory = {
-                    view.apply {
+                factory = { ctx ->
+                    YouTubePlayerView(ctx).apply {
                         layoutParams = FrameLayout.LayoutParams(
                             FrameLayout.LayoutParams.MATCH_PARENT,
-                            (screenWidth / (VIDEO_RATIO)).toInt()
+                            (ctx.resources.displayMetrics.widthPixels / (VIDEO_RATIO)).toInt()
                         )
                         addYouTubePlayerListener(listener)
                     }
@@ -418,17 +424,14 @@ fun VideosComponent(movie: MovieDetail) {
 @kotlin.OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ImageComponent(
-    movie: MovieDetail
+    images: List<Image>
 ) {
     var isShowing by remember { mutableStateOf(false) }
     var index by remember { mutableIntStateOf(0) }
     val modalBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
-    val items = ((movie.images?.posters ?: emptyList()) + (movie.images?.backdrops ?: emptyList())).map {
-        it.copy(filePath = it.filePath)
-    }
 
-    if (items.isEmpty()) {
+    if (images.isEmpty()) {
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -444,15 +447,15 @@ fun ImageComponent(
             verticalItemSpacing = dp10
         ) {
             items(
-                items = items,
-                key = { it }
+                items = images,
+                key = { image -> image.filePath ?: image }
             ) {
                 DynamicAsyncImageLoader(
                     modifier = Modifier
                         .width(dp200)
                         .aspectRatio(it.aspectRatio?.toFloat() ?: 1f)
                         .bounceClick {
-                            index = items.indexOf(it)
+                            index = images.indexOf(it)
                             isShowing = true
                         },
                     source = it.filePath ?: "",
@@ -470,7 +473,7 @@ fun ImageComponent(
             state = modalBottomSheetState,
             scope = scope,
             index = index,
-            imageList = items,
+            imageList = images,
             onClickCancel = {
                 scope.launch {
                     isShowing = false
@@ -891,93 +894,85 @@ fun StaffComponent(
 
 @Composable
 fun SimilarMovieComponent(
-    similarMovies: Flow<PagingData<Movie>>,
+    pagingData: Flow<PagingData<Movie>>,
     goToMovie: (Int) -> Unit
 ) {
-    val similarMovie = similarMovies.collectAsLazyPagingItems()
-    var isAppend by remember { mutableStateOf(false) }
-    var pagingStatus by remember { mutableStateOf<PagingStatus>(PagingStatus.NONE) }
-
-    when {
-        similarMovie.loadState.refresh is LoadState.Loading -> pagingStatus = PagingStatus.LOADING
-        similarMovie.loadState.append is LoadState.Loading -> isAppend = true
-        similarMovie.loadState.refresh is LoadState.Error -> {
-            isAppend = false
-
-            val message = (similarMovie.loadState.refresh as? LoadState.Error)?.error?.message
-                ?: (similarMovie.loadState.append as? LoadState.Error)?.error?.message
-                ?: stringResource(com.bowoon.movie.core.network.R.string.something_wrong)
-
-            ConfirmDialog(
-                title = stringResource(com.bowoon.movie.core.network.R.string.network_failed),
-                message = message,
-                confirmPair = stringResource(com.bowoon.movie.core.ui.R.string.retry_message) to { similarMovie.retry() },
-                dismissPair = stringResource(com.bowoon.movie.core.ui.R.string.confirm_message) to {}
-            )
-        }
-        similarMovie.loadState.refresh is LoadState.NotLoading -> {
-            isAppend = false
-            pagingStatus = if (pagingStatus == PagingStatus.NONE) {
-                if (similarMovie.itemCount == 0) PagingStatus.EMPTY else PagingStatus.NOT_EMPTY
-            } else {
-                pagingStatus
-            }
-        }
-        similarMovie.loadState.append is LoadState.NotLoading -> isAppend = false
-    }
+    val similarMovie = pagingData.collectAsLazyPagingItems()
 
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        when (pagingStatus) {
-            PagingStatus.LOADING -> CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center)
-            )
-            PagingStatus.EMPTY -> Text(
-                modifier = Modifier.align(Alignment.Center),
-                text = stringResource(R.string.similar_movie_not_found)
-            )
-            else ->  {
-                LazyVerticalGrid(
-                    columns = GridCells.Adaptive(dp100),
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(dp10),
-                    horizontalArrangement = Arrangement.spacedBy(dp10),
-                    verticalArrangement = Arrangement.spacedBy(dp10)
-                ) {
-                    items(
-                        count = similarMovie.itemCount
-                    ) { index ->
-                        Box(
-                            modifier = Modifier
-                                .width(dp200)
-                                .wrapContentHeight()
-                                .bounceClick { goToMovie(similarMovie[index]?.id ?: -1) }
-                        ) {
-                            DynamicAsyncImageLoader(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .aspectRatio(POSTER_IMAGE_RATIO),
-                                source = similarMovie[index]?.posterPath ?: "",
-                                contentDescription = "SimilarMoviePoster"
-                            )
-                        }
-                    }
+        if (similarMovie.loadState.refresh is LoadState.Loading) {
+            CircularProgressIndicator(modifier = Modifier.align(alignment = Alignment.Center))
+        } else if (similarMovie.loadState.refresh is LoadState.Error) {
+            val message = (similarMovie.loadState.refresh as? LoadState.Error)?.error?.message
+                ?: (similarMovie.loadState.append as? LoadState.Error)?.error?.message
+                ?: stringResource(id = com.bowoon.movie.core.network.R.string.something_wrong)
 
-                    if (isAppend) {
-                        item(span = { GridItemSpan(maxLineSpan) }) {
-                            CircularProgressIndicator(
-                                modifier = Modifier
-                                    .wrapContentSize()
-                                    .align(Alignment.Center)
-                            )
-                        }
-                    }
-                    if (similarMovie.loadState.append is LoadState.Error) {
-                        item(span = { GridItemSpan(maxLineSpan) }) {
-                            PagingAppendErrorComponent({ similarMovie.retry() })
-                        }
-                    }
+            ConfirmDialog(
+                title = stringResource(id = com.bowoon.movie.core.network.R.string.network_failed),
+                message = message,
+                confirmPair = stringResource(id = com.bowoon.movie.core.ui.R.string.retry_message) to { similarMovie.retry() },
+                dismissPair = stringResource(id = com.bowoon.movie.core.ui.R.string.confirm_message) to {}
+            )
+        }
+
+        MovieList(
+            similarMovie = similarMovie,
+            goToMovie = goToMovie
+        )
+    }
+}
+
+@Composable
+fun BoxScope.MovieList(
+    similarMovie: LazyPagingItems<Movie>,
+    goToMovie: (Int) -> Unit
+) {
+    if (similarMovie.itemCount == 0 && similarMovie.loadState.refresh !is LoadState.Loading) {
+        Text(
+            modifier = Modifier.align(alignment = Alignment.Center),
+            text = stringResource(id = R.string.similar_movie_not_found)
+        )
+    } else {
+        LazyVerticalGrid(
+            columns = GridCells.Adaptive(dp100),
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(dp10),
+            horizontalArrangement = Arrangement.spacedBy(dp10),
+            verticalArrangement = Arrangement.spacedBy(dp10)
+        ) {
+            items(
+                count = similarMovie.itemCount
+            ) { index ->
+                Box(
+                    modifier = Modifier
+                        .width(dp200)
+                        .wrapContentHeight()
+                        .bounceClick { goToMovie(similarMovie[index]?.id ?: -1) }
+                ) {
+                    DynamicAsyncImageLoader(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(POSTER_IMAGE_RATIO),
+                        source = similarMovie[index]?.posterPath ?: "",
+                        contentDescription = "SimilarMoviePoster"
+                    )
+                }
+            }
+
+            if (similarMovie.loadState.append is LoadState.Loading) {
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    CircularProgressIndicator(
+                        modifier = Modifier
+                            .wrapContentSize()
+                            .align(Alignment.Center)
+                    )
+                }
+            }
+            if (similarMovie.loadState.append is LoadState.Error) {
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    PagingAppendErrorComponent(retry = { similarMovie.retry() })
                 }
             }
         }
