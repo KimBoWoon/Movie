@@ -3,12 +3,15 @@ package com.bowoon.search
 import androidx.lifecycle.SavedStateHandle
 import androidx.paging.PagingSource
 import androidx.paging.testing.asSnapshot
-import com.bowoon.data.paging.TMDBSearchPagingSource
+import com.bowoon.data.paging.SearchPagingSource
+import com.bowoon.domain.GetRecommendKeywordUseCase
+import com.bowoon.domain.GetSearchUseCase
 import com.bowoon.model.SearchGroup
 import com.bowoon.model.SearchType
 import com.bowoon.testing.TestMovieDataSource
 import com.bowoon.testing.model.movieSearchTestData
 import com.bowoon.testing.model.testRecommendedKeyword
+import com.bowoon.testing.repository.TestMovieAppDataRepository
 import com.bowoon.testing.repository.TestPagingRepository
 import com.bowoon.testing.repository.TestUserDataRepository
 import com.bowoon.testing.utils.MainDispatcherRule
@@ -29,16 +32,31 @@ class SearchVMTest {
     private lateinit var savedStateHandle: SavedStateHandle
     private lateinit var testPagingRepository: TestPagingRepository
     private lateinit var testUserDataRepository: TestUserDataRepository
+    private lateinit var testMovieAppDataRepository: TestMovieAppDataRepository
+    private lateinit var getSearchUseCase: GetSearchUseCase
+    private lateinit var getRecommendKeywordUseCase: GetRecommendKeywordUseCase
+    private lateinit var apis: TestMovieDataSource
 
     @Before
     fun setup() {
         savedStateHandle = SavedStateHandle()
         testPagingRepository = TestPagingRepository()
         testUserDataRepository = TestUserDataRepository()
+        testMovieAppDataRepository = TestMovieAppDataRepository()
+        getSearchUseCase = GetSearchUseCase(
+            pagingRepository = testPagingRepository,
+            userDataRepository = testUserDataRepository,
+            movieAppDataRepository = testMovieAppDataRepository
+        )
+        getRecommendKeywordUseCase = GetRecommendKeywordUseCase(
+            pagingRepository = testPagingRepository
+        )
+        apis = TestMovieDataSource()
         viewModel = SearchVM(
             savedStateHandle = savedStateHandle,
-            pagingRepository = testPagingRepository,
-            userDataRepository = testUserDataRepository
+            movieAppDataRepository = testMovieAppDataRepository,
+            getSearchUseCase = getSearchUseCase,
+            getRecommendKeywordUseCase = getRecommendKeywordUseCase
         )
     }
 
@@ -68,7 +86,7 @@ class SearchVMTest {
 
 //        assertEquals(viewModel.searchMovieState.value, PagingData.empty<Movie>())
 
-        val pagingSource = TMDBSearchPagingSource(
+        val pagingSource = SearchPagingSource(
             apis = TestMovieDataSource(),
             type = SearchType.MOVIE,
             query = "미션",

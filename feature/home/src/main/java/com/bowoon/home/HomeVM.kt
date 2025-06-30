@@ -4,8 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bowoon.common.Result
 import com.bowoon.common.asResult
-import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.data.util.SyncManager
+import com.bowoon.domain.GetMainMenuUseCase
 import com.bowoon.model.MainMenu
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -16,20 +16,13 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeVM @Inject constructor(
     syncManager: SyncManager,
-    userDataRepository: UserDataRepository,
+    getMainMenuUseCase: GetMainMenuUseCase
 ) : ViewModel() {
     companion object {
         private const val TAG = "HomeVM"
     }
 
-    val isSyncing = syncManager.isSyncing
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(),
-            initialValue = false,
-        )
-    val mainMenu = userDataRepository.internalData
-        .map { it.mainMenu }
+    val mainMenu = getMainMenuUseCase()
         .asResult()
         .map {
             when (it) {
@@ -39,8 +32,15 @@ class HomeVM @Inject constructor(
             }
         }.stateIn(
             scope = viewModelScope,
-            initialValue = MainMenuState.Loading,
-            started = SharingStarted.Lazily
+            started = SharingStarted.Lazily,
+            initialValue = MainMenuState.Loading
+        )
+
+    val isSyncing = syncManager.isSyncing
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(),
+            initialValue = false,
         )
 }
 

@@ -6,7 +6,7 @@ import com.bowoon.common.Log
 import com.bowoon.model.SearchKeyword
 import com.bowoon.network.MovieNetworkDataSource
 
-class SearchKeywordPagingSource(
+class RecommendKeywordPagingSource(
     private val apis: MovieNetworkDataSource,
     private val query: String
 ): PagingSource<Int, SearchKeyword>() {

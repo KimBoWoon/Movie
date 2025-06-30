@@ -8,6 +8,7 @@ import com.bowoon.model.PeopleDetail
 import com.bowoon.people.navigation.PeopleRoute
 import com.bowoon.testing.repository.TestDatabaseRepository
 import com.bowoon.testing.repository.TestDetailRepository
+import com.bowoon.testing.repository.TestMovieAppDataRepository
 import com.bowoon.testing.repository.combineCreditsTestData
 import com.bowoon.testing.repository.externalIdsTestData
 import com.bowoon.testing.repository.peopleDetailTestData
@@ -33,15 +34,18 @@ class PeopleVMTest {
     private lateinit var testDatabaseRepository: TestDatabaseRepository
     private lateinit var testDetailRepository: TestDetailRepository
     private lateinit var getPeopleDetailUseCase: GetPeopleDetailUseCase
+    private lateinit var testMovieAppDataRepository: TestMovieAppDataRepository
 
     @Before
     fun setup() {
         savedStateHandle = SavedStateHandle(route = PeopleRoute(id = 0))
         testDatabaseRepository = TestDatabaseRepository()
         testDetailRepository = TestDetailRepository()
+        testMovieAppDataRepository = TestMovieAppDataRepository()
         getPeopleDetailUseCase = GetPeopleDetailUseCase(
             detailRepository = testDetailRepository,
-            databaseRepository = testDatabaseRepository
+            databaseRepository = testDatabaseRepository,
+            movieAppDataRepository = testMovieAppDataRepository
         )
         viewModel = PeopleVM(
             savedStateHandle = savedStateHandle,
@@ -70,7 +74,29 @@ class PeopleVMTest {
         testDetailRepository.setCombineCredits(combineCreditsTestData)
         testDetailRepository.setExternalIds(externalIdsTestData)
 
-        assertEquals(viewModel.people.value, PeopleState.Success(peopleDetailTestData))
+        assertEquals(
+            viewModel.people.value,
+            PeopleState.Success(
+                peopleDetailTestData.copy(
+                    combineCredits = peopleDetailTestData.combineCredits?.copy(
+                        cast = peopleDetailTestData.combineCredits?.cast?.map {
+                            it.copy(
+                                backdropPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.backdropPath}",
+                                posterPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.posterPath}"
+                            )
+                        },
+                        crew = peopleDetailTestData.combineCredits?.crew?.map {
+                            it.copy(
+                                backdropPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.backdropPath}",
+                                posterPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.posterPath}"
+                            )
+                        }
+                    ),
+                    images = peopleDetailTestData.images?.map { it.copy(filePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.filePath}") },
+                    profilePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${peopleDetailTestData.profilePath}"
+                )
+            )
+        )
     }
 
     @Test
@@ -84,7 +110,29 @@ class PeopleVMTest {
         testDetailRepository.setExternalIds(externalIdsTestData)
         testDatabaseRepository.insertMovie(Favorite(id = 124, title = "people_124", imagePath = "/peopleImagePath.png"))
 
-        assertEquals(viewModel.people.value, PeopleState.Success(people))
+        assertEquals(
+            viewModel.people.value,
+            PeopleState.Success(
+                people.copy(
+                    combineCredits = people.combineCredits?.copy(
+                        cast = people.combineCredits?.cast?.map {
+                            it.copy(
+                                backdropPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.backdropPath}",
+                                posterPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.posterPath}"
+                            )
+                        },
+                        crew = people.combineCredits?.crew?.map {
+                            it.copy(
+                                backdropPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.backdropPath}",
+                                posterPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.posterPath}"
+                            )
+                        }
+                    ),
+                    images = people.images?.map { it.copy(filePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.filePath}") },
+                    profilePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${people.profilePath}"
+                )
+            )
+        )
     }
 
     @Test
@@ -98,7 +146,30 @@ class PeopleVMTest {
         testDetailRepository.setExternalIds(externalIdsTestData)
         testDatabaseRepository.deletePeople(Favorite(id = 124, title = "people_124", imagePath = "/peopleImagePath.png"))
 
-        assertEquals(viewModel.people.value, PeopleState.Success(people.copy(isFavorite = false)))
+        assertEquals(
+            viewModel.people.value,
+            PeopleState.Success(
+                people.copy(
+                    combineCredits = people.combineCredits?.copy(
+                        cast = people.combineCredits?.cast?.map {
+                            it.copy(
+                                backdropPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.backdropPath}",
+                                posterPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.posterPath}"
+                            )
+                        },
+                        crew = people.combineCredits?.crew?.map {
+                            it.copy(
+                                backdropPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.backdropPath}",
+                                posterPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.posterPath}"
+                            )
+                        }
+                    ),
+                    images = people.images?.map { it.copy(filePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.filePath}") },
+                    profilePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${people.profilePath}",
+                    isFavorite = false
+                )
+            )
+        )
     }
 
 //    @Test

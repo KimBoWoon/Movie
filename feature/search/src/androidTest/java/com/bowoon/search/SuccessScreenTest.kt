@@ -25,7 +25,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-class SearchResultScreenTest {
+class SuccessScreenTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<ComponentActivity>()
     private lateinit var viewModel: SearchVM
@@ -61,7 +61,7 @@ class SearchResultScreenTest {
                     LocalMovieAppDataComposition provides MovieAppData(genres = genres)
                 ) {
                     SearchScreen(
-                        searchState = searchState,
+                        searchUiState = searchState,
                         keyword = viewModel.searchQuery,
                         searchType = searchType,
                         selectedGenre = selectedGenre,
@@ -97,7 +97,7 @@ class SearchResultScreenTest {
                     LocalMovieAppDataComposition provides MovieAppData(genres = genres)
                 ) {
                     SearchScreen(
-                        searchState = searchState,
+                        searchUiState = searchState,
                         keyword = viewModel.searchQuery,
                         searchType = searchType,
                         selectedGenre = selectedGenre,
@@ -133,7 +133,7 @@ class SearchResultScreenTest {
                     LocalMovieAppDataComposition provides MovieAppData(genres = genres)
                 ) {
                     SearchScreen(
-                        searchState = searchState,
+                        searchUiState = searchState,
                         keyword = viewModel.searchQuery,
                         searchType = searchType,
                         selectedGenre = selectedGenre,
@@ -172,7 +172,7 @@ class SearchResultScreenTest {
                     LocalMovieAppDataComposition provides MovieAppData(genres = genres)
                 ) {
                     SearchScreen(
-                        searchState = searchState,
+                        searchUiState = searchState,
                         keyword = viewModel.searchQuery,
                         searchType = searchType,
                         selectedGenre = selectedGenre,
@@ -213,7 +213,7 @@ class SearchResultScreenTest {
                     LocalMovieAppDataComposition provides MovieAppData(genres = genres)
                 ) {
                     SearchScreen(
-                        searchState = searchState,
+                        searchUiState = searchState,
                         keyword = viewModel.searchQuery,
                         searchType = searchType,
                         selectedGenre = selectedGenre,
@@ -250,7 +250,7 @@ class SearchResultScreenTest {
                     LocalMovieAppDataComposition provides MovieAppData(genres = genres)
                 ) {
                     SearchScreen(
-                        searchState = searchState,
+                        searchUiState = searchState,
                         keyword = viewModel.searchQuery,
                         searchType = searchType,
                         selectedGenre = selectedGenre,

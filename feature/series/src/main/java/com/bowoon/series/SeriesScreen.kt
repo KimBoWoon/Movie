@@ -9,9 +9,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -19,7 +16,6 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.bowoon.data.repository.LocalMovieAppDataComposition
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.MovieSeries
 import com.bowoon.movie.feature.series.R
@@ -53,8 +49,6 @@ fun SeriesScreen(
     goToBack: () -> Unit,
     goToMovie: (Int) -> Unit
 ) {
-    var series by remember { mutableStateOf<MovieSeries>(MovieSeries()) }
-
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -65,7 +59,20 @@ fun SeriesScreen(
                         .align(Alignment.Center)
                 )
             }
-            is SeriesState.Success -> series = seriesState.series
+            is SeriesState.Success -> {
+                Column(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    TitleComponent(
+                        title = seriesState.series.name ?: stringResource(R.string.title_series),
+                        goToBack = { goToBack() }
+                    )
+                    SeriesComponent(
+                        series = seriesState.series,
+                        goToMovie = goToMovie
+                    )
+                }
+            }
             is SeriesState.Error -> {
                 LocalFirebaseLogHelper.current.sendLog("SeriesScreen", "Series state Error")
 
@@ -77,19 +84,6 @@ fun SeriesScreen(
                 )
             }
         }
-
-        Column(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            TitleComponent(
-                title = series.name ?: stringResource(R.string.title_series),
-                goToBack = { goToBack() }
-            )
-            SeriesComponent(
-                series = series,
-                goToMovie = goToMovie
-            )
-        }
     }
 }
 
@@ -98,19 +92,14 @@ fun SeriesComponent(
     series: MovieSeries,
     goToMovie: (Int) -> Unit
 ) {
-    val posterUrl = LocalMovieAppDataComposition.current.getImageUrl()
-
     LazyColumn(
         modifier = Modifier.semantics { contentDescription = "seriesList" }.fillMaxSize(),
         contentPadding = PaddingValues(horizontal = dp16, vertical = dp10),
         verticalArrangement = Arrangement.spacedBy(dp10)
     ) {
-        seriesInfoComponent(
-            series = series
-        )
+        seriesInfoComponent(series = series)
         movieSeriesListComponent(
             series = series.parts ?: emptyList(),
-            posterUrl = posterUrl,
             goToMovie = goToMovie
         )
     }

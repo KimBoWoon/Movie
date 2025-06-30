@@ -29,7 +29,6 @@ import com.bowoon.ui.utils.sp20
 
 fun LazyListScope.movieSeriesListComponent(
     series: List<MovieSeriesPart>,
-    posterUrl: String,
     goToMovie: (Int) -> Unit
 ) {
     items(
@@ -38,7 +37,6 @@ fun LazyListScope.movieSeriesListComponent(
     ) { movieSeries ->
         SeriesMovieInfoComponent(
             seriesPart = movieSeries,
-            posterUrl = posterUrl,
             goToMovie = goToMovie
         )
     }
@@ -47,7 +45,6 @@ fun LazyListScope.movieSeriesListComponent(
 @Composable
 fun SeriesMovieInfoComponent(
     seriesPart: MovieSeriesPart,
-    posterUrl: String,
     goToMovie: (Int) -> Unit
 ) {
     ConstraintLayout(
@@ -73,8 +70,8 @@ fun SeriesMovieInfoComponent(
         ) {
             DynamicAsyncImageLoader(
                 modifier = Modifier.fillMaxSize(),
-                source = "$posterUrl${seriesPart.posterPath}",
-                contentDescription = "$posterUrl${seriesPart.posterPath}"
+                source = seriesPart.posterPath ?: "",
+                contentDescription = seriesPart.posterPath
             )
         }
         Text(

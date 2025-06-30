@@ -1,11 +1,11 @@
 package com.bowoon.data.repository
 
 import androidx.paging.PagingSource
-import com.bowoon.data.paging.SearchKeywordPagingSource
-import com.bowoon.data.paging.TMDBNowPlayingPagingSource
-import com.bowoon.data.paging.TMDBSearchPagingSource
-import com.bowoon.data.paging.TMDBSimilarMoviePagingSource
-import com.bowoon.data.paging.TMDBUpComingPagingSource
+import com.bowoon.data.paging.RecommendKeywordPagingSource
+import com.bowoon.data.paging.NowPlayingMoviePagingSource
+import com.bowoon.data.paging.SearchPagingSource
+import com.bowoon.data.paging.SimilarMoviePagingSource
+import com.bowoon.data.paging.UpComingMoviePagingSource
 import com.bowoon.model.Movie
 import com.bowoon.model.SearchGroup
 import com.bowoon.model.SearchKeyword
@@ -16,37 +16,37 @@ import javax.inject.Inject
 class PagingRepositoryImpl @Inject constructor(
     private val apis: MovieNetworkDataSource
 ) : PagingRepository {
-    override fun getNowPlaying(
+    override fun getNowPlayingMoviePagingSource(
         language: String,
         region: String,
         isAdult: Boolean,
         releaseDateGte: String,
         releaseDateLte: String
-    ): PagingSource<Int, Movie> = TMDBNowPlayingPagingSource(
+    ): PagingSource<Int, Movie> = NowPlayingMoviePagingSource(
         apis = apis,
         language = language,
         region = region
     )
 
-    override fun getUpComingMovies(
+    override fun getUpComingMoviePagingSource(
         language: String,
         region: String,
         isAdult: Boolean,
         releaseDateGte: String,
         releaseDateLte: String
-    ): PagingSource<Int, Movie> = TMDBUpComingPagingSource(
+    ): PagingSource<Int, Movie> = UpComingMoviePagingSource(
         apis = apis,
         language = language,
         region = region
     )
 
-    override fun searchMovieSource(
+    override fun getSearchPagingSource(
         type: SearchType,
         query: String,
         language: String,
         region: String,
         isAdult: Boolean
-    ): PagingSource<Int, SearchGroup> = TMDBSearchPagingSource(
+    ): PagingSource<Int, SearchGroup> = SearchPagingSource(
         apis = apis,
         type = type,
         query = query,
@@ -55,17 +55,17 @@ class PagingRepositoryImpl @Inject constructor(
         isAdult = isAdult
     )
 
-    override fun getSimilarMovies(
+    override fun getSimilarMoviePagingSource(
         id: Int,
         language: String
-    ): PagingSource<Int, Movie> = TMDBSimilarMoviePagingSource(
+    ): PagingSource<Int, Movie> = SimilarMoviePagingSource(
         apis = apis,
         id = id,
         language = language
     )
 
-    override fun getSearchKeyword(query: String): PagingSource<Int, SearchKeyword> =
-        SearchKeywordPagingSource(
+    override fun getRecommendKeywordPagingSource(query: String): PagingSource<Int, SearchKeyword> =
+        RecommendKeywordPagingSource(
             apis = apis,
             query = query
         )

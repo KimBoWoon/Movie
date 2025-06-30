@@ -2,7 +2,6 @@ package com.bowoon.data.repository
 
 import com.bowoon.data.util.suspendRunCatching
 import com.bowoon.datastore.InternalDataSource
-import com.bowoon.model.Genres
 import com.bowoon.model.MainMenu
 import com.bowoon.model.Movie
 import com.bowoon.network.MovieNetworkDataSource
@@ -30,8 +29,7 @@ class MainMenuRepositoryImpl @Inject constructor(
                 datastore.updateUserData(
                     datastore.getUserData().copy(
                         mainMenu = it,
-                        updateDate = targetDt.toString(),
-                        genres = getGenres().genres ?: emptyList()
+                        updateDate = targetDt.toString()
                     )
                 )
             }
@@ -50,10 +48,5 @@ class MainMenuRepositoryImpl @Inject constructor(
         val region = datastore.getUserData().region
 
         return apis.getUpcomingMovie(language = language, region = region, page = 1)
-    }
-
-    private suspend fun getGenres(): Genres {
-        val language = "${datastore.getUserData().language}-${datastore.getUserData().region}"
-        return apis.getGenres(language = language)
     }
 }

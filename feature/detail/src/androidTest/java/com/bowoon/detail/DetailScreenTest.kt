@@ -20,7 +20,7 @@ import androidx.compose.ui.test.performScrollToNode
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
-import com.bowoon.data.paging.TMDBSimilarMoviePagingSource
+import com.bowoon.data.paging.SimilarMoviePagingSource
 import com.bowoon.data.repository.LocalMovieAppDataComposition
 import com.bowoon.model.Favorite
 import com.bowoon.model.Movie
@@ -41,7 +41,7 @@ import kotlin.test.assertEquals
 class DetailScreenTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<ComponentActivity>()
-    private val source = TMDBSimilarMoviePagingSource(
+    private val source = SimilarMoviePagingSource(
         apis = TestMovieDataSource(),
         id = 0,
         language = "ko"
@@ -297,7 +297,7 @@ class DetailScreenTest {
                 val pager = Pager(
                     config = PagingConfig(pageSize = 20, initialLoadSize = 20, prefetchDistance = 5),
                     pagingSourceFactory = {
-                        TMDBSimilarMoviePagingSource(
+                        SimilarMoviePagingSource(
                             apis = TestMovieDataSource(),
                             id = 0,
                             language = "ko"

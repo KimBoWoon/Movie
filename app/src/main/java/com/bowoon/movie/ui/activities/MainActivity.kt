@@ -19,7 +19,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.bowoon.common.AppDoubleBackToExit
 import com.bowoon.common.isSystemInDarkTheme
-import com.bowoon.data.repository.LocalMovieAppDataComposition
 import com.bowoon.data.util.NetworkMonitor
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.MovieAppData
@@ -96,8 +95,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             CompositionLocalProvider(
-                LocalFirebaseLogHelper provides movieFirebase,
-                LocalMovieAppDataComposition provides movieAppData
+                LocalFirebaseLogHelper provides movieFirebase
             ) {
                 LocalFirebaseLogHelper.current.sendLog(javaClass.simpleName, "compose start!")
 
