@@ -12,6 +12,7 @@ import com.bowoon.domain.GetMovieDetailUseCase
 import com.bowoon.model.Favorite
 import com.bowoon.model.InternalData
 import com.bowoon.model.Movie
+import com.bowoon.model.MovieInfo
 import com.bowoon.testing.TestMovieDataSource
 import com.bowoon.testing.model.movieSeriesTestData
 import com.bowoon.testing.model.similarMoviesTestData
@@ -89,7 +90,7 @@ class DetailVMTest {
 
         assertTrue(viewModel.detail.value is DetailState.Success)
 
-        val similarMovies = assertIs<DetailState.Success>(viewModel.detail.value).similarMovies
+        val similarMovies = assertIs<DetailState.Success>(viewModel.detail.value).movieInfo.similarMovies
 
         assertEquals(
             similarMovies.asSnapshot(),
@@ -105,35 +106,37 @@ class DetailVMTest {
         assertEquals(
             viewModel.detail.value,
             DetailState.Success(
-                favoriteMovieDetailTestData.copy(
-                    backdropPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${favoriteMovieDetailTestData.backdropPath}",
-                    belongsToCollection = favoriteMovieDetailTestData.belongsToCollection?.copy(
-                        backdropPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${favoriteMovieDetailTestData.belongsToCollection?.backdropPath}",
-                        posterPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${favoriteMovieDetailTestData.belongsToCollection?.posterPath}"
+                MovieInfo(
+                    favoriteMovieDetailTestData.copy(
+                        backdropPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${favoriteMovieDetailTestData.backdropPath}",
+                        belongsToCollection = favoriteMovieDetailTestData.belongsToCollection?.copy(
+                            backdropPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${favoriteMovieDetailTestData.belongsToCollection?.backdropPath}",
+                            posterPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${favoriteMovieDetailTestData.belongsToCollection?.posterPath}"
+                        ),
+                        images = favoriteMovieDetailTestData.images?.copy(
+                            backdrops = favoriteMovieDetailTestData.images?.backdrops?.map { it.copy(filePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.filePath}") },
+                            logos = favoriteMovieDetailTestData.images?.logos?.map { it.copy(filePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.filePath}") },
+                            posters = favoriteMovieDetailTestData.images?.posters?.map { it.copy(filePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.filePath}") }
+                        ),
+                        posterPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${favoriteMovieDetailTestData.posterPath}",
+                        credits = favoriteMovieDetailTestData.credits?.copy(
+                            cast = favoriteMovieDetailTestData.credits?.cast?.map { it.copy(profilePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.profilePath}") },
+                            crew = favoriteMovieDetailTestData.credits?.crew?.map { it.copy(profilePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.profilePath}") }
+                        ),
+                        productionCompanies = favoriteMovieDetailTestData.productionCompanies?.map { it.copy(logoPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.logoPath}") }
                     ),
-                    images = favoriteMovieDetailTestData.images?.copy(
-                        backdrops = favoriteMovieDetailTestData.images?.backdrops?.map { it.copy(filePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.filePath}") },
-                        logos = favoriteMovieDetailTestData.images?.logos?.map { it.copy(filePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.filePath}") },
-                        posters = favoriteMovieDetailTestData.images?.posters?.map { it.copy(filePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.filePath}") }
+                    movieSeriesTestData.copy(
+                        backdropPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${movieSeriesTestData.backdropPath}",
+                        parts = movieSeriesTestData.parts?.map {
+                            it.copy(
+                                backdropPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.backdropPath}",
+                                posterPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.posterPath}"
+                            )
+                        },
+                        posterPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${movieSeriesTestData.posterPath}"
                     ),
-                    posterPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${favoriteMovieDetailTestData.posterPath}",
-                    credits = favoriteMovieDetailTestData.credits?.copy(
-                        cast = favoriteMovieDetailTestData.credits?.cast?.map { it.copy(profilePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.profilePath}") },
-                        crew = favoriteMovieDetailTestData.credits?.crew?.map { it.copy(profilePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.profilePath}") }
-                    ),
-                    productionCompanies = favoriteMovieDetailTestData.productionCompanies?.map { it.copy(logoPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.logoPath}") }
-                ),
-                movieSeriesTestData.copy(
-                    backdropPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${movieSeriesTestData.backdropPath}",
-                    parts = movieSeriesTestData.parts?.map {
-                        it.copy(
-                            backdropPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.backdropPath}",
-                            posterPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.posterPath}"
-                        )
-                    },
-                    posterPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${movieSeriesTestData.posterPath}"
-                ),
-                similarMovies
+                    similarMovies
+                )
             )
         )
     }
@@ -154,7 +157,7 @@ class DetailVMTest {
 
         assertTrue(viewModel.detail.value is DetailState.Success)
 
-        val similarMovies = assertIs<DetailState.Success>(viewModel.detail.value).similarMovies
+        val similarMovies = assertIs<DetailState.Success>(viewModel.detail.value).movieInfo.similarMovies
 
         assertEquals(
             similarMovies.asSnapshot(),
@@ -170,35 +173,37 @@ class DetailVMTest {
         assertEquals(
             viewModel.detail.value,
             DetailState.Success(
-                unFavoriteMovieDetailTestData.copy(
-                    backdropPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${unFavoriteMovieDetailTestData.backdropPath}",
-                    belongsToCollection = unFavoriteMovieDetailTestData.belongsToCollection?.copy(
-                        backdropPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${unFavoriteMovieDetailTestData.belongsToCollection?.backdropPath}",
-                        posterPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${unFavoriteMovieDetailTestData.belongsToCollection?.posterPath}"
+                MovieInfo(
+                    unFavoriteMovieDetailTestData.copy(
+                        backdropPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${unFavoriteMovieDetailTestData.backdropPath}",
+                        belongsToCollection = unFavoriteMovieDetailTestData.belongsToCollection?.copy(
+                            backdropPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${unFavoriteMovieDetailTestData.belongsToCollection?.backdropPath}",
+                            posterPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${unFavoriteMovieDetailTestData.belongsToCollection?.posterPath}"
+                        ),
+                        images = unFavoriteMovieDetailTestData.images?.copy(
+                            backdrops = unFavoriteMovieDetailTestData.images?.backdrops?.map { it.copy(filePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.filePath}") },
+                            logos = unFavoriteMovieDetailTestData.images?.logos?.map { it.copy(filePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.filePath}") },
+                            posters = unFavoriteMovieDetailTestData.images?.posters?.map { it.copy(filePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.filePath}") }
+                        ),
+                        posterPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${unFavoriteMovieDetailTestData.posterPath}",
+                        credits = unFavoriteMovieDetailTestData.credits?.copy(
+                            cast = unFavoriteMovieDetailTestData.credits?.cast?.map { it.copy(profilePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.profilePath}") },
+                            crew = unFavoriteMovieDetailTestData.credits?.crew?.map { it.copy(profilePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.profilePath}") }
+                        ),
+                        productionCompanies = unFavoriteMovieDetailTestData.productionCompanies?.map { it.copy(logoPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.logoPath}") }
                     ),
-                    images = unFavoriteMovieDetailTestData.images?.copy(
-                        backdrops = unFavoriteMovieDetailTestData.images?.backdrops?.map { it.copy(filePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.filePath}") },
-                        logos = unFavoriteMovieDetailTestData.images?.logos?.map { it.copy(filePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.filePath}") },
-                        posters = unFavoriteMovieDetailTestData.images?.posters?.map { it.copy(filePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.filePath}") }
+                    movieSeriesTestData.copy(
+                        backdropPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${movieSeriesTestData.backdropPath}",
+                        parts = movieSeriesTestData.parts?.map {
+                            it.copy(
+                                backdropPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.backdropPath}",
+                                posterPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.posterPath}"
+                            )
+                        },
+                        posterPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${movieSeriesTestData.posterPath}"
                     ),
-                    posterPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${unFavoriteMovieDetailTestData.posterPath}",
-                    credits = unFavoriteMovieDetailTestData.credits?.copy(
-                        cast = unFavoriteMovieDetailTestData.credits?.cast?.map { it.copy(profilePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.profilePath}") },
-                        crew = unFavoriteMovieDetailTestData.credits?.crew?.map { it.copy(profilePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.profilePath}") }
-                    ),
-                    productionCompanies = unFavoriteMovieDetailTestData.productionCompanies?.map { it.copy(logoPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.logoPath}") }
-                ),
-                movieSeriesTestData.copy(
-                    backdropPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${movieSeriesTestData.backdropPath}",
-                    parts = movieSeriesTestData.parts?.map {
-                        it.copy(
-                            backdropPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.backdropPath}",
-                            posterPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.posterPath}"
-                        )
-                    },
-                    posterPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${movieSeriesTestData.posterPath}"
-                ),
-                similarMovies
+                    similarMovies
+                )
             )
         )
     }
@@ -241,12 +246,12 @@ class DetailVMTest {
         testDetailRepository.setMovieDetail(favoriteMovieDetailTestData.copy(id = 23))
 
         assertEquals(
-            assertIs<DetailState.Success>(viewModel.detail.value).detail?.isFavorite,
+            assertIs<DetailState.Success>(viewModel.detail.value).movieInfo.detail.isFavorite,
             false
         )
         viewModel.insertMovie(movie)
         assertNotEquals(
-            assertIs<DetailState.Success>(viewModel.detail.value).detail?.isFavorite,
+            assertIs<DetailState.Success>(viewModel.detail.value).movieInfo.detail.isFavorite,
             true
         )
 
@@ -305,7 +310,7 @@ class DetailVMTest {
 
         assertTrue(viewModel.detail.value is DetailState.Success)
 
-        val similarMovies = assertIs<DetailState.Success>(viewModel.detail.value).similarMovies
+        val similarMovies = assertIs<DetailState.Success>(viewModel.detail.value).movieInfo.similarMovies
 
         assertEquals(
             similarMovies.asSnapshot(),
@@ -321,35 +326,37 @@ class DetailVMTest {
         assertEquals(
             viewModel.detail.value,
             DetailState.Success(
-                favoriteMovieDetailTestData.copy(
-                    backdropPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${favoriteMovieDetailTestData.backdropPath}",
-                    belongsToCollection = favoriteMovieDetailTestData.belongsToCollection?.copy(
-                        backdropPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${favoriteMovieDetailTestData.belongsToCollection?.backdropPath}",
-                        posterPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${favoriteMovieDetailTestData.belongsToCollection?.posterPath}"
+                MovieInfo(
+                    favoriteMovieDetailTestData.copy(
+                        backdropPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${favoriteMovieDetailTestData.backdropPath}",
+                        belongsToCollection = favoriteMovieDetailTestData.belongsToCollection?.copy(
+                            backdropPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${favoriteMovieDetailTestData.belongsToCollection?.backdropPath}",
+                            posterPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${favoriteMovieDetailTestData.belongsToCollection?.posterPath}"
+                        ),
+                        images = favoriteMovieDetailTestData.images?.copy(
+                            backdrops = favoriteMovieDetailTestData.images?.backdrops?.map { it.copy(filePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.filePath}") },
+                            logos = favoriteMovieDetailTestData.images?.logos?.map { it.copy(filePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.filePath}") },
+                            posters = favoriteMovieDetailTestData.images?.posters?.map { it.copy(filePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.filePath}") }
+                        ),
+                        posterPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${favoriteMovieDetailTestData.posterPath}",
+                        credits = favoriteMovieDetailTestData.credits?.copy(
+                            cast = favoriteMovieDetailTestData.credits?.cast?.map { it.copy(profilePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.profilePath}") },
+                            crew = favoriteMovieDetailTestData.credits?.crew?.map { it.copy(profilePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.profilePath}") }
+                        ),
+                        productionCompanies = favoriteMovieDetailTestData.productionCompanies?.map { it.copy(logoPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.logoPath}") }
                     ),
-                    images = favoriteMovieDetailTestData.images?.copy(
-                        backdrops = favoriteMovieDetailTestData.images?.backdrops?.map { it.copy(filePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.filePath}") },
-                        logos = favoriteMovieDetailTestData.images?.logos?.map { it.copy(filePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.filePath}") },
-                        posters = favoriteMovieDetailTestData.images?.posters?.map { it.copy(filePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.filePath}") }
+                    movieSeriesTestData.copy(
+                        backdropPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${movieSeriesTestData.backdropPath}",
+                        parts = movieSeriesTestData.parts?.map {
+                            it.copy(
+                                backdropPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.backdropPath}",
+                                posterPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.posterPath}"
+                            )
+                        },
+                        posterPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${movieSeriesTestData.posterPath}"
                     ),
-                    posterPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${favoriteMovieDetailTestData.posterPath}",
-                    credits = favoriteMovieDetailTestData.credits?.copy(
-                        cast = favoriteMovieDetailTestData.credits?.cast?.map { it.copy(profilePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.profilePath}") },
-                        crew = favoriteMovieDetailTestData.credits?.crew?.map { it.copy(profilePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.profilePath}") }
-                    ),
-                    productionCompanies = favoriteMovieDetailTestData.productionCompanies?.map { it.copy(logoPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.logoPath}") }
-                ),
-                movieSeriesTestData.copy(
-                    backdropPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${movieSeriesTestData.backdropPath}",
-                    parts = movieSeriesTestData.parts?.map {
-                        it.copy(
-                            backdropPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.backdropPath}",
-                            posterPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.posterPath}"
-                        )
-                    },
-                    posterPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${movieSeriesTestData.posterPath}"
-                ),
-                similarMovies
+                    similarMovies
+                )
             )
         )
 
