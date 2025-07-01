@@ -38,6 +38,7 @@ fun SeriesScreen(
 
     SeriesScreen(
         seriesState = seriesState,
+        restart = viewModel::restart,
         goToBack = goToBack,
         goToMovie = goToMovie
     )
@@ -46,6 +47,7 @@ fun SeriesScreen(
 @Composable
 fun SeriesScreen(
     seriesState: SeriesState,
+    restart: () -> Unit,
     goToBack: () -> Unit,
     goToMovie: (Int) -> Unit
 ) {
@@ -79,8 +81,8 @@ fun SeriesScreen(
                 ConfirmDialog(
                     title = stringResource(com.bowoon.movie.core.network.R.string.network_failed),
                     message = seriesState.throwable.message ?: stringResource(com.bowoon.movie.core.network.R.string.something_wrong),
-                    confirmPair = stringResource(com.bowoon.movie.core.ui.R.string.retry_message) to {},
-                    dismissPair = stringResource(com.bowoon.movie.core.ui.R.string.confirm_message) to {}
+                    confirmPair = stringResource(com.bowoon.movie.core.ui.R.string.retry_message) to { restart() },
+                    dismissPair = stringResource(com.bowoon.movie.core.ui.R.string.confirm_message) to goToBack
                 )
             }
         }

@@ -167,7 +167,7 @@ fun DetailScreen(
                 Column(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    val favoriteMessage = if (detailState.movieInfo.detail.isFavorite) stringResource(R.string.add_favorite_movie) else stringResource(R.string.remove_favorite_movie)
+                    val favoriteMessage = if (detailState.movieInfo.detail.isFavorite) stringResource(id = R.string.add_favorite_movie) else stringResource(id = R.string.remove_favorite_movie)
 
                     TitleComponent(
                         title = detailState.movieInfo.detail.title ?: "",
@@ -197,10 +197,10 @@ fun DetailScreen(
                 Log.e("${detailState.throwable.message}")
 
                 ConfirmDialog(
-                    title = stringResource(com.bowoon.movie.core.network.R.string.network_failed),
+                    title = stringResource(id = com.bowoon.movie.core.network.R.string.network_failed),
                     message = "${detailState.throwable.message}",
-                    confirmPair = stringResource(com.bowoon.movie.core.ui.R.string.retry_message) to { restart() },
-                    dismissPair = stringResource(com.bowoon.movie.core.ui.R.string.back_message) to goToBack
+                    confirmPair = stringResource(id = com.bowoon.movie.core.ui.R.string.retry_message) to { restart() },
+                    dismissPair = stringResource(id = com.bowoon.movie.core.ui.R.string.back_message) to goToBack
                 )
             }
         }

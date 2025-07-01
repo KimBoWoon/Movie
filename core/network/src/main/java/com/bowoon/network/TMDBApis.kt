@@ -82,7 +82,7 @@ interface TMDBApis {
     @GET("/3/movie/{movie_id}")
     suspend fun getMovieDetail(
         @Path("movie_id") id: Int,
-        @Query("append_to_response") appendToResponse: String = "images,videos,credits,reviews,releases,translations,lists,keywords,alternative_titles,changes,similar",
+        @Query("append_to_response") appendToResponse: String = "images,videos,credits,reviews,releases,keywords,alternative_titles",
         @Query("language") language: String = "ko-KR",
         @Query("include_image_language") includeImageLanguage: String = "ko",
         @Query("region") region: String = "KR"

@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.bowoon.common.Result
 import com.bowoon.common.asResult
+import com.bowoon.common.restartableStateIn
 import com.bowoon.domain.GetSeriesMovieUseCase
 import com.bowoon.model.MovieSeries
 import com.bowoon.series.navigation.SeriesRoute
@@ -33,11 +34,15 @@ class SeriesVM @Inject constructor(
                 is Result.Success -> SeriesState.Success(it.data)
                 is Result.Error -> SeriesState.Error(it.throwable)
             }
-        }.stateIn(
+        }.restartableStateIn(
             scope = viewModelScope,
             started = SharingStarted.Lazily,
             initialValue = SeriesState.Loading
         )
+
+    fun restart() {
+        series.restart()
+    }
 }
 
 sealed interface SeriesState {

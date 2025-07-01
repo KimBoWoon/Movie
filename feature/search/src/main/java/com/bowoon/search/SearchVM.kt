@@ -38,7 +38,7 @@ class SearchVM @Inject constructor(
 
     private var recommendedKeywordJob: Job? = null
     val movieAppData = movieAppDataRepository.movieAppData
-    var searchQuery by mutableStateOf("")
+    var searchQuery by mutableStateOf(value = "")
         private set
     val selectedGenre = savedStateHandle.getStateFlow<Genre?>(GENRE, null)
     val searchType = savedStateHandle.getStateFlow<SearchType>(SEARCH_TYPE, SearchType.MOVIE)

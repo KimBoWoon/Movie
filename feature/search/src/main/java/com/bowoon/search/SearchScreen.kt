@@ -7,7 +7,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -59,9 +58,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.PlatformTextStyle
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -76,7 +73,6 @@ import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.Genre
 import com.bowoon.model.MovieAppData
-import com.bowoon.model.PagingStatus
 import com.bowoon.model.SearchGroup
 import com.bowoon.model.SearchKeyword
 import com.bowoon.model.SearchType
@@ -99,6 +95,7 @@ import com.bowoon.ui.utils.dp40
 import com.bowoon.ui.utils.dp5
 import com.bowoon.ui.utils.dp60
 import com.bowoon.ui.utils.dp8
+import com.bowoon.ui.utils.matchedColorString
 import com.bowoon.ui.utils.sp12
 import com.bowoon.ui.utils.sp20
 import com.bowoon.ui.utils.sp30
@@ -118,7 +115,7 @@ fun SearchScreen(
     val selectedGenre by viewModel.selectedGenre.collectAsStateWithLifecycle()
     val searchType by viewModel.searchType.collectAsStateWithLifecycle()
     val recommendedKeyword = viewModel.recommendedKeywordPaging.collectAsLazyPagingItems()
-    val inputKeyword = stringResource(R.string.input_keyword)
+    val inputKeyword = stringResource(id = R.string.input_keyword)
     val movieAppData by viewModel.movieAppData.collectAsStateWithLifecycle()
 
     LaunchedEffect(key1 = inputKeyword) {
@@ -162,12 +159,12 @@ fun SearchScreen(
 ) {
     val scrollState = rememberLazyGridState()
     val focusManager = LocalFocusManager.current
-    var isVisible by remember { mutableStateOf(false) }
+    var isVisible by remember { mutableStateOf(value = false) }
 
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        TitleComponent(title = stringResource(R.string.title_search))
+        TitleComponent(title = stringResource(id = R.string.title_search))
         SearchBarComponent(
             keyword = keyword,
             searchType = searchType,
@@ -224,7 +221,7 @@ fun SearchBarComponent(
             recommendedKeywordVisible(false)
         },
         onSearch = {
-            scope.launch { scrollState.scrollToItem(0) }
+            scope.launch { scrollState.scrollToItem(index = 0) }
             updateGenre(null)
             onSearchClick()
             focusManager.clearFocus()
@@ -241,8 +238,8 @@ fun SearchBarComponent(
                 end = dp16
             )
             .fillMaxWidth()
-            .height(dp40)
-            .clip(shape = RoundedCornerShape(50))
+            .height(height = dp40)
+            .clip(shape = RoundedCornerShape(percent = 50))
             .background(color = MaterialTheme.colorScheme.inverseOnSurface),
         value = keyword,
         onValueChange = {
@@ -402,9 +399,6 @@ fun SearchResultComponent(
     selectedGenre: Genre?,
     updateGenre: (Genre) -> Unit,
 ) {
-    var isAppend by remember { mutableStateOf(false) }
-    var pagingStatus by remember { mutableStateOf<PagingStatus>(PagingStatus.NONE) }
-
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -412,41 +406,26 @@ fun SearchResultComponent(
             is SearchUiState.SearchHint -> {
                 Text(
                     modifier = Modifier.align(Alignment.Center),
-                    text = stringResource(R.string.do_search),
+                    text = stringResource(id = R.string.do_search),
                     fontSize = sp20
                 )
             }
             is SearchUiState.Success -> {
                 val pagingData = searchUiState.pagingData.collectAsLazyPagingItems()
 
-                when {
-                    pagingData.loadState.refresh is LoadState.Loading -> pagingStatus = PagingStatus.LOADING
-                    pagingData.loadState.append is LoadState.Loading -> isAppend = true
-                    pagingData.loadState.refresh is LoadState.Error -> {
-                        isAppend = false
-
-                        ConfirmDialog(
-                            title = stringResource(com.bowoon.movie.core.network.R.string.network_failed),
-                            message = (pagingData.loadState.refresh as? LoadState.Error)?.error?.message ?: stringResource(com.bowoon.movie.core.network.R.string.something_wrong),
-                            confirmPair = stringResource(com.bowoon.movie.core.ui.R.string.retry_message) to { pagingData.retry() },
-                            dismissPair = stringResource(com.bowoon.movie.core.ui.R.string.confirm_message) to {}
-                        )
-                    }
-                    pagingData.loadState.refresh is LoadState.NotLoading -> {
-                        isAppend = false
-                        pagingStatus = if (pagingStatus == PagingStatus.LOADING) {
-                            if (pagingData.itemCount == 0) PagingStatus.EMPTY else PagingStatus.NOT_EMPTY
-                        } else {
-                            pagingStatus
-                        }
-                    }
-                    pagingData.loadState.append is LoadState.NotLoading -> {
-                        isAppend = false
-                    }
+                if (pagingData.loadState.refresh is LoadState.Loading) {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                } else if (pagingData.loadState.refresh is LoadState.Error) {
+                    ConfirmDialog(
+                        title = stringResource(id = com.bowoon.movie.core.network.R.string.network_failed),
+                        message = (pagingData.loadState.refresh as? LoadState.Error)?.error?.message ?: stringResource(id = com.bowoon.movie.core.network.R.string.something_wrong),
+                        confirmPair = stringResource(id = com.bowoon.movie.core.ui.R.string.retry_message) to { pagingData.retry() },
+                        dismissPair = stringResource(id = com.bowoon.movie.core.ui.R.string.confirm_message) to {}
+                    )
                 }
+
                 SearchPagingComponent(
                     pagingData = pagingData,
-                    pagingStatus = pagingStatus,
                     scrollState = scrollState,
                     searchType = searchType,
                     movieAppData = movieAppData,
@@ -454,17 +433,16 @@ fun SearchResultComponent(
                     updateGenre = updateGenre,
                     goToMovie = goToMovie,
                     goToPeople = goToPeople,
-                    goToSeries = goToSeries,
-                    isAppend = isAppend
+                    goToSeries = goToSeries
                 )
             }
             is SearchUiState.Error -> {
                 LocalFirebaseLogHelper.current.sendLog("SearchResultPaging", searchUiState.throwable.message ?: stringResource(com.bowoon.movie.core.network.R.string.something_wrong))
 
                 ConfirmDialog(
-                    title = stringResource(com.bowoon.movie.core.network.R.string.network_failed),
-                    message = searchUiState.throwable.message ?: stringResource(com.bowoon.movie.core.network.R.string.something_wrong),
-                    confirmPair = stringResource(com.bowoon.movie.core.ui.R.string.confirm_message) to {}
+                    title = stringResource(id = com.bowoon.movie.core.network.R.string.network_failed),
+                    message = searchUiState.throwable.message ?: stringResource(id = com.bowoon.movie.core.network.R.string.something_wrong),
+                    confirmPair = stringResource(id = com.bowoon.movie.core.ui.R.string.confirm_message) to {}
                 )
             }
         }
@@ -472,9 +450,8 @@ fun SearchResultComponent(
 }
 
 @Composable
-fun BoxScope.SearchPagingComponent(
+fun SearchPagingComponent(
     pagingData: LazyPagingItems<SearchGroup>,
-    pagingStatus: PagingStatus,
     scrollState: LazyGridState,
     searchType: SearchType,
     movieAppData: MovieAppData,
@@ -482,87 +459,74 @@ fun BoxScope.SearchPagingComponent(
     updateGenre: (Genre) -> Unit,
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
-    goToSeries: (Int) -> Unit,
-    isAppend: Boolean
+    goToSeries: (Int) -> Unit
 ) {
-    when (pagingStatus) {
-        PagingStatus.LOADING -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-        PagingStatus.EMPTY -> {
-            Text(
-                modifier = Modifier.align(Alignment.Center),
-                text = stringResource(R.string.search_result_empty),
-                fontSize = sp30,
-                textAlign = TextAlign.Center
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        if (SearchType.MOVIE == searchType) {
+            MovieFilterRowComponent(
+                movieAppData = movieAppData,
+                selectedGenre = selectedGenre,
+                updateGenre = updateGenre
             )
         }
-        else -> {
-            Column(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                if (pagingStatus == PagingStatus.NOT_EMPTY && SearchType.MOVIE == searchType) {
-                    MovieFilterRowComponent(
-                        movieAppData = movieAppData,
-                        selectedGenre = selectedGenre,
-                        updateGenre = updateGenre
-                    )
-                }
 
-                Box(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    if (pagingData.itemCount == 0) {
-                        Text(
-                            modifier = Modifier.align(Alignment.Center),
-                            text = stringResource(R.string.filter_not_found),
-                            fontSize = sp30,
-                            textAlign = TextAlign.Center
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            if (pagingData.itemCount == 0) {
+                Text(
+                    modifier = Modifier.align(Alignment.Center),
+                    text = stringResource(id = R.string.search_result_empty),
+                    fontSize = sp30,
+                    textAlign = TextAlign.Center
+                )
+            }
+
+            LazyVerticalGrid(
+                modifier = Modifier
+                    .semantics { contentDescription = "searchResultList" }
+                    .fillMaxSize(),
+                state = scrollState,
+                columns = GridCells.Adaptive(minSize = dp100),
+                contentPadding = PaddingValues(top = if (movieAppData.genres.all { it.name == null } || searchType != SearchType.MOVIE) dp10 else dp0, start = dp10, bottom = dp10, end = dp10),
+                horizontalArrangement = Arrangement.spacedBy(space = dp10),
+                verticalArrangement = Arrangement.spacedBy(space = dp10)
+            ) {
+                items(
+                    count = pagingData.itemCount,
+                    key = { index -> "${pagingData.peek(index)?.id}_${index}_${pagingData.peek(index)?.name}" }
+                ) { index ->
+                    pagingData[index]?.let { item ->
+                        DynamicAsyncImageLoader(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .aspectRatio(POSTER_IMAGE_RATIO)
+                                .bounceClick {
+                                    when (searchType) {
+                                        SearchType.MOVIE -> goToMovie(item.id ?: -1)
+                                        SearchType.PEOPLE -> goToPeople(item.id ?: -1)
+                                        SearchType.SERIES -> goToSeries(item.id ?: -1)
+                                    }
+                                },
+                            source = item.imagePath ?: "",
+                            contentDescription = "${item.id}_${item.name}"
                         )
                     }
-                    LazyVerticalGrid(
-                        modifier = Modifier
-                            .semantics { contentDescription = "searchResultList" }
-                            .fillMaxSize(),
-                        state = scrollState,
-                        columns = GridCells.Adaptive(dp100),
-                        contentPadding = PaddingValues(top = if (movieAppData.genres.all { it.name == null } || searchType != SearchType.MOVIE) dp10 else dp0, start = dp10, bottom = dp10, end = dp10),
-                        horizontalArrangement = Arrangement.spacedBy(dp10),
-                        verticalArrangement = Arrangement.spacedBy(dp10)
-                    ) {
-                        items(
-                            count = pagingData.itemCount,
-                            key = { index -> "${pagingData.peek(index)?.id}_${index}_${pagingData.peek(index)?.name}" }
-                        ) { index ->
-                            pagingData[index]?.let { item ->
-                                DynamicAsyncImageLoader(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .aspectRatio(POSTER_IMAGE_RATIO)
-                                        .bounceClick {
-                                            when (searchType) {
-                                                SearchType.MOVIE -> goToMovie(item.id ?: -1)
-                                                SearchType.PEOPLE -> goToPeople(item.id ?: -1)
-                                                SearchType.SERIES -> goToSeries(item.id ?: -1)
-                                            }
-                                        },
-                                    source = item.imagePath ?: "",
-                                    contentDescription = "${item.id}_${item.name}"
-                                )
-                            }
-                        }
-                        if (isAppend) {
-                            item(span = { GridItemSpan(maxLineSpan) }) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier
-                                        .wrapContentSize()
-                                        .align(Alignment.Center)
-                                )
-                            }
-                        }
-                        if (pagingData.loadState.append is LoadState.Error) {
-                            item(span = { GridItemSpan(maxLineSpan) }) {
-                                PagingAppendErrorComponent({ pagingData.retry() })
-                            }
-                        }
+                }
+                if (pagingData.loadState.append is LoadState.Loading) {
+                    item(span = { GridItemSpan(currentLineSpan = maxLineSpan) }) {
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .wrapContentSize()
+                                .align(Alignment.Center)
+                        )
+                    }
+                }
+                if (pagingData.loadState.append is LoadState.Error) {
+                    item(span = { GridItemSpan(currentLineSpan = maxLineSpan) }) {
+                        PagingAppendErrorComponent(retry = { pagingData.retry() })
                     }
                 }
             }
@@ -579,87 +543,59 @@ fun RecommendedKeywordComponent(
     recommendedKeywordVisible: (Boolean) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
-    var isAppend by remember { mutableStateOf(false) }
-    var pagingStatus by remember { mutableStateOf<PagingStatus>(PagingStatus.NONE) }
 
-    when {
-        recommendedKeyword.loadState.append is LoadState.Loading -> isAppend = true
-        recommendedKeyword.loadState.append is LoadState.NotLoading -> isAppend = false
-        recommendedKeyword.loadState.refresh is LoadState.Loading -> pagingStatus = PagingStatus.LOADING
-        recommendedKeyword.loadState.refresh is LoadState.NotLoading -> pagingStatus = PagingStatus.NOT_EMPTY
-    }
-
-    Box(
-        modifier = Modifier.fillMaxWidth()
+    LazyColumn(
+        modifier = Modifier.fillMaxSize()
     ) {
-        when (pagingStatus) {
-            PagingStatus.LOADING -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-            PagingStatus.EMPTY -> {}
-            else -> {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    item {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(height = dp60),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                modifier = Modifier.padding(start = dp16),
-                                text = stringResource(R.string.recommended_keyword),
-                                fontSize = sp20,
-                                fontWeight = FontWeight.Bold,
-                                textAlign = TextAlign.Center
-                            )
-                            Icon(
-                                modifier = Modifier
-                                    .clickable { recommendedKeywordVisible(false) }
-                                    .padding(end = dp16),
-                                imageVector = Icons.Filled.Close,
-                                contentDescription = "recommendedKeywordClose"
-                            )
-                        }
-                    }
-                    items(
-                        count = recommendedKeyword.itemCount,
-                        key = { index -> recommendedKeyword.peek(index)?.id ?: -1 }
-                    ) { index ->
-                        recommendedKeyword[index]?.let { recommendedKeyword ->
-                            val annotatedString = buildAnnotatedString {
-                                append(recommendedKeyword.name ?: "")
-                                recommendedKeyword.name?.let { searchKeyword ->
-                                    if (searchKeyword.contains(other = keyword)) {
-                                        searchKeyword.indexOf(string = keyword).also { start ->
-                                            addStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary), start = start, end = start + keyword.length)
-                                        }
-                                    }
-                                }
-                            }
-                            Text(
-                                modifier = Modifier
-                                    .padding(start = dp16, end = dp16, top = dp10)
-                                    .fillMaxWidth()
-                                    .height(dp35)
-                                    .bounceClick {
-                                        updateKeyword(recommendedKeyword.name ?: "")
-                                        onSearchClick()
-                                        focusManager.clearFocus()
-                                        recommendedKeywordVisible(false)
-                                    },
-                                text = annotatedString,
-                                textAlign = TextAlign.Center
-                            )
-                        }
-                    }
-                    if (isAppend) {
-                        item {
-                            CircularProgressIndicator(modifier = Modifier.wrapContentSize())
-                        }
-                    }
-                }
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(height = dp60),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    modifier = Modifier.padding(start = dp16),
+                    text = stringResource(id = R.string.recommended_keyword),
+                    fontSize = sp20,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
+                )
+                Icon(
+                    modifier = Modifier
+                        .clickable { recommendedKeywordVisible(false) }
+                        .padding(end = dp16),
+                    imageVector = Icons.Filled.Close,
+                    contentDescription = "recommendedKeywordClose"
+                )
+            }
+        }
+        items(
+            count = recommendedKeyword.itemCount,
+            key = { index -> recommendedKeyword.peek(index)?.id ?: -1 }
+        ) { index ->
+            recommendedKeyword[index]?.let { recommendedKeyword ->
+                val annotatedString = recommendedKeyword.name.matchedColorString(keyword = keyword, color = MaterialTheme.colorScheme.primary)
+                Text(
+                    modifier = Modifier
+                        .padding(start = dp16, end = dp16, top = dp10)
+                        .fillMaxWidth()
+                        .height(height = dp35)
+                        .bounceClick {
+                            updateKeyword(recommendedKeyword.name ?: "")
+                            onSearchClick()
+                            focusManager.clearFocus()
+                            recommendedKeywordVisible(false)
+                        },
+                    text = annotatedString,
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+        if (recommendedKeyword.loadState.append is LoadState.Loading) {
+            item {
+                CircularProgressIndicator(modifier = Modifier.wrapContentSize())
             }
         }
     }

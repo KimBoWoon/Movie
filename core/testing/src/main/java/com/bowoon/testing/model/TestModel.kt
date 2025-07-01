@@ -1,6 +1,5 @@
 package com.bowoon.testing.model
 
-import androidx.paging.testing.asPagingSourceFactory
 import com.bowoon.model.Certification
 import com.bowoon.model.CertificationData
 import com.bowoon.model.CertificationMap
@@ -10,7 +9,7 @@ import com.bowoon.model.Genres
 import com.bowoon.model.ImageInfo
 import com.bowoon.model.Language
 import com.bowoon.model.MainMenu
-import com.bowoon.model.Movie
+import com.bowoon.model.MovieTemp
 import com.bowoon.model.MovieSeries
 import com.bowoon.model.MovieSeriesPart
 import com.bowoon.model.People
@@ -175,19 +174,19 @@ val similarMoviesTestData = SimilarMovies(
 )
 
 val nowPlayingMoviesTestData =
-    listOf(Movie(id = 0, title = "nowPlaying_1", posterPath = "/nowPlaying_1.png"))
+    listOf(MovieTemp(id = 0, title = "nowPlaying_1", posterPath = "/nowPlaying_1.png"))
 val upcomingMoviesTestData =
-    listOf(Movie(id = 0, title = "upcomingMovie_1", posterPath = "/upcomingMovie_1.png"))
+    listOf(MovieTemp(id = 0, title = "upcomingMovie_1", posterPath = "/upcomingMovie_1.png"))
 val mainMenuTestData = MainMenu(
     nowPlaying = listOf(
-        Movie(
+        MovieTemp(
             id = 0,
             title = "nowPlaying_1",
             posterPath = "posterUrl/nowPlaying_1.png"
         )
     ),
     upComingMovies = listOf(
-        Movie(
+        MovieTemp(
             id = 0,
             title = "upcomingMovie_1",
             posterPath = "posterUrl/upcomingMovie_1.png"
@@ -219,9 +218,9 @@ val testRecommendedKeyword = (1..5).map {
 object MovieFactory {
     private val counter = AtomicInteger(0)
 
-    fun createMovieItem(): Movie {
+    fun createMovieItem(): MovieTemp {
         val id = counter.incrementAndGet()
-        val movie = Movie(
+        val movie = MovieTemp(
             id = id,
             title = "title_$id",
             imagePath = "/imagePath_$id.png",
