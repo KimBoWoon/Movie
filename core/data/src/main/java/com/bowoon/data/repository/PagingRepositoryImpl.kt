@@ -6,8 +6,7 @@ import com.bowoon.data.paging.RecommendKeywordPagingSource
 import com.bowoon.data.paging.SearchPagingSource
 import com.bowoon.data.paging.SimilarMoviePagingSource
 import com.bowoon.data.paging.UpComingMoviePagingSource
-import com.bowoon.model.Movie
-import com.bowoon.model.SearchGroup
+import com.bowoon.model.DisplayItem
 import com.bowoon.model.SearchKeyword
 import com.bowoon.model.SearchType
 import com.bowoon.network.MovieNetworkDataSource
@@ -22,7 +21,7 @@ class PagingRepositoryImpl @Inject constructor(
         isAdult: Boolean,
         releaseDateGte: String,
         releaseDateLte: String
-    ): PagingSource<Int, Movie> = NowPlayingMoviePagingSource(
+    ): PagingSource<Int, DisplayItem> = NowPlayingMoviePagingSource(
         apis = apis,
         language = language,
         region = region
@@ -34,7 +33,7 @@ class PagingRepositoryImpl @Inject constructor(
         isAdult: Boolean,
         releaseDateGte: String,
         releaseDateLte: String
-    ): PagingSource<Int, Movie> = UpComingMoviePagingSource(
+    ): PagingSource<Int, DisplayItem> = UpComingMoviePagingSource(
         apis = apis,
         language = language,
         region = region
@@ -46,7 +45,7 @@ class PagingRepositoryImpl @Inject constructor(
         language: String,
         region: String,
         isAdult: Boolean
-    ): PagingSource<Int, SearchGroup> = SearchPagingSource(
+    ): PagingSource<Int, DisplayItem> = SearchPagingSource(
         apis = apis,
         type = type,
         query = query,
@@ -58,7 +57,7 @@ class PagingRepositoryImpl @Inject constructor(
     override fun getSimilarMoviePagingSource(
         id: Int,
         language: String
-    ): PagingSource<Int, Movie> = SimilarMoviePagingSource(
+    ): PagingSource<Int, DisplayItem> = SimilarMoviePagingSource(
         apis = apis,
         id = id,
         language = language

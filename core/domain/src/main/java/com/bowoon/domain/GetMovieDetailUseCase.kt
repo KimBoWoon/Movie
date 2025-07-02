@@ -53,33 +53,32 @@ class GetMovieDetailUseCase @Inject constructor(
         )
 
     operator fun invoke(id: Int) = combine(
-        detailRepository.getMovieDetail(id)
-            .map { movieDetail ->
-                movieDetail.copy(
-                    autoPlayTrailer = internalData.value.autoPlayTrailer,
-                    releaseDate = movieDetail.releases?.countries?.find {
+        detailRepository.getMovie(id)
+            .map { movie ->
+                movie.copy(
+                    releaseDate = movie.releases?.countries?.find {
                         it.iso31661.equals(internalData.value.region, true)
-                    }?.releaseDate ?: movieDetail.releaseDate,
-                    certification = movieDetail.releases?.countries?.find {
+                    }?.releaseDate ?: movie.releaseDate,
+                    certification = movie.releases?.countries?.find {
                         it.iso31661.equals(internalData.value.region, true)
-                    }?.certification ?: movieDetail.certification,
-                    isFavorite = favoriteMovies.value.find { it.id == movieDetail.id } != null,
-                    backdropPath = "${movieAppData.value.getImageUrl()}${movieDetail.backdropPath}",
-                    belongsToCollection = movieDetail.belongsToCollection?.copy(
-                        backdropPath = "${movieAppData.value.getImageUrl()}${movieDetail.belongsToCollection?.backdropPath}",
-                        posterPath = "${movieAppData.value.getImageUrl()}${movieDetail.belongsToCollection?.posterPath}"
+                    }?.certification ?: movie.certification,
+                    isFavorite = favoriteMovies.value.find { it.id == movie.id } != null,
+                    backdropPath = "${movieAppData.value.getImageUrl()}${movie.backdropPath}",
+                    belongsToCollection = movie.belongsToCollection?.copy(
+                        backdropPath = "${movieAppData.value.getImageUrl()}${movie.belongsToCollection?.backdropPath}",
+                        posterPath = "${movieAppData.value.getImageUrl()}${movie.belongsToCollection?.posterPath}"
                     ),
-                    credits = movieDetail.credits?.copy(
-                        cast = movieDetail.credits?.cast?.map { it.copy(profilePath = "${movieAppData.value.getImageUrl()}${it.profilePath}") },
-                        crew = movieDetail.credits?.crew?.map { it.copy(profilePath = "${movieAppData.value.getImageUrl()}${it.profilePath}") }
+                    credits = movie.credits?.copy(
+                        cast = movie.credits?.cast?.map { it.copy(profilePath = "${movieAppData.value.getImageUrl()}${it.profilePath}") },
+                        crew = movie.credits?.crew?.map { it.copy(profilePath = "${movieAppData.value.getImageUrl()}${it.profilePath}") }
                     ),
-                    images = movieDetail.images?.copy(
-                        backdrops = movieDetail.images?.backdrops?.map { it.copy(filePath = "${movieAppData.value.getImageUrl()}${it.filePath}") },
-                        logos = movieDetail.images?.logos?.map { it.copy(filePath = "${movieAppData.value.getImageUrl()}${it.filePath}") },
-                        posters = movieDetail.images?.posters?.map { it.copy(filePath = "${movieAppData.value.getImageUrl()}${it.filePath}") }
+                    images = movie.images?.copy(
+                        backdrops = movie.images?.backdrops?.map { it.copy(filePath = "${movieAppData.value.getImageUrl()}${it.filePath}") },
+                        logos = movie.images?.logos?.map { it.copy(filePath = "${movieAppData.value.getImageUrl()}${it.filePath}") },
+                        posters = movie.images?.posters?.map { it.copy(filePath = "${movieAppData.value.getImageUrl()}${it.filePath}") }
                     ),
-                    posterPath = "${movieAppData.value.getImageUrl()}${movieDetail.posterPath}",
-                    productionCompanies = movieDetail.productionCompanies?.map { it.copy(logoPath = "${movieAppData.value.getImageUrl()}${it.logoPath}") }
+                    posterPath = "${movieAppData.value.getImageUrl()}${movie.posterPath}",
+                    productionCompanies = movie.productionCompanies?.map { it.copy(logoPath = "${movieAppData.value.getImageUrl()}${it.logoPath}") }
                 )
             }
             .onEach {
@@ -99,11 +98,7 @@ class GetMovieDetailUseCase @Inject constructor(
                 }
             ).flow.cachedIn(scope = backgroundScope).map { pagingData ->
                 pagingData.map { movie ->
-                    movie.copy(
-                        backdropPath = "${movieAppData.value.getImageUrl()}${movie.backdropPath}",
-                        posterPath = "${movieAppData.value.getImageUrl()}${movie.posterPath}",
-                        imagePath = "${movieAppData.value.getImageUrl()}${movie.imagePath}"
-                    )
+                    movie.copy(imagePath = "${movieAppData.value.getImageUrl()}${movie.imagePath}")
                 }
             },
         ),
@@ -124,8 +119,8 @@ class GetMovieDetailUseCase @Inject constructor(
                 }
             } ?: flowOf(null)
         }
-    ) { movieDetail, similarMovie, series ->
-        MovieInfo(detail = movieDetail, series = series, similarMovies = similarMovie)
+    ) { movie, similarMovie, series ->
+        MovieInfo(detail = movie, series = series, similarMovies = similarMovie)
     }
 
     fun close(message: String, cause: Throwable?) {

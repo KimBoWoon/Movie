@@ -4,20 +4,18 @@ import com.bowoon.model.Certification
 import com.bowoon.model.CertificationData
 import com.bowoon.model.CertificationMap
 import com.bowoon.model.Configuration
+import com.bowoon.model.DisplayItem
 import com.bowoon.model.Genre
 import com.bowoon.model.Genres
 import com.bowoon.model.ImageInfo
 import com.bowoon.model.Language
 import com.bowoon.model.MainMenu
-import com.bowoon.model.MovieTemp
-import com.bowoon.model.MovieSeries
-import com.bowoon.model.MovieSeriesPart
-import com.bowoon.model.People
+import com.bowoon.model.Series
+import com.bowoon.model.SeriesPart
 import com.bowoon.model.Region
 import com.bowoon.model.Regions
 import com.bowoon.model.SearchData
 import com.bowoon.model.SearchKeyword
-import com.bowoon.model.Series
 import com.bowoon.model.SimilarMovie
 import com.bowoon.model.SimilarMovies
 import java.util.concurrent.atomic.AtomicInteger
@@ -174,40 +172,40 @@ val similarMoviesTestData = SimilarMovies(
 )
 
 val nowPlayingMoviesTestData =
-    listOf(MovieTemp(id = 0, title = "nowPlaying_1", posterPath = "/nowPlaying_1.png"))
+    listOf(DisplayItem(id = 0, title = "nowPlaying_1", imagePath = "/nowPlaying_1.png"))
 val upcomingMoviesTestData =
-    listOf(MovieTemp(id = 0, title = "upcomingMovie_1", posterPath = "/upcomingMovie_1.png"))
+    listOf(DisplayItem(id = 0, title = "upcomingMovie_1", imagePath = "/upcomingMovie_1.png"))
 val mainMenuTestData = MainMenu(
     nowPlaying = listOf(
-        MovieTemp(
+        DisplayItem(
             id = 0,
             title = "nowPlaying_1",
-            posterPath = "posterUrl/nowPlaying_1.png"
+            imagePath = "posterUrl/nowPlaying_1.png"
         )
     ),
     upComingMovies = listOf(
-        MovieTemp(
+        DisplayItem(
             id = 0,
             title = "upcomingMovie_1",
-            posterPath = "posterUrl/upcomingMovie_1.png"
+            imagePath = "posterUrl/upcomingMovie_1.png"
         )
     )
 )
-val movieSeriesTestData = MovieSeries(
+val movieSeriesTestData = Series(
     backdropPath = "/backdropPath.png",
     id = 896,
     name = "movieSeries",
     overview = "movieSeriesOverview",
     parts = listOf(
-        MovieSeriesPart(
+        SeriesPart(
             id = 0,
             title = "movieSeries_1",
             releaseDate = "2024-09-23",
             overview = "movieSeries_1_overview"
         ),
-        MovieSeriesPart(id = 1, title = "movieSeries_2", releaseDate = "2025-09-23", overview = ""),
-        MovieSeriesPart(adult = true, id = 2, title = "seriesPart_2", releaseDate = "2025-09-23", overview = "seriesPartOverview_2"),
-        MovieSeriesPart(adult = false, id = 3, title = "seriesPart_3", releaseDate = "2025-09-23", overview = "seriesPartOverview_3")
+        SeriesPart(id = 1, title = "movieSeries_2", releaseDate = "2025-09-23", overview = ""),
+        SeriesPart(adult = true, id = 2, title = "seriesPart_2", releaseDate = "2025-09-23", overview = "seriesPartOverview_2"),
+        SeriesPart(adult = false, id = 3, title = "seriesPart_3", releaseDate = "2025-09-23", overview = "seriesPartOverview_3")
     ),
     posterPath = "/movieSeriesPosterPath.png"
 )
@@ -218,38 +216,33 @@ val testRecommendedKeyword = (1..5).map {
 object MovieFactory {
     private val counter = AtomicInteger(0)
 
-    fun createMovieItem(): MovieTemp {
+    fun createMovieItem(): DisplayItem {
         val id = counter.incrementAndGet()
-        val movie = MovieTemp(
+        val movie = DisplayItem(
             id = id,
             title = "title_$id",
             imagePath = "/imagePath_$id.png",
-            posterPath = "/imagePath_$id.png",
             genreIds = listOf(Random(System.currentTimeMillis()).nextInt(0, 5))
         )
         return movie
     }
 
-    fun createPeopleItem(): People {
+    fun createPeopleItem(): DisplayItem {
         val id = counter.incrementAndGet()
-        val people = People(
+        val people = DisplayItem(
             id = id,
-            name = "name_$id",
+            title = "name_$id",
             imagePath = "/imagePath_$id.png",
-            profilePath = "/imagePath_$id.png"
         )
         return people
     }
 
-    fun createSeriesItem(): Series {
+    fun createSeriesItem(): DisplayItem {
         val id = counter.incrementAndGet()
-        val series = Series(
+        val series = DisplayItem(
             id = id,
-            name = "name_$id",
+            title = "name_$id",
             imagePath = "/imagePath_$id.png",
-            originalLanguage = "ko-KR",
-            originalName = "originalName",
-            overview = "Series_${id}_overview",
             adult = true
         )
         return series

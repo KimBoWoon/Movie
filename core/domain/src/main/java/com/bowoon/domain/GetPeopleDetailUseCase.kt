@@ -3,7 +3,7 @@ package com.bowoon.domain
 import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.data.repository.DetailRepository
 import com.bowoon.data.repository.MovieAppDataRepository
-import com.bowoon.model.PeopleDetail
+import com.bowoon.model.People
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import javax.inject.Inject
@@ -15,7 +15,7 @@ class GetPeopleDetailUseCase @Inject constructor(
 ) {
     val movieAppData = movieAppDataRepository.movieAppData
 
-    operator fun invoke(personId: Int): Flow<PeopleDetail> =
+    operator fun invoke(personId: Int): Flow<People> =
         combine(
             detailRepository.getPeople(personId = personId),
             detailRepository.getCombineCredits(personId = personId),

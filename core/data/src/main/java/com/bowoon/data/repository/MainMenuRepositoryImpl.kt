@@ -2,8 +2,8 @@ package com.bowoon.data.repository
 
 import com.bowoon.data.util.suspendRunCatching
 import com.bowoon.datastore.InternalDataSource
+import com.bowoon.model.DisplayItem
 import com.bowoon.model.MainMenu
-import com.bowoon.model.Movie
 import com.bowoon.network.MovieNetworkDataSource
 import org.threeten.bp.LocalDate
 import javax.inject.Inject
@@ -36,14 +36,14 @@ class MainMenuRepositoryImpl @Inject constructor(
         }
     }.isSuccess
 
-    override suspend fun getNowPlaying(): List<Movie> {
+    override suspend fun getNowPlaying(): List<DisplayItem> {
         val language = "${datastore.getUserData().language}-${datastore.getUserData().region}"
         val region = datastore.getUserData().region
 
         return apis.getNowPlaying(language = language, region = region, page = 1)
     }
 
-    override suspend fun getUpcomingMovies(): List<Movie> {
+    override suspend fun getUpcomingMovies(): List<DisplayItem> {
         val language = "${datastore.getUserData().language}-${datastore.getUserData().region}"
         val region = datastore.getUserData().region
 

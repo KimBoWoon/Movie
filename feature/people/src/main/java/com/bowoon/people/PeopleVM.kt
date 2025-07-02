@@ -10,7 +10,7 @@ import com.bowoon.common.restartableStateIn
 import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.domain.GetPeopleDetailUseCase
 import com.bowoon.model.Favorite
-import com.bowoon.model.PeopleDetail
+import com.bowoon.model.People
 import com.bowoon.people.navigation.PeopleRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -62,6 +62,6 @@ class PeopleVM @Inject constructor(
 
 sealed interface PeopleState {
     data object Loading : PeopleState
-    data class Success(val data: PeopleDetail) : PeopleState
+    data class Success(val data: People) : PeopleState
     data class Error(val throwable: Throwable) : PeopleState
 }

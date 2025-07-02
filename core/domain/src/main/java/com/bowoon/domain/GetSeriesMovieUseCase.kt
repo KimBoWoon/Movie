@@ -2,7 +2,7 @@ package com.bowoon.domain
 
 import com.bowoon.data.repository.DetailRepository
 import com.bowoon.data.repository.MovieAppDataRepository
-import com.bowoon.model.MovieSeries
+import com.bowoon.model.Series
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -13,7 +13,7 @@ class GetSeriesMovieUseCase @Inject constructor(
 ) {
     private val movieAppData = movieAppDataRepository.movieAppData
 
-    operator fun invoke(collectionId: Int): Flow<MovieSeries> = detailRepository.getMovieSeries(collectionId)
+    operator fun invoke(collectionId: Int): Flow<Series> = detailRepository.getMovieSeries(collectionId)
         .map { movieSeries ->
             movieSeries.copy(
                 backdropPath = "${movieAppData.value.getImageUrl()}${movieSeries.backdropPath}",

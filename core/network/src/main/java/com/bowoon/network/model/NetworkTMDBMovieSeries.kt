@@ -1,7 +1,7 @@
 package com.bowoon.network.model
 
-import com.bowoon.model.MovieSeries
-import com.bowoon.model.MovieSeriesPart
+import com.bowoon.model.Series
+import com.bowoon.model.SeriesPart
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -55,8 +55,8 @@ data class NetworkTMDBMovieSeriesPart(
     val voteCount: Int? = null
 )
 
-fun NetworkTMDBMovieSeries.asExternalModel(): MovieSeries =
-    MovieSeries(
+fun NetworkTMDBMovieSeries.asExternalModel(): Series =
+    Series(
         backdropPath = backdropPath,
         id = id,
         name = name,
@@ -65,9 +65,9 @@ fun NetworkTMDBMovieSeries.asExternalModel(): MovieSeries =
         posterPath = posterPath
     )
 
-fun List<NetworkTMDBMovieSeriesPart>.asExternalModel(): List<MovieSeriesPart> =
+fun List<NetworkTMDBMovieSeriesPart>.asExternalModel(): List<SeriesPart> =
     map {
-        MovieSeriesPart(
+        SeriesPart(
             adult = it.adult,
             backdropPath = it.backdropPath,
             genreIds = it.genreIds,

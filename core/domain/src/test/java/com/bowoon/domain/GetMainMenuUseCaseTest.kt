@@ -48,15 +48,11 @@ class GetMainMenuUseCaseTest {
             mainMenuTestData.copy(
                 nowPlaying = mainMenuTestData.nowPlaying.map {
                     it.copy(
-                        backdropPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.backdropPath}",
-                        posterPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.posterPath}",
                         imagePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.imagePath}"
                     )
                 },
                 upComingMovies = mainMenuTestData.upComingMovies.map {
                     it.copy(
-                        backdropPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.backdropPath}",
-                        posterPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.posterPath}",
                         imagePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.imagePath}"
                     )
                 }

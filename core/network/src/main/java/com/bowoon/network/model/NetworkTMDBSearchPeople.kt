@@ -1,9 +1,8 @@
 package com.bowoon.network.model
 
 
-import com.bowoon.model.People
+import com.bowoon.model.DisplayItem
 import com.bowoon.model.SearchData
-import com.bowoon.model.SearchPeopleKnownFor
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -84,40 +83,13 @@ fun NetworkTMDBSearchPeople.asExternalModel(): SearchData =
     )
 
 @JvmName("NetworkTMDBSearchPeopleResultAsExternalModel")
-fun List<NetworkTMDBSearchPeopleResult>.asExternalModel(): List<People> =
+fun List<NetworkTMDBSearchPeopleResult>.asExternalModel(): List<DisplayItem> =
     map {
-        People(
-            gender = it.gender,
-            knownFor = it.knownFor?.asExternalModel(),
-            knownForDepartment = it.knownForDepartment,
-            profilePath = it.profilePath,
+        DisplayItem(
             adult = it.adult,
             id = it.id,
-            name = it.name,
+            title = it.name,
             imagePath = it.profilePath,
-            originalName = it.originalName,
-            popularity = it.popularity
-        )
-    }
-
-@JvmName("NetworkTMDBSearchPeopleKnownForAsExternalModel")
-fun List<NetworkTMDBSearchPeopleKnownFor>.asExternalModel(): List<SearchPeopleKnownFor> =
-    map {
-        SearchPeopleKnownFor(
-            adult = it.adult,
-            backdropPath = it.backdropPath,
-            genreIds = it.genreIds,
-            id = it.id,
-            mediaType = it.mediaType,
-            originalLanguage = it.originalLanguage,
-            originalTitle = it.originalTitle,
-            overview = it.overview,
-            popularity = it.popularity,
-            posterPath = it.posterPath,
-            releaseDate = it.releaseDate,
-            title = it.title,
-            video = it.video,
-            voteAverage = it.voteAverage,
-            voteCount = it.voteCount
+            genreIds = null
         )
     }

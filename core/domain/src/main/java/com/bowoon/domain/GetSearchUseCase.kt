@@ -2,17 +2,16 @@ package com.bowoon.domain
 
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
+import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.filter
 import androidx.paging.map
 import com.bowoon.data.repository.MovieAppDataRepository
 import com.bowoon.data.repository.PagingRepository
 import com.bowoon.data.repository.UserDataRepository
+import com.bowoon.model.DisplayItem
 import com.bowoon.model.Genre
-import com.bowoon.model.Movie
-import com.bowoon.model.People
 import com.bowoon.model.SearchType
-import com.bowoon.model.Series
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -44,7 +43,7 @@ class GetSearchUseCase @Inject constructor(
         searchType: SearchType,
         query: String,
         selectedGenre: Flow<Genre?>
-    ) = combine(
+    ): Flow<PagingData<DisplayItem>> = combine(
         Pager(
             config = PagingConfig(pageSize = 1, initialLoadSize = 1, prefetchDistance = 5),
             initialKey = 1,
@@ -58,18 +57,14 @@ class GetSearchUseCase @Inject constructor(
                 )
             }
         ).flow.cachedIn(scope = backgroundScope).map { pagingData ->
-            pagingData.map { searchGroup ->
-                when (searchGroup) {
-                    is Movie -> searchGroup.copy(imagePath = "${movieAppData.value.getImageUrl()}${searchGroup.imagePath}")
-                    is People -> searchGroup.copy(imagePath = "${movieAppData.value.getImageUrl()}${searchGroup.imagePath}")
-                    is Series -> searchGroup.copy(imagePath = "${movieAppData.value.getImageUrl()}${searchGroup.imagePath}")
-                }
+            pagingData.map { displayItem ->
+                displayItem.copy(imagePath = "${movieAppData.value.getImageUrl()}${displayItem.imagePath}")
             }
         },
         selectedGenre
     ) { pagingData, genre ->
         if (genre != null) {
-            pagingData.filter { it is Movie && genre.id in (it.genreIds ?: emptyList()) }
+            pagingData.filter { genre.id in (it.genreIds ?: emptyList()) }
         } else {
             pagingData
         }

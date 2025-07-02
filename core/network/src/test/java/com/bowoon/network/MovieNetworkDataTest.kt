@@ -77,7 +77,7 @@ class MovieNetworkDataTest {
 
     @Test
     fun getMovieDetailTest() = runTest {
-        val result = datasource.getMovieDetail(0)
+        val result = datasource.getMovie(0)
 
         assertEquals(result, favoriteMovieDetailTestData)
     }

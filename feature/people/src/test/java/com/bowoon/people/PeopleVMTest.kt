@@ -4,7 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.testing.invoke
 import com.bowoon.domain.GetPeopleDetailUseCase
 import com.bowoon.model.Favorite
-import com.bowoon.model.PeopleDetail
+import com.bowoon.model.People
 import com.bowoon.people.navigation.PeopleRoute
 import com.bowoon.testing.repository.TestDatabaseRepository
 import com.bowoon.testing.repository.TestDetailRepository
@@ -103,7 +103,7 @@ class PeopleVMTest {
     fun insertPeopleTest() = runTest {
         backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.people.collect() }
 
-        val people = PeopleDetail(id = 124, combineCredits = combineCreditsTestData, externalIds = externalIdsTestData, isFavorite = false)
+        val people = People(id = 124, combineCredits = combineCreditsTestData, externalIds = externalIdsTestData, isFavorite = false)
 
         testDetailRepository.setPeopleDetail(people)
         testDetailRepository.setCombineCredits(combineCreditsTestData)
@@ -139,7 +139,7 @@ class PeopleVMTest {
     fun deletePeopleTest() = runTest {
         backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.people.collect() }
 
-        val people = PeopleDetail(id = 124, combineCredits = combineCreditsTestData, externalIds = externalIdsTestData, isFavorite = true)
+        val people = People(id = 124, combineCredits = combineCreditsTestData, externalIds = externalIdsTestData, isFavorite = true)
 
         testDetailRepository.setPeopleDetail(people)
         testDetailRepository.setCombineCredits(combineCreditsTestData)

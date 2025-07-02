@@ -46,7 +46,7 @@ import com.bowoon.data.util.PEOPLE_IMAGE_RATIO
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.Favorite
-import com.bowoon.model.PeopleDetail
+import com.bowoon.model.People
 import com.bowoon.model.getRelatedMovie
 import com.bowoon.movie.core.ui.R
 import com.bowoon.ui.components.TitleComponent
@@ -128,7 +128,7 @@ fun PeopleScreen(
 
 @Composable
 fun PeopleDetailComponent(
-    people: PeopleDetail,
+    people: People,
     goToBack: () -> Unit,
     goToMovie: (Int) -> Unit,
     insertFavoritePeople: (Favorite) -> Unit,
@@ -207,7 +207,7 @@ fun PeopleDetailComponent(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ImageComponent(
-    people: PeopleDetail
+    people: People
 ) {
     var isShowing by remember { mutableStateOf(false) }
     var index by remember { mutableIntStateOf(0) }
@@ -267,7 +267,7 @@ fun ExternalIdLinkComponent(
 }
 
 @Composable
-fun ExternalIdLinkComponent(people: PeopleDetail) {
+fun ExternalIdLinkComponent(people: People) {
     val context = LocalContext.current
 
     Row(
@@ -322,7 +322,7 @@ fun ExternalIdLinkComponent(people: PeopleDetail) {
 
 @Composable
 fun PeopleInfoComponent(
-    people: PeopleDetail
+    people: People
 ) {
     Column(
         modifier = Modifier

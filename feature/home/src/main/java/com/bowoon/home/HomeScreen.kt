@@ -34,8 +34,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bowoon.common.Log
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.firebase.LocalFirebaseLogHelper
+import com.bowoon.model.DisplayItem
 import com.bowoon.model.MainMenu
-import com.bowoon.model.Movie
 import com.bowoon.movie.feature.home.R
 import com.bowoon.ui.components.TitleComponent
 import com.bowoon.ui.image.DynamicAsyncImageLoader
@@ -157,7 +157,7 @@ fun MainComponent(
 
 fun LazyListScope.horizontalMovieListComponent(
     title: String,
-    movies: List<Movie>,
+    movies: List<DisplayItem>,
     goToMovie: (Int) -> Unit
 ) {
     item {
@@ -185,7 +185,7 @@ fun LazyListScope.horizontalMovieListComponent(
 
 @Composable
 fun MainMovieItem(
-    movie: Movie,
+    movie: DisplayItem,
     goToMovie: (Int) -> Unit
 ) {
     Column(
@@ -201,7 +201,7 @@ fun MainMovieItem(
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(POSTER_IMAGE_RATIO),
-                source = movie.posterPath ?: "",
+                source = movie.imagePath ?: "",
                 contentDescription = "BoxOfficePoster"
             )
         }

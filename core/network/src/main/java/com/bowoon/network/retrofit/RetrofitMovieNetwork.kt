@@ -3,15 +3,15 @@ package com.bowoon.network.retrofit
 import com.bowoon.model.CertificationData
 import com.bowoon.model.CombineCredits
 import com.bowoon.model.Configuration
+import com.bowoon.model.DisplayItem
 import com.bowoon.model.ExternalIds
 import com.bowoon.model.Genres
 import com.bowoon.model.Language
 import com.bowoon.model.Movie
-import com.bowoon.model.MovieDetail
 import com.bowoon.model.MovieList
 import com.bowoon.model.MovieResult
-import com.bowoon.model.MovieSeries
-import com.bowoon.model.PeopleDetail
+import com.bowoon.model.Series
+import com.bowoon.model.People
 import com.bowoon.model.Regions
 import com.bowoon.model.SearchData
 import com.bowoon.model.SearchKeywordData
@@ -73,8 +73,8 @@ class RetrofitMovieNetwork @Inject constructor(
         language: String,
         region: String,
         page: Int
-    ): List<Movie> {
-        val result = mutableListOf<Movie>()
+    ): List<DisplayItem> {
+        val result = mutableListOf<DisplayItem>()
         var currentPage = page
         var totalPage = 1
 
@@ -91,7 +91,7 @@ class RetrofitMovieNetwork @Inject constructor(
             }
         } while (currentPage <= totalPage)
 
-        return result.distinctBy { it.id }.sortedWith { o1, o2 ->
+        return result.distinctBy { it.id }/*.sortedWith { o1, o2 ->
             if (o1 != null && o2 != null) {
                 if (o1.voteAverage == o2.voteAverage) {
                     o1.title?.compareTo(o2.title ?: "") ?: 0
@@ -99,15 +99,15 @@ class RetrofitMovieNetwork @Inject constructor(
                     o2.voteAverage?.compareTo(o1.voteAverage ?: 0.0) ?: 0
                 }
             } else 0
-        }
+        }*/
     }
 
     override suspend fun getUpcomingMovie(
         language: String,
         region: String,
         page: Int
-    ): List<Movie> {
-        val result = mutableListOf<Movie>()
+    ): List<DisplayItem> {
+        val result = mutableListOf<DisplayItem>()
         var currentPage = 1
         var totalPage = 1
 
@@ -202,20 +202,20 @@ class RetrofitMovieNetwork @Inject constructor(
         is ApiResponse.Success -> response.data.asExternalModel()
     }
 
-    override suspend fun getMovieSeries(collectionId: Int, language: String): MovieSeries =
+    override suspend fun getMovieSeries(collectionId: Int, language: String): Series =
         when (val response = tmdbApis.getMovieSeries(collectionId = collectionId, language = language)) {
             is ApiResponse.Failure -> throw response.throwable
             is ApiResponse.Success -> response.data.asExternalModel()
         }
 
-    override suspend fun getMovieDetail(
+    override suspend fun getMovie(
         id: Int,
         appendToResponse: String,
         language: String,
         includeImageLanguage: String,
         region: String
-    ): MovieDetail = when (
-        val response = tmdbApis.getMovieDetail(
+    ): Movie = when (
+        val response = tmdbApis.getMovie(
             id = id,
             appendToResponse = appendToResponse,
             language = language,
@@ -275,7 +275,7 @@ class RetrofitMovieNetwork @Inject constructor(
         appendToResponse: String,
         language: String,
         includeImageLanguage: String
-    ): PeopleDetail = when (
+    ): People = when (
         val response = tmdbApis.getPeopleDetail(
             personId = personId,
             appendToResponse = appendToResponse,

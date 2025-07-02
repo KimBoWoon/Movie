@@ -50,7 +50,7 @@ class DetailRepositoryTest {
 
     @Test
     fun getMovieDetailTest() = runTest {
-        val result = repository.getMovieDetail(0)
+        val result = repository.getMovie(0)
 
         assertEquals(result.first(), favoriteMovieDetailTestData)
     }
@@ -110,10 +110,10 @@ class DetailRepositoryUseRetrofitTest {
 
     @Test
     fun getMovieDetailTest() = runTest {
-        repository.setMovieDetail(favoriteMovieDetailTestData)
+        repository.setMovie(favoriteMovieDetailTestData)
 
         server.enqueue(MockResponse().setBody(favoriteMovieDetailTestData.toString()))
-        val result = repository.getMovieDetail(0)
+        val result = repository.getMovie(0)
 
         assertEquals(result.first(), favoriteMovieDetailTestData)
     }

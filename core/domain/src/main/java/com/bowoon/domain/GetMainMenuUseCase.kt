@@ -17,18 +17,10 @@ class GetMainMenuUseCase @Inject constructor(
     ) { movieAppData, internalData ->
         internalData.mainMenu.copy(
             nowPlaying = internalData.mainMenu.nowPlaying.map { movie ->
-                movie.copy(
-                    backdropPath = "${movieAppData.getImageUrl()}${movie.backdropPath}",
-                    posterPath = "${movieAppData.getImageUrl()}${movie.posterPath}",
-                    imagePath = "${movieAppData.getImageUrl()}${movie.imagePath}"
-                )
+                movie.copy(imagePath = "${movieAppData.getImageUrl()}${movie.imagePath}")
             },
             upComingMovies = internalData.mainMenu.upComingMovies.map { movie ->
-                movie.copy(
-                    backdropPath = "${movieAppData.getImageUrl()}${movie.backdropPath}",
-                    posterPath = "${movieAppData.getImageUrl()}${movie.posterPath}",
-                    imagePath = "${movieAppData.getImageUrl()}${movie.imagePath}"
-                )
+                movie.copy(imagePath = "${movieAppData.getImageUrl()}${movie.imagePath}")
             }
         )
     }

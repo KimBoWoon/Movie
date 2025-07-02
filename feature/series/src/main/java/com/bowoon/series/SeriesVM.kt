@@ -8,12 +8,11 @@ import com.bowoon.common.Result
 import com.bowoon.common.asResult
 import com.bowoon.common.restartableStateIn
 import com.bowoon.domain.GetSeriesMovieUseCase
-import com.bowoon.model.MovieSeries
+import com.bowoon.model.Series
 import com.bowoon.series.navigation.SeriesRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
@@ -47,6 +46,6 @@ class SeriesVM @Inject constructor(
 
 sealed interface SeriesState {
     data object Loading : SeriesState
-    data class Success(val series: MovieSeries) : SeriesState
+    data class Success(val series: Series) : SeriesState
     data class Error(val throwable: Throwable) : SeriesState
 }

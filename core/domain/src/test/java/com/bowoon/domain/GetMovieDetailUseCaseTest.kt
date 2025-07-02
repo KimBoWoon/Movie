@@ -68,7 +68,7 @@ class GetMovieDetailUseCaseTest {
 
     @Test
     fun getMovieDetailTest() = runTest {
-        detailRepository.setMovieDetail(favoriteMovieDetailTestData)
+        detailRepository.setMovie(favoriteMovieDetailTestData)
         detailRepository.setMovieSeries(movieSeriesTestData)
 
         val result = getMovieDetailUseCase(id = 0).first()
@@ -113,7 +113,7 @@ class GetMovieDetailUseCaseTest {
 
     @Test
     fun getFavoriteMovieDetailTest() = runTest {
-        detailRepository.setMovieDetail(unFavoriteMovieDetailTestData)
+        detailRepository.setMovie(unFavoriteMovieDetailTestData)
         detailRepository.setMovieSeries(movieSeriesTestData)
         databaseRepository.insertMovie(
             Favorite(

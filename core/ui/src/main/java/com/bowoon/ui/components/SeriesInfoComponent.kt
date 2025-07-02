@@ -14,13 +14,13 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import com.bowoon.model.MovieSeries
+import com.bowoon.model.Series
 import com.bowoon.ui.utils.dp10
 import com.bowoon.ui.utils.sp15
 import com.bowoon.ui.utils.sp20
 
 fun LazyListScope.seriesInfoComponent(
-    series: MovieSeries
+    series: Series
 ) {
     item {
         Column(

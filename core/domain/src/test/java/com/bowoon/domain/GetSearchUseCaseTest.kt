@@ -1,13 +1,10 @@
 package com.bowoon.domain
 
 import androidx.paging.testing.asSnapshot
+import com.bowoon.model.DisplayItem
 import com.bowoon.model.InternalData
-import com.bowoon.model.Movie
 import com.bowoon.model.MovieAppData
-import com.bowoon.model.People
-import com.bowoon.model.SearchPeopleKnownFor
 import com.bowoon.model.SearchType
-import com.bowoon.model.Series
 import com.bowoon.testing.repository.TestMovieAppDataRepository
 import com.bowoon.testing.repository.TestPagingRepository
 import com.bowoon.testing.repository.TestUserDataRepository
@@ -52,24 +49,13 @@ class GetSearchUseCaseTest {
         assertEquals(
             result.asSnapshot(),
             (0..6).map {
-                Movie(
-                    backdropPath = "backdropPath_$it",
+                DisplayItem(
                     genreIds = listOf(it),
-                    originalLanguage = "originalLanguage_$it",
-                    originalTitle = "originalTitle_$it",
-                    overview = "overview_$it",
-                    posterPath = "/posterPath_$it.png",
                     releaseDate = "releaseDate_$it",
                     title = "title_$it",
-                    video = true,
-                    voteAverage = it.toDouble(),
-                    voteCount = it,
                     adult = true,
                     id = it,
-                    name = "name_$it",
                     imagePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}/imagePath_$it.png",
-                    originalName = "originalName_$it",
-                    popularity = it.toDouble()
                 )
             }
         )
@@ -82,17 +68,13 @@ class GetSearchUseCaseTest {
         assertEquals(
             result.asSnapshot(),
             (0..6).map {
-                People(
-                    gender = 1,
-                    knownFor = listOf(SearchPeopleKnownFor()),
-                    knownForDepartment = "knownForDepartment_$it",
-                    profilePath = "profilePath_$it",
+                DisplayItem(
+                    genreIds = listOf(it),
+                    releaseDate = "releaseDate_$it",
+                    title = "title_$it",
                     adult = true,
                     id = it,
-                    name = "name_$it",
-                    imagePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}imagePath_$it",
-                    originalName = "originalName_$it",
-                    popularity = it.toDouble()
+                    imagePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}/imagePath_$it.png"
                 )
             }
         )
@@ -105,17 +87,13 @@ class GetSearchUseCaseTest {
         assertEquals(
             result.asSnapshot(),
             (0..6).map {
-                Series(
-                    backdropPath = "backdropPath_$it",
-                    originalLanguage = "originalLanguage_$it",
-                    overview = "overview_$it",
-                    posterPath = "posterPath_$it",
+                DisplayItem(
+                    genreIds = listOf(it),
+                    releaseDate = "releaseDate_$it",
+                    title = "title_$it",
                     adult = true,
                     id = it,
-                    name = "name_$it",
-                    imagePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}imagePath_$it",
-                    originalName = "originalName_$it",
-                    popularity = it.toDouble()
+                    imagePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}/imagePath_$it.png",
                 )
             }
         )

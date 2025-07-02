@@ -17,7 +17,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bowoon.firebase.LocalFirebaseLogHelper
-import com.bowoon.model.MovieSeries
+import com.bowoon.model.Series
 import com.bowoon.movie.feature.series.R
 import com.bowoon.ui.components.TitleComponent
 import com.bowoon.ui.components.movieSeriesListComponent
@@ -91,7 +91,7 @@ fun SeriesScreen(
 
 @Composable
 fun SeriesComponent(
-    series: MovieSeries,
+    series: Series,
     goToMovie: (Int) -> Unit
 ) {
     LazyColumn(

@@ -73,13 +73,13 @@ import com.bowoon.data.util.VIDEO_RATIO
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.Cast
 import com.bowoon.model.Crew
+import com.bowoon.model.DisplayItem
 import com.bowoon.model.Favorite
 import com.bowoon.model.Image
 import com.bowoon.model.Movie
-import com.bowoon.model.MovieDetail
 import com.bowoon.model.MovieDetailTab
 import com.bowoon.model.MovieInfo
-import com.bowoon.model.MovieSeries
+import com.bowoon.model.Series
 import com.bowoon.movie.feature.detail.R
 import com.bowoon.ui.components.PagingAppendErrorComponent
 import com.bowoon.ui.components.TabComponent
@@ -216,7 +216,7 @@ fun MovieDetailComponent(
     Column {
         VideosComponent(
             vodList = movieInfo.detail.videos?.results?.mapNotNull { it.key } ?: emptyList(),
-            autoPlayTrailer = movieInfo.detail.autoPlayTrailer
+            autoPlayTrailer = false // movieInfo.detail.autoPlayTrailer
         )
 
         val tabList = if (movieInfo.detail.belongsToCollection == null) {
@@ -486,7 +486,7 @@ fun ImageComponent(
 
 @Composable
 fun MovieSeriesComponent(
-    movieSeries: MovieSeries?,
+    movieSeries: Series?,
     goToMovie: (Int) -> Unit,
 ) {
     LazyColumn(
@@ -508,7 +508,7 @@ fun MovieSeriesComponent(
 
 @Composable
 fun MovieAdditionalInfoComponent(
-    movie: MovieDetail
+    movie: Movie
 ) {
     var expanded by remember { mutableStateOf(false) }
     val titles = movie.alternativeTitles?.titles?.fold("") { acc, title -> if (acc.isEmpty()) "${title.title}" else "$acc\n${title.title}" } ?: ""
@@ -595,7 +595,7 @@ fun MovieAdditionalInfoComponent(
 
 @Composable
 fun MovieInfoComponent(
-    movie: MovieDetail
+    movie: Movie
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize()
@@ -738,7 +738,7 @@ fun MovieInfoComponent(
 
 @Composable
 fun ActorAndCrewComponent(
-    movie: MovieDetail,
+    movie: Movie,
     goToPeople: (Int) -> Unit
 ) {
     if (movie.credits?.crew.isNullOrEmpty() && movie.credits?.cast.isNullOrEmpty()) {
@@ -894,7 +894,7 @@ fun StaffComponent(
 
 @Composable
 fun SimilarMovieComponent(
-    pagingData: Flow<PagingData<Movie>>,
+    pagingData: Flow<PagingData<DisplayItem>>,
     goToMovie: (Int) -> Unit
 ) {
     val similarMovie = pagingData.collectAsLazyPagingItems()
@@ -926,7 +926,7 @@ fun SimilarMovieComponent(
 
 @Composable
 fun BoxScope.MovieList(
-    similarMovie: LazyPagingItems<Movie>,
+    similarMovie: LazyPagingItems<DisplayItem>,
     goToMovie: (Int) -> Unit
 ) {
     if (similarMovie.itemCount == 0 && similarMovie.loadState.refresh !is LoadState.Loading) {
@@ -955,7 +955,7 @@ fun BoxScope.MovieList(
                         modifier = Modifier
                             .fillMaxWidth()
                             .aspectRatio(POSTER_IMAGE_RATIO),
-                        source = similarMovie[index]?.posterPath ?: "",
+                        source = similarMovie[index]?.imagePath ?: "",
                         contentDescription = "SimilarMoviePoster"
                     )
                 }

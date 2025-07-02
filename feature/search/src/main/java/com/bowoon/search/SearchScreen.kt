@@ -71,9 +71,9 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.bowoon.common.Log
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.firebase.LocalFirebaseLogHelper
+import com.bowoon.model.DisplayItem
 import com.bowoon.model.Genre
 import com.bowoon.model.MovieAppData
-import com.bowoon.model.SearchGroup
 import com.bowoon.model.SearchKeyword
 import com.bowoon.model.SearchType
 import com.bowoon.movie.feature.search.R
@@ -317,10 +317,11 @@ fun SearchBarComponent(
                             modifier = Modifier
                                 .padding(end = dp16)
                                 .clickable {
-                                    scope.launch { scrollState.scrollToItem(0) }
+                                    scope.launch { scrollState.scrollToItem(index = 0) }
                                     updateGenre(null)
                                     onSearchClick()
                                     focusManager.clearFocus()
+                                    recommendedKeywordVisible(false)
                                 },
                             imageVector = Icons.Filled.Search,
                             contentDescription = "searchMovies"
@@ -451,7 +452,7 @@ fun SearchResultComponent(
 
 @Composable
 fun SearchPagingComponent(
-    pagingData: LazyPagingItems<SearchGroup>,
+    pagingData: LazyPagingItems<DisplayItem>,
     scrollState: LazyGridState,
     searchType: SearchType,
     movieAppData: MovieAppData,
@@ -496,7 +497,7 @@ fun SearchPagingComponent(
             ) {
                 items(
                     count = pagingData.itemCount,
-                    key = { index -> "${pagingData.peek(index)?.id}_${index}_${pagingData.peek(index)?.name}" }
+                    key = { index -> "${pagingData.peek(index)?.id}_${index}_${pagingData.peek(index)?.title}" }
                 ) { index ->
                     pagingData[index]?.let { item ->
                         DynamicAsyncImageLoader(
@@ -511,7 +512,7 @@ fun SearchPagingComponent(
                                     }
                                 },
                             source = item.imagePath ?: "",
-                            contentDescription = "${item.id}_${item.name}"
+                            contentDescription = "${item.id}_${item.title}"
                         )
                     }
                 }

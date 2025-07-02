@@ -13,7 +13,7 @@ import com.bowoon.model.Image
 import com.bowoon.model.Images
 import com.bowoon.model.Keyword
 import com.bowoon.model.Keywords
-import com.bowoon.model.MovieDetail
+import com.bowoon.model.Movie
 import com.bowoon.model.ProductionCompany
 import com.bowoon.model.ProductionCountry
 import com.bowoon.model.Releases
@@ -29,7 +29,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class NetworkTMDBMovieDetail(
+data class NetworkTMDBMovie(
     @SerialName("adult")
     val adult: Boolean? = null,
     @SerialName("alternative_titles")
@@ -418,14 +418,13 @@ data class NetworkTMDBMovieDetailSimilarResult(
     val voteCount: Int? = null
 )
 
-fun NetworkTMDBMovieDetail.asExternalModel(): MovieDetail =
-    MovieDetail(
+fun NetworkTMDBMovie.asExternalModel(): Movie =
+    Movie(
         adult = adult,
         alternativeTitles = alternativeTitles?.asExternalModel(),
         backdropPath = backdropPath,
         belongsToCollection = belongsToCollection?.asExternalModel(),
         budget = budget,
-//        changes = changes?.asExternalModel(),
         credits = credits?.asExternalModel(),
         genres = genres?.asExternalModel(),
         homepage = homepage,
