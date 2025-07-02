@@ -8,12 +8,11 @@ import com.bowoon.model.ExternalIds
 import com.bowoon.model.Genres
 import com.bowoon.model.Language
 import com.bowoon.model.Movie
-import com.bowoon.model.MovieList
-import com.bowoon.model.Series
 import com.bowoon.model.People
 import com.bowoon.model.Regions
 import com.bowoon.model.SearchData
 import com.bowoon.model.SearchKeywordData
+import com.bowoon.model.Series
 import com.bowoon.model.SimilarMovies
 
 interface MovieNetworkDataSource {
@@ -34,9 +33,6 @@ interface MovieNetworkDataSource {
         region: String = "KR",
         page: Int = 1
     ): List<DisplayItem>
-
-    suspend fun getNowPlayingMovie(language: String, region: String, page: Int): MovieList
-    suspend fun getUpComingMovie(language: String, region: String, page: Int): MovieList
 
     suspend fun searchMovies(
         query: String,

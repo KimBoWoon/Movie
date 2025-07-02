@@ -22,22 +22,6 @@ class TestPagingRepository : PagingRepository {
         )
     }.asPagingSourceFactory().invoke()
 
-    override fun getUpComingMoviePagingSource(
-        language: String,
-        region: String,
-        isAdult: Boolean,
-        releaseDateGte: String,
-        releaseDateLte: String
-    ): PagingSource<Int, DisplayItem> = testPagingSource
-
-    override fun getNowPlayingMoviePagingSource(
-        language: String,
-        region: String,
-        isAdult: Boolean,
-        releaseDateGte: String,
-        releaseDateLte: String
-    ): PagingSource<Int, DisplayItem> = testPagingSource
-
     @SuppressLint("VisibleForTests")
     override fun getSearchPagingSource(
         type: SearchType,

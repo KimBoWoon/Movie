@@ -8,13 +8,12 @@ import com.bowoon.model.ExternalIds
 import com.bowoon.model.Genres
 import com.bowoon.model.Language
 import com.bowoon.model.Movie
-import com.bowoon.model.MovieList
 import com.bowoon.model.MovieResult
-import com.bowoon.model.Series
 import com.bowoon.model.People
 import com.bowoon.model.Regions
 import com.bowoon.model.SearchData
 import com.bowoon.model.SearchKeywordData
+import com.bowoon.model.Series
 import com.bowoon.model.SimilarMovies
 import com.bowoon.model.asExternalMovie
 import com.bowoon.network.ApiResponse
@@ -82,7 +81,7 @@ class RetrofitMovieNetwork @Inject constructor(
             when (val response = tmdbApis.getNowPlaying(language = "$language-$region", region = region, page = currentPage)) {
                 is ApiResponse.Failure -> throw response.throwable
                 is ApiResponse.Success -> {
-                    currentPage = ((response.data.page ?: 1) + 1)
+                    currentPage = (response.data.page ?: 1) + 1
                     totalPage = response.data.totalPages ?: Int.MAX_VALUE
                     result.addAll(
                         response.data.asExternalModel().results?.map(MovieResult::asExternalMovie) ?: emptyList()
@@ -91,15 +90,7 @@ class RetrofitMovieNetwork @Inject constructor(
             }
         } while (currentPage <= totalPage)
 
-        return result.distinctBy { it.id }/*.sortedWith { o1, o2 ->
-            if (o1 != null && o2 != null) {
-                if (o1.voteAverage == o2.voteAverage) {
-                    o1.title?.compareTo(o2.title ?: "") ?: 0
-                } else {
-                    o2.voteAverage?.compareTo(o1.voteAverage ?: 0.0) ?: 0
-                }
-            } else 0
-        }*/
+        return result.distinctBy { it.id }
     }
 
     override suspend fun getUpcomingMovie(
@@ -115,7 +106,7 @@ class RetrofitMovieNetwork @Inject constructor(
             when (val response = tmdbApis.getUpcomingMovie(language = "$language-$region", region = region, page = currentPage)) {
                 is ApiResponse.Failure -> throw response.throwable
                 is ApiResponse.Success -> {
-                    currentPage = ((response.data.page ?: 1) + 1)
+                    currentPage = (response.data.page ?: 1) + 1
                     totalPage = response.data.totalPages ?: Int.MAX_VALUE
                     result.addAll(
                         response.data.asExternalModel().results?.map(MovieResult::asExternalMovie) ?: emptyList()
@@ -125,24 +116,6 @@ class RetrofitMovieNetwork @Inject constructor(
         } while (currentPage <= totalPage)
 
         return result.filter { (it.releaseDate ?: "") > LocalDate.now().toString() }.distinctBy { it.id }.sortedBy { it.releaseDate }
-    }
-
-    override suspend fun getNowPlayingMovie(
-        language: String,
-        region: String,
-        page: Int
-    ): MovieList = when (val response = tmdbApis.getNowPlaying(language = language, region = region, page = page)) {
-        is ApiResponse.Failure -> throw response.throwable
-        is ApiResponse.Success -> response.data.asExternalModel()
-    }
-
-    override suspend fun getUpComingMovie(
-        language: String,
-        region: String,
-        page: Int
-    ): MovieList = when (val response = tmdbApis.getUpcomingMovie(language = language, region = region, page = page)) {
-        is ApiResponse.Failure -> throw response.throwable
-        is ApiResponse.Success -> response.data.asExternalModel()
     }
 
     override suspend fun searchMovies(

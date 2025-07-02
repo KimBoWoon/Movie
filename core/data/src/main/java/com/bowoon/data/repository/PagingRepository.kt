@@ -6,20 +6,6 @@ import com.bowoon.model.SearchKeyword
 import com.bowoon.model.SearchType
 
 interface PagingRepository {
-    fun getUpComingMoviePagingSource(
-        language: String,
-        region: String,
-        isAdult: Boolean,
-        releaseDateGte: String,
-        releaseDateLte: String
-    ): PagingSource<Int, DisplayItem>
-    fun getNowPlayingMoviePagingSource(
-        language: String,
-        region: String,
-        isAdult: Boolean,
-        releaseDateGte: String,
-        releaseDateLte: String
-    ): PagingSource<Int, DisplayItem>
     fun getSearchPagingSource(
         type: SearchType,
         query: String,
