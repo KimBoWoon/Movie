@@ -2,7 +2,6 @@ package com.bowoon.series
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.testing.invoke
-import com.bowoon.domain.GetSeriesMovieUseCase
 import com.bowoon.series.navigation.SeriesRoute
 import com.bowoon.testing.model.movieSeriesTestData
 import com.bowoon.testing.repository.TestDetailRepository
@@ -26,7 +25,6 @@ class SeriesVMTest {
     private lateinit var savedStateHandle: SavedStateHandle
     private lateinit var testDetailRepository: TestDetailRepository
     private lateinit var testMovieAppDataRepository: TestMovieAppDataRepository
-    private lateinit var getSeriesMovieUseCase: GetSeriesMovieUseCase
     private lateinit var seriesVM: SeriesVM
 
     @Before
@@ -34,14 +32,10 @@ class SeriesVMTest {
         savedStateHandle = SavedStateHandle(route = SeriesRoute(id = 0))
         testDetailRepository = TestDetailRepository()
         testMovieAppDataRepository = TestMovieAppDataRepository()
-        getSeriesMovieUseCase = GetSeriesMovieUseCase(
-            detailRepository = testDetailRepository,
-            movieAppDataRepository = testMovieAppDataRepository
-        )
 
         seriesVM = SeriesVM(
             savedStateHandle = savedStateHandle,
-            getSeriesMovieUseCase = getSeriesMovieUseCase
+            detailRepository = testDetailRepository
         )
     }
 
@@ -54,18 +48,7 @@ class SeriesVMTest {
         testDetailRepository.setMovieSeries(movieSeriesTestData)
 
         assertEquals(
-            SeriesState.Success(
-                movieSeriesTestData.copy(
-                    backdropPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${movieSeriesTestData.backdropPath}",
-                    parts = movieSeriesTestData.parts?.map {
-                        it.copy(
-                            backdropPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.backdropPath}",
-                            posterPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.posterPath}"
-                        )
-                    },
-                    posterPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${movieSeriesTestData.posterPath}"
-                )
-            ),
+            SeriesState.Success(movieSeriesTestData),
             seriesVM.series.value
         )
     }

@@ -32,8 +32,7 @@ class GetSearchUseCaseTest {
         testMovieAppDataRepository = TestMovieAppDataRepository()
         getSearchUseCase = GetSearchUseCase(
             pagingRepository = testPagingRepository,
-            userDataRepository = testUserDataRepository,
-            movieAppDataRepository =testMovieAppDataRepository
+            userDataRepository = testUserDataRepository
         )
 
         runBlocking {
@@ -55,7 +54,7 @@ class GetSearchUseCaseTest {
                     title = "title_$it",
                     adult = true,
                     id = it,
-                    imagePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}/imagePath_$it.png",
+                    imagePath = "/imagePath_$it.png",
                 )
             }
         )
@@ -74,7 +73,7 @@ class GetSearchUseCaseTest {
                     title = "title_$it",
                     adult = true,
                     id = it,
-                    imagePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}/imagePath_$it.png"
+                    imagePath = "/imagePath_$it.png"
                 )
             }
         )
@@ -93,7 +92,7 @@ class GetSearchUseCaseTest {
                     title = "title_$it",
                     adult = true,
                     id = it,
-                    imagePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}/imagePath_$it.png",
+                    imagePath = "/imagePath_$it.png",
                 )
             }
         )

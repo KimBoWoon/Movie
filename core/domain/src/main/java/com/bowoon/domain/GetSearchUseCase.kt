@@ -5,8 +5,6 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.filter
-import androidx.paging.map
-import com.bowoon.data.repository.MovieAppDataRepository
 import com.bowoon.data.repository.PagingRepository
 import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.model.DisplayItem
@@ -19,14 +17,12 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 class GetSearchUseCase @Inject constructor(
     private val pagingRepository: PagingRepository,
-    userDataRepository: UserDataRepository,
-    movieAppDataRepository: MovieAppDataRepository
+    userDataRepository: UserDataRepository
 ) {
     private val coroutineScopeExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         close(message = throwable.message ?: "something wrong...", cause = throwable)
@@ -37,7 +33,6 @@ class GetSearchUseCase @Inject constructor(
         started = SharingStarted.Eagerly,
         initialValue = null
     )
-    val movieAppData = movieAppDataRepository.movieAppData
 
     operator fun invoke(
         searchType: SearchType,
@@ -56,11 +51,7 @@ class GetSearchUseCase @Inject constructor(
                     isAdult = userData.value?.isAdult ?: true
                 )
             }
-        ).flow.cachedIn(scope = backgroundScope).map { pagingData ->
-            pagingData.map { displayItem ->
-                displayItem.copy(imagePath = "${movieAppData.value.getImageUrl()}${displayItem.imagePath}")
-            }
-        },
+        ).flow.cachedIn(scope = backgroundScope),
         selectedGenre
     ) { pagingData, genre ->
         if (genre != null) {

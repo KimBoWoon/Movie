@@ -1,7 +1,5 @@
 package com.bowoon.favorite
 
-import com.bowoon.domain.GetFavoriteMovieListUseCase
-import com.bowoon.domain.GetFavoritePeopleListUseCase
 import com.bowoon.model.Favorite
 import com.bowoon.testing.repository.TestDatabaseRepository
 import com.bowoon.testing.repository.TestMovieAppDataRepository
@@ -21,14 +19,6 @@ class FavoriteVMTest {
     val mainDispatcherRule = MainDispatcherRule()
     private val testDatabaseRepository = TestDatabaseRepository()
     private val testMovieAppDataRepository = TestMovieAppDataRepository()
-    private val getFavoriteMovieListUseCase = GetFavoriteMovieListUseCase(
-        databaseRepository = testDatabaseRepository,
-        movieAppDataRepository = testMovieAppDataRepository
-    )
-    private val getFavoritePeopleListUseCase = GetFavoritePeopleListUseCase(
-        databaseRepository = testDatabaseRepository,
-        movieAppDataRepository = testMovieAppDataRepository
-    )
     private lateinit var viewModel: FavoriteVM
     private val movie1 = Favorite(id = 0, title = "movie_1", imagePath = "/movieImagePath_0.png")
     private val movie2 = Favorite(id = 1, title = "movie_2", imagePath = "/movieImagePath_1.png")
@@ -38,9 +28,7 @@ class FavoriteVMTest {
     @Before
     fun setup() {
         viewModel = FavoriteVM(
-            databaseRepository = testDatabaseRepository,
-            getFavoritePeopleListUseCase = getFavoritePeopleListUseCase,
-            getFavoriteMovieListUseCase = getFavoriteMovieListUseCase
+            databaseRepository = testDatabaseRepository
         )
         runBlocking {
             testDatabaseRepository.insertMovie(movie1)
@@ -55,10 +43,7 @@ class FavoriteVMTest {
         backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.favoriteMovies.collect() }
         assertEquals(
             viewModel.favoriteMovies.value,
-            listOf(
-                movie1.copy(imagePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${movie1.imagePath}"),
-                movie2.copy(imagePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${movie2.imagePath}")
-            )
+            listOf(movie1, movie2)
         )
     }
 
@@ -68,10 +53,7 @@ class FavoriteVMTest {
 
         assertEquals(
             viewModel.favoritePeoples.value,
-            listOf(
-                people1.copy(imagePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${people1.imagePath}"),
-                people2.copy(imagePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${people2.imagePath}")
-            )
+            listOf(people1, people2)
         )
     }
 
@@ -83,7 +65,7 @@ class FavoriteVMTest {
 
         assertEquals(
             viewModel.favoriteMovies.value,
-            listOf(movie2.copy(imagePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${movie2.imagePath}"),)
+            listOf(movie2)
         )
     }
 
@@ -95,7 +77,7 @@ class FavoriteVMTest {
 
         assertEquals(
             viewModel.favoritePeoples.value,
-            listOf(people2.copy(imagePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${people2.imagePath}"),)
+            listOf(people2)
         )
     }
 }

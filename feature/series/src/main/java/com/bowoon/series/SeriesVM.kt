@@ -7,7 +7,7 @@ import androidx.navigation.toRoute
 import com.bowoon.common.Result
 import com.bowoon.common.asResult
 import com.bowoon.common.restartableStateIn
-import com.bowoon.domain.GetSeriesMovieUseCase
+import com.bowoon.data.repository.DetailRepository
 import com.bowoon.model.Series
 import com.bowoon.series.navigation.SeriesRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,14 +18,14 @@ import javax.inject.Inject
 @HiltViewModel
 class SeriesVM @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    getSeriesMovieUseCase: GetSeriesMovieUseCase
+    detailRepository: DetailRepository
 ) : ViewModel() {
     companion object {
         private const val TAG = "SeriesVM"
     }
 
     private val collectionId = savedStateHandle.toRoute<SeriesRoute>().id
-    val series = getSeriesMovieUseCase(collectionId)
+    val series = detailRepository.getMovieSeries(collectionId)
         .asResult()
         .map {
             when (it) {

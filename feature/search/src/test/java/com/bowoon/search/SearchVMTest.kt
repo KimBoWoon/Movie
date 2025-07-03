@@ -45,8 +45,7 @@ class SearchVMTest {
         testMovieAppDataRepository = TestMovieAppDataRepository()
         getSearchUseCase = GetSearchUseCase(
             pagingRepository = testPagingRepository,
-            userDataRepository = testUserDataRepository,
-            movieAppDataRepository = testMovieAppDataRepository
+            userDataRepository = testUserDataRepository
         )
         getRecommendKeywordUseCase = GetRecommendKeywordUseCase(
             pagingRepository = testPagingRepository

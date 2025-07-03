@@ -3,10 +3,8 @@ package com.bowoon.domain
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
-import androidx.paging.map
 import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.data.repository.DetailRepository
-import com.bowoon.data.repository.MovieAppDataRepository
 import com.bowoon.data.repository.PagingRepository
 import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.model.InternalData
@@ -29,7 +27,6 @@ import javax.inject.Inject
 class GetMovieDetailUseCase @Inject constructor(
     userDataRepository: UserDataRepository,
     databaseRepository: DatabaseRepository,
-    movieAppDataRepository: MovieAppDataRepository,
     private val detailRepository: DetailRepository,
     private val pagingRepository: PagingRepository
 ) {
@@ -37,7 +34,6 @@ class GetMovieDetailUseCase @Inject constructor(
         close(message = throwable.message ?: "something wrong...", cause = throwable)
     }
     private val backgroundScope = CoroutineScope(Dispatchers.IO + coroutineExceptionHandler)
-    private val movieAppData = movieAppDataRepository.movieAppData
     private val seriesId = MutableStateFlow<Int?>(null)
     private val internalData = userDataRepository.internalData
         .stateIn(
@@ -62,23 +58,7 @@ class GetMovieDetailUseCase @Inject constructor(
                     certification = movie.releases?.countries?.find {
                         it.iso31661.equals(internalData.value.region, true)
                     }?.certification ?: movie.certification,
-                    isFavorite = favoriteMovies.value.find { it.id == movie.id } != null,
-                    backdropPath = "${movieAppData.value.getImageUrl()}${movie.backdropPath}",
-                    belongsToCollection = movie.belongsToCollection?.copy(
-                        backdropPath = "${movieAppData.value.getImageUrl()}${movie.belongsToCollection?.backdropPath}",
-                        posterPath = "${movieAppData.value.getImageUrl()}${movie.belongsToCollection?.posterPath}"
-                    ),
-                    credits = movie.credits?.copy(
-                        cast = movie.credits?.cast?.map { it.copy(profilePath = "${movieAppData.value.getImageUrl()}${it.profilePath}") },
-                        crew = movie.credits?.crew?.map { it.copy(profilePath = "${movieAppData.value.getImageUrl()}${it.profilePath}") }
-                    ),
-                    images = movie.images?.copy(
-                        backdrops = movie.images?.backdrops?.map { it.copy(filePath = "${movieAppData.value.getImageUrl()}${it.filePath}") },
-                        logos = movie.images?.logos?.map { it.copy(filePath = "${movieAppData.value.getImageUrl()}${it.filePath}") },
-                        posters = movie.images?.posters?.map { it.copy(filePath = "${movieAppData.value.getImageUrl()}${it.filePath}") }
-                    ),
-                    posterPath = "${movieAppData.value.getImageUrl()}${movie.posterPath}",
-                    productionCompanies = movie.productionCompanies?.map { it.copy(logoPath = "${movieAppData.value.getImageUrl()}${it.logoPath}") }
+                    isFavorite = favoriteMovies.value.find { it.id == movie.id } != null
                 )
             }
             .onEach {
@@ -96,27 +76,12 @@ class GetMovieDetailUseCase @Inject constructor(
                         language = "${internalData.value.language}-${internalData.value.region}"
                     )
                 }
-            ).flow.cachedIn(scope = backgroundScope).map { pagingData ->
-                pagingData.map { movie ->
-                    movie.copy(imagePath = "${movieAppData.value.getImageUrl()}${movie.imagePath}")
-                }
-            },
+            ).flow.cachedIn(scope = backgroundScope),
         ),
         @OptIn(ExperimentalCoroutinesApi::class)
         seriesId.flatMapLatest { seriesId ->
             seriesId?.let {
-                detailRepository.getMovieSeries(it).map { movieSeries ->
-                    movieSeries.copy(
-                        backdropPath = "${movieAppData.value.getImageUrl()}${movieSeries.backdropPath}",
-                        posterPath = "${movieAppData.value.getImageUrl()}${movieSeries.posterPath}",
-                        parts = movieSeries.parts?.map { part ->
-                            part.copy(
-                                backdropPath = "${movieAppData.value.getImageUrl()}${part.backdropPath}",
-                                posterPath = "${movieAppData.value.getImageUrl()}${part.posterPath}"
-                            )
-                        }
-                    )
-                }
+                detailRepository.getMovieSeries(collectionId = it)
             } ?: flowOf(null)
         }
     ) { movie, similarMovie, series ->

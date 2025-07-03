@@ -8,7 +8,6 @@ import com.bowoon.model.ExternalIds
 import com.bowoon.model.Genres
 import com.bowoon.model.Language
 import com.bowoon.model.Movie
-import com.bowoon.model.MovieList
 import com.bowoon.model.People
 import com.bowoon.model.Regions
 import com.bowoon.model.SearchData
@@ -48,14 +47,6 @@ class TestMovieDataSource : MovieNetworkDataSource {
         region: String,
         page: Int
     ): List<DisplayItem> = upcomingMoviesTestData
-
-    override suspend fun getNowPlayingMovie(
-        language: String,
-        region: String,
-        page: Int
-    ): MovieList = MovieList()
-
-    override suspend fun getUpComingMovie(language: String, region: String, page: Int): MovieList = MovieList()
 
     override suspend fun searchMovies(
         query: String,
