@@ -35,7 +35,7 @@ internal class ApiResultCall<R>(
                             )
                         }
                     }
-                } ?: callback.onResponse(this@ApiResultCall, Response.success(ApiResponse.Failure(throwable = IllegalStateException("empty body!"))))
+                } ?: callback.onResponse(this@ApiResultCall, Response.success(ApiResponse.Failure(throwable = IllegalStateException(response.errorBody()?.string() ?: "empty body!"))))
             }
 
             override fun onFailure(call: Call<R?>, throwable: Throwable) {

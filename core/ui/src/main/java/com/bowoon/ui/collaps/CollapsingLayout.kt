@@ -22,7 +22,7 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
-import com.bowoon.model.PeopleDetail
+import com.bowoon.model.People
 import com.bowoon.ui.collaps.scrollflags.ExitUntilCollapsedState
 import com.bowoon.ui.utils.dp80
 import com.bowoon.ui.image.DynamicAsyncImageLoader
@@ -56,7 +56,7 @@ fun rememberToolbarState(toolbarHeightRange: IntRange): ToolbarState {
 @Composable
 fun CollapsingToolbar(
     modifier: Modifier = Modifier,
-    people: PeopleDetail,
+    people: People,
     progress: Float
 ) {
     val logoPadding = with(LocalDensity.current) {

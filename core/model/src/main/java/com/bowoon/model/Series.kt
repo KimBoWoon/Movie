@@ -1,15 +1,15 @@
 package com.bowoon.model
 
-data class MovieSeries(
+data class Series(
     val backdropPath: String? = null,
     val id: Int? = null,
     val name: String? = null,
     val overview: String? = null,
-    val parts: List<MovieSeriesPart>? = null,
+    val parts: List<SeriesPart>? = null,
     val posterPath: String? = null
 )
 
-data class MovieSeriesPart(
+data class SeriesPart(
     val adult: Boolean? = null,
     val backdropPath: String? = null,
     val genreIds: List<Int>? = null,

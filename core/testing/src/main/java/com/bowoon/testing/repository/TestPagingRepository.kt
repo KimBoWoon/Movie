@@ -4,54 +4,23 @@ import android.annotation.SuppressLint
 import androidx.paging.PagingSource
 import androidx.paging.testing.asPagingSourceFactory
 import com.bowoon.data.repository.PagingRepository
-import com.bowoon.model.Movie
-import com.bowoon.model.People
-import com.bowoon.model.SearchGroup
+import com.bowoon.model.DisplayItem
 import com.bowoon.model.SearchKeyword
-import com.bowoon.model.SearchPeopleKnownFor
 import com.bowoon.model.SearchType
-import com.bowoon.model.Series
 import com.bowoon.testing.model.testRecommendedKeyword
 
 class TestPagingRepository : PagingRepository {
     @SuppressLint("VisibleForTests")
     private val testPagingSource = (0..100).map {
-        Movie(
-            backdropPath = "backdropPath_$it",
+        DisplayItem(
             genreIds = listOf(it),
-            originalLanguage = "originalLanguage_$it",
-            originalTitle = "originalTitle_$it",
-            overview = "overview_$it",
-            posterPath = "/posterPath_$it.png",
             releaseDate = "releaseDate_$it",
             title = "title_$it",
-            video = true,
-            voteAverage = it.toDouble(),
-            voteCount = it,
             adult = true,
             id = it,
-            name = "name_$it",
-            imagePath = "/imagePath_$it.png",
-            originalName = "originalName_$it",
-            popularity = it.toDouble()
+            imagePath = "/imagePath_$it.png"
         )
     }.asPagingSourceFactory().invoke()
-
-    override fun getUpComingMoviePagingSource(
-        language: String,
-        region: String,
-        isAdult: Boolean,
-        releaseDateGte: String,
-        releaseDateLte: String
-    ): PagingSource<Int, Movie> = testPagingSource
-
-    override fun getNowPlayingMoviePagingSource(
-        language: String,
-        region: String,
-        isAdult: Boolean,
-        releaseDateGte: String,
-        releaseDateLte: String
-    ): PagingSource<Int, Movie> = testPagingSource
 
     @SuppressLint("VisibleForTests")
     override fun getSearchPagingSource(
@@ -60,63 +29,20 @@ class TestPagingRepository : PagingRepository {
         language: String,
         region: String,
         isAdult: Boolean
-    ): PagingSource<Int, SearchGroup> {
+    ): PagingSource<Int, DisplayItem> {
         return (0..100).map {
-            when (type) {
-                SearchType.MOVIE -> {
-                    Movie(
-                        backdropPath = "backdropPath_$it",
-                        genreIds = listOf(it),
-                        originalLanguage = "originalLanguage_$it",
-                        originalTitle = "originalTitle_$it",
-                        overview = "overview_$it",
-                        posterPath = "/posterPath_$it.png",
-                        releaseDate = "releaseDate_$it",
-                        title = "title_$it",
-                        video = true,
-                        voteAverage = it.toDouble(),
-                        voteCount = it,
-                        adult = true,
-                        id = it,
-                        name = "name_$it",
-                        imagePath = "/imagePath_$it.png",
-                        originalName = "originalName_$it",
-                        popularity = it.toDouble()
-                    )
-                }
-                SearchType.PEOPLE -> {
-                    People(
-                        gender = 1,
-                        knownFor = listOf(SearchPeopleKnownFor()),
-                        knownForDepartment = "knownForDepartment_$it",
-                        profilePath = "profilePath_$it",
-                        adult = true,
-                        id = it,
-                        name = "name_$it",
-                        imagePath = "imagePath_$it",
-                        originalName = "originalName_$it",
-                        popularity = it.toDouble()
-                    )
-                }
-                SearchType.SERIES -> {
-                    Series(
-                        backdropPath = "backdropPath_$it",
-                        originalLanguage = "originalLanguage_$it",
-                        overview = "overview_$it",
-                        posterPath = "posterPath_$it",
-                        adult = true,
-                        id = it,
-                        name = "name_$it",
-                        imagePath = "imagePath_$it",
-                        originalName = "originalName_$it",
-                        popularity = it.toDouble()
-                    )
-                }
-            }
+            DisplayItem(
+                genreIds = listOf(it),
+                releaseDate = "releaseDate_$it",
+                title = "title_$it",
+                adult = true,
+                id = it,
+                imagePath = "/imagePath_$it.png"
+            )
         }.asPagingSourceFactory().invoke()
     }
 
-    override fun getSimilarMoviePagingSource(id: Int, language: String): PagingSource<Int, Movie> = testPagingSource
+    override fun getSimilarMoviePagingSource(id: Int, language: String): PagingSource<Int, DisplayItem> = testPagingSource
 
     @SuppressLint("VisibleForTests")
     override fun getRecommendKeywordPagingSource(query: String): PagingSource<Int, SearchKeyword> = testRecommendedKeyword.asPagingSourceFactory().invoke()

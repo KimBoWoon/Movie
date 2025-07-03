@@ -1,6 +1,6 @@
 package com.bowoon.model
 
-data class PeopleDetail(
+data class People(
     val adult: Boolean? = null,
     val alsoKnownAs: List<String>? = null,
     val biography: String? = null,

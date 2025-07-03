@@ -3,18 +3,17 @@ package com.bowoon.testing
 import com.bowoon.model.CertificationData
 import com.bowoon.model.CombineCredits
 import com.bowoon.model.Configuration
+import com.bowoon.model.DisplayItem
 import com.bowoon.model.ExternalIds
 import com.bowoon.model.Genres
 import com.bowoon.model.Language
 import com.bowoon.model.Movie
-import com.bowoon.model.MovieDetail
-import com.bowoon.model.MovieList
-import com.bowoon.model.MovieSeries
-import com.bowoon.model.PeopleDetail
+import com.bowoon.model.People
 import com.bowoon.model.Regions
 import com.bowoon.model.SearchData
 import com.bowoon.model.SearchKeyword
 import com.bowoon.model.SearchKeywordData
+import com.bowoon.model.Series
 import com.bowoon.model.SimilarMovies
 import com.bowoon.network.MovieNetworkDataSource
 import com.bowoon.testing.model.certificationTestData
@@ -41,21 +40,13 @@ class TestMovieDataSource : MovieNetworkDataSource {
 
     override suspend fun getGenres(language: String): Genres = genreListTestData
 
-    override suspend fun getNowPlaying(language: String, region: String, page: Int): List<Movie> = nowPlayingMoviesTestData
+    override suspend fun getNowPlaying(language: String, region: String, page: Int): List<DisplayItem> = nowPlayingMoviesTestData
 
     override suspend fun getUpcomingMovie(
         language: String,
         region: String,
         page: Int
-    ): List<Movie> = upcomingMoviesTestData
-
-    override suspend fun getNowPlayingMovie(
-        language: String,
-        region: String,
-        page: Int
-    ): MovieList = MovieList()
-
-    override suspend fun getUpComingMovie(language: String, region: String, page: Int): MovieList = MovieList()
+    ): List<DisplayItem> = upcomingMoviesTestData
 
     override suspend fun searchMovies(
         query: String,
@@ -81,15 +72,15 @@ class TestMovieDataSource : MovieNetworkDataSource {
         page: Int
     ): SearchData = seriesSearchTestData
 
-    override suspend fun getMovieSeries(collectionId: Int, language: String): MovieSeries = movieSeriesTestData
+    override suspend fun getMovieSeries(collectionId: Int, language: String): Series = movieSeriesTestData
 
-    override suspend fun getMovieDetail(
+    override suspend fun getMovie(
         id: Int,
         appendToResponse: String,
         language: String,
         includeImageLanguage: String,
         region: String
-    ): MovieDetail = favoriteMovieDetailTestData
+    ): Movie = favoriteMovieDetailTestData
 
     override suspend fun getSimilarMovies(id: Int, language: String, page: Int): SimilarMovies = similarMoviesTestData
 
@@ -113,7 +104,7 @@ class TestMovieDataSource : MovieNetworkDataSource {
         appendToResponse: String,
         language: String,
         includeImageLanguage: String
-    ): PeopleDetail = peopleDetailTestData
+    ): People = peopleDetailTestData
 
     override suspend fun getCombineCredits(personId: Int, language: String): CombineCredits = combineCreditsTestData
 

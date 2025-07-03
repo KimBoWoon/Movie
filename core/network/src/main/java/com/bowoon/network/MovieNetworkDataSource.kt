@@ -3,17 +3,16 @@ package com.bowoon.network
 import com.bowoon.model.CertificationData
 import com.bowoon.model.CombineCredits
 import com.bowoon.model.Configuration
+import com.bowoon.model.DisplayItem
 import com.bowoon.model.ExternalIds
 import com.bowoon.model.Genres
 import com.bowoon.model.Language
 import com.bowoon.model.Movie
-import com.bowoon.model.MovieDetail
-import com.bowoon.model.MovieList
-import com.bowoon.model.MovieSeries
-import com.bowoon.model.PeopleDetail
+import com.bowoon.model.People
 import com.bowoon.model.Regions
 import com.bowoon.model.SearchData
 import com.bowoon.model.SearchKeywordData
+import com.bowoon.model.Series
 import com.bowoon.model.SimilarMovies
 
 interface MovieNetworkDataSource {
@@ -27,16 +26,13 @@ interface MovieNetworkDataSource {
         language: String = "ko-KR",
         region: String = "KR",
         page: Int = 1
-    ): List<Movie>
+    ): List<DisplayItem>
 
     suspend fun getUpcomingMovie(
         language: String = "ko-KR",
         region: String = "KR",
         page: Int = 1
-    ): List<Movie>
-
-    suspend fun getNowPlayingMovie(language: String, region: String, page: Int): MovieList
-    suspend fun getUpComingMovie(language: String, region: String, page: Int): MovieList
+    ): List<DisplayItem>
 
     suspend fun searchMovies(
         query: String,
@@ -65,15 +61,15 @@ interface MovieNetworkDataSource {
     suspend fun getMovieSeries(
         collectionId: Int,
         language: String = "ko-KR"
-    ): MovieSeries
+    ): Series
 
-    suspend fun getMovieDetail(
+    suspend fun getMovie(
         id: Int,
         appendToResponse: String = "images,videos,credits,reviews,releases,translations,lists,keywords,alternative_titles,changes,similar",
         language: String = "ko-KR",
         includeImageLanguage: String = "ko",
         region: String = "KR"
-    ): MovieDetail
+    ): Movie
 
     suspend fun getSimilarMovies(
         id: Int,
@@ -101,7 +97,7 @@ interface MovieNetworkDataSource {
         appendToResponse: String = "images, combined_credits, external_ids",
         language: String = "ko-KR",
         includeImageLanguage: String = "ko"
-    ): PeopleDetail
+    ): People
 
     suspend fun getCombineCredits(
         personId: Int,

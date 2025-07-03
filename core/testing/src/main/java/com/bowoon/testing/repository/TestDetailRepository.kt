@@ -17,19 +17,14 @@ import com.bowoon.model.Image
 import com.bowoon.model.Images
 import com.bowoon.model.Keyword
 import com.bowoon.model.Keywords
-import com.bowoon.model.MovieDetail
-import com.bowoon.model.MovieLists
-import com.bowoon.model.MovieSeries
-import com.bowoon.model.PeopleDetail
+import com.bowoon.model.Movie
+import com.bowoon.model.Series
+import com.bowoon.model.People
 import com.bowoon.model.ProductionCompany
 import com.bowoon.model.ProductionCountry
 import com.bowoon.model.Releases
-import com.bowoon.model.Reviews
 import com.bowoon.model.SearchData
 import com.bowoon.model.SpokenLanguage
-import com.bowoon.model.Translation
-import com.bowoon.model.TranslationInfo
-import com.bowoon.model.Translations
 import com.bowoon.model.VideoInfo
 import com.bowoon.model.Videos
 import kotlinx.coroutines.channels.BufferOverflow.DROP_OLDEST
@@ -38,31 +33,31 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import org.jetbrains.annotations.VisibleForTesting
 
 class TestDetailRepository : DetailRepository {
-    private val movieDetail = MutableSharedFlow<MovieDetail>(replay = 1, onBufferOverflow = DROP_OLDEST)
+    private val movie = MutableSharedFlow<Movie>(replay = 1, onBufferOverflow = DROP_OLDEST)
     private val movieSearchData = MutableSharedFlow<SearchData>(replay = 1, onBufferOverflow = DROP_OLDEST)
-    private val peopleDetail = MutableSharedFlow<PeopleDetail>(replay = 1, onBufferOverflow = DROP_OLDEST)
+    private val peopleDetail = MutableSharedFlow<People>(replay = 1, onBufferOverflow = DROP_OLDEST)
     private val combineCredits = MutableSharedFlow<CombineCredits>(replay = 1, onBufferOverflow = DROP_OLDEST)
     private val externalIds = MutableSharedFlow<ExternalIds>(replay = 1, onBufferOverflow = DROP_OLDEST)
-    private val movieSeries = MutableSharedFlow<MovieSeries>(replay = 1, onBufferOverflow = DROP_OLDEST)
+    private val movieSeries = MutableSharedFlow<Series>(replay = 1, onBufferOverflow = DROP_OLDEST)
 
-    override fun getMovieDetail(id: Int): Flow<MovieDetail> = movieDetail
+    override fun getMovie(id: Int): Flow<Movie> = movie
 
     override fun discoverMovie(
         releaseDateGte: String,
         releaseDateLte: String
     ): Flow<SearchData> = movieSearchData
 
-    override fun getPeople(personId: Int): Flow<PeopleDetail> = peopleDetail
+    override fun getPeople(personId: Int): Flow<People> = peopleDetail
 
     override fun getCombineCredits(personId: Int): Flow<CombineCredits> = combineCredits
 
     override fun getExternalIds(personId: Int): Flow<ExternalIds> = externalIds
 
-    override fun getMovieSeries(collectionId: Int): Flow<MovieSeries> = movieSeries
+    override fun getMovieSeries(collectionId: Int): Flow<Series> = movieSeries
 
     @VisibleForTesting
-    fun setMovieDetail(detail: MovieDetail) {
-        movieDetail.tryEmit(detail)
+    fun setMovie(detail: Movie) {
+        movie.tryEmit(detail)
     }
 
     @VisibleForTesting
@@ -71,7 +66,7 @@ class TestDetailRepository : DetailRepository {
     }
 
     @VisibleForTesting
-    fun setPeopleDetail(people: PeopleDetail) {
+    fun setPeopleDetail(people: People) {
         peopleDetail.tryEmit(people)
     }
 
@@ -86,14 +81,13 @@ class TestDetailRepository : DetailRepository {
     }
 
     @VisibleForTesting
-    fun setMovieSeries(movieSeries: MovieSeries) {
+    fun setMovieSeries(movieSeries: Series) {
         this@TestDetailRepository.movieSeries.tryEmit(movieSeries)
     }
 }
 
-val favoriteMovieDetailTestData = MovieDetail(
+val favoriteMovieDetailTestData = Movie(
     adult = true,
-    autoPlayTrailer = true,
     alternativeTitles = AlternativeTitles(titles = listOf(AlternativeTitle(iso31661 = "KR", title = "title_KR", type = "type_kr"))),
     backdropPath = "backdropPath",
     belongsToCollection = BelongsToCollection(backdropPath = "/backdropPath.png", id = 896, name = "name", posterPath = "/posterPath.png"),
@@ -105,7 +99,6 @@ val favoriteMovieDetailTestData = MovieDetail(
     images = Images(backdrops = listOf(Image(filePath = "https://original/backdrops_1.png")), logos = listOf(), posters = listOf(Image(filePath = "https://original/poster_1.png"), Image(filePath = "https://original/poster_2.png"), Image(filePath = "https://original/poster_3.png"))),
     imdbId = "imdbId",
     keywords = Keywords(keywords = listOf(Keyword(id = 0, name = "name"))),
-    lists = MovieLists(id = 0, page = 1, results = listOf(), totalPages = 1, totalResults = 0),
     originCountry = listOf("originCountry"),
     originalLanguage = "originalLanguage",
     originalTitle = "originalTitle",
@@ -117,13 +110,11 @@ val favoriteMovieDetailTestData = MovieDetail(
     releaseDate = "2025-12-25",
     releases = Releases(countries = listOf(Country(certification = "15", descriptors = listOf("descriptors"), iso31661 = "KR", primary = true, releaseDate = "2025-12-25"))),
     revenue = 30_000_000_000,
-    reviews = Reviews(id = 0, page = 1, results = listOf(), totalPages = 1, totalResults = 1),
     runtime = 240,
     spokenLanguages = listOf(SpokenLanguage(englishName = "englishName", iso6391 = "ko", name = "name")),
     status = "Release",
     tagline = "tagline",
     title = "title",
-    translations = Translations(translations = listOf(Translation(translationInfo = TranslationInfo(homepage = "", overview = "", runtime = 240, tagline = "", title = ""), englishName = "", iso6391 = "", iso31661 = "", name = "name"))),
     video = true,
     videos = Videos(listOf(VideoInfo(id = "", iso31661 = "", iso6391 = "", key = "", name = "", official = true, publishedAt = "", site = "", size = 19, type = ""))),
     voteAverage = 3.5,
@@ -132,9 +123,8 @@ val favoriteMovieDetailTestData = MovieDetail(
     isFavorite = true
 )
 
-val unFavoriteMovieDetailTestData = MovieDetail(
+val unFavoriteMovieDetailTestData = Movie(
     adult = true,
-    autoPlayTrailer = true,
     alternativeTitles = AlternativeTitles(titles = listOf(AlternativeTitle(iso31661 = "KR", title = "title_KR", type = "type_kr"))),
     backdropPath = "backdropPath",
     belongsToCollection = BelongsToCollection(backdropPath = "https://original/backdropPath.png", id = 0, name = "name", posterPath = "https://original/posterPath.png"),
@@ -146,7 +136,6 @@ val unFavoriteMovieDetailTestData = MovieDetail(
     images = Images(backdrops = listOf(), logos = listOf(), posters = listOf()),
     imdbId = "imdbId",
     keywords = Keywords(keywords = listOf(Keyword(id = 0, name = "name"))),
-    lists = MovieLists(id = 0, page = 1, results = listOf(), totalPages = 1, totalResults = 0),
     originCountry = listOf("originCountry"),
     originalLanguage = "originalLanguage",
     originalTitle = "originalTitle",
@@ -158,13 +147,11 @@ val unFavoriteMovieDetailTestData = MovieDetail(
     releaseDate = "2025-12-25",
     releases = Releases(countries = listOf(Country(certification = "15", descriptors = listOf("descriptors"), iso31661 = "KR", primary = true, releaseDate = "2025-12-25"))),
     revenue = 30_000_000_000,
-    reviews = Reviews(id = 0, page = 1, results = listOf(), totalPages = 1, totalResults = 1),
     runtime = 240,
     spokenLanguages = listOf(SpokenLanguage(englishName = "englishName", iso6391 = "ko", name = "name")),
     status = "Release",
     tagline = "tagline",
     title = "title",
-    translations = Translations(translations = listOf(Translation(translationInfo = TranslationInfo(homepage = "", overview = "", runtime = 240, tagline = "", title = ""), englishName = "", iso6391 = "", iso31661 = "", name = "name"))),
     video = true,
     videos = Videos(listOf(VideoInfo(id = "", iso31661 = "", iso6391 = "", key = "", name = "", official = true, publishedAt = "", site = "", size = 19, type = ""))),
     voteAverage = 3.5,
@@ -188,7 +175,7 @@ val externalIdsTestData = ExternalIds(
     youtubeId = "youtubeId"
 )
 
-val peopleDetailTestData = PeopleDetail(
+val peopleDetailTestData = People(
     adult = true,
     alsoKnownAs = listOf("alsoKnownAs"),
     biography = "biography",

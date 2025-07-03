@@ -26,6 +26,8 @@ import coil3.compose.rememberAsyncImagePainter
 import com.bowoon.ui.theme.LocalTintTheme
 import com.bowoon.ui.utils.dp10
 
+private var imageUrl = ""
+
 @Composable
 fun DynamicAsyncImageLoader(
     source: String,
@@ -40,7 +42,7 @@ fun DynamicAsyncImageLoader(
     var isLoading by remember { mutableStateOf(true) }
     var isError by remember { mutableStateOf(false) }
     val imageLoader = rememberAsyncImagePainter(
-        model = source,
+        model = "$imageUrl$source",
         onState = { state ->
             isLoading = state is AsyncImagePainter.State.Loading
             isError = state is AsyncImagePainter.State.Error
@@ -59,22 +61,26 @@ fun DynamicAsyncImageLoader(
         when (isError) {
             true -> {
                 Image(
-                    modifier = modifier.testTag(tag = source).clip(RoundedCornerShape(dp10)),
+                    modifier = modifier.testTag(tag = source).clip(shape = RoundedCornerShape(dp10)),
                     contentScale = ContentScale.Crop,
                     painter = error,
                     contentDescription = contentDescription,
-                    colorFilter = if (iconTint != Unspecified) ColorFilter.tint(iconTint) else null
+                    colorFilter = if (iconTint != Unspecified) ColorFilter.tint(color = iconTint) else null
                 )
             }
             false -> {
                 Image(
-                    modifier = modifier.testTag(tag = source).clip(RoundedCornerShape(dp10)),
+                    modifier = modifier.testTag(tag = source).clip(shape = RoundedCornerShape(dp10)),
                     contentScale = contentScale,
                     painter = if (!isLocalInspection) imageLoader else placeholder,
                     contentDescription = contentDescription,
-                    colorFilter = if (iconTint != Unspecified) ColorFilter.tint(iconTint) else null
+                    colorFilter = if (iconTint != Unspecified) ColorFilter.tint(color = iconTint) else null
                 )
             }
         }
     }
+}
+
+fun setImageUrl(url: String) {
+    imageUrl = url
 }

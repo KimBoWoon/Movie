@@ -3,18 +3,17 @@ package com.bowoon.network.retrofit
 import com.bowoon.model.CertificationData
 import com.bowoon.model.CombineCredits
 import com.bowoon.model.Configuration
+import com.bowoon.model.DisplayItem
 import com.bowoon.model.ExternalIds
 import com.bowoon.model.Genres
 import com.bowoon.model.Language
 import com.bowoon.model.Movie
-import com.bowoon.model.MovieDetail
-import com.bowoon.model.MovieList
 import com.bowoon.model.MovieResult
-import com.bowoon.model.MovieSeries
-import com.bowoon.model.PeopleDetail
+import com.bowoon.model.People
 import com.bowoon.model.Regions
 import com.bowoon.model.SearchData
 import com.bowoon.model.SearchKeywordData
+import com.bowoon.model.Series
 import com.bowoon.model.SimilarMovies
 import com.bowoon.model.asExternalMovie
 import com.bowoon.network.ApiResponse
@@ -73,8 +72,8 @@ class RetrofitMovieNetwork @Inject constructor(
         language: String,
         region: String,
         page: Int
-    ): List<Movie> {
-        val result = mutableListOf<Movie>()
+    ): List<DisplayItem> {
+        val result = mutableListOf<DisplayItem>()
         var currentPage = page
         var totalPage = 1
 
@@ -82,7 +81,7 @@ class RetrofitMovieNetwork @Inject constructor(
             when (val response = tmdbApis.getNowPlaying(language = "$language-$region", region = region, page = currentPage)) {
                 is ApiResponse.Failure -> throw response.throwable
                 is ApiResponse.Success -> {
-                    currentPage = ((response.data.page ?: 1) + 1)
+                    currentPage = (response.data.page ?: 1) + 1
                     totalPage = response.data.totalPages ?: Int.MAX_VALUE
                     result.addAll(
                         response.data.asExternalModel().results?.map(MovieResult::asExternalMovie) ?: emptyList()
@@ -91,23 +90,15 @@ class RetrofitMovieNetwork @Inject constructor(
             }
         } while (currentPage <= totalPage)
 
-        return result.distinctBy { it.id }.sortedWith { o1, o2 ->
-            if (o1 != null && o2 != null) {
-                if (o1.voteAverage == o2.voteAverage) {
-                    o1.title?.compareTo(o2.title ?: "") ?: 0
-                } else {
-                    o2.voteAverage?.compareTo(o1.voteAverage ?: 0.0) ?: 0
-                }
-            } else 0
-        }
+        return result.distinctBy { it.id }
     }
 
     override suspend fun getUpcomingMovie(
         language: String,
         region: String,
         page: Int
-    ): List<Movie> {
-        val result = mutableListOf<Movie>()
+    ): List<DisplayItem> {
+        val result = mutableListOf<DisplayItem>()
         var currentPage = 1
         var totalPage = 1
 
@@ -115,7 +106,7 @@ class RetrofitMovieNetwork @Inject constructor(
             when (val response = tmdbApis.getUpcomingMovie(language = "$language-$region", region = region, page = currentPage)) {
                 is ApiResponse.Failure -> throw response.throwable
                 is ApiResponse.Success -> {
-                    currentPage = ((response.data.page ?: 1) + 1)
+                    currentPage = (response.data.page ?: 1) + 1
                     totalPage = response.data.totalPages ?: Int.MAX_VALUE
                     result.addAll(
                         response.data.asExternalModel().results?.map(MovieResult::asExternalMovie) ?: emptyList()
@@ -125,24 +116,6 @@ class RetrofitMovieNetwork @Inject constructor(
         } while (currentPage <= totalPage)
 
         return result.filter { (it.releaseDate ?: "") > LocalDate.now().toString() }.distinctBy { it.id }.sortedBy { it.releaseDate }
-    }
-
-    override suspend fun getNowPlayingMovie(
-        language: String,
-        region: String,
-        page: Int
-    ): MovieList = when (val response = tmdbApis.getNowPlaying(language = language, region = region, page = page)) {
-        is ApiResponse.Failure -> throw response.throwable
-        is ApiResponse.Success -> response.data.asExternalModel()
-    }
-
-    override suspend fun getUpComingMovie(
-        language: String,
-        region: String,
-        page: Int
-    ): MovieList = when (val response = tmdbApis.getUpcomingMovie(language = language, region = region, page = page)) {
-        is ApiResponse.Failure -> throw response.throwable
-        is ApiResponse.Success -> response.data.asExternalModel()
     }
 
     override suspend fun searchMovies(
@@ -202,20 +175,20 @@ class RetrofitMovieNetwork @Inject constructor(
         is ApiResponse.Success -> response.data.asExternalModel()
     }
 
-    override suspend fun getMovieSeries(collectionId: Int, language: String): MovieSeries =
+    override suspend fun getMovieSeries(collectionId: Int, language: String): Series =
         when (val response = tmdbApis.getMovieSeries(collectionId = collectionId, language = language)) {
             is ApiResponse.Failure -> throw response.throwable
             is ApiResponse.Success -> response.data.asExternalModel()
         }
 
-    override suspend fun getMovieDetail(
+    override suspend fun getMovie(
         id: Int,
         appendToResponse: String,
         language: String,
         includeImageLanguage: String,
         region: String
-    ): MovieDetail = when (
-        val response = tmdbApis.getMovieDetail(
+    ): Movie = when (
+        val response = tmdbApis.getMovie(
             id = id,
             appendToResponse = appendToResponse,
             language = language,
@@ -275,7 +248,7 @@ class RetrofitMovieNetwork @Inject constructor(
         appendToResponse: String,
         language: String,
         includeImageLanguage: String
-    ): PeopleDetail = when (
+    ): People = when (
         val response = tmdbApis.getPeopleDetail(
             personId = personId,
             appendToResponse = appendToResponse,

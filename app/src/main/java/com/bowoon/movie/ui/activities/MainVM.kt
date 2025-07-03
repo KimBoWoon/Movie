@@ -8,9 +8,11 @@ import com.bowoon.data.repository.MovieAppDataRepository
 import com.bowoon.data.util.SyncManager
 import com.bowoon.model.DarkThemeConfig
 import com.bowoon.model.MovieAppData
+import com.bowoon.ui.image.setImageUrl
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
@@ -24,6 +26,7 @@ class MainVM @Inject constructor(
     }
 
     val movieAppData = movieAppDataRepository.movieAppData
+        .onEach { setImageUrl(it.getImageUrl()) }
         .asResult()
         .map {
             when (it) {

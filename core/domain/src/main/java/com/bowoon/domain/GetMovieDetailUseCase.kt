@@ -3,10 +3,8 @@ package com.bowoon.domain
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
-import androidx.paging.map
 import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.data.repository.DetailRepository
-import com.bowoon.data.repository.MovieAppDataRepository
 import com.bowoon.data.repository.PagingRepository
 import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.model.InternalData
@@ -29,7 +27,6 @@ import javax.inject.Inject
 class GetMovieDetailUseCase @Inject constructor(
     userDataRepository: UserDataRepository,
     databaseRepository: DatabaseRepository,
-    movieAppDataRepository: MovieAppDataRepository,
     private val detailRepository: DetailRepository,
     private val pagingRepository: PagingRepository
 ) {
@@ -37,7 +34,6 @@ class GetMovieDetailUseCase @Inject constructor(
         close(message = throwable.message ?: "something wrong...", cause = throwable)
     }
     private val backgroundScope = CoroutineScope(Dispatchers.IO + coroutineExceptionHandler)
-    private val movieAppData = movieAppDataRepository.movieAppData
     private val seriesId = MutableStateFlow<Int?>(null)
     private val internalData = userDataRepository.internalData
         .stateIn(
@@ -53,33 +49,16 @@ class GetMovieDetailUseCase @Inject constructor(
         )
 
     operator fun invoke(id: Int) = combine(
-        detailRepository.getMovieDetail(id)
-            .map { movieDetail ->
-                movieDetail.copy(
-                    autoPlayTrailer = internalData.value.autoPlayTrailer,
-                    releaseDate = movieDetail.releases?.countries?.find {
+        detailRepository.getMovie(id)
+            .map { movie ->
+                movie.copy(
+                    releaseDate = movie.releases?.countries?.find {
                         it.iso31661.equals(internalData.value.region, true)
-                    }?.releaseDate ?: movieDetail.releaseDate,
-                    certification = movieDetail.releases?.countries?.find {
+                    }?.releaseDate ?: movie.releaseDate,
+                    certification = movie.releases?.countries?.find {
                         it.iso31661.equals(internalData.value.region, true)
-                    }?.certification ?: movieDetail.certification,
-                    isFavorite = favoriteMovies.value.find { it.id == movieDetail.id } != null,
-                    backdropPath = "${movieAppData.value.getImageUrl()}${movieDetail.backdropPath}",
-                    belongsToCollection = movieDetail.belongsToCollection?.copy(
-                        backdropPath = "${movieAppData.value.getImageUrl()}${movieDetail.belongsToCollection?.backdropPath}",
-                        posterPath = "${movieAppData.value.getImageUrl()}${movieDetail.belongsToCollection?.posterPath}"
-                    ),
-                    credits = movieDetail.credits?.copy(
-                        cast = movieDetail.credits?.cast?.map { it.copy(profilePath = "${movieAppData.value.getImageUrl()}${it.profilePath}") },
-                        crew = movieDetail.credits?.crew?.map { it.copy(profilePath = "${movieAppData.value.getImageUrl()}${it.profilePath}") }
-                    ),
-                    images = movieDetail.images?.copy(
-                        backdrops = movieDetail.images?.backdrops?.map { it.copy(filePath = "${movieAppData.value.getImageUrl()}${it.filePath}") },
-                        logos = movieDetail.images?.logos?.map { it.copy(filePath = "${movieAppData.value.getImageUrl()}${it.filePath}") },
-                        posters = movieDetail.images?.posters?.map { it.copy(filePath = "${movieAppData.value.getImageUrl()}${it.filePath}") }
-                    ),
-                    posterPath = "${movieAppData.value.getImageUrl()}${movieDetail.posterPath}",
-                    productionCompanies = movieDetail.productionCompanies?.map { it.copy(logoPath = "${movieAppData.value.getImageUrl()}${it.logoPath}") }
+                    }?.certification ?: movie.certification,
+                    isFavorite = favoriteMovies.value.find { it.id == movie.id } != null
                 )
             }
             .onEach {
@@ -97,35 +76,16 @@ class GetMovieDetailUseCase @Inject constructor(
                         language = "${internalData.value.language}-${internalData.value.region}"
                     )
                 }
-            ).flow.cachedIn(scope = backgroundScope).map { pagingData ->
-                pagingData.map { movie ->
-                    movie.copy(
-                        backdropPath = "${movieAppData.value.getImageUrl()}${movie.backdropPath}",
-                        posterPath = "${movieAppData.value.getImageUrl()}${movie.posterPath}",
-                        imagePath = "${movieAppData.value.getImageUrl()}${movie.imagePath}"
-                    )
-                }
-            },
+            ).flow.cachedIn(scope = backgroundScope),
         ),
         @OptIn(ExperimentalCoroutinesApi::class)
         seriesId.flatMapLatest { seriesId ->
             seriesId?.let {
-                detailRepository.getMovieSeries(it).map { movieSeries ->
-                    movieSeries.copy(
-                        backdropPath = "${movieAppData.value.getImageUrl()}${movieSeries.backdropPath}",
-                        posterPath = "${movieAppData.value.getImageUrl()}${movieSeries.posterPath}",
-                        parts = movieSeries.parts?.map { part ->
-                            part.copy(
-                                backdropPath = "${movieAppData.value.getImageUrl()}${part.backdropPath}",
-                                posterPath = "${movieAppData.value.getImageUrl()}${part.posterPath}"
-                            )
-                        }
-                    )
-                }
+                detailRepository.getMovieSeries(collectionId = it)
             } ?: flowOf(null)
         }
-    ) { movieDetail, similarMovie, series ->
-        MovieInfo(detail = movieDetail, series = series, similarMovies = similarMovie)
+    ) { movie, similarMovie, series ->
+        MovieInfo(detail = movie, series = series, similarMovies = similarMovie)
     }
 
     fun close(message: String, cause: Throwable?) {

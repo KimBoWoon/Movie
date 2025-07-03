@@ -21,7 +21,6 @@ import com.bowoon.common.AppDoubleBackToExit
 import com.bowoon.common.isSystemInDarkTheme
 import com.bowoon.data.util.NetworkMonitor
 import com.bowoon.firebase.LocalFirebaseLogHelper
-import com.bowoon.model.MovieAppData
 import com.bowoon.movie.MovieFirebase
 import com.bowoon.movie.R
 import com.bowoon.movie.rememberMovieAppState
@@ -55,16 +54,15 @@ class MainActivity : ComponentActivity() {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
 
-        onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) {
+        onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(enabled = true) {
             override fun handleOnBackPressed() {
-                appDoubleBackToExit.onBackPressed({ finish() })
+                appDoubleBackToExit.onBackPressed(callback = { finish() })
             }
         })
 
         movieFirebase.sendLog(javaClass.simpleName, "create MainActivity")
 
         var darkTheme by mutableStateOf(resources.configuration.isSystemInDarkTheme)
-        var movieAppData by mutableStateOf(MovieAppData())
 
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -72,7 +70,6 @@ class MainActivity : ComponentActivity() {
                     isSystemInDarkTheme(),
                     viewModel.movieAppData
                 ) { systemDarkTheme, userdata ->
-                    movieAppData = userdata.getMovieAppData()
                     userdata.shouldUseDarkTheme(systemDarkTheme)
                 }.onEach { darkTheme = it }
                     .distinctUntilChanged()

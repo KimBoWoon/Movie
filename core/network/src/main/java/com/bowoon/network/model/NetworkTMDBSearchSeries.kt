@@ -1,7 +1,7 @@
 package com.bowoon.network.model
 
+import com.bowoon.model.DisplayItem
 import com.bowoon.model.SearchData
-import com.bowoon.model.Series
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -45,18 +45,13 @@ fun NetworkTMDBSearchSeries.asExternalModel(): SearchData =
         totalResults = totalResults
     )
 
-fun List<NetworkTMDBSearchSeriesResult>.asExternalModel(): List<Series> =
+fun List<NetworkTMDBSearchSeriesResult>.asExternalModel(): List<DisplayItem> =
     map {
-        Series(
-            backdropPath = it.backdropPath,
-            originalLanguage = it.originalLanguage,
-            overview = it.overview,
-            posterPath = it.posterPath,
+        DisplayItem(
             adult = it.adult,
             id = it.id,
-            name = it.name,
+            title = it.name,
             imagePath = it.posterPath,
-            originalName = it.name,
-            popularity = null
+            genreIds = null
         )
     }

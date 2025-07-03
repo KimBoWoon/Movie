@@ -31,8 +31,7 @@ class GetPeopleDetailUseCaseTest {
         movieAppDataRepository = TestMovieAppDataRepository()
         getPeopleDetailUseCase = GetPeopleDetailUseCase(
             detailRepository = detailRepository,
-            databaseRepository = databaseRepository,
-            movieAppDataRepository = movieAppDataRepository
+            databaseRepository = databaseRepository
         )
 
         runBlocking { databaseRepository.insertPeople(Favorite(id = 489)) }
@@ -48,27 +47,7 @@ class GetPeopleDetailUseCaseTest {
 
         assertEquals(
             result.first(),
-            peopleDetailTestData.copy(
-                combineCredits = peopleDetailTestData.combineCredits?.copy(
-                    cast = peopleDetailTestData.combineCredits?.cast?.map {
-                        it.copy(
-                            backdropPath = "${movieAppDataRepository.movieAppData.value.getImageUrl()}${it.backdropPath}",
-                            posterPath = "${movieAppDataRepository.movieAppData.value.getImageUrl()}${it.posterPath}"
-                        )
-                    },
-                    crew = peopleDetailTestData.combineCredits?.crew?.map {
-                        it.copy(
-                            backdropPath = "${movieAppDataRepository.movieAppData.value.getImageUrl()}${it.backdropPath}",
-                            posterPath = "${movieAppDataRepository.movieAppData.value.getImageUrl()}${it.posterPath}"
-                        )
-                    }
-                ),
-                profilePath = "${movieAppDataRepository.movieAppData.value.getImageUrl()}${peopleDetailTestData.profilePath}",
-                images = peopleDetailTestData.images?.map {
-                    it.copy(filePath = "${movieAppDataRepository.movieAppData.value.getImageUrl()}${it.filePath}")
-                },
-                isFavorite = false
-            )
+            peopleDetailTestData.copy(isFavorite = false)
         )
     }
 
@@ -83,26 +62,7 @@ class GetPeopleDetailUseCaseTest {
 
         assertEquals(
             result.first(),
-            peopleDetailTestData.copy(
-                combineCredits = peopleDetailTestData.combineCredits?.copy(
-                    cast = peopleDetailTestData.combineCredits?.cast?.map {
-                        it.copy(
-                            backdropPath = "${movieAppDataRepository.movieAppData.value.getImageUrl()}${it.backdropPath}",
-                            posterPath = "${movieAppDataRepository.movieAppData.value.getImageUrl()}${it.posterPath}"
-                        )
-                    },
-                    crew = peopleDetailTestData.combineCredits?.crew?.map {
-                        it.copy(
-                            backdropPath = "${movieAppDataRepository.movieAppData.value.getImageUrl()}${it.backdropPath}",
-                            posterPath = "${movieAppDataRepository.movieAppData.value.getImageUrl()}${it.posterPath}"
-                        )
-                    }
-                ),
-                profilePath = "${movieAppDataRepository.movieAppData.value.getImageUrl()}${peopleDetailTestData.profilePath}",
-                images = peopleDetailTestData.images?.map {
-                    it.copy(filePath = "${movieAppDataRepository.movieAppData.value.getImageUrl()}${it.filePath}")
-                },
-            )
+            peopleDetailTestData
         )
     }
 }

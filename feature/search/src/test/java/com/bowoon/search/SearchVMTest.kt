@@ -6,7 +6,7 @@ import androidx.paging.testing.asSnapshot
 import com.bowoon.data.paging.SearchPagingSource
 import com.bowoon.domain.GetRecommendKeywordUseCase
 import com.bowoon.domain.GetSearchUseCase
-import com.bowoon.model.SearchGroup
+import com.bowoon.model.DisplayItem
 import com.bowoon.model.SearchType
 import com.bowoon.testing.TestMovieDataSource
 import com.bowoon.testing.model.movieSearchTestData
@@ -45,8 +45,7 @@ class SearchVMTest {
         testMovieAppDataRepository = TestMovieAppDataRepository()
         getSearchUseCase = GetSearchUseCase(
             pagingRepository = testPagingRepository,
-            userDataRepository = testUserDataRepository,
-            movieAppDataRepository = testMovieAppDataRepository
+            userDataRepository = testUserDataRepository
         )
         getRecommendKeywordUseCase = GetRecommendKeywordUseCase(
             pagingRepository = testPagingRepository
@@ -95,7 +94,7 @@ class SearchVMTest {
             isAdult = true
         )
 
-        val a: PagingSource.LoadResult<Int, SearchGroup> = PagingSource.LoadResult.Page(
+        val a: PagingSource.LoadResult<Int, DisplayItem> = PagingSource.LoadResult.Page(
             data = movieSearchTestData.results ?: emptyList(),
             prevKey = null,
             nextKey = 2

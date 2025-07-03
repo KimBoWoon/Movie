@@ -6,9 +6,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 @Parcelize
-data class MovieDetail(
+data class Movie(
     val adult: Boolean? = null,
-    val autoPlayTrailer: Boolean? = null,
     val alternativeTitles: AlternativeTitles? = null,
     val backdropPath: String? = null,
     val belongsToCollection: BelongsToCollection? = null,
@@ -20,7 +19,6 @@ data class MovieDetail(
     val images: Images? = null,
     val imdbId: String? = null,
     val keywords: Keywords? = null,
-    val lists: MovieLists? = null,
     val originCountry: List<String>? = null,
     val originalLanguage: String? = null,
     val originalTitle: String? = null,
@@ -32,13 +30,11 @@ data class MovieDetail(
     val releaseDate: String? = null,
     val releases: Releases? = null,
     val revenue: Long? = null,
-    val reviews: Reviews? = null,
     val runtime: Int? = null,
     val spokenLanguages: List<SpokenLanguage>? = null,
     val status: String? = null,
     val tagline: String? = null,
     val title: String? = null,
-    val translations: Translations? = null,
     val video: Boolean? = null,
     val videos: Videos? = null,
     val voteAverage: Double? = null,
@@ -288,20 +284,3 @@ data class AuthorDetails(
     val rating: Int? = null,
     val username: String? = null
 ) : Parcelable
-
-fun MovieDetail.asExternalModel(): Movie = Movie(
-    adult = adult,
-    backdropPath = backdropPath,
-    genreIds = genres?.mapNotNull { it.id },
-    id = id,
-    originalLanguage = originalLanguage,
-    originalTitle = originalTitle,
-    overview = overview,
-    popularity = popularity,
-    posterPath = posterPath,
-    releaseDate = releaseDate,
-    title = title,
-    video = video,
-    voteAverage = voteAverage,
-    voteCount = voteCount
-)

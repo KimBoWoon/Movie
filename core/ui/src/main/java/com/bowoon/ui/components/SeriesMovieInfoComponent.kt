@@ -18,7 +18,7 @@ import androidx.constraintlayout.compose.ChainStyle
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
-import com.bowoon.model.MovieSeriesPart
+import com.bowoon.model.SeriesPart
 import com.bowoon.ui.image.DynamicAsyncImageLoader
 import com.bowoon.ui.utils.bounceClick
 import com.bowoon.ui.utils.dp150
@@ -28,7 +28,7 @@ import com.bowoon.ui.utils.sp13
 import com.bowoon.ui.utils.sp20
 
 fun LazyListScope.movieSeriesListComponent(
-    series: List<MovieSeriesPart>,
+    series: List<SeriesPart>,
     goToMovie: (Int) -> Unit
 ) {
     items(
@@ -44,7 +44,7 @@ fun LazyListScope.movieSeriesListComponent(
 
 @Composable
 fun SeriesMovieInfoComponent(
-    seriesPart: MovieSeriesPart,
+    seriesPart: SeriesPart,
     goToMovie: (Int) -> Unit
 ) {
     ConstraintLayout(

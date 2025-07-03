@@ -3,9 +3,9 @@ package com.bowoon.data.repository
 import com.bowoon.datastore.InternalDataSource
 import com.bowoon.model.CombineCredits
 import com.bowoon.model.ExternalIds
-import com.bowoon.model.MovieDetail
-import com.bowoon.model.MovieSeries
-import com.bowoon.model.PeopleDetail
+import com.bowoon.model.Movie
+import com.bowoon.model.Series
+import com.bowoon.model.People
 import com.bowoon.model.SearchData
 import com.bowoon.network.MovieNetworkDataSource
 import kotlinx.coroutines.flow.Flow
@@ -17,11 +17,11 @@ class DetailRepositoryImpl @Inject constructor(
     private val apis: MovieNetworkDataSource,
     private val datastore: InternalDataSource
 ) : DetailRepository {
-    override fun getMovieDetail(id: Int): Flow<MovieDetail> = flow {
+    override fun getMovie(id: Int): Flow<Movie> = flow {
         val language = datastore.getUserData().language
         val region = datastore.getUserData().region
 
-        emit(apis.getMovieDetail(id = id, language = "$language-$region", region = region, includeImageLanguage = "$language,null"))
+        emit(apis.getMovie(id = id, language = "$language-$region", region = region, includeImageLanguage = "$language,null"))
     }
 
     override fun discoverMovie(
@@ -43,7 +43,7 @@ class DetailRepositoryImpl @Inject constructor(
         )
     }
 
-    override fun getPeople(personId: Int): Flow<PeopleDetail> = flow {
+    override fun getPeople(personId: Int): Flow<People> = flow {
         val language = datastore.getUserData().language
         val region = datastore.getUserData().region
 
@@ -60,7 +60,7 @@ class DetailRepositoryImpl @Inject constructor(
         emit(apis.getExternalIds(personId = personId))
     }
 
-    override fun getMovieSeries(collectionId: Int): Flow<MovieSeries> = flow {
+    override fun getMovieSeries(collectionId: Int): Flow<Series> = flow {
         val language = "${datastore.getUserData().language}-${datastore.getUserData().region}"
 
         apis.getMovieSeries(collectionId = collectionId, language = language).let { movieSeries ->

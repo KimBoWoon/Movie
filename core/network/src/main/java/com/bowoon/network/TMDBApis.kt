@@ -5,7 +5,7 @@ import com.bowoon.network.model.NetworkTMDBCombineCredits
 import com.bowoon.network.model.NetworkTMDBConfiguration
 import com.bowoon.network.model.NetworkTMDBExternalIds
 import com.bowoon.network.model.NetworkTMDBLanguageItem
-import com.bowoon.network.model.NetworkTMDBMovieDetail
+import com.bowoon.network.model.NetworkTMDBMovie
 import com.bowoon.network.model.NetworkTMDBMovieDetailSimilar
 import com.bowoon.network.model.NetworkTMDBMovieGenres
 import com.bowoon.network.model.NetworkTMDBMovieList
@@ -80,13 +80,13 @@ interface TMDBApis {
     ): ApiResponse<NetworkTMDBSearchSeries>
 
     @GET("/3/movie/{movie_id}")
-    suspend fun getMovieDetail(
+    suspend fun getMovie(
         @Path("movie_id") id: Int,
-        @Query("append_to_response") appendToResponse: String = "images,videos,credits,reviews,releases,translations,lists,keywords,alternative_titles,changes,similar",
+        @Query("append_to_response") appendToResponse: String = "images,videos,credits,reviews,releases,keywords,alternative_titles",
         @Query("language") language: String = "ko-KR",
         @Query("include_image_language") includeImageLanguage: String = "ko",
         @Query("region") region: String = "KR"
-    ): ApiResponse<NetworkTMDBMovieDetail>
+    ): ApiResponse<NetworkTMDBMovie>
 
     @GET("/3/movie/{movie_id}/similar")
     suspend fun getSimilarMovies(

@@ -10,8 +10,8 @@ import androidx.paging.PagingData
 import com.bowoon.data.repository.MovieAppDataRepository
 import com.bowoon.domain.GetRecommendKeywordUseCase
 import com.bowoon.domain.GetSearchUseCase
+import com.bowoon.model.DisplayItem
 import com.bowoon.model.Genre
-import com.bowoon.model.SearchGroup
 import com.bowoon.model.SearchKeyword
 import com.bowoon.model.SearchType
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -38,12 +38,12 @@ class SearchVM @Inject constructor(
 
     private var recommendedKeywordJob: Job? = null
     val movieAppData = movieAppDataRepository.movieAppData
-    var searchQuery by mutableStateOf("")
+    var searchQuery by mutableStateOf(value = "")
         private set
-    val selectedGenre = savedStateHandle.getStateFlow<Genre?>(GENRE, null)
-    val searchType = savedStateHandle.getStateFlow<SearchType>(SEARCH_TYPE, SearchType.MOVIE)
-    val searchResult = MutableStateFlow<SearchUiState>(SearchUiState.SearchHint)
-    val recommendedKeywordPaging = MutableStateFlow<PagingData<SearchKeyword>>(PagingData.empty())
+    val selectedGenre = savedStateHandle.getStateFlow<Genre?>(key = GENRE, initialValue = null)
+    val searchType = savedStateHandle.getStateFlow<SearchType>(key = SEARCH_TYPE, initialValue = SearchType.MOVIE)
+    val searchResult = MutableStateFlow<SearchUiState>(value = SearchUiState.SearchHint)
+    val recommendedKeywordPaging = MutableStateFlow<PagingData<SearchKeyword>>(value = PagingData.empty())
     val showSnackbar = MutableSharedFlow<Unit>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
 
     init {
@@ -89,21 +89,21 @@ class SearchVM @Inject constructor(
         viewModelScope.launch {
             searchQuery.trim().takeIf { it.isNotEmpty() }?.let { query ->
                 searchResult.emit(
-                    SearchUiState.Success(
-                        getSearchUseCase(
+                    value = SearchUiState.Success(
+                        pagingData = getSearchUseCase(
                             searchType = searchType.value,
                             query = query,
                             selectedGenre = selectedGenre
                         )
                     )
                 )
-            } ?: showSnackbar.emit(Unit)
+            } ?: showSnackbar.emit(value = Unit)
         }
     }
 }
 
 sealed interface SearchUiState {
     data object SearchHint : SearchUiState
-    data class Success(val pagingData: Flow<PagingData<SearchGroup>>) : SearchUiState
+    data class Success(val pagingData: Flow<PagingData<DisplayItem>>) : SearchUiState
     data class Error(val throwable: Throwable) : SearchUiState
 }

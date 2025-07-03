@@ -13,7 +13,7 @@ import com.bowoon.model.Image
 import com.bowoon.model.Images
 import com.bowoon.model.Keyword
 import com.bowoon.model.Keywords
-import com.bowoon.model.MovieDetail
+import com.bowoon.model.Movie
 import com.bowoon.model.ProductionCompany
 import com.bowoon.model.ProductionCountry
 import com.bowoon.model.Releases
@@ -29,7 +29,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class NetworkTMDBMovieDetail(
+data class NetworkTMDBMovie(
     @SerialName("adult")
     val adult: Boolean? = null,
     @SerialName("alternative_titles")
@@ -40,8 +40,6 @@ data class NetworkTMDBMovieDetail(
     val belongsToCollection: NetworkTMDBMovieDetailBelongsToCollection? = null,
     @SerialName("budget")
     val budget: Long? = null,
-//    @SerialName("changes")
-//    val changes: NetworkTMDBMovieDetailChanges? = null,
     @SerialName("credits")
     val credits: NetworkTMDBMovieDetailCredits? = null,
     @SerialName("genres")
@@ -56,8 +54,6 @@ data class NetworkTMDBMovieDetail(
     val imdbId: String? = null,
     @SerialName("keywords")
     val keywords: NetworkTMDBMovieDetailKeywords? = null,
-//    @SerialName("lists")
-//    val lists: Lists? = null,
     @SerialName("origin_country")
     val originCountry: List<String>? = null,
     @SerialName("original_language")
@@ -80,8 +76,6 @@ data class NetworkTMDBMovieDetail(
     val releases: NetworkTMDBMovieDetailReleases? = null,
     @SerialName("revenue")
     val revenue: Long? = null,
-//    @SerialName("reviews")
-//    val reviews: Reviews? = null,
     @SerialName("runtime")
     val runtime: Int? = null,
     @SerialName("spoken_languages")
@@ -92,8 +86,6 @@ data class NetworkTMDBMovieDetail(
     val tagline: String? = null,
     @SerialName("title")
     val title: String? = null,
-    @SerialName("translations")
-    val translations: NetworkTMDBMovieDetailTranslations? = null,
     @SerialName("video")
     val video: Boolean? = null,
     @SerialName("videos")
@@ -101,9 +93,7 @@ data class NetworkTMDBMovieDetail(
     @SerialName("vote_average")
     val voteAverage: Double? = null,
     @SerialName("vote_count")
-    val voteCount: Int? = null,
-    @SerialName("similar")
-    val similar: NetworkTMDBMovieDetailSimilar? = null
+    val voteCount: Int? = null
 )
 
 @Serializable
@@ -132,38 +122,6 @@ data class NetworkTMDBMovieDetailBelongsToCollection(
     val name: String? = null,
     @SerialName("poster_path")
     val posterPath: String? = null
-)
-
-@Serializable
-data class NetworkTMDBMovieDetailChanges(
-    @SerialName("changes")
-    val changes: List<NetworkTMDBMovieDetailChange>? = null
-)
-
-@Serializable
-data class NetworkTMDBMovieDetailChange(
-    @SerialName("items")
-    val items: List<NetworkTMDBMovieDetailItem>? = null,
-    @SerialName("key")
-    val key: String? = null
-)
-
-@Serializable
-data class NetworkTMDBMovieDetailItem(
-    @SerialName("action")
-    val action: String? = null,
-    @SerialName("id")
-    val id: String? = null,
-    @SerialName("iso_3166_1")
-    val iso31661: String? = null,
-    @SerialName("iso_639_1")
-    val iso6391: String? = null,
-    @SerialName("original_value")
-    val originalValue: List<String>? = null,
-    @SerialName("time")
-    val time: String? = null,
-    @SerialName("value")
-    val value: List<String>? = null
 )
 
 @Serializable
@@ -460,14 +418,13 @@ data class NetworkTMDBMovieDetailSimilarResult(
     val voteCount: Int? = null
 )
 
-fun NetworkTMDBMovieDetail.asExternalModel(): MovieDetail =
-    MovieDetail(
+fun NetworkTMDBMovie.asExternalModel(): Movie =
+    Movie(
         adult = adult,
         alternativeTitles = alternativeTitles?.asExternalModel(),
         backdropPath = backdropPath,
         belongsToCollection = belongsToCollection?.asExternalModel(),
         budget = budget,
-//        changes = changes?.asExternalModel(),
         credits = credits?.asExternalModel(),
         genres = genres?.asExternalModel(),
         homepage = homepage,
@@ -491,7 +448,6 @@ fun NetworkTMDBMovieDetail.asExternalModel(): MovieDetail =
         status = status,
         tagline = tagline,
         title = title,
-        translations = translations?.asExternalModel(),
         video = video,
         videos = videos?.asExternalModel(),
         voteCount = voteCount,

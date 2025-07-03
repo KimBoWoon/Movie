@@ -30,19 +30,11 @@ data class MovieResult(
     val voteCount: Int? = null
 )
 
-fun MovieResult.asExternalMovie(): Movie = Movie(
+fun MovieResult.asExternalMovie(): DisplayItem = DisplayItem(
     adult = adult,
-    backdropPath = backdropPath,
     genreIds = genreIds,
     id = id,
-    originalLanguage = originalLanguage,
-    originalTitle = originalTitle,
-    overview = overview,
-    popularity = popularity,
-    posterPath = posterPath,
-    releaseDate = releaseDate,
+    imagePath = posterPath,
     title = title,
-    video = video,
-    voteAverage = voteAverage,
-    voteCount = voteCount
+    releaseDate = releaseDate
 )

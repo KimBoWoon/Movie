@@ -1,6 +1,5 @@
 package com.bowoon.home
 
-import com.bowoon.domain.GetMainMenuUseCase
 import com.bowoon.model.InternalData
 import com.bowoon.testing.TestSyncManager
 import com.bowoon.testing.model.mainMenuTestData
@@ -26,7 +25,6 @@ class HomeVMTest {
     private lateinit var testUserDataRepository: TestUserDataRepository
     private lateinit var testPagingRepository: TestPagingRepository
     private lateinit var testMovieAppDataRepository: TestMovieAppDataRepository
-    private lateinit var getMainMenuUseCase: GetMainMenuUseCase
 
     @Before
     fun setup() {
@@ -34,13 +32,9 @@ class HomeVMTest {
         testUserDataRepository = TestUserDataRepository()
         testPagingRepository = TestPagingRepository()
         testMovieAppDataRepository = TestMovieAppDataRepository()
-        getMainMenuUseCase = GetMainMenuUseCase(
-            userDataRepository = testUserDataRepository,
-            movieAppDataRepository = testMovieAppDataRepository
-        )
         viewModel = HomeVM(
             syncManager = testSyncManager,
-            getMainMenuUseCase = getMainMenuUseCase
+            userDataRepository = testUserDataRepository
         )
     }
 
@@ -66,20 +60,8 @@ class HomeVMTest {
             viewModel.mainMenu.value,
             MainMenuState.Success(
                 mainMenuTestData.copy(
-                    nowPlaying = mainMenuTestData.nowPlaying.map {
-                        it.copy(
-                            backdropPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.backdropPath}",
-                            posterPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.posterPath}",
-                            imagePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.imagePath}"
-                        )
-                    },
-                    upComingMovies = mainMenuTestData.upComingMovies.map {
-                        it.copy(
-                            backdropPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.backdropPath}",
-                            posterPath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.posterPath}",
-                            imagePath = "${testMovieAppDataRepository.movieAppData.value.getImageUrl()}${it.imagePath}"
-                        )
-                    }
+                    nowPlaying = mainMenuTestData.nowPlaying,
+                    upComingMovies = mainMenuTestData.upComingMovies
                 )
             )
         )

@@ -12,7 +12,7 @@ import coil3.toBitmap
 import com.bowoon.common.Log
 import com.bowoon.common.di.ApplicationScope
 import com.bowoon.data.repository.UserDataRepository
-import com.bowoon.model.Movie
+import com.bowoon.model.DisplayItem
 import com.bowoon.movie.core.notifications.R
 import com.bowoon.notifications.createMovieNotification
 import com.bowoon.notifications.moviePendingIntent
@@ -67,7 +67,7 @@ class MovieFCMService : FirebaseMessagingService() {
             Log.d(TAG, message.data.toString())
 
             val pendingIntent = message.data["movieId"]?.let { id ->
-                moviePendingIntent(Movie(id = id.toInt()))
+                moviePendingIntent(DisplayItem(id = id.toInt()))
             }
 
             notiData.imageUrl?.let { imageUri ->

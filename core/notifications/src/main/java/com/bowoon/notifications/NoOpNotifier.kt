@@ -1,8 +1,8 @@
 package com.bowoon.notifications
 
-import com.bowoon.model.Movie
+import com.bowoon.model.DisplayItem
 import javax.inject.Inject
 
 internal class NoOpNotifier @Inject constructor() : Notifier {
-    override fun postMovieNotifications(movies: List<Movie>) = Unit
+    override fun postMovieNotifications(movies: List<DisplayItem>) = Unit
 }

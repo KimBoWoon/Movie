@@ -1,7 +1,7 @@
 package com.bowoon.notifications
 
-import com.bowoon.model.Movie
+import com.bowoon.model.DisplayItem
 
 interface Notifier {
-    fun postMovieNotifications(movies: List<Movie>)
+    fun postMovieNotifications(movies: List<DisplayItem>)
 }

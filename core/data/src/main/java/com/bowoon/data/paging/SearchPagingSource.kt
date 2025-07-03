@@ -3,7 +3,7 @@ package com.bowoon.data.paging
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.bowoon.common.Log
-import com.bowoon.model.SearchGroup
+import com.bowoon.model.DisplayItem
 import com.bowoon.model.SearchType
 import com.bowoon.network.MovieNetworkDataSource
 import javax.inject.Inject
@@ -15,8 +15,8 @@ class SearchPagingSource @Inject constructor(
     private val language: String,
     private val region: String,
     private val isAdult: Boolean
-) : PagingSource<Int, SearchGroup>() {
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, SearchGroup> =
+) : PagingSource<Int, DisplayItem>() {
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, DisplayItem> =
         runCatching {
             when (type) {
                 SearchType.MOVIE -> searchMovie(params, isAdult)
@@ -28,13 +28,13 @@ class SearchPagingSource @Inject constructor(
             LoadResult.Error(e)
         }
 
-    override fun getRefreshKey(state: PagingState<Int, SearchGroup>): Int? =
+    override fun getRefreshKey(state: PagingState<Int, DisplayItem>): Int? =
         state.anchorPosition?.let { anchorPosition ->
             val anchorPage = state.closestPageToPosition(anchorPosition)
             anchorPage?.prevKey ?: anchorPage?.nextKey
         }
 
-    private suspend fun searchMovie(params: LoadParams<Int>, isAdult: Boolean): LoadResult<Int, SearchGroup> {
+    private suspend fun searchMovie(params: LoadParams<Int>, isAdult: Boolean): LoadResult<Int, DisplayItem> {
         val response = apis.searchMovies(query = query, includeAdult = isAdult, language = language, region = region, page = params.key ?: 1)
 
         return LoadResult.Page(
@@ -44,7 +44,7 @@ class SearchPagingSource @Inject constructor(
         )
     }
 
-    private suspend fun searchPeople(params: LoadParams<Int>, isAdult: Boolean): LoadResult<Int, SearchGroup> {
+    private suspend fun searchPeople(params: LoadParams<Int>, isAdult: Boolean): LoadResult<Int, DisplayItem> {
         val response = apis.searchPeople(query = query, includeAdult = isAdult, language = language, region = region, page = params.key ?: 1)
 
         return LoadResult.Page(
@@ -54,7 +54,7 @@ class SearchPagingSource @Inject constructor(
         )
     }
 
-    private suspend fun searchSeries(params: LoadParams<Int>, isAdult: Boolean): LoadResult<Int, SearchGroup> {
+    private suspend fun searchSeries(params: LoadParams<Int>, isAdult: Boolean): LoadResult<Int, DisplayItem> {
         val response = apis.searchSeries(query = query, includeAdult = isAdult, language = language, region = region, page = params.key ?: 1)
 
         return LoadResult.Page(
