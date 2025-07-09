@@ -77,20 +77,16 @@ class NetworkLogInterceptor @Inject constructor(
      * @param request 가져와야할 리퀘스트
      * @return 바디 값
      */
-    private fun bodyToString(request: Request): String? =
-        runCatching {
-            val copy = request.newBuilder().build()
-            val buffer = Buffer()
-            copy.body?.writeTo(buffer)
-            buffer.readUtf8()
-        }.onSuccess {
-            return it
-        }.onFailure { e ->
-            (e as? IOException)?.run {
-                return "did not work"
-            }
-            (e as? NullPointerException)?.run {
-                return "did not have body"
-            }
-        }.getOrNull()
+    fun bodyToString(request: Request): String? = runCatching {
+        val copy = request.newBuilder().build()
+        val buffer = Buffer()
+        copy.body?.writeTo(buffer)
+        buffer.readUtf8()
+    }.getOrElse { e ->
+        when (e) {
+            is IOException -> "did not work"
+            is NullPointerException -> "did not have body"
+            else -> null
+        }
+    }
 }

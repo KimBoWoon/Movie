@@ -36,7 +36,6 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -77,6 +76,7 @@ import com.bowoon.model.MovieAppData
 import com.bowoon.model.SearchKeyword
 import com.bowoon.model.SearchType
 import com.bowoon.movie.feature.search.R
+import com.bowoon.ui.components.CircularProgressComponent
 import com.bowoon.ui.components.FilterChipComponent
 import com.bowoon.ui.components.PagingAppendErrorComponent
 import com.bowoon.ui.components.TitleComponent
@@ -415,7 +415,7 @@ fun SearchResultComponent(
                 val pagingData = searchUiState.pagingData.collectAsLazyPagingItems()
 
                 if (pagingData.loadState.refresh is LoadState.Loading) {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                    CircularProgressComponent(modifier = Modifier.align(Alignment.Center))
                 } else if (pagingData.loadState.refresh is LoadState.Error) {
                     ConfirmDialog(
                         title = stringResource(id = com.bowoon.movie.core.network.R.string.network_failed),
@@ -518,7 +518,7 @@ fun SearchPagingComponent(
                 }
                 if (pagingData.loadState.append is LoadState.Loading) {
                     item(span = { GridItemSpan(currentLineSpan = maxLineSpan) }) {
-                        CircularProgressIndicator(
+                        CircularProgressComponent(
                             modifier = Modifier
                                 .wrapContentSize()
                                 .align(Alignment.Center)
@@ -596,7 +596,7 @@ fun RecommendedKeywordComponent(
         }
         if (recommendedKeyword.loadState.append is LoadState.Loading) {
             item {
-                CircularProgressIndicator(modifier = Modifier.wrapContentSize())
+                CircularProgressComponent(modifier = Modifier.wrapContentSize())
             }
         }
     }

@@ -91,6 +91,9 @@ threentenabp = "1.4.9"
 # youtube player
 youtubePlayer = "12.1.2"
 
+# lottie
+lottieCompose = "6.6.6"
+
 [libraries]
 # gradle plugin
 android-gradle = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
@@ -209,6 +212,9 @@ youtube-player = { group = "com.pierfrancescosoffritti.androidyoutubeplayer", na
 
 # Inject
 javax-inject = { group = "javax.inject", name = "javax.inject", version = "1" }
+
+# lottie
+lottie-compose = { group = "com.airbnb.android", name = "lottie-compose", version.ref = "lottieCompose" }
 
 # plugin
 ksp-gradlePlugin = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }

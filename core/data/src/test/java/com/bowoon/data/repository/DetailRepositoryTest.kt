@@ -5,12 +5,12 @@ import com.bowoon.datastore.InternalDataSource
 import com.bowoon.datastore_test.InMemoryDataStore
 import com.bowoon.network.TMDBApis
 import com.bowoon.testing.TestMovieDataSource
+import com.bowoon.testing.model.combineCreditsTestData
+import com.bowoon.testing.model.externalIdsTestData
+import com.bowoon.testing.model.favoriteMovieDetailTestData
 import com.bowoon.testing.model.movieSearchTestData
+import com.bowoon.testing.model.peopleDetailTestData
 import com.bowoon.testing.repository.TestDetailRepository
-import com.bowoon.testing.repository.combineCreditsTestData
-import com.bowoon.testing.repository.externalIdsTestData
-import com.bowoon.testing.repository.favoriteMovieDetailTestData
-import com.bowoon.testing.repository.peopleDetailTestData
 import com.bowoon.testing.utils.MainDispatcherRule
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.coroutines.flow.first

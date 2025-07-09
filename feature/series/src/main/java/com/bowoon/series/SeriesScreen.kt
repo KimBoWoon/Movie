@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -19,6 +18,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.Series
 import com.bowoon.movie.feature.series.R
+import com.bowoon.ui.components.CircularProgressComponent
 import com.bowoon.ui.components.TitleComponent
 import com.bowoon.ui.components.movieSeriesListComponent
 import com.bowoon.ui.components.seriesInfoComponent
@@ -56,7 +56,7 @@ fun SeriesScreen(
     ) {
         when (seriesState) {
             is SeriesState.Loading -> {
-                CircularProgressIndicator(
+                CircularProgressComponent(
                     modifier = Modifier.semantics { contentDescription = "seriesLoading" }
                         .align(Alignment.Center)
                 )

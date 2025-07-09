@@ -52,18 +52,17 @@ class GetMovieDetailUseCase @Inject constructor(
         detailRepository.getMovie(id)
             .map { movie ->
                 movie.copy(
-                    releaseDate = movie.releases?.countries?.find {
-                        it.iso31661.equals(internalData.value.region, true)
+                    releaseDate = movie.releases?.countries?.find { country ->
+                        country.iso31661.equals(other = internalData.value.region, ignoreCase = true)
                     }?.releaseDate ?: movie.releaseDate,
-                    certification = movie.releases?.countries?.find {
-                        it.iso31661.equals(internalData.value.region, true)
+                    certification = movie.releases?.countries?.find { country ->
+                        country.iso31661.equals(other = internalData.value.region, ignoreCase = true)
                     }?.certification ?: movie.certification,
                     isFavorite = favoriteMovies.value.find { it.id == movie.id } != null
                 )
-            }
-            .onEach {
-                it.belongsToCollection?.id?.let { seriesId ->
-                    this@GetMovieDetailUseCase.seriesId.emit(seriesId)
+            }.onEach { movie ->
+                movie.belongsToCollection?.id?.let { seriesId ->
+                    this@GetMovieDetailUseCase.seriesId.emit(value = seriesId)
                 }
             },
         flowOf(
@@ -85,7 +84,7 @@ class GetMovieDetailUseCase @Inject constructor(
             } ?: flowOf(null)
         }
     ) { movie, similarMovie, series ->
-        MovieInfo(detail = movie, series = series, similarMovies = similarMovie)
+        MovieInfo(detail = movie, series = series, similarMovies = similarMovie, autoPlayTrailer = internalData.value.autoPlayTrailer)
     }
 
     fun close(message: String, cause: Throwable?) {

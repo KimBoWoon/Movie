@@ -14,15 +14,14 @@ import com.bowoon.model.Favorite
 import com.bowoon.model.InternalData
 import com.bowoon.model.MovieInfo
 import com.bowoon.testing.TestMovieDataSource
+import com.bowoon.testing.model.favoriteMovieDetailTestData
 import com.bowoon.testing.model.movieSeriesTestData
 import com.bowoon.testing.model.similarMoviesTestData
+import com.bowoon.testing.model.unFavoriteMovieDetailTestData
 import com.bowoon.testing.repository.TestDatabaseRepository
 import com.bowoon.testing.repository.TestDetailRepository
-import com.bowoon.testing.repository.TestMovieAppDataRepository
 import com.bowoon.testing.repository.TestPagingRepository
 import com.bowoon.testing.repository.TestUserDataRepository
-import com.bowoon.testing.repository.favoriteMovieDetailTestData
-import com.bowoon.testing.repository.unFavoriteMovieDetailTestData
 import com.bowoon.testing.utils.MainDispatcherRule
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
@@ -48,7 +47,6 @@ class DetailVMTest {
     private val testPagingRepository = TestPagingRepository()
     private val testDetailRepository = TestDetailRepository()
     private val testUserDataRepository = TestUserDataRepository()
-    private val testMovieAppDataRepository = TestMovieAppDataRepository()
     private val getMovieDetailUseCase = GetMovieDetailUseCase(
         detailRepository = testDetailRepository,
         userDataRepository = testUserDataRepository,

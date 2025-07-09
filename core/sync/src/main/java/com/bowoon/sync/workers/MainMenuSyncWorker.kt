@@ -23,7 +23,7 @@ import kotlinx.coroutines.withContext
 class MainMenuSyncWorker @AssistedInject constructor(
     @Assisted private val appContext: Context,
     @Assisted private val workerParams: WorkerParameters,
-    @Dispatcher(Dispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
+    @param:Dispatcher(Dispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
     private val mainMenuRepository: MainMenuRepository
 ) : CoroutineWorker(appContext, workerParams) {
     companion object {

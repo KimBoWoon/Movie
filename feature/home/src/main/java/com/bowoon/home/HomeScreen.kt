@@ -15,12 +15,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -37,6 +35,7 @@ import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.DisplayItem
 import com.bowoon.model.MainMenu
 import com.bowoon.movie.feature.home.R
+import com.bowoon.ui.components.CircularProgressComponent
 import com.bowoon.ui.components.TitleComponent
 import com.bowoon.ui.image.DynamicAsyncImageLoader
 import com.bowoon.ui.utils.bounceClick
@@ -44,7 +43,6 @@ import com.bowoon.ui.utils.dp150
 import com.bowoon.ui.utils.dp16
 import com.bowoon.ui.utils.sp10
 import com.bowoon.ui.utils.sp8
-import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen(
@@ -74,30 +72,16 @@ fun HomeScreen(
 ) {
     LocalFirebaseLogHelper.current.sendLog("HomeScreen", "init screen")
 
-    val scope = rememberCoroutineScope()
-    val checkingMainData = stringResource(R.string.check_main_data)
+    val checkingMainData = stringResource(id = R.string.check_main_data)
 
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        if (isSyncing) {
-            LaunchedEffect(scope) {
-                scope.launch {
-                    onShowSnackbar(checkingMainData, null)
-                }
-            }
-            CircularProgressIndicator(
-                modifier = Modifier
-                    .semantics { contentDescription = "mainDataSync" }
-                    .align(Alignment.Center)
-            )
-        }
-
         when (state) {
             is MainMenuState.Loading -> {
                 Log.d("loading...")
                 LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data loading...")
-                CircularProgressIndicator(
+                CircularProgressComponent(
                     modifier = Modifier
                         .semantics { contentDescription = "homeLoading" }
                         .align(Alignment.Center)
@@ -116,6 +100,17 @@ fun HomeScreen(
                 Log.e("${state.throwable.message}")
             }
         }
+
+        if (isSyncing) {
+            LaunchedEffect(key1 = checkingMainData) {
+                onShowSnackbar(checkingMainData, null)
+            }
+            CircularProgressComponent(
+                modifier = Modifier
+                    .semantics { contentDescription = "mainDataSync" }
+                    .align(alignment = Alignment.Center)
+            )
+        }
     }
 }
 
@@ -129,10 +124,10 @@ fun MainComponent(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        val nowPlayingMoviesTitle = stringResource(R.string.now_playing_movies)
-        val upcomingMoviesTitle = stringResource(R.string.upcoming_movies)
+        val nowPlayingMoviesTitle = stringResource(id = R.string.now_playing_movies)
+        val upcomingMoviesTitle = stringResource(id = R.string.upcoming_movies)
 
-        TitleComponent(title = stringResource(R.string.title_movie_info))
+        TitleComponent(title = stringResource(id = R.string.title_movie_info))
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             state = lazyListState

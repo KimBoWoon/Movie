@@ -6,5 +6,6 @@ import kotlinx.coroutines.flow.Flow
 data class MovieInfo(
     val detail: Movie,
     val series: Series?,
-    val similarMovies: Flow<PagingData<DisplayItem>>
+    val similarMovies: Flow<PagingData<DisplayItem>>,
+    val autoPlayTrailer: Boolean = false
 )

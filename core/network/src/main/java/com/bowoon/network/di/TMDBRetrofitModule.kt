@@ -53,7 +53,7 @@ object TMDBRetrofitModule {
 
     @Provides
     fun provideInterceptor(): HttpLoggingInterceptor = HttpLoggingInterceptor().apply {
-        level = HttpLoggingInterceptor.Level.BODY
+        level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE
     }
 
     @Provides

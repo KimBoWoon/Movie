@@ -32,7 +32,6 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.PlayArrow
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -81,6 +80,7 @@ import com.bowoon.model.MovieDetailTab
 import com.bowoon.model.MovieInfo
 import com.bowoon.model.Series
 import com.bowoon.movie.feature.detail.R
+import com.bowoon.ui.components.CircularProgressComponent
 import com.bowoon.ui.components.PagingAppendErrorComponent
 import com.bowoon.ui.components.TabComponent
 import com.bowoon.ui.components.TitleComponent
@@ -155,7 +155,7 @@ fun DetailScreen(
         when (detailState) {
             is DetailState.Loading -> {
                 Log.d("loading...")
-                CircularProgressIndicator(
+                CircularProgressComponent(
                     modifier = Modifier
                         .testTag(tag = "detailScreenLoading")
                         .align(Alignment.Center)
@@ -216,7 +216,7 @@ fun MovieDetailComponent(
     Column {
         VideosComponent(
             vodList = movieInfo.detail.videos?.results?.mapNotNull { it.key } ?: emptyList(),
-            autoPlayTrailer = false // movieInfo.detail.autoPlayTrailer
+            autoPlayTrailer = movieInfo.autoPlayTrailer
         )
 
         val tabList = if (movieInfo.detail.belongsToCollection == null) {
@@ -649,7 +649,8 @@ fun MovieInfoComponent(
                         .wrapContentHeight(),
                     text = it,
                     fontSize = sp15,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
+                    style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
                 )
             }
             movie.title?.takeIf { it.isNotEmpty() }?.let {
@@ -903,7 +904,7 @@ fun SimilarMovieComponent(
         modifier = Modifier.fillMaxSize()
     ) {
         if (similarMovie.loadState.refresh is LoadState.Loading) {
-            CircularProgressIndicator(modifier = Modifier.align(alignment = Alignment.Center))
+            CircularProgressComponent(modifier = Modifier.align(alignment = Alignment.Center))
         } else if (similarMovie.loadState.refresh is LoadState.Error) {
             val message = (similarMovie.loadState.refresh as? LoadState.Error)?.error?.message
                 ?: (similarMovie.loadState.append as? LoadState.Error)?.error?.message
@@ -963,7 +964,7 @@ fun BoxScope.MovieList(
 
             if (similarMovie.loadState.append is LoadState.Loading) {
                 item(span = { GridItemSpan(maxLineSpan) }) {
-                    CircularProgressIndicator(
+                    CircularProgressComponent(
                         modifier = Modifier
                             .wrapContentSize()
                             .align(Alignment.Center)

@@ -17,21 +17,21 @@ import com.bowoon.model.Series
 import com.bowoon.model.SimilarMovies
 import com.bowoon.network.MovieNetworkDataSource
 import com.bowoon.testing.model.certificationTestData
+import com.bowoon.testing.model.combineCreditsTestData
 import com.bowoon.testing.model.configurationTestData
+import com.bowoon.testing.model.externalIdsTestData
+import com.bowoon.testing.model.favoriteMovieDetailTestData
 import com.bowoon.testing.model.genreListTestData
 import com.bowoon.testing.model.languageListTestData
 import com.bowoon.testing.model.movieSearchTestData
 import com.bowoon.testing.model.movieSeriesTestData
 import com.bowoon.testing.model.nowPlayingMoviesTestData
+import com.bowoon.testing.model.peopleDetailTestData
 import com.bowoon.testing.model.peopleSearchTestData
 import com.bowoon.testing.model.regionTestData
 import com.bowoon.testing.model.seriesSearchTestData
 import com.bowoon.testing.model.similarMoviesTestData
 import com.bowoon.testing.model.upcomingMoviesTestData
-import com.bowoon.testing.repository.combineCreditsTestData
-import com.bowoon.testing.repository.externalIdsTestData
-import com.bowoon.testing.repository.favoriteMovieDetailTestData
-import com.bowoon.testing.repository.peopleDetailTestData
 
 class TestMovieDataSource : MovieNetworkDataSource {
     override suspend fun getConfiguration(): Configuration = configurationTestData
