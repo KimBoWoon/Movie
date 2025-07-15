@@ -100,7 +100,8 @@ class DetailVMTest {
                 MovieInfo(
                     detail = favoriteMovieDetailTestData,
                     series = movieSeriesTestData,
-                    similarMovies = similarMovies
+                    similarMovies = similarMovies,
+                    autoPlayTrailer = testUserDataRepository.internalData.map { it.autoPlayTrailer }.first()
                 )
             )
         )
