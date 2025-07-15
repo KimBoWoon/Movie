@@ -28,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -36,6 +37,7 @@ import com.bowoon.data.util.PEOPLE_IMAGE_RATIO
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.Favorite
+import com.bowoon.movie.feature.favorite.R
 import com.bowoon.ui.FavoriteButton
 import com.bowoon.ui.components.ScrollToTopComponent
 import com.bowoon.ui.components.TabComponent
@@ -80,9 +82,13 @@ fun FavoriteScreen(
     deleteFavoriteMovie: (Favorite) -> Unit,
     deleteFavoritePeople: (Favorite) -> Unit
 ) {
-    val favoriteTabs = FavoriteVM.FavoriteTabs.entries.map { it.label }
+    val favoriteTabs = listOf(
+        stringResource(id = R.string.movie),
+        stringResource(id = R.string.people)
+    )
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { favoriteTabs.size })
     val scope = rememberCoroutineScope()
+    val removeFavoriteText = stringResource(id = R.string.remove_favorite)
     val tabClickEvent: (Int, Int) -> Unit = { current, index ->
         scope.launch {
             Log.d("current > $current, index > $index")
@@ -93,12 +99,12 @@ fun FavoriteScreen(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        TitleComponent(title = "찜")
+        TitleComponent(title = stringResource(id = R.string.feature_favorite_name))
         TabComponent(
             tabs = favoriteTabs,
             pagerState = pagerState,
             tabClickEvent = tabClickEvent
-        ) {
+        ) { tabList ->
             HorizontalPager(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -106,7 +112,7 @@ fun FavoriteScreen(
                 state = pagerState,
                 userScrollEnabled = false
             ) { index ->
-                when (it[index]) {
+                when (tabList[index]) {
                     FavoriteVM.FavoriteTabs.MOVIE.label -> {
                         Box(
                             modifier = Modifier.fillMaxSize()
@@ -114,7 +120,7 @@ fun FavoriteScreen(
                             if (favoriteMovies.isEmpty()) {
                                 Text(
                                     modifier = Modifier.testTag(tag = "favoriteMovieEmpty").align(Alignment.Center),
-                                    text = "찜한 영화가 없습니다."
+                                    text = stringResource(id = R.string.empty_favorite_movie)
                                 )
                             } else {
                                 FavoriteListComponent(
@@ -139,7 +145,7 @@ fun FavoriteScreen(
                                                 onClick = {
                                                     deleteFavoriteMovie(movieDetail)
                                                     scope.launch {
-                                                        onShowSnackbar("찜에서 제거됐습니다.", null)
+                                                        onShowSnackbar(removeFavoriteText, null)
                                                     }
                                                 }
                                             )
@@ -156,7 +162,7 @@ fun FavoriteScreen(
                             if (favoritePeoples.isEmpty()) {
                                 Text(
                                     modifier = Modifier.testTag(tag = "favoritePeopleEmpty").align(Alignment.Center),
-                                    text = "찜한 인물이 없습니다."
+                                    text = stringResource(id = R.string.empty_favorite_people)
                                 )
                             } else {
                                 FavoriteListComponent(
@@ -168,7 +174,7 @@ fun FavoriteScreen(
                                                 .wrapContentSize()
                                                 .bounceClick { goToPeople(peopleDetail.id ?: -1) }
                                         ) {
-                                            Box() {
+                                            Box {
                                                 DynamicAsyncImageLoader(
                                                     modifier = Modifier
                                                         .fillMaxWidth()
@@ -185,7 +191,7 @@ fun FavoriteScreen(
                                                     onClick = {
                                                         deleteFavoritePeople(peopleDetail)
                                                         scope.launch {
-                                                            onShowSnackbar("찜에서 제거됐습니다.", null)
+                                                            onShowSnackbar(removeFavoriteText, null)
                                                         }
                                                     }
                                                 )

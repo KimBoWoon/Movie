@@ -25,6 +25,7 @@ import com.bowoon.testing.repository.TestUserDataRepository
 import com.bowoon.testing.utils.MainDispatcherRule
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -133,7 +134,8 @@ class DetailVMTest {
                 MovieInfo(
                     detail = unFavoriteMovieDetailTestData,
                     series = movieSeriesTestData,
-                    similarMovies = similarMovies
+                    similarMovies = similarMovies,
+                    autoPlayTrailer = testUserDataRepository.internalData.map { it.autoPlayTrailer }.first()
                 )
             )
         )
@@ -253,7 +255,8 @@ class DetailVMTest {
                 MovieInfo(
                     detail = favoriteMovieDetailTestData,
                     series = movieSeriesTestData,
-                    similarMovies = similarMovies
+                    similarMovies = similarMovies,
+                    autoPlayTrailer = testUserDataRepository.internalData.map { it.autoPlayTrailer }.first()
                 )
             )
         )
