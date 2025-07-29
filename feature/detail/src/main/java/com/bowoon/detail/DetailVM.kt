@@ -4,17 +4,27 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.bowoon.common.Result
 import com.bowoon.common.asResult
 import com.bowoon.common.restartableStateIn
 import com.bowoon.data.repository.DatabaseRepository
+import com.bowoon.data.repository.PagingRepository
+import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.detail.navigation.DetailRoute
 import com.bowoon.domain.GetMovieDetailUseCase
+import com.bowoon.model.DisplayItem
 import com.bowoon.model.Favorite
-import com.bowoon.model.MovieInfo
+import com.bowoon.model.InternalData
+import com.bowoon.model.MovieDetailInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,6 +33,8 @@ class DetailVM @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val getMovieDetail: GetMovieDetailUseCase,
     private val databaseRepository: DatabaseRepository,
+    private val pagingRepository: PagingRepository,
+    private val userDataRepository: UserDataRepository
 ) : ViewModel() {
     companion object {
         private const val TAG = "DetailVM"
@@ -34,7 +46,7 @@ class DetailVM @Inject constructor(
         .map { result ->
             when (result) {
                 is Result.Loading -> DetailState.Loading
-                is Result.Success -> DetailState.Success(result.data)
+                is Result.Success -> DetailState.Success(result.data, similarMovies = similarMovies)
                 is Result.Error -> DetailState.Error(result.throwable)
             }
         }.restartableStateIn(
@@ -42,6 +54,22 @@ class DetailVM @Inject constructor(
             initialValue = DetailState.Loading,
             started = SharingStarted.Lazily
         )
+    private val internalData = userDataRepository.internalData
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = InternalData()
+        )
+    private val similarMovies = Pager(
+        config = PagingConfig(pageSize = 1, initialLoadSize = 1, prefetchDistance = 5),
+        initialKey = 1,
+        pagingSourceFactory = {
+            pagingRepository.getSimilarMoviePagingSource(
+                id = id,
+                language = "${internalData.value.language}-${internalData.value.region}"
+            )
+        }
+    ).flow.cachedIn(scope = viewModelScope)
 
     fun restart() {
         detail.restart()
@@ -66,6 +94,6 @@ class DetailVM @Inject constructor(
 
 sealed interface DetailState {
     data object Loading : DetailState
-    data class Success(val movieInfo: MovieInfo) : DetailState
+    data class Success(val movieInfo: MovieDetailInfo, val similarMovies: Flow<PagingData<DisplayItem>>) : DetailState
     data class Error(val throwable: Throwable) : DetailState
 }

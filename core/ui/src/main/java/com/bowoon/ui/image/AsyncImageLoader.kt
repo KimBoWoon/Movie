@@ -22,7 +22,7 @@ import coil3.compose.rememberAsyncImagePainter
 import com.bowoon.ui.components.CircularProgressComponent
 import com.bowoon.ui.utils.dp10
 
-private var imageUrl = ""
+var imageUrl by mutableStateOf<String>(value = "")
 
 @Composable
 fun DynamicAsyncImageLoader(
@@ -33,11 +33,12 @@ fun DynamicAsyncImageLoader(
     placeholder: Painter = ColorPainter(Color.Gray),
     error: Painter = ColorPainter(Color.Gray)
 ) {
+    val imgUrl = imageUrl
     val isLocalInspection = LocalInspectionMode.current
     var isLoading by remember { mutableStateOf(value = true) }
     var isError by remember { mutableStateOf(value = false) }
     val imageLoader = rememberAsyncImagePainter(
-        model = "$imageUrl$source",
+        model = "$imgUrl$source",
         onState = { state ->
             isLoading = state is AsyncImagePainter.State.Loading
             isError = state is AsyncImagePainter.State.Error
@@ -53,7 +54,9 @@ fun DynamicAsyncImageLoader(
         when (isError) {
             true -> {
                 Image(
-                    modifier = modifier.testTag(tag = source).clip(shape = RoundedCornerShape(size = dp10)),
+                    modifier = modifier
+                        .testTag(tag = source)
+                        .clip(shape = RoundedCornerShape(size = dp10)),
                     contentScale = ContentScale.Crop,
                     painter = error,
                     contentDescription = contentDescription
@@ -61,7 +64,9 @@ fun DynamicAsyncImageLoader(
             }
             false -> {
                 Image(
-                    modifier = modifier.testTag(tag = source).clip(shape = RoundedCornerShape(size = dp10)),
+                    modifier = modifier
+                        .testTag(tag = source)
+                        .clip(shape = RoundedCornerShape(size = dp10)),
                     contentScale = contentScale,
                     painter = if (!isLocalInspection) imageLoader else placeholder,
                     contentDescription = contentDescription
@@ -69,8 +74,4 @@ fun DynamicAsyncImageLoader(
             }
         }
     }
-}
-
-fun setImageUrl(url: String) {
-    imageUrl = url
 }

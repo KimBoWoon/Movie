@@ -2,11 +2,10 @@ package com.bowoon.search
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.paging.PagingSource
-import androidx.paging.testing.asSnapshot
+import com.bowoon.data.paging.RecommendKeywordPagingSource
 import com.bowoon.data.paging.SearchPagingSource
-import com.bowoon.domain.GetRecommendKeywordUseCase
-import com.bowoon.domain.GetSearchUseCase
 import com.bowoon.model.DisplayItem
+import com.bowoon.model.SearchKeyword
 import com.bowoon.model.SearchType
 import com.bowoon.testing.TestMovieDataSource
 import com.bowoon.testing.model.movieSearchTestData
@@ -33,8 +32,6 @@ class SearchVMTest {
     private lateinit var testPagingRepository: TestPagingRepository
     private lateinit var testUserDataRepository: TestUserDataRepository
     private lateinit var testMovieAppDataRepository: TestMovieAppDataRepository
-    private lateinit var getSearchUseCase: GetSearchUseCase
-    private lateinit var getRecommendKeywordUseCase: GetRecommendKeywordUseCase
     private lateinit var apis: TestMovieDataSource
 
     @Before
@@ -43,19 +40,12 @@ class SearchVMTest {
         testPagingRepository = TestPagingRepository()
         testUserDataRepository = TestUserDataRepository()
         testMovieAppDataRepository = TestMovieAppDataRepository()
-        getSearchUseCase = GetSearchUseCase(
-            pagingRepository = testPagingRepository,
-            userDataRepository = testUserDataRepository
-        )
-        getRecommendKeywordUseCase = GetRecommendKeywordUseCase(
-            pagingRepository = testPagingRepository
-        )
         apis = TestMovieDataSource()
         viewModel = SearchVM(
             savedStateHandle = savedStateHandle,
             movieAppDataRepository = testMovieAppDataRepository,
-            getSearchUseCase = getSearchUseCase,
-            getRecommendKeywordUseCase = getRecommendKeywordUseCase
+            pagingRepository = testPagingRepository,
+            userDataRepository = testUserDataRepository
         )
     }
 
@@ -119,9 +109,26 @@ class SearchVMTest {
 
         viewModel.updateKeyword("mission")
 
+        val pagingSource = RecommendKeywordPagingSource(
+            apis = TestMovieDataSource(),
+            query = "미션"
+        )
+        val a: PagingSource.LoadResult<Int, SearchKeyword> = PagingSource.LoadResult.Page(
+            data = testRecommendedKeyword,
+            prevKey = null,
+            nextKey = null
+        )
+        val b = pagingSource.load(
+            PagingSource.LoadParams.Refresh(
+                key = null,
+                loadSize = 2,
+                placeholdersEnabled = false
+            )
+        )
+
         assertEquals(
-            viewModel.recommendedKeywordPaging.asSnapshot(),
-            testRecommendedKeyword
+            a,
+            b
         )
     }
 }

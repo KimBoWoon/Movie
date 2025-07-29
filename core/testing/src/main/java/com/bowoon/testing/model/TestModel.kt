@@ -232,7 +232,7 @@ val movieSeriesTestData = Series(
     ),
     posterPath = "/movieSeriesPosterPath.png"
 )
-val testRecommendedKeyword = (1..5).map {
+val testRecommendedKeyword = (0..5).map {
     SearchKeyword(id = it, name = "mission$it")
 }
 

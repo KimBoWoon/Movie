@@ -45,8 +45,7 @@ class GetMovieDetailUseCaseTest {
         getMovieDetailUseCase = GetMovieDetailUseCase(
             userDataRepository = userDataRepository,
             detailRepository = detailRepository,
-            databaseRepository = databaseRepository,
-            pagingRepository = testPagingRepository
+            databaseRepository = databaseRepository
         )
         runBlocking {
             databaseRepository.insertMovie(Favorite(id = 23))

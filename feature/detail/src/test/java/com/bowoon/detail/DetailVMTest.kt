@@ -12,7 +12,7 @@ import com.bowoon.domain.GetMovieDetailUseCase
 import com.bowoon.model.DisplayItem
 import com.bowoon.model.Favorite
 import com.bowoon.model.InternalData
-import com.bowoon.model.MovieInfo
+import com.bowoon.model.MovieDetailInfo
 import com.bowoon.testing.TestMovieDataSource
 import com.bowoon.testing.model.favoriteMovieDetailTestData
 import com.bowoon.testing.model.movieSeriesTestData
@@ -37,7 +37,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
-import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
 @RunWith(RobolectricTestRunner::class)
@@ -51,8 +50,7 @@ class DetailVMTest {
     private val getMovieDetailUseCase = GetMovieDetailUseCase(
         detailRepository = testDetailRepository,
         userDataRepository = testUserDataRepository,
-        databaseRepository = testDataBaseRepository,
-        pagingRepository = testPagingRepository
+        databaseRepository = testDataBaseRepository
     )
     private lateinit var savedStateHandle: SavedStateHandle
     private lateinit var viewModel: DetailVM
@@ -63,7 +61,9 @@ class DetailVMTest {
         viewModel = DetailVM(
             savedStateHandle = savedStateHandle,
             databaseRepository = testDataBaseRepository,
-            getMovieDetail = getMovieDetailUseCase
+            getMovieDetail = getMovieDetailUseCase,
+            pagingRepository = testPagingRepository,
+            userDataRepository = testUserDataRepository
         )
         runBlocking {
             testUserDataRepository.updateUserData(InternalData(), false)
@@ -87,7 +87,7 @@ class DetailVMTest {
 
         assertTrue(viewModel.detail.value is DetailState.Success)
 
-        val similarMovies = assertIs<DetailState.Success>(viewModel.detail.value).movieInfo.similarMovies
+        val similarMovies = assertIs<DetailState.Success>(viewModel.detail.value).similarMovies
 
         assertEquals(
             similarMovies.asSnapshot(),
@@ -97,12 +97,12 @@ class DetailVMTest {
         assertEquals(
             viewModel.detail.value,
             DetailState.Success(
-                MovieInfo(
+                MovieDetailInfo(
                     detail = favoriteMovieDetailTestData,
                     series = movieSeriesTestData,
-                    similarMovies = similarMovies,
                     autoPlayTrailer = testUserDataRepository.internalData.map { it.autoPlayTrailer }.first()
-                )
+                ),
+                similarMovies = similarMovies
             )
         )
     }
@@ -122,7 +122,7 @@ class DetailVMTest {
 
         assertTrue(viewModel.detail.value is DetailState.Success)
 
-        val similarMovies = assertIs<DetailState.Success>(viewModel.detail.value).movieInfo.similarMovies
+        val similarMovies = assertIs<DetailState.Success>(viewModel.detail.value).similarMovies
 
         assertEquals(
             similarMovies.asSnapshot(),
@@ -132,12 +132,12 @@ class DetailVMTest {
         assertEquals(
             viewModel.detail.value,
             DetailState.Success(
-                MovieInfo(
+                MovieDetailInfo(
                     detail = unFavoriteMovieDetailTestData,
                     series = movieSeriesTestData,
-                    similarMovies = similarMovies,
                     autoPlayTrailer = testUserDataRepository.internalData.map { it.autoPlayTrailer }.first()
-                )
+                ),
+                similarMovies = similarMovies
             )
         )
     }
@@ -184,7 +184,7 @@ class DetailVMTest {
             false
         )
         viewModel.insertMovie(movie)
-        assertNotEquals(
+        assertEquals(
             assertIs<DetailState.Success>(viewModel.detail.value).movieInfo.detail.isFavorite,
             true
         )
@@ -243,7 +243,7 @@ class DetailVMTest {
 
         assertTrue(viewModel.detail.value is DetailState.Success)
 
-        val similarMovies = assertIs<DetailState.Success>(viewModel.detail.value).movieInfo.similarMovies
+        val similarMovies = assertIs<DetailState.Success>(viewModel.detail.value).similarMovies
 
         assertEquals(
             similarMovies.asSnapshot(),
@@ -253,12 +253,12 @@ class DetailVMTest {
         assertEquals(
             viewModel.detail.value,
             DetailState.Success(
-                MovieInfo(
+                MovieDetailInfo(
                     detail = favoriteMovieDetailTestData,
                     series = movieSeriesTestData,
-                    similarMovies = similarMovies,
                     autoPlayTrailer = testUserDataRepository.internalData.map { it.autoPlayTrailer }.first()
-                )
+                ),
+                similarMovies = similarMovies
             )
         )
 

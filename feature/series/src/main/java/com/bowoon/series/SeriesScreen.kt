@@ -62,18 +62,11 @@ fun SeriesScreen(
                 )
             }
             is SeriesState.Success -> {
-                Column(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    TitleComponent(
-                        title = seriesState.series.name ?: stringResource(R.string.title_series),
-                        goToBack = { goToBack() }
-                    )
-                    SeriesComponent(
-                        series = seriesState.series,
-                        goToMovie = goToMovie
-                    )
-                }
+                SeriesComponent(
+                    series = seriesState.series,
+                    goToMovie = goToMovie,
+                    goToBack = goToBack
+                )
             }
             is SeriesState.Error -> {
                 LocalFirebaseLogHelper.current.sendLog("SeriesScreen", "Series state Error")
@@ -92,17 +85,26 @@ fun SeriesScreen(
 @Composable
 fun SeriesComponent(
     series: Series,
-    goToMovie: (Int) -> Unit
+    goToMovie: (Int) -> Unit,
+    goToBack: () -> Unit
 ) {
-    LazyColumn(
-        modifier = Modifier.semantics { contentDescription = "seriesList" }.fillMaxSize(),
-        contentPadding = PaddingValues(horizontal = dp16, vertical = dp10),
-        verticalArrangement = Arrangement.spacedBy(dp10)
+    Column(
+        modifier = Modifier.fillMaxSize()
     ) {
-        seriesInfoComponent(series = series)
-        movieSeriesListComponent(
-            series = series.parts ?: emptyList(),
-            goToMovie = goToMovie
+        TitleComponent(
+            title = series.name ?: stringResource(R.string.title_series),
+            goToBack = { goToBack() }
         )
+        LazyColumn(
+            modifier = Modifier.semantics { contentDescription = "seriesList" }.fillMaxSize(),
+            contentPadding = PaddingValues(horizontal = dp16, vertical = dp10),
+            verticalArrangement = Arrangement.spacedBy(dp10)
+        ) {
+            seriesInfoComponent(series = series)
+            movieSeriesListComponent(
+                series = series.parts ?: emptyList(),
+                goToMovie = goToMovie
+            )
+        }
     }
 }

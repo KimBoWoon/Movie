@@ -63,7 +63,10 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.flowWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -73,7 +76,6 @@ import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.DisplayItem
 import com.bowoon.model.Genre
 import com.bowoon.model.MovieAppData
-import com.bowoon.model.SearchKeyword
 import com.bowoon.model.SearchType
 import com.bowoon.movie.feature.search.R
 import com.bowoon.ui.components.CircularProgressComponent
@@ -114,14 +116,15 @@ fun SearchScreen(
     val searchUiState by viewModel.searchResult.collectAsStateWithLifecycle()
     val selectedGenre by viewModel.selectedGenre.collectAsStateWithLifecycle()
     val searchType by viewModel.searchType.collectAsStateWithLifecycle()
-    val recommendedKeyword = viewModel.recommendedKeywordPaging.collectAsLazyPagingItems()
+    val recommendedKeyword by viewModel.recommendedKeywordPaging.collectAsStateWithLifecycle()
     val inputKeyword = stringResource(id = R.string.input_keyword)
     val movieAppData by viewModel.movieAppData.collectAsStateWithLifecycle()
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
 
     LaunchedEffect(key1 = inputKeyword) {
-        viewModel.showSnackbar.collect {
-            onShowSnackbar(inputKeyword, null)
-        }
+        viewModel.showSnackbar
+            .flowWithLifecycle(lifecycle = lifecycle, minActiveState = Lifecycle.State.STARTED)
+            .collect { onShowSnackbar(inputKeyword, null) }
     }
 
     SearchScreen(
@@ -144,7 +147,7 @@ fun SearchScreen(
 @Composable
 fun SearchScreen(
     searchUiState: SearchUiState,
-    recommendedKeyword: LazyPagingItems<SearchKeyword>,
+    recommendedKeyword: RecommendKeywordUiState,
     keyword: String,
     searchType: SearchType,
     movieAppData: MovieAppData,
@@ -537,7 +540,7 @@ fun SearchPagingComponent(
 
 @Composable
 fun RecommendedKeywordComponent(
-    recommendedKeyword: LazyPagingItems<SearchKeyword>,
+    recommendedKeyword: RecommendKeywordUiState,
     keyword: String,
     updateKeyword: (String) -> Unit,
     onSearchClick: () -> Unit,
@@ -545,58 +548,70 @@ fun RecommendedKeywordComponent(
 ) {
     val focusManager = LocalFocusManager.current
 
-    LazyColumn(
+    Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        item {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(height = dp60),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    modifier = Modifier.padding(start = dp16),
-                    text = stringResource(id = R.string.recommended_keyword),
-                    fontSize = sp20,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center
-                )
-                Icon(
-                    modifier = Modifier
-                        .clickable { recommendedKeywordVisible(false) }
-                        .padding(end = dp16),
-                    imageVector = Icons.Filled.Close,
-                    contentDescription = "recommendedKeywordClose"
-                )
-            }
-        }
-        items(
-            count = recommendedKeyword.itemCount,
-            key = { index -> recommendedKeyword.peek(index)?.id ?: -1 }
-        ) { index ->
-            recommendedKeyword[index]?.let { recommendedKeyword ->
-                val annotatedString = recommendedKeyword.name.matchedColorString(keyword = keyword, color = MaterialTheme.colorScheme.primary)
-                Text(
-                    modifier = Modifier
-                        .padding(start = dp16, end = dp16, top = dp10)
-                        .fillMaxWidth()
-                        .height(height = dp35)
-                        .bounceClick {
-                            updateKeyword(recommendedKeyword.name ?: "")
-                            onSearchClick()
-                            focusManager.clearFocus()
-                            recommendedKeywordVisible(false)
-                        },
-                    text = annotatedString,
-                    textAlign = TextAlign.Center
-                )
-            }
-        }
-        if (recommendedKeyword.loadState.append is LoadState.Loading) {
-            item {
-                CircularProgressComponent(modifier = Modifier.wrapContentSize())
+        when (recommendedKeyword) {
+            is RecommendKeywordUiState.Loading -> CircularProgressComponent(modifier = Modifier.wrapContentSize().align(alignment = Alignment.Center))
+            is RecommendKeywordUiState.Success -> {
+                val recommendKeyword = recommendedKeyword.pagingData.collectAsLazyPagingItems()
+
+                LazyColumn(
+                    modifier = Modifier.semantics { contentDescription = "recommendKeywordList" }.fillMaxSize()
+                ) {
+                    item {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(height = dp60),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                modifier = Modifier.padding(start = dp16),
+                                text = stringResource(id = R.string.recommended_keyword),
+                                fontSize = sp20,
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.Center
+                            )
+                            Icon(
+                                modifier = Modifier
+                                    .clickable { recommendedKeywordVisible(false) }
+                                    .padding(end = dp16),
+                                imageVector = Icons.Filled.Close,
+                                contentDescription = "recommendedKeywordClose"
+                            )
+                        }
+                    }
+                    items(
+                        count = recommendKeyword.itemCount,
+                        key = { index -> recommendKeyword.peek(index)?.id ?: -1 }
+                    ) { index ->
+                        recommendKeyword[index]?.let { recommendedKeyword ->
+                            val annotatedString = recommendedKeyword.name.matchedColorString(keyword = keyword, color = MaterialTheme.colorScheme.primary)
+                            Text(
+                                modifier = Modifier
+                                    .semantics { contentDescription = annotatedString.toString() }
+                                    .padding(start = dp16, end = dp16, top = dp10)
+                                    .fillMaxWidth()
+                                    .height(height = dp35)
+                                    .bounceClick {
+                                        updateKeyword(recommendedKeyword.name ?: "")
+                                        onSearchClick()
+                                        focusManager.clearFocus()
+                                        recommendedKeywordVisible(false)
+                                    },
+                                text = annotatedString,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
+                    if (recommendKeyword.loadState.append is LoadState.Loading) {
+                        item {
+                            CircularProgressComponent(modifier = Modifier.wrapContentSize())
+                        }
+                    }
+                }
             }
         }
     }
