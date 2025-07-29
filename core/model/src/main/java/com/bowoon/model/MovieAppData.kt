@@ -10,11 +10,11 @@ data class MovieAppData(
     val updateDate: String = "",
     val mainMenu: MainMenu = MainMenu(),
     val imageQuality: String = "original",
-    val secureBaseUrl: String? = null,
+    val secureBaseUrl: String = "",
     val genres: List<Genre> = emptyList(),
-    val region: List<Region>? = null,
-    val language: List<Language>? = null,
-    val posterSize: List<PosterSize>? = null
+    val region: List<Region> = emptyList(),
+    val language: List<Language> = emptyList(),
+    val posterSize: List<PosterSize> = emptyList()
 ) {
     fun isDarkMode(isSystemInDarkMode: Boolean): Boolean = when (isDarkMode) {
         DarkThemeConfig.FOLLOW_SYSTEM -> isSystemInDarkMode
@@ -22,19 +22,13 @@ data class MovieAppData(
         DarkThemeConfig.DARK -> true
     }
 
-    fun getImageUrl(): String = "$secureBaseUrl${posterSize?.find { it.isSelected }?.size}"
-    fun getRegion(): String = "${region?.find { it.isSelected }?.iso31661} (${region?.find { it.isSelected }?.englishName})"
-    fun getLanguage(): String = "${language?.find { it.isSelected }?.iso6391} (${language?.find { it.isSelected }?.englishName})"
+    fun getImageUrl(): String = "$secureBaseUrl${posterSize.find { it.isSelected }?.size}"
+    fun getRegion(): String = "${region.find { it.isSelected }?.iso31661} (${region.find { it.isSelected }?.englishName})"
+    fun getLanguage(): String = "${language.find { it.isSelected }?.iso6391} (${language.find { it.isSelected }?.englishName})"
 }
 
 @Serializable
 data class PosterSize(
     val size: String? = null,
     val isSelected: Boolean = false
-)
-
-data class ExternalData(
-    val configuration: Configuration? = null,
-    val region: Regions? = null,
-    val language: List<Language>? = null
 )

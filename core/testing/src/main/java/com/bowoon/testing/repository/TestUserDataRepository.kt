@@ -8,9 +8,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.filterNotNull
 
 class TestUserDataRepository : UserDataRepository {
-    /**
-     * The backing hot flow for the list of followed topic ids for testing.
-     */
     private val _userData = MutableSharedFlow<InternalData>(replay = 1, onBufferOverflow = DROP_OLDEST)
     private val _fcmToken = MutableSharedFlow<String>(replay = 1, onBufferOverflow = DROP_OLDEST)
     private val currentUserData get() = _userData.replayCache.firstOrNull() ?: InternalData()

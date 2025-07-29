@@ -28,7 +28,6 @@ import com.bowoon.movie.ui.MovieMainScreen
 import com.bowoon.movie.utils.isSystemInDarkTheme
 import com.bowoon.ui.theme.MovieTheme
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -66,12 +65,8 @@ class MainActivity : ComponentActivity() {
 
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                combine(
-                    isSystemInDarkTheme(),
-                    viewModel.movieAppData
-                ) { systemDarkTheme, userdata ->
-                    userdata.shouldUseDarkTheme(systemDarkTheme)
-                }.onEach { darkTheme = it }
+                isSystemInDarkTheme()
+                    .onEach { darkTheme = it }
                     .distinctUntilChanged()
                     .collect { darkTheme ->
                         enableEdgeToEdge(

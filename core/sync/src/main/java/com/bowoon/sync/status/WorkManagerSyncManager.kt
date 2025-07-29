@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 internal class WorkManagerSyncManager @Inject constructor(
-    @ApplicationContext private val appContext: Context,
+    @param:ApplicationContext private val appContext: Context,
 ) : SyncManager {
     override val isSyncing: Flow<Boolean> =
         WorkManager.getInstance(appContext)

@@ -19,7 +19,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -49,6 +48,7 @@ import com.bowoon.model.Favorite
 import com.bowoon.model.People
 import com.bowoon.model.getRelatedMovie
 import com.bowoon.movie.core.ui.R
+import com.bowoon.ui.components.CircularProgressComponent
 import com.bowoon.ui.components.TitleComponent
 import com.bowoon.ui.dialog.ConfirmDialog
 import com.bowoon.ui.dialog.ModalBottomSheetDialog
@@ -98,7 +98,7 @@ fun PeopleScreen(
         when (peopleState) {
             is PeopleState.Loading -> {
                 Log.d("loading...")
-                CircularProgressIndicator(
+                CircularProgressComponent(
                     modifier = Modifier.semantics { contentDescription = "peopleDetailLoading" }.align(Alignment.Center)
                 )
             }

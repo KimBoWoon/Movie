@@ -10,8 +10,7 @@ android {
 dependencies {
     arrayOf(
         projects.core.common,
-        libs.threetenabp,
-        libs.androidx.compose.paging
+        libs.threetenabp
     ).forEach {
         implementation(it)
     }

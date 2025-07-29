@@ -25,9 +25,9 @@ class GetMovieAppDataUseCaseTest {
     fun getMovieAppDataTest() = runTest {
         val result = testMovieAppDataRepository.movieAppData
         val movieAppData = MovieAppData(
-            secureBaseUrl = configurationTestData.images?.secureBaseUrl,
+            secureBaseUrl = configurationTestData.images?.secureBaseUrl ?: "",
             genres = genreListTestData.genres ?: emptyList(),
-            region = regionTestData.results,
+            region = regionTestData.results ?: emptyList(),
             language = languageListTestData,
             posterSize = configurationTestData.images?.posterSizes?.map {
                 PosterSize(size = it, isSelected = it == "original")

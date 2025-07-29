@@ -42,5 +42,6 @@ enum class Menu {
     IS_AUTO_PLAYING_TRAILER,
     LANGUAGE,
     REGION,
-    IMAGE_QUALITY
+    IMAGE_QUALITY,
+    VERSION
 }

@@ -60,7 +60,7 @@ fun ModalBottomSheetDialog(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(ratio = imageList[index].aspectRatio?.toFloat() ?: 1f),
+                .aspectRatio(ratio = imageList.minOf { it.aspectRatio?.toFloat() ?: 1f }),
             contentAlignment = Alignment.Center
         ) {
             HorizontalPager(

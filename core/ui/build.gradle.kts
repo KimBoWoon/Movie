@@ -19,7 +19,8 @@ dependencies {
         libs.coil.okhttp,
         libs.coil.compose,
         libs.threetenabp,
-        libs.androidx.compose.constraintLayout
+        libs.androidx.compose.constraintLayout,
+        libs.lottie.compose
     ).forEach {
         implementation(it)
     }

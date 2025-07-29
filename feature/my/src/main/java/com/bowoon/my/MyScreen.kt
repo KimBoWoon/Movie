@@ -29,12 +29,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.bowoon.common.getVersionName
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.DarkThemeConfig
 import com.bowoon.model.InternalData
@@ -71,6 +73,7 @@ fun MyScreen(
     movieAppData: MovieAppData,
     updateUserData: (InternalData, Boolean) -> Unit
 ) {
+    val context = LocalContext.current
     var isShowChooseDialog by remember { mutableStateOf(false) }
     var chooseDialogItem by remember { mutableStateOf(listOf<Any>()) }
     var selectedOption by remember { mutableStateOf<Any?>(null) }
@@ -151,6 +154,12 @@ fun MyScreen(
                                     chooseDialogItem = movieAppData.posterSize ?: emptyList()
                                     selectedOption = movieAppData.posterSize?.find { it.isSelected }
                                 }
+                            )
+                        }
+                        Menu.VERSION -> {
+                            DisplayMenuComponent(
+                                title = stringResource(id = R.string.version_info),
+                                content = getVersionName(context = context)
                             )
                         }
                     }

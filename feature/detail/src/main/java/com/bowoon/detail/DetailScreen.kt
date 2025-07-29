@@ -32,7 +32,6 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.PlayArrow
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -78,9 +77,10 @@ import com.bowoon.model.Favorite
 import com.bowoon.model.Image
 import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetailTab
-import com.bowoon.model.MovieInfo
+import com.bowoon.model.MovieDetailInfo
 import com.bowoon.model.Series
 import com.bowoon.movie.feature.detail.R
+import com.bowoon.ui.components.CircularProgressComponent
 import com.bowoon.ui.components.PagingAppendErrorComponent
 import com.bowoon.ui.components.TabComponent
 import com.bowoon.ui.components.TitleComponent
@@ -147,15 +147,15 @@ fun DetailScreen(
     deleteFavoriteMovie: (Favorite) -> Unit,
     restart: () -> Unit
 ) {
-    val scope = rememberCoroutineScope()
-
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
         when (detailState) {
             is DetailState.Loading -> {
                 Log.d("loading...")
-                CircularProgressIndicator(
+                LocalFirebaseLogHelper.current.sendLog(name = "DetailScreen", message = "loading...")
+
+                CircularProgressComponent(
                     modifier = Modifier
                         .testTag(tag = "detailScreenLoading")
                         .align(Alignment.Center)
@@ -163,38 +163,22 @@ fun DetailScreen(
             }
             is DetailState.Success -> {
                 Log.d("${detailState.movieInfo.detail}")
+                LocalFirebaseLogHelper.current.sendLog(name = "DetailScreen", message = "${detailState.movieInfo}")
 
-                Column(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    val favoriteMessage = if (detailState.movieInfo.detail.isFavorite) stringResource(id = R.string.add_favorite_movie) else stringResource(id = R.string.remove_favorite_movie)
-
-                    TitleComponent(
-                        title = detailState.movieInfo.detail.title ?: "",
-                        isFavorite = detailState.movieInfo.detail.isFavorite,
-                        goToBack = goToBack,
-                        onFavoriteClick = {
-                            val favorite = Favorite(
-                                id = detailState.movieInfo.detail.id,
-                                title = detailState.movieInfo.detail.title,
-                                imagePath = detailState.movieInfo.detail.posterPath
-                            )
-                            if (detailState.movieInfo.detail.isFavorite) deleteFavoriteMovie(favorite) else insertFavoriteMovie(favorite)
-                            scope.launch {
-                                onShowSnackbar(favoriteMessage, null)
-                            }
-                        }
-                    )
-
-                    MovieDetailComponent(
-                        movieInfo = detailState.movieInfo,
-                        goToMovie = { id -> goToMovie(id) },
-                        goToPeople = { id -> goToPeople(id) }
-                    )
-                }
+                MovieDetailComponent(
+                    movieInfo = detailState.movieInfo,
+                    similarMovies = detailState.similarMovies,
+                    goToMovie = goToMovie,
+                    goToPeople = goToPeople,
+                    goToBack = goToBack,
+                    onShowSnackbar = onShowSnackbar,
+                    insertFavoriteMovie = insertFavoriteMovie,
+                    deleteFavoriteMovie = deleteFavoriteMovie
+                )
             }
             is DetailState.Error -> {
                 Log.e("${detailState.throwable.message}")
+                LocalFirebaseLogHelper.current.sendLog(name = "DetailScreen", message = "${detailState.throwable.message}")
 
                 ConfirmDialog(
                     title = stringResource(id = com.bowoon.movie.core.network.R.string.network_failed),
@@ -209,37 +193,66 @@ fun DetailScreen(
 
 @Composable
 fun MovieDetailComponent(
-    movieInfo: MovieInfo,
+    movieInfo: MovieDetailInfo,
+    similarMovies: Flow<PagingData<DisplayItem>>,
     goToMovie: (Int) -> Unit,
-    goToPeople: (Int) -> Unit
+    goToPeople: (Int) -> Unit,
+    goToBack: () -> Unit,
+    onShowSnackbar: suspend (String, String?) -> Boolean,
+    insertFavoriteMovie: (Favorite) -> Unit,
+    deleteFavoriteMovie: (Favorite) -> Unit,
 ) {
-    Column {
-        VideosComponent(
-            vodList = movieInfo.detail.videos?.results?.mapNotNull { it.key } ?: emptyList(),
-            autoPlayTrailer = false // movieInfo.detail.autoPlayTrailer
+    val scope = rememberCoroutineScope()
+    val tabList = if (movieInfo.detail.belongsToCollection == null) {
+        MovieDetailTab.entries.map { it.label }.filter { it != MovieDetailTab.SERIES.label }
+    } else {
+        MovieDetailTab.entries.map { it.label }
+    }
+    val pagerState = rememberPagerState(
+        initialPage = 0,
+        pageCount = { tabList.size }
+    )
+    val tabClickEvent: (Int, Int) -> Unit = { current, index ->
+        scope.launch {
+            pagerState.animateScrollToPage(index)
+        }
+    }
+    val favoriteMessage = if (movieInfo.detail.isFavorite) stringResource(id = R.string.add_favorite_movie) else stringResource(id = R.string.remove_favorite_movie)
+
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        TitleComponent(
+            title = movieInfo.detail.title ?: "",
+            isFavorite = movieInfo.detail.isFavorite,
+            goToBack = goToBack,
+            onFavoriteClick = {
+                val favorite = Favorite(
+                    id = movieInfo.detail.id,
+                    title = movieInfo.detail.title,
+                    imagePath = movieInfo.detail.posterPath
+                )
+                if (movieInfo.detail.isFavorite) {
+                    deleteFavoriteMovie(favorite)
+                } else {
+                    insertFavoriteMovie(favorite)
+                }
+                scope.launch {
+                    onShowSnackbar(favoriteMessage, null)
+                }
+            }
         )
 
-        val tabList = if (movieInfo.detail.belongsToCollection == null) {
-            MovieDetailTab.entries.map { it.label }.filter { it != MovieDetailTab.SERIES.label }
-        } else {
-            MovieDetailTab.entries.map { it.label }
-        }
-        val pagerState = rememberPagerState(
-            initialPage = 0,
-            pageCount = { tabList.size }
+        VideosComponent(
+            vodList = movieInfo.detail.videos?.results?.mapNotNull { it.key } ?: emptyList(),
+            autoPlayTrailer = movieInfo.autoPlayTrailer
         )
-        val scope = rememberCoroutineScope()
-        val tabClickEvent: (Int, Int) -> Unit = { current, index ->
-            scope.launch {
-                pagerState.animateScrollToPage(index)
-            }
-        }
 
         TabComponent(
             tabs = tabList,
             pagerState = pagerState,
             tabClickEvent = tabClickEvent
-        ) {
+        ) { tabs ->
             HorizontalPager(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -247,36 +260,28 @@ fun MovieDetailComponent(
                 state = pagerState,
                 userScrollEnabled = false
             ) { index ->
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    when (it[index]) {
-                        MovieDetailTab.MOVIE_INFO.label -> MovieInfoComponent(movie = movieInfo.detail)
-                        MovieDetailTab.SERIES.label -> MovieSeriesComponent(
-                            movieSeries = movieInfo.series,
-                            goToMovie = goToMovie
-                        )
-                        MovieDetailTab.ADDITIONAL_INFO.label -> MovieAdditionalInfoComponent(
-                            movie = movieInfo.detail
-                        )
-                        MovieDetailTab.ACTOR_AND_CREW.label -> ActorAndCrewComponent(
-                            movie = movieInfo.detail,
-                            goToPeople = goToPeople
-                        )
-                        MovieDetailTab.IMAGES.label -> {
-                            val posters = movieInfo.detail.images?.posters ?: emptyList()
-                            val backdrops = movieInfo.detail.images?.backdrops ?: emptyList()
-                            ImageComponent(images = posters + backdrops)
-                        }
-                        MovieDetailTab.SIMILAR.label -> SimilarMovieComponent(
-                            pagingData = movieInfo.similarMovies,
-                            goToMovie = goToMovie
-                        )
+                when (tabs[index]) {
+                    MovieDetailTab.MOVIE_INFO.label -> MovieInfoComponent(movie = movieInfo.detail)
+                    MovieDetailTab.SERIES.label -> MovieSeriesComponent(
+                        movieSeries = movieInfo.series,
+                        goToMovie = goToMovie
+                    )
+                    MovieDetailTab.ADDITIONAL_INFO.label -> MovieAdditionalInfoComponent(
+                        movie = movieInfo.detail
+                    )
+                    MovieDetailTab.ACTOR_AND_CREW.label -> ActorAndCrewComponent(
+                        movie = movieInfo.detail,
+                        goToPeople = goToPeople
+                    )
+                    MovieDetailTab.IMAGES.label -> {
+                        val posters = movieInfo.detail.images?.posters ?: emptyList()
+                        val backdrops = movieInfo.detail.images?.backdrops ?: emptyList()
+                        ImageComponent(images = posters + backdrops)
                     }
+                    MovieDetailTab.SIMILAR.label -> SimilarMovieComponent(
+                        pagingData = similarMovies,
+                        goToMovie = goToMovie
+                    )
                 }
             }
         }
@@ -649,7 +654,8 @@ fun MovieInfoComponent(
                         .wrapContentHeight(),
                     text = it,
                     fontSize = sp15,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
+                    style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
                 )
             }
             movie.title?.takeIf { it.isNotEmpty() }?.let {
@@ -903,7 +909,7 @@ fun SimilarMovieComponent(
         modifier = Modifier.fillMaxSize()
     ) {
         if (similarMovie.loadState.refresh is LoadState.Loading) {
-            CircularProgressIndicator(modifier = Modifier.align(alignment = Alignment.Center))
+            CircularProgressComponent(modifier = Modifier.align(alignment = Alignment.Center))
         } else if (similarMovie.loadState.refresh is LoadState.Error) {
             val message = (similarMovie.loadState.refresh as? LoadState.Error)?.error?.message
                 ?: (similarMovie.loadState.append as? LoadState.Error)?.error?.message
@@ -963,7 +969,7 @@ fun BoxScope.MovieList(
 
             if (similarMovie.loadState.append is LoadState.Loading) {
                 item(span = { GridItemSpan(maxLineSpan) }) {
-                    CircularProgressIndicator(
+                    CircularProgressComponent(
                         modifier = Modifier
                             .wrapContentSize()
                             .align(Alignment.Center)

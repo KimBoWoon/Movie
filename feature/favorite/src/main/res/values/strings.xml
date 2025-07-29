@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="feature_favorite_name">찜</string>
+    <string name="feature_favorite_name">Favorite</string>
+    <string name="empty_favorite_movie">Empty favorite movie</string>
+    <string name="empty_favorite_people">Empty favorite people</string>
+    <string name="remove_favorite">Remove favorite</string>
+    <string name="movie">Movie</string>
+    <string name="people">People</string>
 </resources>
