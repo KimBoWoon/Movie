@@ -76,8 +76,8 @@ import com.bowoon.model.DisplayItem
 import com.bowoon.model.Favorite
 import com.bowoon.model.Image
 import com.bowoon.model.Movie
-import com.bowoon.model.MovieDetailTab
 import com.bowoon.model.MovieDetailInfo
+import com.bowoon.model.MovieDetailTab
 import com.bowoon.model.Series
 import com.bowoon.movie.feature.detail.R
 import com.bowoon.ui.components.CircularProgressComponent
@@ -214,7 +214,7 @@ fun MovieDetailComponent(
     )
     val tabClickEvent: (Int, Int) -> Unit = { current, index ->
         scope.launch {
-            pagerState.animateScrollToPage(index)
+            pagerState.animateScrollToPage(page = index)
         }
     }
     val favoriteMessage = if (movieInfo.detail.isFavorite) stringResource(id = R.string.add_favorite_movie) else stringResource(id = R.string.remove_favorite_movie)
@@ -255,6 +255,7 @@ fun MovieDetailComponent(
         ) { tabs ->
             HorizontalPager(
                 modifier = Modifier
+//                    .semantics { contentDescription = "detailTabRow" }
                     .fillMaxWidth()
                     .wrapContentHeight(),
                 state = pagerState,

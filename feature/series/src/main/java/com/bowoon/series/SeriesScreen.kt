@@ -56,12 +56,16 @@ fun SeriesScreen(
     ) {
         when (seriesState) {
             is SeriesState.Loading -> {
+                LocalFirebaseLogHelper.current.sendLog("SeriesScreen", "Series state Loading...")
+
                 CircularProgressComponent(
                     modifier = Modifier.semantics { contentDescription = "seriesLoading" }
                         .align(Alignment.Center)
                 )
             }
             is SeriesState.Success -> {
+                LocalFirebaseLogHelper.current.sendLog("SeriesScreen", "Series state Success")
+
                 SeriesComponent(
                     series = seriesState.series,
                     goToMovie = goToMovie,
@@ -72,10 +76,10 @@ fun SeriesScreen(
                 LocalFirebaseLogHelper.current.sendLog("SeriesScreen", "Series state Error")
 
                 ConfirmDialog(
-                    title = stringResource(com.bowoon.movie.core.network.R.string.network_failed),
-                    message = seriesState.throwable.message ?: stringResource(com.bowoon.movie.core.network.R.string.something_wrong),
-                    confirmPair = stringResource(com.bowoon.movie.core.ui.R.string.retry_message) to { restart() },
-                    dismissPair = stringResource(com.bowoon.movie.core.ui.R.string.confirm_message) to goToBack
+                    title = stringResource(id = com.bowoon.movie.core.network.R.string.network_failed),
+                    message = seriesState.throwable.message ?: stringResource(id = com.bowoon.movie.core.network.R.string.something_wrong),
+                    confirmPair = stringResource(id = com.bowoon.movie.core.ui.R.string.retry_message) to { restart() },
+                    dismissPair = stringResource(id = com.bowoon.movie.core.ui.R.string.back_message) to goToBack
                 )
             }
         }
@@ -92,13 +96,13 @@ fun SeriesComponent(
         modifier = Modifier.fillMaxSize()
     ) {
         TitleComponent(
-            title = series.name ?: stringResource(R.string.title_series),
+            title = series.name ?: stringResource(id = R.string.title_series),
             goToBack = { goToBack() }
         )
         LazyColumn(
             modifier = Modifier.semantics { contentDescription = "seriesList" }.fillMaxSize(),
             contentPadding = PaddingValues(horizontal = dp16, vertical = dp10),
-            verticalArrangement = Arrangement.spacedBy(dp10)
+            verticalArrangement = Arrangement.spacedBy(space = dp10)
         ) {
             seriesInfoComponent(series = series)
             movieSeriesListComponent(

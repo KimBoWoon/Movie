@@ -220,15 +220,10 @@ val movieSeriesTestData = Series(
     name = "movieSeries",
     overview = "movieSeriesOverview",
     parts = listOf(
-        SeriesPart(
-            id = 0,
-            title = "movieSeries_1",
-            releaseDate = "2024-09-23",
-            overview = "movieSeries_1_overview"
-        ),
-        SeriesPart(id = 1, title = "movieSeries_2", releaseDate = "2025-09-23", overview = ""),
-        SeriesPart(adult = true, id = 2, title = "seriesPart_2", releaseDate = "2025-09-23", overview = "seriesPartOverview_2"),
-        SeriesPart(adult = false, id = 3, title = "seriesPart_3", releaseDate = "2025-09-23", overview = "seriesPartOverview_3")
+        SeriesPart(id = 0, title = "movieSeries_0", releaseDate = "2024-09-23_0", overview = "movieSeries_0_overview", posterPath = "/movieSeriesPosterPath_1.png"),
+        SeriesPart(id = 1, title = "movieSeries_1", releaseDate = "2024-09-23_1", overview = "movieSeries_1_overview", posterPath = "/movieSeriesPosterPath_2.png"),
+        SeriesPart(adult = true, id = 2, title = "movieSeries_2", releaseDate = "2024-09-23_2", overview = "movieSeries_2_overview", posterPath = "/movieSeriesPosterPath_3.jpg"),
+        SeriesPart(adult = false, id = 3, title = "movieSeries_3", releaseDate = "2024-09-23_3", overview = "movieSeries_3_overview", posterPath = "/movieSeriesPosterPath_3.png")
     ),
     posterPath = "/movieSeriesPosterPath.png"
 )
@@ -288,7 +283,7 @@ val favoriteMovieDetailTestData = Movie(
     genres = listOf(Genre(id = 0, name = "genre")),
     homepage = "homepage",
     id = 0,
-    images = Images(backdrops = listOf(Image(filePath = "https://original/backdrops_1.png")), logos = listOf(), posters = listOf(Image(filePath = "https://original/poster_1.png"), Image(filePath = "https://original/poster_2.png"), Image(filePath = "https://original/poster_3.png"))),
+    images = Images(backdrops = listOf(Image(filePath = "/backdrops_1.png")), logos = listOf(), posters = listOf(Image(filePath = "/poster_1.png"), Image(filePath = "/poster_2.png"), Image(filePath = "/poster_3.png"))),
     imdbId = "imdbId",
     keywords = Keywords(keywords = listOf(Keyword(id = 0, name = "name"))),
     originCountry = listOf("originCountry"),

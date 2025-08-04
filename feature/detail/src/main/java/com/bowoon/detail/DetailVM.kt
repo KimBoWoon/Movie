@@ -31,10 +31,10 @@ import javax.inject.Inject
 @HiltViewModel
 class DetailVM @Inject constructor(
     savedStateHandle: SavedStateHandle,
+    userDataRepository: UserDataRepository,
     private val getMovieDetail: GetMovieDetailUseCase,
     private val databaseRepository: DatabaseRepository,
-    private val pagingRepository: PagingRepository,
-    private val userDataRepository: UserDataRepository
+    private val pagingRepository: PagingRepository
 ) : ViewModel() {
     companion object {
         private const val TAG = "DetailVM"

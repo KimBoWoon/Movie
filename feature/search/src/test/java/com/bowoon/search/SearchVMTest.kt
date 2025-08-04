@@ -105,7 +105,7 @@ class SearchVMTest {
 
     @Test
     fun recommendedKeywordTest() = runTest {
-        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.recommendedKeywordPaging.collect() }
+        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.recommendKeywordPaging.collect() }
 
         viewModel.updateKeyword("mission")
 

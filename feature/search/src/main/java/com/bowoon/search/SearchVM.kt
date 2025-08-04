@@ -48,16 +48,16 @@ class SearchVM @Inject constructor(
         private const val SEARCH_TYPE = "searchType"
     }
 
-    private var recommendedKeywordJob: Job? = null
+    private var recommendKeywordJob: Job? = null
     val movieAppData = movieAppDataRepository.movieAppData
     var searchQuery by mutableStateOf(value = "")
         private set
     val selectedGenre = savedStateHandle.getStateFlow<Genre?>(key = GENRE, initialValue = null)
     val searchType = savedStateHandle.getStateFlow<SearchType>(key = SEARCH_TYPE, initialValue = SearchType.MOVIE)
     val searchResult = MutableStateFlow<SearchUiState>(value = SearchUiState.SearchHint)
-    val recommendedKeywordPaging = MutableStateFlow<RecommendKeywordUiState>(value = RecommendKeywordUiState.Loading)
+    val recommendKeywordPaging = MutableStateFlow<RecommendKeywordUiState>(value = RecommendKeywordUiState.Loading)
     val showSnackbar = MutableSharedFlow<Unit>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
-    private val recommendedKeywordFlow = MutableStateFlow<String>("")
+    private val recommendKeywordFlow = MutableStateFlow<String>("")
     private val userData = userDataRepository.internalData.stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
@@ -65,10 +65,10 @@ class SearchVM @Inject constructor(
     )
 
     init {
-        recommendedKeywordJob = viewModelScope.launch {
-            recommendedKeywordPaging.emit(
+        recommendKeywordJob = viewModelScope.launch {
+            recommendKeywordPaging.emit(
                 value = RecommendKeywordUiState.Success(
-                    recommendedKeywordFlow.debounce(300L)
+                    recommendKeywordFlow.debounce(300L)
                         .flatMapLatest {
                             Pager(
                                 config = PagingConfig(pageSize = 1, initialLoadSize = 1, prefetchDistance = 5),
@@ -84,9 +84,9 @@ class SearchVM @Inject constructor(
     override fun onCleared() {
         super.onCleared()
 
-        if (recommendedKeywordJob != null) {
-            recommendedKeywordJob?.cancel()
-            recommendedKeywordJob = null
+        if (recommendKeywordJob != null) {
+            recommendKeywordJob?.cancel()
+            recommendKeywordJob = null
         }
     }
 
@@ -96,7 +96,7 @@ class SearchVM @Inject constructor(
 
     fun updateKeyword(keyword: String) {
         searchQuery = keyword
-        viewModelScope.launch { recommendedKeywordFlow.emit(keyword) }
+        viewModelScope.launch { recommendKeywordFlow.emit(keyword) }
     }
 
     fun updateSearchType(searchType: SearchType) {

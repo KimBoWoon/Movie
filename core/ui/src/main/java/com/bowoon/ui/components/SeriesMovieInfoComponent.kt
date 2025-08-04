@@ -10,6 +10,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -57,15 +59,15 @@ fun SeriesMovieInfoComponent(
         val date = createRef()
         val overview = createRef()
 
-        createVerticalChain(title, date, overview, chainStyle = ChainStyle.Packed(0f))
+        createVerticalChain(title, date, overview, chainStyle = ChainStyle.Packed(bias = 0f))
 
         Box(
             modifier = Modifier
-                .width(dp150)
-                .aspectRatio(POSTER_IMAGE_RATIO)
-                .constrainAs(poster) {
-                    width = Dimension.value(dp150)
-                    height = Dimension.ratio("2:3")
+                .width(width = dp150)
+                .aspectRatio(ratio = POSTER_IMAGE_RATIO)
+                .constrainAs(ref = poster) {
+                    width = Dimension.value(dp = dp150)
+                    height = Dimension.ratio(ratio = "2:3")
                 }
         ) {
             DynamicAsyncImageLoader(
@@ -74,44 +76,51 @@ fun SeriesMovieInfoComponent(
                 contentDescription = seriesPart.posterPath
             )
         }
-        Text(
-            modifier = Modifier.constrainAs(title) {
-                start.linkTo(anchor = poster.end, margin = dp5)
-                end.linkTo(anchor = parent.end)
-                width = Dimension.fillToConstraints
-            },
-            text = seriesPart.title ?: "",
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            fontSize = sp20,
-            fontWeight = FontWeight.Bold
-        )
+        seriesPart.title?.takeIf { it.isNotEmpty() }?.let {
+            Text(
+                modifier = Modifier.semantics { contentDescription = it }
+                    .constrainAs(ref = title) {
+                        start.linkTo(anchor = poster.end, margin = dp5)
+                        end.linkTo(anchor = parent.end)
+                        width = Dimension.fillToConstraints
+                    },
+                text = it,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                fontSize = sp20,
+                fontWeight = FontWeight.Bold
+            )
+        }
         seriesPart.releaseDate?.takeIf { it.isNotEmpty() }?.let {
             Text(
-                modifier = Modifier.constrainAs(date) {
-                    start.linkTo(anchor = poster.end, margin = dp5)
-                    end.linkTo(anchor = parent.end)
-                    top.linkTo(anchor = title.bottom, margin = dp5)
-                    bottom.linkTo(anchor = overview.top, margin = dp5)
-                    width = Dimension.fillToConstraints
-                },
+                modifier = Modifier.semantics { contentDescription = it }
+                    .constrainAs(ref = date) {
+                        start.linkTo(anchor = poster.end, margin = dp5)
+                        end.linkTo(anchor = parent.end)
+                        top.linkTo(anchor = title.bottom, margin = dp5)
+                        bottom.linkTo(anchor = overview.top, margin = dp5)
+                        width = Dimension.fillToConstraints
+                    },
                 text = it,
                 fontSize = sp10
             )
         }
-        Text(
-            modifier = Modifier.constrainAs(overview) {
-                start.linkTo(anchor = poster.end, margin = dp5)
-                end.linkTo(anchor = parent.end)
-                top.linkTo(anchor = date.bottom)
-                bottom.linkTo(anchor = parent.bottom)
-                width = Dimension.preferredWrapContent
-                height = Dimension.fillToConstraints
-            },
-            text = seriesPart.overview ?: "",
-            overflow = TextOverflow.Ellipsis,
-            fontSize = sp13,
-            style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
-        )
+        seriesPart.overview?.takeIf { it.isNotEmpty() }?.let {
+            Text(
+                modifier = Modifier.semantics { contentDescription = it }
+                    .constrainAs(ref = overview) {
+                        start.linkTo(anchor = poster.end, margin = dp5)
+                        end.linkTo(anchor = parent.end)
+                        top.linkTo(anchor = date.bottom)
+                        bottom.linkTo(anchor = parent.bottom)
+                        width = Dimension.preferredWrapContent
+                        height = Dimension.fillToConstraints
+                    },
+                text = it,
+                overflow = TextOverflow.Ellipsis,
+                fontSize = sp13,
+                style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
+            )
+        }
     }
 }

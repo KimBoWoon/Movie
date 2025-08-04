@@ -14,15 +14,23 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import com.bowoon.data.repository.LocalMovieAppDataComposition
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bowoon.model.Favorite
+import com.bowoon.model.MovieAppData
+import com.bowoon.model.PosterSize
 import com.bowoon.model.getRelatedMovie
+import com.bowoon.testing.model.configurationTestData
+import com.bowoon.testing.model.genreListTestData
+import com.bowoon.testing.model.languageListTestData
+import com.bowoon.testing.model.peopleDetailTestData
+import com.bowoon.testing.model.regionTestData
 import com.bowoon.testing.repository.TestDatabaseRepository
-import com.bowoon.testing.repository.peopleDetailTestData
+import com.bowoon.testing.repository.TestMovieAppDataRepository
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import kotlin.test.assertEquals
@@ -30,6 +38,23 @@ import kotlin.test.assertEquals
 class PeopleScreenTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<ComponentActivity>()
+    private lateinit var testMovieAppDataRepository: TestMovieAppDataRepository
+
+    @Before
+    fun setup() {
+        testMovieAppDataRepository = TestMovieAppDataRepository()
+        val movieAppData = MovieAppData(
+            secureBaseUrl = configurationTestData.images?.secureBaseUrl ?: "",
+            genres = genreListTestData.genres ?: emptyList(),
+            region = regionTestData.results ?: emptyList(),
+            language = languageListTestData,
+            posterSize = configurationTestData.images?.posterSizes?.map {
+                PosterSize(size = it, isSelected = it == "original")
+            } ?: emptyList()
+        )
+
+        testMovieAppDataRepository.setMovieAppData(movieAppData)
+    }
 
     @Test
     fun peopleScreenLoadingTest() {
@@ -77,7 +102,8 @@ class PeopleScreenTest {
             var posterPath = ""
 
             setContent {
-                posterPath = LocalMovieAppDataComposition.current.getImageUrl()
+                posterPath = testMovieAppDataRepository.movieAppData.collectAsStateWithLifecycle().value.getImageUrl()
+
                 PeopleScreen(
                     peopleState = PeopleState.Success(peopleDetailTestData),
                     goToBack = {},
@@ -110,7 +136,7 @@ class PeopleScreenTest {
             val testDatabaseRepository = TestDatabaseRepository()
 
             setContent {
-                posterPath = LocalMovieAppDataComposition.current.getImageUrl()
+                posterPath = testMovieAppDataRepository.movieAppData.collectAsStateWithLifecycle().value.getImageUrl()
                 var people by remember { mutableStateOf(peopleDetailTestData.copy(isFavorite = false)) }
 
                 PeopleScreen(
@@ -160,7 +186,7 @@ class PeopleScreenTest {
             val testDatabaseRepository = TestDatabaseRepository()
 
             setContent {
-                posterPath = LocalMovieAppDataComposition.current.getImageUrl()
+                posterPath = testMovieAppDataRepository.movieAppData.collectAsStateWithLifecycle().value.getImageUrl()
                 var people by remember { mutableStateOf(peopleDetailTestData) }
 
                 LaunchedEffect("deleteFavorite") {

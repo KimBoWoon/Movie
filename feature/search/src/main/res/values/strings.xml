@@ -7,5 +7,5 @@
     <string name="filter_not_found">Not Found…</string>
     <string name="input_keyword">Input Keyword</string>
     <string name="do_search">Enter a search term to search for it!</string>
-    <string name="recommended_keyword">Recommended keyword</string>
+    <string name="recommend_keyword">Recommended keyword</string>
 </resources>
