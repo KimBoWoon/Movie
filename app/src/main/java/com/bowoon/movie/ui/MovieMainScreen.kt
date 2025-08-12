@@ -17,7 +17,9 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult.ActionPerformed
 import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteItemColors
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScope
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -54,7 +56,7 @@ fun MovieMainScreen(
         bottomBar = { Navigation(appState = appState) }
     ) { innerPadding ->
         val isOffline by appState.isOffline.collectAsStateWithLifecycle()
-        val notConnectedMessage = stringResource(R.string.not_connected)
+        val notConnectedMessage = stringResource(id = R.string.not_connected)
         val firebaseLog = LocalFirebaseLogHelper.current
 
         LaunchedEffect(isOffline) {
@@ -82,6 +84,113 @@ fun MovieMainScreen(
     }
 }
 
+//@Composable
+//fun MovieMainScreen(
+//    appState: MovieAppState,
+//    snackbarHostState: SnackbarHostState
+//) {
+//    val context = LocalContext.current
+//    val windowAdaptiveInfo: WindowAdaptiveInfo = currentWindowAdaptiveInfo()
+//    val layoutType = NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(windowAdaptiveInfo)
+//    val currentDestination = appState.currentDestination
+//    val navigationSuiteItemColors = NavigationSuiteItemColors(
+//        navigationBarItemColors = NavigationBarItemDefaults.colors(
+//            selectedIconColor = MovieNavigationDefaults.navigationSelectedItemColor(),
+//            unselectedIconColor = MovieNavigationDefaults.navigationContentColor(),
+////            selectedTextColor = MovieNavigationDefaults.navigationSelectedItemColor(),
+//            unselectedTextColor = MovieNavigationDefaults.navigationContentColor(),
+//            indicatorColor = MovieNavigationDefaults.navigationIndicatorColor(),
+//        ),
+//        navigationRailItemColors = NavigationRailItemDefaults.colors(
+//            selectedIconColor = MovieNavigationDefaults.navigationSelectedItemColor(),
+//            unselectedIconColor = MovieNavigationDefaults.navigationContentColor(),
+////            selectedTextColor = MovieNavigationDefaults.navigationSelectedItemColor(),
+//            unselectedTextColor = MovieNavigationDefaults.navigationContentColor(),
+//            indicatorColor = MovieNavigationDefaults.navigationIndicatorColor(),
+//        ),
+//        navigationDrawerItemColors = NavigationDrawerItemDefaults.colors(
+//            selectedIconColor = MovieNavigationDefaults.navigationSelectedItemColor(),
+//            unselectedIconColor = MovieNavigationDefaults.navigationContentColor(),
+////            selectedTextColor = MovieNavigationDefaults.navigationSelectedItemColor(),
+//            unselectedTextColor = MovieNavigationDefaults.navigationContentColor(),
+//        ),
+//    )
+//
+//    LocalFirebaseLogHelper.current.sendLog("Navigation", "layoutType -> $layoutType")
+//
+//    NavigationSuiteScaffold(
+//        navigationSuiteItems = {
+//            MovieNavigationSuiteScope(
+//                navigationSuiteScope = this,
+//                navigationSuiteItemColors = navigationSuiteItemColors,
+//            ).run {
+//                appState.topLevelDestinations.forEach { destination ->
+//                    val selected = currentDestination.isRouteInHierarchy(destination.baseRoute)
+//                    val label = context.getString(destination.titleTextId)
+//
+//                    item(
+//                        selected = selected,
+//                        onClick = { appState.navigateToTopLevelDestination(topLevelDestination = destination) },
+//                        icon = {
+//                            Icon(
+//                                imageVector = destination.unselectedIcon,
+//                                contentDescription = "unselected_$label",
+//                            )
+//                        },
+//                        selectedIcon = {
+//                            Icon(
+//                                imageVector = destination.selectedIcon,
+//                                contentDescription = "selected_$label",
+//                            )
+//                        },
+//                        label = { Text(text = stringResource(destination.iconTextId)) },
+//                        modifier = Modifier.semantics { contentDescription = label }
+//                    )
+//                }
+//            }
+//        },
+//        layoutType = layoutType,
+//        containerColor = Color.Transparent,
+//        navigationSuiteColors = NavigationSuiteDefaults.colors(
+//            navigationBarContentColor = MovieNavigationDefaults.navigationContentColor(),
+//            navigationRailContainerColor = Color.Transparent,
+//        ),
+//        modifier = Modifier,
+//    ) {
+//        Scaffold(
+//            modifier = Modifier.fillMaxSize(),
+//            snackbarHost = { SnackbarHost(modifier = Modifier.semantics { contentDescription = "snackbar" }, hostState = snackbarHostState) },
+//        ) { innerPadding ->
+//            val isOffline by appState.isOffline.collectAsStateWithLifecycle()
+//            val notConnectedMessage = stringResource(R.string.not_connected)
+//            val firebaseLog = LocalFirebaseLogHelper.current
+//
+//            LaunchedEffect(isOffline) {
+//                firebaseLog.sendLog("MovieMainScreen", "isOffline $isOffline")
+//
+//                if (isOffline) {
+//                    snackbarHostState.showSnackbar(
+//                        message = notConnectedMessage,
+//                        duration = Indefinite,
+//                    )
+//                }
+//            }
+//
+//            MovieAppNavHost(
+//                modifier = Modifier.padding(innerPadding),
+//                appState = appState,
+//                onShowSnackbar = { message, action ->
+//                    snackbarHostState.showSnackbar(
+//                        message = message,
+//                        actionLabel = action,
+//                        duration = Short,
+//                    ) == ActionPerformed
+//                }
+//            )
+//        }
+//    }
+//}
+
 @Composable
 fun Navigation(
     appState: MovieAppState
@@ -96,10 +205,36 @@ fun Navigation(
     when (layoutType) {
         NavigationSuiteType.NavigationBar -> {
             NavigationBar(
-                modifier = Modifier.fillMaxWidth().height(dp50).topLineBorder(strokeWidth = dp1, color = MovieNavigationDefaults.navigationBorderColor()),
+                modifier = Modifier.fillMaxWidth().height(height = dp50).topLineBorder(strokeWidth = dp1, color = MovieNavigationDefaults.navigationBorderColor()),
                 containerColor = MovieNavigationDefaults.navigationContainerColor(),
                 contentColor = MovieNavigationDefaults.navigationContentColor()
             ) {
+//                MovieNavigation().run {
+//                    appState.topLevelDestinations.forEach { destination ->
+//                        val selected = currentDestination.isRouteInHierarchy(destination.baseRoute)
+//                        val label = context.getString(destination.titleTextId)
+//
+//                        item(
+//                            selected = selected,
+//                            onClick = { appState.navigateToTopLevelDestination(topLevelDestination = destination) },
+//                            icon = {
+//                                if (selected) {
+//                                    Icon(
+//                                        imageVector = destination.selectedIcon,
+//                                        contentDescription = "selected_$label",
+//                                    )
+//                                } else {
+//                                    Icon(
+//                                        imageVector = destination.unselectedIcon,
+//                                        contentDescription = "unselected_$label",
+//                                    )
+//                                }
+//                            },
+//                            label = { Text(text = stringResource(destination.iconTextId)) },
+//                            modifier = Modifier.semantics { contentDescription = label }
+//                        )
+//                    }
+//                }
                 appState.topLevelDestinations.forEach { destination ->
                     val selected = currentDestination.isRouteInHierarchy(destination.baseRoute)
                     BottomNavigationBarItem(
@@ -114,7 +249,7 @@ fun Navigation(
         }
         NavigationSuiteType.NavigationRail -> {
             NavigationRail(
-                modifier = Modifier.width(dp50).fillMaxHeight().border(width = dp1, color = MovieNavigationDefaults.navigationBorderColor()),
+                modifier = Modifier.width(width = dp50).fillMaxHeight().border(width = dp1, color = MovieNavigationDefaults.navigationBorderColor()),
                 containerColor = MovieNavigationDefaults.navigationContainerColor(),
                 contentColor = MovieNavigationDefaults.navigationContentColor()
             ) {
@@ -171,3 +306,30 @@ fun Navigation(
 
 private fun NavDestination?.isRouteInHierarchy(route: KClass<*>) =
     this?.hierarchy?.any { it.hasRoute(route) } ?: false
+
+class MovieNavigationSuiteScope internal constructor(
+    private val navigationSuiteScope: NavigationSuiteScope,
+    private val navigationSuiteItemColors: NavigationSuiteItemColors,
+) {
+    fun item(
+        selected: Boolean,
+        onClick: () -> Unit,
+        modifier: Modifier = Modifier,
+        icon: @Composable () -> Unit,
+        selectedIcon: @Composable () -> Unit = icon,
+        label: @Composable (() -> Unit)? = null,
+    ) = navigationSuiteScope.item(
+        selected = selected,
+        onClick = onClick,
+        icon = {
+            if (selected) {
+                selectedIcon()
+            } else {
+                icon()
+            }
+        },
+        label = label,
+        colors = navigationSuiteItemColors,
+        modifier = modifier,
+    )
+}

@@ -21,13 +21,12 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                 defaultConfig {
                     compileSdk = Config.Application.Movie.compileSdkVersion
                     minSdk = Config.Application.Movie.minSdkVersion
-                    testInstrumentationRunner = "com.bowoon.movie.core.testing.MovieTestRunner"
                     extensions.configure<ApplicationExtension> {
                         applicationId = Config.Application.Movie.applicationId
                         targetSdk = Config.Application.Movie.targetSdkVersion
                         versionName = Config.Application.Movie.versionName
                         versionCode = Config.Application.Movie.versionCode
-                        testInstrumentationRunner = Config.ApplicationSetting.TEST_INSTRUMENTATION_RUNNER
+                        testInstrumentationRunner = "com.bowoon.testing.MovieTestRunner"
 
                         signingConfigs {
                             register(Config.Application.Movie.Sign.Release.name) {

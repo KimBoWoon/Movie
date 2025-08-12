@@ -129,8 +129,8 @@ fun MyScreen(
                                 content = movieAppData.getLanguage(),
                                 onClick = {
                                     isShowChooseDialog = true
-                                    chooseDialogItem = movieAppData.language?.sortedBy { it.iso6391 } ?: emptyList()
-                                    selectedOption = movieAppData.language?.find { it.isSelected }
+                                    chooseDialogItem = movieAppData.language.sortedBy { it.iso6391 }
+                                    selectedOption = movieAppData.language.find { it.isSelected }
                                 }
                             )
                         }
@@ -140,8 +140,8 @@ fun MyScreen(
                                 content = movieAppData.getRegion(),
                                 onClick = {
                                     isShowChooseDialog = true
-                                    chooseDialogItem = movieAppData.region?.sortedBy { it.iso31661 } ?: emptyList()
-                                    selectedOption = movieAppData.region?.find { it.isSelected }
+                                    chooseDialogItem = movieAppData.region.sortedBy { it.iso31661 }
+                                    selectedOption = movieAppData.region.find { it.isSelected }
                                 }
                             )
                         }
@@ -151,8 +151,8 @@ fun MyScreen(
                                 content = internalData.imageQuality,
                                 onClick = {
                                     isShowChooseDialog = true
-                                    chooseDialogItem = movieAppData.posterSize ?: emptyList()
-                                    selectedOption = movieAppData.posterSize?.find { it.isSelected }
+                                    chooseDialogItem = movieAppData.posterSize
+                                    selectedOption = movieAppData.posterSize.find { it.isSelected }
                                 }
                             )
                         }

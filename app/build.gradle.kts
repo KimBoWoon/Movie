@@ -1,3 +1,4 @@
+import org.gradle.api.internal.provider.DefaultProviderFactory
 import java.io.ByteArrayOutputStream
 
 plugins {
@@ -8,13 +9,17 @@ plugins {
     alias(libs.plugins.bowoon.android.application.flavors)
 }
 
-task("createReleaseNote") {
+tasks.register("createReleaseNote") {
     val releaseNote = File("releaseNote.txt")
     val logs = ByteArrayOutputStream().use {
-        exec {
-            commandLine("git", "log", "--oneline", "HEAD")
+        DefaultProviderFactory().exec {
+            commandLine("git", "log", "--oneline", "develop", "-5")
             standardOutput = it
         }
+//        DefaultExecOperations().exec {
+//            commandLine = listOf("git", "log", "--oneline", "develop", "-5")
+//            standardOutput = it
+//        }
         it.toString().trim()
     }
     val result = """
@@ -55,4 +60,7 @@ dependencies {
 
 //    ksp(libs.hilt.compiler)
     ksp(libs.hilt.ext.compiler)
+
+    androidTestImplementation(libs.hilt.android.testing)
+    androidTestImplementation(projects.core.testing)
 }

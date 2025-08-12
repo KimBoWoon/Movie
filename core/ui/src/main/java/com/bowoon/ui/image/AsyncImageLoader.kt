@@ -46,6 +46,7 @@ fun DynamicAsyncImageLoader(
     )
 
     Box(
+        modifier = modifier,
         contentAlignment = Alignment.Center,
     ) {
         if (isLoading && !isLocalInspection) {

@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -23,14 +24,16 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
+import com.bowoon.common.Log
 
 enum class ButtonState { Pressed, Idle }
 
 fun Modifier.bounceClick(
     onClick: (() -> Unit)? = null
 ) = composed {
-    var buttonState by remember { mutableStateOf(ButtonState.Idle) }
-    val scale by animateFloatAsState(if (buttonState == ButtonState.Pressed) 0.95f else 1f)
+    var buttonState by remember { mutableStateOf(value = ButtonState.Idle) }
+    val scale by animateFloatAsState(targetValue = if (buttonState == ButtonState.Pressed) 0.95f else 1f)
+    var clicked by remember { mutableStateOf<Boolean>(value = false) }
 
     this
         .graphicsLayer {
@@ -52,7 +55,13 @@ fun Modifier.bounceClick(
                     ButtonState.Pressed
                 }
             }
-        }
+        }/*.toggleable(
+            value = clicked,
+            onValueChange = { state ->
+                clicked = state
+                Log.d("toggle -> $state")
+            }
+        )*/
 }
 
 fun Modifier.bottomLineBorder(
