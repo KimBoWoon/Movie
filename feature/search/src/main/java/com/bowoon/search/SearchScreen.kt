@@ -73,8 +73,8 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.bowoon.common.Log
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.firebase.LocalFirebaseLogHelper
-import com.bowoon.model.DisplayItem
 import com.bowoon.model.Genre
+import com.bowoon.model.Movie
 import com.bowoon.model.MovieAppData
 import com.bowoon.model.SearchType
 import com.bowoon.movie.feature.search.R
@@ -455,7 +455,7 @@ fun SearchResultComponent(
 
 @Composable
 fun SearchPagingComponent(
-    pagingData: LazyPagingItems<DisplayItem>,
+    pagingData: LazyPagingItems<Movie>,
     scrollState: LazyGridState,
     searchType: SearchType,
     movieAppData: MovieAppData,
@@ -509,6 +509,7 @@ fun SearchPagingComponent(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .aspectRatio(POSTER_IMAGE_RATIO)
+                                .clip(shape = RoundedCornerShape(size = dp10))
                                 .bounceClick {
                                     when (searchType) {
                                         SearchType.MOVIE -> goToMovie(item.id ?: -1)
@@ -516,7 +517,7 @@ fun SearchPagingComponent(
                                         SearchType.SERIES -> goToSeries(item.id ?: -1)
                                     }
                                 },
-                            source = item.imagePath ?: "",
+                            source = item.posterPath ?: "",
                             contentDescription = "${item.id}_${item.title}"
                         )
                     }

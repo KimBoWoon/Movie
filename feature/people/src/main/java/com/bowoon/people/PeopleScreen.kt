@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -28,6 +29,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -189,6 +191,7 @@ fun PeopleDetailComponent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .aspectRatio(POSTER_IMAGE_RATIO)
+                        .clip(shape = RoundedCornerShape(size = dp10))
                         .bounceClick { goToMovie(movie.id ?: -1) },
                     source = movie.posterPath ?: "",
                     contentDescription = "RelatedMovie"
@@ -214,6 +217,7 @@ fun ImageComponent(
         modifier = Modifier
             .width(dp100)
             .aspectRatio(PEOPLE_IMAGE_RATIO)
+            .clip(shape = RoundedCornerShape(size = dp10))
             .clickable {
                 index = 0
                 isShowing = true

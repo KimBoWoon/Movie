@@ -7,7 +7,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.selection.toggleable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -24,7 +23,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
-import com.bowoon.common.Log
 
 enum class ButtonState { Pressed, Idle }
 
@@ -64,7 +62,8 @@ fun Modifier.bounceClick(
         )*/
 }
 
-fun Modifier.bottomLineBorder(
+fun Modifier.border(
+    line: Line,
     strokeWidth: Dp,
     color: Color
 ) = composed(
@@ -76,37 +75,47 @@ fun Modifier.bottomLineBorder(
             val width = size.width
             val height = size.height - strokeWidthPx / 2
 
-            drawLine(
-                color = color,
-                start = Offset(x = 0f, y = height),
-                end = Offset(x = width, y = height),
-                strokeWidth = strokeWidthPx
-            )
+            when (line) {
+                Line.START -> {
+                    drawLine(
+                        color = color,
+                        start = Offset(x = 0f, y = 0f),
+                        end = Offset(x = 0f, y = height),
+                        strokeWidth = strokeWidthPx
+                    )
+                }
+                Line.TOP -> {
+                    drawLine(
+                        color = color,
+                        start = Offset(x = 0f, y = 0f),
+                        end = Offset(x = width, y = 0f),
+                        strokeWidth = strokeWidthPx
+                    )
+                }
+                Line.END -> {
+                    drawLine(
+                        color = color,
+                        start = Offset(x = width, y = 0f),
+                        end = Offset(x = width, y = height),
+                        strokeWidth = strokeWidthPx
+                    )
+                }
+                Line.BOTTOM -> {
+                    drawLine(
+                        color = color,
+                        start = Offset(x = 0f, y = height),
+                        end = Offset(x = width, y = height),
+                        strokeWidth = strokeWidthPx
+                    )
+                }
+            }
         }
     }
 )
 
-fun Modifier.topLineBorder(
-    strokeWidth: Dp,
-    color: Color
-) = composed(
-    factory = {
-        val density = LocalDensity.current
-        val strokeWidthPx = density.run { strokeWidth.toPx() }
-
-        drawBehind {
-            val width = size.width
-            val height = size.height - strokeWidthPx / 2
-
-            drawLine(
-                color = color,
-                start = Offset(x = 0f, y = 0f),
-                end = Offset(x = width, y = 0f),
-                strokeWidth = strokeWidthPx
-            )
-        }
-    }
-)
+enum class Line {
+    START, TOP, END, BOTTOM
+}
 
 fun Modifier.animateRotation(
     expanded: Boolean = false,

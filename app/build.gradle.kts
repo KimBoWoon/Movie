@@ -22,11 +22,8 @@ tasks.register("createReleaseNote") {
 //        }
         it.toString().trim()
     }
-    val result = """
-$logs
-""".trimIndent()
     releaseNote.delete()
-    releaseNote.writeText(result)
+    releaseNote.writeText(text = logs.trimIndent())
 }
 
 dependencies {

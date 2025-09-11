@@ -19,7 +19,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.PagingSource
 import com.bowoon.data.paging.SimilarMoviePagingSource
 import com.bowoon.domain.GetMovieDetailUseCase
-import com.bowoon.model.DisplayItem
 import com.bowoon.model.Favorite
 import com.bowoon.model.InternalData
 import com.bowoon.model.MovieAppData
@@ -371,9 +370,9 @@ class DetailScreenTest {
                 .performClick()
 
             assertEquals(
-                expected = PagingSource.LoadResult.Page<Int, DisplayItem>(
+                expected = PagingSource.LoadResult.Page<Int, Movie>(
                     data = similarMoviesTestData.results?.map {
-                        DisplayItem(
+                        Movie(
                             id = it.id,
                             title = it.title,
                             imagePath = it.posterPath,

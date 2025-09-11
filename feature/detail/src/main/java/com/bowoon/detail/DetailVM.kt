@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
-import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.bowoon.common.Result
 import com.bowoon.common.asResult
@@ -16,12 +15,10 @@ import com.bowoon.data.repository.PagingRepository
 import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.detail.navigation.DetailRoute
 import com.bowoon.domain.GetMovieDetailUseCase
-import com.bowoon.model.DisplayItem
 import com.bowoon.model.Favorite
 import com.bowoon.model.InternalData
 import com.bowoon.model.MovieDetailInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -46,8 +43,8 @@ class DetailVM @Inject constructor(
         .map { result ->
             when (result) {
                 is Result.Loading -> DetailState.Loading
-                is Result.Success -> DetailState.Success(result.data, similarMovies = similarMovies)
-                is Result.Error -> DetailState.Error(result.throwable)
+                is Result.Success -> DetailState.Success(movieInfo = result.data)
+                is Result.Error -> DetailState.Error(throwable = result.throwable)
             }
         }.restartableStateIn(
             scope = viewModelScope,
@@ -60,7 +57,7 @@ class DetailVM @Inject constructor(
             started = SharingStarted.Eagerly,
             initialValue = InternalData()
         )
-    private val similarMovies = Pager(
+    val similarMovies = Pager(
         config = PagingConfig(pageSize = 1, initialLoadSize = 1, prefetchDistance = 5),
         initialKey = 1,
         pagingSourceFactory = {
@@ -94,6 +91,6 @@ class DetailVM @Inject constructor(
 
 sealed interface DetailState {
     data object Loading : DetailState
-    data class Success(val movieInfo: MovieDetailInfo, val similarMovies: Flow<PagingData<DisplayItem>>) : DetailState
+    data class Success(val movieInfo: MovieDetailInfo) : DetailState
     data class Error(val throwable: Throwable) : DetailState
 }

@@ -4,7 +4,7 @@ import androidx.paging.PagingSource
 import com.bowoon.data.paging.RecommendKeywordPagingSource
 import com.bowoon.data.paging.SearchPagingSource
 import com.bowoon.data.paging.SimilarMoviePagingSource
-import com.bowoon.model.DisplayItem
+import com.bowoon.model.Movie
 import com.bowoon.model.SearchKeyword
 import com.bowoon.model.SearchType
 import com.bowoon.network.MovieNetworkDataSource
@@ -19,7 +19,7 @@ class PagingRepositoryImpl @Inject constructor(
         language: String,
         region: String,
         isAdult: Boolean
-    ): PagingSource<Int, DisplayItem> = SearchPagingSource(
+    ): PagingSource<Int, Movie> = SearchPagingSource(
         apis = apis,
         type = type,
         query = query,
@@ -31,7 +31,7 @@ class PagingRepositoryImpl @Inject constructor(
     override fun getSimilarMoviePagingSource(
         id: Int,
         language: String
-    ): PagingSource<Int, DisplayItem> = SimilarMoviePagingSource(
+    ): PagingSource<Int, Movie> = SimilarMoviePagingSource(
         apis = apis,
         id = id,
         language = language

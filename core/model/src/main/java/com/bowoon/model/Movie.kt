@@ -79,38 +79,48 @@ data class Credits(
     val crew: List<Crew>? = null
 ) : Parcelable
 
+sealed interface CreditInfo {
+    val adult: Boolean?
+    val id: Int?
+    val gender: Int?
+    val name: String?
+    val originalName: String?
+    val popularity: Double?
+    val profilePath: String?
+}
+
 @Serializable
 @Parcelize
 data class Cast(
-    val adult: Boolean? = null,
+    override val adult: Boolean? = null,
     val castId: Int? = null,
     val character: String? = null,
     val creditId: String? = null,
-    val gender: Int? = null,
-    val id: Int? = null,
+    override val gender: Int? = null,
+    override val id: Int? = null,
     val knownForDepartment: String? = null,
-    val name: String? = null,
+    override val name: String? = null,
     val order: Int? = null,
-    val originalName: String? = null,
-    val popularity: Double? = null,
-    val profilePath: String? = null
-) : Parcelable
+    override val originalName: String? = null,
+    override val popularity: Double? = null,
+    override val profilePath: String? = null
+) : Parcelable, CreditInfo
 
 @Serializable
 @Parcelize
 data class Crew(
-    val adult: Boolean? = null,
+    override val adult: Boolean? = null,
     val creditId: String? = null,
     val department: String? = null,
-    val gender: Int? = null,
-    val id: Int? = null,
+    override val gender: Int? = null,
+    override val id: Int? = null,
     val job: String? = null,
     val knownForDepartment: String? = null,
-    val name: String? = null,
-    val originalName: String? = null,
-    val popularity: Double? = null,
-    val profilePath: String? = null
-) : Parcelable
+    override val name: String? = null,
+    override val originalName: String? = null,
+    override val popularity: Double? = null,
+    override val profilePath: String? = null
+) : Parcelable, CreditInfo
 
 @Serializable
 @Parcelize
@@ -157,24 +167,24 @@ data class Country(
     val releaseDate: String? = null
 ) : Parcelable
 
-@Serializable
-@Parcelize
-data class Result(
-    val adult: Boolean? = null,
-    val backdropPath: String? = null,
-    val genreIds: List<Int>? = null,
-    val id: Int? = null,
-    val originalLanguage: String? = null,
-    val originalTitle: String? = null,
-    val overview: String? = null,
-    val popularity: Double? = null,
-    val posterPath: String? = null,
-    val releaseDate: String? = null,
-    val title: String? = null,
-    val video: Boolean? = null,
-    val voteAverage: Double? = null,
-    val voteCount: Int? = null
-) : Parcelable
+//@Serializable
+//@Parcelize
+//data class Result(
+//    val adult: Boolean? = null,
+//    val backdropPath: String? = null,
+//    val genreIds: List<Int>? = null,
+//    val id: Int? = null,
+//    val originalLanguage: String? = null,
+//    val originalTitle: String? = null,
+//    val overview: String? = null,
+//    val popularity: Double? = null,
+//    val posterPath: String? = null,
+//    val releaseDate: String? = null,
+//    val title: String? = null,
+//    val video: Boolean? = null,
+//    val voteAverage: Double? = null,
+//    val voteCount: Int? = null
+//) : Parcelable
 
 @Serializable
 @Parcelize
@@ -231,56 +241,56 @@ data class VideoInfo(
     val type: String? = null
 ) : Parcelable
 
-@Serializable
-@Parcelize
-data class MovieLists(
-    val id: Int? = null,
-    val page: Int? = null,
-    val results: List<MovieListResult?>? = null,
-    val totalPages: Int? = null,
-    val totalResults: Int? = null
-) : Parcelable
+//@Serializable
+//@Parcelize
+//data class MovieLists(
+//    val id: Int? = null,
+//    val page: Int? = null,
+//    val results: List<MovieListResult?>? = null,
+//    val totalPages: Int? = null,
+//    val totalResults: Int? = null
+//) : Parcelable
+//
+//@Serializable
+//@Parcelize
+//data class MovieListResult(
+//    val description: String? = null,
+//    val favoriteCount: Int? = null,
+//    val id: Int? = null,
+//    val iso6391: String? = null,
+//    val itemCount: Int? = null,
+//    val listType: String? = null,
+//    val name: String? = null,
+//    val posterPath: String? = null
+//) : Parcelable
 
-@Serializable
-@Parcelize
-data class MovieListResult(
-    val description: String? = null,
-    val favoriteCount: Int? = null,
-    val id: Int? = null,
-    val iso6391: String? = null,
-    val itemCount: Int? = null,
-    val listType: String? = null,
-    val name: String? = null,
-    val posterPath: String? = null
-) : Parcelable
+//@Serializable
+//@Parcelize
+//data class Reviews(
+//    val id: Int? = null,
+//    val page: Int? = null,
+//    val results: List<ReviewsResult?>? = null,
+//    val totalPages: Int? = null,
+//    val totalResults: Int? = null
+//) : Parcelable
+//
+//@Serializable
+//@Parcelize
+//data class ReviewsResult(
+//    val author: String? = null,
+//    val authorDetails: AuthorDetails? = null,
+//    val content: String? = null,
+//    val createdAt: String? = null,
+//    val id: String? = null,
+//    val updatedAt: String? = null,
+//    val url: String? = null
+//) : Parcelable
 
-@Serializable
-@Parcelize
-data class Reviews(
-    val id: Int? = null,
-    val page: Int? = null,
-    val results: List<ReviewsResult?>? = null,
-    val totalPages: Int? = null,
-    val totalResults: Int? = null
-) : Parcelable
-
-@Serializable
-@Parcelize
-data class ReviewsResult(
-    val author: String? = null,
-    val authorDetails: AuthorDetails? = null,
-    val content: String? = null,
-    val createdAt: String? = null,
-    val id: String? = null,
-    val updatedAt: String? = null,
-    val url: String? = null
-) : Parcelable
-
-@Serializable
-@Parcelize
-data class AuthorDetails(
-    val avatarPath: String? = null,
-    val name: String? = null,
-    val rating: Int? = null,
-    val username: String? = null
-) : Parcelable
+//@Serializable
+//@Parcelize
+//data class AuthorDetails(
+//    val avatarPath: String? = null,
+//    val name: String? = null,
+//    val rating: Int? = null,
+//    val username: String? = null
+//) : Parcelable

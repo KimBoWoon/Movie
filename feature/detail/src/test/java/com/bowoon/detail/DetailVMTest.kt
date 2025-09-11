@@ -9,9 +9,9 @@ import androidx.paging.testing.asSnapshot
 import com.bowoon.data.paging.SimilarMoviePagingSource
 import com.bowoon.detail.navigation.DetailRoute
 import com.bowoon.domain.GetMovieDetailUseCase
-import com.bowoon.model.DisplayItem
 import com.bowoon.model.Favorite
 import com.bowoon.model.InternalData
+import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetailInfo
 import com.bowoon.testing.TestMovieDataSource
 import com.bowoon.testing.model.favoriteMovieDetailTestData
@@ -87,7 +87,7 @@ class DetailVMTest {
 
         assertTrue(viewModel.detail.value is DetailState.Success)
 
-        val similarMovies = assertIs<DetailState.Success>(viewModel.detail.value).similarMovies
+        val similarMovies = viewModel.similarMovies
 
         assertEquals(
             similarMovies.asSnapshot(),
@@ -101,8 +101,7 @@ class DetailVMTest {
                     detail = favoriteMovieDetailTestData,
                     series = movieSeriesTestData,
                     autoPlayTrailer = testUserDataRepository.internalData.map { it.autoPlayTrailer }.first()
-                ),
-                similarMovies = similarMovies
+                )
             )
         )
     }
@@ -122,7 +121,7 @@ class DetailVMTest {
 
         assertTrue(viewModel.detail.value is DetailState.Success)
 
-        val similarMovies = assertIs<DetailState.Success>(viewModel.detail.value).similarMovies
+        val similarMovies = viewModel.similarMovies
 
         assertEquals(
             similarMovies.asSnapshot(),
@@ -136,8 +135,7 @@ class DetailVMTest {
                     detail = unFavoriteMovieDetailTestData,
                     series = movieSeriesTestData,
                     autoPlayTrailer = testUserDataRepository.internalData.map { it.autoPlayTrailer }.first()
-                ),
-                similarMovies = similarMovies
+                )
             )
         )
     }
@@ -151,12 +149,12 @@ class DetailVMTest {
         )
 
         assertEquals(
-            expected = PagingSource.LoadResult.Page<Int, DisplayItem>(
+            expected = PagingSource.LoadResult.Page<Int, Movie>(
                 data = similarMoviesTestData.results?.map {
-                    DisplayItem(
+                    Movie(
                         id = it.id,
                         title = it.title,
-                        imagePath = it.posterPath
+                        posterPath = it.posterPath
                     )
                 } ?: emptyList(),
                 prevKey = null,
@@ -243,7 +241,7 @@ class DetailVMTest {
 
         assertTrue(viewModel.detail.value is DetailState.Success)
 
-        val similarMovies = assertIs<DetailState.Success>(viewModel.detail.value).similarMovies
+        val similarMovies = viewModel.similarMovies
 
         assertEquals(
             similarMovies.asSnapshot(),
@@ -257,8 +255,7 @@ class DetailVMTest {
                     detail = favoriteMovieDetailTestData,
                     series = movieSeriesTestData,
                     autoPlayTrailer = testUserDataRepository.internalData.map { it.autoPlayTrailer }.first()
-                ),
-                similarMovies = similarMovies
+                )
             )
         )
 

@@ -3,7 +3,7 @@ package com.bowoon.data.repository
 import androidx.paging.PagingSource
 import com.bowoon.data.paging.SearchPagingSource
 import com.bowoon.data.paging.SimilarMoviePagingSource
-import com.bowoon.model.DisplayItem
+import com.bowoon.model.Movie
 import com.bowoon.model.SearchType
 import com.bowoon.testing.TestMovieDataSource
 import com.bowoon.testing.model.movieSearchTestData
@@ -31,7 +31,7 @@ class PagingRepositoryTest {
             isAdult = true
         )
 
-        val a: PagingSource.LoadResult<Int, DisplayItem> = PagingSource.LoadResult.Page(
+        val a: PagingSource.LoadResult<Int, Movie> = PagingSource.LoadResult.Page(
             data = movieSearchTestData.results ?: emptyList(),
             prevKey = null,
             nextKey = 2
@@ -61,7 +61,7 @@ class PagingRepositoryTest {
             isAdult = true
         )
 
-        val a: PagingSource.LoadResult<Int, DisplayItem> = PagingSource.LoadResult.Page(
+        val a: PagingSource.LoadResult<Int, Movie> = PagingSource.LoadResult.Page(
             data = peopleSearchTestData.results ?: emptyList(),
             prevKey = null,
             nextKey = null
@@ -88,12 +88,12 @@ class PagingRepositoryTest {
             language = "ko-KR"
         )
 
-        val a: PagingSource.LoadResult<Int, DisplayItem> = PagingSource.LoadResult.Page(
+        val a: PagingSource.LoadResult<Int, Movie> = PagingSource.LoadResult.Page(
             data = similarMoviesTestData.results?.map {
-                DisplayItem(
+                Movie(
                     id = it.id,
                     title = it.title,
-                    imagePath = it.posterPath
+                    posterPath = it.posterPath
                 )
             } ?: emptyList(),
             prevKey = null,

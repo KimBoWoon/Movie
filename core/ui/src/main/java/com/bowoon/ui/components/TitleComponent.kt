@@ -21,13 +21,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.bowoon.ui.FavoriteButton
-import com.bowoon.ui.utils.bottomLineBorder
+import com.bowoon.ui.utils.Line
+import com.bowoon.ui.utils.border
 import com.bowoon.ui.utils.dp16
 import com.bowoon.ui.utils.dp24
 import com.bowoon.ui.utils.dp5
@@ -45,7 +45,7 @@ fun TitleComponent(
         modifier = Modifier
             .fillMaxWidth()
             .height(dp53)
-            .bottomLineBorder(strokeWidth = (0.5).dp, color = Color.LightGray),
+            .border(line = Line.BOTTOM, strokeWidth = (0.5).dp, color = Color.LightGray),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {

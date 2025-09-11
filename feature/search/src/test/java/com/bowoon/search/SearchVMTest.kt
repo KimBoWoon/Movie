@@ -4,7 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.paging.PagingSource
 import com.bowoon.data.paging.RecommendKeywordPagingSource
 import com.bowoon.data.paging.SearchPagingSource
-import com.bowoon.model.DisplayItem
+import com.bowoon.model.Movie
 import com.bowoon.model.SearchKeyword
 import com.bowoon.model.SearchType
 import com.bowoon.testing.TestMovieDataSource
@@ -84,7 +84,7 @@ class SearchVMTest {
             isAdult = true
         )
 
-        val a: PagingSource.LoadResult<Int, DisplayItem> = PagingSource.LoadResult.Page(
+        val a: PagingSource.LoadResult<Int, Movie> = PagingSource.LoadResult.Page(
             data = movieSearchTestData.results ?: emptyList(),
             prevKey = null,
             nextKey = 2

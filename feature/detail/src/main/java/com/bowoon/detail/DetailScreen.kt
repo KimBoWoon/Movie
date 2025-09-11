@@ -30,6 +30,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -45,6 +46,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
@@ -62,7 +64,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
 import androidx.paging.LoadState
-import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.bowoon.common.Log
@@ -72,12 +73,12 @@ import com.bowoon.data.util.VIDEO_RATIO
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.Cast
 import com.bowoon.model.Crew
-import com.bowoon.model.DisplayItem
 import com.bowoon.model.Favorite
 import com.bowoon.model.Image
 import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetailInfo
 import com.bowoon.model.MovieDetailTab
+import com.bowoon.model.CreditInfo
 import com.bowoon.model.Series
 import com.bowoon.movie.feature.detail.R
 import com.bowoon.ui.components.CircularProgressComponent
@@ -109,7 +110,6 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstan
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 @Composable
@@ -123,9 +123,11 @@ fun DetailScreen(
     LocalFirebaseLogHelper.current.sendLog("DetailScreen", "detail screen start!")
 
     val detailState by viewModel.detail.collectAsStateWithLifecycle()
+    val similarMovies = viewModel.similarMovies.collectAsLazyPagingItems()
 
     DetailScreen(
         detailState = detailState,
+        similarMovies = similarMovies,
         goToMovie = goToMovie,
         goToPeople = goToPeople,
         goToBack = goToBack,
@@ -139,6 +141,7 @@ fun DetailScreen(
 @Composable
 fun DetailScreen(
     detailState: DetailState,
+    similarMovies: LazyPagingItems<Movie>,
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     goToBack: () -> Unit,
@@ -167,7 +170,7 @@ fun DetailScreen(
 
                 MovieDetailComponent(
                     movieInfo = detailState.movieInfo,
-                    similarMovies = detailState.similarMovies,
+                    similarMovies = similarMovies,
                     goToMovie = goToMovie,
                     goToPeople = goToPeople,
                     goToBack = goToBack,
@@ -194,7 +197,7 @@ fun DetailScreen(
 @Composable
 fun MovieDetailComponent(
     movieInfo: MovieDetailInfo,
-    similarMovies: Flow<PagingData<DisplayItem>>,
+    similarMovies: LazyPagingItems<Movie>,
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     goToBack: () -> Unit,
@@ -280,7 +283,7 @@ fun MovieDetailComponent(
                         ImageComponent(images = posters + backdrops)
                     }
                     MovieDetailTab.SIMILAR.label -> SimilarMovieComponent(
-                        pagingData = similarMovies,
+                        similarMovies = similarMovies,
                         goToMovie = goToMovie
                     )
                 }
@@ -460,6 +463,7 @@ fun ImageComponent(
                     modifier = Modifier
                         .width(dp200)
                         .aspectRatio(it.aspectRatio?.toFloat() ?: 1f)
+                        .clip(shape = RoundedCornerShape(size = dp10))
                         .bounceClick {
                             index = images.indexOf(it)
                             isShowing = true
@@ -546,7 +550,8 @@ fun MovieAdditionalInfoComponent(
                             DynamicAsyncImageLoader(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(dp300),
+                                    .height(dp300)
+                                    .clip(shape = RoundedCornerShape(size = dp10)),
                                 contentScale = ContentScale.Fit,
                                 source = it,
                                 contentDescription = it
@@ -693,7 +698,7 @@ fun MovieInfoComponent(
                         .padding(horizontal = dp16)
                         .fillMaxWidth()
                         .wrapContentHeight(),
-                    text = it.fold("") { acc, tmdbMovieDetailGenre -> if (acc.isEmpty()) "${tmdbMovieDetailGenre.name}" else "$acc, ${tmdbMovieDetailGenre.name}" },
+                    text = it.fold("") { acc, genre -> if (acc.isEmpty()) "${genre.name}" else "$acc, ${genre.name}" },
                     fontSize = sp10,
                     textAlign = TextAlign.Center,
                     style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
@@ -783,7 +788,7 @@ fun ActorAndCrewComponent(
                         items(
                             items = casts
                         ) { cast ->
-                            StaffComponent(tmdbMovieDetailCast = cast, goToPeople = goToPeople)
+                            PartnerComponent(partner = cast, goToPeople = goToPeople)
                         }
                     }
                 }
@@ -806,7 +811,7 @@ fun ActorAndCrewComponent(
                         items(
                             items = crews
                         ) { crew ->
-                            StaffComponent(tmdbMovieDetailCrew = crew, goToPeople = goToPeople)
+                            PartnerComponent(partner = crew, goToPeople = goToPeople)
                         }
                     }
                 }
@@ -816,116 +821,108 @@ fun ActorAndCrewComponent(
 }
 
 @Composable
-fun StaffComponent(
-    tmdbMovieDetailCast: Cast,
+fun PartnerComponent(
+    partner: CreditInfo,
     goToPeople: (Int) -> Unit
 ) {
     Column(
         modifier = Modifier
-            .width(dp200)
+            .width(width = dp200)
             .wrapContentHeight()
-            .bounceClick { goToPeople(tmdbMovieDetailCast.id ?: -1) }
+            .bounceClick { goToPeople(partner.id ?: -1) }
     ) {
-        DynamicAsyncImageLoader(
-            modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(PEOPLE_IMAGE_RATIO),
-            source = tmdbMovieDetailCast.profilePath ?: "",
-            contentDescription = "ProfileImage"
-        )
-        Text(
-            text = tmdbMovieDetailCast.character ?: "",
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            fontSize = sp12,
-        )
-        Text(
-            text = tmdbMovieDetailCast.name ?: "",
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            fontSize = sp15
-        )
-        Text(
-            text = tmdbMovieDetailCast.originalName ?: "",
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            fontSize = sp15
-        )
-    }
-}
-
-@Composable
-fun StaffComponent(
-    tmdbMovieDetailCrew: Crew,
-    goToPeople: (Int) -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .width(dp200)
-            .wrapContentHeight()
-            .bounceClick { goToPeople(tmdbMovieDetailCrew.id ?: -1) }
-    ) {
-        DynamicAsyncImageLoader(
-            modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(PEOPLE_IMAGE_RATIO),
-            source = tmdbMovieDetailCrew.profilePath ?: "",
-            contentDescription = "ProfileImage"
-        )
-        Text(
-            text = tmdbMovieDetailCrew.department ?: "",
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            fontSize = sp12
-        )
-        Text(
-            text = tmdbMovieDetailCrew.name ?: "",
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            fontSize = sp15
-        )
-        Text(
-            text = tmdbMovieDetailCrew.originalName ?: "",
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            fontSize = sp15
-        )
-        Text(
-            text = tmdbMovieDetailCrew.job ?: "",
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            fontSize = sp12
-        )
+        when (partner) {
+            is Cast -> {
+                DynamicAsyncImageLoader(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(ratio = PEOPLE_IMAGE_RATIO)
+                        .clip(shape = RoundedCornerShape(size = dp10)),
+                    source = partner.profilePath ?: "",
+                    contentDescription = "ProfileImage"
+                )
+                Text(
+                    text = partner.character ?: "",
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    fontSize = sp12,
+                )
+                Text(
+                    text = partner.name ?: "",
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    fontSize = sp15
+                )
+                Text(
+                    text = partner.originalName ?: "",
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    fontSize = sp15
+                )
+            }
+            is Crew -> {
+                DynamicAsyncImageLoader(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(ratio = PEOPLE_IMAGE_RATIO)
+                        .clip(shape = RoundedCornerShape(size = dp10)),
+                    source = partner.profilePath ?: "",
+                    contentDescription = "ProfileImage"
+                )
+                Text(
+                    text = partner.department ?: "",
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    fontSize = sp12
+                )
+                Text(
+                    text = partner.name ?: "",
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    fontSize = sp15
+                )
+                Text(
+                    text = partner.originalName ?: "",
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    fontSize = sp15
+                )
+                Text(
+                    text = partner.job ?: "",
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    fontSize = sp12
+                )
+            }
+        }
     }
 }
 
 @Composable
 fun SimilarMovieComponent(
-    pagingData: Flow<PagingData<DisplayItem>>,
+    similarMovies: LazyPagingItems<Movie>,
     goToMovie: (Int) -> Unit
 ) {
-    val similarMovie = pagingData.collectAsLazyPagingItems()
-
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        if (similarMovie.loadState.refresh is LoadState.Loading) {
+        if (similarMovies.loadState.refresh is LoadState.Loading) {
             CircularProgressComponent(modifier = Modifier.align(alignment = Alignment.Center))
-        } else if (similarMovie.loadState.refresh is LoadState.Error) {
-            val message = (similarMovie.loadState.refresh as? LoadState.Error)?.error?.message
-                ?: (similarMovie.loadState.append as? LoadState.Error)?.error?.message
+        } else if (similarMovies.loadState.refresh is LoadState.Error) {
+            val message = (similarMovies.loadState.refresh as? LoadState.Error)?.error?.message
+                ?: (similarMovies.loadState.append as? LoadState.Error)?.error?.message
                 ?: stringResource(id = com.bowoon.movie.core.network.R.string.something_wrong)
 
             ConfirmDialog(
                 title = stringResource(id = com.bowoon.movie.core.network.R.string.network_failed),
                 message = message,
-                confirmPair = stringResource(id = com.bowoon.movie.core.ui.R.string.retry_message) to { similarMovie.retry() },
+                confirmPair = stringResource(id = com.bowoon.movie.core.ui.R.string.retry_message) to { similarMovies.retry() },
                 dismissPair = stringResource(id = com.bowoon.movie.core.ui.R.string.confirm_message) to {}
             )
         }
 
         MovieList(
-            similarMovie = similarMovie,
+            similarMovies = similarMovies,
             goToMovie = goToMovie
         )
     }
@@ -933,10 +930,10 @@ fun SimilarMovieComponent(
 
 @Composable
 fun BoxScope.MovieList(
-    similarMovie: LazyPagingItems<DisplayItem>,
+    similarMovies: LazyPagingItems<Movie>,
     goToMovie: (Int) -> Unit
 ) {
-    if (similarMovie.itemCount == 0 && similarMovie.loadState.refresh !is LoadState.Loading) {
+    if (similarMovies.itemCount == 0 && similarMovies.loadState.refresh !is LoadState.Loading) {
         Text(
             modifier = Modifier.align(alignment = Alignment.Center),
             text = stringResource(id = R.string.similar_movie_not_found)
@@ -950,25 +947,26 @@ fun BoxScope.MovieList(
             verticalArrangement = Arrangement.spacedBy(dp10)
         ) {
             items(
-                count = similarMovie.itemCount
+                count = similarMovies.itemCount
             ) { index ->
                 Box(
                     modifier = Modifier
                         .width(dp200)
                         .wrapContentHeight()
-                        .bounceClick { goToMovie(similarMovie[index]?.id ?: -1) }
+                        .bounceClick { goToMovie(similarMovies[index]?.id ?: -1) }
                 ) {
                     DynamicAsyncImageLoader(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .aspectRatio(POSTER_IMAGE_RATIO),
-                        source = similarMovie[index]?.imagePath ?: "",
+                            .aspectRatio(POSTER_IMAGE_RATIO)
+                            .clip(shape = RoundedCornerShape(size = dp10)),
+                        source = similarMovies[index]?.posterPath ?: "",
                         contentDescription = "SimilarMoviePoster"
                     )
                 }
             }
 
-            if (similarMovie.loadState.append is LoadState.Loading) {
+            if (similarMovies.loadState.append is LoadState.Loading) {
                 item(span = { GridItemSpan(maxLineSpan) }) {
                     CircularProgressComponent(
                         modifier = Modifier
@@ -977,9 +975,9 @@ fun BoxScope.MovieList(
                     )
                 }
             }
-            if (similarMovie.loadState.append is LoadState.Error) {
+            if (similarMovies.loadState.append is LoadState.Error) {
                 item(span = { GridItemSpan(maxLineSpan) }) {
-                    PagingAppendErrorComponent(retry = { similarMovie.retry() })
+                    PagingAppendErrorComponent(retry = { similarMovies.retry() })
                 }
             }
         }

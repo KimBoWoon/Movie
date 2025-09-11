@@ -14,7 +14,6 @@ import com.bowoon.model.Configuration
 import com.bowoon.model.Country
 import com.bowoon.model.Credits
 import com.bowoon.model.Crew
-import com.bowoon.model.DisplayItem
 import com.bowoon.model.ExternalIds
 import com.bowoon.model.Genre
 import com.bowoon.model.Genres
@@ -195,22 +194,22 @@ val similarMoviesTestData = SimilarMovies(
 )
 
 val nowPlayingMoviesTestData =
-    listOf(DisplayItem(id = 0, title = "nowPlaying_1", imagePath = "/nowPlaying_1.png"))
+    listOf(Movie(id = 0, title = "nowPlaying_1", posterPath = "/nowPlaying_1.png"))
 val upcomingMoviesTestData =
-    listOf(DisplayItem(id = 0, title = "upcomingMovie_1", imagePath = "/upcomingMovie_1.png"))
+    listOf(Movie(id = 0, title = "upcomingMovie_1", posterPath = "/upcomingMovie_1.png"))
 val mainMenuTestData = MainMenu(
-    nowPlaying = listOf(
-        DisplayItem(
+    nowPlayingMovies = listOf(
+        Movie(
             id = 0,
             title = "nowPlaying_1",
-            imagePath = "posterUrl/nowPlaying_1.png"
+            posterPath = "posterUrl/nowPlaying_1.png"
         )
     ),
     upComingMovies = listOf(
-        DisplayItem(
+        Movie(
             id = 0,
             title = "upcomingMovie_1",
-            imagePath = "posterUrl/upcomingMovie_1.png"
+            posterPath = "posterUrl/upcomingMovie_1.png"
         )
     )
 )
@@ -234,31 +233,31 @@ val testRecommendedKeyword = (0..5).map {
 object MovieFactory {
     private val counter = AtomicInteger(0)
 
-    fun createMovieItem(): DisplayItem {
+    fun createMovieItem(): Movie {
         val id = counter.incrementAndGet()
-        return DisplayItem(
+        return Movie(
             id = id,
             title = "title_$id",
-            imagePath = "/imagePath_$id.png",
-            genreIds = listOf(Random(System.currentTimeMillis()).nextInt(0, 5))
+            posterPath = "/imagePath_$id.png",
+            genres = listOf(Genre(id = Random(seed = System.currentTimeMillis()).nextInt(from = 0, until = 5)))
         )
     }
 
-    fun createPeopleItem(): DisplayItem {
+    fun createPeopleItem(): Movie {
         val id = counter.incrementAndGet()
-        return DisplayItem(
+        return Movie(
             id = id,
             title = "name_$id",
-            imagePath = "/imagePath_$id.png",
+            posterPath = "/imagePath_$id.png",
         )
     }
 
-    fun createSeriesItem(): DisplayItem {
+    fun createSeriesItem(): Movie {
         val id = counter.incrementAndGet()
-        return DisplayItem(
+        return Movie(
             id = id,
             title = "name_$id",
-            imagePath = "/imagePath_$id.png",
+            posterPath = "/imagePath_$id.png",
             adult = true
         )
     }

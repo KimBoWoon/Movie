@@ -133,7 +133,8 @@ fun FavoriteScreen(
                                             DynamicAsyncImageLoader(
                                                 modifier = Modifier
                                                     .fillMaxWidth()
-                                                    .aspectRatio(POSTER_IMAGE_RATIO),
+                                                    .aspectRatio(POSTER_IMAGE_RATIO)
+                                                    .clip(shape = RoundedCornerShape(size = dp10)),
                                                 source = movieDetail.imagePath ?: "",
                                                 contentDescription = "FavoriteMoviePoster"
                                             )
@@ -179,7 +180,8 @@ fun FavoriteScreen(
                                                     modifier = Modifier
                                                         .fillMaxWidth()
                                                         .aspectRatio(PEOPLE_IMAGE_RATIO)
-                                                        .clip(RoundedCornerShape(dp10)),
+                                                        .clip(RoundedCornerShape(size = dp10))
+                                                        .clip(shape = RoundedCornerShape(size = dp10)),
                                                     source = peopleDetail.imagePath ?: "",
                                                     contentDescription = "FavoritePeopleProfileImage"
                                                 )

@@ -4,9 +4,11 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.semantics.contentDescription
@@ -21,6 +23,7 @@ import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.model.SeriesPart
 import com.bowoon.ui.image.DynamicAsyncImageLoader
 import com.bowoon.ui.utils.bounceClick
+import com.bowoon.ui.utils.dp10
 import com.bowoon.ui.utils.dp150
 import com.bowoon.ui.utils.sp12
 import com.bowoon.ui.utils.sp13
@@ -53,7 +56,8 @@ fun SeriesMovieInfoComponent(
                 modifier = Modifier
                     .layoutId(layoutId = "SeriesPartImage")
                     .width(width = dp150)
-                    .aspectRatio(ratio = POSTER_IMAGE_RATIO),
+                    .aspectRatio(ratio = POSTER_IMAGE_RATIO)
+                    .clip(shape = RoundedCornerShape(size = dp10)),
                 source = seriesPart.posterPath ?: "",
                 contentDescription = seriesPart.posterPath
             )
@@ -89,7 +93,7 @@ fun SeriesMovieInfoComponent(
         val imageEndPadding = 15
         val image = measurables.first { it.layoutId == "SeriesPartImage" }.measure(constraints)
         val title = measurables.first { it.layoutId == "SeriesPartTitle" }.measure(Constraints(maxWidth = constraints.maxWidth - image.width - imageEndPadding))
-        val releaseDate = measurables.first { it.layoutId == "SeriesPartReleaseDate" }.measure(constraints)
+        val releaseDate = measurables.first { it.layoutId == "SeriesPartReleaseDate" }.measure(Constraints(maxWidth = constraints.maxWidth - image.width - imageEndPadding))
         val overview = measurables.first { it.layoutId == "SeriesPartOverview" }.measure(Constraints(minWidth = 0, maxWidth = constraints.maxWidth - image.width - imageEndPadding, maxHeight = image.height - title.height - releaseDate.height))
 
         layout(width = constraints.maxWidth, height = image.height) {

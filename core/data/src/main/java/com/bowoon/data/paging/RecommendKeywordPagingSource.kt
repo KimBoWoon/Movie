@@ -18,7 +18,7 @@ class RecommendKeywordPagingSource(
                 val page = params.key ?: 1
                 val response = apis.getSearchKeyword(query = query, page = page)
 
-                LoadResult.Page<Int, SearchKeyword>(
+                LoadResult.Page(
                     data = response.results ?: emptyList(),
                     prevKey = null,
                     nextKey = if (response.totalPages == page) null else page + 1

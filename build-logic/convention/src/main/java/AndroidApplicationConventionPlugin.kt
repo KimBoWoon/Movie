@@ -53,6 +53,10 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                 namespace = Config.Application.Movie.applicationId
 
                 val gitHash = ByteArrayOutputStream().use {
+//                    DefaultProviderFactory().exec {
+//                        commandLine("git", "rev-parse", "--short", "HEAD")
+//                        standardOutput = it
+//                    }
                     exec {
                         commandLine("git", "rev-parse", "--short", "HEAD")
                         standardOutput = it

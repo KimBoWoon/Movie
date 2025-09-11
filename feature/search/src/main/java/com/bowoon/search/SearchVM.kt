@@ -14,8 +14,8 @@ import androidx.paging.filter
 import com.bowoon.data.repository.MovieAppDataRepository
 import com.bowoon.data.repository.PagingRepository
 import com.bowoon.data.repository.UserDataRepository
-import com.bowoon.model.DisplayItem
 import com.bowoon.model.Genre
+import com.bowoon.model.Movie
 import com.bowoon.model.SearchKeyword
 import com.bowoon.model.SearchType
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -128,7 +128,7 @@ class SearchVM @Inject constructor(
                             selectedGenre
                         ) { pagingData, genre ->
                             if (genre != null) {
-                                pagingData.filter { genre.id in (it.genreIds ?: emptyList()) }
+                                pagingData.filter { genre.id in (it.genres?.map { genre -> genre.id } ?: emptyList()) }
                             } else {
                                 pagingData
                             }
@@ -142,7 +142,7 @@ class SearchVM @Inject constructor(
 
 sealed interface SearchUiState {
     data object SearchHint : SearchUiState
-    data class Success(val pagingData: Flow<PagingData<DisplayItem>>) : SearchUiState
+    data class Success(val pagingData: Flow<PagingData<Movie>>) : SearchUiState
     data class Error(val throwable: Throwable) : SearchUiState
 }
 

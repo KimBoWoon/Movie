@@ -3,7 +3,6 @@ package com.bowoon.network
 import com.bowoon.model.CertificationData
 import com.bowoon.model.CombineCredits
 import com.bowoon.model.Configuration
-import com.bowoon.model.DisplayItem
 import com.bowoon.model.ExternalIds
 import com.bowoon.model.Genres
 import com.bowoon.model.Language
@@ -26,13 +25,13 @@ interface MovieNetworkDataSource {
         language: String = "ko-KR",
         region: String = "KR",
         page: Int = 1
-    ): List<DisplayItem>
+    ): List<Movie>
 
     suspend fun getUpcomingMovie(
         language: String = "ko-KR",
         region: String = "KR",
         page: Int = 1
-    ): List<DisplayItem>
+    ): List<Movie>
 
     suspend fun searchMovies(
         query: String,
@@ -65,7 +64,7 @@ interface MovieNetworkDataSource {
 
     suspend fun getMovie(
         id: Int,
-        appendToResponse: String = "images,videos,credits,reviews,releases,translations,lists,keywords,alternative_titles,changes,similar",
+        appendToResponse: String = "images,videos,credits,releases,keywords,alternative_titles",
         language: String = "ko-KR",
         includeImageLanguage: String = "ko",
         region: String = "KR"

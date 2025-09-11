@@ -3,7 +3,6 @@ package com.bowoon.testing
 import com.bowoon.model.CertificationData
 import com.bowoon.model.CombineCredits
 import com.bowoon.model.Configuration
-import com.bowoon.model.DisplayItem
 import com.bowoon.model.ExternalIds
 import com.bowoon.model.Genres
 import com.bowoon.model.Language
@@ -40,13 +39,13 @@ class TestMovieDataSource : MovieNetworkDataSource {
 
     override suspend fun getGenres(language: String): Genres = genreListTestData
 
-    override suspend fun getNowPlaying(language: String, region: String, page: Int): List<DisplayItem> = nowPlayingMoviesTestData
+    override suspend fun getNowPlaying(language: String, region: String, page: Int): List<Movie> = nowPlayingMoviesTestData
 
     override suspend fun getUpcomingMovie(
         language: String,
         region: String,
         page: Int
-    ): List<DisplayItem> = upcomingMoviesTestData
+    ): List<Movie> = upcomingMoviesTestData
 
     override suspend fun searchMovies(
         query: String,
