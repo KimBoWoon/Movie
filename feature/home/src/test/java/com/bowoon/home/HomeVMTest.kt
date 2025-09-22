@@ -60,7 +60,7 @@ class HomeVMTest {
             viewModel.mainMenu.value,
             MainMenuState.Success(
                 mainMenuTestData.copy(
-                    nowPlaying = mainMenuTestData.nowPlaying,
+                    nowPlayingMovies = mainMenuTestData.nowPlayingMovies,
                     upComingMovies = mainMenuTestData.upComingMovies
                 )
             )

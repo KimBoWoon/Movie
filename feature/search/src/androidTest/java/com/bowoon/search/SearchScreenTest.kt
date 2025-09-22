@@ -71,7 +71,7 @@ class SearchScreenTest {
 
                 SearchScreen(
                     searchUiState = searchState,
-                    recommendedKeyword = RecommendKeywordUiState.Loading,
+                    recommendKeyword = RecommendKeywordUiState.Loading,
                     keyword = viewModel.searchQuery,
                     searchType = searchType,
                     movieAppData = movieAppData,
@@ -107,7 +107,7 @@ class SearchScreenTest {
 
                 SearchScreen(
                     searchUiState = searchState,
-                    recommendedKeyword = RecommendKeywordUiState.Loading,
+                    recommendKeyword = RecommendKeywordUiState.Loading,
                     keyword = viewModel.searchQuery,
                     searchType = searchType,
                     movieAppData = movieAppData,
@@ -133,12 +133,12 @@ class SearchScreenTest {
     fun recommendKeywordTest() {
         composeTestRule.apply {
             setContent {
-                RecommendedKeywordComponent(
-                    recommendedKeyword = RecommendKeywordUiState.Success(pagingData = flowOf(PagingData.from(data = testRecommendedKeyword))),
+                RecommendKeywordComponent(
+                    recommendKeyword = RecommendKeywordUiState.Success(pagingData = flowOf(PagingData.from(data = testRecommendedKeyword))),
                     keyword = viewModel.searchQuery,
                     updateKeyword = viewModel::updateKeyword,
                     onSearchClick = viewModel::searchMovies,
-                    recommendedKeywordVisible = {}
+                    recommendKeywordVisible = {}
                 )
             }
 
@@ -164,7 +164,7 @@ class SearchScreenTest {
 
                 SearchScreen(
                     searchUiState = searchState,
-                    recommendedKeyword = RecommendKeywordUiState.Loading,
+                    recommendKeyword = RecommendKeywordUiState.Loading,
                     keyword = viewModel.searchQuery,
                     searchType = searchType,
                     movieAppData = movieAppData,
@@ -203,7 +203,7 @@ class SearchScreenTest {
 
                 SearchScreen(
                     searchUiState = searchState,
-                    recommendedKeyword = RecommendKeywordUiState.Loading,
+                    recommendKeyword = RecommendKeywordUiState.Loading,
                     keyword = viewModel.searchQuery,
                     searchType = searchType,
                     movieAppData = movieAppData,
@@ -245,7 +245,7 @@ class SearchScreenTest {
 
                 SearchScreen(
                     searchUiState = searchState,
-                    recommendedKeyword = RecommendKeywordUiState.Loading,
+                    recommendKeyword = RecommendKeywordUiState.Loading,
                     keyword = viewModel.searchQuery,
                     searchType = searchType,
                     movieAppData = movieAppData,
@@ -281,7 +281,7 @@ class SearchScreenTest {
 
                 SearchScreen(
                     searchUiState = searchState,
-                    recommendedKeyword = RecommendKeywordUiState.Loading,
+                    recommendKeyword = RecommendKeywordUiState.Loading,
                     keyword = viewModel.searchQuery,
                     searchType = searchType,
                     movieAppData = movieAppData,

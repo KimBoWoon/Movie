@@ -26,7 +26,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.bowoon.ui.FavoriteButton
-import com.bowoon.ui.utils.bottomLineBorder
+import com.bowoon.ui.utils.Line
+import com.bowoon.ui.utils.border
 import com.bowoon.ui.utils.dp16
 import com.bowoon.ui.utils.dp24
 import com.bowoon.ui.utils.dp5
@@ -35,22 +36,23 @@ import com.bowoon.ui.utils.sp20
 
 @Composable
 fun TitleComponent(
+    modifier: Modifier = Modifier,
     title: String,
     isFavorite: Boolean? = null,
     goToBack: (() -> Unit)? = null,
     onFavoriteClick: (() -> Unit)? = null
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .height(dp53)
-            .bottomLineBorder(strokeWidth = (0.5).dp, color = Color.LightGray),
+            .height(height = dp53)
+            .border(line = Line.BOTTOM, strokeWidth = (0.5).dp, color = Color.LightGray),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
         goToBack?.let { goToBack ->
             FilledIconButton(
-                modifier = Modifier.testTag(tag = "backButton").padding(dp5),
+                modifier = Modifier.testTag(tag = "backButton").padding(all = dp5),
                 onClick = { goToBack() },
                 colors = IconButtonDefaults.iconButtonColors(
                     containerColor = Color.Transparent,

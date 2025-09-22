@@ -3,7 +3,6 @@ package com.bowoon.network.retrofit
 import com.bowoon.model.CertificationData
 import com.bowoon.model.CombineCredits
 import com.bowoon.model.Configuration
-import com.bowoon.model.DisplayItem
 import com.bowoon.model.ExternalIds
 import com.bowoon.model.Genres
 import com.bowoon.model.Language
@@ -72,10 +71,10 @@ class RetrofitMovieNetwork @Inject constructor(
         language: String,
         region: String,
         page: Int
-    ): List<DisplayItem> {
-        val result = mutableListOf<DisplayItem>()
+    ): List<Movie> {
+        val result = mutableListOf<Movie>()
         var currentPage = page
-        var totalPage = 1
+        var totalPage: Int
 
         do {
             when (val response = tmdbApis.getNowPlaying(language = "$language-$region", region = region, page = currentPage)) {
@@ -97,10 +96,10 @@ class RetrofitMovieNetwork @Inject constructor(
         language: String,
         region: String,
         page: Int
-    ): List<DisplayItem> {
-        val result = mutableListOf<DisplayItem>()
+    ): List<Movie> {
+        val result = mutableListOf<Movie>()
         var currentPage = 1
-        var totalPage = 1
+        var totalPage: Int
 
         do {
             when (val response = tmdbApis.getUpcomingMovie(language = "$language-$region", region = region, page = currentPage)) {

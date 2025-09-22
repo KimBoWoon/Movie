@@ -19,14 +19,14 @@ fun FavoriteButton(
 ) {
     if (isFavorite) {
         Icon(
-            modifier = modifier.padding(dp5).clickable(indication = null, interactionSource = remember { MutableInteractionSource() }) { onClick() },
-            painter = painterResource(R.drawable.ic_like_on),
+            modifier = modifier.padding(all = dp5).clickable(indication = null, interactionSource = remember { MutableInteractionSource() }) { onClick() },
+            painter = painterResource(id = R.drawable.ic_like_on),
             contentDescription = "favorite"
         )
     } else {
         Icon(
-            modifier = modifier.padding(dp5).clickable(indication = null, interactionSource = remember { MutableInteractionSource() }) { onClick() },
-            painter = painterResource(R.drawable.ic_like_off),
+            modifier = modifier.padding(all = dp5).clickable(indication = null, interactionSource = remember { MutableInteractionSource() }) { onClick() },
+            painter = painterResource(id = R.drawable.ic_like_off),
             contentDescription = "unFavorite"
         )
     }

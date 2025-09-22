@@ -43,7 +43,7 @@ class HomeScreenTest {
 
             onNodeWithText(text = "상영중인 영화").assertExists().assertIsDisplayed()
             onNodeWithText(text = "nowPlaying_1").assertExists().assertIsDisplayed()
-            onNodeWithText(text = "개봉 예정작").assertExists().assertIsDisplayed()
+            onNodeWithText(text = "개봉예정 영화").assertExists().assertIsDisplayed()
             onNodeWithText(text = "upcomingMovie_1").assertExists().assertIsDisplayed()
         }
     }

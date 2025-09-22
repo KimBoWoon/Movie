@@ -4,4 +4,5 @@
     <string name="dismiss_message">Cancel</string>
     <string name="retry_message">Retry</string>
     <string name="back_message">Back</string>
+    <string name="input_search_hint">Input keyword</string>
 </resources>

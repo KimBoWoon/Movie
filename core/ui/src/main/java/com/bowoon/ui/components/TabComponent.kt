@@ -28,6 +28,7 @@ fun TabComponent(
         ) {
             tabs.forEachIndexed { index, label ->
                 Tab(
+                    modifier = Modifier.semantics { contentDescription = label },
                     selected = pagerState.currentPage == index,
                     onClick = {
                         Log.d("selected tab index > $index")

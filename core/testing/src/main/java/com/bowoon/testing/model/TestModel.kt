@@ -14,7 +14,6 @@ import com.bowoon.model.Configuration
 import com.bowoon.model.Country
 import com.bowoon.model.Credits
 import com.bowoon.model.Crew
-import com.bowoon.model.DisplayItem
 import com.bowoon.model.ExternalIds
 import com.bowoon.model.Genre
 import com.bowoon.model.Genres
@@ -195,22 +194,22 @@ val similarMoviesTestData = SimilarMovies(
 )
 
 val nowPlayingMoviesTestData =
-    listOf(DisplayItem(id = 0, title = "nowPlaying_1", imagePath = "/nowPlaying_1.png"))
+    listOf(Movie(id = 0, title = "nowPlaying_1", posterPath = "/nowPlaying_1.png"))
 val upcomingMoviesTestData =
-    listOf(DisplayItem(id = 0, title = "upcomingMovie_1", imagePath = "/upcomingMovie_1.png"))
+    listOf(Movie(id = 0, title = "upcomingMovie_1", posterPath = "/upcomingMovie_1.png"))
 val mainMenuTestData = MainMenu(
-    nowPlaying = listOf(
-        DisplayItem(
+    nowPlayingMovies = listOf(
+        Movie(
             id = 0,
             title = "nowPlaying_1",
-            imagePath = "posterUrl/nowPlaying_1.png"
+            posterPath = "posterUrl/nowPlaying_1.png"
         )
     ),
     upComingMovies = listOf(
-        DisplayItem(
+        Movie(
             id = 0,
             title = "upcomingMovie_1",
-            imagePath = "posterUrl/upcomingMovie_1.png"
+            posterPath = "posterUrl/upcomingMovie_1.png"
         )
     )
 )
@@ -220,15 +219,10 @@ val movieSeriesTestData = Series(
     name = "movieSeries",
     overview = "movieSeriesOverview",
     parts = listOf(
-        SeriesPart(
-            id = 0,
-            title = "movieSeries_1",
-            releaseDate = "2024-09-23",
-            overview = "movieSeries_1_overview"
-        ),
-        SeriesPart(id = 1, title = "movieSeries_2", releaseDate = "2025-09-23", overview = ""),
-        SeriesPart(adult = true, id = 2, title = "seriesPart_2", releaseDate = "2025-09-23", overview = "seriesPartOverview_2"),
-        SeriesPart(adult = false, id = 3, title = "seriesPart_3", releaseDate = "2025-09-23", overview = "seriesPartOverview_3")
+        SeriesPart(id = 0, title = "movieSeries_0", releaseDate = "2024-09-23_0", overview = "movieSeries_0_overview", posterPath = "/movieSeriesPosterPath_1.png"),
+        SeriesPart(id = 1, title = "movieSeries_1", releaseDate = "2024-09-23_1", overview = "movieSeries_1_overview", posterPath = "/movieSeriesPosterPath_2.png"),
+        SeriesPart(adult = true, id = 2, title = "movieSeries_2", releaseDate = "2024-09-23_2", overview = "movieSeries_2_overview", posterPath = "/movieSeriesPosterPath_3.jpg"),
+        SeriesPart(adult = false, id = 3, title = "movieSeries_3", releaseDate = "2024-09-23_3", overview = "movieSeries_3_overview", posterPath = "/movieSeriesPosterPath_3.png")
     ),
     posterPath = "/movieSeriesPosterPath.png"
 )
@@ -239,31 +233,31 @@ val testRecommendedKeyword = (0..5).map {
 object MovieFactory {
     private val counter = AtomicInteger(0)
 
-    fun createMovieItem(): DisplayItem {
+    fun createMovieItem(): Movie {
         val id = counter.incrementAndGet()
-        return DisplayItem(
+        return Movie(
             id = id,
             title = "title_$id",
-            imagePath = "/imagePath_$id.png",
-            genreIds = listOf(Random(System.currentTimeMillis()).nextInt(0, 5))
+            posterPath = "/imagePath_$id.png",
+            genres = listOf(Genre(id = Random(seed = System.currentTimeMillis()).nextInt(from = 0, until = 5)))
         )
     }
 
-    fun createPeopleItem(): DisplayItem {
+    fun createPeopleItem(): Movie {
         val id = counter.incrementAndGet()
-        return DisplayItem(
+        return Movie(
             id = id,
             title = "name_$id",
-            imagePath = "/imagePath_$id.png",
+            posterPath = "/imagePath_$id.png",
         )
     }
 
-    fun createSeriesItem(): DisplayItem {
+    fun createSeriesItem(): Movie {
         val id = counter.incrementAndGet()
-        return DisplayItem(
+        return Movie(
             id = id,
             title = "name_$id",
-            imagePath = "/imagePath_$id.png",
+            posterPath = "/imagePath_$id.png",
             adult = true
         )
     }
@@ -288,7 +282,7 @@ val favoriteMovieDetailTestData = Movie(
     genres = listOf(Genre(id = 0, name = "genre")),
     homepage = "homepage",
     id = 0,
-    images = Images(backdrops = listOf(Image(filePath = "https://original/backdrops_1.png")), logos = listOf(), posters = listOf(Image(filePath = "https://original/poster_1.png"), Image(filePath = "https://original/poster_2.png"), Image(filePath = "https://original/poster_3.png"))),
+    images = Images(backdrops = listOf(Image(filePath = "/backdrops_1.png")), logos = listOf(), posters = listOf(Image(filePath = "/poster_1.png"), Image(filePath = "/poster_2.png"), Image(filePath = "/poster_3.png"))),
     imdbId = "imdbId",
     keywords = Keywords(keywords = listOf(Keyword(id = 0, name = "name"))),
     originCountry = listOf("originCountry"),

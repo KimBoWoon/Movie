@@ -2,8 +2,8 @@ package com.bowoon.data.repository
 
 import com.bowoon.data.util.suspendRunCatching
 import com.bowoon.datastore.InternalDataSource
-import com.bowoon.model.DisplayItem
 import com.bowoon.model.MainMenu
+import com.bowoon.model.Movie
 import com.bowoon.network.MovieNetworkDataSource
 import org.threeten.bp.LocalDate
 import javax.inject.Inject
@@ -23,7 +23,7 @@ class MainMenuRepositoryImpl @Inject constructor(
 
         if (isUpdate || isForce) {
             MainMenu(
-                nowPlaying = getNowPlaying(),
+                nowPlayingMovies = getNowPlaying(),
                 upComingMovies = getUpcomingMovies()
             ).also {
                 datastore.updateUserData(
@@ -36,14 +36,14 @@ class MainMenuRepositoryImpl @Inject constructor(
         }
     }.isSuccess
 
-    override suspend fun getNowPlaying(): List<DisplayItem> {
+    override suspend fun getNowPlaying(): List<Movie> {
         val language = "${datastore.getUserData().language}-${datastore.getUserData().region}"
         val region = datastore.getUserData().region
 
         return apis.getNowPlaying(language = language, region = region, page = 1)
     }
 
-    override suspend fun getUpcomingMovies(): List<DisplayItem> {
+    override suspend fun getUpcomingMovies(): List<Movie> {
         val language = "${datastore.getUserData().language}-${datastore.getUserData().region}"
         val region = datastore.getUserData().region
 

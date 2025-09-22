@@ -15,7 +15,7 @@ import androidx.core.app.ActivityCompat.checkSelfPermission
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.net.toUri
-import com.bowoon.model.DisplayItem
+import com.bowoon.model.Movie
 import com.bowoon.movie.core.notifications.R
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -32,9 +32,9 @@ const val DEEP_LINK_URI_PATTERN = "$DEEP_LINK_BASE_PATH/{id}"
 
 @Singleton
 class SystemTrayNotifier @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
 ) : Notifier {
-    override fun postMovieNotifications(movies: List<DisplayItem>) {
+    override fun postMovieNotifications(movies: List<Movie>) {
         with(context) {
             if (checkSelfPermission(this, permission.POST_NOTIFICATIONS) != PERMISSION_GRANTED) {
                 return
@@ -90,7 +90,7 @@ fun Context.ensureNotificationChannelExists() {
 }
 
 fun Context.moviePendingIntent(
-    movie: DisplayItem,
+    movie: Movie,
 ): PendingIntent? = PendingIntent.getActivity(
     this,
     MOVIE_NOTIFICATION_REQUEST_CODE,
@@ -105,4 +105,4 @@ fun Context.moviePendingIntent(
     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
 )
 
-private fun DisplayItem.movieDeepLinkUri() = "$DEEP_LINK_BASE_PATH/$id".toUri()
+private fun Movie.movieDeepLinkUri() = "$DEEP_LINK_BASE_PATH/$id".toUri()

@@ -32,6 +32,6 @@ dependencies {
     testImplementation(libs.androidx.paging.testing)
     testImplementation(libs.androidx.paging.common)
     testImplementation(libs.turbine)
-    testImplementation(libs.androidx.paging.testing)
+
     androidTestImplementation(projects.core.testing)
 }

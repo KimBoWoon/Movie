@@ -22,7 +22,7 @@ import javax.inject.Singleton
 
 @Singleton
 class MovieFirebase @Inject constructor(
-    @ApplicationScope private val scope: CoroutineScope,
+    @param:ApplicationScope private val scope: CoroutineScope,
     private val userdataRepository: UserDataRepository
 ) : LogHelper {
     companion object {

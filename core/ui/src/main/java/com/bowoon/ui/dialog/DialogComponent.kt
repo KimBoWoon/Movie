@@ -31,6 +31,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.zIndex
+import com.bowoon.ui.theme.MovieTheme
+import com.bowoon.ui.utils.Line
+import com.bowoon.ui.utils.border
 import com.bowoon.ui.utils.bounceClick
 import com.bowoon.ui.utils.dp0
 import com.bowoon.ui.utils.dp1
@@ -38,7 +41,6 @@ import com.bowoon.ui.utils.dp16
 import com.bowoon.ui.utils.dp20
 import com.bowoon.ui.utils.dp30
 import com.bowoon.ui.utils.dp90
-import com.bowoon.ui.theme.MovieTheme
 
 @Composable
 fun ConfirmDialog(
@@ -124,7 +126,8 @@ private fun MovieDialog(
                 if (!dismissPair.first.isNullOrEmpty()) {
                     DialogButton(
                         modifier = Modifier
-                            .background(color = Color(0xFFC2C2C2), shape = RoundedCornerShape(bottomStart = dp20))
+                            .background(color = Color.White, shape = RoundedCornerShape(bottomStart = dp20))
+                            .border(line = Line.END, strokeWidth = dp1, color = Color.Black)
                             .padding(top = dp30),
                         text = dismissPair.first ?: "",
                     ) {
@@ -137,6 +140,7 @@ private fun MovieDialog(
                         .background(
                             color = Color.White,
                             shape = RoundedCornerShape(bottomStart = if (!dismissPair.first.isNullOrEmpty()) dp0 else dp20, bottomEnd = dp20))
+                        .border(line = Line.START, strokeWidth = dp1, color = Color.Black)
                         .padding(top = dp30),
                     text = confirmPair.first
                 ) {

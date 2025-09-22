@@ -25,7 +25,7 @@ fun LazyListScope.seriesInfoComponent(
     item {
         Column(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(dp10)
+            verticalArrangement = Arrangement.spacedBy(space = dp10)
         ) {
             Text(
                 modifier = Modifier
@@ -39,6 +39,7 @@ fun LazyListScope.seriesInfoComponent(
             )
             series.overview?.trim().takeIf { !it.isNullOrEmpty() }?.let {
                 Text(
+                    modifier = Modifier.semantics { contentDescription = "seriesOverview" },
                     text = series.overview ?: "",
                     overflow = TextOverflow.Ellipsis,
                     fontSize = sp15,

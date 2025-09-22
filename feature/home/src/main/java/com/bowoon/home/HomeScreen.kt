@@ -15,12 +15,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -32,13 +34,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bowoon.common.Log
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.firebase.LocalFirebaseLogHelper
-import com.bowoon.model.DisplayItem
 import com.bowoon.model.MainMenu
+import com.bowoon.model.Movie
 import com.bowoon.movie.feature.home.R
 import com.bowoon.ui.components.CircularProgressComponent
 import com.bowoon.ui.components.TitleComponent
 import com.bowoon.ui.image.DynamicAsyncImageLoader
 import com.bowoon.ui.utils.bounceClick
+import com.bowoon.ui.utils.dp10
 import com.bowoon.ui.utils.dp150
 import com.bowoon.ui.utils.dp16
 import com.bowoon.ui.utils.sp10
@@ -132,10 +135,10 @@ fun MainComponent(
             modifier = Modifier.fillMaxSize(),
             state = lazyListState
         ) {
-            if (mainMenu.nowPlaying.isNotEmpty()) {
+            if (mainMenu.nowPlayingMovies.isNotEmpty()) {
                 horizontalMovieListComponent(
                     title = nowPlayingMoviesTitle,
-                    movies = mainMenu.nowPlaying,
+                    movies = mainMenu.nowPlayingMovies,
                     goToMovie = goToMovie
                 )
             }
@@ -152,7 +155,7 @@ fun MainComponent(
 
 fun LazyListScope.horizontalMovieListComponent(
     title: String,
-    movies: List<DisplayItem>,
+    movies: List<Movie>,
     goToMovie: (Int) -> Unit
 ) {
     item {
@@ -180,7 +183,7 @@ fun LazyListScope.horizontalMovieListComponent(
 
 @Composable
 fun MainMovieItem(
-    movie: DisplayItem,
+    movie: Movie,
     goToMovie: (Int) -> Unit
 ) {
     Column(
@@ -195,8 +198,9 @@ fun MainMovieItem(
             DynamicAsyncImageLoader(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .aspectRatio(POSTER_IMAGE_RATIO),
-                source = movie.imagePath ?: "",
+                    .aspectRatio(POSTER_IMAGE_RATIO)
+                    .clip(shape = RoundedCornerShape(size = dp10)),
+                source = movie.posterPath ?: "",
                 contentDescription = "BoxOfficePoster"
             )
         }

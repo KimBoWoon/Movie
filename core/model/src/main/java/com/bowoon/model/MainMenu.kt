@@ -4,6 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class MainMenu(
-    val nowPlaying: List<DisplayItem> = emptyList(),
-    val upComingMovies: List<DisplayItem> = emptyList()
+    val nowPlayingMovies: List<Movie> = emptyList(),
+    val upComingMovies: List<Movie> = emptyList()
 )
