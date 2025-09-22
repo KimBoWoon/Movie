@@ -37,8 +37,8 @@ jobs:
           echo "$GOOGLE_SERVICES_JSON" > ./app/google-services.json
       - name: build release
         run: ./gradlew assembleProdRelease
-      - name: create release note
-        run: ./gradlew createReleaseNote
+#      - name: create release note
+#        run: ./gradlew createReleaseNote
       - name: upload artifact to Firebase App Distribution
         uses: wzieba/Firebase-Distribution-Github-Action@v1.7.0
         with:

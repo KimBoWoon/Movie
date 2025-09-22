@@ -1,6 +1,3 @@
-import org.gradle.api.internal.provider.DefaultProviderFactory
-import java.io.ByteArrayOutputStream
-
 plugins {
     alias(libs.plugins.bowoon.android.application)
     alias(libs.plugins.bowoon.android.application.compose)
@@ -9,22 +6,22 @@ plugins {
     alias(libs.plugins.bowoon.android.application.flavors)
 }
 
-tasks.register("createReleaseNote") {
-    val releaseNote = File("releaseNote.txt")
-    val logs = ByteArrayOutputStream().use {
-        DefaultProviderFactory().exec {
-            commandLine("git", "log", "--oneline", "develop", "-5")
-            standardOutput = it
-        }
+//tasks.register("createReleaseNote") {
+//    val releaseNote = File("releaseNote.txt")
+//    val logs = ByteArrayOutputStream().use {
+////        DefaultProviderFactory().exec {
+////            commandLine("git", "log", "--oneline", "develop", "-5")
+////            standardOutput = it
+////        }
 //        DefaultExecOperations().exec {
 //            commandLine = listOf("git", "log", "--oneline", "develop", "-5")
 //            standardOutput = it
 //        }
-        it.toString().trim()
-    }
-    releaseNote.delete()
-    releaseNote.writeText(text = logs.trimIndent())
-}
+//        it.toString().trim()
+//    }
+//    releaseNote.delete()
+//    releaseNote.writeText(text = logs.trimIndent())
+//}
 
 dependencies {
     arrayOf(
