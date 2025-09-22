@@ -64,7 +64,7 @@ fun MovieMainScreen(
         }
 
         MovieAppNavHost(
-            modifier = Modifier.padding(innerPadding),
+            modifier = Modifier.padding(paddingValues = innerPadding),
             appState = appState,
             onShowSnackbar = { message, action ->
                 snackbarHostState.showSnackbar(

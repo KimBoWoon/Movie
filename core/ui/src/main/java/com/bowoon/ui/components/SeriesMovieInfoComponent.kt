@@ -89,7 +89,7 @@ fun SeriesMovieInfoComponent(
                 style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
             )
         }
-    ) {  measurables, constraints ->
+    ) { measurables, constraints ->
         val imageEndPadding = 15
         val image = measurables.first { it.layoutId == "SeriesPartImage" }.measure(constraints)
         val title = measurables.first { it.layoutId == "SeriesPartTitle" }.measure(Constraints(maxWidth = constraints.maxWidth - image.width - imageEndPadding))

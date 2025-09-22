@@ -51,9 +51,7 @@ fun DynamicAsyncImageLoader(
         when (isError) {
             true -> {
                 Image(
-                    modifier = modifier
-                        .testTag(tag = source),
-//                        .clip(shape = RoundedCornerShape(size = dp10)),
+                    modifier = modifier.testTag(tag = source),
                     contentScale = ContentScale.Crop,
                     painter = error,
                     contentDescription = contentDescription
@@ -61,9 +59,7 @@ fun DynamicAsyncImageLoader(
             }
             false -> {
                 Image(
-                    modifier = modifier
-                        .testTag(tag = source),
-//                        .clip(shape = RoundedCornerShape(size = dp10)),
+                    modifier = modifier.testTag(tag = source),
                     contentScale = contentScale,
                     painter = if (!isLocalInspection) imageLoader else placeholder,
                     contentDescription = contentDescription

@@ -36,22 +36,23 @@ import com.bowoon.ui.utils.sp20
 
 @Composable
 fun TitleComponent(
+    modifier: Modifier = Modifier,
     title: String,
     isFavorite: Boolean? = null,
     goToBack: (() -> Unit)? = null,
     onFavoriteClick: (() -> Unit)? = null
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .height(dp53)
+            .height(height = dp53)
             .border(line = Line.BOTTOM, strokeWidth = (0.5).dp, color = Color.LightGray),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
         goToBack?.let { goToBack ->
             FilledIconButton(
-                modifier = Modifier.testTag(tag = "backButton").padding(dp5),
+                modifier = Modifier.testTag(tag = "backButton").padding(all = dp5),
                 onClick = { goToBack() },
                 colors = IconButtonDefaults.iconButtonColors(
                     containerColor = Color.Transparent,

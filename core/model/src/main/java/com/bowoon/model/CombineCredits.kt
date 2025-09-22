@@ -120,4 +120,4 @@ fun CombineCredits.getRelatedMovie(): List<RelatedMovie> =
                 job = it.job
             )
         } ?: emptyList()
-    ).filter { it.mediaType == "movie" }.sortedByDescending { it.releaseDate }
+    )/*.filter { it.mediaType == "movie" }*/.sortedByDescending { it.releaseDate }
