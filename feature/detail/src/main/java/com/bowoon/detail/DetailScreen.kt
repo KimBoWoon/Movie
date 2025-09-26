@@ -435,8 +435,8 @@ fun VideosComponent(
 fun ImageComponent(
     images: List<Image>
 ) {
-    var isShowing by remember { mutableStateOf(false) }
-    var index by remember { mutableIntStateOf(0) }
+    var isShowing by remember { mutableStateOf(value = false) }
+    var index by remember { mutableIntStateOf(value = 0) }
     val modalBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
 
@@ -449,10 +449,10 @@ fun ImageComponent(
         }
     } else {
         LazyVerticalStaggeredGrid(
-            columns = StaggeredGridCells.Adaptive(dp100),
+            columns = StaggeredGridCells.Adaptive(minSize = dp100),
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(dp10),
-            horizontalArrangement = Arrangement.spacedBy(dp10),
+            contentPadding = PaddingValues(all = dp10),
+            horizontalArrangement = Arrangement.spacedBy(space = dp10),
             verticalItemSpacing = dp10
         ) {
             items(
