@@ -24,10 +24,6 @@ class HomeVM @Inject constructor(
         private const val TAG = "HomeVM"
     }
 
-    init {
-        Log.d(formatStringTime("2025-09-01 13:23:22"))
-    }
-
     val mainMenu = userDataRepository.internalData
         .map { it.mainMenu }
         .asResult()

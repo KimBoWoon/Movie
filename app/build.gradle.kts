@@ -1,3 +1,7 @@
+import org.gradle.api.internal.provider.DefaultProviderFactory
+import org.gradle.process.internal.DefaultExecOperations
+import java.io.ByteArrayOutputStream
+
 plugins {
     alias(libs.plugins.bowoon.android.application)
     alias(libs.plugins.bowoon.android.application.compose)
@@ -6,22 +10,26 @@ plugins {
     alias(libs.plugins.bowoon.android.application.flavors)
 }
 
-//tasks.register("createReleaseNote") {
-//    val releaseNote = File("releaseNote.txt")
-//    val logs = ByteArrayOutputStream().use {
-////        DefaultProviderFactory().exec {
-////            commandLine("git", "log", "--oneline", "develop", "-5")
-////            standardOutput = it
-////        }
-//        DefaultExecOperations().exec {
-//            commandLine = listOf("git", "log", "--oneline", "develop", "-5")
+tasks.register("createReleaseNote") {
+    val releaseNote = File("releaseNote.txt")
+    val logs = ByteArrayOutputStream().use {
+//        DefaultProviderFactory().exec {
+//            commandLine("git", "log", "release/movie_v1.0.0", "--oneline")
 //            standardOutput = it
 //        }
-//        it.toString().trim()
-//    }
-//    releaseNote.delete()
-//    releaseNote.writeText(text = logs.trimIndent())
-//}
+//        DefaultExecOperations().exec {
+//            commandLine = listOf("git", "log", "release/movie_v1.0.0", "--oneline")
+//            standardOutput = it
+//        }
+        exec {
+            commandLine("git", "log", "--oneline")
+            standardOutput = it
+        }
+        it.toString().trim()
+    }
+    releaseNote.delete()
+    releaseNote.writeText(text = logs.trimIndent())
+}
 
 dependencies {
     arrayOf(
