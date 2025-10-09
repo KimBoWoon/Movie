@@ -36,7 +36,8 @@ import com.bowoon.common.Log
 import com.bowoon.data.util.PEOPLE_IMAGE_RATIO
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.firebase.LocalFirebaseLogHelper
-import com.bowoon.model.Favorite
+import com.bowoon.model.Movie
+import com.bowoon.model.People
 import com.bowoon.movie.feature.favorite.R
 import com.bowoon.ui.FavoriteButton
 import com.bowoon.ui.components.ScrollToTopComponent
@@ -74,13 +75,13 @@ fun FavoriteScreen(
 
 @Composable
 fun FavoriteScreen(
-    favoriteMovies: List<Favorite>,
-    favoritePeoples: List<Favorite>,
+    favoriteMovies: List<Movie>,
+    favoritePeoples: List<People>,
     onShowSnackbar: suspend (String, String?) -> Boolean,
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
-    deleteFavoriteMovie: (Favorite) -> Unit,
-    deleteFavoritePeople: (Favorite) -> Unit
+    deleteFavoriteMovie: (Movie) -> Unit,
+    deleteFavoritePeople: (People) -> Unit
 ) {
     val favoriteTabs = listOf(
         stringResource(id = R.string.movie),
@@ -105,25 +106,25 @@ fun FavoriteScreen(
             pagerState = pagerState,
             tabClickEvent = tabClickEvent
         ) { tabList ->
-            HorizontalPager(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
-                state = pagerState,
-                userScrollEnabled = false
-            ) { index ->
-                when (tabList[index]) {
-                    FavoriteVM.FavoriteTabs.MOVIE.label -> {
-                        Box(
-                            modifier = Modifier.fillMaxSize()
-                        ) {
+            Box(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                HorizontalPager(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight(),
+                    state = pagerState,
+                    userScrollEnabled = false
+                ) { index ->
+                    when (tabList[index]) {
+                        stringResource(id = R.string.movie) -> {
                             if (favoriteMovies.isEmpty()) {
                                 Text(
                                     modifier = Modifier.testTag(tag = "favoriteMovieEmpty").align(Alignment.Center),
                                     text = stringResource(id = R.string.empty_favorite_movie)
                                 )
                             } else {
-                                FavoriteListComponent(
+                                FavoriteListComponent<Movie>(
                                     favoriteList = favoriteMovies,
                                     spanCount = 2,
                                     content = { movieDetail ->
@@ -133,9 +134,9 @@ fun FavoriteScreen(
                                             DynamicAsyncImageLoader(
                                                 modifier = Modifier
                                                     .fillMaxWidth()
-                                                    .aspectRatio(POSTER_IMAGE_RATIO)
+                                                    .aspectRatio(ratio = POSTER_IMAGE_RATIO)
                                                     .clip(shape = RoundedCornerShape(size = dp10)),
-                                                source = movieDetail.imagePath ?: "",
+                                                source = movieDetail.posterPath ?: "",
                                                 contentDescription = "FavoriteMoviePoster"
                                             )
                                             FavoriteButton(
@@ -155,18 +156,14 @@ fun FavoriteScreen(
                                 )
                             }
                         }
-                    }
-                    FavoriteVM.FavoriteTabs.PEOPLE.label -> {
-                        Box(
-                            modifier = Modifier.fillMaxSize()
-                        ) {
+                        stringResource(id = R.string.people) -> {
                             if (favoritePeoples.isEmpty()) {
                                 Text(
                                     modifier = Modifier.testTag(tag = "favoritePeopleEmpty").align(Alignment.Center),
                                     text = stringResource(id = R.string.empty_favorite_people)
                                 )
                             } else {
-                                FavoriteListComponent(
+                                FavoriteListComponent<People>(
                                     favoriteList = favoritePeoples,
                                     spanCount = 3,
                                     content = { peopleDetail ->
@@ -179,10 +176,9 @@ fun FavoriteScreen(
                                                 DynamicAsyncImageLoader(
                                                     modifier = Modifier
                                                         .fillMaxWidth()
-                                                        .aspectRatio(PEOPLE_IMAGE_RATIO)
-                                                        .clip(RoundedCornerShape(size = dp10))
+                                                        .aspectRatio(ratio = PEOPLE_IMAGE_RATIO)
                                                         .clip(shape = RoundedCornerShape(size = dp10)),
-                                                    source = peopleDetail.imagePath ?: "",
+                                                    source = peopleDetail.profilePath ?: "",
                                                     contentDescription = "FavoritePeopleProfileImage"
                                                 )
                                                 FavoriteButton(
@@ -200,7 +196,7 @@ fun FavoriteScreen(
                                             }
                                             Text(
                                                 modifier = Modifier.wrapContentWidth().padding(top = dp5).align(Alignment.CenterHorizontally),
-                                                text = peopleDetail.title ?: "",
+                                                text = peopleDetail.name ?: "",
                                                 maxLines = 1,
                                                 overflow = TextOverflow.Ellipsis
                                             )
@@ -217,10 +213,10 @@ fun FavoriteScreen(
 }
 
 @Composable
-fun FavoriteListComponent(
-    favoriteList: List<Favorite>,
+fun <T> FavoriteListComponent(
+    favoriteList: List<T>,
     spanCount: Int,
-    content: @Composable (Favorite) -> Unit
+    content: @Composable (T) -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val lazyGridState = rememberLazyGridState()
@@ -233,9 +229,9 @@ fun FavoriteListComponent(
             modifier = Modifier.fillMaxSize(),
             state = lazyGridState,
             columns = GridCells.Fixed(spanCount),
-            contentPadding = PaddingValues(dp15),
-            horizontalArrangement = Arrangement.spacedBy(dp10),
-            verticalArrangement = Arrangement.spacedBy(dp10)
+            contentPadding = PaddingValues(all = dp15),
+            horizontalArrangement = Arrangement.spacedBy(space = dp10),
+            verticalArrangement = Arrangement.spacedBy(space = dp10)
         ) {
             items(
                 items = favoriteList
@@ -245,7 +241,7 @@ fun FavoriteListComponent(
         if (visibleItemIndex >= spanCount) {
             ScrollToTopComponent(
                 onClick = {
-                    scope.launch { lazyGridState.scrollToItem(0) }
+                    scope.launch { lazyGridState.scrollToItem(index = 0) }
                 }
             )
         }

@@ -1,7 +1,7 @@
 package com.bowoon.domain
 
-import com.bowoon.model.Favorite
 import com.bowoon.model.InternalData
+import com.bowoon.model.Movie
 import com.bowoon.model.MovieAppData
 import com.bowoon.model.PosterSize
 import com.bowoon.testing.model.configurationTestData
@@ -48,8 +48,8 @@ class GetMovieDetailUseCaseTest {
             databaseRepository = databaseRepository
         )
         runBlocking {
-            databaseRepository.insertMovie(Favorite(id = 23))
-            userDataRepository.updateUserData(InternalData(), false)
+            databaseRepository.insertMovie(movie = Movie(id = 23))
+            userDataRepository.updateUserData(userData = InternalData(), isSync = false)
             movieAppDataRepository.setMovieAppData(
                 MovieAppData(
                     secureBaseUrl = configurationTestData.images?.secureBaseUrl ?: "",
@@ -87,10 +87,10 @@ class GetMovieDetailUseCaseTest {
         detailRepository.setMovie(unFavoriteMovieDetailTestData)
         detailRepository.setMovieSeries(movieSeriesTestData)
         databaseRepository.insertMovie(
-            Favorite(
+            movie = Movie(
                 id = unFavoriteMovieDetailTestData.id,
                 title = unFavoriteMovieDetailTestData.title,
-                imagePath = unFavoriteMovieDetailTestData.posterPath
+                posterPath = unFavoriteMovieDetailTestData.posterPath
             )
         )
 

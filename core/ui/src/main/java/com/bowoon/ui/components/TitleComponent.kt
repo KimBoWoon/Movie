@@ -36,14 +36,13 @@ import com.bowoon.ui.utils.sp20
 
 @Composable
 fun TitleComponent(
-    modifier: Modifier = Modifier,
     title: String,
     isFavorite: Boolean? = null,
     goToBack: (() -> Unit)? = null,
     onFavoriteClick: (() -> Unit)? = null
 ) {
     Row(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
             .height(height = dp53)
             .border(line = Line.BOTTOM, strokeWidth = (0.5).dp, color = Color.LightGray),

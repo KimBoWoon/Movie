@@ -5,6 +5,8 @@ import androidx.room.Database
 import androidx.room.DeleteColumn
 import androidx.room.RoomDatabase
 import androidx.room.migration.AutoMigrationSpec
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.bowoon.database.dao.MovieDao
 import com.bowoon.database.dao.PeopleDao
 import com.bowoon.database.model.MovieEntity
@@ -15,7 +17,7 @@ import com.bowoon.database.model.PeopleEntity
         MovieEntity::class,
         PeopleEntity::class
     ],
-    version = 3,
+    version = 4,
     autoMigrations = [
         AutoMigration(
             from = 1,
@@ -46,4 +48,10 @@ internal object DatabaseMigrations {
         DeleteColumn(tableName = "movies", columnName = "title")
     )
     class Schema1to2 : AutoMigrationSpec
+    val MIGRATION_3_4 = object : Migration(startVersion = 3, endVersion = 4) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(sql = """ALTER TABLE movies ADD COLUMN title TEXT DEFAULT """"")
+            db.execSQL(sql = """ALTER TABLE movies ADD COLUMN releaseDate TEXT DEFAULT """"")
+        }
+    }
 }

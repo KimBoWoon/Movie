@@ -38,7 +38,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -51,7 +50,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bowoon.common.Log
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.firebase.LocalFirebaseLogHelper
-import com.bowoon.model.Favorite
 import com.bowoon.model.Image
 import com.bowoon.model.People
 import com.bowoon.model.getRelatedMovie
@@ -98,8 +96,8 @@ fun PeopleScreen(
 fun PeopleScreen(
     peopleState: PeopleState,
     goToBack: () -> Unit,
-    insertFavoritePeople: (Favorite) -> Unit,
-    deleteFavoritePeople: (Favorite) -> Unit,
+    insertFavoritePeople: (People) -> Unit,
+    deleteFavoritePeople: (People) -> Unit,
     goToMovie: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
     restart: () -> Unit
@@ -146,8 +144,8 @@ fun PeopleDetailComponent(
     people: People,
     goToBack: () -> Unit,
     goToMovie: (Int) -> Unit,
-    insertFavoritePeople: (Favorite) -> Unit,
-    deleteFavoritePeople: (Favorite) -> Unit,
+    insertFavoritePeople: (People) -> Unit,
+    deleteFavoritePeople: (People) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean
 ) {
     val scope = rememberCoroutineScope()
@@ -160,21 +158,17 @@ fun PeopleDetailComponent(
         targetValue = if (toggle.value) peopleImagesHeight.value / 3 else peopleImagesHeight.value
     )
 
-    Column {
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
         TitleComponent(
-            modifier = Modifier.layoutId(layoutId = "peopleTitle"),
             title = people.name ?: stringResource(id = com.bowoon.movie.feature.people.R.string.title_people),
             goToBack = goToBack,
             onFavoriteClick = {
-                val favorite = Favorite(
-                    id = people.id,
-                    title = people.name,
-                    imagePath = people.profilePath
-                )
                 if (people.isFavorite) {
-                    deleteFavoritePeople(favorite)
+                    deleteFavoritePeople(people)
                 } else {
-                    insertFavoritePeople(favorite)
+                    insertFavoritePeople(people)
                 }
                 scope.launch {
                     onShowSnackbar(snackbarMessage, null)
@@ -183,9 +177,7 @@ fun PeopleDetailComponent(
             isFavorite = people.isFavorite
         )
 
-        Box(
-            modifier = Modifier.fillMaxSize()
-        ) {
+        Box {
             people.images.takeIf { !it.isNullOrEmpty() }?.let { images ->
                 PeopleImageComponent(
                     images = images,
@@ -268,8 +260,8 @@ fun BoxScope.PeopleImageComponent(
 
     HorizontalPager(
         modifier = Modifier
-            .wrapContentSize()
-            .aspectRatio(ratio = POSTER_IMAGE_RATIO)
+            .fillMaxSize()
+            .aspectRatio(ratio = POSTER_IMAGE_RATIO, matchHeightConstraintsFirst = true)
             .onSizeChanged { size ->
                 peopleImagesHeight.value = if (images.isEmpty()) {
                     size.height.dp
@@ -285,9 +277,7 @@ fun BoxScope.PeopleImageComponent(
 //        pageSpacing = dp5
     ) { index ->
         DynamicAsyncImageLoader(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight(),
+            modifier = Modifier.fillMaxSize(),
             source = images[index].filePath ?: "",
             contentDescription = images[index].filePath
         )

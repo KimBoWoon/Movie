@@ -3,7 +3,8 @@ package com.bowoon.favorite
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bowoon.data.repository.DatabaseRepository
-import com.bowoon.model.Favorite
+import com.bowoon.model.Movie
+import com.bowoon.model.People
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
@@ -16,10 +17,6 @@ class FavoriteVM @Inject constructor(
 ) : ViewModel() {
     companion object {
         private const val TAG = "FavoriteVM"
-    }
-
-    enum class FavoriteTabs(val label: String) {
-        MOVIE("영화"), PEOPLE("인물")
     }
 
     val favoriteMovies = databaseRepository.getMovies()
@@ -35,15 +32,15 @@ class FavoriteVM @Inject constructor(
             started = SharingStarted.WhileSubscribed()
         )
 
-    fun deleteMovie(movie: Favorite) {
+    fun deleteMovie(movie: Movie) {
         viewModelScope.launch {
-            databaseRepository.deleteMovie(movie)
+            databaseRepository.deleteMovie(movie = movie)
         }
     }
 
-    fun deletePeople(people: Favorite) {
+    fun deletePeople(people: People) {
         viewModelScope.launch {
-            databaseRepository.deletePeople(people)
+            databaseRepository.deletePeople(people = people)
         }
     }
 }

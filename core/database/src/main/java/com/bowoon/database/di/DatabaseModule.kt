@@ -2,6 +2,7 @@ package com.bowoon.database.di
 
 import android.content.Context
 import androidx.room.Room
+import com.bowoon.database.DatabaseMigrations
 import com.bowoon.database.MovieDatabase
 import dagger.Module
 import dagger.Provides
@@ -18,8 +19,9 @@ internal object DatabaseModule {
     fun providesMovieDatabase(
         @ApplicationContext context: Context
     ): MovieDatabase = Room.databaseBuilder(
-        context,
-        MovieDatabase::class.java,
-        "movie-database",
-    ).build()
+        context = context,
+        klass = MovieDatabase::class.java,
+        name = "movie-database",
+    ).addMigrations(DatabaseMigrations.MIGRATION_3_4)
+        .build()
 }

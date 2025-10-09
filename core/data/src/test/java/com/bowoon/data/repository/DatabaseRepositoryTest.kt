@@ -2,7 +2,7 @@ package com.bowoon.data.repository
 
 import com.bowoon.data.testdouble.TestMovieDao
 import com.bowoon.data.testdouble.TestPeopleDao
-import com.bowoon.model.Favorite
+import com.bowoon.model.Movie
 import com.bowoon.testing.utils.MainDispatcherRule
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -20,9 +20,11 @@ class DatabaseRepositoryTest {
 
     @Test
     fun insertMovieTest() = runTest {
-        val movie = Favorite(
+        val movie = Movie(
             id = 1,
-            imagePath = "/Movie_1.png"
+            posterPath = "/Movie_1.png",
+            title = "movie_1",
+            releaseDate = "2025-01-01"
         )
 
         assertEquals(
@@ -40,9 +42,11 @@ class DatabaseRepositoryTest {
 
     @Test
     fun deleteMovieTest() = runTest {
-        val movie = Favorite(
+        val movie = Movie(
             id = 1,
-            imagePath = "/Movie_1.png"
+            posterPath = "/Movie_1.png",
+            title = "movie_1",
+            releaseDate = "2025-01-01"
         )
 
         assertEquals(
@@ -68,27 +72,37 @@ class DatabaseRepositoryTest {
     @Test
     fun upsertMoviesTest() = runTest {
         val movies = listOf(
-            Favorite(
+            Movie(
                 id = 1,
-                imagePath = "/Movie_1.png"
+                posterPath = "/Movie_1.png",
+                title = "movie_1",
+                releaseDate = "2025-01-01"
             ),
-            Favorite(
+            Movie(
                 id = 2,
-                imagePath = "/Movie_2.png"
+                posterPath = "/Movie_2.png",
+                title = "movie_2",
+                releaseDate = "2025-01-02"
             ),
-            Favorite(
+            Movie(
                 id = 3,
-                imagePath = "/Movie_3.png"
+                posterPath = "/Movie_3.png",
+                title = "movie_3",
+                releaseDate = "2025-01-03"
             )
         )
         val newMovies = listOf(
-            Favorite(
+            Movie(
                 id = 2,
-                imagePath = "/new_movie_2.png"
+                posterPath = "/new_movie_2.png",
+                title = "new_movie_2",
+                releaseDate = "2025-01-02"
             ),
-            Favorite(
+            Movie(
                 id = 4,
-                imagePath = "/Movie_4.png"
+                posterPath = "/Movie_4.png",
+                title = "movie_4",
+                releaseDate = "2025-01-04"
             )
         )
 
@@ -111,21 +125,29 @@ class DatabaseRepositoryTest {
         assertEquals(
             repository.getMovies().first().sortedBy { it.id },
             listOf(
-                Favorite(
+                Movie(
                     id = 1,
-                    imagePath = "/Movie_1.png"
+                    posterPath = "/Movie_1.png",
+                    title = "movie_1",
+                    releaseDate = "2025-01-01"
                 ),
-                Favorite(
+                Movie(
                     id = 2,
-                    imagePath = "/new_movie_2.png"
+                    posterPath = "/new_movie_2.png",
+                    title = "new_movie_2",
+                    releaseDate = "2025-01-02"
                 ),
-                Favorite(
+                Movie(
                     id = 3,
-                    imagePath = "/Movie_3.png"
+                    posterPath = "/Movie_3.png",
+                    title = "movie_3",
+                    releaseDate = "2025-01-03"
                 ),
-                Favorite(
+                Movie(
                     id = 4,
-                    imagePath = "/Movie_4.png"
+                    posterPath = "/Movie_4.png",
+                    title = "movie_4",
+                    releaseDate = "2025-01-04"
                 )
             )
         )

@@ -45,8 +45,8 @@ class MainActivity : ComponentActivity() {
     lateinit var appDoubleBackToExitFactory: AppDoubleBackToExit.AppDoubleBackToExitFactory
     private val appDoubleBackToExit: AppDoubleBackToExit by lazy {
         appDoubleBackToExitFactory.create(
-            this@MainActivity,
-            getString(R.string.double_back_message)
+            context = this@MainActivity,
+            exitText = getString(R.string.double_back_message)
         )
     }
 
@@ -91,14 +91,10 @@ class MainActivity : ComponentActivity() {
         splashScreen.setKeepOnScreenCondition { viewModel.movieAppData.value.shouldKeepSplashScreen() }
 
         setContent {
-            CompositionLocalProvider(
-                LocalFirebaseLogHelper provides movieFirebase
-            ) {
-                LocalFirebaseLogHelper.current.sendLog(javaClass.simpleName, "compose start!")
+            CompositionLocalProvider(value = LocalFirebaseLogHelper provides movieFirebase) {
+                LocalFirebaseLogHelper.current.sendLog(name = javaClass.simpleName, message = "compose start!")
 
-                MovieTheme(
-                    darkTheme = darkTheme
-                ) {
+                MovieTheme(darkTheme = darkTheme) {
                     val appState = rememberMovieAppState(networkMonitor = networkMonitor)
                     val snackbarHostState = remember { SnackbarHostState() }
 

@@ -9,7 +9,6 @@ import androidx.paging.testing.asSnapshot
 import com.bowoon.data.paging.SimilarMoviePagingSource
 import com.bowoon.detail.navigation.DetailRoute
 import com.bowoon.domain.GetMovieDetailUseCase
-import com.bowoon.model.Favorite
 import com.bowoon.model.InternalData
 import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetailInfo
@@ -66,8 +65,8 @@ class DetailVMTest {
             userDataRepository = testUserDataRepository
         )
         runBlocking {
-            testUserDataRepository.updateUserData(InternalData(), false)
-            testDataBaseRepository.insertMovie(Favorite(id = 0, title = "movie_1", imagePath = "/movieImagePath.png"))
+            testUserDataRepository.updateUserData(userData = InternalData(), isSync = false)
+            testDataBaseRepository.insertMovie(movie = Movie(id = 0, title = "movie_1", posterPath = "/movieImagePath.png"))
             testDetailRepository.setMovieSeries(movieSeriesTestData)
         }
     }
@@ -173,7 +172,7 @@ class DetailVMTest {
     @Test
     fun insertFavoriteTest() = runTest {
         backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.detail.collect() }
-        val movie = Favorite(id = 23, title = "movie_0", imagePath = "/imagePath.png")
+        val movie = Movie(id = 23, title = "movie_0", posterPath = "/imagePath.png")
 
         testDetailRepository.setMovie(favoriteMovieDetailTestData.copy(id = 23))
 
@@ -201,7 +200,7 @@ class DetailVMTest {
     @Test
     fun deleteFavoriteTest() = runTest {
         backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.detail.collect { println(it) } }
-        val movie = Favorite(id = 0, title = "movie_1", imagePath = "/movieImagePath.png")
+        val movie = Movie(id = 0, title = "movie_1", posterPath = "/movieImagePath.png")
 
         testDetailRepository.setMovie(favoriteMovieDetailTestData)
 

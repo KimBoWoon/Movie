@@ -1,6 +1,6 @@
 package com.bowoon.domain
 
-import com.bowoon.model.Favorite
+import com.bowoon.model.People
 import com.bowoon.testing.model.combineCreditsTestData
 import com.bowoon.testing.model.externalIdsTestData
 import com.bowoon.testing.model.peopleDetailTestData
@@ -34,7 +34,7 @@ class GetPeopleDetailUseCaseTest {
             databaseRepository = databaseRepository
         )
 
-        runBlocking { databaseRepository.insertPeople(Favorite(id = 489)) }
+        runBlocking { databaseRepository.insertPeople(people = People(id = 489)) }
     }
 
     @Test
@@ -56,7 +56,7 @@ class GetPeopleDetailUseCaseTest {
         detailRepository.setPeopleDetail(peopleDetailTestData)
         detailRepository.setCombineCredits(combineCreditsTestData)
         detailRepository.setExternalIds(externalIdsTestData)
-        databaseRepository.insertPeople(Favorite(id = 0))
+        databaseRepository.insertPeople(people = People(id = 0))
 
         val result = getPeopleDetailUseCase(0)
 

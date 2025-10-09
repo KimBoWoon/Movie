@@ -1,7 +1,6 @@
 package com.bowoon.detail
 
 import android.widget.FrameLayout
-import androidx.annotation.OptIn
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -62,7 +61,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.media3.common.util.UnstableApi
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -72,13 +70,12 @@ import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.data.util.VIDEO_RATIO
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.Cast
+import com.bowoon.model.CreditInfo
 import com.bowoon.model.Crew
-import com.bowoon.model.Favorite
 import com.bowoon.model.Image
 import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetailInfo
 import com.bowoon.model.MovieDetailTab
-import com.bowoon.model.CreditInfo
 import com.bowoon.model.Series
 import com.bowoon.movie.feature.detail.R
 import com.bowoon.ui.components.CircularProgressComponent
@@ -146,8 +143,8 @@ fun DetailScreen(
     goToPeople: (Int) -> Unit,
     goToBack: () -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
-    insertFavoriteMovie: (Favorite) -> Unit,
-    deleteFavoriteMovie: (Favorite) -> Unit,
+    insertFavoriteMovie: (Movie) -> Unit,
+    deleteFavoriteMovie: (Movie) -> Unit,
     restart: () -> Unit
 ) {
     Box(
@@ -202,8 +199,8 @@ fun MovieDetailComponent(
     goToPeople: (Int) -> Unit,
     goToBack: () -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
-    insertFavoriteMovie: (Favorite) -> Unit,
-    deleteFavoriteMovie: (Favorite) -> Unit,
+    insertFavoriteMovie: (Movie) -> Unit,
+    deleteFavoriteMovie: (Movie) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
     val tabList = if (movieInfo.detail.belongsToCollection == null) {
@@ -230,15 +227,10 @@ fun MovieDetailComponent(
             isFavorite = movieInfo.detail.isFavorite,
             goToBack = goToBack,
             onFavoriteClick = {
-                val favorite = Favorite(
-                    id = movieInfo.detail.id,
-                    title = movieInfo.detail.title,
-                    imagePath = movieInfo.detail.posterPath
-                )
                 if (movieInfo.detail.isFavorite) {
-                    deleteFavoriteMovie(favorite)
+                    deleteFavoriteMovie(movieInfo.detail)
                 } else {
-                    insertFavoriteMovie(favorite)
+                    insertFavoriteMovie(movieInfo.detail)
                 }
                 scope.launch {
                     onShowSnackbar(favoriteMessage, null)
@@ -292,7 +284,6 @@ fun MovieDetailComponent(
     }
 }
 
-@OptIn(UnstableApi::class)
 @Composable
 fun VideosComponent(
     vodList: List<String>,
@@ -369,9 +360,9 @@ fun VideosComponent(
 
                 override fun onReady(youTubePlayer: YouTubePlayer) {
                     when (autoPlayTrailer) {
-                        true -> youTubePlayer.loadVideo(vodList[index], 0f)
-                        false -> youTubePlayer.cueVideo(vodList[index], 0f)
-                        else -> youTubePlayer.cueVideo(vodList[index], 0f)
+                        true -> youTubePlayer.loadVideo(videoId = vodList[index], startSeconds = 0f)
+                        false -> youTubePlayer.cueVideo(videoId = vodList[index], startSeconds = 0f)
+                        else -> youTubePlayer.cueVideo(videoId = vodList[index], startSeconds = 0f)
                     }
                 }
 
@@ -412,25 +403,25 @@ fun VideosComponent(
             }
 
             AndroidView(
-                factory = { ctx ->
-                    YouTubePlayerView(ctx).apply {
+                factory = { context ->
+                    YouTubePlayerView(context = context).apply {
                         layoutParams = FrameLayout.LayoutParams(
                             FrameLayout.LayoutParams.MATCH_PARENT,
-                            (ctx.resources.displayMetrics.widthPixels / (VIDEO_RATIO)).toInt()
+                            (context.resources.displayMetrics.widthPixels / (VIDEO_RATIO)).toInt()
                         )
-                        addYouTubePlayerListener(listener)
+                        addYouTubePlayerListener(youTubePlayerListener = listener)
                     }
                 },
-                onRelease = {
-                    it.removeYouTubePlayerListener(listener)
-                    it.release()
+                onRelease = { youTubePlayerView ->
+                    youTubePlayerView.removeYouTubePlayerListener(youTubePlayerListener = listener)
+                    youTubePlayerView.release()
                 }
             )
         }
     }
 }
 
-@kotlin.OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ImageComponent(
     images: List<Image>
@@ -445,7 +436,7 @@ fun ImageComponent(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            Text(text = stringResource(R.string.movie_image_not_found))
+            Text(text = stringResource(id = R.string.movie_image_not_found))
         }
     } else {
         LazyVerticalStaggeredGrid(
@@ -461,8 +452,8 @@ fun ImageComponent(
             ) {
                 DynamicAsyncImageLoader(
                     modifier = Modifier
-                        .width(dp200)
-                        .aspectRatio(it.aspectRatio?.toFloat() ?: 1f)
+                        .width(width = dp200)
+                        .aspectRatio(ratio = it.aspectRatio?.toFloat() ?: 1f)
                         .clip(shape = RoundedCornerShape(size = dp10))
                         .bounceClick {
                             index = images.indexOf(it)
@@ -532,7 +523,7 @@ fun MovieAdditionalInfoComponent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = dp10, horizontal = dp16),
-                    text = stringResource(R.string.movie_production_companies),
+                    text = stringResource(id = R.string.movie_production_companies),
                     textAlign = TextAlign.Center,
                     fontSize = sp20,
                     fontWeight = FontWeight.Bold
@@ -576,7 +567,7 @@ fun MovieAdditionalInfoComponent(
                         .clickable { expanded = !expanded }
                 ) {
                     Icon(
-                        modifier = Modifier.animateRotation(expanded, 0f, 90f, 500),
+                        modifier = Modifier.animateRotation(expanded = expanded, startAngle = 0f, endAngle = 90f, animateMillis = 500),
                         imageVector = Icons.Rounded.PlayArrow,
                         contentDescription = "expandedArrow"
                     )
@@ -584,7 +575,7 @@ fun MovieAdditionalInfoComponent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .wrapContentHeight(),
-                        text = stringResource(R.string.movie_alternative_title),
+                        text = stringResource(id = R.string.movie_alternative_title),
                         fontSize = sp15
                     )
                 }
@@ -593,7 +584,7 @@ fun MovieAdditionalInfoComponent(
                         .padding(top = dp5, start = dp16, end = dp16)
                         .animateContentSize()
                         .fillMaxWidth()
-                        .height(if (expanded) Int.MAX_VALUE.dp else dp0),
+                        .height(height = if (expanded) Int.MAX_VALUE.dp else dp0),
                     text = titles,
                     fontSize = sp10,
                     textAlign = TextAlign.Center,
@@ -714,7 +705,7 @@ fun MovieInfoComponent(
             ) {
                 movie.runtime?.let {
                     Text(
-                        text = stringResource(R.string.movie_runtime, it),
+                        text = stringResource(id = R.string.movie_runtime, it),
                         fontSize = sp10,
                         textAlign = TextAlign.Center
                     )
@@ -722,13 +713,13 @@ fun MovieInfoComponent(
                 if (movie.runtime != null && movie.voteAverage != null) {
                     Text(
                         modifier = Modifier.padding(horizontal = dp5),
-                        text = stringResource(R.string.movie_info_separator),
+                        text = stringResource(id = R.string.movie_info_separator),
                         fontSize = sp10
                     )
                 }
                 movie.voteAverage?.let {
                     Text(
-                        text = stringResource(R.string.movie_vote_average, it),
+                        text = stringResource(id = R.string.movie_vote_average, it),
                         fontSize = sp10,
                         textAlign = TextAlign.Center
                     )
@@ -759,7 +750,7 @@ fun ActorAndCrewComponent(
         ) {
             Text(
                 modifier = Modifier.align(Alignment.Center),
-                text = stringResource(R.string.movie_crew_not_found)
+                text = stringResource(id = R.string.movie_crew_not_found)
             )
         }
     } else {
@@ -774,7 +765,7 @@ fun ActorAndCrewComponent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = dp16),
-                        text = stringResource(R.string.movie_actor),
+                        text = stringResource(id = R.string.movie_actor),
                         fontSize = sp20,
                         textAlign = TextAlign.Center
                     )
@@ -783,12 +774,12 @@ fun ActorAndCrewComponent(
                             .fillMaxWidth()
                             .wrapContentHeight(),
                         contentPadding = PaddingValues(horizontal = dp16),
-                        horizontalArrangement = Arrangement.spacedBy(dp10)
+                        horizontalArrangement = Arrangement.spacedBy(space = dp10)
                     ) {
                         items(
                             items = casts
                         ) { cast ->
-                            PartnerComponent(partner = cast, goToPeople = goToPeople)
+                            CreditInfoComponent(creditInfo = cast, goToPeople = goToPeople)
                         }
                     }
                 }
@@ -797,7 +788,7 @@ fun ActorAndCrewComponent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = dp16),
-                        text = stringResource(R.string.movie_staff),
+                        text = stringResource(id = R.string.movie_staff),
                         fontSize = sp20,
                         textAlign = TextAlign.Center
                     )
@@ -806,12 +797,12 @@ fun ActorAndCrewComponent(
                             .fillMaxWidth()
                             .wrapContentHeight(),
                         contentPadding = PaddingValues(horizontal = dp16),
-                        horizontalArrangement = Arrangement.spacedBy(dp10)
+                        horizontalArrangement = Arrangement.spacedBy(space = dp10)
                     ) {
                         items(
                             items = crews
                         ) { crew ->
-                            PartnerComponent(partner = crew, goToPeople = goToPeople)
+                            CreditInfoComponent(creditInfo = crew, goToPeople = goToPeople)
                         }
                     }
                 }
@@ -821,40 +812,40 @@ fun ActorAndCrewComponent(
 }
 
 @Composable
-fun PartnerComponent(
-    partner: CreditInfo,
+fun CreditInfoComponent(
+    creditInfo: CreditInfo,
     goToPeople: (Int) -> Unit
 ) {
     Column(
         modifier = Modifier
             .width(width = dp200)
             .wrapContentHeight()
-            .bounceClick { goToPeople(partner.id ?: -1) }
+            .bounceClick { goToPeople(creditInfo.id ?: -1) }
     ) {
-        when (partner) {
+        when (creditInfo) {
             is Cast -> {
                 DynamicAsyncImageLoader(
                     modifier = Modifier
                         .fillMaxWidth()
                         .aspectRatio(ratio = PEOPLE_IMAGE_RATIO)
                         .clip(shape = RoundedCornerShape(size = dp10)),
-                    source = partner.profilePath ?: "",
+                    source = creditInfo.profilePath ?: "",
                     contentDescription = "ProfileImage"
                 )
                 Text(
-                    text = partner.character ?: "",
+                    text = creditInfo.character ?: "",
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     fontSize = sp12,
                 )
                 Text(
-                    text = partner.name ?: "",
+                    text = creditInfo.name ?: "",
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     fontSize = sp15
                 )
                 Text(
-                    text = partner.originalName ?: "",
+                    text = creditInfo.originalName ?: "",
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     fontSize = sp15
@@ -866,29 +857,29 @@ fun PartnerComponent(
                         .fillMaxWidth()
                         .aspectRatio(ratio = PEOPLE_IMAGE_RATIO)
                         .clip(shape = RoundedCornerShape(size = dp10)),
-                    source = partner.profilePath ?: "",
+                    source = creditInfo.profilePath ?: "",
                     contentDescription = "ProfileImage"
                 )
                 Text(
-                    text = partner.department ?: "",
+                    text = creditInfo.department ?: "",
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     fontSize = sp12
                 )
                 Text(
-                    text = partner.name ?: "",
+                    text = creditInfo.name ?: "",
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     fontSize = sp15
                 )
                 Text(
-                    text = partner.originalName ?: "",
+                    text = creditInfo.originalName ?: "",
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     fontSize = sp15
                 )
                 Text(
-                    text = partner.job ?: "",
+                    text = creditInfo.job ?: "",
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     fontSize = sp12
@@ -967,7 +958,7 @@ fun BoxScope.MovieList(
             }
 
             if (similarMovies.loadState.append is LoadState.Loading) {
-                item(span = { GridItemSpan(maxLineSpan) }) {
+                item(span = { GridItemSpan(currentLineSpan = maxLineSpan) }) {
                     CircularProgressComponent(
                         modifier = Modifier
                             .wrapContentSize()
@@ -976,7 +967,7 @@ fun BoxScope.MovieList(
                 }
             }
             if (similarMovies.loadState.append is LoadState.Error) {
-                item(span = { GridItemSpan(maxLineSpan) }) {
+                item(span = { GridItemSpan(currentLineSpan = maxLineSpan) }) {
                     PagingAppendErrorComponent(retry = { similarMovies.retry() })
                 }
             }
