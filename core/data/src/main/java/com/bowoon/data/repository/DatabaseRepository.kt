@@ -1,16 +1,17 @@
 package com.bowoon.data.repository
 
-import com.bowoon.model.Favorite
+import com.bowoon.model.Movie
+import com.bowoon.model.People
 import kotlinx.coroutines.flow.Flow
 
 interface DatabaseRepository {
-    fun getMovies(): Flow<List<Favorite>>
-    suspend fun insertMovie(movie: Favorite): Long
-    suspend fun deleteMovie(movie: Favorite)
-    suspend fun upsertMovies(movies: List<Favorite>)
+    fun getMovies(): Flow<List<Movie>>
+    suspend fun insertMovie(movie: Movie): Long
+    suspend fun deleteMovie(movie: Movie)
+    suspend fun upsertMovies(movies: List<Movie>)
 
-    fun getPeople(): Flow<List<Favorite>>
-    suspend fun insertPeople(people: Favorite): Long
-    suspend fun deletePeople(people: Favorite)
-    suspend fun upsertPeoples(peoples: List<Favorite>)
+    fun getPeople(): Flow<List<People>>
+    suspend fun insertPeople(people: People): Long
+    suspend fun deletePeople(people: People)
+    suspend fun upsertPeoples(peoples: List<People>)
 }

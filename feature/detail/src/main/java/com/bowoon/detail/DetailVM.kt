@@ -15,8 +15,8 @@ import com.bowoon.data.repository.PagingRepository
 import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.detail.navigation.DetailRoute
 import com.bowoon.domain.GetMovieDetailUseCase
-import com.bowoon.model.Favorite
 import com.bowoon.model.InternalData
+import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetailInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -72,13 +72,13 @@ class DetailVM @Inject constructor(
         detail.restart()
     }
 
-    fun insertMovie(movie: Favorite) {
+    fun insertMovie(movie: Movie) {
         viewModelScope.launch {
             databaseRepository.insertMovie(movie)
         }
     }
 
-    fun deleteMovie(movie: Favorite) {
+    fun deleteMovie(movie: Movie) {
         viewModelScope.launch {
             databaseRepository.deleteMovie(movie)
         }

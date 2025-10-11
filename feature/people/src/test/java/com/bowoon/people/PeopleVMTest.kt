@@ -3,7 +3,7 @@ package com.bowoon.people
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.testing.invoke
 import com.bowoon.domain.GetPeopleDetailUseCase
-import com.bowoon.model.Favorite
+import com.bowoon.model.Movie
 import com.bowoon.model.People
 import com.bowoon.people.navigation.PeopleRoute
 import com.bowoon.testing.model.combineCreditsTestData
@@ -52,7 +52,7 @@ class PeopleVMTest {
             databaseRepository =testDatabaseRepository
         )
         runBlocking {
-            testDatabaseRepository.insertPeople(Favorite(id = 0, title = "people_1", imagePath = "/peopleImagePath.png"))
+            testDatabaseRepository.insertPeople(people = People(id = 0, name = "people_1", profilePath = "/peopleImagePath.png"))
         }
     }
 
@@ -88,7 +88,7 @@ class PeopleVMTest {
         testDetailRepository.setPeopleDetail(people)
         testDetailRepository.setCombineCredits(combineCreditsTestData)
         testDetailRepository.setExternalIds(externalIdsTestData)
-        testDatabaseRepository.insertMovie(Favorite(id = 124, title = "people_124", imagePath = "/peopleImagePath.png"))
+        testDatabaseRepository.insertMovie(movie = Movie(id = 124, title = "people_124", posterPath = "/peopleImagePath.png"))
 
         assertEquals(
             viewModel.people.value,
@@ -105,7 +105,7 @@ class PeopleVMTest {
         testDetailRepository.setPeopleDetail(people)
         testDetailRepository.setCombineCredits(combineCreditsTestData)
         testDetailRepository.setExternalIds(externalIdsTestData)
-        testDatabaseRepository.deletePeople(Favorite(id = 124, title = "people_124", imagePath = "/peopleImagePath.png"))
+        testDatabaseRepository.deletePeople(people = People(id = 124, name = "people_124", profilePath = "/peopleImagePath.png"))
 
         assertEquals(
             viewModel.people.value,

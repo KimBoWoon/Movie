@@ -1,6 +1,7 @@
 package com.bowoon.favorite
 
-import com.bowoon.model.Favorite
+import com.bowoon.model.Movie
+import com.bowoon.model.People
 import com.bowoon.testing.repository.TestDatabaseRepository
 import com.bowoon.testing.repository.TestMovieAppDataRepository
 import com.bowoon.testing.utils.MainDispatcherRule
@@ -20,10 +21,10 @@ class FavoriteVMTest {
     private val testDatabaseRepository = TestDatabaseRepository()
     private val testMovieAppDataRepository = TestMovieAppDataRepository()
     private lateinit var viewModel: FavoriteVM
-    private val movie1 = Favorite(id = 0, title = "movie_1", imagePath = "/movieImagePath_0.png")
-    private val movie2 = Favorite(id = 1, title = "movie_2", imagePath = "/movieImagePath_1.png")
-    private val people1 = Favorite(id = 0, title = "people_1", imagePath = "/peopleImagePath_0.png")
-    private val people2 = Favorite(id = 1, title = "people_2", imagePath = "/peopleImagePath_1.png")
+    private val movie1 = Movie(id = 0, title = "movie_1", posterPath = "/movieImagePath_0.png")
+    private val movie2 = Movie(id = 1, title = "movie_2", posterPath = "/movieImagePath_1.png")
+    private val people1 = People(id = 0, name = "people_1", profilePath = "/peopleImagePath_0.png")
+    private val people2 = People(id = 1, name = "people_2", profilePath = "/peopleImagePath_1.png")
 
     @Before
     fun setup() {

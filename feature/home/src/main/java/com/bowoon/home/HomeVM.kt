@@ -2,10 +2,8 @@ package com.bowoon.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bowoon.common.Log
 import com.bowoon.common.Result
 import com.bowoon.common.asResult
-import com.bowoon.common.extension.formatStringTime
 import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.data.util.SyncManager
 import com.bowoon.model.MainMenu

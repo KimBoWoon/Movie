@@ -81,7 +81,7 @@ fun MyScreen(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        TitleComponent(title = stringResource(R.string.title_my_page))
+//        TitleComponent(title = stringResource(R.string.title_my_page))
         LazyColumn(
             modifier = Modifier.fillMaxSize()
         ) {

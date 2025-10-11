@@ -14,17 +14,23 @@ internal class MovieDaoTest : DatabaseTest() {
             MovieEntity(
                 id = 1,
                 timestamp = Instant.now().epochSecond,
-                posterPath = "/Movie_1.png"
+                posterPath = "/Movie_1.png",
+                title = "movie_1",
+                releaseDate = "2025-01-01"
             ),
             MovieEntity(
                 id = 2,
                 timestamp = Instant.now().epochSecond,
-                posterPath = "/Movie_2.png"
+                posterPath = "/Movie_2.png",
+                title = "movie_2",
+                releaseDate = "2025-01-02"
             ),
             MovieEntity(
                 id = 3,
                 timestamp = Instant.now().epochSecond,
-                posterPath = "/Movie_3.png"
+                posterPath = "/Movie_3.png",
+                title = "movie_3",
+                releaseDate = "2025-01-03"
             )
         )
 
@@ -42,17 +48,23 @@ internal class MovieDaoTest : DatabaseTest() {
             MovieEntity(
                 id = 1,
                 timestamp = Instant.now().epochSecond,
-                posterPath = "/Movie_1.png"
+                posterPath = "/Movie_1.png",
+                title = "movie_1",
+                releaseDate = "2025-01-01"
             ),
             MovieEntity(
                 id = 2,
                 timestamp = Instant.now().epochSecond,
-                posterPath = "/Movie_2.png"
+                posterPath = "/Movie_2.png",
+                title = "movie_2",
+                releaseDate = "2025-01-02"
             ),
             MovieEntity(
                 id = 3,
                 timestamp = Instant.now().epochSecond,
-                posterPath = "/Movie_3.png"
+                posterPath = "/Movie_3.png",
+                title = "movie_3",
+                releaseDate = "2025-01-03"
             )
         )
 
@@ -84,23 +96,31 @@ internal class MovieDaoTest : DatabaseTest() {
             MovieEntity(
                 id = 1,
                 timestamp = Instant.now().epochSecond,
-                posterPath = "/Movie_1.png"
+                posterPath = "/Movie_1.png",
+                title = "movie_1",
+                releaseDate = "2025-01-01"
             ),
             MovieEntity(
                 id = 2,
                 timestamp = Instant.now().epochSecond,
-                posterPath = "/Movie_2.png"
+                posterPath = "/Movie_2.png",
+                title = "movie_2",
+                releaseDate = "2025-01-02"
             ),
             MovieEntity(
                 id = 3,
                 timestamp = Instant.now().epochSecond,
-                posterPath = "/Movie_3.png"
+                posterPath = "/Movie_3.png",
+                title = "movie_3",
+                releaseDate = "2025-01-03"
             )
         )
         val movie = MovieEntity(
             id = 4,
             timestamp = Instant.now().epochSecond,
-            posterPath = "/Movie_4.png"
+            posterPath = "/Movie_4.png",
+            title = "movie_4",
+            releaseDate = "2025-01-04"
         )
 
         movieDao.upsertMovies(favoriteMovies)
@@ -114,7 +134,9 @@ internal class MovieDaoTest : DatabaseTest() {
             MovieEntity(
                 id = 3,
                 timestamp = Instant.now().epochSecond,
-                posterPath = "/Movie_4.png"
+                posterPath = "/Movie_4.png",
+                title = "movie_4",
+                releaseDate = "2025-01-04"
             )
         )
 
@@ -137,17 +159,23 @@ internal class MovieDaoTest : DatabaseTest() {
             MovieEntity(
                 id = 1,
                 timestamp = Instant.now().epochSecond,
-                posterPath = "/Movie_1.png"
+                posterPath = "/Movie_1.png",
+                title = "movie_1",
+                releaseDate = "2025-01-01"
             ),
             MovieEntity(
                 id = 2,
                 timestamp = Instant.now().epochSecond,
-                posterPath = "/Movie_2.png"
+                posterPath = "/Movie_2.png",
+                title = "movie_2",
+                releaseDate = "2025-01-02"
             ),
             MovieEntity(
                 id = 3,
                 timestamp = Instant.now().epochSecond,
-                posterPath = "/Movie_3.png"
+                posterPath = "/Movie_3.png",
+                title = "movie_3",
+                releaseDate = "2025-01-03"
             )
         )
 
