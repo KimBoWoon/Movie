@@ -130,7 +130,7 @@ fun MainComponent(
         val nowPlayingMoviesTitle = stringResource(id = R.string.now_playing_movies)
         val upcomingMoviesTitle = stringResource(id = R.string.upcoming_movies)
 
-        TitleComponent(title = stringResource(id = R.string.title_movie_info))
+//        TitleComponent(title = stringResource(id = R.string.title_movie_info))
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             state = lazyListState

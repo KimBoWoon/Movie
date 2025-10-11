@@ -168,7 +168,7 @@ fun SearchScreen(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        TitleComponent(title = stringResource(id = R.string.title_search))
+//        TitleComponent(title = stringResource(id = R.string.title_search))
         SearchBarComponent(
             keyword = keyword,
             searchType = searchType,

@@ -82,7 +82,7 @@ class MovieAppState(
 
         when (topLevelDestination) {
             TopLevelDestination.HOME -> navController.navigateToHome(topLevelNavOptions)
-            TopLevelDestination.SEARCH -> navController.navigateToSearch(topLevelNavOptions)
+//            TopLevelDestination.SEARCH -> navController.navigateToSearch(topLevelNavOptions)
             TopLevelDestination.FAVORITE -> navController.navigateToFavorite(topLevelNavOptions)
             TopLevelDestination.MY -> navController.navigateToMy(topLevelNavOptions)
         }

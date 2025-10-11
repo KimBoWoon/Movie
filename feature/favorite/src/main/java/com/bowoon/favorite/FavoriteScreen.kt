@@ -100,7 +100,7 @@ fun FavoriteScreen(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        TitleComponent(title = stringResource(id = R.string.feature_favorite_name))
+//        TitleComponent(title = stringResource(id = R.string.feature_favorite_name))
         TabComponent(
             tabs = favoriteTabs,
             pagerState = pagerState,

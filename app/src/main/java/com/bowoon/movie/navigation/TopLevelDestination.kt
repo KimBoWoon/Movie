@@ -36,13 +36,13 @@ enum class TopLevelDestination(
         route = HomeRoute::class,
         baseRoute = HomeRoute::class
     ),
-    SEARCH(
-        selectedIcon = Icons.Rounded.Search,
-        unselectedIcon = Icons.Outlined.Search,
-        iconTextId = com.bowoon.movie.feature.search.R.string.feature_search_name,
-        titleTextId = com.bowoon.movie.feature.search.R.string.feature_search_name,
-        route = SearchRoute::class
-    ),
+//    SEARCH(
+//        selectedIcon = Icons.Rounded.Search,
+//        unselectedIcon = Icons.Outlined.Search,
+//        iconTextId = com.bowoon.movie.feature.search.R.string.feature_search_name,
+//        titleTextId = com.bowoon.movie.feature.search.R.string.feature_search_name,
+//        route = SearchRoute::class
+//    ),
     FAVORITE(
         selectedIcon = Icons.Rounded.Favorite,
         unselectedIcon = Icons.Outlined.FavoriteBorder,
