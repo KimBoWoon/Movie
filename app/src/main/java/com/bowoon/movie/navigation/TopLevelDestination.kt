@@ -4,17 +4,14 @@ import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.Home
-import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.bowoon.favorite.navigation.FavoriteRoute
 import com.bowoon.home.navigation.HomeRoute
 import com.bowoon.my.navigation.MyRoute
-import com.bowoon.search.navigation.SearchRoute
 import kotlin.reflect.KClass
 
 /**

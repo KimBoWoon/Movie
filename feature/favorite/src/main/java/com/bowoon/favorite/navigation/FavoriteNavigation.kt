@@ -1,5 +1,6 @@
 package com.bowoon.favorite.navigation
 
+import androidx.annotation.Keep
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
@@ -8,6 +9,7 @@ import com.bowoon.favorite.FavoriteScreen
 import kotlinx.serialization.Serializable
 
 @Serializable
+@Keep
 data object FavoriteRoute
 
 fun NavController.navigateToFavorite(navOptions: NavOptions) = navigate(route = FavoriteRoute, navOptions)
