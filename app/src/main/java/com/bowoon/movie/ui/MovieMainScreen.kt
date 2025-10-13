@@ -29,9 +29,6 @@ import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -46,15 +43,11 @@ import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.bowoon.detail.navigation.DetailRoute
-import com.bowoon.favorite.navigation.FavoriteRoute
 import com.bowoon.firebase.LocalFirebaseLogHelper
-import com.bowoon.home.navigation.HomeRoute
 import com.bowoon.movie.MovieAppState
 import com.bowoon.movie.R
 import com.bowoon.movie.navigation.MovieAppNavHost
-import com.bowoon.my.navigation.MyRoute
-import com.bowoon.people.navigation.PeopleRoute
+import com.bowoon.movie.navigation.TopLevelDestination
 import com.bowoon.search.navigation.SearchRoute
 import com.bowoon.ui.BottomNavigationBarItem
 import com.bowoon.ui.MovieNavigationDefaults
@@ -74,16 +67,8 @@ fun MovieMainScreen(
     appState: MovieAppState,
     snackbarHostState: SnackbarHostState
 ) {
-    var isBottomNavigationBarVisible by remember { mutableStateOf(value = true) }
     val currentBackStack by appState.navController.currentBackStackEntryAsState()
-
-    isBottomNavigationBarVisible = when (currentBackStack?.destination?.route) {
-        HomeRoute.javaClass.name,
-        SearchRoute.javaClass.name,
-        FavoriteRoute.javaClass.name,
-        MyRoute.javaClass.name -> true
-        else -> false
-    }
+    val topHierarchy = currentBackStack?.destination?.route in TopLevelDestination.entries.map { it.route.qualifiedName }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -98,7 +83,7 @@ fun MovieMainScreen(
 //        },
         bottomBar = {
             AnimatedVisibility(
-                visible = isBottomNavigationBarVisible,
+                visible = topHierarchy,
                 label = "BottomNavigationAnimation",
                 enter = expandVertically(),
                 exit = shrinkVertically(),
@@ -132,9 +117,7 @@ fun MovieMainScreen(
                 WindowInsets.Companion.statusBars.getTop(density = this)
             }
             AnimatedVisibility(
-                visible = currentBackStack?.destination?.route != SearchRoute.javaClass.name &&
-                        currentBackStack?.destination?.route != "${DetailRoute::class.java.name}/{id}" &&
-                        currentBackStack?.destination?.route != "${PeopleRoute::class.java.name}/{id}",
+                visible = topHierarchy,
                 label = "TopSearchBarAnimation",
                 enter = expandVertically(),
                 exit = shrinkVertically(),
