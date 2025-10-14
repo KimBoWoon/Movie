@@ -180,7 +180,7 @@ fun MovieNavigation(appState: MovieAppState) {
         contentColor = MovieNavigationDefaults.navigationContentColor()
     ) {
         appState.topLevelDestinations.forEach { destination ->
-            val selected = currentDestination.isRouteInHierarchy(route = destination.baseRoute)
+            val selected = currentDestination.isRouteInHierarchy(route = destination.route)
             BottomNavigationBarItem(
                 selected = selected,
                 label = context.getString(destination.titleTextId),
