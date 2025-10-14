@@ -20,37 +20,24 @@ import kotlin.reflect.KClass
 enum class TopLevelDestination(
     val selectedIcon: ImageVector,
     val unselectedIcon: ImageVector,
-    @param:StringRes val iconTextId: Int,
     @param:StringRes val titleTextId: Int,
     val route: KClass<*>,
-    val baseRoute: KClass<*> = route,
 ) {
     HOME(
         selectedIcon = Icons.Rounded.Home,
         unselectedIcon = Icons.Outlined.Home,
-        iconTextId = com.bowoon.movie.feature.home.R.string.feature_home_name,
         titleTextId = com.bowoon.movie.feature.home.R.string.feature_home_name,
-        route = HomeRoute::class,
-        baseRoute = HomeRoute::class
+        route = HomeRoute::class
     ),
-//    SEARCH(
-//        selectedIcon = Icons.Rounded.Search,
-//        unselectedIcon = Icons.Outlined.Search,
-//        iconTextId = com.bowoon.movie.feature.search.R.string.feature_search_name,
-//        titleTextId = com.bowoon.movie.feature.search.R.string.feature_search_name,
-//        route = SearchRoute::class
-//    ),
     FAVORITE(
         selectedIcon = Icons.Rounded.Favorite,
         unselectedIcon = Icons.Outlined.FavoriteBorder,
-        iconTextId = com.bowoon.movie.feature.favorite.R.string.feature_favorite_name,
         titleTextId = com.bowoon.movie.feature.favorite.R.string.feature_favorite_name,
         route = FavoriteRoute::class
     ),
     MY(
         selectedIcon = Icons.Rounded.Settings,
         unselectedIcon = Icons.Outlined.Settings,
-        iconTextId = com.bowoon.movie.feature.my.R.string.feature_my_name,
         titleTextId = com.bowoon.movie.feature.my.R.string.feature_my_name,
         route = MyRoute::class
     )

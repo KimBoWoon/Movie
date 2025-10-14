@@ -30,7 +30,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bowoon.common.Log
 import com.bowoon.data.util.PEOPLE_IMAGE_RATIO
@@ -42,7 +42,6 @@ import com.bowoon.movie.feature.favorite.R
 import com.bowoon.ui.FavoriteButton
 import com.bowoon.ui.components.ScrollToTopComponent
 import com.bowoon.ui.components.TabComponent
-import com.bowoon.ui.components.TitleComponent
 import com.bowoon.ui.image.DynamicAsyncImageLoader
 import com.bowoon.ui.utils.bounceClick
 import com.bowoon.ui.utils.dp10
@@ -100,7 +99,6 @@ fun FavoriteScreen(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-//        TitleComponent(title = stringResource(id = R.string.feature_favorite_name))
         TabComponent(
             tabs = favoriteTabs,
             pagerState = pagerState,

@@ -1,5 +1,3 @@
-import org.gradle.api.internal.provider.DefaultProviderFactory
-import org.gradle.process.internal.DefaultExecOperations
 import java.io.ByteArrayOutputStream
 
 plugins {
@@ -22,7 +20,7 @@ tasks.register("createReleaseNote") {
 //            standardOutput = it
 //        }
         exec {
-            commandLine("git", "log", "--oneline", "HEAD..develop")
+            commandLine("git", "log", "HEAD..develop")
             standardOutput = it
         }
         it.toString().trim()
