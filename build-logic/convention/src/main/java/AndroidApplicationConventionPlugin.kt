@@ -97,6 +97,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
 
             dependencies {
                 add("testImplementation", project(":core:testing"))
+                add("implementation", libs.findLibrary("androidx.compose.material3.icons").get())
                 add("implementation", libs.findLibrary("androidx.core.ktx").get())
                 add("implementation", libs.findLibrary("androidx.appcompat").get())
                 add("testImplementation", libs.findLibrary("junit").get())

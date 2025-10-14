@@ -22,7 +22,7 @@ tasks.register("createReleaseNote") {
 //            standardOutput = it
 //        }
         exec {
-            commandLine("git", "log", "--oneline")
+            commandLine("git", "log", "--oneline", "HEAD..develop")
             standardOutput = it
         }
         it.toString().trim()

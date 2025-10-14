@@ -341,6 +341,7 @@ fun VideosComponent(
                                 pagerState.scrollToPage(index + 1)
                             }
                         }
+                        PlayerConstants.PlayerError.REQUEST_MISSING_HTTP_REFERER -> Log.e("REQUEST_MISSING_HTTP_REFERER")
                     }
                 }
 
