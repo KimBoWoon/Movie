@@ -34,7 +34,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bowoon.common.getVersionName
 import com.bowoon.firebase.LocalFirebaseLogHelper
@@ -45,7 +45,6 @@ import com.bowoon.model.MovieAppData
 import com.bowoon.model.PosterSize
 import com.bowoon.model.Region
 import com.bowoon.movie.feature.my.R
-import com.bowoon.ui.components.TitleComponent
 import com.bowoon.ui.utils.dp16
 import com.bowoon.ui.utils.dp50
 import com.bowoon.ui.utils.dp500
@@ -81,7 +80,6 @@ fun MyScreen(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-//        TitleComponent(title = stringResource(R.string.title_my_page))
         LazyColumn(
             modifier = Modifier.fillMaxSize()
         ) {

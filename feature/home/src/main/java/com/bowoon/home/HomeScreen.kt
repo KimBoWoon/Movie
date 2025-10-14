@@ -29,7 +29,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bowoon.common.Log
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
@@ -38,7 +38,6 @@ import com.bowoon.model.MainMenu
 import com.bowoon.model.Movie
 import com.bowoon.movie.feature.home.R
 import com.bowoon.ui.components.CircularProgressComponent
-import com.bowoon.ui.components.TitleComponent
 import com.bowoon.ui.image.DynamicAsyncImageLoader
 import com.bowoon.ui.utils.bounceClick
 import com.bowoon.ui.utils.dp10
@@ -130,7 +129,6 @@ fun MainComponent(
         val nowPlayingMoviesTitle = stringResource(id = R.string.now_playing_movies)
         val upcomingMoviesTitle = stringResource(id = R.string.upcoming_movies)
 
-//        TitleComponent(title = stringResource(id = R.string.title_movie_info))
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             state = lazyListState
@@ -160,13 +158,13 @@ fun LazyListScope.horizontalMovieListComponent(
 ) {
     item {
         Text(
-            modifier = Modifier.padding(dp16).fillMaxWidth(),
+            modifier = Modifier.padding(all = dp16).fillMaxWidth(),
             text = title
         )
         LazyRow(
             modifier = Modifier.wrapContentSize(),
             contentPadding = PaddingValues(horizontal = dp16),
-            horizontalArrangement = Arrangement.spacedBy(dp16)
+            horizontalArrangement = Arrangement.spacedBy(space = dp16)
         ) {
             items(
                 count = movies.size,
