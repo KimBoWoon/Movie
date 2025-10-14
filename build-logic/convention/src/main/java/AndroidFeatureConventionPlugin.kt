@@ -21,6 +21,7 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
 
             dependencies {
                 add("implementation", project(":core:ui"))
+                add("implementation", libs.findLibrary("androidx.compose.material3.icons").get())
                 add("implementation", libs.findLibrary("androidx.compose.hilt.navigation").get())
                 add("implementation", libs.findLibrary("androidx.lifecycle.runtimeCompose").get())
                 add("implementation", libs.findLibrary("androidx.lifecycle.viewModelCompose").get())

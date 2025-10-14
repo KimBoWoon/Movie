@@ -1,9 +1,9 @@
 [versions]
 # kotlin
-kotlin = "2.2.10"
+kotlin = "2.2.20"
 
 # plugin
-googleService = "4.4.3"
+googleService = "4.4.4"
 
 # agp
 agp = "8.13.0"
@@ -12,30 +12,31 @@ agp = "8.13.0"
 ksp = "2.1.20-2.0.0"
 
 # jvm
-jetbrainsKotlinJvm = "2.2.10"
+jetbrainsKotlinJvm = "2.2.20"
 
 # jetpack
 coreKtx = "1.17.0"
-androidxLifecycle = "2.9.3"
+androidxLifecycle = "2.9.4"
 appcompat = "1.7.1"
 constraintlayout = "2.2.1"
-material = "1.12.0"
-activity = "1.10.1"
+material = "1.13.0"
+activity = "1.11.0"
 jetpack-fragment = "1.8.9"
 datastore = "1.1.7"
-room = "2.7.2"
-workManager = "2.10.3"
+room = "2.8.2"
+workManager = "2.10.5"
 splash = "1.0.1"
 startup = "1.2.0"
 exoPlayer = "1.8.0"
 pagingTesting = "3.3.6"
+material3-icons = "1.6.0"
 
 # compose
-composeBom = "2025.08.01"
-activityCompose = "1.10.1"
+composeBom = "2025.10.00"
+activityCompose = "1.11.0"
 compose-compiler = "1.4.5"
-compose-navigation = "2.9.3"
-compose-hilt-navigation = "1.2.0"
+compose-navigation = "2.9.5"
+compose-hilt-navigation = "1.3.0"
 compose-paging = "3.3.6"
 androidxNavigation = "2.8.4"
 constraintLayout = "1.1.1"
@@ -51,15 +52,15 @@ kotlinxCoroutines = "1.10.2"
 espressoCore = "3.7.0"
 
 # hilt
-hilt = "2.57.1"
-hiltExt = "1.2.0"
+hilt = "2.57.2"
+hiltExt = "1.3.0"
 
 # retrofit2
-mockwebserver = "5.1.0"
+mockwebserver = "5.2.1"
 retrofit2 = "3.0.0"
 
 # okhttp
-okhttp-okHttp = "5.1.0"
+okhttp-okHttp = "5.2.1"
 okhttp-profiler = "1.0.8"
 
 # kotlin serialization
@@ -89,10 +90,10 @@ turbine = "1.2.1"
 threentenabp = "1.4.9"
 
 # youtube player
-youtubePlayer = "12.1.2"
+youtubePlayer = "13.0.0"
 
 # lottie
-lottieCompose = "6.6.7"
+lottieCompose = "6.6.10"
 
 [libraries]
 # gradle plugin
@@ -145,6 +146,7 @@ androidx-compose-constraintLayout = { group = "androidx.constraintlayout", name 
 # material
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-compose-material3-adaptive = { group = "androidx.compose.material3.adaptive", name = "adaptive" }
+androidx-compose-material3-icons = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "material3-icons" }
 
 # junit
 junit = { group = "junit", name = "junit", version.ref = "junit" }
