@@ -20,13 +20,15 @@ tasks.register("createReleaseNote") {
 //            standardOutput = it
 //        }
         exec {
-            commandLine("git", "log", "HEAD..develop")
+            commandLine("git", "log", "HEAD..develop", "--oneline")
             standardOutput = it
         }
         it.toString().trim()
     }
     releaseNote.delete()
-    releaseNote.writeText(text = logs.trimIndent())
+    logs.takeIf { it.isNotEmpty() }?.let {
+        releaseNote.writeText(text = it.trimIndent())
+    }
 }
 
 dependencies {
