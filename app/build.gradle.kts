@@ -26,9 +26,9 @@ tasks.register("createReleaseNote") {
         it.toString().trim()
     }
     releaseNote.delete()
-    logs.takeIf { it.isNotEmpty() }?.let {
-        releaseNote.writeText(text = it.trimIndent())
-    }
+    releaseNote.writeText(
+        text = logs.takeIf { it.isNotEmpty() }?.trimIndent() ?: "empty logs..."
+    )
 }
 
 dependencies {
