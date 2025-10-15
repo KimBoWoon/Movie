@@ -10,25 +10,33 @@ plugins {
 
 tasks.register("createReleaseNote") {
     val releaseNote = File("releaseNote.txt")
-    val logs = ByteArrayOutputStream().use {
-//        DefaultProviderFactory().exec {
-//            commandLine("git", "log", "release/movie_v1.0.0", "--oneline")
-//            standardOutput = it
-//        }
-//        DefaultExecOperations().exec {
-//            commandLine = listOf("git", "log", "release/movie_v1.0.0", "--oneline")
-//            standardOutput = it
-//        }
+    val logs = ByteArrayOutputStream().use { os ->
         exec {
-            commandLine("git", "log", "HEAD", "..", "develop", "--oneline")
-            standardOutput = it
+            executable = "git"
+            args = listOf<String>("log", "HEAD..develop", "--oneline")
+            standardOutput = os
         }
-        it.toString().trim()
+        os.toString().trim()
     }
     releaseNote.delete()
     releaseNote.writeText(
         text = logs.takeIf { it.isNotEmpty() }?.trimIndent() ?: "empty logs..."
     )
+//    val logs = ByteArrayOutputStream().use {
+////        DefaultProviderFactory().exec {
+////            commandLine("git", "log", "release/movie_v1.0.0", "--oneline")
+////            standardOutput = it
+////        }
+////        DefaultExecOperations().exec {
+////            commandLine = listOf("git", "log", "release/movie_v1.0.0", "--oneline")
+////            standardOutput = it
+////        }
+////        exec {
+////            commandLine("git", "log", "HEAD", "..", "develop", "--oneline")
+////            standardOutput = it
+////        }
+////        it.toString().trim()
+//    }
 }
 
 dependencies {
