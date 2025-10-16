@@ -13,7 +13,7 @@ tasks.register("createReleaseNote") {
     val logs = ByteArrayOutputStream().use { os ->
         exec {
             executable = "git"
-            args = listOf<String>("log", """--pretty=format:(#%h) %cn %s""")
+            args = listOf<String>("log", """--pretty=format:(#%h) %cn %s""", "HEAD..develop")
             standardOutput = os
         }
         os.toString().trim()
