@@ -39,7 +39,7 @@ jobs:
         run: ./gradlew assembleProdRelease
       - name: create release note
 #        run: ./gradlew createReleaseNote
-        run: git log --pretty=format:"(#%h) %cn %s" HEAD..develop > releaseNote.txt
+        run: git log --pretty=format:"(#%h) %cn %s" HEAD..origin/develop > releaseNote.txt
       - name: upload artifact to Firebase App Distribution
         uses: wzieba/Firebase-Distribution-Github-Action@v1.7.0
         with:
