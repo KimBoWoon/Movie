@@ -51,6 +51,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.layout.onFirstVisible
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -167,7 +170,6 @@ fun SearchScreen(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-//        TitleComponent(title = stringResource(id = R.string.title_search))
         SearchBarComponent(
             keyword = keyword,
             searchType = searchType,
@@ -217,6 +219,7 @@ fun SearchBarComponent(
 ) {
     val scope = rememberCoroutineScope()
     val focusManager = LocalFocusManager.current
+    val focusRequester = remember { FocusRequester() }
     val keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search, keyboardType = KeyboardType.Text)
     val keyboardActions = KeyboardActions(
         onDone = {
@@ -243,7 +246,9 @@ fun SearchBarComponent(
             .fillMaxWidth()
             .height(height = dp40)
             .clip(shape = RoundedCornerShape(percent = 50))
-            .background(color = MaterialTheme.colorScheme.inverseOnSurface),
+            .background(color = MaterialTheme.colorScheme.inverseOnSurface)
+            .focusRequester(focusRequester = focusRequester)
+            .onFirstVisible(callback = { focusRequester.requestFocus() }),
         value = keyword,
         onValueChange = {
             Log.d(it)

@@ -155,7 +155,7 @@ fun PeopleDetailComponent(
     val toggle = remember { mutableStateOf(value = false) }
     val peopleImagesHeight = remember { mutableStateOf(value = dp0) }
     val peopleInfoHeight by animateDpAsState(
-        targetValue = if (toggle.value) peopleImagesHeight.value / 3 else peopleImagesHeight.value
+        targetValue = if (toggle.value) peopleImagesHeight.value / 4 else peopleImagesHeight.value
     )
 
     Column(

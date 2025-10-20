@@ -29,7 +29,7 @@ splash = "1.0.1"
 startup = "1.2.0"
 exoPlayer = "1.8.0"
 pagingTesting = "3.3.6"
-material3-icons = "1.6.0"
+material3-icons = "1.7.8"
 
 # compose
 composeBom = "2025.10.00"

@@ -13,36 +13,15 @@ tasks.register("createReleaseNote") {
     val logs = ByteArrayOutputStream().use { os ->
         exec {
             executable = "git"
-            args = listOf<String>("log", """--pretty=format:(#%h) %cn %s""")
+            args = listOf<String>("log", "--pretty=format:(#%h) %cn %s")
             standardOutput = os
         }
-//        DefaultProviderFactory().exec {
-//            executable = "git"
-//            args = listOf<String>("log", """--pretty=format:(#%h) %cn %s""")
-//            commandLine = listOf<String>("HEAD..origin/develop")
-//            standardOutput = os
-//        }
         os.toString().trim()
     }
     releaseNote.delete()
     releaseNote.writeText(
         text = logs.takeIf { it.isNotEmpty() }?.trimIndent() ?: "empty logs..."
     )
-//    val logs = ByteArrayOutputStream().use {
-//        DefaultProviderFactory().exec {
-//            commandLine("git", "log", "release/movie_v1.0.0", "--oneline")
-//            standardOutput = it
-//        }
-//        DefaultExecOperations().exec {
-//            commandLine = listOf("git", "log", "release/movie_v1.0.0", "--oneline")
-//            standardOutput = it
-//        }
-////        exec {
-////            commandLine("git", "log", "HEAD", "..", "develop", "--oneline")
-////            standardOutput = it
-////        }
-////        it.toString().trim()
-//    }
 }
 
 dependencies {
