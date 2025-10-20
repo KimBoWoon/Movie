@@ -96,13 +96,13 @@ class SearchVM @Inject constructor(
 
     fun updateKeyword(keyword: String) {
         searchQuery = keyword
-        viewModelScope.launch { recommendKeywordFlow.emit(keyword) }
+        viewModelScope.launch { recommendKeywordFlow.emit(value = keyword) }
     }
 
     fun updateSearchType(searchType: SearchType) {
         savedStateHandle[SEARCH_TYPE] = searchType
         viewModelScope.launch {
-            searchResult.emit(SearchUiState.SearchHint)
+            searchResult.emit(value = SearchUiState.SearchHint)
         }
     }
 

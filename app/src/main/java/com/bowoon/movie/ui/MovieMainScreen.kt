@@ -5,13 +5,11 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -34,7 +32,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -73,22 +70,38 @@ fun MovieMainScreen(
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         snackbarHost = { SnackbarHost(modifier = Modifier.semantics { contentDescription = "snackbar" }, hostState = snackbarHostState) },
-//        topBar = {
-//            CenterAlignedTopAppBar(
-////                modifier = Modifier.height(height = dp40),
-//                title = {
-//                    Text(text = "ScaffoldTitle")
-//                }
-//            )
-//        },
+        topBar = {
+            AnimatedVisibility(
+                modifier = Modifier.statusBarsPadding(),
+                visible = topHierarchy,
+                label = "TopSearchBarAnimation",
+                enter = expandVertically(),
+                exit = shrinkVertically(),
+                content = {
+                    Box(
+                        modifier = Modifier
+                            .padding(top = dp10, bottom = dp10, start = dp16, end = dp16)
+                            .fillMaxWidth()
+                            .height(height = dp40)
+                            .clip(shape = RoundedCornerShape(percent = 50))
+                            .background(color = MaterialTheme.colorScheme.inverseOnSurface)
+                            .bounceClick(onClick = { appState.navController.navigate(SearchRoute) }),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "검색으로 넘어가기",
+                            color = Color.White
+                        )
+                    }
+                }
+            )
+        },
         bottomBar = {
             AnimatedVisibility(
                 visible = topHierarchy,
                 label = "BottomNavigationAnimation",
                 enter = expandVertically(),
                 exit = shrinkVertically(),
-//                enter = slideIn(animationSpec = tween(durationMillis = 500), initialOffset = { IntOffset(x = 0, y = it.height) }),
-//                exit = slideOut(animationSpec = tween(durationMillis = 500), targetOffset = { IntOffset(x = 0, y = it.height) }),
                 content = {
                     MovieNavigation(appState = appState)
                 }
@@ -110,51 +123,17 @@ fun MovieMainScreen(
             }
         }
 
-        Column(
-            modifier = Modifier.padding(paddingValues = innerPadding)
-        ) {
-            val statusBarHeight = with (receiver = LocalDensity.current) {
-                WindowInsets.Companion.statusBars.getTop(density = this)
+        MovieAppNavHost(
+            modifier = Modifier.padding(paddingValues = innerPadding),
+            appState = appState,
+            onShowSnackbar = { message, action ->
+                snackbarHostState.showSnackbar(
+                    message = message,
+                    actionLabel = action,
+                    duration = Short,
+                ) == ActionPerformed
             }
-            AnimatedVisibility(
-                visible = topHierarchy,
-                label = "TopSearchBarAnimation",
-                enter = expandVertically(),
-                exit = shrinkVertically(),
-//                enter = slideIn(animationSpec = tween(durationMillis = 500), initialOffset = { IntOffset(x = 0, y = -it.height - statusBarHeight) }),
-//                exit = slideOut(animationSpec = tween(durationMillis = 500), targetOffset = { IntOffset(x = 0, y = -it.height - statusBarHeight) }),
-                content = {
-                    Box(
-                        modifier = Modifier
-                            .padding(top = dp10, bottom = dp10, start = dp16, end = dp16)
-                            .fillMaxWidth()
-                            .height(height = dp40)
-                            .clip(shape = RoundedCornerShape(percent = 50))
-                            .background(color = MaterialTheme.colorScheme.inverseOnSurface)
-                            .bounceClick(
-                                onClick = { appState.navController.navigate(SearchRoute) }
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "검색으로 넘어가기",
-                            color = Color.White
-                        )
-                    }
-                }
-            )
-            MovieAppNavHost(
-                modifier = Modifier,
-                appState = appState,
-                onShowSnackbar = { message, action ->
-                    snackbarHostState.showSnackbar(
-                        message = message,
-                        actionLabel = action,
-                        duration = Short,
-                    ) == ActionPerformed
-                }
-            )
-        }
+        )
     }
 }
 
@@ -192,5 +171,5 @@ fun MovieNavigation(appState: MovieAppState) {
     }
 }
 
-private fun NavDestination?.isRouteInHierarchy(route: KClass<*>) =
+private fun NavDestination?.isRouteInHierarchy(route: KClass<*>): Boolean =
     this?.hierarchy?.any { it.hasRoute(route) } ?: false
