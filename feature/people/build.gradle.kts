@@ -15,7 +15,7 @@ dependencies {
         projects.core.domain,
         projects.core.model,
         projects.core.firebase,
-        libs.androidx.navigation.compose,
+        libs.androidx.navigation3.runtime,
         libs.androidx.compose.hilt.navigation
     ).forEach {
         implementation(it)

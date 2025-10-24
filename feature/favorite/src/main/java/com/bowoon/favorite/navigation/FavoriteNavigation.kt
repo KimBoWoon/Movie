@@ -5,12 +5,13 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
+import androidx.navigation3.runtime.NavKey
 import com.bowoon.favorite.FavoriteScreen
 import kotlinx.serialization.Serializable
 
 @Serializable
 @Keep
-data object FavoriteRoute
+data object FavoriteRoute : NavKey
 
 fun NavController.navigateToFavorite(navOptions: NavOptions) = navigate(route = FavoriteRoute, navOptions)
 

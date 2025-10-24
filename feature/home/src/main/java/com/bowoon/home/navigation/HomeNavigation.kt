@@ -5,12 +5,13 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
+import androidx.navigation3.runtime.NavKey
 import com.bowoon.home.HomeScreen
 import kotlinx.serialization.Serializable
 
 @Serializable
 @Keep
-data object HomeRoute
+data object HomeRoute : NavKey
 
 fun NavController.navigateToHome(navOptions: NavOptions) = navigate(route = HomeRoute, navOptions)
 

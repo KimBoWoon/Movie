@@ -4,13 +4,14 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.compose.composable
+import androidx.navigation3.runtime.NavKey
 import com.bowoon.people.PeopleScreen
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class PeopleRoute(
     val id: Int
-)
+) : NavKey
 
 fun NavController.navigateToPeople(
     id: Int,

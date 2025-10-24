@@ -4,11 +4,12 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
+import androidx.navigation3.runtime.NavKey
 import com.bowoon.search.SearchScreen
 import kotlinx.serialization.Serializable
 
 @Serializable
-data object SearchRoute
+data object SearchRoute : NavKey
 
 fun NavController.navigateToSearch(navOptions: NavOptions) = navigate(route = SearchRoute, navOptions)
 

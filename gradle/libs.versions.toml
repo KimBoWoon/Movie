@@ -30,6 +30,7 @@ startup = "1.2.0"
 exoPlayer = "1.8.0"
 pagingTesting = "3.3.6"
 material3-icons = "1.7.8"
+androidx-navigation3 = "1.0.0-beta01"
 
 # compose
 composeBom = "2025.10.00"
@@ -142,6 +143,8 @@ androidx-navigation-compose = { group = "androidx.navigation", name = "navigatio
 androidx-navigation-testing = { group = "androidx.navigation", name = "navigation-testing", version.ref = "compose-navigation" }
 androidx-compose-material3-navigationSuite = { group = "androidx.compose.material3", name = "material3-adaptive-navigation-suite" }
 androidx-compose-constraintLayout = { group = "androidx.constraintlayout", name = "constraintlayout-compose", version.ref = "constraintLayout"}
+androidx-navigation3-runtime = { group = "androidx.navigation3", name = "navigation3-runtime", version.ref = "androidx-navigation3" }
+androidx-navigation3-ui = { group = "androidx.navigation3", name = "navigation3-ui", version.ref = "androidx-navigation3" }
 
 # material
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }

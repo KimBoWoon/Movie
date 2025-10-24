@@ -4,13 +4,14 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.compose.composable
+import androidx.navigation3.runtime.NavKey
 import com.bowoon.series.SeriesScreen
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class SeriesRoute(
     val id: Int
-)
+) : NavKey
 
 fun NavController.navigateToSeries(
     id: Int,

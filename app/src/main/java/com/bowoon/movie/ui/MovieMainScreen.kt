@@ -21,9 +21,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult.ActionPerformed
 import androidx.compose.material3.Text
-import androidx.compose.material3.adaptive.WindowAdaptiveInfo
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
-import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -36,10 +33,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavDestination
-import androidx.navigation.NavDestination.Companion.hasRoute
-import androidx.navigation.NavDestination.Companion.hierarchy
-import androidx.navigation.compose.currentBackStackEntryAsState
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.movie.MovieAppState
 import com.bowoon.movie.R
@@ -56,7 +49,6 @@ import com.bowoon.ui.utils.dp10
 import com.bowoon.ui.utils.dp16
 import com.bowoon.ui.utils.dp40
 import com.bowoon.ui.utils.dp50
-import kotlin.reflect.KClass
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,8 +56,7 @@ fun MovieMainScreen(
     appState: MovieAppState,
     snackbarHostState: SnackbarHostState
 ) {
-    val currentBackStack by appState.navController.currentBackStackEntryAsState()
-    val topHierarchy = currentBackStack?.destination?.route in TopLevelDestination.entries.map { it.route.qualifiedName }
+    val topHierarchy = appState.backstack.last() in TopLevelDestination.entries.map { it.route }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -85,7 +76,7 @@ fun MovieMainScreen(
                             .height(height = dp40)
                             .clip(shape = RoundedCornerShape(percent = 50))
                             .background(color = MaterialTheme.colorScheme.inverseOnSurface)
-                            .bounceClick(onClick = { appState.navController.navigate(SearchRoute) }),
+                            .bounceClick(onClick = { appState.backstack.add(SearchRoute) }),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
@@ -139,12 +130,9 @@ fun MovieMainScreen(
 
 @Composable
 fun MovieNavigation(appState: MovieAppState) {
-    val windowAdaptiveInfo: WindowAdaptiveInfo = currentWindowAdaptiveInfo()
-    val layoutType = NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(windowAdaptiveInfo)
     val context = LocalContext.current
-    val currentDestination = appState.currentDestination
 
-    LocalFirebaseLogHelper.current.sendLog("Navigation", "layoutType -> $layoutType")
+    LocalFirebaseLogHelper.current.sendLog("Navigation", "create navigation bar")
 
     NavigationBar(
         modifier = Modifier
@@ -159,17 +147,13 @@ fun MovieNavigation(appState: MovieAppState) {
         contentColor = MovieNavigationDefaults.navigationContentColor()
     ) {
         appState.topLevelDestinations.forEach { destination ->
-            val selected = currentDestination.isRouteInHierarchy(route = destination.route)
             BottomNavigationBarItem(
-                selected = selected,
+                selected = appState.backstack.last() == destination.route,
                 label = context.getString(destination.titleTextId),
                 selectedIcon = destination.selectedIcon,
                 unSelectedIcon = destination.unselectedIcon,
-                onClick = { appState.navigateToTopLevelDestination(topLevelDestination = destination) }
+                onClick = { appState.navigateToTopLevelDestination(navKey = destination.route) }
             )
         }
     }
 }
-
-private fun NavDestination?.isRouteInHierarchy(route: KClass<*>): Boolean =
-    this?.hierarchy?.any { it.hasRoute(route) } ?: false

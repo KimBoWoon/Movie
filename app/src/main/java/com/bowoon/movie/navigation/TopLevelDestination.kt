@@ -9,10 +9,10 @@ import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.navigation3.runtime.NavKey
 import com.bowoon.favorite.navigation.FavoriteRoute
 import com.bowoon.home.navigation.HomeRoute
 import com.bowoon.my.navigation.MyRoute
-import kotlin.reflect.KClass
 
 /**
  * 앱 최상단 내비게이션 바
@@ -21,24 +21,24 @@ enum class TopLevelDestination(
     val selectedIcon: ImageVector,
     val unselectedIcon: ImageVector,
     @param:StringRes val titleTextId: Int,
-    val route: KClass<*>,
+    val route: NavKey,
 ) {
     HOME(
         selectedIcon = Icons.Rounded.Home,
         unselectedIcon = Icons.Outlined.Home,
         titleTextId = com.bowoon.movie.feature.home.R.string.feature_home_name,
-        route = HomeRoute::class
+        route = HomeRoute
     ),
     FAVORITE(
         selectedIcon = Icons.Rounded.Favorite,
         unselectedIcon = Icons.Outlined.FavoriteBorder,
         titleTextId = com.bowoon.movie.feature.favorite.R.string.feature_favorite_name,
-        route = FavoriteRoute::class
+        route = FavoriteRoute
     ),
     MY(
         selectedIcon = Icons.Rounded.Settings,
         unselectedIcon = Icons.Outlined.Settings,
         titleTextId = com.bowoon.movie.feature.my.R.string.feature_my_name,
-        route = MyRoute::class
+        route = MyRoute
     )
 }

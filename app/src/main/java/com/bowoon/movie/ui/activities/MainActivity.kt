@@ -17,10 +17,12 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation3.runtime.rememberNavBackStack
 import com.bowoon.common.AppDoubleBackToExit
 import com.bowoon.common.isSystemInDarkTheme
 import com.bowoon.data.util.NetworkMonitor
 import com.bowoon.firebase.LocalFirebaseLogHelper
+import com.bowoon.home.navigation.HomeRoute
 import com.bowoon.movie.MovieFirebase
 import com.bowoon.movie.R
 import com.bowoon.movie.rememberMovieAppState
@@ -95,7 +97,7 @@ class MainActivity : ComponentActivity() {
                 LocalFirebaseLogHelper.current.sendLog(name = javaClass.simpleName, message = "compose start!")
 
                 MovieTheme(darkTheme = darkTheme) {
-                    val appState = rememberMovieAppState(networkMonitor = networkMonitor)
+                    val appState = rememberMovieAppState(networkMonitor = networkMonitor, backstack = rememberNavBackStack(HomeRoute))
                     val snackbarHostState = remember { SnackbarHostState() }
 
                     MovieMainScreen(
