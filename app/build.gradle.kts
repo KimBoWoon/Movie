@@ -44,6 +44,8 @@ dependencies {
         libs.coil.compose,
         libs.androidx.navigation3.runtime,
         libs.androidx.navigation3.ui,
+        libs.androidx.lifecycle.viewmodel.navigation3,
+        libs.androidx.compose.hilt.navigation,
         libs.androidx.compose.material3.navigationSuite,
         libs.threetenabp,
         libs.androidx.work.ktx,

@@ -1,9 +1,7 @@
 package com.bowoon.detail
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.toRoute
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
@@ -13,7 +11,6 @@ import com.bowoon.common.restartableStateIn
 import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.data.repository.PagingRepository
 import com.bowoon.data.repository.UserDataRepository
-import com.bowoon.detail.navigation.DetailRoute
 import com.bowoon.domain.GetMovieDetailUseCase
 import com.bowoon.model.InternalData
 import com.bowoon.model.Movie
@@ -27,7 +24,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DetailVM @Inject constructor(
-    savedStateHandle: SavedStateHandle,
     userDataRepository: UserDataRepository,
     private val getMovieDetail: GetMovieDetailUseCase,
     private val databaseRepository: DatabaseRepository,
@@ -37,36 +33,40 @@ class DetailVM @Inject constructor(
         private const val TAG = "DetailVM"
     }
 
-    private val id = savedStateHandle.toRoute<DetailRoute>().id
-    val detail = getMovieDetail(id = id)
-        .asResult()
-        .map { result ->
-            when (result) {
-                is Result.Loading -> DetailState.Loading
-                is Result.Success -> DetailState.Success(movieInfo = result.data)
-                is Result.Error -> DetailState.Error(throwable = result.throwable)
-            }
-        }.restartableStateIn(
-            scope = viewModelScope,
-            initialValue = DetailState.Loading,
-            started = SharingStarted.Lazily
-        )
+    var id = -1
+    val detail by lazy {
+        getMovieDetail(id = id)
+            .asResult()
+            .map { result ->
+                when (result) {
+                    is Result.Loading -> DetailState.Loading
+                    is Result.Success -> DetailState.Success(movieInfo = result.data)
+                    is Result.Error -> DetailState.Error(throwable = result.throwable)
+                }
+            }.restartableStateIn(
+                scope = viewModelScope,
+                initialValue = DetailState.Loading,
+                started = SharingStarted.Lazily
+            )
+    }
     private val internalData = userDataRepository.internalData
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
             initialValue = InternalData()
         )
-    val similarMovies = Pager(
-        config = PagingConfig(pageSize = 1, initialLoadSize = 1, prefetchDistance = 5),
-        initialKey = 1,
-        pagingSourceFactory = {
-            pagingRepository.getSimilarMoviePagingSource(
-                id = id,
-                language = "${internalData.value.language}-${internalData.value.region}"
-            )
-        }
-    ).flow.cachedIn(scope = viewModelScope)
+    val similarMovies by lazy {
+        Pager(
+            config = PagingConfig(pageSize = 1, initialLoadSize = 1, prefetchDistance = 5),
+            initialKey = 1,
+            pagingSourceFactory = {
+                pagingRepository.getSimilarMoviePagingSource(
+                    id = id,
+                    language = "${internalData.value.language}-${internalData.value.region}"
+                )
+            }
+        ).flow.cachedIn(scope = viewModelScope)
+    }
 
     fun restart() {
         detail.restart()

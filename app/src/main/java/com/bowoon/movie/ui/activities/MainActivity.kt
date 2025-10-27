@@ -22,9 +22,9 @@ import com.bowoon.common.AppDoubleBackToExit
 import com.bowoon.common.isSystemInDarkTheme
 import com.bowoon.data.util.NetworkMonitor
 import com.bowoon.firebase.LocalFirebaseLogHelper
-import com.bowoon.home.navigation.HomeRoute
 import com.bowoon.movie.MovieFirebase
 import com.bowoon.movie.R
+import com.bowoon.movie.navigation.Screen
 import com.bowoon.movie.rememberMovieAppState
 import com.bowoon.movie.ui.MovieMainScreen
 import com.bowoon.movie.utils.isSystemInDarkTheme
@@ -97,7 +97,7 @@ class MainActivity : ComponentActivity() {
                 LocalFirebaseLogHelper.current.sendLog(name = javaClass.simpleName, message = "compose start!")
 
                 MovieTheme(darkTheme = darkTheme) {
-                    val appState = rememberMovieAppState(networkMonitor = networkMonitor, backstack = rememberNavBackStack(HomeRoute))
+                    val appState = rememberMovieAppState(networkMonitor = networkMonitor, backstack = rememberNavBackStack(Screen.Home))
                     val snackbarHostState = remember { SnackbarHostState() }
 
                     MovieMainScreen(

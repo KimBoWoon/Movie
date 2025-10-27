@@ -37,8 +37,8 @@ import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.movie.MovieAppState
 import com.bowoon.movie.R
 import com.bowoon.movie.navigation.MovieAppNavHost
+import com.bowoon.movie.navigation.Screen
 import com.bowoon.movie.navigation.TopLevelDestination
-import com.bowoon.search.navigation.SearchRoute
 import com.bowoon.ui.BottomNavigationBarItem
 import com.bowoon.ui.MovieNavigationDefaults
 import com.bowoon.ui.utils.Line
@@ -76,7 +76,7 @@ fun MovieMainScreen(
                             .height(height = dp40)
                             .clip(shape = RoundedCornerShape(percent = 50))
                             .background(color = MaterialTheme.colorScheme.inverseOnSurface)
-                            .bounceClick(onClick = { appState.backstack.add(SearchRoute) }),
+                            .bounceClick(onClick = { appState.backstack.add(Screen.Search) }),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
