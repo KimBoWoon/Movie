@@ -1,6 +1,5 @@
 package com.bowoon.movie.navigation
 
-import androidx.annotation.Keep
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -45,7 +44,7 @@ fun MovieAppNavHost(
             /**
              * main navigation
              */
-            entry(key = Screen.Home) {
+            entry(key = Screen.Home) { route ->
                 val viewModel: HomeVM = hiltViewModel()
 
                 HomeScreen(
@@ -54,7 +53,7 @@ fun MovieAppNavHost(
                     viewModel = viewModel
                 )
             }
-            entry(key = Screen.Favorite) {
+            entry(key = Screen.Favorite) { route ->
                 val viewModel: FavoriteVM = hiltViewModel()
 
                 FavoriteScreen(
@@ -64,7 +63,7 @@ fun MovieAppNavHost(
                     viewModel = viewModel
                 )
             }
-            entry(key = Screen.My) {
+            entry(key = Screen.My) { route ->
                 val viewModel: MyVM = hiltViewModel()
 
                 MyScreen(viewModel = viewModel)
@@ -73,7 +72,7 @@ fun MovieAppNavHost(
             /**
              * other screen
              */
-            entry(key = Screen.Search) {
+            entry(key = Screen.Search) { route ->
                 val viewModel: SearchVM = hiltViewModel()
 
                 SearchScreen(
@@ -84,9 +83,10 @@ fun MovieAppNavHost(
                     viewModel = viewModel
                 )
             }
-            entry<Screen.MovieDetail> {
-                val viewModel: DetailVM = hiltViewModel()
-                viewModel.id = it.id
+            entry<Screen.MovieDetail> { route ->
+                val viewModel: DetailVM = hiltViewModel<DetailVM>().apply {
+                    id = route.id
+                }
 
                 DetailScreen(
                     goToBack = { appState.backstack.removeLastOrNull() },
@@ -96,9 +96,10 @@ fun MovieAppNavHost(
                     viewModel = viewModel
                 )
             }
-            entry<Screen.PeopleDetail> {
-                val viewModel: PeopleVM = hiltViewModel()
-                viewModel.id = it.id
+            entry<Screen.PeopleDetail> { route ->
+                val viewModel: PeopleVM = hiltViewModel<PeopleVM>().apply {
+                    id = route.id
+                }
 
                 PeopleScreen(
                     goToBack = { appState.backstack.removeLastOrNull() },
@@ -107,9 +108,10 @@ fun MovieAppNavHost(
                     viewModel = viewModel
                 )
             }
-            entry<Screen.SeriesDetail> {
-                val viewModel: SeriesVM = hiltViewModel()
-                viewModel.id = it.id
+            entry<Screen.SeriesDetail> { route ->
+                val viewModel: SeriesVM = hiltViewModel<SeriesVM>().apply {
+                    id = route.id
+                }
 
                 SeriesScreen(
                     goToBack = { appState.backstack.removeLastOrNull() },
@@ -123,24 +125,17 @@ fun MovieAppNavHost(
 
 sealed interface Screen {
     @Serializable
-    @Keep
     object Home : NavKey, Screen
     @Serializable
-    @Keep
     object Favorite : NavKey, Screen
     @Serializable
-    @Keep
     object My : NavKey, Screen
     @Serializable
-    @Keep
     object Search : NavKey, Screen
     @Serializable
-    @Keep
     data class MovieDetail(val id: Int) : NavKey, Screen
     @Serializable
-    @Keep
     data class PeopleDetail(val id: Int) : NavKey, Screen
     @Serializable
-    @Keep
     data class SeriesDetail(val id: Int) : NavKey, Screen
 }

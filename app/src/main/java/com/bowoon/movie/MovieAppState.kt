@@ -7,6 +7,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import com.bowoon.data.util.NetworkMonitor
+import com.bowoon.movie.navigation.Screen
 import com.bowoon.movie.navigation.TopLevelDestination
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharingStarted
@@ -32,6 +33,7 @@ class MovieAppState(
     val networkMonitor: NetworkMonitor,
     val backstack: NavBackStack<NavKey>
 ) {
+    val start = Screen.Home
     val topLevelDestinations: List<TopLevelDestination> = TopLevelDestination.entries
     val isOffline = networkMonitor.isOnline
         .map(transform = Boolean::not)
@@ -42,14 +44,16 @@ class MovieAppState(
         )
 
     fun navigateToTopLevelDestination(navKey: NavKey) {
-        if (backstack.last() == navKey) return
-        if (backstack.first() == navKey) {
+        if (backstack.last() == navKey) {
+            return
+        }
+        if (start == navKey) {
             backstack.clear()
             backstack.add(navKey)
             return
         }
         if (backstack.contains(element = navKey)) {
-            backstack.removeIf { it == navKey }
+            backstack.removeAll { it == navKey }
         }
         backstack.add(navKey)
     }

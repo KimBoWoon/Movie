@@ -1,10 +1,12 @@
 package com.bowoon.detail
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
+import com.bowoon.common.Log
 import com.bowoon.common.Result
 import com.bowoon.common.asResult
 import com.bowoon.common.restartableStateIn
@@ -24,6 +26,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DetailVM @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     userDataRepository: UserDataRepository,
     private val getMovieDetail: GetMovieDetailUseCase,
     private val databaseRepository: DatabaseRepository,
@@ -31,6 +34,10 @@ class DetailVM @Inject constructor(
 ) : ViewModel() {
     companion object {
         private const val TAG = "DetailVM"
+    }
+
+    init {
+        Log.d("detail id -> ${savedStateHandle.get<Int>("id")}")
     }
 
     var id = -1
