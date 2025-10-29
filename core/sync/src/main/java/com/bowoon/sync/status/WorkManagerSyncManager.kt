@@ -18,25 +18,25 @@ internal class WorkManagerSyncManager @Inject constructor(
 ) : SyncManager {
     override val isSyncing: Flow<Boolean> =
         WorkManager.getInstance(appContext)
-            .getWorkInfosForUniqueWorkFlow(MainMenuSyncWorker.WORKER_NAME)
-            .map(List<WorkInfo>::anyRunning)
+            .getWorkInfosForUniqueWorkFlow(uniqueWorkName = MainMenuSyncWorker.WORKER_NAME)
+            .map(transform = List<WorkInfo>::anyRunning)
             .conflate()
 
     override fun syncMain() {
         WorkManager.getInstance(appContext)
             .enqueueUniqueWork(
-                MainMenuSyncWorker.WORKER_NAME,
-                ExistingWorkPolicy.KEEP,
-                MainMenuSyncWorker.startUpSyncWork(false)
+                uniqueWorkName = MainMenuSyncWorker.WORKER_NAME,
+                existingWorkPolicy = ExistingWorkPolicy.KEEP,
+                request = MainMenuSyncWorker.startUpSyncWork(isForce = false)
             )
     }
 
     override fun requestSync() {
         WorkManager.getInstance(appContext)
             .beginUniqueWork(
-                MainMenuSyncWorker.WORKER_NAME,
-                ExistingWorkPolicy.KEEP,
-                MainMenuSyncWorker.startUpSyncWork(true)
+                uniqueWorkName = MainMenuSyncWorker.WORKER_NAME,
+                existingWorkPolicy = ExistingWorkPolicy.KEEP,
+                request = MainMenuSyncWorker.startUpSyncWork(isForce = true)
             )
             .enqueue()
     }

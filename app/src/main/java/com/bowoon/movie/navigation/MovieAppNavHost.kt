@@ -33,8 +33,7 @@ fun MovieAppNavHost(
          * main navigation
          */
         homeSection(
-            goToMovie = navController::navigateToDetail,
-            onShowSnackbar = onShowSnackbar
+            goToMovie = navController::navigateToDetail
         )
         searchScreen(
             goToMovie = navController::navigateToDetail,

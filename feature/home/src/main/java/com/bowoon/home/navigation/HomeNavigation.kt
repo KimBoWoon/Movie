@@ -15,13 +15,11 @@ data object HomeRoute
 fun NavController.navigateToHome(navOptions: NavOptions) = navigate(route = HomeRoute, navOptions)
 
 fun NavGraphBuilder.homeSection(
-    goToMovie: (Int) -> Unit,
-    onShowSnackbar: suspend (String, String?) -> Boolean
+    goToMovie: (Int) -> Unit
 ) {
     composable<HomeRoute>() {
         HomeScreen(
-            goToMovie = goToMovie,
-            onShowSnackbar = onShowSnackbar
+            goToMovie = goToMovie
         )
     }
 }

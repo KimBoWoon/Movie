@@ -21,9 +21,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult.ActionPerformed
 import androidx.compose.material3.Text
-import androidx.compose.material3.adaptive.WindowAdaptiveInfo
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
-import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -139,12 +136,10 @@ fun MovieMainScreen(
 
 @Composable
 fun MovieNavigation(appState: MovieAppState) {
-    val windowAdaptiveInfo: WindowAdaptiveInfo = currentWindowAdaptiveInfo()
-    val layoutType = NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(windowAdaptiveInfo)
     val context = LocalContext.current
     val currentDestination = appState.currentDestination
 
-    LocalFirebaseLogHelper.current.sendLog("Navigation", "layoutType -> $layoutType")
+    LocalFirebaseLogHelper.current.sendLog("Navigation", "create bottom navigation")
 
     NavigationBar(
         modifier = Modifier

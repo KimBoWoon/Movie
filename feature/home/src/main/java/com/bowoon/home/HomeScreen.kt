@@ -1,12 +1,16 @@
 package com.bowoon.home
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -15,20 +19,28 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bowoon.common.Log
@@ -43,43 +55,44 @@ import com.bowoon.ui.utils.bounceClick
 import com.bowoon.ui.utils.dp10
 import com.bowoon.ui.utils.dp150
 import com.bowoon.ui.utils.dp16
+import com.bowoon.ui.utils.dp300
+import com.bowoon.ui.utils.dp40
 import com.bowoon.ui.utils.sp10
+import com.bowoon.ui.utils.sp20
 import com.bowoon.ui.utils.sp8
 
 @Composable
 fun HomeScreen(
     goToMovie: (Int) -> Unit,
-    onShowSnackbar: suspend (String, String?) -> Boolean,
     viewModel: HomeVM = hiltViewModel()
 ) {
     LocalFirebaseLogHelper.current.sendLog("HomeScreen", "init screen")
 
     val homeUiState by viewModel.mainMenu.collectAsStateWithLifecycle()
-    val isSyncing by viewModel.isSyncing.collectAsStateWithLifecycle()
+    val tomorrowReleaseMoviesState by viewModel.tomorrowReleaseMovies.collectAsStateWithLifecycle()
+    val isShowTomorrowReleaseMovie = remember { viewModel.isShowTomorrowReleaseMovie }
 
     HomeScreen(
-        isSyncing = isSyncing,
-        state = homeUiState,
-        onShowSnackbar = onShowSnackbar,
+        mainMenuState = homeUiState,
+        tomorrowReleaseMoviesState = tomorrowReleaseMoviesState,
+        isShowTomorrowReleaseMovie = isShowTomorrowReleaseMovie,
         goToMovie = goToMovie
     )
 }
 
 @Composable
 fun HomeScreen(
-    isSyncing: Boolean,
-    state: MainMenuState,
-    onShowSnackbar: suspend (String, String?) -> Boolean,
+    mainMenuState: MainMenuState,
+    tomorrowReleaseMoviesState: TomorrowReleaseMoviesState,
+    isShowTomorrowReleaseMovie: MutableState<Boolean>,
     goToMovie: (Int) -> Unit
 ) {
     LocalFirebaseLogHelper.current.sendLog("HomeScreen", "init screen")
 
-    val checkingMainData = stringResource(id = R.string.check_main_data)
-
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        when (state) {
+        when (mainMenuState) {
             is MainMenuState.Loading -> {
                 Log.d("loading...")
                 LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data loading...")
@@ -91,27 +104,37 @@ fun HomeScreen(
             }
             is MainMenuState.Success -> {
                 LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data load success")
-                Log.d("${state.mainMenu}")
+                Log.d("${mainMenuState.mainMenu}")
                 MainComponent(
-                    mainMenu = state.mainMenu,
+                    mainMenu = mainMenuState.mainMenu,
                     goToMovie = goToMovie
                 )
             }
             is MainMenuState.Error -> {
-                LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data load Error > ${state.throwable.message}")
-                Log.e("${state.throwable.message}")
+                LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data load Error > ${mainMenuState.throwable.message}")
+                Log.e("${mainMenuState.throwable.message}")
             }
         }
 
-        if (isSyncing) {
-            LaunchedEffect(key1 = checkingMainData) {
-                onShowSnackbar(checkingMainData, null)
+        when (tomorrowReleaseMoviesState) {
+            is TomorrowReleaseMoviesState.Loading -> {
+                LocalFirebaseLogHelper.current.sendLog("HomeScreen", "TomorrowReleaseMoviesStateError Loading")
+                Log.d("TomorrowReleaseMoviesStateError Loading")
             }
-            CircularProgressComponent(
-                modifier = Modifier
-                    .semantics { contentDescription = "mainDataSync" }
-                    .align(alignment = Alignment.Center)
-            )
+            is TomorrowReleaseMoviesState.Success -> {
+                Log.d("isShowTomorrowReleaseMovie -> ${isShowTomorrowReleaseMovie.value}")
+                if (!isShowTomorrowReleaseMovie.value && tomorrowReleaseMoviesState.tomorrowReleaseMovies.isNotEmpty()) {
+                    ReleaseMoviesDialog(
+                        onDismiss = { isShowTomorrowReleaseMovie.value = true },
+                        releaseMovies = tomorrowReleaseMoviesState.tomorrowReleaseMovies,
+                        goToMovie = goToMovie
+                    )
+                }
+            }
+            is TomorrowReleaseMoviesState.Error -> {
+                LocalFirebaseLogHelper.current.sendLog("HomeScreen", "TomorrowReleaseMoviesStateError -> ${tomorrowReleaseMoviesState.throwable.message}")
+                Log.e(tomorrowReleaseMoviesState.throwable.message ?: "something wrong...")
+            }
         }
     }
 }
@@ -158,7 +181,9 @@ fun LazyListScope.horizontalMovieListComponent(
 ) {
     item {
         Text(
-            modifier = Modifier.padding(all = dp16).fillMaxWidth(),
+            modifier = Modifier
+                .padding(all = dp16)
+                .fillMaxWidth(),
             text = title
         )
         LazyRow(
@@ -216,5 +241,87 @@ fun MainMovieItem(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
+    }
+}
+
+@Composable
+fun ReleaseMoviesDialog(
+    onDismiss: () -> Unit,
+    releaseMovies: List<Movie>,
+    goToMovie: (Int) -> Unit
+) {
+    Dialog(
+        onDismissRequest = { onDismiss() },
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            dismissOnBackPress = true,
+            dismissOnClickOutside = false
+        )
+    ) {
+        val pageState = rememberPagerState(initialPage = 0) { releaseMovies.size }
+
+        Column(
+            modifier = Modifier
+                .width(width = dp300)
+                .background(color = Color.LightGray, shape = RoundedCornerShape(size = dp10)),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            HorizontalPager(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        goToMovie(releaseMovies[pageState.currentPage].id ?: -1)
+                        onDismiss()
+                    },
+                state = pageState,
+            ) {
+                Log.d("TomorrowReleaseMovies Index -> $pageState.currentPage")
+                DynamicAsyncImageLoader(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(ratio = POSTER_IMAGE_RATIO)
+                        .clip(shape = RoundedCornerShape(topStart = dp10, topEnd = dp10)),
+                    source = "${releaseMovies[pageState.currentPage].posterPath}",
+                    contentDescription = "ReleaseMovieImage"
+                )
+            }
+            Text(
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                text = "영화가 곧 개봉합니다!",
+                color = Color.Black
+            )
+            Row(
+                modifier = Modifier.height(height = dp40),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    modifier = Modifier
+                        .weight(weight = 1f)
+                        .wrapContentHeight()
+                        .clickable {
+                            goToMovie(releaseMovies[pageState.currentPage].id ?: -1)
+                            onDismiss()
+                        },
+                    text = "상세 정보",
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = sp20,
+                    color = Color.Black
+                )
+                Text(
+                    modifier = Modifier
+                        .weight(weight = 1f)
+                        .wrapContentHeight()
+                        .clickable { onDismiss() },
+                    text = "닫기",
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = sp20,
+                    color = Color.Black
+                )
+            }
+        }
     }
 }

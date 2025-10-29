@@ -18,9 +18,7 @@ class HomeScreenTest {
         composeTestRule.apply {
             setContent {
                 HomeScreen(
-                    isSyncing = false,
-                    state = MainMenuState.Loading,
-                    onShowSnackbar = { _, _ -> true },
+                    mainMenuState = MainMenuState.Loading,
                     goToMovie = {}
                 )
             }
@@ -34,9 +32,7 @@ class HomeScreenTest {
         composeTestRule.apply {
             setContent {
                 HomeScreen(
-                    isSyncing = false,
-                    state = MainMenuState.Success(mainMenuTestData),
-                    onShowSnackbar = { _, _ -> true },
+                    mainMenuState = MainMenuState.Success(mainMenuTestData),
                     goToMovie = {}
                 )
             }
