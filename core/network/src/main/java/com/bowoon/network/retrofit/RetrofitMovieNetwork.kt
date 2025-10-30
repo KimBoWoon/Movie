@@ -8,6 +8,7 @@ import com.bowoon.model.Genres
 import com.bowoon.model.Language
 import com.bowoon.model.Movie
 import com.bowoon.model.MovieResult
+import com.bowoon.model.MovieReviews
 import com.bowoon.model.People
 import com.bowoon.model.Regions
 import com.bowoon.model.SearchData
@@ -273,6 +274,15 @@ class RetrofitMovieNetwork @Inject constructor(
     }
 
     override suspend fun getSearchKeyword(query: String, page: Int): SearchKeywordData = when (val response = tmdbApis.getSearchKeyword(query = query, page = page)) {
+        is ApiResponse.Failure -> throw response.throwable
+        is ApiResponse.Success -> response.data.asExternalModel()
+    }
+
+    override suspend fun getMovieReviews(
+        movieId: Int,
+        language: String,
+        page: Int
+    ): MovieReviews = when (val response = tmdbApis.getMovieReview(movieId = movieId, language = language, page = page)) {
         is ApiResponse.Failure -> throw response.throwable
         is ApiResponse.Success -> response.data.asExternalModel()
     }

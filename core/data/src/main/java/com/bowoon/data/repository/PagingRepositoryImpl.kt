@@ -1,10 +1,12 @@
 package com.bowoon.data.repository
 
 import androidx.paging.PagingSource
+import com.bowoon.data.paging.MovieReviewPagingSource
 import com.bowoon.data.paging.RecommendKeywordPagingSource
 import com.bowoon.data.paging.SearchPagingSource
 import com.bowoon.data.paging.SimilarMoviePagingSource
 import com.bowoon.model.Movie
+import com.bowoon.model.MovieReview
 import com.bowoon.model.SearchKeyword
 import com.bowoon.model.SearchType
 import com.bowoon.network.MovieNetworkDataSource
@@ -42,4 +44,13 @@ class PagingRepositoryImpl @Inject constructor(
             apis = apis,
             query = query
         )
+
+    override fun getMovieReviews(
+        movieId: Int,
+        language: String
+    ): PagingSource<Int, MovieReview> = MovieReviewPagingSource(
+        apis = apis,
+        id = movieId,
+        language = language
+    )
 }

@@ -7,6 +7,7 @@ import com.bowoon.model.ExternalIds
 import com.bowoon.model.Genres
 import com.bowoon.model.Language
 import com.bowoon.model.Movie
+import com.bowoon.model.MovieReviews
 import com.bowoon.model.People
 import com.bowoon.model.Regions
 import com.bowoon.model.SearchData
@@ -121,5 +122,13 @@ class TestMovieDataSource : MovieNetworkDataSource {
         ),
         totalPages = 1,
         totalResults = 5
+    )
+
+    override suspend fun getMovieReviews(movieId: Int): MovieReviews = MovieReviews(
+        id = 0,
+        page = 1,
+        results = emptyList(),
+        totalPages = 1,
+        totalResults = 0
     )
 }

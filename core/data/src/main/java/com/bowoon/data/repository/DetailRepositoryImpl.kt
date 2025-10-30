@@ -4,9 +4,9 @@ import com.bowoon.datastore.InternalDataSource
 import com.bowoon.model.CombineCredits
 import com.bowoon.model.ExternalIds
 import com.bowoon.model.Movie
-import com.bowoon.model.Series
 import com.bowoon.model.People
 import com.bowoon.model.SearchData
+import com.bowoon.model.Series
 import com.bowoon.network.MovieNetworkDataSource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow

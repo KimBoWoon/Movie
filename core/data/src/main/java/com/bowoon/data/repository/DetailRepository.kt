@@ -3,9 +3,9 @@ package com.bowoon.data.repository
 import com.bowoon.model.CombineCredits
 import com.bowoon.model.ExternalIds
 import com.bowoon.model.Movie
-import com.bowoon.model.Series
 import com.bowoon.model.People
 import com.bowoon.model.SearchData
+import com.bowoon.model.Series
 import kotlinx.coroutines.flow.Flow
 
 interface DetailRepository {

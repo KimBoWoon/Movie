@@ -4,6 +4,7 @@ import com.bowoon.data.repository.DetailRepository
 import com.bowoon.model.CombineCredits
 import com.bowoon.model.ExternalIds
 import com.bowoon.model.Movie
+import com.bowoon.model.MovieReviews
 import com.bowoon.model.People
 import com.bowoon.model.SearchData
 import com.bowoon.model.Series
@@ -19,6 +20,7 @@ class TestDetailRepository : DetailRepository {
     private val combineCredits = MutableSharedFlow<CombineCredits>(replay = 1, onBufferOverflow = DROP_OLDEST)
     private val externalIds = MutableSharedFlow<ExternalIds>(replay = 1, onBufferOverflow = DROP_OLDEST)
     private val movieSeries = MutableSharedFlow<Series>(replay = 1, onBufferOverflow = DROP_OLDEST)
+    private val movieReviews = MutableSharedFlow<MovieReviews>(replay = 1, onBufferOverflow = DROP_OLDEST)
 
     override fun getMovie(id: Int): Flow<Movie> = movie
 
@@ -34,6 +36,8 @@ class TestDetailRepository : DetailRepository {
     override fun getExternalIds(personId: Int): Flow<ExternalIds> = externalIds
 
     override fun getMovieSeries(collectionId: Int): Flow<Series> = movieSeries
+
+    override fun getMovieReviews(movieId: Int): Flow<MovieReviews> = movieReviews
 
     @VisibleForTesting
     fun setMovie(detail: Movie) {
@@ -63,5 +67,10 @@ class TestDetailRepository : DetailRepository {
     @VisibleForTesting
     fun setMovieSeries(movieSeries: Series) {
         this@TestDetailRepository.movieSeries.tryEmit(movieSeries)
+    }
+
+    @VisibleForTesting
+    fun setMovieReviews(movieReviews: MovieReviews) {
+        this@TestDetailRepository.movieReviews.tryEmit(movieReviews)
     }
 }

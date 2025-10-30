@@ -10,7 +10,7 @@
     <string name="movie_staff">스태프</string>
     <string name="movie_runtime">%d분</string>
     <string name="movie_info_separator">|</string>
-    <string name="movie_vote_average">별점 %.2f</string>
+    <string name="movie_vote_average">%.2f</string>
     <string name="movie_alternative_title">다른 이름</string>
     <string name="movie_production_companies">제작사 정보</string>
 </resources>

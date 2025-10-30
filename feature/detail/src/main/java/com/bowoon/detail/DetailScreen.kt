@@ -29,6 +29,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.PlayArrow
@@ -76,6 +77,7 @@ import com.bowoon.model.Image
 import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetailInfo
 import com.bowoon.model.MovieDetailTab
+import com.bowoon.model.MovieReview
 import com.bowoon.model.Series
 import com.bowoon.movie.feature.detail.R
 import com.bowoon.ui.components.CircularProgressComponent
@@ -121,10 +123,12 @@ fun DetailScreen(
 
     val detailState by viewModel.detail.collectAsStateWithLifecycle()
     val similarMovies = viewModel.similarMovies.collectAsLazyPagingItems()
+    val movieReviews = viewModel.movieReviews.collectAsLazyPagingItems()
 
     DetailScreen(
         detailState = detailState,
         similarMovies = similarMovies,
+        movieReviews = movieReviews,
         goToMovie = goToMovie,
         goToPeople = goToPeople,
         goToBack = goToBack,
@@ -139,6 +143,7 @@ fun DetailScreen(
 fun DetailScreen(
     detailState: DetailState,
     similarMovies: LazyPagingItems<Movie>,
+    movieReviews: LazyPagingItems<MovieReview>,
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     goToBack: () -> Unit,
@@ -168,6 +173,7 @@ fun DetailScreen(
                 MovieDetailComponent(
                     movieInfo = detailState.movieInfo,
                     similarMovies = similarMovies,
+                    movieReviews = movieReviews,
                     goToMovie = goToMovie,
                     goToPeople = goToPeople,
                     goToBack = goToBack,
@@ -195,6 +201,7 @@ fun DetailScreen(
 fun MovieDetailComponent(
     movieInfo: MovieDetailInfo,
     similarMovies: LazyPagingItems<Movie>,
+    movieReviews: LazyPagingItems<MovieReview>,
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     goToBack: () -> Unit,
@@ -262,8 +269,8 @@ fun MovieDetailComponent(
                         movieSeries = movieInfo.series,
                         goToMovie = goToMovie
                     )
-                    MovieDetailTab.ADDITIONAL_INFO.label -> MovieAdditionalInfoComponent(
-                        movie = movieInfo.detail
+                    MovieDetailTab.REVIEWS.label -> MovieReviewComponent(
+                        movieReviews = movieReviews,
                     )
                     MovieDetailTab.ACTOR_AND_CREW.label -> ActorAndCrewComponent(
                         movie = movieInfo.detail,
@@ -509,88 +516,34 @@ fun MovieSeriesComponent(
 }
 
 @Composable
-fun MovieAdditionalInfoComponent(
-    movie: Movie
+fun MovieReviewComponent(
+    movieReviews: LazyPagingItems<MovieReview>
 ) {
-    var expanded by remember { mutableStateOf(false) }
-    val titles = movie.alternativeTitles?.titles?.fold("") { acc, title -> if (acc.isEmpty()) "${title.title}" else "$acc\n${title.title}" } ?: ""
-
-    LazyColumn(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        item {
-            movie.productionCompanies.takeIf { !it.isNullOrEmpty() }?.let { production ->
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = dp10, horizontal = dp16),
-                    text = stringResource(id = R.string.movie_production_companies),
-                    textAlign = TextAlign.Center,
-                    fontSize = sp20,
-                    fontWeight = FontWeight.Bold
-                )
-                HorizontalPager(
-                    modifier = Modifier.fillMaxWidth(),
-                    state = rememberPagerState { production.size },
-                    contentPadding = PaddingValues(horizontal = dp32),
-                    key = { index -> production[index].id ?: -1 }
-                ) { index ->
-                    Column(
-                        modifier = Modifier.padding(horizontal = dp8)
-                    ) {
-                        production[index].logoPath?.let {
-                            DynamicAsyncImageLoader(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(dp300)
-                                    .clip(shape = RoundedCornerShape(size = dp10)),
-                                contentScale = ContentScale.Fit,
-                                source = it,
-                                contentDescription = it
-                            )
-                        }
-                        Text(
-                            modifier = Modifier.fillMaxWidth(),
-                            text = production[index].name ?: "",
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                }
-            }
+    if (movieReviews.itemCount == 0 && movieReviews.loadState.refresh !is LoadState.Loading) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(text = "리뷰가 없습니다.")
         }
-        item {
-            if (titles.isNotEmpty()) {
-                Row(
-                    modifier = Modifier
-                        .padding(horizontal = dp16)
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                        .clickable { expanded = !expanded }
+    } else {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            items(count = movieReviews.itemCount) {
+                Column(
+                    modifier = Modifier.wrapContentSize()
                 ) {
-                    Icon(
-                        modifier = Modifier.animateRotation(expanded = expanded, startAngle = 0f, endAngle = 90f, animateMillis = 500),
-                        imageVector = Icons.Rounded.PlayArrow,
-                        contentDescription = "expandedArrow"
-                    )
-                    Text(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .wrapContentHeight(),
-                        text = stringResource(id = R.string.movie_alternative_title),
-                        fontSize = sp15
-                    )
+                    Row {
+                        DynamicAsyncImageLoader(
+                            source = movieReviews[it]?.authorDetails?.avatarPath ?: "",
+                            contentDescription = "reviewAuthorAvatarPath",
+                            modifier = Modifier.clip(shape = CircleShape),
+                        )
+                        Text(text = movieReviews[it]?.author ?: "")
+                    }
+                    Text(text = movieReviews[it]?.content ?: "")
                 }
-                Text(
-                    modifier = Modifier
-                        .padding(top = dp5, start = dp16, end = dp16)
-                        .animateContentSize()
-                        .fillMaxWidth()
-                        .height(height = if (expanded) Int.MAX_VALUE.dp else dp0),
-                    text = titles,
-                    fontSize = sp10,
-                    textAlign = TextAlign.Center,
-                    overflow = TextOverflow.Ellipsis
-                )
             }
         }
     }
@@ -600,6 +553,9 @@ fun MovieAdditionalInfoComponent(
 fun MovieInfoComponent(
     movie: Movie
 ) {
+    var expanded by remember { mutableStateOf(value = false) }
+    val titles = movie.alternativeTitles?.titles?.fold(initial = "") { acc, title -> if (acc.isEmpty()) "${title.title}" else "$acc\n${title.title}" } ?: ""
+
     LazyColumn(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -733,6 +689,81 @@ fun MovieInfoComponent(
                         .fillMaxWidth()
                         .wrapContentHeight(),
                     text = it,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+        item {
+            movie.productionCompanies.takeIf { !it.isNullOrEmpty() }?.let { production ->
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = dp10, horizontal = dp16),
+                    text = stringResource(id = R.string.movie_production_companies),
+                    textAlign = TextAlign.Center,
+                    fontSize = sp20,
+                    fontWeight = FontWeight.Bold
+                )
+                HorizontalPager(
+                    modifier = Modifier.fillMaxWidth(),
+                    state = rememberPagerState { production.size },
+                    contentPadding = PaddingValues(horizontal = dp32),
+                    key = { index -> production[index].id ?: -1 }
+                ) { index ->
+                    Column(
+                        modifier = Modifier.padding(horizontal = dp8)
+                    ) {
+                        production[index].logoPath?.let {
+                            DynamicAsyncImageLoader(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(dp300)
+                                    .clip(shape = RoundedCornerShape(size = dp10)),
+                                contentScale = ContentScale.Fit,
+                                source = it,
+                                contentDescription = it
+                            )
+                        }
+                        Text(
+                            modifier = Modifier.fillMaxWidth(),
+                            text = production[index].name ?: "",
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+            }
+        }
+        item {
+            if (titles.isNotEmpty()) {
+                Row(
+                    modifier = Modifier
+                        .padding(horizontal = dp16)
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .clickable { expanded = !expanded }
+                ) {
+                    Icon(
+                        modifier = Modifier.animateRotation(expanded = expanded, startAngle = 0f, endAngle = 90f, animateMillis = 500),
+                        imageVector = Icons.Rounded.PlayArrow,
+                        contentDescription = "expandedArrow"
+                    )
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight(),
+                        text = stringResource(id = R.string.movie_alternative_title),
+                        fontSize = sp15
+                    )
+                }
+                Text(
+                    modifier = Modifier
+                        .padding(top = dp5, start = dp16, end = dp16)
+                        .animateContentSize()
+                        .fillMaxWidth()
+                        .height(height = if (expanded) Int.MAX_VALUE.dp else dp0),
+                    text = titles,
+                    fontSize = sp10,
+                    textAlign = TextAlign.Center,
                     overflow = TextOverflow.Ellipsis
                 )
             }
@@ -932,11 +963,11 @@ fun BoxScope.MovieList(
         )
     } else {
         LazyVerticalGrid(
-            columns = GridCells.Adaptive(dp100),
+            columns = GridCells.Adaptive(minSize = dp100),
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(dp10),
-            horizontalArrangement = Arrangement.spacedBy(dp10),
-            verticalArrangement = Arrangement.spacedBy(dp10)
+            contentPadding = PaddingValues(all = dp10),
+            horizontalArrangement = Arrangement.spacedBy(space = dp10),
+            verticalArrangement = Arrangement.spacedBy(space = dp10)
         ) {
             items(
                 count = similarMovies.itemCount
