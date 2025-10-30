@@ -3,6 +3,7 @@ package com.bowoon.home
 import com.bowoon.model.InternalData
 import com.bowoon.testing.TestSyncManager
 import com.bowoon.testing.model.mainMenuTestData
+import com.bowoon.testing.repository.TestDatabaseRepository
 import com.bowoon.testing.repository.TestMovieAppDataRepository
 import com.bowoon.testing.repository.TestPagingRepository
 import com.bowoon.testing.repository.TestUserDataRepository
@@ -23,6 +24,7 @@ class HomeVMTest {
     private lateinit var viewModel: HomeVM
     private lateinit var testSyncManager: TestSyncManager
     private lateinit var testUserDataRepository: TestUserDataRepository
+    private lateinit var testDatabaseRepository: TestDatabaseRepository
     private lateinit var testPagingRepository: TestPagingRepository
     private lateinit var testMovieAppDataRepository: TestMovieAppDataRepository
 
@@ -30,11 +32,12 @@ class HomeVMTest {
     fun setup() {
         testSyncManager = TestSyncManager()
         testUserDataRepository = TestUserDataRepository()
+        testDatabaseRepository = TestDatabaseRepository()
         testPagingRepository = TestPagingRepository()
         testMovieAppDataRepository = TestMovieAppDataRepository()
         viewModel = HomeVM(
-            syncManager = testSyncManager,
-            userDataRepository = testUserDataRepository
+            userDataRepository = testUserDataRepository,
+            databaseRepository = testDatabaseRepository
         )
     }
 
@@ -56,13 +59,15 @@ class HomeVMTest {
         backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.mainMenu.collect() }
         assertEquals(viewModel.mainMenu.value, MainMenuState.Loading)
         testUserDataRepository.updateUserData(InternalData(mainMenu = mainMenuTestData), false)
+        testDatabaseRepository.upsertMovies(emptyList())
         assertEquals(
             viewModel.mainMenu.value,
             MainMenuState.Success(
                 mainMenuTestData.copy(
                     nowPlayingMovies = mainMenuTestData.nowPlayingMovies,
                     upComingMovies = mainMenuTestData.upComingMovies
-                )
+                ),
+                nextWeekReleaseMovies = emptyList()
             )
         )
     }
