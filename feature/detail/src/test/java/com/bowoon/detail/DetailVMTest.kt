@@ -6,16 +6,19 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.paging.testing.TestPager
 import androidx.paging.testing.asSnapshot
+import com.bowoon.data.paging.MovieReviewPagingSource
 import com.bowoon.data.paging.SimilarMoviePagingSource
 import com.bowoon.detail.navigation.DetailRoute
 import com.bowoon.domain.GetMovieDetailUseCase
 import com.bowoon.model.InternalData
 import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetailInfo
+import com.bowoon.model.MovieReview
 import com.bowoon.testing.TestMovieDataSource
 import com.bowoon.testing.model.favoriteMovieDetailTestData
 import com.bowoon.testing.model.movieSeriesTestData
 import com.bowoon.testing.model.similarMoviesTestData
+import com.bowoon.testing.model.testMovieReviews
 import com.bowoon.testing.model.unFavoriteMovieDetailTestData
 import com.bowoon.testing.repository.TestDatabaseRepository
 import com.bowoon.testing.repository.TestDetailRepository
@@ -156,6 +159,30 @@ class DetailVMTest {
                         posterPath = it.posterPath
                     )
                 } ?: emptyList(),
+                prevKey = null,
+                nextKey = null
+            ),
+            actual = source.load(
+                params = PagingSource.LoadParams.Refresh(
+                    key = null,
+                    loadSize = 2,
+                    placeholdersEnabled = false
+                )
+            ),
+        )
+    }
+
+    @Test
+    fun getMovieReviewsTest() = runTest {
+        val source = MovieReviewPagingSource(
+            apis = TestMovieDataSource(),
+            id = 0,
+            language = "ko"
+        )
+
+        assertEquals(
+            expected = PagingSource.LoadResult.Page<Int, MovieReview>(
+                data = testMovieReviews,
                 prevKey = null,
                 nextKey = null
             ),
