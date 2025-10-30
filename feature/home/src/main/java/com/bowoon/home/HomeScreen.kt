@@ -6,11 +6,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -50,13 +48,14 @@ import com.bowoon.model.MainMenu
 import com.bowoon.model.Movie
 import com.bowoon.movie.feature.home.R
 import com.bowoon.ui.components.CircularProgressComponent
+import com.bowoon.ui.dialog.Indexer
 import com.bowoon.ui.image.DynamicAsyncImageLoader
 import com.bowoon.ui.utils.bounceClick
 import com.bowoon.ui.utils.dp10
 import com.bowoon.ui.utils.dp150
 import com.bowoon.ui.utils.dp16
+import com.bowoon.ui.utils.dp20
 import com.bowoon.ui.utils.dp300
-import com.bowoon.ui.utils.dp40
 import com.bowoon.ui.utils.sp10
 import com.bowoon.ui.utils.sp20
 import com.bowoon.ui.utils.sp8
@@ -69,12 +68,10 @@ fun HomeScreen(
     LocalFirebaseLogHelper.current.sendLog("HomeScreen", "init screen")
 
     val homeUiState by viewModel.mainMenu.collectAsStateWithLifecycle()
-    val tomorrowReleaseMoviesState by viewModel.tomorrowReleaseMovies.collectAsStateWithLifecycle()
-    val isShowTomorrowReleaseMovie = remember { viewModel.isShowTomorrowReleaseMovie }
+    val isShowTomorrowReleaseMovie = remember { viewModel.isShowNextWeekReleaseMovie }
 
     HomeScreen(
         mainMenuState = homeUiState,
-        tomorrowReleaseMoviesState = tomorrowReleaseMoviesState,
         isShowTomorrowReleaseMovie = isShowTomorrowReleaseMovie,
         goToMovie = goToMovie
     )
@@ -83,7 +80,6 @@ fun HomeScreen(
 @Composable
 fun HomeScreen(
     mainMenuState: MainMenuState,
-    tomorrowReleaseMoviesState: TomorrowReleaseMoviesState,
     isShowTomorrowReleaseMovie: MutableState<Boolean>,
     goToMovie: (Int) -> Unit
 ) {
@@ -96,6 +92,7 @@ fun HomeScreen(
             is MainMenuState.Loading -> {
                 Log.d("loading...")
                 LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data loading...")
+
                 CircularProgressComponent(
                     modifier = Modifier
                         .semantics { contentDescription = "homeLoading" }
@@ -105,35 +102,23 @@ fun HomeScreen(
             is MainMenuState.Success -> {
                 LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data load success")
                 Log.d("${mainMenuState.mainMenu}")
+
                 MainComponent(
                     mainMenu = mainMenuState.mainMenu,
                     goToMovie = goToMovie
                 )
-            }
-            is MainMenuState.Error -> {
-                LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data load Error > ${mainMenuState.throwable.message}")
-                Log.e("${mainMenuState.throwable.message}")
-            }
-        }
 
-        when (tomorrowReleaseMoviesState) {
-            is TomorrowReleaseMoviesState.Loading -> {
-                LocalFirebaseLogHelper.current.sendLog("HomeScreen", "TomorrowReleaseMoviesStateError Loading")
-                Log.d("TomorrowReleaseMoviesStateError Loading")
-            }
-            is TomorrowReleaseMoviesState.Success -> {
-                Log.d("isShowTomorrowReleaseMovie -> ${isShowTomorrowReleaseMovie.value}")
-                if (!isShowTomorrowReleaseMovie.value && tomorrowReleaseMoviesState.tomorrowReleaseMovies.isNotEmpty()) {
+                if (!isShowTomorrowReleaseMovie.value && mainMenuState.nextWeekReleaseMovies.isNotEmpty()) {
                     ReleaseMoviesDialog(
                         onDismiss = { isShowTomorrowReleaseMovie.value = true },
-                        releaseMovies = tomorrowReleaseMoviesState.tomorrowReleaseMovies,
+                        releaseMovies = mainMenuState.nextWeekReleaseMovies,
                         goToMovie = goToMovie
                     )
                 }
             }
-            is TomorrowReleaseMoviesState.Error -> {
-                LocalFirebaseLogHelper.current.sendLog("HomeScreen", "TomorrowReleaseMoviesStateError -> ${tomorrowReleaseMoviesState.throwable.message}")
-                Log.e(tomorrowReleaseMoviesState.throwable.message ?: "something wrong...")
+            is MainMenuState.Error -> {
+                LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data load Error > ${mainMenuState.throwable.message}")
+                Log.e("${mainMenuState.throwable.message}")
             }
         }
     }
@@ -258,7 +243,7 @@ fun ReleaseMoviesDialog(
             dismissOnClickOutside = false
         )
     ) {
-        val pageState = rememberPagerState(initialPage = 0) { releaseMovies.size }
+        val pagerState = rememberPagerState(initialPage = 0) { releaseMovies.size }
 
         Column(
             modifier = Modifier
@@ -271,57 +256,60 @@ fun ReleaseMoviesDialog(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable {
-                        goToMovie(releaseMovies[pageState.currentPage].id ?: -1)
+                        goToMovie(releaseMovies[pagerState.currentPage].id ?: -1)
                         onDismiss()
                     },
-                state = pageState,
+                state = pagerState,
             ) {
-                Log.d("TomorrowReleaseMovies Index -> $pageState.currentPage")
-                DynamicAsyncImageLoader(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(ratio = POSTER_IMAGE_RATIO)
-                        .clip(shape = RoundedCornerShape(topStart = dp10, topEnd = dp10)),
-                    source = "${releaseMovies[pageState.currentPage].posterPath}",
-                    contentDescription = "ReleaseMovieImage"
-                )
+                Log.d("TomorrowReleaseMovies Index -> ${pagerState.currentPage}")
+                Box {
+                    DynamicAsyncImageLoader(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(ratio = POSTER_IMAGE_RATIO)
+                            .clip(shape = RoundedCornerShape(topStart = dp10, topEnd = dp10)),
+                        source = "${releaseMovies[pagerState.currentPage].posterPath}",
+                        contentDescription = "ReleaseMovieImage"
+                    )
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(Alignment.BottomCenter)
+                            .background(color = Color(color = 0x33000000)),
+                        text = stringResource(id = R.string.release_movie, releaseMovies[pagerState.currentPage].releaseDate ?: ""),
+                        textAlign = TextAlign.Center,
+                        color = Color.White
+                    )
+                    Indexer(
+                        modifier = Modifier
+                            .padding(top = dp10, end = dp10)
+                            .wrapContentSize()
+                            .background(
+                                color = Color(color = 0x33000000),
+                                shape = RoundedCornerShape(size = dp20)
+                            )
+                            .align(Alignment.TopEnd),
+                        current = pagerState.currentPage + 1,
+                        size = pagerState.pageCount
+                    )
+                }
             }
             Text(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
-                text = "영화가 곧 개봉합니다!",
+                text = stringResource(id = R.string.next_week_release_movie),
                 color = Color.Black
             )
-            Row(
-                modifier = Modifier.height(height = dp40),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    modifier = Modifier
-                        .weight(weight = 1f)
-                        .wrapContentHeight()
-                        .clickable {
-                            goToMovie(releaseMovies[pageState.currentPage].id ?: -1)
-                            onDismiss()
-                        },
-                    text = "상세 정보",
-                    textAlign = TextAlign.Center,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = sp20,
-                    color = Color.Black
-                )
-                Text(
-                    modifier = Modifier
-                        .weight(weight = 1f)
-                        .wrapContentHeight()
-                        .clickable { onDismiss() },
-                    text = "닫기",
-                    textAlign = TextAlign.Center,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = sp20,
-                    color = Color.Black
-                )
-            }
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .clickable { onDismiss() },
+                text = stringResource(id = R.string.close),
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Bold,
+                fontSize = sp20,
+                color = Color.Black
+            )
         }
     }
 }
