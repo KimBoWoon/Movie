@@ -5,4 +5,7 @@
     <string name="title_movie_info">영화 정보</string>
     <string name="now_playing_movies">상영중인 영화</string>
     <string name="upcoming_movies">개봉예정 영화</string>
+    <string name="release_movie">%s 개봉</string>
+    <string name="close">닫기</string>
+    <string name="next_week_release_movie">영화가 곧 개봉합니다.</string>
 </resources>
