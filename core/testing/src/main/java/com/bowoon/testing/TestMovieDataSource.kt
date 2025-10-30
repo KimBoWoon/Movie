@@ -7,6 +7,7 @@ import com.bowoon.model.ExternalIds
 import com.bowoon.model.Genres
 import com.bowoon.model.Language
 import com.bowoon.model.Movie
+import com.bowoon.model.MovieReviews
 import com.bowoon.model.People
 import com.bowoon.model.Regions
 import com.bowoon.model.SearchData
@@ -30,6 +31,7 @@ import com.bowoon.testing.model.peopleSearchTestData
 import com.bowoon.testing.model.regionTestData
 import com.bowoon.testing.model.seriesSearchTestData
 import com.bowoon.testing.model.similarMoviesTestData
+import com.bowoon.testing.model.testMovieReviews
 import com.bowoon.testing.model.upcomingMoviesTestData
 
 class TestMovieDataSource : MovieNetworkDataSource {
@@ -121,5 +123,17 @@ class TestMovieDataSource : MovieNetworkDataSource {
         ),
         totalPages = 1,
         totalResults = 5
+    )
+
+    override suspend fun getMovieReviews(
+        movieId: Int,
+        language: String,
+        page: Int
+    ): MovieReviews = MovieReviews(
+        id = 0,
+        page = 1,
+        results = testMovieReviews,
+        totalPages = 1,
+        totalResults = 0
     )
 }

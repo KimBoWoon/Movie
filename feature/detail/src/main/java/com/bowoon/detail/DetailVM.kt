@@ -67,6 +67,16 @@ class DetailVM @Inject constructor(
             )
         }
     ).flow.cachedIn(scope = viewModelScope)
+    val movieReviews = Pager(
+        config = PagingConfig(pageSize = 1, initialLoadSize = 1, prefetchDistance = 5),
+        initialKey = 1,
+        pagingSourceFactory = {
+            pagingRepository.getMovieReviews(
+                movieId = id,
+                language = "${internalData.value.language}-${internalData.value.region}"
+            )
+        }
+    ).flow.cachedIn(scope = viewModelScope)
 
     fun restart() {
         detail.restart()

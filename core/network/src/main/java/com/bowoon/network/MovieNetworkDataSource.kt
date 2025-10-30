@@ -7,6 +7,7 @@ import com.bowoon.model.ExternalIds
 import com.bowoon.model.Genres
 import com.bowoon.model.Language
 import com.bowoon.model.Movie
+import com.bowoon.model.MovieReviews
 import com.bowoon.model.People
 import com.bowoon.model.Regions
 import com.bowoon.model.SearchData
@@ -111,4 +112,10 @@ interface MovieNetworkDataSource {
         query: String,
         page: Int
     ): SearchKeywordData
+
+    suspend fun getMovieReviews(
+        movieId: Int,
+        language: String = "ko-KR",
+        page: Int = 1
+    ): MovieReviews
 }

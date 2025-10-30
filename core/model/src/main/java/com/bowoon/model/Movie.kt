@@ -30,6 +30,7 @@ data class Movie(
     val releaseDate: String? = null,
     val releases: Releases? = null,
     val revenue: Long? = null,
+    val reviews: MovieReviews? = null,
     val runtime: Int? = null,
     val spokenLanguages: List<SpokenLanguage>? = null,
     val status: String? = null,

@@ -6,8 +6,10 @@ import androidx.paging.testing.asPagingSourceFactory
 import com.bowoon.data.repository.PagingRepository
 import com.bowoon.model.Genre
 import com.bowoon.model.Movie
+import com.bowoon.model.MovieReview
 import com.bowoon.model.SearchKeyword
 import com.bowoon.model.SearchType
+import com.bowoon.testing.model.testMovieReviews
 import com.bowoon.testing.model.testRecommendedKeyword
 
 class TestPagingRepository : PagingRepository {
@@ -47,4 +49,10 @@ class TestPagingRepository : PagingRepository {
 
     @SuppressLint("VisibleForTests")
     override fun getRecommendKeywordPagingSource(query: String): PagingSource<Int, SearchKeyword> = testRecommendedKeyword.asPagingSourceFactory().invoke()
+
+    @SuppressLint("VisibleForTests")
+    override fun getMovieReviews(
+        movieId: Int,
+        language: String
+    ): PagingSource<Int, MovieReview> = testMovieReviews.asPagingSourceFactory().invoke()
 }

@@ -10,7 +10,7 @@
     <string name="movie_staff">Staff</string>
     <string name="movie_runtime">%d runtime</string>
     <string name="movie_info_separator">|</string>
-    <string name="movie_vote_average">vote %.2f</string>
+    <string name="movie_vote_average">%.2f</string>
     <string name="movie_alternative_title">Alternative Title</string>
     <string name="movie_production_companies">Production Companies</string>
 </resources>

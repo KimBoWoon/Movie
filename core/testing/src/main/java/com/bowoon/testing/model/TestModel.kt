@@ -25,6 +25,7 @@ import com.bowoon.model.Keywords
 import com.bowoon.model.Language
 import com.bowoon.model.MainMenu
 import com.bowoon.model.Movie
+import com.bowoon.model.MovieReview
 import com.bowoon.model.People
 import com.bowoon.model.ProductionCompany
 import com.bowoon.model.ProductionCountry
@@ -228,6 +229,17 @@ val movieSeriesTestData = Series(
 )
 val testRecommendedKeyword = (0..5).map {
     SearchKeyword(id = it, name = "mission$it")
+}
+val testMovieReviews = (0..5).map {
+    MovieReview(
+        id = it.toString(),
+        author = "author$it",
+        authorDetails = null,
+        content = "content$it",
+        createdAt = "createdAt$it",
+        updatedAt = "updatedAt$it",
+        url = "/url$it.jpg",
+    )
 }
 
 object MovieFactory {
