@@ -13,30 +13,25 @@ import com.bowoon.network.MovieNetworkDataSource
 import javax.inject.Inject
 
 class PagingRepositoryImpl @Inject constructor(
-    private val apis: MovieNetworkDataSource
+    private val apis: MovieNetworkDataSource,
+    private val userDataRepository: UserDataRepository
 ) : PagingRepository {
     override fun getSearchPagingSource(
         type: SearchType,
-        query: String,
-        language: String,
-        region: String,
-        isAdult: Boolean
+        query: String
     ): PagingSource<Int, Movie> = SearchPagingSource(
         apis = apis,
         type = type,
         query = query,
-        language = language,
-        region = region,
-        isAdult = isAdult
+        userDataRepository = userDataRepository
     )
 
     override fun getSimilarMoviePagingSource(
-        id: Int,
-        language: String
+        id: Int
     ): PagingSource<Int, Movie> = SimilarMoviePagingSource(
         apis = apis,
         id = id,
-        language = language
+        userDataRepository = userDataRepository
     )
 
     override fun getRecommendKeywordPagingSource(query: String): PagingSource<Int, SearchKeyword> =
@@ -46,11 +41,10 @@ class PagingRepositoryImpl @Inject constructor(
         )
 
     override fun getMovieReviews(
-        movieId: Int,
-        language: String
+        movieId: Int
     ): PagingSource<Int, MovieReview> = MovieReviewPagingSource(
         apis = apis,
         id = movieId,
-        language = language
+        userDataRepository = userDataRepository
     )
 }

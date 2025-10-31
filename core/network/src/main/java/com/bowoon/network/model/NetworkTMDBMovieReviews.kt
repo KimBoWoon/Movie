@@ -45,7 +45,7 @@ data class NetworkTMDBMovieAuthorDetails(
     @SerialName("name")
     val name: String? = null,
     @SerialName("rating")
-    val rating: Int? = null,
+    val rating: Float? = null,
     @SerialName("username")
     val username: String? = null
 )

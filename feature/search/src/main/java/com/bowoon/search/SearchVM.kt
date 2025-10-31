@@ -118,10 +118,7 @@ class SearchVM @Inject constructor(
                                 pagingSourceFactory = {
                                     pagingRepository.getSearchPagingSource(
                                         type = searchType.value,
-                                        query = query,
-                                        language = "${userData.value?.language}-${userData.value?.region}",
-                                        region = userData.value?.region ?: "",
-                                        isAdult = userData.value?.isAdult ?: true
+                                        query = query
                                     )
                                 }
                             ).flow.cachedIn(scope = viewModelScope),

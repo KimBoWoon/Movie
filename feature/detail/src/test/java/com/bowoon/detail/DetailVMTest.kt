@@ -64,8 +64,7 @@ class DetailVMTest {
             savedStateHandle = savedStateHandle,
             databaseRepository = testDataBaseRepository,
             getMovieDetail = getMovieDetailUseCase,
-            pagingRepository = testPagingRepository,
-            userDataRepository = testUserDataRepository
+            pagingRepository = testPagingRepository
         )
         runBlocking {
             testUserDataRepository.updateUserData(userData = InternalData(), isSync = false)
@@ -147,7 +146,7 @@ class DetailVMTest {
         val source = SimilarMoviePagingSource(
             apis = TestMovieDataSource(),
             id = 0,
-            language = "ko"
+            userDataRepository = testUserDataRepository
         )
 
         assertEquals(
@@ -177,7 +176,7 @@ class DetailVMTest {
         val source = MovieReviewPagingSource(
             apis = TestMovieDataSource(),
             id = 0,
-            language = "ko"
+            userDataRepository = testUserDataRepository
         )
 
         assertEquals(

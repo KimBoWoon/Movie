@@ -9,6 +9,7 @@ import com.bowoon.testing.TestMovieDataSource
 import com.bowoon.testing.model.movieSearchTestData
 import com.bowoon.testing.model.peopleSearchTestData
 import com.bowoon.testing.model.similarMoviesTestData
+import com.bowoon.testing.repository.TestUserDataRepository
 import com.bowoon.testing.utils.MainDispatcherRule
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
@@ -19,6 +20,7 @@ class PagingRepositoryTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
     private val movieApis = TestMovieDataSource()
+    private val userDataRepository = TestUserDataRepository()
 
     @Test
     fun moviePagingTest() = runTest {
@@ -26,9 +28,7 @@ class PagingRepositoryTest {
             apis = movieApis,
             type = SearchType.MOVIE,
             query = "미션",
-            language = "ko-KR",
-            region = "KR",
-            isAdult = true
+            userDataRepository = userDataRepository
         )
 
         val a: PagingSource.LoadResult<Int, Movie> = PagingSource.LoadResult.Page(
@@ -56,9 +56,7 @@ class PagingRepositoryTest {
             apis = movieApis,
             type = SearchType.PEOPLE,
             query = "톰 크루즈",
-            language = "ko-KR",
-            region = "KR",
-            isAdult = true
+            userDataRepository = userDataRepository
         )
 
         val a: PagingSource.LoadResult<Int, Movie> = PagingSource.LoadResult.Page(
@@ -85,7 +83,7 @@ class PagingRepositoryTest {
         val pagingSource = SimilarMoviePagingSource(
             apis = movieApis,
             id = 0,
-            language = "ko-KR"
+            userDataRepository = userDataRepository
         )
 
         val a: PagingSource.LoadResult<Int, Movie> = PagingSource.LoadResult.Page(
