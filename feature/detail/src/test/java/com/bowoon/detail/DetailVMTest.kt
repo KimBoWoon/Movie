@@ -64,8 +64,7 @@ class DetailVMTest {
             savedStateHandle = savedStateHandle,
             databaseRepository = testDataBaseRepository,
             getMovieDetail = getMovieDetailUseCase,
-            pagingRepository = testPagingRepository,
-            userDataRepository = testUserDataRepository
+            pagingRepository = testPagingRepository
         )
         runBlocking {
             testUserDataRepository.updateUserData(userData = InternalData(), isSync = false)
@@ -80,7 +79,7 @@ class DetailVMTest {
 
         val testPager = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 7, prefetchDistance = 5),
-            pagingSource = testPagingRepository.getSimilarMoviePagingSource(id = 0, language = "ko-KR")
+            pagingSource = testPagingRepository.getSimilarMoviePagingSource(id = 0)
         )
 
         assertEquals(viewModel.detail.value, DetailState.Loading)
@@ -114,7 +113,7 @@ class DetailVMTest {
 
         val testPager = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 7, prefetchDistance = 5),
-            pagingSource = testPagingRepository.getSimilarMoviePagingSource(id = 0, language = "ko-KR")
+            pagingSource = testPagingRepository.getSimilarMoviePagingSource(id = 0)
         )
 
         assertEquals(viewModel.detail.value, DetailState.Loading)
@@ -147,7 +146,7 @@ class DetailVMTest {
         val source = SimilarMoviePagingSource(
             apis = TestMovieDataSource(),
             id = 0,
-            language = "ko"
+            userDataRepository = testUserDataRepository
         )
 
         assertEquals(
@@ -177,7 +176,7 @@ class DetailVMTest {
         val source = MovieReviewPagingSource(
             apis = TestMovieDataSource(),
             id = 0,
-            language = "ko"
+            userDataRepository = testUserDataRepository
         )
 
         assertEquals(
@@ -258,7 +257,7 @@ class DetailVMTest {
 
         val testPager = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 7, prefetchDistance = 5),
-            pagingSource = testPagingRepository.getSimilarMoviePagingSource(id = 0, language = "ko-KR")
+            pagingSource = testPagingRepository.getSimilarMoviePagingSource(id = 0)
         )
 
         assertEquals(viewModel.detail.value, DetailState.Loading)

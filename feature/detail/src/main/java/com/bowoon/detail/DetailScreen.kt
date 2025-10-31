@@ -10,11 +10,13 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
@@ -35,6 +37,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -77,7 +80,6 @@ import com.bowoon.model.Image
 import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetailInfo
 import com.bowoon.model.MovieDetailTab
-import com.bowoon.model.MovieReview
 import com.bowoon.model.Series
 import com.bowoon.movie.feature.detail.R
 import com.bowoon.ui.components.CircularProgressComponent
@@ -92,6 +94,7 @@ import com.bowoon.ui.image.DynamicAsyncImageLoader
 import com.bowoon.ui.utils.animateRotation
 import com.bowoon.ui.utils.bounceClick
 import com.bowoon.ui.utils.dp0
+import com.bowoon.ui.utils.dp1
 import com.bowoon.ui.utils.dp10
 import com.bowoon.ui.utils.dp100
 import com.bowoon.ui.utils.dp16
@@ -100,6 +103,7 @@ import com.bowoon.ui.utils.dp200
 import com.bowoon.ui.utils.dp300
 import com.bowoon.ui.utils.dp32
 import com.bowoon.ui.utils.dp5
+import com.bowoon.ui.utils.dp60
 import com.bowoon.ui.utils.dp8
 import com.bowoon.ui.utils.sp10
 import com.bowoon.ui.utils.sp12
@@ -110,6 +114,10 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
 import kotlinx.coroutines.launch
+import org.threeten.bp.Instant
+import org.threeten.bp.LocalDateTime
+import org.threeten.bp.ZoneId
+import org.threeten.bp.format.DateTimeFormatter
 
 @Composable
 fun DetailScreen(
@@ -143,7 +151,7 @@ fun DetailScreen(
 fun DetailScreen(
     detailState: DetailState,
     similarMovies: LazyPagingItems<Movie>,
-    movieReviews: LazyPagingItems<MovieReview>,
+    movieReviews: LazyPagingItems<ReviewDataModel>,
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     goToBack: () -> Unit,
@@ -201,7 +209,7 @@ fun DetailScreen(
 fun MovieDetailComponent(
     movieInfo: MovieDetailInfo,
     similarMovies: LazyPagingItems<Movie>,
-    movieReviews: LazyPagingItems<MovieReview>,
+    movieReviews: LazyPagingItems<ReviewDataModel>,
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     goToBack: () -> Unit,
@@ -210,10 +218,12 @@ fun MovieDetailComponent(
     deleteFavoriteMovie: (Movie) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
-    val tabList = if (movieInfo.detail.belongsToCollection == null) {
-        MovieDetailTab.entries.map { it.label }.filter { it != MovieDetailTab.SERIES.label }
-    } else {
-        MovieDetailTab.entries.map { it.label }
+    var tabList = MovieDetailTab.entries.toList()
+    if (movieInfo.detail.belongsToCollection == null) {
+        tabList = tabList.filter { it != MovieDetailTab.SERIES }
+    }
+    if (movieReviews.itemCount == 0) {
+        tabList = tabList.filter { it != MovieDetailTab.REVIEWS }
     }
     val pagerState = rememberPagerState(
         initialPage = 0,
@@ -251,7 +261,7 @@ fun MovieDetailComponent(
         )
 
         TabComponent(
-            tabs = tabList,
+            tabs = tabList.map { it.label },
             pagerState = pagerState,
             tabClickEvent = tabClickEvent
         ) { tabs ->
@@ -517,7 +527,7 @@ fun MovieSeriesComponent(
 
 @Composable
 fun MovieReviewComponent(
-    movieReviews: LazyPagingItems<MovieReview>
+    movieReviews: LazyPagingItems<ReviewDataModel>
 ) {
     if (movieReviews.itemCount == 0 && movieReviews.loadState.refresh !is LoadState.Loading) {
         Box(
@@ -528,21 +538,73 @@ fun MovieReviewComponent(
         }
     } else {
         LazyColumn(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(space = dp10),
+            contentPadding = PaddingValues(all = dp10)
         ) {
             items(count = movieReviews.itemCount) {
-                Column(
-                    modifier = Modifier.wrapContentSize()
-                ) {
-                    Row {
-                        DynamicAsyncImageLoader(
-                            source = movieReviews[it]?.authorDetails?.avatarPath ?: "",
-                            contentDescription = "reviewAuthorAvatarPath",
-                            modifier = Modifier.clip(shape = CircleShape),
-                        )
-                        Text(text = movieReviews[it]?.author ?: "")
+                when (movieReviews[it]) {
+                    is ReviewDataModel.Separator -> {
+                        Spacer(modifier = Modifier
+                            .fillMaxWidth()
+                            .height(height = dp1)
+                            .padding(horizontal = dp20)
+                            .background(color = MaterialTheme.colorScheme.onSurface))
                     }
-                    Text(text = movieReviews[it]?.content ?: "")
+                    is ReviewDataModel.Item -> {
+                        val review = (movieReviews[it] as ReviewDataModel.Item).review
+
+                        Column(
+                            modifier = Modifier
+                                .wrapContentSize()
+//                        .border(width = dp1, color = MaterialTheme.colorScheme.onSurface, shape = RoundedCornerShape(size = dp20))
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(space = dp5),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                DynamicAsyncImageLoader(
+                                    source = review.authorDetails?.avatarPath ?: "",
+                                    contentDescription = "reviewAuthorAvatarPath",
+                                    modifier = Modifier
+                                        .size(size = dp60)
+                                        .clip(shape = CircleShape)
+                                )
+                                Column {
+                                    Text(
+                                        modifier = Modifier.padding(bottom = dp5),
+                                        text = review.author ?: "",
+                                        fontSize = sp15,
+                                        style = TextStyle(
+                                            platformStyle = PlatformTextStyle(includeFontPadding = false)
+                                        )
+                                    )
+                                    val time = if (!review.updatedAt?.trim().isNullOrEmpty()) {
+                                        "${Instant.from(DateTimeFormatter.ISO_INSTANT.parse(review.updatedAt)).let { instant ->
+                                            LocalDateTime.ofInstant(instant, ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss"))
+                                        }} (수정 됨)"
+                                    } else {
+                                        Instant.from(DateTimeFormatter.ISO_INSTANT.parse(review.createdAt)).let { instant ->
+                                            LocalDateTime.ofInstant(instant, ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss"))
+                                        }
+                                    }
+                                    Text(
+                                        text = time,
+                                        fontSize = sp10,
+                                        style = TextStyle(
+                                            platformStyle = PlatformTextStyle(includeFontPadding = false)
+                                        )
+                                    )
+                                }
+                            }
+                            Text(text = review.content ?: "")
+                        }
+                    }
+                    else -> {
+                        LocalFirebaseLogHelper.current.sendLog("MovieReviewComponent", "ReviewDataModel not found...")
+                        Log.d("ReviewDataModel not found...")
+                    }
                 }
             }
         }

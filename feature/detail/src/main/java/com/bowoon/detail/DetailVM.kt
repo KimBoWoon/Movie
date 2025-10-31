@@ -7,28 +7,27 @@ import androidx.navigation.toRoute
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
+import androidx.paging.insertSeparators
+import androidx.paging.map
 import com.bowoon.common.Result
 import com.bowoon.common.asResult
 import com.bowoon.common.restartableStateIn
 import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.data.repository.PagingRepository
-import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.detail.navigation.DetailRoute
 import com.bowoon.domain.GetMovieDetailUseCase
-import com.bowoon.model.InternalData
 import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetailInfo
+import com.bowoon.model.MovieReview
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class DetailVM @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    userDataRepository: UserDataRepository,
     private val getMovieDetail: GetMovieDetailUseCase,
     private val databaseRepository: DatabaseRepository,
     private val pagingRepository: PagingRepository
@@ -51,32 +50,25 @@ class DetailVM @Inject constructor(
             initialValue = DetailState.Loading,
             started = SharingStarted.Lazily
         )
-    private val internalData = userDataRepository.internalData
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.Eagerly,
-            initialValue = InternalData()
-        )
     val similarMovies = Pager(
         config = PagingConfig(pageSize = 1, initialLoadSize = 1, prefetchDistance = 5),
         initialKey = 1,
-        pagingSourceFactory = {
-            pagingRepository.getSimilarMoviePagingSource(
-                id = id,
-                language = "${internalData.value.language}-${internalData.value.region}"
-            )
-        }
+        pagingSourceFactory = { pagingRepository.getSimilarMoviePagingSource(id = id) }
     ).flow.cachedIn(scope = viewModelScope)
     val movieReviews = Pager(
         config = PagingConfig(pageSize = 1, initialLoadSize = 1, prefetchDistance = 5),
         initialKey = 1,
-        pagingSourceFactory = {
-            pagingRepository.getMovieReviews(
-                movieId = id,
-                language = "${internalData.value.language}-${internalData.value.region}"
-            )
-        }
-    ).flow.cachedIn(scope = viewModelScope)
+        pagingSourceFactory = { pagingRepository.getMovieReviews(movieId = id) }
+    ).flow.map {
+        it.map { ReviewDataModel.Item(review = it) }
+            .insertSeparators { before, after ->
+                if (before != null && after != null) {
+                    ReviewDataModel.Separator
+                } else {
+                    null
+                }
+            }
+    }.cachedIn(scope = viewModelScope)
 
     fun restart() {
         detail.restart()
@@ -103,4 +95,9 @@ sealed interface DetailState {
     data object Loading : DetailState
     data class Success(val movieInfo: MovieDetailInfo) : DetailState
     data class Error(val throwable: Throwable) : DetailState
+}
+
+sealed interface ReviewDataModel {
+    object Separator : ReviewDataModel
+    data class Item(val review: MovieReview) : ReviewDataModel
 }

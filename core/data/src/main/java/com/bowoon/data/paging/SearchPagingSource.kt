@@ -3,26 +3,48 @@ package com.bowoon.data.paging
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.bowoon.common.Log
+import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.model.Movie
 import com.bowoon.model.SearchType
 import com.bowoon.network.MovieNetworkDataSource
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class SearchPagingSource @Inject constructor(
+    userDataRepository: UserDataRepository,
     private val apis: MovieNetworkDataSource,
     private val type: SearchType,
-    private val query: String,
-    private val language: String,
-    private val region: String,
-    private val isAdult: Boolean
+    private val query: String
 ) : PagingSource<Int, Movie>() {
+    private var language = ""
+    private var region = ""
+    private var isAdult = true
+
+    init {
+        CoroutineScope(context = Dispatchers.Default).launch {
+            userDataRepository.internalData.collect {
+                language = "${it.language}-${it.region}"
+                region = it.region
+                isAdult = it.isAdult
+            }
+        }
+    }
+
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Movie> =
         runCatching {
-            when (type) {
-                SearchType.MOVIE -> searchMovie(params, isAdult)
-                SearchType.PEOPLE -> searchPeople(params, isAdult)
-                SearchType.SERIES -> searchSeries(params, isAdult)
+            val response = when (type) {
+                SearchType.MOVIE -> apis.searchMovies(query = query, includeAdult = isAdult, language = language, region = region, page = params.key ?: 1)
+                SearchType.PEOPLE -> apis.searchPeople(query = query, includeAdult = isAdult, language = language, region = region, page = params.key ?: 1)
+                SearchType.SERIES -> apis.searchSeries(query = query, includeAdult = isAdult, language = language, region = region, page = params.key ?: 1)
             }
+
+            LoadResult.Page(
+                data = response.results ?: emptyList(),
+                prevKey = null,
+                nextKey = if ((response.totalPages ?: 1) > (params.key ?: 1)) (params.key ?: 1) + 1 else null
+            )
         }.getOrElse { e ->
             Log.printStackTrace(e)
             LoadResult.Error(e)
@@ -33,34 +55,4 @@ class SearchPagingSource @Inject constructor(
             val anchorPage = state.closestPageToPosition(anchorPosition)
             anchorPage?.prevKey ?: anchorPage?.nextKey
         }
-
-    private suspend fun searchMovie(params: LoadParams<Int>, isAdult: Boolean): LoadResult<Int, Movie> {
-        val response = apis.searchMovies(query = query, includeAdult = isAdult, language = language, region = region, page = params.key ?: 1)
-
-        return LoadResult.Page(
-            data = response.results ?: emptyList(),
-            prevKey = null,
-            nextKey = if ((response.totalPages ?: 1) > (params.key ?: 1)) (params.key ?: 1) + 1 else null
-        )
-    }
-
-    private suspend fun searchPeople(params: LoadParams<Int>, isAdult: Boolean): LoadResult<Int, Movie> {
-        val response = apis.searchPeople(query = query, includeAdult = isAdult, language = language, region = region, page = params.key ?: 1)
-
-        return LoadResult.Page(
-            data = response.results ?: emptyList(),
-            prevKey = null,
-            nextKey = if ((response.totalPages ?: 1) > (params.key ?: 1)) (params.key ?: 1) + 1 else null
-        )
-    }
-
-    private suspend fun searchSeries(params: LoadParams<Int>, isAdult: Boolean): LoadResult<Int, Movie> {
-        val response = apis.searchSeries(query = query, includeAdult = isAdult, language = language, region = region, page = params.key ?: 1)
-
-        return LoadResult.Page(
-            data = response.results ?: emptyList(),
-            prevKey = null,
-            nextKey = if ((response.totalPages ?: 1) > (params.key ?: 1)) (params.key ?: 1) + 1 else null
-        )
-    }
 }

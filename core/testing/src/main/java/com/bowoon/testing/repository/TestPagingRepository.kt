@@ -28,10 +28,7 @@ class TestPagingRepository : PagingRepository {
     @SuppressLint("VisibleForTests")
     override fun getSearchPagingSource(
         type: SearchType,
-        query: String,
-        language: String,
-        region: String,
-        isAdult: Boolean
+        query: String
     ): PagingSource<Int, Movie> {
         return (0..100).map {
             Movie(
@@ -45,14 +42,13 @@ class TestPagingRepository : PagingRepository {
         }.asPagingSourceFactory().invoke()
     }
 
-    override fun getSimilarMoviePagingSource(id: Int, language: String): PagingSource<Int, Movie> = testPagingSource
+    override fun getSimilarMoviePagingSource(id: Int): PagingSource<Int, Movie> = testPagingSource
 
     @SuppressLint("VisibleForTests")
     override fun getRecommendKeywordPagingSource(query: String): PagingSource<Int, SearchKeyword> = testRecommendedKeyword.asPagingSourceFactory().invoke()
 
     @SuppressLint("VisibleForTests")
     override fun getMovieReviews(
-        movieId: Int,
-        language: String
+        movieId: Int
     ): PagingSource<Int, MovieReview> = testMovieReviews.asPagingSourceFactory().invoke()
 }

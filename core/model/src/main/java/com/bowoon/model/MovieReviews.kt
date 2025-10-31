@@ -31,6 +31,6 @@ data class MovieReview(
 data class MovieReviewAuthorDetails(
     val avatarPath: String? = null,
     val name: String? = null,
-    val rating: Int? = null,
+    val rating: Float? = null,
     val username: String? = null
 ) : Parcelable
