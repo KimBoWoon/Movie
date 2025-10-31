@@ -79,9 +79,7 @@ class SearchVMTest {
             apis = TestMovieDataSource(),
             type = SearchType.MOVIE,
             query = "미션",
-            language = "ko-KR",
-            region = "KR",
-            isAdult = true
+            userDataRepository = testUserDataRepository
         )
 
         val a: PagingSource.LoadResult<Int, Movie> = PagingSource.LoadResult.Page(
