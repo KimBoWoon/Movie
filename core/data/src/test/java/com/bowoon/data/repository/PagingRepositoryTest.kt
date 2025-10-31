@@ -3,6 +3,7 @@ package com.bowoon.data.repository
 import androidx.paging.PagingSource
 import com.bowoon.data.paging.SearchPagingSource
 import com.bowoon.data.paging.SimilarMoviePagingSource
+import com.bowoon.model.InternalData
 import com.bowoon.model.Movie
 import com.bowoon.model.SearchType
 import com.bowoon.testing.TestMovieDataSource
@@ -11,7 +12,9 @@ import com.bowoon.testing.model.peopleSearchTestData
 import com.bowoon.testing.model.similarMoviesTestData
 import com.bowoon.testing.repository.TestUserDataRepository
 import com.bowoon.testing.utils.MainDispatcherRule
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import kotlin.test.assertEquals
@@ -21,6 +24,15 @@ class PagingRepositoryTest {
     val mainDispatcherRule = MainDispatcherRule()
     private val movieApis = TestMovieDataSource()
     private val userDataRepository = TestUserDataRepository()
+
+    @Before
+    fun setup() {
+        runBlocking {
+            userDataRepository.updateUserData(
+                userData = InternalData(), isSync = false
+            )
+        }
+    }
 
     @Test
     fun moviePagingTest() = runTest {
