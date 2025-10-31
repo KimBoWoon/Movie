@@ -79,7 +79,7 @@ class DetailVMTest {
 
         val testPager = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 7, prefetchDistance = 5),
-            pagingSource = testPagingRepository.getSimilarMoviePagingSource(id = 0, language = "ko-KR")
+            pagingSource = testPagingRepository.getSimilarMoviePagingSource(id = 0)
         )
 
         assertEquals(viewModel.detail.value, DetailState.Loading)
@@ -113,7 +113,7 @@ class DetailVMTest {
 
         val testPager = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 7, prefetchDistance = 5),
-            pagingSource = testPagingRepository.getSimilarMoviePagingSource(id = 0, language = "ko-KR")
+            pagingSource = testPagingRepository.getSimilarMoviePagingSource(id = 0)
         )
 
         assertEquals(viewModel.detail.value, DetailState.Loading)
@@ -257,7 +257,7 @@ class DetailVMTest {
 
         val testPager = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 7, prefetchDistance = 5),
-            pagingSource = testPagingRepository.getSimilarMoviePagingSource(id = 0, language = "ko-KR")
+            pagingSource = testPagingRepository.getSimilarMoviePagingSource(id = 0)
         )
 
         assertEquals(viewModel.detail.value, DetailState.Loading)
