@@ -13,4 +13,6 @@
     <string name="region_setting">Region</string>
     <string name="image_quality_setting">Image Quality</string>
     <string name="version_info">Version</string>
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
 </resources>

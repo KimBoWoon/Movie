@@ -41,7 +41,6 @@ enum class Menu {
     IS_ADULT,
     IS_AUTO_PLAYING_TRAILER,
     LANGUAGE,
-    REGION,
     IMAGE_QUALITY,
     VERSION
 }
