@@ -79,7 +79,6 @@ import com.bowoon.model.Crew
 import com.bowoon.model.Image
 import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetailInfo
-import com.bowoon.model.MovieDetailTab
 import com.bowoon.model.Series
 import com.bowoon.movie.feature.detail.R
 import com.bowoon.ui.components.CircularProgressComponent
@@ -218,12 +217,19 @@ fun MovieDetailComponent(
     deleteFavoriteMovie: (Movie) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
-    var tabList = MovieDetailTab.entries.toList()
+    val tabList = mutableListOf(
+        stringResource(id = R.string.movie_detail),
+        stringResource(id = R.string.movie_series),
+        stringResource(id = R.string.movie_reviews),
+        stringResource(id = R.string.movie_actor_and_crew),
+        stringResource(id = R.string.movie_images),
+        stringResource(id = R.string.movie_similar_movies)
+    )
     if (movieInfo.detail.belongsToCollection == null) {
-        tabList = tabList.filter { it != MovieDetailTab.SERIES }
+        stringResource(id = R.string.movie_series)
     }
     if (movieReviews.itemCount == 0) {
-        tabList = tabList.filter { it != MovieDetailTab.REVIEWS }
+        stringResource(id = R.string.movie_reviews)
     }
     val pagerState = rememberPagerState(
         initialPage = 0,
@@ -261,7 +267,7 @@ fun MovieDetailComponent(
         )
 
         TabComponent(
-            tabs = tabList.map { it.label },
+            tabs = tabList,
             pagerState = pagerState,
             tabClickEvent = tabClickEvent
         ) { tabs ->
@@ -274,24 +280,24 @@ fun MovieDetailComponent(
                 userScrollEnabled = false
             ) { index ->
                 when (tabs[index]) {
-                    MovieDetailTab.MOVIE_INFO.label -> MovieInfoComponent(movie = movieInfo.detail)
-                    MovieDetailTab.SERIES.label -> MovieSeriesComponent(
+                    tabList[0] -> MovieInfoComponent(movie = movieInfo.detail)
+                    tabList[1] -> MovieSeriesComponent(
                         movieSeries = movieInfo.series,
                         goToMovie = goToMovie
                     )
-                    MovieDetailTab.REVIEWS.label -> MovieReviewComponent(
+                    tabList[2] -> MovieReviewComponent(
                         movieReviews = movieReviews,
                     )
-                    MovieDetailTab.ACTOR_AND_CREW.label -> ActorAndCrewComponent(
+                    tabList[3] -> ActorAndCrewComponent(
                         movie = movieInfo.detail,
                         goToPeople = goToPeople
                     )
-                    MovieDetailTab.IMAGES.label -> {
+                    tabList[4] -> {
                         val posters = movieInfo.detail.images?.posters ?: emptyList()
                         val backdrops = movieInfo.detail.images?.backdrops ?: emptyList()
                         ImageComponent(images = posters + backdrops)
                     }
-                    MovieDetailTab.SIMILAR.label -> SimilarMovieComponent(
+                    tabList[5] -> SimilarMovieComponent(
                         similarMovies = similarMovies,
                         goToMovie = goToMovie
                     )

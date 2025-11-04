@@ -60,7 +60,7 @@ class DetailVM @Inject constructor(
         initialKey = 1,
         pagingSourceFactory = { pagingRepository.getMovieReviews(movieId = id) }
     ).flow.map {
-        it.map { ReviewDataModel.Item(review = it) }
+        it.map { review -> ReviewDataModel.Item(review = review) }
             .insertSeparators { before, after ->
                 if (before != null && after != null) {
                     ReviewDataModel.Separator

@@ -13,4 +13,6 @@
     <string name="region_setting">지역</string>
     <string name="image_quality_setting">이미지 퀄리티</string>
     <string name="version_info">버전 정보</string>
+    <string name="confirm">설정</string>
+    <string name="cancel">취소</string>
 </resources>

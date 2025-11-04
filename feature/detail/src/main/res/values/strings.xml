@@ -13,4 +13,10 @@
     <string name="movie_vote_average">%.2f</string>
     <string name="movie_alternative_title">Alternative Title</string>
     <string name="movie_production_companies">Production Companies</string>
+    <string name="movie_detail">Movie info</string>
+    <string name="movie_series">Series</string>
+    <string name="movie_actor_and_crew">Actor / Crew</string>
+    <string name="movie_reviews">Review</string>
+    <string name="movie_images">Images</string>
+    <string name="movie_similar_movies">Similar movies</string>
 </resources>
