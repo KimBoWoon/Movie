@@ -9,7 +9,6 @@ import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.model.MainMenu
 import com.bowoon.model.Movie
-import com.bowoon.notifications.SystemTrayNotifier
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
@@ -22,8 +21,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeVM @Inject constructor(
     userDataRepository: UserDataRepository,
-    databaseRepository: DatabaseRepository,
-    notifier: SystemTrayNotifier
+    databaseRepository: DatabaseRepository
 ) : ViewModel() {
     companion object {
         private const val TAG = "HomeVM"
