@@ -280,24 +280,24 @@ fun MovieDetailComponent(
                 userScrollEnabled = false
             ) { index ->
                 when (tabs[index]) {
-                    tabList[0] -> MovieInfoComponent(movie = movieInfo.detail)
-                    tabList[1] -> MovieSeriesComponent(
+                    stringResource(id = R.string.movie_detail) -> MovieInfoComponent(movie = movieInfo.detail)
+                    stringResource(id = R.string.movie_series) -> MovieSeriesComponent(
                         movieSeries = movieInfo.series,
                         goToMovie = goToMovie
                     )
-                    tabList[2] -> MovieReviewComponent(
+                    stringResource(id = R.string.movie_reviews) -> MovieReviewComponent(
                         movieReviews = movieReviews,
                     )
-                    tabList[3] -> ActorAndCrewComponent(
+                    stringResource(id = R.string.movie_actor_and_crew) -> ActorAndCrewComponent(
                         movie = movieInfo.detail,
                         goToPeople = goToPeople
                     )
-                    tabList[4] -> {
+                    stringResource(id = R.string.movie_images) -> {
                         val posters = movieInfo.detail.images?.posters ?: emptyList()
                         val backdrops = movieInfo.detail.images?.backdrops ?: emptyList()
                         ImageComponent(images = posters + backdrops)
                     }
-                    tabList[5] -> SimilarMovieComponent(
+                    stringResource(id = R.string.movie_similar_movies) -> SimilarMovieComponent(
                         similarMovies = similarMovies,
                         goToMovie = goToMovie
                     )
