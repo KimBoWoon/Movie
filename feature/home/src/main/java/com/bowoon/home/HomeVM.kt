@@ -9,6 +9,7 @@ import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.model.MainMenu
 import com.bowoon.model.Movie
+import com.bowoon.notifications.SystemTrayNotifier
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
@@ -21,7 +22,8 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeVM @Inject constructor(
     userDataRepository: UserDataRepository,
-    databaseRepository: DatabaseRepository
+    databaseRepository: DatabaseRepository,
+    notifier: SystemTrayNotifier
 ) : ViewModel() {
     companion object {
         private const val TAG = "HomeVM"
@@ -34,7 +36,7 @@ class HomeVM @Inject constructor(
         internalData.mainMenu to nextWeekReleaseMovies.filter { movie ->
             val now = LocalDate.now()
             !movie.releaseDate?.trim().isNullOrEmpty() && LocalDate.parse(movie.releaseDate ?: "") in (now..now.plusDays(7))
-        }
+        }.sortedWith(comparator = compareBy({ movie -> movie.releaseDate }, { movie -> movie.title }))
     }.onEach {
         if (it.second.isEmpty()) {
             isShowNextWeekReleaseMovie.value = true
@@ -43,7 +45,7 @@ class HomeVM @Inject constructor(
         .map {
             when (it) {
                 is Result.Loading -> MainMenuState.Loading
-                is Result.Success -> MainMenuState.Success(it.data.first, it.data.second.sortedBy { movie -> movie.releaseDate })
+                is Result.Success -> MainMenuState.Success(it.data.first, it.data.second)
                 is Result.Error -> MainMenuState.Error(it.throwable)
             }
         }.stateIn(

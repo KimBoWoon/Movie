@@ -10,7 +10,7 @@ import java.time.LocalDate
 class TestMainMenuRepository : MainMenuRepository {
     private var date = LocalDate.now()
 
-    override suspend fun syncWith(isForce: Boolean): Boolean =
+    override suspend fun syncWith(isForce: Boolean, notification: suspend () -> Unit): Boolean =
         LocalDate.now().minusDays(1).isAfter(date) || isForce
 
     override suspend fun getNowPlaying(): List<Movie> = nowPlayingMoviesTestData

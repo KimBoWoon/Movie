@@ -4,5 +4,5 @@ import com.bowoon.model.Movie
 import javax.inject.Inject
 
 internal class NoOpNotifier @Inject constructor() : Notifier {
-    override fun postMovieNotifications(movies: List<Movie>) = Unit
+    override suspend fun postMovieNotifications(movies: List<Movie>) = Unit
 }

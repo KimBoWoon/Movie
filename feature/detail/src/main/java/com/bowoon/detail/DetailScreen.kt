@@ -226,10 +226,10 @@ fun MovieDetailComponent(
         stringResource(id = R.string.movie_similar_movies)
     )
     if (movieInfo.detail.belongsToCollection == null) {
-        stringResource(id = R.string.movie_series)
+        tabList.remove(element = stringResource(id = R.string.movie_series))
     }
     if (movieReviews.itemCount == 0) {
-        stringResource(id = R.string.movie_reviews)
+        tabList.remove(element = stringResource(id = R.string.movie_reviews))
     }
     val pagerState = rememberPagerState(
         initialPage = 0,
@@ -431,7 +431,7 @@ fun VideosComponent(
                     YouTubePlayerView(context = context).apply {
                         layoutParams = FrameLayout.LayoutParams(
                             FrameLayout.LayoutParams.MATCH_PARENT,
-                            (context.resources.displayMetrics.widthPixels / (VIDEO_RATIO)).toInt()
+                            (context.resources.displayMetrics.widthPixels / VIDEO_RATIO).toInt()
                         )
                         addYouTubePlayerListener(youTubePlayerListener = listener)
                     }

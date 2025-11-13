@@ -10,7 +10,9 @@ import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkerParameters
 import com.bowoon.common.Dispatcher
 import com.bowoon.common.Dispatchers
+import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.data.repository.MainMenuRepository
+import com.bowoon.notifications.SystemTrayNotifier
 import com.bowoon.sync.initializers.SyncConstraints
 import com.bowoon.sync.initializers.syncForegroundInfo
 import com.bowoon.sync.utils.calculateInitialDelay
@@ -19,6 +21,7 @@ import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
+import org.threeten.bp.LocalDate
 import java.util.concurrent.TimeUnit
 
 @HiltWorker
@@ -26,14 +29,16 @@ class MainMenuSyncWorker @AssistedInject constructor(
     @Assisted private val appContext: Context,
     @Assisted private val workerParams: WorkerParameters,
     @param:Dispatcher(Dispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
-    private val mainMenuRepository: MainMenuRepository
+    private val mainMenuRepository: MainMenuRepository,
+    private val databaseRepository: DatabaseRepository,
+    private val notifier: SystemTrayNotifier
 ) : CoroutineWorker(appContext, workerParams) {
     companion object {
         const val WORKER_NAME = "MainMenuSyncWorker"
 
         fun startUpSyncWork(isForce: Boolean = false): OneTimeWorkRequest =
             OneTimeWorkRequestBuilder<DelegatingWorker>()
-                .setInitialDelay(duration = calculateInitialDelay(), TimeUnit.MILLISECONDS)
+                .setInitialDelay(duration = calculateInitialDelay(), timeUnit = TimeUnit.MILLISECONDS)
                 .addTag(tag = WORKER_NAME)
                 .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                 .setConstraints(SyncConstraints)
@@ -46,9 +51,23 @@ class MainMenuSyncWorker @AssistedInject constructor(
     override suspend fun getForegroundInfo(): ForegroundInfo =
         appContext.syncForegroundInfo()
 
-    override suspend fun doWork(): Result = withContext(ioDispatcher) {
-        async { mainMenuRepository.syncWith(isForce) }
-            .await()
+    override suspend fun doWork(): Result = withContext(context = ioDispatcher) {
+        async {
+            mainMenuRepository.syncWith(
+                isForce = isForce,
+                notification = {
+                    databaseRepository.getMovies()
+                        .collect { movies ->
+                            notifier.postMovieNotifications(
+                                movies = movies.filter { movie ->
+                                    val now = LocalDate.now()
+                                    !movie.releaseDate?.trim().isNullOrEmpty() && LocalDate.parse(movie.releaseDate ?: "") in (now..now.plusDays(7))
+                                }
+                            )
+                        }
+                }
+            )
+        }.await()
             .let { isSuccess ->
                 when (isSuccess) {
                     true -> Result.success()
