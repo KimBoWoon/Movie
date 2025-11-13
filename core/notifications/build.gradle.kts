@@ -11,6 +11,8 @@ dependencies {
     api(projects.core.model)
 
     implementation(projects.core.common)
+    implementation(projects.core.domain)
+    implementation(libs.coil.compose)
 
     compileOnly(platform(libs.androidx.compose.bom))
 }

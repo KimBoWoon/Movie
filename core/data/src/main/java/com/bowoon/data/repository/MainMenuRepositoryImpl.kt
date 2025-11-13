@@ -12,7 +12,7 @@ class MainMenuRepositoryImpl @Inject constructor(
     private val apis: MovieNetworkDataSource,
     private val datastore: InternalDataSource
 ) : MainMenuRepository {
-    override suspend fun syncWith(isForce: Boolean): Boolean = suspendRunCatching {
+    override suspend fun syncWith(isForce: Boolean, notification: suspend () -> Unit): Boolean = suspendRunCatching {
         val date = datastore.getUserData().updateDate
         val targetDt = LocalDate.now().minusDays(1)
         val updateDate = when (date.isNotEmpty()) {
@@ -32,6 +32,8 @@ class MainMenuRepositoryImpl @Inject constructor(
                         updateDate = targetDt.toString()
                     )
                 )
+
+                notification()
             }
         }
     }.isSuccess

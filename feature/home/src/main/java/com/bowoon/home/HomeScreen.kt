@@ -68,11 +68,11 @@ fun HomeScreen(
     LocalFirebaseLogHelper.current.sendLog("HomeScreen", "init screen")
 
     val homeUiState by viewModel.mainMenu.collectAsStateWithLifecycle()
-    val isShowTomorrowReleaseMovie = remember { viewModel.isShowNextWeekReleaseMovie }
+    val isShowNextWeekReleaseMovie = remember { viewModel.isShowNextWeekReleaseMovie }
 
     HomeScreen(
         mainMenuState = homeUiState,
-        isShowTomorrowReleaseMovie = isShowTomorrowReleaseMovie,
+        isShowNextWeekReleaseMovie = isShowNextWeekReleaseMovie,
         goToMovie = goToMovie
     )
 }
@@ -80,7 +80,7 @@ fun HomeScreen(
 @Composable
 fun HomeScreen(
     mainMenuState: MainMenuState,
-    isShowTomorrowReleaseMovie: MutableState<Boolean>,
+    isShowNextWeekReleaseMovie: MutableState<Boolean>,
     goToMovie: (Int) -> Unit
 ) {
     LocalFirebaseLogHelper.current.sendLog("HomeScreen", "init screen")
@@ -108,9 +108,9 @@ fun HomeScreen(
                     goToMovie = goToMovie
                 )
 
-                if (!isShowTomorrowReleaseMovie.value && mainMenuState.nextWeekReleaseMovies.isNotEmpty()) {
+                if (!isShowNextWeekReleaseMovie.value && mainMenuState.nextWeekReleaseMovies.isNotEmpty()) {
                     ReleaseMoviesDialog(
-                        onDismiss = { isShowTomorrowReleaseMovie.value = true },
+                        onDismiss = { isShowNextWeekReleaseMovie.value = true },
                         releaseMovies = mainMenuState.nextWeekReleaseMovies,
                         goToMovie = goToMovie
                     )
@@ -261,7 +261,7 @@ fun ReleaseMoviesDialog(
                     },
                 state = pagerState,
             ) {
-                Log.d("TomorrowReleaseMovies Index -> ${pagerState.currentPage}")
+                Log.d("NextWeekReleaseMovies Index -> ${pagerState.currentPage}")
                 Box {
                     DynamicAsyncImageLoader(
                         modifier = Modifier

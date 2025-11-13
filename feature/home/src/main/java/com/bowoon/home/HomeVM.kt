@@ -34,7 +34,7 @@ class HomeVM @Inject constructor(
         internalData.mainMenu to nextWeekReleaseMovies.filter { movie ->
             val now = LocalDate.now()
             !movie.releaseDate?.trim().isNullOrEmpty() && LocalDate.parse(movie.releaseDate ?: "") in (now..now.plusDays(7))
-        }
+        }.sortedWith(comparator = compareBy({ movie -> movie.releaseDate }, { movie -> movie.title }))
     }.onEach {
         if (it.second.isEmpty()) {
             isShowNextWeekReleaseMovie.value = true
@@ -43,7 +43,7 @@ class HomeVM @Inject constructor(
         .map {
             when (it) {
                 is Result.Loading -> MainMenuState.Loading
-                is Result.Success -> MainMenuState.Success(it.data.first, it.data.second.sortedBy { movie -> movie.releaseDate })
+                is Result.Success -> MainMenuState.Success(it.data.first, it.data.second)
                 is Result.Error -> MainMenuState.Error(it.throwable)
             }
         }.stateIn(

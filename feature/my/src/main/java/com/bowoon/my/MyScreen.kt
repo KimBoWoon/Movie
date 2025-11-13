@@ -3,8 +3,10 @@ package com.bowoon.my
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -39,7 +41,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -49,10 +50,8 @@ import com.bowoon.common.getVersionName
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.DarkThemeConfig
 import com.bowoon.model.InternalData
-import com.bowoon.model.Language
 import com.bowoon.model.MovieAppData
 import com.bowoon.model.PosterSize
-import com.bowoon.model.Region
 import com.bowoon.movie.feature.my.R
 import com.bowoon.ui.utils.dp16
 import com.bowoon.ui.utils.dp50
@@ -83,6 +82,7 @@ fun MyScreen(
 ) {
     val context = LocalContext.current
     var isShowChooseDialog by remember { mutableStateOf(value = false) }
+    var isShowLanguageChangeDialog by remember { mutableStateOf(value = false) }
     var chooseDialogItem by remember { mutableStateOf(value = listOf<Any>()) }
     var selectedOption by remember { mutableStateOf<Any?>(value = null) }
 
@@ -135,7 +135,7 @@ fun MyScreen(
                                 title = stringResource(id = R.string.language_setting),
                                 content = "${internalData.language}-${internalData.region}",
                                 onClick = {
-                                    isShowChooseDialog = true
+                                    isShowLanguageChangeDialog = true
                                     chooseDialogItem = movieAppData.language.sortedBy { it.iso6391 }
                                     selectedOption = movieAppData.language.find { it.isSelected }
                                 }
@@ -164,27 +164,25 @@ fun MyScreen(
         }
     }
 
-    if (isShowChooseDialog) {
-        if (selectedOption is Language || selectedOption is Region) {
-            LanguageChooseMenuComponent(
-                internalData = internalData,
-                movieAppData = movieAppData,
-                updateUserData = updateUserData,
-                onDismiss = { isShowChooseDialog = false }
-            )
-        } else {
-            ChooseDialog(
-                list = chooseDialogItem,
-                selectedOption = selectedOption,
-                dismiss = { isShowChooseDialog = false },
-                updateUserData = { chooseItem ->
-                    when (chooseItem) {
-                        is DarkThemeConfig -> updateUserData(internalData.copy(isDarkMode = chooseItem), false)
-                        is PosterSize -> updateUserData(internalData.copy(imageQuality = chooseItem.size ?: ""), true)
-                    }
+    if (isShowLanguageChangeDialog) {
+        LanguageChooseMenuComponent(
+            internalData = internalData,
+            movieAppData = movieAppData,
+            updateUserData = updateUserData,
+            onDismiss = { isShowLanguageChangeDialog = false }
+        )
+    } else if (isShowChooseDialog) {
+        ChooseDialog(
+            list = chooseDialogItem,
+            selectedOption = selectedOption,
+            dismiss = { isShowChooseDialog = false },
+            updateUserData = { chooseItem ->
+                when (chooseItem) {
+                    is DarkThemeConfig -> updateUserData(internalData.copy(isDarkMode = chooseItem), false)
+                    is PosterSize -> updateUserData(internalData.copy(imageQuality = chooseItem.size ?: ""), true)
                 }
-            )
-        }
+            }
+        )
     }
 }
 
@@ -375,27 +373,30 @@ fun LanguageChooseMenuComponent(
             )
             HorizontalDivider()
             Row(
-                modifier = Modifier.fillMaxWidth().height(height = dp50),
-                verticalAlignment = Alignment.CenterVertically
+                modifier = Modifier.fillMaxWidth().height(height = dp50)
             ) {
-                Text(
+                Box(
                     modifier = Modifier
                         .weight(weight = 1.0f)
+                        .fillMaxHeight()
                         .clickable {
                             updateUserData(internalData.copy(language = language, region = region), true)
                             onDismiss()
                         },
-                    text = stringResource(id = R.string.confirm),
-                    textAlign = TextAlign.Center
-                )
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(text = stringResource(id = R.string.confirm))
+                }
                 VerticalDivider(modifier = Modifier.height(height = dp50))
-                Text(
+                Box(
                     modifier = Modifier
                         .weight(weight = 1.0f)
+                        .fillMaxHeight()
                         .clickable { onDismiss() },
-                    text = stringResource(id = R.string.cancel),
-                    textAlign = TextAlign.Center
-                )
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(text = stringResource(id = R.string.cancel))
+                }
             }
         }
     }

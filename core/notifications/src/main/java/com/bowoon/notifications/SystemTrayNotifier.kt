@@ -1,6 +1,5 @@
 package com.bowoon.notifications
 
-import android.Manifest.permission
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -8,21 +7,29 @@ import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager.PERMISSION_GRANTED
+import android.graphics.Bitmap
 import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
-import androidx.core.app.ActivityCompat.checkSelfPermission
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.net.toUri
+import coil3.imageLoader
+import coil3.request.ImageRequest
+import coil3.request.transformations
+import coil3.toBitmap
+import coil3.transform.RoundedCornersTransformation
+import com.bowoon.data.repository.MovieAppDataRepository
 import com.bowoon.model.Movie
 import com.bowoon.movie.core.notifications.R
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
-private const val MOVIE_NOTIFICATION_CHANNEL_ID = ""
+private const val MOVIE_NOTIFICATION_CHANNEL_ID = "MOVIE_NOTIFICATION_CHANNEL"
 private const val MOVIE_NOTIFICATION_GROUP = "MOVIE_NOTIFICATIONS"
+val SUMMARY_ID = 0
 private const val MOVIE_NOTIFICATION_REQUEST_CODE = 0
 private const val TARGET_ACTIVITY_NAME = "com.bowoon.movie.ui.activities.MainActivity"
 private const val DEEP_LINK_SCHEME_AND_HOST = "movieinfo://movie"
@@ -33,33 +40,55 @@ const val DEEP_LINK_URI_PATTERN = "$DEEP_LINK_BASE_PATH/{id}"
 @Singleton
 class SystemTrayNotifier @Inject constructor(
     @param:ApplicationContext private val context: Context,
+    private val movieAppDataRepository: MovieAppDataRepository
 ) : Notifier {
-    override fun postMovieNotifications(movies: List<Movie>) {
-        with(context) {
-            if (checkSelfPermission(this, permission.POST_NOTIFICATIONS) != PERMISSION_GRANTED) {
-                return
-            }
+    override suspend fun postMovieNotifications(movies: List<Movie>) {
+        val imageUrl = movieAppDataRepository.movieAppData.value.getImageUrl()
 
-            val movieNotifications = movies.map { movie ->
-                createMovieNotification {
-                    setSmallIcon(R.drawable.ic_launcher_round)
-                        .setContentTitle("곧 영화가 개봉합니다!")
-                        .setContentText(movie.title)
-                        .setContentIntent(moviePendingIntent(movie))
-                        .setGroup(MOVIE_NOTIFICATION_GROUP)
-                        .setAutoCancel(true)
-                }
-            }
+        val notifications = movies.map { movie ->
+            val bigPictureBitmap = loadNotificationImage(context = context, imageUrl = "$imageUrl${movie.posterPath}")
+            val bigPictureStyle = NotificationCompat.BigPictureStyle()
+                .bigPicture(bigPictureBitmap)
 
-            val notificationManager = NotificationManagerCompat.from(this)
-            movieNotifications.forEachIndexed { index, notification ->
-                notificationManager.notify(
-                    movies[index].id.hashCode(),
-                    notification,
-                )
+            context.createMovieNotification {
+                setSmallIcon(R.drawable.ic_launcher_round)
+                    .setLargeIcon(bigPictureBitmap)
+                    .setContentTitle("곧 영화가 개봉합니다!")
+                    .setContentText(movie.title)
+                    .setContentIntent(context.moviePendingIntent(movie = movie))
+                    .setStyle(bigPictureStyle)
+                    .setGroup(MOVIE_NOTIFICATION_GROUP)
+                    .setAutoCancel(true)
             }
         }
+
+        val summaryMovieNotification = context.createMovieNotification {
+            setSmallIcon(R.drawable.ic_launcher_round)
+                .setContentTitle("곧 영화가 개봉합니다!")
+                .setGroup(MOVIE_NOTIFICATION_GROUP)
+                .setGroupSummary(true)
+                .setAutoCancel(true)
+        }
+
+        notifications.forEachIndexed { index, notification ->
+            NotificationManagerCompat.from(context).apply {
+                notify(movies[index].id ?: 0, notification)
+            }
+        }
+        if (movies.isNotEmpty()) {
+            NotificationManagerCompat.from(context).notify(SUMMARY_ID, summaryMovieNotification)
+        }
     }
+
+    suspend fun loadNotificationImage(context: Context, imageUrl: String): Bitmap? =
+        withContext(context = Dispatchers.IO) {
+            context.imageLoader.execute(
+                request = ImageRequest.Builder(context = context)
+                    .data(data = imageUrl)
+                    .transformations(RoundedCornersTransformation(radius = 50f))
+                    .build()
+            ).image?.toBitmap()
+        }
 }
 
 fun Context.createMovieNotification(
