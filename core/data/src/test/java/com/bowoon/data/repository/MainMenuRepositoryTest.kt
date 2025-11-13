@@ -38,15 +38,15 @@ class MainMenuRepositoryTest {
 
     @Test
     fun syncTest() = runTest {
-        assertEquals(false, repository.syncWith(false))
+        assertEquals(false, repository.syncWith(isForce = false, notification = {}))
         repository.setDate(LocalDate.now().minusDays(3))
-        assertEquals(true, repository.syncWith(false))
+        assertEquals(true, repository.syncWith(isForce = false, notification = {}))
     }
 
     @Test
     fun forceSyncTest() = runTest {
-        assertEquals(true, repository.syncWith(true))
-        assertNotEquals(true, repository.syncWith(false))
+        assertEquals(true, repository.syncWith(isForce = true, notification = {}))
+        assertNotEquals(true, repository.syncWith(isForce = false, notification = {}))
     }
 
     @Test
