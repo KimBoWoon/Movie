@@ -7,9 +7,9 @@ import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.os.Build.VERSION
-import android.os.Build.VERSION_CODES
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.net.toUri
@@ -43,6 +43,9 @@ class SystemTrayNotifier @Inject constructor(
     private val movieAppDataRepository: MovieAppDataRepository
 ) : Notifier {
     override suspend fun postMovieNotifications(movies: List<Movie>) {
+        if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_DENIED) return
+
+        val comingSoonMovie = context.getString(R.string.coming_soon_movie)
         val imageUrl = movieAppDataRepository.movieAppData.value.getImageUrl()
 
         val notifications = movies.map { movie ->
@@ -53,7 +56,7 @@ class SystemTrayNotifier @Inject constructor(
             context.createMovieNotification {
                 setSmallIcon(R.drawable.ic_launcher_round)
                     .setLargeIcon(bigPictureBitmap)
-                    .setContentTitle("곧 영화가 개봉합니다!")
+                    .setContentTitle(comingSoonMovie)
                     .setContentText(movie.title)
                     .setContentIntent(context.moviePendingIntent(movie = movie))
                     .setStyle(bigPictureStyle)
@@ -64,7 +67,7 @@ class SystemTrayNotifier @Inject constructor(
 
         val summaryMovieNotification = context.createMovieNotification {
             setSmallIcon(R.drawable.ic_launcher_round)
-                .setContentTitle("곧 영화가 개봉합니다!")
+                .setContentTitle(comingSoonMovie)
                 .setGroup(MOVIE_NOTIFICATION_GROUP)
                 .setGroupSummary(true)
                 .setAutoCancel(true)
@@ -75,7 +78,7 @@ class SystemTrayNotifier @Inject constructor(
                 notify(movies[index].id ?: 0, notification)
             }
         }
-        if (movies.isNotEmpty()) {
+        if (notifications.isNotEmpty()) {
             NotificationManagerCompat.from(context).notify(SUMMARY_ID, summaryMovieNotification)
         }
     }
@@ -98,15 +101,12 @@ fun Context.createMovieNotification(
     return NotificationCompat.Builder(
         this,
         MOVIE_NOTIFICATION_CHANNEL_ID,
-    )
-        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+    ).setPriority(NotificationCompat.PRIORITY_DEFAULT)
         .apply(block)
         .build()
 }
 
 fun Context.ensureNotificationChannelExists() {
-    if (VERSION.SDK_INT < VERSION_CODES.O) return
-
     val channel = NotificationChannel(
         MOVIE_NOTIFICATION_CHANNEL_ID,
         getString(R.string.system_notification_channel_name),

@@ -1,11 +1,7 @@
 package com.bowoon.people
 
 import androidx.activity.ComponentActivity
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertTextEquals
@@ -14,21 +10,25 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.bowoon.model.Favorite
+import com.bowoon.domain.GetPeopleDetailUseCase
 import com.bowoon.model.MovieAppData
+import com.bowoon.model.People
 import com.bowoon.model.PosterSize
 import com.bowoon.model.getRelatedMovie
+import com.bowoon.testing.model.combineCreditsTestData
 import com.bowoon.testing.model.configurationTestData
+import com.bowoon.testing.model.externalIdsTestData
 import com.bowoon.testing.model.genreListTestData
 import com.bowoon.testing.model.languageListTestData
 import com.bowoon.testing.model.peopleDetailTestData
 import com.bowoon.testing.model.regionTestData
 import com.bowoon.testing.repository.TestDatabaseRepository
+import com.bowoon.testing.repository.TestDetailRepository
 import com.bowoon.testing.repository.TestMovieAppDataRepository
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
@@ -38,21 +38,37 @@ import kotlin.test.assertEquals
 class PeopleScreenTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<ComponentActivity>()
+    private lateinit var viewModel: PeopleVM
+    private lateinit var savedStateHandle: SavedStateHandle
+    private lateinit var getPeopleDetail: GetPeopleDetailUseCase
+    private lateinit var testDatabaseRepository: TestDatabaseRepository
+    private lateinit var testDetailRepository: TestDetailRepository
     private lateinit var testMovieAppDataRepository: TestMovieAppDataRepository
+    private val movieAppData = MovieAppData(
+        secureBaseUrl = configurationTestData.images?.secureBaseUrl ?: "",
+        genres = genreListTestData.genres ?: emptyList(),
+        region = regionTestData.results ?: emptyList(),
+        language = languageListTestData,
+        posterSize = configurationTestData.images?.posterSizes?.map {
+            PosterSize(size = it, isSelected = it == "original")
+        } ?: emptyList()
+    )
 
     @Before
     fun setup() {
+        savedStateHandle = SavedStateHandle(initialState = mapOf("id" to 0))
         testMovieAppDataRepository = TestMovieAppDataRepository()
-        val movieAppData = MovieAppData(
-            secureBaseUrl = configurationTestData.images?.secureBaseUrl ?: "",
-            genres = genreListTestData.genres ?: emptyList(),
-            region = regionTestData.results ?: emptyList(),
-            language = languageListTestData,
-            posterSize = configurationTestData.images?.posterSizes?.map {
-                PosterSize(size = it, isSelected = it == "original")
-            } ?: emptyList()
+        testDatabaseRepository = TestDatabaseRepository()
+        testDetailRepository = TestDetailRepository()
+        getPeopleDetail = GetPeopleDetailUseCase(
+            detailRepository = testDetailRepository,
+            databaseRepository = testDatabaseRepository
         )
-
+        viewModel = PeopleVM(
+            savedStateHandle = savedStateHandle,
+            getPeopleDetail = getPeopleDetail,
+            databaseRepository = testDatabaseRepository
+        )
         testMovieAppDataRepository.setMovieAppData(movieAppData)
     }
 
@@ -60,14 +76,16 @@ class PeopleScreenTest {
     fun peopleScreenLoadingTest() {
         composeTestRule.apply {
             setContent {
+                val people by viewModel.people.collectAsStateWithLifecycle()
+
                 PeopleScreen(
-                    peopleState = PeopleState.Loading,
+                    peopleState = people,
                     goToBack = {},
-                    insertFavoritePeople = {},
-                    deleteFavoritePeople = {},
+                    insertFavoritePeople = viewModel::insertPeople,
+                    deleteFavoritePeople = viewModel::deletePeople,
                     goToMovie = {},
                     onShowSnackbar = { _, _ -> true },
-                    restart = {}
+                    restart = viewModel::restart
                 )
             }
 
@@ -82,11 +100,11 @@ class PeopleScreenTest {
                 PeopleScreen(
                     peopleState = PeopleState.Error(Throwable("something wrong...")),
                     goToBack = {},
-                    insertFavoritePeople = {},
-                    deleteFavoritePeople = {},
+                    insertFavoritePeople = viewModel::insertPeople,
+                    deleteFavoritePeople = viewModel::deletePeople,
                     goToMovie = {},
                     onShowSnackbar = { _, _ -> true },
-                    restart = {}
+                    restart = viewModel::restart
                 )
             }
 
@@ -99,24 +117,29 @@ class PeopleScreenTest {
     @Test
     fun peopleScreenSuccessTest() {
         composeTestRule.apply {
-            var posterPath = ""
-
             setContent {
-                posterPath = testMovieAppDataRepository.movieAppData.collectAsStateWithLifecycle().value.getImageUrl()
+                val people by viewModel.people.collectAsStateWithLifecycle()
 
                 PeopleScreen(
-                    peopleState = PeopleState.Success(peopleDetailTestData),
+                    peopleState = people,
                     goToBack = {},
-                    insertFavoritePeople = {},
-                    deleteFavoritePeople = {},
+                    insertFavoritePeople = viewModel::insertPeople,
+                    deleteFavoritePeople = viewModel::deletePeople,
                     goToMovie = {},
                     onShowSnackbar = { _, _ -> true },
-                    restart = {}
+                    restart = viewModel::restart
                 )
             }
 
+            runBlocking {
+                testDetailRepository.setPeopleDetail(people = peopleDetailTestData)
+                testDetailRepository.setCombineCredits(credits = combineCreditsTestData)
+                testDetailRepository.setExternalIds(ids = externalIdsTestData)
+                testDatabaseRepository.insertPeople(people = peopleDetailTestData)
+            }
+
             onNodeWithTag(testTag = "titleComponent").assertExists().assertTextEquals(peopleDetailTestData.name!!).assertIsDisplayed()
-            onNodeWithContentDescription(label = "PeopleImage").assertExists().assertIsDisplayed()
+            onNodeWithContentDescription(label = "peopleImageHorizontalPager").assertExists().assertIsDisplayed()
             onNodeWithContentDescription(label = "peopleName").assertExists().assertTextEquals(peopleDetailTestData.name!!).assertIsDisplayed()
             onNodeWithContentDescription(label = "peoplePlaceOfBirth").assertExists().assertTextEquals(peopleDetailTestData.placeOfBirth!!).assertIsDisplayed()
             onNodeWithContentDescription(label = "facebookId").assertExists().assertIsDisplayed()
@@ -124,7 +147,7 @@ class PeopleScreenTest {
             onNodeWithContentDescription(label = "youtubeId").assertExists().assertIsDisplayed()
             onNodeWithContentDescription(label = "peopleBiography").assertExists().assertTextEquals(peopleDetailTestData.biography!!).assertIsDisplayed()
             peopleDetailTestData.combineCredits?.getRelatedMovie()?.forEach {
-                onNodeWithTag(testTag = "$posterPath${it.posterPath}").assertExists().assertIsDisplayed()
+                onNodeWithTag(testTag = "${it.posterPath}").assertExists().assertIsDisplayed()
             }
         }
     }
@@ -132,32 +155,29 @@ class PeopleScreenTest {
     @Test
     fun insertPeopleTest() = runTest {
         composeTestRule.apply {
-            var posterPath = ""
-            val testDatabaseRepository = TestDatabaseRepository()
-
             setContent {
-                posterPath = testMovieAppDataRepository.movieAppData.collectAsStateWithLifecycle().value.getImageUrl()
-                var people by remember { mutableStateOf(peopleDetailTestData.copy(isFavorite = false)) }
+                val people by viewModel.people.collectAsStateWithLifecycle()
 
                 PeopleScreen(
-                    peopleState = PeopleState.Success(people),
+                    peopleState = people,
                     goToBack = {},
-                    insertFavoritePeople = {
-                        backgroundScope.launch(UnconfinedTestDispatcher()) { testDatabaseRepository.insertPeople(it) }
-                        people = people.copy(isFavorite = true)
-                    },
-                    deleteFavoritePeople = {
-                        backgroundScope.launch(UnconfinedTestDispatcher()) { testDatabaseRepository.deletePeople(it) }
-                        people = people.copy(isFavorite = false)
-                    },
+                    insertFavoritePeople = viewModel::insertPeople,
+                    deleteFavoritePeople = viewModel::deletePeople,
                     goToMovie = {},
                     onShowSnackbar = { _, _ -> true },
-                    restart = {}
+                    restart = viewModel::restart
                 )
             }
 
+            runBlocking {
+                testDetailRepository.setPeopleDetail(people = peopleDetailTestData.copy(isFavorite = false))
+                testDetailRepository.setCombineCredits(credits = combineCreditsTestData)
+                testDetailRepository.setExternalIds(ids = externalIdsTestData)
+                testDatabaseRepository.insertPeople(people = People(id = 123))
+            }
+
             onNodeWithTag(testTag = "titleComponent").assertExists().assertTextEquals(peopleDetailTestData.name!!).assertIsDisplayed()
-            onNodeWithContentDescription(label = "PeopleImage").assertExists().assertIsDisplayed()
+            onNodeWithContentDescription(label = "peopleImageHorizontalPager").assertExists().assertIsDisplayed()
             onNodeWithContentDescription(label = "peopleName").assertExists().assertTextEquals(peopleDetailTestData.name!!).assertIsDisplayed()
             onNodeWithContentDescription(label = "peoplePlaceOfBirth").assertExists().assertTextEquals(peopleDetailTestData.placeOfBirth!!).assertIsDisplayed()
             onNodeWithContentDescription(label = "facebookId").assertExists().assertIsDisplayed()
@@ -165,7 +185,7 @@ class PeopleScreenTest {
             onNodeWithContentDescription(label = "youtubeId").assertExists().assertIsDisplayed()
             onNodeWithContentDescription(label = "peopleBiography").assertExists().assertTextEquals(peopleDetailTestData.biography!!).assertIsDisplayed()
             peopleDetailTestData.combineCredits?.getRelatedMovie()?.forEach {
-                onNodeWithTag(testTag = "$posterPath${it.posterPath}").assertExists().assertIsDisplayed()
+                onNodeWithTag(testTag = "${it.posterPath}").assertExists().assertIsDisplayed()
             }
             onNodeWithContentDescription(label = "unFavorite").assertIsDisplayed()
             onNodeWithContentDescription(label = "favorite").assertIsNotDisplayed()
@@ -182,44 +202,29 @@ class PeopleScreenTest {
     @Test
     fun deletePeopleTest() = runTest {
         composeTestRule.apply {
-            var posterPath = ""
-            val testDatabaseRepository = TestDatabaseRepository()
-
             setContent {
-                posterPath = testMovieAppDataRepository.movieAppData.collectAsStateWithLifecycle().value.getImageUrl()
-                var people by remember { mutableStateOf(peopleDetailTestData) }
-
-                LaunchedEffect("deleteFavorite") {
-                    backgroundScope.launch(UnconfinedTestDispatcher()) {
-                        testDatabaseRepository.insertPeople(
-                            Favorite(
-                                id = peopleDetailTestData.id,
-                                title = peopleDetailTestData.name,
-                                imagePath = peopleDetailTestData.profilePath
-                            )
-                        )
-                    }
-                }
+                val people by viewModel.people.collectAsStateWithLifecycle()
 
                 PeopleScreen(
-                    peopleState = PeopleState.Success(people),
+                    peopleState = people,
                     goToBack = {},
-                    insertFavoritePeople = {
-                        backgroundScope.launch(UnconfinedTestDispatcher()) { testDatabaseRepository.insertPeople(it) }
-                        people = people.copy(isFavorite = true)
-                    },
-                    deleteFavoritePeople = {
-                        backgroundScope.launch(UnconfinedTestDispatcher()) { testDatabaseRepository.deletePeople(it) }
-                        people = people.copy(isFavorite = false)
-                    },
+                    insertFavoritePeople = viewModel::insertPeople,
+                    deleteFavoritePeople = viewModel::deletePeople,
                     goToMovie = {},
                     onShowSnackbar = { _, _ -> true },
-                    restart = {}
+                    restart = viewModel::restart
                 )
             }
 
+            runBlocking {
+                testDetailRepository.setPeopleDetail(people = peopleDetailTestData)
+                testDetailRepository.setCombineCredits(credits = combineCreditsTestData)
+                testDetailRepository.setExternalIds(ids = externalIdsTestData)
+                testDatabaseRepository.insertPeople(people = peopleDetailTestData)
+            }
+
             onNodeWithTag(testTag = "titleComponent").assertExists().assertTextEquals(peopleDetailTestData.name!!).assertIsDisplayed()
-            onNodeWithContentDescription(label = "PeopleImage").assertExists().assertIsDisplayed()
+            onNodeWithContentDescription(label = "peopleImageHorizontalPager").assertExists().assertIsDisplayed()
             onNodeWithContentDescription(label = "peopleName").assertExists().assertTextEquals(peopleDetailTestData.name!!).assertIsDisplayed()
             onNodeWithContentDescription(label = "peoplePlaceOfBirth").assertExists().assertTextEquals(peopleDetailTestData.placeOfBirth!!).assertIsDisplayed()
             onNodeWithContentDescription(label = "facebookId").assertExists().assertIsDisplayed()
@@ -227,7 +232,7 @@ class PeopleScreenTest {
             onNodeWithContentDescription(label = "youtubeId").assertExists().assertIsDisplayed()
             onNodeWithContentDescription(label = "peopleBiography").assertExists().assertTextEquals(peopleDetailTestData.biography!!).assertIsDisplayed()
             peopleDetailTestData.combineCredits?.getRelatedMovie()?.forEach {
-                onNodeWithTag(testTag = "$posterPath${it.posterPath}").assertExists().assertIsDisplayed()
+                onNodeWithTag(testTag = "${it.posterPath}").assertExists().assertIsDisplayed()
             }
             onNodeWithContentDescription(label = "unFavorite").assertIsNotDisplayed()
             onNodeWithContentDescription(label = "favorite").assertIsDisplayed()

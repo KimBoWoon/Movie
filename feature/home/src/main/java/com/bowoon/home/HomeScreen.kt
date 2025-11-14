@@ -296,7 +296,7 @@ fun ReleaseMoviesDialog(
             }
             Text(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
-                text = stringResource(id = R.string.next_week_release_movie),
+                text = stringResource(id = R.string.coming_soon_movie),
                 color = Color.Black
             )
             Text(

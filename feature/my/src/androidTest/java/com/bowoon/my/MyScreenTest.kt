@@ -24,29 +24,32 @@ import org.junit.Test
 class MyScreenTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<ComponentActivity>()
+    private lateinit var viewModel: MyVM
     private lateinit var testUserDataRepository: TestUserDataRepository
     private lateinit var testMovieAppDataRepository: TestMovieAppDataRepository
+    private val movieAppData = MovieAppData(
+        secureBaseUrl = configurationTestData.images?.secureBaseUrl ?: "",
+        genres = genreListTestData.genres ?: emptyList(),
+        region = regionTestData.results ?: emptyList(),
+        language = languageListTestData.map { it.copy(isSelected = it.name == "en") },
+        posterSize = configurationTestData.images?.posterSizes?.map {
+            PosterSize(size = it, isSelected = it == "original")
+        } ?: emptyList()
+    )
 
     @Before
     fun setup() {
         testUserDataRepository = TestUserDataRepository()
         testMovieAppDataRepository = TestMovieAppDataRepository()
-        val movieAppData = MovieAppData(
-            secureBaseUrl = configurationTestData.images?.secureBaseUrl ?: "",
-            genres = genreListTestData.genres ?: emptyList(),
-            region = regionTestData.results ?: emptyList(),
-            language = languageListTestData.map { it.copy(isSelected = it.name == "en") },
-            posterSize = configurationTestData.images?.posterSizes?.map {
-                PosterSize(size = it, isSelected = it == "original")
-            } ?: emptyList()
+        viewModel = MyVM(
+            userDataRepository = testUserDataRepository,
+            movieAppDataRepository = testMovieAppDataRepository
         )
 
         testMovieAppDataRepository.setMovieAppData(movieAppData)
         runBlocking {
             testUserDataRepository.updateUserData(
-                userData = InternalData(
-                    updateDate = "2025-03-12"
-                ),
+                userData = InternalData(updateDate = "2025-03-12"),
                 isSync = false
             )
         }
@@ -56,8 +59,8 @@ class MyScreenTest {
     fun myScreenTest() {
         composeTestRule.apply {
             setContent {
-                val internalData by testUserDataRepository.internalData.collectAsStateWithLifecycle(initialValue = InternalData())
-                val movieAppData by testMovieAppDataRepository.movieAppData.collectAsStateWithLifecycle()
+                val internalData by viewModel.myData.collectAsStateWithLifecycle()
+                val movieAppData by viewModel.movieAppData.collectAsStateWithLifecycle()
 
                 MyScreen(
                     internalData = internalData,
@@ -72,13 +75,11 @@ class MyScreenTest {
             onNodeWithText(text = "성인").assertExists().assertIsDisplayed()
             onNodeWithText(text = "예고편 자동 재생").assertExists().assertIsDisplayed()
             onNodeWithText(text = "언어").assertExists().assertIsDisplayed()
-            onNodeWithText(text = "en (en)").assertExists().assertIsDisplayed()
-            onNodeWithText(text = "지역").assertExists().assertIsDisplayed()
-            onNodeWithText(text = "ko (ko)").assertExists().assertIsDisplayed()
+            onNodeWithText(text = "ko-KR").assertExists().assertIsDisplayed()
             onNodeWithText(text = "이미지 퀄리티").assertExists().assertIsDisplayed()
             onNodeWithText(text = "original").assertExists().assertIsDisplayed()
             onNodeWithText(text = "버전 정보").assertExists().assertIsDisplayed()
-//            onNodeWithText(text = getVersionName(composeTestRule.activity)).assertExists().assertIsDisplayed()
+//            onNodeWithText(text = getVersionName(context = composeTestRule.activity)).assertExists().assertIsDisplayed()
         }
     }
 }

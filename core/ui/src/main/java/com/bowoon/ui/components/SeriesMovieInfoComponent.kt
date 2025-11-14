@@ -63,6 +63,7 @@ fun SeriesMovieInfoComponent(
             )
             Text(
                 modifier = Modifier
+                    .semantics { contentDescription = seriesPart.title ?: "" }
                     .layoutId(layoutId = "SeriesPartTitle"),
                 text = seriesPart.title ?: "",
                 fontSize = sp20,
@@ -73,6 +74,7 @@ fun SeriesMovieInfoComponent(
             )
             Text(
                 modifier = Modifier
+                    .semantics { contentDescription = seriesPart.releaseDate ?: "" }
                     .layoutId(layoutId = "SeriesPartReleaseDate"),
                 text = seriesPart.releaseDate ?: "",
                 fontSize = sp12,
@@ -81,8 +83,8 @@ fun SeriesMovieInfoComponent(
             )
             Text(
                 modifier = Modifier
-                    .layoutId(layoutId = "SeriesPartOverview")
-                    .semantics { contentDescription = "seriesPartOverview" },
+                    .semantics { contentDescription = "seriesPartOverview" }
+                    .layoutId(layoutId = "SeriesPartOverview"),
                 text = seriesPart.overview ?: "",
                 overflow = TextOverflow.Ellipsis,
                 fontSize = sp13,

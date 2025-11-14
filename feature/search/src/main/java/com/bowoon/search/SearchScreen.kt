@@ -555,7 +555,9 @@ fun RecommendKeywordComponent(
                 val recommendKeyword = recommendKeyword.pagingData.collectAsLazyPagingItems()
 
                 LazyColumn(
-                    modifier = Modifier.semantics { contentDescription = "recommendKeywordList" }.fillMaxSize()
+                    modifier = Modifier
+                        .semantics { contentDescription = "recommendKeywordList" }
+                        .fillMaxSize()
                 ) {
                     item {
                         Row(
@@ -579,7 +581,7 @@ fun RecommendKeywordComponent(
                                     .clickable { recommendKeywordVisible(false) }
                                     .padding(end = dp16),
                                 imageVector = Icons.Filled.Close,
-                                contentDescription = "recommendKeywordClose"
+                                contentDescription = "recommendedKeywordClose"
                             )
                         }
                     }
