@@ -73,18 +73,12 @@ val regionTestData = Regions(
 
 val genreListTestData = Genres(
     genres = listOf(
-        Genre(
-            id = 0,
-            name = "genre_1"
-        ),
-        Genre(
-            id = 1,
-            name = "genre_2"
-        ),
-        Genre(
-            id = 3,
-            name = "genre_3"
-        )
+        Genre(id = 0, name = "name1"),
+        Genre(id = 1, name = "name2"),
+        Genre(id = 2, name = "Action"),
+        Genre(id = 3, name = "name3"),
+        Genre(id = 4, name = "name4"),
+        Genre(id = 5, name = "name5")
     )
 )
 
@@ -236,8 +230,8 @@ val testMovieReviews = (0..5).map {
         author = "author$it",
         authorDetails = null,
         content = "content$it",
-        createdAt = "createdAt$it",
-        updatedAt = "updatedAt$it",
+        createdAt = "2018-07-05T13:22:41.754Z",
+        updatedAt = "2021-06-23T15:58:10.199Z",
         url = "/url$it.jpg",
     )
 }

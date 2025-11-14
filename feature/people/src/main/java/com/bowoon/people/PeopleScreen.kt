@@ -260,6 +260,7 @@ fun BoxScope.PeopleImageComponent(
 
     HorizontalPager(
         modifier = Modifier
+            .semantics { contentDescription = "peopleImageHorizontalPager" }
             .fillMaxSize()
             .aspectRatio(ratio = POSTER_IMAGE_RATIO, matchHeightConstraintsFirst = true)
             .onSizeChanged { size ->
