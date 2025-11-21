@@ -5,7 +5,6 @@ import androidx.navigation.testing.invoke
 import com.bowoon.series.navigation.SeriesRoute
 import com.bowoon.testing.model.movieSeriesTestData
 import com.bowoon.testing.repository.TestDetailRepository
-import com.bowoon.testing.repository.TestMovieAppDataRepository
 import com.bowoon.testing.utils.MainDispatcherRule
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch

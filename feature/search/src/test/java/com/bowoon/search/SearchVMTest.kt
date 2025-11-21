@@ -10,7 +10,6 @@ import com.bowoon.model.SearchType
 import com.bowoon.testing.TestMovieDataSource
 import com.bowoon.testing.model.movieSearchTestData
 import com.bowoon.testing.model.testRecommendedKeyword
-import com.bowoon.testing.repository.TestMovieAppDataRepository
 import com.bowoon.testing.repository.TestPagingRepository
 import com.bowoon.testing.repository.TestUserDataRepository
 import com.bowoon.testing.utils.MainDispatcherRule
@@ -43,7 +42,7 @@ class SearchVMTest {
         apis = TestMovieDataSource()
         viewModel = SearchVM(
             savedStateHandle = savedStateHandle,
-            movieAppDataRepository = testMovieAppDataRepository,
+            movieAppData = testMovieAppDataRepository,
             pagingRepository = testPagingRepository,
             userDataRepository = testUserDataRepository
         )

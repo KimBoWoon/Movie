@@ -26,7 +26,6 @@ import com.bowoon.testing.model.peopleDetailTestData
 import com.bowoon.testing.model.regionTestData
 import com.bowoon.testing.repository.TestDatabaseRepository
 import com.bowoon.testing.repository.TestDetailRepository
-import com.bowoon.testing.repository.TestMovieAppDataRepository
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest

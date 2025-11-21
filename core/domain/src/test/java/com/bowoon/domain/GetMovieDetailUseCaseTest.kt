@@ -13,7 +13,6 @@ import com.bowoon.testing.model.regionTestData
 import com.bowoon.testing.model.unFavoriteMovieDetailTestData
 import com.bowoon.testing.repository.TestDatabaseRepository
 import com.bowoon.testing.repository.TestDetailRepository
-import com.bowoon.testing.repository.TestMovieAppDataRepository
 import com.bowoon.testing.repository.TestPagingRepository
 import com.bowoon.testing.repository.TestUserDataRepository
 import com.bowoon.testing.utils.MainDispatcherRule

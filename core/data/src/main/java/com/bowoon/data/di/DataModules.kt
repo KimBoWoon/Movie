@@ -6,8 +6,6 @@ import com.bowoon.data.repository.DetailRepository
 import com.bowoon.data.repository.DetailRepositoryImpl
 import com.bowoon.data.repository.MainMenuRepository
 import com.bowoon.data.repository.MainMenuRepositoryImpl
-import com.bowoon.data.repository.MovieAppDataRepository
-import com.bowoon.data.repository.MovieAppDataRepositoryImpl
 import com.bowoon.data.repository.PagingRepository
 import com.bowoon.data.repository.PagingRepositoryImpl
 import com.bowoon.data.repository.UserDataRepository
@@ -16,7 +14,6 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -45,10 +42,4 @@ abstract class DataModules {
     abstract fun bindPagingRepository(
         pagingRepository: PagingRepositoryImpl
     ): PagingRepository
-
-    @Binds
-    @Singleton
-    abstract fun bindMovieAppDataRepository(
-        movieAppDataRepository: MovieAppDataRepositoryImpl
-    ): MovieAppDataRepository
 }

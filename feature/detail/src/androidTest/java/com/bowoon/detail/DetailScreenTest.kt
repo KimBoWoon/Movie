@@ -36,7 +36,6 @@ import com.bowoon.testing.model.similarMoviesTestData
 import com.bowoon.testing.model.unFavoriteMovieDetailTestData
 import com.bowoon.testing.repository.TestDatabaseRepository
 import com.bowoon.testing.repository.TestDetailRepository
-import com.bowoon.testing.repository.TestMovieAppDataRepository
 import com.bowoon.testing.repository.TestPagingRepository
 import com.bowoon.testing.repository.TestUserDataRepository
 import com.jakewharton.threetenabp.AndroidThreeTen

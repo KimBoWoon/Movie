@@ -4,6 +4,7 @@ import com.bowoon.data.util.SyncManager
 import com.bowoon.datastore.InternalDataSource
 import com.bowoon.model.InternalData
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
 class UserDataRepositoryImpl @Inject constructor(

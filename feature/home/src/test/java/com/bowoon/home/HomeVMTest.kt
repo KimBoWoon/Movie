@@ -4,7 +4,6 @@ import com.bowoon.model.InternalData
 import com.bowoon.testing.TestSyncManager
 import com.bowoon.testing.model.mainMenuTestData
 import com.bowoon.testing.repository.TestDatabaseRepository
-import com.bowoon.testing.repository.TestMovieAppDataRepository
 import com.bowoon.testing.repository.TestPagingRepository
 import com.bowoon.testing.repository.TestUserDataRepository
 import com.bowoon.testing.utils.MainDispatcherRule

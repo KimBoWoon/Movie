@@ -7,7 +7,6 @@ import com.bowoon.testing.model.configurationTestData
 import com.bowoon.testing.model.genreListTestData
 import com.bowoon.testing.model.languageListTestData
 import com.bowoon.testing.model.regionTestData
-import com.bowoon.testing.repository.TestMovieAppDataRepository
 import com.bowoon.testing.repository.TestUserDataRepository
 import com.bowoon.testing.utils.MainDispatcherRule
 import kotlinx.coroutines.test.runTest

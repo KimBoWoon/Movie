@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -73,7 +74,8 @@ fun HomeScreen(
     HomeScreen(
         mainMenuState = homeUiState,
         isShowNextWeekReleaseMovie = isShowNextWeekReleaseMovie,
-        goToMovie = goToMovie
+        goToMovie = goToMovie,
+        onNoShowToday = viewModel::onNoShowToday
     )
 }
 
@@ -81,7 +83,8 @@ fun HomeScreen(
 fun HomeScreen(
     mainMenuState: MainMenuState,
     isShowNextWeekReleaseMovie: MutableState<Boolean>,
-    goToMovie: (Int) -> Unit
+    goToMovie: (Int) -> Unit,
+    onNoShowToday: () -> Unit
 ) {
     LocalFirebaseLogHelper.current.sendLog("HomeScreen", "init screen")
 
@@ -108,10 +111,11 @@ fun HomeScreen(
                     goToMovie = goToMovie
                 )
 
-                if (!isShowNextWeekReleaseMovie.value && mainMenuState.nextWeekReleaseMovies.isNotEmpty()) {
+                if (!isShowNextWeekReleaseMovie.value) {
                     ReleaseMoviesDialog(
+                        onNoShowToday = onNoShowToday,
                         onDismiss = { isShowNextWeekReleaseMovie.value = true },
-                        releaseMovies = mainMenuState.nextWeekReleaseMovies,
+                        releaseMovies = mainMenuState.mainMenu.nextWeekReleaseMovies,
                         goToMovie = goToMovie
                     )
                 }
@@ -231,6 +235,7 @@ fun MainMovieItem(
 
 @Composable
 fun ReleaseMoviesDialog(
+    onNoShowToday: () -> Unit,
     onDismiss: () -> Unit,
     releaseMovies: List<Movie>,
     goToMovie: (Int) -> Unit
@@ -299,17 +304,37 @@ fun ReleaseMoviesDialog(
                 text = stringResource(id = R.string.coming_soon_movie),
                 color = Color.Black
             )
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .clickable { onDismiss() },
-                text = stringResource(id = R.string.close),
-                textAlign = TextAlign.Center,
-                fontWeight = FontWeight.Bold,
-                fontSize = sp20,
-                color = Color.Black
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    modifier = Modifier
+                        .weight(weight = 1f)
+                        .wrapContentHeight()
+                        .clickable {
+                            onNoShowToday()
+                            onDismiss()
+                        },
+                    text = stringResource(id = R.string.no_show_today),
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = sp20,
+                    color = Color.Black
+                )
+                Text(
+                    modifier = Modifier
+                        .weight(weight = 1f)
+                        .wrapContentHeight()
+                        .clickable { onDismiss() },
+                    text = stringResource(id = R.string.close),
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = sp20,
+                    color = Color.Black
+                )
+            }
         }
     }
 }

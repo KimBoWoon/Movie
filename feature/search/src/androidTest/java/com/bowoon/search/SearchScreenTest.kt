@@ -19,14 +19,10 @@ import com.bowoon.model.MovieAppData
 import com.bowoon.model.SearchType
 import com.bowoon.testing.model.genreListTestData
 import com.bowoon.testing.model.testRecommendedKeyword
-import com.bowoon.testing.repository.TestMovieAppDataRepository
 import com.bowoon.testing.repository.TestPagingRepository
 import com.bowoon.testing.repository.TestUserDataRepository
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -50,7 +46,7 @@ class SearchScreenTest {
         movieAppDataRepository.setMovieAppData(movieAppData = MovieAppData(genres = genres))
         viewModel = SearchVM(
             savedStateHandle = savedStateHandle,
-            movieAppDataRepository = movieAppDataRepository,
+            movieAppData = movieAppDataRepository,
             pagingRepository = testPagingRepository,
             userDataRepository = testUserDataRepository
         )

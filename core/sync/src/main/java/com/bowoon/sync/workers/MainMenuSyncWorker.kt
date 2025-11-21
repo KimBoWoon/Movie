@@ -19,9 +19,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
-import org.threeten.bp.LocalDate
 import java.util.concurrent.TimeUnit
 
 @HiltWorker
@@ -55,15 +53,12 @@ class MainMenuSyncWorker @AssistedInject constructor(
             mainMenuRepository.syncWith(
                 isForce = isForce,
                 notification = {
-                    val favoriteMovie = databaseRepository.getMovies().first()
-
-                    notifier.postMovieNotifications(
-                        movies = favoriteMovie.filter { movie ->
-                            LocalDate.now().let { now ->
-                                !movie.releaseDate?.trim().isNullOrEmpty() && LocalDate.parse(movie.releaseDate ?: "") in (now..now.plusDays(7))
-                            }
+                    databaseRepository
+                        .getNextWeekReleaseMovies()
+                        .takeIf { it.isNotEmpty() }
+                        ?.let { favoriteMovies ->
+                            notifier.postMovieNotifications(movies = favoriteMovies)
                         }
-                    )
                 }
             )
         }.await()

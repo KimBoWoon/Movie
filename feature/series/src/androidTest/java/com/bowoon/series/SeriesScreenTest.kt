@@ -21,7 +21,6 @@ import com.bowoon.testing.model.languageListTestData
 import com.bowoon.testing.model.movieSeriesTestData
 import com.bowoon.testing.model.regionTestData
 import com.bowoon.testing.repository.TestDetailRepository
-import com.bowoon.testing.repository.TestMovieAppDataRepository
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule

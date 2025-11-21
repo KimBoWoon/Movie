@@ -10,14 +10,8 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface MovieDao {
-    @Query(value = " SELECT * FROM movies WHERE id = (:movieId)")
-    fun getMovieEntity(movieId: Int): Flow<MovieEntity>
-
     @Query(value = "SELECT * FROM movies")
     fun getMovieEntities(): Flow<List<MovieEntity>>
-
-    @Query(value = " SELECT * FROM movies WHERE id IN (:ids)")
-    fun getMovieEntities(ids: Set<Int>): Flow<List<MovieEntity>>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertOrIgnoreMovies(movie: MovieEntity): Long
@@ -25,9 +19,9 @@ interface MovieDao {
     @Upsert
     suspend fun upsertMovies(entities: List<MovieEntity>)
 
-    @Query(value = "DELETE FROM movies WHERE id in (:ids)")
-    suspend fun deleteMovies(ids: List<Int>)
-
     @Query(value = "DELETE FROM movies WHERE id = (:id)")
     suspend fun deleteMovie(id: Int)
+
+    @Query(value = "SELECT * FROM movies WHERE releaseDate BETWEEN DATE('now') AND DATE('now', '+7 day') ORDER BY releaseDate ASC, title ASC")
+    suspend fun getNextWeekReleaseMovies(): List<MovieEntity>
 }

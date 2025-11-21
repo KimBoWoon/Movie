@@ -3,7 +3,6 @@ package com.bowoon.my
 import com.bowoon.model.DarkThemeConfig
 import com.bowoon.model.InternalData
 import com.bowoon.testing.model.mainMenuTestData
-import com.bowoon.testing.repository.TestMovieAppDataRepository
 import com.bowoon.testing.repository.TestUserDataRepository
 import com.bowoon.testing.utils.MainDispatcherRule
 import kotlinx.coroutines.flow.collect

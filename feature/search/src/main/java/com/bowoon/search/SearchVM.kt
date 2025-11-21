@@ -11,9 +11,9 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.filter
-import com.bowoon.data.repository.MovieAppDataRepository
 import com.bowoon.data.repository.PagingRepository
 import com.bowoon.data.repository.UserDataRepository
+import com.bowoon.data.util.ApplicationData
 import com.bowoon.model.Genre
 import com.bowoon.model.Movie
 import com.bowoon.model.SearchKeyword
@@ -40,7 +40,7 @@ class SearchVM @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val pagingRepository: PagingRepository,
     userDataRepository: UserDataRepository,
-    movieAppDataRepository: MovieAppDataRepository
+    movieAppData: ApplicationData
 ) : ViewModel() {
     companion object {
         private const val TAG = "SearchVM"
@@ -49,7 +49,7 @@ class SearchVM @Inject constructor(
     }
 
     private var recommendKeywordJob: Job? = null
-    val movieAppData = movieAppDataRepository.movieAppData
+    val movieAppData = movieAppData.movieAppData
     var searchQuery by mutableStateOf(value = "")
         private set
     val selectedGenre = savedStateHandle.getStateFlow<Genre?>(key = GENRE, initialValue = null)

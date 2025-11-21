@@ -136,8 +136,8 @@ fun MyScreen(
                                 content = "${internalData.language}-${internalData.region}",
                                 onClick = {
                                     isShowLanguageChangeDialog = true
-                                    chooseDialogItem = movieAppData.language.sortedBy { it.iso6391 }
-                                    selectedOption = movieAppData.language.find { it.isSelected }
+                                    chooseDialogItem = movieAppData.getSelectedLanguage.sortedBy { it.iso6391 }
+                                    selectedOption = movieAppData.getSelectedLanguage.find { it.isSelected }
                                 }
                             )
                         }
@@ -359,14 +359,14 @@ fun LanguageChooseMenuComponent(
             verticalArrangement = Arrangement.Center
         ) {
             SearchTypeComponent(
-                list = movieAppData.language.sortedBy { it.iso6391 }.map { "${it.iso6391} (${it.englishName})" },
+                list = movieAppData.getSelectedLanguage.sortedBy { it.iso6391 }.map { "${it.iso6391} (${it.englishName})" },
                 selectedOption = language,
                 updateUserData = { language = it },
                 isExpand = isChooseLanguageExpand
             )
             HorizontalDivider()
             SearchTypeComponent(
-                list = movieAppData.region.sortedBy { it.iso31661 }.map { "${it.iso31661} (${it.englishName})" },
+                list = movieAppData.getSelectedRegion.sortedBy { it.iso31661 }.map { "${it.iso31661} (${it.englishName})" },
                 selectedOption = region,
                 updateUserData = { region = it },
                 isExpand = isChooseRegionExpand

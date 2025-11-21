@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bowoon.common.Result
 import com.bowoon.common.asResult
-import com.bowoon.data.repository.MovieAppDataRepository
+import com.bowoon.data.util.ApplicationData
 import com.bowoon.model.DarkThemeConfig
 import com.bowoon.model.MovieAppData
 import com.bowoon.ui.image.imageUrl
@@ -17,9 +17,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainVM @Inject constructor(
-    movieAppDataRepository: MovieAppDataRepository
+    appData: ApplicationData
 ) : ViewModel() {
-    val movieAppData = movieAppDataRepository.movieAppData
+    val movieAppData = appData.movieAppData
         .onEach { imageUrl = it.getImageUrl() }
         .asResult()
         .map {

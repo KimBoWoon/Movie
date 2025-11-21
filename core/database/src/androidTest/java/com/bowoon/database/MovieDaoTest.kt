@@ -81,13 +81,6 @@ internal class MovieDaoTest : DatabaseTest() {
             movieDao.getMovieEntities().first(),
             favoriteMovies.filter { it.id != 2 }
         )
-
-        movieDao.deleteMovies(listOf(1, 3))
-
-        assertEquals(
-            movieDao.getMovieEntities().first(),
-            emptyList()
-        )
     }
 
     @Test
@@ -150,45 +143,6 @@ internal class MovieDaoTest : DatabaseTest() {
         assertEquals(
             movieDao.getMovieEntities().first(),
             favoriteMovies + movie
-        )
-    }
-
-    @Test
-    fun getMovieEntityTest() = runTest {
-        val favoriteMovies = listOf(
-            MovieEntity(
-                id = 1,
-                timestamp = Instant.now().epochSecond,
-                posterPath = "/Movie_1.png",
-                title = "movie_1",
-                releaseDate = "2025-01-01"
-            ),
-            MovieEntity(
-                id = 2,
-                timestamp = Instant.now().epochSecond,
-                posterPath = "/Movie_2.png",
-                title = "movie_2",
-                releaseDate = "2025-01-02"
-            ),
-            MovieEntity(
-                id = 3,
-                timestamp = Instant.now().epochSecond,
-                posterPath = "/Movie_3.png",
-                title = "movie_3",
-                releaseDate = "2025-01-03"
-            )
-        )
-
-        assertEquals(
-            movieDao.getMovieEntities().first(),
-            emptyList()
-        )
-
-        movieDao.insertOrIgnoreMovies(favoriteMovies[0])
-
-        assertEquals(
-            movieDao.getMovieEntities(setOf(1)).first(),
-            listOf(favoriteMovies[0])
         )
     }
 }

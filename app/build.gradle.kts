@@ -56,6 +56,26 @@ dependencies {
 //    ksp(libs.hilt.compiler)
     ksp(libs.hilt.ext.compiler)
 
-    androidTestImplementation(libs.hilt.android.testing)
-    androidTestImplementation(projects.core.testing)
+    arrayOf(
+        libs.hilt.android.testing,
+        projects.core.testing
+    ).forEach {
+        androidTestImplementation(it)
+    }
+
+    arrayOf(
+//        projects.core.dataTest,
+        projects.core.datastoreTest,
+        projects.core.testing,
+        libs.hilt.android.testing,
+//        projects.sync.syncTest,
+        libs.kotlin.test,
+        libs.androidx.navigation.testing,
+        libs.robolectric,
+//        libs.roborazzi,
+//        projects.core.screenshotTesting,
+        libs.androidx.ui.test.junit4
+    ).forEach {
+        testImplementation(it)
+    }
 }

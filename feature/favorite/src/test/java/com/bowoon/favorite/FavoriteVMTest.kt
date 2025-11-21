@@ -3,7 +3,6 @@ package com.bowoon.favorite
 import com.bowoon.model.Movie
 import com.bowoon.model.People
 import com.bowoon.testing.repository.TestDatabaseRepository
-import com.bowoon.testing.repository.TestMovieAppDataRepository
 import com.bowoon.testing.utils.MainDispatcherRule
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
