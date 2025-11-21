@@ -2,6 +2,7 @@ package com.bowoon.data.util
 
 import com.bowoon.common.Dispatcher
 import com.bowoon.common.Dispatchers
+import com.bowoon.common.Log
 import com.bowoon.common.di.ApplicationScope
 import com.bowoon.datastore.InternalDataSource
 import com.bowoon.model.Configuration
@@ -37,6 +38,7 @@ class MovieAppDataManager @Inject constructor(
             apis.getGenres(language = "${it.language}-${it.region}")
         }
     ) { internalData, configuration, language, region, genres ->
+        Log.d("${configuration.images?.secureBaseUrl}${internalData.imageQuality}")
         MovieAppData(
             isAdult = internalData.isAdult,
             autoPlayTrailer = internalData.autoPlayTrailer,
@@ -76,7 +78,7 @@ class MovieAppDataManager @Inject constructor(
             initialValue = MovieAppData()
         )
 
-    private fun getConfiguration(): Flow<Configuration> = flow { apis.getConfiguration() }
-    private fun getAvailableLanguage(): Flow<List<Language>> = flow { apis.getAvailableLanguage() }
-    private fun getAvailableRegion(): Flow<Regions> = flow { apis.getAvailableRegion() }
+    private fun getConfiguration(): Flow<Configuration> = flow { emit(value = apis.getConfiguration()) }
+    private fun getAvailableLanguage(): Flow<List<Language>> = flow { emit(value = apis.getAvailableLanguage()) }
+    private fun getAvailableRegion(): Flow<Regions> = flow { emit(value = apis.getAvailableRegion()) }
 }
