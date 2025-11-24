@@ -6,15 +6,14 @@ import com.bowoon.common.Log
 
 class AppInitializer : Initializer<Unit> {
     override fun create(context: Context) {
-        InitializerEntryPoint.resolve(context)
-
         Log.d("AppInitializer end")
     }
 
     override fun dependencies(): List<Class<out Initializer<*>?>?> =
         listOf(
             DependencyGraphInitializer::class.java,
-//            WorkManagerInitializer::class.java,
+            WorkManagerInitializer::class.java,
+            ImageLoaderInitializer::class.java,
             SyncInitializer::class.java,
             FirebaseInitializer::class.java
         )

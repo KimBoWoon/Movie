@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,6 +20,8 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -58,6 +59,7 @@ import com.bowoon.ui.utils.dp16
 import com.bowoon.ui.utils.dp20
 import com.bowoon.ui.utils.dp300
 import com.bowoon.ui.utils.sp10
+import com.bowoon.ui.utils.sp15
 import com.bowoon.ui.utils.sp20
 import com.bowoon.ui.utils.sp8
 
@@ -253,7 +255,7 @@ fun ReleaseMoviesDialog(
         Column(
             modifier = Modifier
                 .width(width = dp300)
-                .background(color = Color.LightGray, shape = RoundedCornerShape(size = dp10)),
+                .background(color = Color.White, shape = RoundedCornerShape(size = dp10)),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -304,37 +306,37 @@ fun ReleaseMoviesDialog(
                 text = stringResource(id = R.string.coming_soon_movie),
                 color = Color.Black
             )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
+            Button(
+                modifier = Modifier.padding(horizontal = dp16, vertical = dp10),
+                onClick = { onDismiss() }
             ) {
                 Text(
                     modifier = Modifier
-                        .weight(weight = 1f)
+                        .fillMaxWidth()
                         .wrapContentHeight()
-                        .clickable {
-                            onNoShowToday()
-                            onDismiss()
-                        },
-                    text = stringResource(id = R.string.no_show_today),
-                    textAlign = TextAlign.Center,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = sp20,
-                    color = Color.Black
-                )
-                Text(
-                    modifier = Modifier
-                        .weight(weight = 1f)
-                        .wrapContentHeight()
-                        .clickable { onDismiss() },
+                        .background(color = MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(size = dp20)),
                     text = stringResource(id = R.string.close),
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.Bold,
                     fontSize = sp20,
-                    color = Color.Black
+                    color = Color.White
                 )
             }
+            Text(
+                modifier = Modifier
+                    .padding(bottom = dp10)
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .clickable {
+                        onNoShowToday()
+                        onDismiss()
+                    },
+                text = stringResource(id = R.string.no_show_today),
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Bold,
+                fontSize = sp15,
+                color = Color.Black
+            )
         }
     }
 }

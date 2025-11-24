@@ -55,9 +55,9 @@
             <meta-data
                 android:name="com.bowoon.movie.startup.AppInitializer"
                 android:value="androidx.startup" />
-
             <meta-data
-                android:name="com.bowoon.movie.startup.ImageLoaderInitializer"
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
                 tools:node="remove" />
         </provider>
     </application>

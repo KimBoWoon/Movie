@@ -6,10 +6,12 @@ import androidx.work.Configuration
 import androidx.work.WorkManager
 import com.bowoon.common.Log
 
-class WorkManagerInitializer : Initializer<WorkManager> {
+class WorkManagerInitializer : Initializer<WorkManager>, Configuration.Provider {
+    override val workManagerConfiguration: Configuration
+        get() = Configuration.Builder().build()
+
     override fun create(context: Context): WorkManager {
-        val configuration = Configuration.Builder().build()
-        WorkManager.initialize(context, configuration)
+        WorkManager.initialize(context, workManagerConfiguration)
         Log.d("WorkManagerInitializer end")
         return WorkManager.getInstance(context)
     }
