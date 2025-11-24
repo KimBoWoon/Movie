@@ -1,6 +1,6 @@
 [versions]
 # kotlin
-kotlin = "2.2.20"
+kotlin = "2.2.21"
 
 # plugin
 googleService = "4.4.4"
@@ -9,33 +9,33 @@ googleService = "4.4.4"
 agp = "8.13.1"
 
 # ksp
-ksp = "2.1.20-2.0.0"
+ksp = "2.3.1"
 
 # jvm
-jetbrainsKotlinJvm = "2.2.20"
+jetbrainsKotlinJvm = "2.2.21"
 
 # jetpack
 coreKtx = "1.17.0"
-androidxLifecycle = "2.9.4"
+androidxLifecycle = "2.10.0"
 appcompat = "1.7.1"
 constraintlayout = "2.2.1"
 material = "1.13.0"
-activity = "1.11.0"
+activity = "1.12.0"
 jetpack-fragment = "1.8.9"
-datastore = "1.1.7"
-room = "2.8.2"
-workManager = "2.10.5"
-splash = "1.0.1"
+datastore = "1.2.0"
+room = "2.8.4"
+workManager = "2.11.0"
+splash = "1.2.0"
 startup = "1.2.0"
 exoPlayer = "1.8.0"
 pagingTesting = "3.3.6"
 material3-icons = "1.7.8"
 
 # compose
-composeBom = "2025.10.00"
-activityCompose = "1.11.0"
+composeBom = "2025.11.01"
+activityCompose = "1.12.0"
 compose-compiler = "1.4.5"
-compose-navigation = "2.9.5"
+compose-navigation = "2.9.6"
 compose-hilt-navigation = "1.3.0"
 compose-paging = "3.3.6"
 androidxNavigation = "2.8.4"
@@ -56,11 +56,11 @@ hilt = "2.57.2"
 hiltExt = "1.3.0"
 
 # retrofit2
-mockwebserver = "5.2.1"
+mockwebserver = "5.3.2"
 retrofit2 = "3.0.0"
 
 # okhttp
-okhttp-okHttp = "5.2.1"
+okhttp-okHttp = "5.3.2"
 okhttp-profiler = "1.0.8"
 
 # kotlin serialization
@@ -93,7 +93,7 @@ threentenabp = "1.4.9"
 youtubePlayer = "13.0.0"
 
 # lottie
-lottieCompose = "6.6.10"
+lottieCompose = "6.7.1"
 
 [libraries]
 # gradle plugin

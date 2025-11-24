@@ -29,5 +29,5 @@ class FirebaseInitializer : Initializer<Unit> {
     }
 
     override fun dependencies(): List<Class<out Initializer<*>?>?> =
-        listOf(DependencyGraphInitializer::class.java)
+        emptyList()
 }

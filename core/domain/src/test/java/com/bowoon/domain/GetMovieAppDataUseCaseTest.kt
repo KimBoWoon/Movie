@@ -9,6 +9,7 @@ import com.bowoon.testing.model.languageListTestData
 import com.bowoon.testing.model.regionTestData
 import com.bowoon.testing.repository.TestUserDataRepository
 import com.bowoon.testing.utils.MainDispatcherRule
+import com.bowoon.testing.utils.TestMovieAppDataManager
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
@@ -17,7 +18,7 @@ import kotlin.test.assertEquals
 class GetMovieAppDataUseCaseTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
-    private val testMovieAppDataRepository = TestMovieAppDataRepository()
+    private val testMovieAppDataRepository = TestMovieAppDataManager()
     private val testUserDataRepository = TestUserDataRepository()
 
     @Test

@@ -7,7 +7,6 @@ import coil3.PlatformContext
 import coil3.SingletonImageLoader
 import com.bowoon.common.Log
 import com.bowoon.movie.startup.ImageLoaderInitializer
-import com.bowoon.movie.startup.SyncInitializer
 import com.google.firebase.crashlytics.ktx.crashlytics
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.HiltAndroidApp
@@ -19,9 +18,6 @@ class MovieApplication : Application(), SingletonImageLoader.Factory {
 
         Log.d("Application", "onCreate()")
         Firebase.crashlytics.log("Movie Application start!")
-        AppInitializer.getInstance(this)
-            .initializeComponent(SyncInitializer::class.java)
-            .syncMain()
     }
 
     override fun newImageLoader(context: PlatformContext): ImageLoader =

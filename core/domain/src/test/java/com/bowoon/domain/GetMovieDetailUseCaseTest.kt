@@ -16,6 +16,7 @@ import com.bowoon.testing.repository.TestDetailRepository
 import com.bowoon.testing.repository.TestPagingRepository
 import com.bowoon.testing.repository.TestUserDataRepository
 import com.bowoon.testing.utils.MainDispatcherRule
+import com.bowoon.testing.utils.TestMovieAppDataManager
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -31,7 +32,7 @@ class GetMovieDetailUseCaseTest {
     private lateinit var databaseRepository: TestDatabaseRepository
     private lateinit var userDataRepository: TestUserDataRepository
     private lateinit var getMovieDetailUseCase: GetMovieDetailUseCase
-    private lateinit var movieAppDataRepository: TestMovieAppDataRepository
+    private lateinit var movieAppDataRepository: TestMovieAppDataManager
     private lateinit var testPagingRepository: TestPagingRepository
 
     @Before
@@ -39,7 +40,7 @@ class GetMovieDetailUseCaseTest {
         detailRepository = TestDetailRepository()
         databaseRepository = TestDatabaseRepository()
         userDataRepository = TestUserDataRepository()
-        movieAppDataRepository = TestMovieAppDataRepository()
+        movieAppDataRepository = TestMovieAppDataManager()
         testPagingRepository = TestPagingRepository()
         getMovieDetailUseCase = GetMovieDetailUseCase(
             userDataRepository = userDataRepository,

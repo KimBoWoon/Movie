@@ -18,5 +18,5 @@ class ImageLoaderInitializer : Initializer<ImageLoader> {
     }
 
     override fun dependencies(): List<Class<out Initializer<*>?>?> =
-        listOf(DependencyGraphInitializer::class.java)
+        emptyList()
 }

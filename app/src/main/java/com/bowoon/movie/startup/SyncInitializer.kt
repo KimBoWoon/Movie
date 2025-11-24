@@ -6,16 +6,16 @@ import com.bowoon.common.Log
 import com.bowoon.data.util.SyncManager
 import javax.inject.Inject
 
-class SyncInitializer : Initializer<SyncManager> {
+class SyncInitializer : Initializer<Unit> {
     @Inject
     lateinit var syncManager: SyncManager
 
-    override fun create(context: Context): SyncManager {
+    override fun create(context: Context) {
         InitializerEntryPoint.resolve(context).inject(syncInitializer = this)
+        syncManager.syncMain()
         Log.d("SyncInitializer end")
-        return syncManager
     }
 
     override fun dependencies(): List<Class<out Initializer<*>?>?> =
-        listOf(DependencyGraphInitializer::class.java)
+        listOf(ThreeTenABPInitializer::class.java)
 }

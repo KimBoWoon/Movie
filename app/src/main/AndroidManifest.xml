@@ -58,10 +58,6 @@
             <meta-data
                 android:name="com.bowoon.movie.startup.ImageLoaderInitializer"
                 tools:node="remove" />
-
-            <meta-data
-                android:name="com.bowoon.movie.startup.SyncInitializer"
-                tools:node="remove" />
         </provider>
     </application>
 </manifest>

@@ -7,6 +7,7 @@ import com.bowoon.testing.model.peopleDetailTestData
 import com.bowoon.testing.repository.TestDatabaseRepository
 import com.bowoon.testing.repository.TestDetailRepository
 import com.bowoon.testing.utils.MainDispatcherRule
+import com.bowoon.testing.utils.TestMovieAppDataManager
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -20,14 +21,14 @@ class GetPeopleDetailUseCaseTest {
     val mainDispatcherRule = MainDispatcherRule()
     private lateinit var detailRepository: TestDetailRepository
     private lateinit var databaseRepository: TestDatabaseRepository
-    private lateinit var movieAppDataRepository: TestMovieAppDataRepository
+    private lateinit var movieAppDataRepository: TestMovieAppDataManager
     private lateinit var getPeopleDetailUseCase: GetPeopleDetailUseCase
 
     @Before
     fun setup() {
         detailRepository = TestDetailRepository()
         databaseRepository = TestDatabaseRepository()
-        movieAppDataRepository = TestMovieAppDataRepository()
+        movieAppDataRepository = TestMovieAppDataManager()
         getPeopleDetailUseCase = GetPeopleDetailUseCase(
             detailRepository = detailRepository,
             databaseRepository = databaseRepository
