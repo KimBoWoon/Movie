@@ -5,6 +5,7 @@ import com.bowoon.model.InternalData
 import com.bowoon.testing.model.mainMenuTestData
 import com.bowoon.testing.repository.TestUserDataRepository
 import com.bowoon.testing.utils.MainDispatcherRule
+import com.bowoon.testing.utils.TestMovieAppDataManager
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -21,15 +22,15 @@ class MyVMTest {
     val mainDispatcherRule = MainDispatcherRule()
     private lateinit var viewModel: MyVM
     private lateinit var testUserDataRepository: TestUserDataRepository
-    private lateinit var testMovieAppDataRepository: TestMovieAppDataRepository
+    private lateinit var testMovieAppDataManager: TestMovieAppDataManager
 
     @Before
     fun setup() {
         testUserDataRepository = TestUserDataRepository()
-        testMovieAppDataRepository = TestMovieAppDataRepository()
+        testMovieAppDataManager = TestMovieAppDataManager()
         viewModel = MyVM(
             userDataRepository = testUserDataRepository,
-            movieAppDataRepository = testMovieAppDataRepository
+            appData = testMovieAppDataManager
         )
         runBlocking {
             testUserDataRepository.updateUserData(InternalData(), false)

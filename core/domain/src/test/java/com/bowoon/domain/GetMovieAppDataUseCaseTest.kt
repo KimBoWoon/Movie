@@ -18,12 +18,12 @@ import kotlin.test.assertEquals
 class GetMovieAppDataUseCaseTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
-    private val testMovieAppDataRepository = TestMovieAppDataManager()
+    private val testMovieAppDataManager = TestMovieAppDataManager()
     private val testUserDataRepository = TestUserDataRepository()
 
     @Test
     fun getMovieAppDataTest() = runTest {
-        val result = testMovieAppDataRepository.movieAppData
+        val result = testMovieAppDataManager.movieAppData
         val movieAppData = MovieAppData(
             secureBaseUrl = configurationTestData.images?.secureBaseUrl ?: "",
             genres = genreListTestData.genres ?: emptyList(),
@@ -34,7 +34,7 @@ class GetMovieAppDataUseCaseTest {
             } ?: emptyList()
         )
 
-        testMovieAppDataRepository.setMovieAppData(movieAppData)
+        testMovieAppDataManager.setMovieAppData(movieAppData)
         testUserDataRepository.updateUserData(InternalData(region = "ko", language = "ko"), false)
 
         assertEquals(result.value, movieAppData)

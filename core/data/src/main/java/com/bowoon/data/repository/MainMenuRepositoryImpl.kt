@@ -39,16 +39,16 @@ class MainMenuRepositoryImpl @Inject constructor(
     }.isSuccess
 
     override suspend fun getNowPlaying(): List<Movie> {
-        val language = "${datastore.getUserData().language}-${datastore.getUserData().region}"
+        val language = datastore.getUserData().language
         val region = datastore.getUserData().region
 
-        return apis.getNowPlaying(language = language, region = region, page = 1)
+        return apis.getNowPlaying(language = "$language-$region", region = region, page = 1)
     }
 
     override suspend fun getUpcomingMovies(): List<Movie> {
-        val language = "${datastore.getUserData().language}-${datastore.getUserData().region}"
+        val language = datastore.getUserData().language
         val region = datastore.getUserData().region
 
-        return apis.getUpcomingMovie(language = language, region = region, page = 1)
+        return apis.getUpcomingMovie(language = "$language-$region", region = region, page = 1)
     }
 }

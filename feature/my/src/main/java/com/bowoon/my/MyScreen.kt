@@ -361,14 +361,22 @@ fun LanguageChooseMenuComponent(
             SearchTypeComponent(
                 list = movieAppData.language.sortedBy { it.iso6391 }.map { "${it.iso6391} (${it.englishName})" },
                 selectedOption = language,
-                updateUserData = { language = it },
+                updateUserData = { selectedLanguage ->
+                    movieAppData.language.find { language -> "${language.iso6391} (${language.englishName})" == selectedLanguage }?.let {
+                        language = it.iso6391 ?: ""
+                    }
+                },
                 isExpand = isChooseLanguageExpand
             )
             HorizontalDivider()
             SearchTypeComponent(
                 list = movieAppData.region.sortedBy { it.iso31661 }.map { "${it.iso31661} (${it.englishName})" },
                 selectedOption = region,
-                updateUserData = { region = it },
+                updateUserData = { selectedRegion ->
+                    movieAppData.region.find { language -> "${language.iso31661} (${language.englishName})" == selectedRegion }?.let {
+                        region = it.iso31661 ?: ""
+                    }
+                },
                 isExpand = isChooseRegionExpand
             )
             HorizontalDivider()

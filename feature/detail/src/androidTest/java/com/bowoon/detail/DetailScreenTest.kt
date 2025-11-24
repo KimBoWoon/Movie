@@ -38,6 +38,7 @@ import com.bowoon.testing.repository.TestDatabaseRepository
 import com.bowoon.testing.repository.TestDetailRepository
 import com.bowoon.testing.repository.TestPagingRepository
 import com.bowoon.testing.repository.TestUserDataRepository
+import com.bowoon.testing.utils.TestMovieAppDataManager
 import com.jakewharton.threetenabp.AndroidThreeTen
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -57,7 +58,7 @@ class DetailScreenTest {
     private lateinit var testDatabaseRepository: TestDatabaseRepository
     private lateinit var testDetailRepository: TestDetailRepository
     private lateinit var testPagingRepository: TestPagingRepository
-    private lateinit var testMovieAppDataRepository: TestMovieAppDataRepository
+    private lateinit var testMovieAppDataManager: TestMovieAppDataManager
     private val movieAppData = MovieAppData(
         secureBaseUrl = configurationTestData.images?.secureBaseUrl ?: "",
         genres = genreListTestData.genres ?: emptyList(),
@@ -78,7 +79,7 @@ class DetailScreenTest {
         testDetailRepository = TestDetailRepository()
         testDatabaseRepository = TestDatabaseRepository()
         testPagingRepository = TestPagingRepository()
-        testMovieAppDataRepository = TestMovieAppDataRepository()
+        testMovieAppDataManager = TestMovieAppDataManager()
         movieDetailUseCase = GetMovieDetailUseCase(
             userDataRepository = testUserDataRepository,
             databaseRepository = testDatabaseRepository,
@@ -94,7 +95,7 @@ class DetailScreenTest {
         AndroidThreeTen.init(composeTestRule.activity)
         runBlocking {
             testUserDataRepository.updateUserData(userData = InternalData(), isSync = false)
-            testMovieAppDataRepository.setMovieAppData(movieAppData)
+            testMovieAppDataManager.setMovieAppData(movieAppData)
         }
     }
 

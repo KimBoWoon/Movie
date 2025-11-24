@@ -52,7 +52,8 @@
             android:authorities="${applicationId}.androidx-startup"
             android:exported="false"
             tools:node="merge">
-            <meta-data  android:name="com.bowoon.movie.startup.AppInitializer"
+            <meta-data
+                android:name="com.bowoon.movie.startup.AppInitializer"
                 android:value="androidx.startup" />
 
             <meta-data

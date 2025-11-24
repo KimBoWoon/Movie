@@ -21,6 +21,7 @@ import com.bowoon.testing.model.genreListTestData
 import com.bowoon.testing.model.testRecommendedKeyword
 import com.bowoon.testing.repository.TestPagingRepository
 import com.bowoon.testing.repository.TestUserDataRepository
+import com.bowoon.testing.utils.TestMovieAppDataManager
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
@@ -34,7 +35,7 @@ class SearchScreenTest {
     private lateinit var savedStateHandle: SavedStateHandle
     private lateinit var testPagingRepository: TestPagingRepository
     private lateinit var testUserDataRepository: TestUserDataRepository
-    private lateinit var movieAppDataRepository: TestMovieAppDataRepository
+    private lateinit var movieAppDataRepository: TestMovieAppDataManager
     private val genres = genreListTestData.genres ?: emptyList()
 
     @Before
@@ -42,7 +43,7 @@ class SearchScreenTest {
         savedStateHandle = SavedStateHandle()
         testPagingRepository = TestPagingRepository()
         testUserDataRepository = TestUserDataRepository()
-        movieAppDataRepository = TestMovieAppDataRepository()
+        movieAppDataRepository = TestMovieAppDataManager()
         movieAppDataRepository.setMovieAppData(movieAppData = MovieAppData(genres = genres))
         viewModel = SearchVM(
             savedStateHandle = savedStateHandle,
