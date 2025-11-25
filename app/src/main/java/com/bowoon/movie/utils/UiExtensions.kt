@@ -10,10 +10,10 @@ import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.distinctUntilChanged
 
 fun ComponentActivity.isSystemInDarkTheme() = callbackFlow {
-    channel.trySend(resources.configuration.isSystemInDarkTheme)
+    channel.trySend(element = resources.configuration.isSystemInDarkTheme)
 
     val listener = Consumer<Configuration> {
-        channel.trySend(it.isSystemInDarkTheme)
+        channel.trySend(element = it.isSystemInDarkTheme)
     }
 
     addOnConfigurationChangedListener(listener)

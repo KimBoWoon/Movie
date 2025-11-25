@@ -7,9 +7,9 @@ import com.bowoon.testing.model.configurationTestData
 import com.bowoon.testing.model.genreListTestData
 import com.bowoon.testing.model.languageListTestData
 import com.bowoon.testing.model.regionTestData
-import com.bowoon.testing.repository.TestMovieAppDataRepository
 import com.bowoon.testing.repository.TestUserDataRepository
 import com.bowoon.testing.utils.MainDispatcherRule
+import com.bowoon.testing.utils.TestMovieAppDataManager
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
@@ -18,12 +18,12 @@ import kotlin.test.assertEquals
 class GetMovieAppDataUseCaseTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
-    private val testMovieAppDataRepository = TestMovieAppDataRepository()
+    private val testMovieAppDataManager = TestMovieAppDataManager()
     private val testUserDataRepository = TestUserDataRepository()
 
     @Test
     fun getMovieAppDataTest() = runTest {
-        val result = testMovieAppDataRepository.movieAppData
+        val result = testMovieAppDataManager.movieAppData
         val movieAppData = MovieAppData(
             secureBaseUrl = configurationTestData.images?.secureBaseUrl ?: "",
             genres = genreListTestData.genres ?: emptyList(),
@@ -34,7 +34,7 @@ class GetMovieAppDataUseCaseTest {
             } ?: emptyList()
         )
 
-        testMovieAppDataRepository.setMovieAppData(movieAppData)
+        testMovieAppDataManager.setMovieAppData(movieAppData)
         testUserDataRepository.updateUserData(InternalData(region = "ko", language = "ko"), false)
 
         assertEquals(result.value, movieAppData)

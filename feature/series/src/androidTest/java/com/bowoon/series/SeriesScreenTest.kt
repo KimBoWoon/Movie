@@ -21,7 +21,7 @@ import com.bowoon.testing.model.languageListTestData
 import com.bowoon.testing.model.movieSeriesTestData
 import com.bowoon.testing.model.regionTestData
 import com.bowoon.testing.repository.TestDetailRepository
-import com.bowoon.testing.repository.TestMovieAppDataRepository
+import com.bowoon.testing.utils.TestMovieAppDataManager
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
@@ -33,7 +33,7 @@ class SeriesScreenTest {
     private lateinit var viewModel: SeriesVM
     private lateinit var savedStateHandle: SavedStateHandle
     private lateinit var testDetailRepository: TestDetailRepository
-    private lateinit var testMovieAppDataRepository: TestMovieAppDataRepository
+    private lateinit var testMovieAppDataManager: TestMovieAppDataManager
     private lateinit var title: String
     private lateinit var message: String
     private lateinit var confirmString: String
@@ -62,8 +62,8 @@ class SeriesScreenTest {
             this@SeriesScreenTest.confirmString = getString(com.bowoon.movie.core.ui.R.string.retry_message)
             this@SeriesScreenTest.dismissString = getString(com.bowoon.movie.core.ui.R.string.back_message)
         }
-        testMovieAppDataRepository = TestMovieAppDataRepository()
-        testMovieAppDataRepository.setMovieAppData(movieAppData)
+        testMovieAppDataManager = TestMovieAppDataManager()
+        testMovieAppDataManager.setMovieAppData(movieAppData)
     }
 
     @Test

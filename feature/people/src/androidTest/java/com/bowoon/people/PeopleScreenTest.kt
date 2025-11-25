@@ -26,7 +26,7 @@ import com.bowoon.testing.model.peopleDetailTestData
 import com.bowoon.testing.model.regionTestData
 import com.bowoon.testing.repository.TestDatabaseRepository
 import com.bowoon.testing.repository.TestDetailRepository
-import com.bowoon.testing.repository.TestMovieAppDataRepository
+import com.bowoon.testing.utils.TestMovieAppDataManager
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -43,7 +43,7 @@ class PeopleScreenTest {
     private lateinit var getPeopleDetail: GetPeopleDetailUseCase
     private lateinit var testDatabaseRepository: TestDatabaseRepository
     private lateinit var testDetailRepository: TestDetailRepository
-    private lateinit var testMovieAppDataRepository: TestMovieAppDataRepository
+    private lateinit var testMovieAppDataManager: TestMovieAppDataManager
     private val movieAppData = MovieAppData(
         secureBaseUrl = configurationTestData.images?.secureBaseUrl ?: "",
         genres = genreListTestData.genres ?: emptyList(),
@@ -57,7 +57,7 @@ class PeopleScreenTest {
     @Before
     fun setup() {
         savedStateHandle = SavedStateHandle(initialState = mapOf("id" to 0))
-        testMovieAppDataRepository = TestMovieAppDataRepository()
+        testMovieAppDataManager = TestMovieAppDataManager()
         testDatabaseRepository = TestDatabaseRepository()
         testDetailRepository = TestDetailRepository()
         getPeopleDetail = GetPeopleDetailUseCase(
@@ -69,7 +69,7 @@ class PeopleScreenTest {
             getPeopleDetail = getPeopleDetail,
             databaseRepository = testDatabaseRepository
         )
-        testMovieAppDataRepository.setMovieAppData(movieAppData)
+        testMovieAppDataManager.setMovieAppData(movieAppData)
     }
 
     @Test

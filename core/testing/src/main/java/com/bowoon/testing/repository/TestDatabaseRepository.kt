@@ -6,6 +6,7 @@ import com.bowoon.model.People
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import java.time.LocalDate
 
 class TestDatabaseRepository : DatabaseRepository {
     val movieDatabase = MutableSharedFlow<List<Movie>>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
@@ -30,6 +31,15 @@ class TestDatabaseRepository : DatabaseRepository {
                 movies.find { it.id == movie.id } ?: movie
             }
         )
+    }
+
+    override suspend fun getNextWeekReleaseMovies(): List<Movie> {
+        val now = LocalDate.now()
+        val nextWeekReleaseMovies = currentMovieDatabase.filter { movie ->
+            !movie.releaseDate?.trim().isNullOrEmpty() && LocalDate.parse(movie.releaseDate ?: "") in (now..now.plusDays(7))
+        }
+        movieDatabase.emit(nextWeekReleaseMovies)
+        return nextWeekReleaseMovies
     }
 
     override fun getPeople(): Flow<List<People>> = peopleDatabase

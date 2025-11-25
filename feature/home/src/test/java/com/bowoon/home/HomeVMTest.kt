@@ -4,19 +4,18 @@ import com.bowoon.model.InternalData
 import com.bowoon.testing.TestSyncManager
 import com.bowoon.testing.model.mainMenuTestData
 import com.bowoon.testing.repository.TestDatabaseRepository
-import com.bowoon.testing.repository.TestMovieAppDataRepository
 import com.bowoon.testing.repository.TestPagingRepository
 import com.bowoon.testing.repository.TestUserDataRepository
 import com.bowoon.testing.utils.MainDispatcherRule
+import com.bowoon.testing.utils.TestMovieAppDataManager
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import kotlin.test.assertEquals
 
 class HomeVMTest {
     @get:Rule
@@ -26,7 +25,7 @@ class HomeVMTest {
     private lateinit var testUserDataRepository: TestUserDataRepository
     private lateinit var testDatabaseRepository: TestDatabaseRepository
     private lateinit var testPagingRepository: TestPagingRepository
-    private lateinit var testMovieAppDataRepository: TestMovieAppDataRepository
+    private lateinit var testMovieAppDataManager: TestMovieAppDataManager
 
     @Before
     fun setup() {
@@ -34,18 +33,11 @@ class HomeVMTest {
         testUserDataRepository = TestUserDataRepository()
         testDatabaseRepository = TestDatabaseRepository()
         testPagingRepository = TestPagingRepository()
-        testMovieAppDataRepository = TestMovieAppDataRepository()
+        testMovieAppDataManager = TestMovieAppDataManager()
         viewModel = HomeVM(
             userDataRepository = testUserDataRepository,
             databaseRepository = testDatabaseRepository
         )
-    }
-
-    @Test
-    fun syncTest() = runTest {
-        assertEquals(testSyncManager.isSyncing.first(), false)
-        testSyncManager.testSync(true)
-        assertEquals(testSyncManager.isSyncing.first(), true)
     }
 
     @Test
@@ -61,13 +53,13 @@ class HomeVMTest {
         testUserDataRepository.updateUserData(InternalData(mainMenu = mainMenuTestData), false)
         testDatabaseRepository.upsertMovies(emptyList())
         assertEquals(
-            viewModel.mainMenu.value,
-            MainMenuState.Success(
-                mainMenuTestData.copy(
+            expected = viewModel.mainMenu.value,
+            actual = MainMenuState.Success(
+                mainMenu = mainMenuTestData.copy(
                     nowPlayingMovies = mainMenuTestData.nowPlayingMovies,
-                    upComingMovies = mainMenuTestData.upComingMovies
-                ),
-                nextWeekReleaseMovies = emptyList()
+                    upComingMovies = mainMenuTestData.upComingMovies,
+                    nextWeekReleaseMovies = emptyList()
+                )
             )
         )
     }

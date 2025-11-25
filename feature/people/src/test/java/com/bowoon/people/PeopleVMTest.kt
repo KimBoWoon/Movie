@@ -11,8 +11,8 @@ import com.bowoon.testing.model.externalIdsTestData
 import com.bowoon.testing.model.peopleDetailTestData
 import com.bowoon.testing.repository.TestDatabaseRepository
 import com.bowoon.testing.repository.TestDetailRepository
-import com.bowoon.testing.repository.TestMovieAppDataRepository
 import com.bowoon.testing.utils.MainDispatcherRule
+import com.bowoon.testing.utils.TestMovieAppDataManager
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -34,14 +34,14 @@ class PeopleVMTest {
     private lateinit var testDatabaseRepository: TestDatabaseRepository
     private lateinit var testDetailRepository: TestDetailRepository
     private lateinit var getPeopleDetailUseCase: GetPeopleDetailUseCase
-    private lateinit var testMovieAppDataRepository: TestMovieAppDataRepository
+    private lateinit var testMovieAppDataManager: TestMovieAppDataManager
 
     @Before
     fun setup() {
         savedStateHandle = SavedStateHandle(route = PeopleRoute(id = 0))
         testDatabaseRepository = TestDatabaseRepository()
         testDetailRepository = TestDetailRepository()
-        testMovieAppDataRepository = TestMovieAppDataRepository()
+        testMovieAppDataManager = TestMovieAppDataManager()
         getPeopleDetailUseCase = GetPeopleDetailUseCase(
             detailRepository = testDetailRepository,
             databaseRepository = testDatabaseRepository

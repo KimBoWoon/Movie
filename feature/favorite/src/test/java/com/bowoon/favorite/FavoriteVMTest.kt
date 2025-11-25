@@ -3,8 +3,8 @@ package com.bowoon.favorite
 import com.bowoon.model.Movie
 import com.bowoon.model.People
 import com.bowoon.testing.repository.TestDatabaseRepository
-import com.bowoon.testing.repository.TestMovieAppDataRepository
 import com.bowoon.testing.utils.MainDispatcherRule
+import com.bowoon.testing.utils.TestMovieAppDataManager
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -19,7 +19,7 @@ class FavoriteVMTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
     private val testDatabaseRepository = TestDatabaseRepository()
-    private val testMovieAppDataRepository = TestMovieAppDataRepository()
+    private val testMovieAppDataManager = TestMovieAppDataManager()
     private lateinit var viewModel: FavoriteVM
     private val movie1 = Movie(id = 0, title = "movie_1", posterPath = "/movieImagePath_0.png")
     private val movie2 = Movie(id = 1, title = "movie_2", posterPath = "/movieImagePath_1.png")

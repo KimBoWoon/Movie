@@ -1,12 +1,10 @@
 package com.bowoon.testing
 
 import com.bowoon.data.util.SyncManager
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class TestSyncManager : SyncManager {
     private val syncStatusFlow = MutableStateFlow(false)
-    override val isSyncing: Flow<Boolean> = syncStatusFlow
 
     override fun syncMain() {
         TODO("Not yet implemented")

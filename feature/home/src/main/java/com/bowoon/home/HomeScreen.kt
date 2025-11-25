@@ -20,6 +20,8 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -57,6 +59,7 @@ import com.bowoon.ui.utils.dp16
 import com.bowoon.ui.utils.dp20
 import com.bowoon.ui.utils.dp300
 import com.bowoon.ui.utils.sp10
+import com.bowoon.ui.utils.sp15
 import com.bowoon.ui.utils.sp20
 import com.bowoon.ui.utils.sp8
 
@@ -67,13 +70,14 @@ fun HomeScreen(
 ) {
     LocalFirebaseLogHelper.current.sendLog("HomeScreen", "init screen")
 
-    val homeUiState by viewModel.mainMenu.collectAsStateWithLifecycle()
+    val mainMenuState by viewModel.mainMenu.collectAsStateWithLifecycle()
     val isShowNextWeekReleaseMovie = remember { viewModel.isShowNextWeekReleaseMovie }
 
     HomeScreen(
-        mainMenuState = homeUiState,
+        mainMenuState = mainMenuState,
         isShowNextWeekReleaseMovie = isShowNextWeekReleaseMovie,
-        goToMovie = goToMovie
+        goToMovie = goToMovie,
+        onNoShowToday = viewModel::onNoShowToday
     )
 }
 
@@ -81,7 +85,8 @@ fun HomeScreen(
 fun HomeScreen(
     mainMenuState: MainMenuState,
     isShowNextWeekReleaseMovie: MutableState<Boolean>,
-    goToMovie: (Int) -> Unit
+    goToMovie: (Int) -> Unit,
+    onNoShowToday: () -> Unit
 ) {
     LocalFirebaseLogHelper.current.sendLog("HomeScreen", "init screen")
 
@@ -108,10 +113,11 @@ fun HomeScreen(
                     goToMovie = goToMovie
                 )
 
-                if (!isShowNextWeekReleaseMovie.value && mainMenuState.nextWeekReleaseMovies.isNotEmpty()) {
+                if (!isShowNextWeekReleaseMovie.value) {
                     ReleaseMoviesDialog(
+                        onNoShowToday = onNoShowToday,
                         onDismiss = { isShowNextWeekReleaseMovie.value = true },
-                        releaseMovies = mainMenuState.nextWeekReleaseMovies,
+                        releaseMovies = mainMenuState.mainMenu.nextWeekReleaseMovies,
                         goToMovie = goToMovie
                     )
                 }
@@ -231,6 +237,7 @@ fun MainMovieItem(
 
 @Composable
 fun ReleaseMoviesDialog(
+    onNoShowToday: () -> Unit,
     onDismiss: () -> Unit,
     releaseMovies: List<Movie>,
     goToMovie: (Int) -> Unit
@@ -248,7 +255,7 @@ fun ReleaseMoviesDialog(
         Column(
             modifier = Modifier
                 .width(width = dp300)
-                .background(color = Color.LightGray, shape = RoundedCornerShape(size = dp10)),
+                .background(color = Color.White, shape = RoundedCornerShape(size = dp10)),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -299,15 +306,35 @@ fun ReleaseMoviesDialog(
                 text = stringResource(id = R.string.coming_soon_movie),
                 color = Color.Black
             )
+            Button(
+                modifier = Modifier.padding(horizontal = dp16, vertical = dp10),
+                onClick = { onDismiss() }
+            ) {
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .background(color = MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(size = dp20)),
+                    text = stringResource(id = R.string.close),
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = sp20,
+                    color = Color.White
+                )
+            }
             Text(
                 modifier = Modifier
+                    .padding(bottom = dp10)
                     .fillMaxWidth()
                     .wrapContentHeight()
-                    .clickable { onDismiss() },
-                text = stringResource(id = R.string.close),
+                    .clickable {
+                        onNoShowToday()
+                        onDismiss()
+                    },
+                text = stringResource(id = R.string.no_show_today),
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.Bold,
-                fontSize = sp20,
+                fontSize = sp15,
                 color = Color.Black
             )
         }

@@ -14,8 +14,8 @@ import com.bowoon.testing.model.configurationTestData
 import com.bowoon.testing.model.genreListTestData
 import com.bowoon.testing.model.languageListTestData
 import com.bowoon.testing.model.regionTestData
-import com.bowoon.testing.repository.TestMovieAppDataRepository
 import com.bowoon.testing.repository.TestUserDataRepository
+import com.bowoon.testing.utils.TestMovieAppDataManager
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
@@ -26,7 +26,7 @@ class MyScreenTest {
     val composeTestRule = createAndroidComposeRule<ComponentActivity>()
     private lateinit var viewModel: MyVM
     private lateinit var testUserDataRepository: TestUserDataRepository
-    private lateinit var testMovieAppDataRepository: TestMovieAppDataRepository
+    private lateinit var testMovieAppDataManager: TestMovieAppDataManager
     private val movieAppData = MovieAppData(
         secureBaseUrl = configurationTestData.images?.secureBaseUrl ?: "",
         genres = genreListTestData.genres ?: emptyList(),
@@ -40,13 +40,13 @@ class MyScreenTest {
     @Before
     fun setup() {
         testUserDataRepository = TestUserDataRepository()
-        testMovieAppDataRepository = TestMovieAppDataRepository()
+        testMovieAppDataManager = TestMovieAppDataManager()
         viewModel = MyVM(
             userDataRepository = testUserDataRepository,
-            movieAppDataRepository = testMovieAppDataRepository
+            movieAppData = testMovieAppDataManager
         )
 
-        testMovieAppDataRepository.setMovieAppData(movieAppData)
+        testMovieAppDataManager.setMovieAppData(movieAppData)
         runBlocking {
             testUserDataRepository.updateUserData(
                 userData = InternalData(updateDate = "2025-03-12"),

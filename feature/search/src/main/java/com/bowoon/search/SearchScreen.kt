@@ -118,7 +118,7 @@ fun SearchScreen(
     val searchType by viewModel.searchType.collectAsStateWithLifecycle()
     val recommendKeyword by viewModel.recommendKeywordPaging.collectAsStateWithLifecycle()
     val inputKeyword = stringResource(id = R.string.input_keyword)
-    val movieAppData by viewModel.movieAppData.collectAsStateWithLifecycle()
+    val movieAppData by viewModel.movieAppData.movieAppData.collectAsStateWithLifecycle()
     val lifecycle = LocalLifecycleOwner.current.lifecycle
 
     LaunchedEffect(key1 = inputKeyword) {

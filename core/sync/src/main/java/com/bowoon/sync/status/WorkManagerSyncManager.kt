@@ -8,20 +8,11 @@ import androidx.work.WorkManager
 import com.bowoon.data.util.SyncManager
 import com.bowoon.sync.workers.MainMenuSyncWorker
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.conflate
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 internal class WorkManagerSyncManager @Inject constructor(
     @param:ApplicationContext private val appContext: Context,
 ) : SyncManager {
-    override val isSyncing: Flow<Boolean> =
-        WorkManager.getInstance(appContext)
-            .getWorkInfosForUniqueWorkFlow(uniqueWorkName = MainMenuSyncWorker.WORKER_NAME)
-            .map(transform = List<WorkInfo>::anyRunning)
-            .conflate()
-
     override fun syncMain() {
         WorkManager.getInstance(appContext)
             .enqueueUniqueWork(
@@ -36,7 +27,7 @@ internal class WorkManagerSyncManager @Inject constructor(
             .beginUniqueWork(
                 uniqueWorkName = MainMenuSyncWorker.WORKER_NAME,
                 existingWorkPolicy = ExistingWorkPolicy.KEEP,
-                request = MainMenuSyncWorker.startUpSyncWork(isForce = true)
+                request = MainMenuSyncWorker.startUpExpeditedSyncWork(isForce = true)
             )
             .enqueue()
     }

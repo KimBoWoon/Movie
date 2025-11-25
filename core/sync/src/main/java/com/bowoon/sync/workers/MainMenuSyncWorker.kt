@@ -6,6 +6,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.OneTimeWorkRequest
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkerParameters
 import com.bowoon.common.Dispatcher
 import com.bowoon.common.Dispatchers
@@ -19,9 +20,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
-import org.threeten.bp.LocalDate
 import java.util.concurrent.TimeUnit
 
 @HiltWorker
@@ -35,11 +34,20 @@ class MainMenuSyncWorker @AssistedInject constructor(
 ) : CoroutineWorker(appContext, workerParams) {
     companion object {
         const val WORKER_NAME = "MainMenuSyncWorker"
+        const val EXPEDITED_SYNC_WORK_NAME = "EXPEDITED_SYNC_WORK_NAME"
 
         fun startUpSyncWork(isForce: Boolean = false): OneTimeWorkRequest =
             OneTimeWorkRequestBuilder<DelegatingWorker>()
                 .setInitialDelay(duration = calculateInitialDelay(), timeUnit = TimeUnit.MILLISECONDS)
                 .addTag(tag = WORKER_NAME)
+                .setConstraints(SyncConstraints)
+                .setInputData(MainMenuSyncWorker::class.delegatedData(isForce))
+                .build()
+
+        fun startUpExpeditedSyncWork(isForce: Boolean = false): OneTimeWorkRequest =
+            OneTimeWorkRequestBuilder<DelegatingWorker>()
+                .addTag(tag = EXPEDITED_SYNC_WORK_NAME)
+                .setExpedited(policy = OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                 .setConstraints(SyncConstraints)
                 .setInputData(MainMenuSyncWorker::class.delegatedData(isForce))
                 .build()
@@ -55,15 +63,12 @@ class MainMenuSyncWorker @AssistedInject constructor(
             mainMenuRepository.syncWith(
                 isForce = isForce,
                 notification = {
-                    val favoriteMovie = databaseRepository.getMovies().first()
-
-                    notifier.postMovieNotifications(
-                        movies = favoriteMovie.filter { movie ->
-                            LocalDate.now().let { now ->
-                                !movie.releaseDate?.trim().isNullOrEmpty() && LocalDate.parse(movie.releaseDate ?: "") in (now..now.plusDays(7))
-                            }
+                    databaseRepository
+                        .getNextWeekReleaseMovies()
+                        .takeIf { it.isNotEmpty() }
+                        ?.let { favoriteMovies ->
+                            notifier.postMovieNotifications(movies = favoriteMovies)
                         }
-                    )
                 }
             )
         }.await()

@@ -8,4 +8,5 @@
     <string name="release_movie">%s 개봉</string>
     <string name="close">닫기</string>
     <string name="coming_soon_movie">영화가 곧 개봉합니다.</string>
+    <string name="no_show_today">오늘 하루 보지 않기</string>
 </resources>

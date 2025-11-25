@@ -54,6 +54,11 @@ class DatabaseRepositoryImpl @Inject constructor(
         )
     }
 
+    override suspend fun getNextWeekReleaseMovies(): List<Movie> =
+        movieDao.getNextWeekReleaseMovies().map { movieEntity ->
+            movieEntity.asExternalModel()
+        }
+
     override fun getPeople(): Flow<List<People>> =
         peopleDao.getPeopleEntities()
             .map { peopleEntities ->

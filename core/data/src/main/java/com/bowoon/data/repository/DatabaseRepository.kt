@@ -9,6 +9,7 @@ interface DatabaseRepository {
     suspend fun insertMovie(movie: Movie): Long
     suspend fun deleteMovie(movie: Movie)
     suspend fun upsertMovies(movies: List<Movie>)
+    suspend fun getNextWeekReleaseMovies(): List<Movie>
 
     fun getPeople(): Flow<List<People>>
     suspend fun insertPeople(people: People): Long

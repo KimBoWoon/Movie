@@ -11,9 +11,8 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.filter
-import com.bowoon.data.repository.MovieAppDataRepository
 import com.bowoon.data.repository.PagingRepository
-import com.bowoon.data.repository.UserDataRepository
+import com.bowoon.data.util.ApplicationData
 import com.bowoon.model.Genre
 import com.bowoon.model.Movie
 import com.bowoon.model.SearchKeyword
@@ -26,11 +25,9 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -39,8 +36,7 @@ import javax.inject.Inject
 class SearchVM @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val pagingRepository: PagingRepository,
-    userDataRepository: UserDataRepository,
-    movieAppDataRepository: MovieAppDataRepository
+    internal val movieAppData: ApplicationData
 ) : ViewModel() {
     companion object {
         private const val TAG = "SearchVM"
@@ -49,7 +45,6 @@ class SearchVM @Inject constructor(
     }
 
     private var recommendKeywordJob: Job? = null
-    val movieAppData = movieAppDataRepository.movieAppData
     var searchQuery by mutableStateOf(value = "")
         private set
     val selectedGenre = savedStateHandle.getStateFlow<Genre?>(key = GENRE, initialValue = null)
@@ -57,12 +52,7 @@ class SearchVM @Inject constructor(
     val searchResult = MutableStateFlow<SearchUiState>(value = SearchUiState.SearchHint)
     val recommendKeywordPaging = MutableStateFlow<RecommendKeywordUiState>(value = RecommendKeywordUiState.Loading)
     val showSnackbar = MutableSharedFlow<Unit>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
-    private val recommendKeywordFlow = MutableStateFlow<String>("")
-    private val userData = userDataRepository.internalData.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.Eagerly,
-        initialValue = null
-    )
+    private val recommendKeywordFlow = MutableStateFlow<String>(value = "")
 
     init {
         recommendKeywordJob = viewModelScope.launch {

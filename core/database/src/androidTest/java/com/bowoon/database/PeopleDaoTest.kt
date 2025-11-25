@@ -75,13 +75,6 @@ internal class PeopleDaoTest : DatabaseTest() {
             peopleDao.getPeopleEntities().first(),
             favoritePeoples.filter { it.id != 2 }
         )
-
-        peopleDao.deletePeoples(listOf(1, 3))
-
-        assertEquals(
-            peopleDao.getPeopleEntities().first(),
-            emptyList()
-        )
     }
 
     @Test
@@ -139,42 +132,6 @@ internal class PeopleDaoTest : DatabaseTest() {
         assertEquals(
             peopleDao.getPeopleEntities().first(),
             favoritePeoples + people
-        )
-    }
-
-    @Test
-    fun getMovieEntityTest() = runTest {
-        val favoritePeoples = listOf(
-            PeopleEntity(
-                id = 1,
-                timestamp = Instant.now().epochSecond,
-                name = "people_1",
-                profilePath = "/People_1.png"
-            ),
-            PeopleEntity(
-                id = 2,
-                timestamp = Instant.now().epochSecond,
-                name = "people_2",
-                profilePath = "/People_2.png"
-            ),
-            PeopleEntity(
-                id = 3,
-                timestamp = Instant.now().epochSecond,
-                name = "people_3",
-                profilePath = "/People_3.png"
-            )
-        )
-
-        assertEquals(
-            peopleDao.getPeopleEntities().first(),
-            emptyList()
-        )
-
-        peopleDao.insertOrIgnorePeoples(favoritePeoples[0])
-
-        assertEquals(
-            peopleDao.getPeopleEntities(setOf(1)).first(),
-            listOf(favoritePeoples[0])
         )
     }
 }

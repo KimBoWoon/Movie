@@ -8,4 +8,5 @@
     <string name="release_movie">%s Release</string>
     <string name="close">Close</string>
     <string name="coming_soon_movie">Next week Release Movie</string>
+    <string name="no_show_today">No show today</string>
 </resources>

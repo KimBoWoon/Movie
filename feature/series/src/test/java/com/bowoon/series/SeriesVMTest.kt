@@ -5,8 +5,8 @@ import androidx.navigation.testing.invoke
 import com.bowoon.series.navigation.SeriesRoute
 import com.bowoon.testing.model.movieSeriesTestData
 import com.bowoon.testing.repository.TestDetailRepository
-import com.bowoon.testing.repository.TestMovieAppDataRepository
 import com.bowoon.testing.utils.MainDispatcherRule
+import com.bowoon.testing.utils.TestMovieAppDataManager
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -24,14 +24,14 @@ class SeriesVMTest {
     val mainDispatcherRule = MainDispatcherRule()
     private lateinit var savedStateHandle: SavedStateHandle
     private lateinit var testDetailRepository: TestDetailRepository
-    private lateinit var testMovieAppDataRepository: TestMovieAppDataRepository
+    private lateinit var testMovieAppDataManager: TestMovieAppDataManager
     private lateinit var seriesVM: SeriesVM
 
     @Before
     fun setup() {
         savedStateHandle = SavedStateHandle(route = SeriesRoute(id = 0))
         testDetailRepository = TestDetailRepository()
-        testMovieAppDataRepository = TestMovieAppDataRepository()
+        testMovieAppDataManager = TestMovieAppDataManager()
 
         seriesVM = SeriesVM(
             savedStateHandle = savedStateHandle,
