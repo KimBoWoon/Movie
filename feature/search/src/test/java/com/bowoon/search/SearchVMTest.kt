@@ -44,8 +44,7 @@ class SearchVMTest {
         viewModel = SearchVM(
             savedStateHandle = savedStateHandle,
             movieAppData = testMovieAppDataManager,
-            pagingRepository = testPagingRepository,
-            userDataRepository = testUserDataRepository
+            pagingRepository = testPagingRepository
         )
     }
 
