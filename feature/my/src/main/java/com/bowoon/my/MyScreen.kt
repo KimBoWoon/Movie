@@ -1,7 +1,9 @@
 package com.bowoon.my
 
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -65,13 +67,20 @@ fun MyScreen(
     LocalFirebaseLogHelper.current.sendLog("MyScreen", "my screen init")
 
     val internalData by viewModel.myData.collectAsStateWithLifecycle()
-    val movieAppData by viewModel.movieAppData.collectAsStateWithLifecycle()
+    val movieAppData by viewModel.movieAppData.movieAppData.collectAsStateWithLifecycle()
 
     MyScreen(
         internalData = internalData,
         movieAppData = movieAppData,
         updateUserData = viewModel::updateUserData
     )
+}
+
+sealed interface MyMenu {
+    data class Display(val label: String, val content: String) : MyMenu
+    data class Switch(val label: String, val selected: Boolean, val onClick: ((Boolean) -> Unit)) : MyMenu
+    data class Language(val label: String, val selected: Any, val content: String, val onClick: (() -> Unit)) : MyMenu
+    data class Dialog(val label: String, val selected: Any, val content: String, val onClick: (() -> Unit)) : MyMenu
 }
 
 @Composable
@@ -85,6 +94,53 @@ fun MyScreen(
     var isShowLanguageChangeDialog by remember { mutableStateOf(value = false) }
     var chooseDialogItem by remember { mutableStateOf(value = listOf<Any>()) }
     var selectedOption by remember { mutableStateOf<Any?>(value = null) }
+    val menuList = mutableListOf<MyMenu>(
+        MyMenu.Display(
+            label = stringResource(id = R.string.main_update_data_setting),
+            content = internalData.updateDate
+        ),
+        MyMenu.Dialog(
+            label = stringResource(id = R.string.dark_mode_setting),
+            selected = internalData.isDarkMode,
+            content = when (internalData.isDarkMode) {
+                DarkThemeConfig.FOLLOW_SYSTEM -> stringResource(id = R.string.dark_mode_setting_system_follow)
+                DarkThemeConfig.LIGHT -> stringResource(id = R.string.dark_mode_setting_light)
+                DarkThemeConfig.DARK -> stringResource(id = R.string.dark_mode_setting_dark)
+            },
+            onClick = {
+                isShowChooseDialog = true
+                chooseDialogItem = DarkThemeConfig.entries
+                selectedOption = internalData.imageQuality
+            }
+        ),
+        MyMenu.Switch(
+            label = stringResource(id = R.string.is_adult_setting),
+            selected = internalData.isAdult,
+            onClick = { updateUserData(internalData.copy(isAdult = it), false) }),
+        MyMenu.Switch(
+            label = stringResource(id = R.string.auto_playing_trailer_setting),
+            selected = internalData.autoPlayTrailer,
+            onClick = { updateUserData(internalData.copy(autoPlayTrailer = it), false) }),
+        MyMenu.Language(
+            label = stringResource(id = R.string.language_setting),
+            selected = movieAppData.language.find { it.isSelected } ?: "",
+            content = "${internalData.language}-${internalData.region}",
+            onClick = { isShowLanguageChangeDialog = true }),
+        MyMenu.Dialog(
+            label = stringResource(id = R.string.image_quality_setting),
+            selected = internalData.imageQuality,
+            content = internalData.imageQuality,
+            onClick = {
+                isShowChooseDialog = true
+                chooseDialogItem = movieAppData.posterSize
+                selectedOption = movieAppData.posterSize.find { it.isSelected }
+            }
+        ),
+        MyMenu.Display(
+            label = stringResource(id = R.string.version_info),
+            content = getVersionName(context = context)
+        )
+    )
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -93,69 +149,33 @@ fun MyScreen(
             modifier = Modifier.fillMaxSize()
         ) {
             item {
-                Menu.entries.forEach { menu ->
+                menuList.forEach { menu ->
                     when (menu) {
-                        Menu.MAIN_UPDATE_DATE -> {
+                        is MyMenu.Dialog -> {
+                            ChooseMenuComponent(
+                                title = menu.label,
+                                content = menu.content,
+                                onClick = menu.onClick
+                            )
+                        }
+                        is MyMenu.Display -> {
                             DisplayMenuComponent(
-                                title = stringResource(id = R.string.main_update_data_setting),
-                                content = internalData.updateDate
+                                title = menu.label,
+                                content = menu.content
                             )
                         }
-                        Menu.DARK_MODE_SETTING -> {
-                            ChooseMenuComponent(
-                                title = stringResource(id = R.string.dark_mode_setting),
-                                content = when (internalData.isDarkMode) {
-                                    DarkThemeConfig.FOLLOW_SYSTEM -> stringResource(id = R.string.dark_mode_setting_system_follow)
-                                    DarkThemeConfig.LIGHT -> stringResource(id = R.string.dark_mode_setting_light)
-                                    DarkThemeConfig.DARK -> stringResource(id = R.string.dark_mode_setting_dark)
-                                },
-                                onClick = {
-                                    isShowChooseDialog = true
-                                    chooseDialogItem = DarkThemeConfig.entries
-                                    selectedOption = internalData.isDarkMode
-                                }
-                            )
-                        }
-                        Menu.IS_ADULT -> {
-                            SwitchMenuComponent(
-                                title = stringResource(id = R.string.is_adult_setting),
-                                checked = internalData.isAdult,
-                                onClick = { updateUserData(internalData.copy(isAdult = it), false) }
-                            )
-                        }
-                        Menu.IS_AUTO_PLAYING_TRAILER -> {
-                            SwitchMenuComponent(
-                                title = stringResource(id = R.string.auto_playing_trailer_setting),
-                                checked = internalData.autoPlayTrailer,
-                                onClick = { updateUserData(internalData.copy(autoPlayTrailer = it), false) }
-                            )
-                        }
-                        Menu.LANGUAGE -> {
-                            ChooseMenuComponent(
-                                title = stringResource(id = R.string.language_setting),
-                                content = "${internalData.language}-${internalData.region}",
-                                onClick = {
-                                    isShowLanguageChangeDialog = true
-                                    chooseDialogItem = movieAppData.language.sortedBy { it.iso6391 }
-                                    selectedOption = movieAppData.language.find { it.isSelected }
-                                }
-                            )
-                        }
-                        Menu.IMAGE_QUALITY -> {
-                            ChooseMenuComponent(
-                                title = stringResource(id = R.string.image_quality_setting),
-                                content = internalData.imageQuality,
-                                onClick = {
-                                    isShowChooseDialog = true
-                                    chooseDialogItem = movieAppData.posterSize
-                                    selectedOption = movieAppData.posterSize.find { it.isSelected }
-                                }
-                            )
-                        }
-                        Menu.VERSION -> {
+                        is MyMenu.Language -> {
                             DisplayMenuComponent(
-                                title = stringResource(id = R.string.version_info),
-                                content = getVersionName(context = context)
+                                title = menu.label,
+                                content = menu.content,
+                                onClick = menu.onClick
+                            )
+                        }
+                        is MyMenu.Switch -> {
+                            SwitchMenuComponent(
+                                title = menu.label,
+                                checked = menu.selected,
+                                onClick = menu.onClick
                             )
                         }
                     }
@@ -255,12 +275,17 @@ fun <T> ChooseDialog(
 @Composable
 fun DisplayMenuComponent(
     title: String,
-    content: String
+    content: String,
+    onClick: (() -> Unit)? = null
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(dp50),
+            .height(height = dp50)
+            .clickable(
+                interactionSource = if (onClick == null) null else remember { MutableInteractionSource() },
+                indication = if (onClick == null) null else LocalIndication.current
+            ) { onClick?.let { it() } },
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -268,10 +293,19 @@ fun DisplayMenuComponent(
             modifier = Modifier.padding(start = dp16),
             text = title
         )
-        Text(
+        Row(
             modifier = Modifier.padding(end = dp16),
-            text = content
-        )
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            Text(text = content)
+            if (onClick != null) {
+                Icon(
+                    modifier = Modifier.rotate(degrees = 90f),
+                    imageVector = Icons.Filled.KeyboardArrowUp,
+                    contentDescription = "moreIcon"
+                )
+            }
+        }
     }
 }
 
@@ -381,14 +415,19 @@ fun LanguageChooseMenuComponent(
             )
             HorizontalDivider()
             Row(
-                modifier = Modifier.fillMaxWidth().height(height = dp50)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(height = dp50)
             ) {
                 Box(
                     modifier = Modifier
                         .weight(weight = 1.0f)
                         .fillMaxHeight()
                         .clickable {
-                            updateUserData(internalData.copy(language = language, region = region), true)
+                            updateUserData(
+                                internalData.copy(language = language, region = region),
+                                true
+                            )
                             onDismiss()
                         },
                     contentAlignment = Alignment.Center

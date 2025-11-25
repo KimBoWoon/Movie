@@ -74,7 +74,7 @@ class MovieAppDataManager @Inject constructor(
     }.flowOn(ioDispatcher)
         .stateIn(
             scope = appScope,
-            started = SharingStarted.Eagerly,
+            started = SharingStarted.Lazily,
             initialValue = MovieAppData()
         )
 

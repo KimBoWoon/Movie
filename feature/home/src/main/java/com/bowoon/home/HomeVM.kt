@@ -31,7 +31,9 @@ class HomeVM @Inject constructor(
         .map { internalData ->
             val isShowToday = internalData.noShowToday.isEmpty() || LocalDate.parse(internalData.noShowToday).isBefore(LocalDate.now())
 
-            isShowNextWeekReleaseMovie.value = !isShowToday
+            if (!isShowNextWeekReleaseMovie.value) {
+                isShowNextWeekReleaseMovie.value = !isShowToday
+            }
 
             MainMenu(
                 nowPlayingMovies = internalData.mainMenu.nowPlayingMovies,

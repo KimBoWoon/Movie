@@ -14,7 +14,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MyVM @Inject constructor(
     private val userDataRepository: UserDataRepository,
-    private val appData: ApplicationData
+    val movieAppData: ApplicationData
 ) : ViewModel() {
     companion object {
         private const val TAG = "MyVM"
@@ -26,21 +26,10 @@ class MyVM @Inject constructor(
             started = SharingStarted.WhileSubscribed(),
             initialValue = InternalData()
         )
-    val movieAppData = appData.movieAppData
 
     fun updateUserData(userData: InternalData, isSync: Boolean) {
         viewModelScope.launch {
             userDataRepository.updateUserData(userData, isSync)
         }
     }
-}
-
-enum class Menu {
-    MAIN_UPDATE_DATE,
-    DARK_MODE_SETTING,
-    IS_ADULT,
-    IS_AUTO_PLAYING_TRAILER,
-    LANGUAGE,
-    IMAGE_QUALITY,
-    VERSION
 }

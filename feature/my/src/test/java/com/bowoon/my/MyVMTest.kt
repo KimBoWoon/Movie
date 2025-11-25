@@ -30,7 +30,7 @@ class MyVMTest {
         testMovieAppDataManager = TestMovieAppDataManager()
         viewModel = MyVM(
             userDataRepository = testUserDataRepository,
-            appData = testMovieAppDataManager
+            movieAppData = testMovieAppDataManager
         )
         runBlocking {
             testUserDataRepository.updateUserData(InternalData(), false)

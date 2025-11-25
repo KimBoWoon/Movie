@@ -70,11 +70,11 @@ fun HomeScreen(
 ) {
     LocalFirebaseLogHelper.current.sendLog("HomeScreen", "init screen")
 
-    val homeUiState by viewModel.mainMenu.collectAsStateWithLifecycle()
+    val mainMenuState by viewModel.mainMenu.collectAsStateWithLifecycle()
     val isShowNextWeekReleaseMovie = remember { viewModel.isShowNextWeekReleaseMovie }
 
     HomeScreen(
-        mainMenuState = homeUiState,
+        mainMenuState = mainMenuState,
         isShowNextWeekReleaseMovie = isShowNextWeekReleaseMovie,
         goToMovie = goToMovie,
         onNoShowToday = viewModel::onNoShowToday
