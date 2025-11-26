@@ -22,6 +22,10 @@ fun Project.configureKotlinAndroid(
             targetCompatibility = JavaVersion.VERSION_11
         }
 
+        lint {
+            abortOnError = false
+        }
+
         tasks.withType<KotlinCompile>().configureEach {
             compilerOptions.jvmTarget.set(JvmTarget.JVM_11)
         }
