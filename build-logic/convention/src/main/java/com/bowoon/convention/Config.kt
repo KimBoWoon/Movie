@@ -15,17 +15,17 @@ object Config {
         }.getOrDefault("\"key not found\"")
 
     object ApplicationSetting {
-        const val COMPILE_SDK_VERSION = 35
-        const val MIN_SDK_VERSION = 23
-        const val testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        const val defaultProguardFile = "proguard-android-optimize.txt"
-        const val proguardFile = "proguard-rules.pro"
-        const val dateFormat = "HHmmss"
+        const val COMPILE_SDK_VERSION = 36
+        const val MIN_SDK_VERSION = 26
+        const val TEST_INSTRUMENTATION_RUNNER = "androidx.test.runner.AndroidJUnitRunner"
+        const val DEFAULT_PROGUARD_FILE = "proguard-android-optimize.txt"
+        const val PROGUARD_FILE = "proguard-rules.pro"
+        const val DATE_FORMAT = "HHmmss"
     }
 
     object Library {
-        const val MIN_SDK_VERSION = 23
-        const val COMPILE_SDK_VERSION = 35
+        const val MIN_SDK_VERSION = 26
+        const val COMPILE_SDK_VERSION = 36
     }
 
     sealed class Application(

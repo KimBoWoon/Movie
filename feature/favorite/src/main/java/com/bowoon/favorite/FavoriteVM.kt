@@ -2,78 +2,45 @@ package com.bowoon.favorite
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bowoon.common.Result
-import com.bowoon.common.asResult
 import com.bowoon.data.repository.DatabaseRepository
-import com.bowoon.domain.GetFavoriteMoviesUseCase
-import com.bowoon.domain.GetFavoritePeopleUseCase
-import com.bowoon.model.MovieDetail
-import com.bowoon.model.PeopleDetail
+import com.bowoon.model.Movie
+import com.bowoon.model.People
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class FavoriteVM @Inject constructor(
-    getFavoriteMoviesUseCase: GetFavoriteMoviesUseCase,
-    getFavoritePeopleUseCase: GetFavoritePeopleUseCase,
     private val databaseRepository: DatabaseRepository
 ) : ViewModel() {
     companion object {
         private const val TAG = "FavoriteVM"
     }
 
-    val favoriteMovies = getFavoriteMoviesUseCase()
-        .asResult()
-        .map {
-            when (it) {
-                is Result.Loading -> FavoriteMoviesState.Loading
-                is Result.Success -> FavoriteMoviesState.Success(it.data)
-                is Result.Error -> FavoriteMoviesState.Error(it.throwable)
-            }
-        }.stateIn(
+    val favoriteMovies = databaseRepository.getMovies()
+        .stateIn(
             scope = viewModelScope,
-            initialValue = FavoriteMoviesState.Loading,
-            started = SharingStarted.WhileSubscribed(5_000)
+            initialValue = emptyList(),
+            started = SharingStarted.WhileSubscribed()
         )
-    val favoritePeoples = getFavoritePeopleUseCase()
-        .asResult()
-        .map {
-            when (it) {
-                is Result.Loading -> FavoritePeoplesState.Loading
-                is Result.Success -> FavoritePeoplesState.Success(it.data)
-                is Result.Error -> FavoritePeoplesState.Error(it.throwable)
-            }
-        }.stateIn(
+    val favoritePeoples = databaseRepository.getPeople()
+        .stateIn(
             scope = viewModelScope,
-            initialValue = FavoritePeoplesState.Loading,
-            started = SharingStarted.WhileSubscribed(5_000)
+            initialValue = emptyList(),
+            started = SharingStarted.WhileSubscribed()
         )
 
-    fun deleteMovie(movie: MovieDetail) {
+    fun deleteMovie(movie: Movie) {
         viewModelScope.launch {
-            databaseRepository.deleteMovie(movie)
+            databaseRepository.deleteMovie(movie = movie)
         }
     }
 
-    fun deletePeople(people: PeopleDetail) {
+    fun deletePeople(people: People) {
         viewModelScope.launch {
-            databaseRepository.deletePeople(people)
+            databaseRepository.deletePeople(people = people)
         }
     }
-}
-
-sealed interface FavoriteMoviesState {
-    data object Loading : FavoriteMoviesState
-    data class Success(val data: List<MovieDetail>) : FavoriteMoviesState
-    data class Error(val throwable: Throwable) : FavoriteMoviesState
-}
-
-sealed interface FavoritePeoplesState {
-    data object Loading : FavoritePeoplesState
-    data class Success(val data: List<PeopleDetail>) : FavoritePeoplesState
-    data class Error(val throwable: Throwable) : FavoritePeoplesState
 }

@@ -9,7 +9,7 @@ import com.bowoon.common.asResult
 import com.bowoon.common.restartableStateIn
 import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.domain.GetPeopleDetailUseCase
-import com.bowoon.model.PeopleDetail
+import com.bowoon.model.People
 import com.bowoon.people.navigation.PeopleRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -39,20 +39,20 @@ class PeopleVM @Inject constructor(
         }.restartableStateIn(
             scope = viewModelScope,
             initialValue = PeopleState.Loading,
-            started = SharingStarted.WhileSubscribed(5_000)
+            started = SharingStarted.Lazily
         )
 
     fun restart() {
         people.restart()
     }
 
-    fun insertPeople(people: PeopleDetail) {
+    fun insertPeople(people: People) {
         viewModelScope.launch {
             databaseRepository.insertPeople(people)
         }
     }
 
-    fun deletePeople(people: PeopleDetail) {
+    fun deletePeople(people: People) {
         viewModelScope.launch {
             databaseRepository.deletePeople(people)
         }
@@ -61,6 +61,6 @@ class PeopleVM @Inject constructor(
 
 sealed interface PeopleState {
     data object Loading : PeopleState
-    data class Success(val data: PeopleDetail) : PeopleState
+    data class Success(val data: People) : PeopleState
     data class Error(val throwable: Throwable) : PeopleState
 }

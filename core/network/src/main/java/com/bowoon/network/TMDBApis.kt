@@ -5,15 +5,18 @@ import com.bowoon.network.model.NetworkTMDBCombineCredits
 import com.bowoon.network.model.NetworkTMDBConfiguration
 import com.bowoon.network.model.NetworkTMDBExternalIds
 import com.bowoon.network.model.NetworkTMDBLanguageItem
-import com.bowoon.network.model.NetworkTMDBMovieDetail
+import com.bowoon.network.model.NetworkTMDBMovie
 import com.bowoon.network.model.NetworkTMDBMovieDetailSimilar
 import com.bowoon.network.model.NetworkTMDBMovieGenres
-import com.bowoon.network.model.NetworkTMDBNowPlaying
+import com.bowoon.network.model.NetworkTMDBMovieList
+import com.bowoon.network.model.NetworkTMDBMovieReviews
+import com.bowoon.network.model.NetworkTMDBMovieSeries
 import com.bowoon.network.model.NetworkTMDBPeopleDetail
 import com.bowoon.network.model.NetworkTMDBRegion
-import com.bowoon.network.model.NetworkTMDBSearch
+import com.bowoon.network.model.NetworkTMDBSearchKeywordData
+import com.bowoon.network.model.NetworkTMDBSearchMovie
 import com.bowoon.network.model.NetworkTMDBSearchPeople
-import com.bowoon.network.model.NetworkTMDBUpcoming
+import com.bowoon.network.model.NetworkTMDBSearchSeries
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -23,9 +26,7 @@ interface TMDBApis {
     suspend fun getConfiguration(): ApiResponse<NetworkTMDBConfiguration>
 
     @GET("/3/certification/movie/list")
-    suspend fun getCertification(
-        @Query("language") language: String = "ko-KR"
-    ): ApiResponse<NetworkTMDBCertificationData>
+    suspend fun getCertification(): ApiResponse<NetworkTMDBCertificationData>
 
     @GET("/3/genre/movie/list")
     suspend fun getGenres(
@@ -37,14 +38,14 @@ interface TMDBApis {
         @Query("language") language: String = "ko-KR",
         @Query("region") region: String = "KR",
         @Query("page") page: Int = 1
-    ): ApiResponse<NetworkTMDBNowPlaying>
+    ): ApiResponse<NetworkTMDBMovieList>
 
     @GET("/3/movie/upcoming")
     suspend fun getUpcomingMovie(
         @Query("language") language: String = "ko-KR",
         @Query("region") region: String = "KR",
         @Query("page") page: Int = 1
-    ): ApiResponse<NetworkTMDBUpcoming>
+    ): ApiResponse<NetworkTMDBMovieList>
 
     @GET("/3/search/movie")
     suspend fun searchMovies(
@@ -53,7 +54,7 @@ interface TMDBApis {
         @Query("language") language: String = "ko-KR",
         @Query("region") region: String = "KR",
         @Query("page") page: Int = 1
-    ): ApiResponse<NetworkTMDBSearch>
+    ): ApiResponse<NetworkTMDBSearchMovie>
 
     @GET("/3/search/person")
     suspend fun searchPeople(
@@ -64,14 +65,29 @@ interface TMDBApis {
         @Query("page") page: Int = 1
     ): ApiResponse<NetworkTMDBSearchPeople>
 
+    @GET("/3/collection/{collection_id}")
+    suspend fun getMovieSeries(
+        @Path("collection_id") collectionId: Int,
+        @Query("language") language: String = "ko-KR",
+    ): ApiResponse<NetworkTMDBMovieSeries>
+
+    @GET("/3/search/collection")
+    suspend fun searchMovieSeries(
+        @Query("query") query: String,
+        @Query("include_adult") includeAdult: Boolean = true,
+        @Query("page") page: Int = 1,
+        @Query("language") language: String = "ko-KR",
+        @Query("region") region: String = "KR"
+    ): ApiResponse<NetworkTMDBSearchSeries>
+
     @GET("/3/movie/{movie_id}")
-    suspend fun getMovieDetail(
+    suspend fun getMovie(
         @Path("movie_id") id: Int,
-        @Query("append_to_response") appendToResponse: String = "images,videos,credits,reviews,releases,translations,lists,keywords,alternative_titles,changes,similar",
+        @Query("append_to_response") appendToResponse: String = "images,videos,credits,releases,keywords,alternative_titles",
         @Query("language") language: String = "ko-KR",
         @Query("include_image_language") includeImageLanguage: String = "ko",
         @Query("region") region: String = "KR"
-    ): ApiResponse<NetworkTMDBMovieDetail>
+    ): ApiResponse<NetworkTMDBMovie>
 
     @GET("/3/movie/{movie_id}/similar")
     suspend fun getSimilarMovies(
@@ -86,8 +102,11 @@ interface TMDBApis {
         @Query("release_date.lte") releaseDateLte: String,
         @Query("include_adult") includeAdult: Boolean = true,
         @Query("language") language: String = "ko-KR",
-        @Query("region") region: String = "KR"
-    ): ApiResponse<NetworkTMDBSearch>
+        @Query("region") region: String = "KR",
+        @Query("page") page: Int = 1,
+        @Query("sort_by") sortBy: String = "primary_release_date.asc",
+        @Query("with_release_type") withReleaseType: String = "2|3"
+    ): ApiResponse<NetworkTMDBSearchMovie>
 
     @GET("/3/configuration/languages")
     suspend fun getAvailableLanguage(): ApiResponse<List<NetworkTMDBLanguageItem>>
@@ -113,4 +132,17 @@ interface TMDBApis {
     suspend fun getExternalIds(
         @Path("person_id") personId: Int
     ): ApiResponse<NetworkTMDBExternalIds>
+
+    @GET("/3/search/keyword")
+    suspend fun getSearchKeyword(
+        @Query("query") query: String,
+        @Query("page") page: Int
+    ): ApiResponse<NetworkTMDBSearchKeywordData>
+
+    @GET("/3/movie/{movie_id}/reviews")
+    suspend fun getMovieReview(
+        @Path("movie_id") movieId: Int,
+        @Query("language") language: String = "ko-KR",
+        @Query("page") page: Int = 1
+    ): ApiResponse<NetworkTMDBMovieReviews>
 }

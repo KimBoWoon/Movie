@@ -50,31 +50,27 @@ object Log {
         if (IS_SHOWING) tr?.printStackTrace()
     }
 
-    private fun tag(): String =
+    private fun getMessageWithLineNumber(msg: String): String =
         Thread.currentThread().stackTrace.let { trace ->
-            var index = 4
+            val firstMatchIndex = trace.indexOfFirst { it.className.equals("com.bowoon.common.Log") && it.fileName.equals("Log.kt") }
+            val index = if (firstMatchIndex == -1) return msg else firstMatchIndex + 2
 
-            while (index < trace.size && trace[index].fileName.isNullOrEmpty()) {
-                index++
-            }
-
-            when {
-                trace.size > index -> "(${trace[index].fileName}:${trace[index].lineNumber})"
-                else -> "LinkNotFound"
+            if (index in trace.indices) {
+                "(${trace[index].fileName}:${trace[index].lineNumber}) $msg"
+            } else {
+                msg
             }
         }
 
-    private fun getMessageWithLineNumber(msg: String): String =
+    private fun tag(): String =
         Thread.currentThread().stackTrace.let { trace ->
-            var index = 4
+            val firstMatchIndex = trace.indexOfFirst { it.className.equals("com.bowoon.common.Log") && it.fileName.equals("Log.kt") }
+            val index = if (firstMatchIndex == -1) return "LinkNotFound" else firstMatchIndex + 2
 
-            while (index < trace.size && trace[index].fileName.isNullOrEmpty()) {
-                index++
-            }
-
-            when {
-                trace.size > index -> "(${trace[index].fileName}:${trace[index].lineNumber}) $msg"
-                else -> msg
+            if (index in trace.indices) {
+                "(${trace[index].fileName}:${trace[index].lineNumber})"
+            } else {
+                "LinkNotFound"
             }
         }
 }

@@ -4,13 +4,14 @@ import com.bowoon.data.util.SyncManager
 import com.bowoon.datastore.InternalDataSource
 import com.bowoon.model.InternalData
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
 class UserDataRepositoryImpl @Inject constructor(
     private val datastore: InternalDataSource,
     private val syncManager: SyncManager
 ) : UserDataRepository {
-    override val userData: Flow<InternalData> = datastore.userData
+    override val internalData: Flow<InternalData> = datastore.userData
 
     override suspend fun updateUserData(
         userData: InternalData,

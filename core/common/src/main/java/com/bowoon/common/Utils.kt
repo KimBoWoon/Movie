@@ -1,6 +1,8 @@
 package com.bowoon.common
 
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.os.Build
@@ -27,3 +29,14 @@ inline fun <reified T> Intent.getSafetyParcelable(key: String): T? =
     } else {
         getParcelableExtra(key)
     }
+
+fun getVersionName(context: Context): String = runCatching {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        context.packageManager.getPackageInfo(context.packageName, PackageManager.PackageInfoFlags.of(0))
+    } else {
+        context.packageManager.getPackageInfo(context.packageName, 0)
+    }.versionName ?: ""
+}.getOrElse { e ->
+    Log.printStackTrace(tr = e)
+    ""
+}

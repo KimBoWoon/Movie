@@ -1,0 +1,298 @@
+package com.bowoon.detail
+
+import androidx.lifecycle.SavedStateHandle
+import androidx.navigation.testing.invoke
+import androidx.paging.PagingConfig
+import androidx.paging.PagingSource
+import androidx.paging.testing.TestPager
+import androidx.paging.testing.asSnapshot
+import com.bowoon.data.paging.MovieReviewPagingSource
+import com.bowoon.data.paging.SimilarMoviePagingSource
+import com.bowoon.detail.navigation.DetailRoute
+import com.bowoon.domain.GetMovieDetailUseCase
+import com.bowoon.model.InternalData
+import com.bowoon.model.Movie
+import com.bowoon.model.MovieDetailInfo
+import com.bowoon.model.MovieReview
+import com.bowoon.testing.TestMovieDataSource
+import com.bowoon.testing.model.favoriteMovieDetailTestData
+import com.bowoon.testing.model.movieSeriesTestData
+import com.bowoon.testing.model.similarMoviesTestData
+import com.bowoon.testing.model.testMovieReviews
+import com.bowoon.testing.model.unFavoriteMovieDetailTestData
+import com.bowoon.testing.repository.TestDatabaseRepository
+import com.bowoon.testing.repository.TestDetailRepository
+import com.bowoon.testing.repository.TestPagingRepository
+import com.bowoon.testing.repository.TestUserDataRepository
+import com.bowoon.testing.utils.MainDispatcherRule
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import kotlin.test.assertEquals
+import kotlin.test.assertIs
+import kotlin.test.assertTrue
+
+@RunWith(RobolectricTestRunner::class)
+class DetailVMTest {
+    @get:Rule
+    val mainDispatcherRule = MainDispatcherRule()
+    private val testDataBaseRepository = TestDatabaseRepository()
+    private val testPagingRepository = TestPagingRepository()
+    private val testDetailRepository = TestDetailRepository()
+    private val testUserDataRepository = TestUserDataRepository()
+    private val getMovieDetailUseCase = GetMovieDetailUseCase(
+        detailRepository = testDetailRepository,
+        userDataRepository = testUserDataRepository,
+        databaseRepository = testDataBaseRepository
+    )
+    private lateinit var savedStateHandle: SavedStateHandle
+    private lateinit var viewModel: DetailVM
+
+    @Before
+    fun setup() {
+        savedStateHandle = SavedStateHandle(route = DetailRoute(id = 0))
+        viewModel = DetailVM(
+            savedStateHandle = savedStateHandle,
+            databaseRepository = testDataBaseRepository,
+            getMovieDetail = getMovieDetailUseCase,
+            pagingRepository = testPagingRepository
+        )
+        runBlocking {
+            testUserDataRepository.updateUserData(userData = InternalData(), isSync = false)
+            testDataBaseRepository.insertMovie(movie = Movie(id = 0, title = "movie_1", posterPath = "/movieImagePath.png"))
+            testDetailRepository.setMovieSeries(movieSeriesTestData)
+        }
+    }
+
+    @Test
+    fun getFavoriteMovieDetailTest() = runTest {
+        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.detail.collect() }
+
+        val testPager = TestPager(
+            config = PagingConfig(pageSize = 0, initialLoadSize = 7, prefetchDistance = 5),
+            pagingSource = testPagingRepository.getSimilarMoviePagingSource(id = 0)
+        )
+
+        assertEquals(viewModel.detail.value, DetailState.Loading)
+
+        testDetailRepository.setMovie(favoriteMovieDetailTestData)
+
+        assertTrue(viewModel.detail.value is DetailState.Success)
+
+        val similarMovies = viewModel.similarMovies
+
+        assertEquals(
+            similarMovies.asSnapshot(),
+            (testPager.refresh(initialKey = 0) as PagingSource.LoadResult.Page).data
+        )
+
+        assertEquals(
+            viewModel.detail.value,
+            DetailState.Success(
+                MovieDetailInfo(
+                    detail = favoriteMovieDetailTestData,
+                    series = movieSeriesTestData,
+                    autoPlayTrailer = testUserDataRepository.internalData.map { it.autoPlayTrailer }.first()
+                )
+            )
+        )
+    }
+
+    @Test
+    fun getUnFavoriteMovieDetailFlowTest() = runTest {
+        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.detail.collect() }
+
+        val testPager = TestPager(
+            config = PagingConfig(pageSize = 0, initialLoadSize = 7, prefetchDistance = 5),
+            pagingSource = testPagingRepository.getSimilarMoviePagingSource(id = 0)
+        )
+
+        assertEquals(viewModel.detail.value, DetailState.Loading)
+
+        testDetailRepository.setMovie(unFavoriteMovieDetailTestData)
+
+        assertTrue(viewModel.detail.value is DetailState.Success)
+
+        val similarMovies = viewModel.similarMovies
+
+        assertEquals(
+            similarMovies.asSnapshot(),
+            (testPager.refresh(initialKey = 0) as PagingSource.LoadResult.Page).data
+        )
+
+        assertEquals(
+            viewModel.detail.value,
+            DetailState.Success(
+                MovieDetailInfo(
+                    detail = unFavoriteMovieDetailTestData,
+                    series = movieSeriesTestData,
+                    autoPlayTrailer = testUserDataRepository.internalData.map { it.autoPlayTrailer }.first()
+                )
+            )
+        )
+    }
+
+    @Test
+    fun getSimilarMoviesTest() = runTest {
+        val source = SimilarMoviePagingSource(
+            apis = TestMovieDataSource(),
+            id = 0,
+            userDataRepository = testUserDataRepository
+        )
+
+        assertEquals(
+            expected = PagingSource.LoadResult.Page<Int, Movie>(
+                data = similarMoviesTestData.results?.map {
+                    Movie(
+                        id = it.id,
+                        title = it.title,
+                        posterPath = it.posterPath
+                    )
+                } ?: emptyList(),
+                prevKey = null,
+                nextKey = null
+            ),
+            actual = source.load(
+                params = PagingSource.LoadParams.Refresh(
+                    key = null,
+                    loadSize = 2,
+                    placeholdersEnabled = false
+                )
+            ),
+        )
+    }
+
+    @Test
+    fun getMovieReviewsTest() = runTest {
+        val source = MovieReviewPagingSource(
+            apis = TestMovieDataSource(),
+            id = 0,
+            userDataRepository = testUserDataRepository
+        )
+
+        assertEquals(
+            expected = PagingSource.LoadResult.Page<Int, MovieReview>(
+                data = testMovieReviews,
+                prevKey = null,
+                nextKey = null
+            ),
+            actual = source.load(
+                params = PagingSource.LoadParams.Refresh(
+                    key = null,
+                    loadSize = 2,
+                    placeholdersEnabled = false
+                )
+            ),
+        )
+    }
+
+    @Test
+    fun insertFavoriteTest() = runTest {
+        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.detail.collect() }
+        val movie = Movie(id = 23, title = "movie_0", posterPath = "/imagePath.png")
+
+        testDetailRepository.setMovie(favoriteMovieDetailTestData.copy(id = 23))
+
+        assertEquals(
+            assertIs<DetailState.Success>(viewModel.detail.value).movieInfo.detail.isFavorite,
+            false
+        )
+        viewModel.insertMovie(movie)
+        assertEquals(
+            assertIs<DetailState.Success>(viewModel.detail.value).movieInfo.detail.isFavorite,
+            true
+        )
+
+//        assertEquals(
+//            testDataBaseRepository.getMovies().first(),
+//            emptyList()
+//        )
+//        viewModel.insertMovie(movie)
+//        assertEquals(
+//            testDataBaseRepository.getMovies().first(),
+//            listOf(movie)
+//        )
+    }
+
+    @Test
+    fun deleteFavoriteTest() = runTest {
+        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.detail.collect { println(it) } }
+        val movie = Movie(id = 0, title = "movie_1", posterPath = "/movieImagePath.png")
+
+        testDetailRepository.setMovie(favoriteMovieDetailTestData)
+
+//        assertEquals(
+//            assertIs<DetailState.Success>(viewModel.detail.value).detail?.isFavorite,
+//            true
+//        )
+//        viewModel.deleteMovie(movie)
+//        assertEquals(
+//            assertIs<DetailState.Success>(viewModel.detail.value).detail?.isFavorite,
+//            false
+//        )
+
+        assertEquals(
+            testDataBaseRepository.getMovies().first(),
+            listOf(movie)
+        )
+        viewModel.deleteMovie(movie)
+        assertEquals(
+            testDataBaseRepository.getMovies().first(),
+            emptyList()
+        )
+    }
+
+    @Test
+    fun restartFlowTest() = runTest {
+        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.detail.collect() }
+
+        val testPager = TestPager(
+            config = PagingConfig(pageSize = 0, initialLoadSize = 7, prefetchDistance = 5),
+            pagingSource = testPagingRepository.getSimilarMoviePagingSource(id = 0)
+        )
+
+        assertEquals(viewModel.detail.value, DetailState.Loading)
+
+        testDetailRepository.setMovie(favoriteMovieDetailTestData)
+
+        assertTrue(viewModel.detail.value is DetailState.Success)
+
+        val similarMovies = viewModel.similarMovies
+
+        assertEquals(
+            similarMovies.asSnapshot(),
+            (testPager.refresh(initialKey = 0) as PagingSource.LoadResult.Page).data
+        )
+
+        assertEquals(
+            viewModel.detail.value,
+            DetailState.Success(
+                MovieDetailInfo(
+                    detail = favoriteMovieDetailTestData,
+                    series = movieSeriesTestData,
+                    autoPlayTrailer = testUserDataRepository.internalData.map { it.autoPlayTrailer }.first()
+                )
+            )
+        )
+
+        viewModel.restart()
+
+//        assertEquals(viewModel.movieInfo.value, MovieDetailState.Loading)
+
+//        testDetailRepository.setMovieDetail(favoriteMovieDetailTestData)
+//        testUserDataRepository.updateUserData(InternalData(), false)
+//        testDataBaseRepository.insertMovie(Favorite(id = 0, title = "title_1"))
+//        getMovieDetailUseCase(0)
+
+//        assertEquals(viewModel.detail.value, DetailState.Success(favoriteMovieDetailTestData, movieSeriesTestData, emptyFlow()))
+    }
+}

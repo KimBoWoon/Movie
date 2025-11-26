@@ -16,7 +16,6 @@ import com.bowoon.favorite.navigation.navigateToFavorite
 import com.bowoon.home.navigation.navigateToHome
 import com.bowoon.movie.navigation.TopLevelDestination
 import com.bowoon.my.navigation.navigateToMy
-import com.bowoon.search.navigation.navigateToSearch
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
@@ -27,11 +26,7 @@ fun rememberMovieAppState(
     navController: NavHostController = rememberNavController(),
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     networkMonitor: NetworkMonitor
-): MovieAppState = remember(
-    navController,
-    coroutineScope,
-    networkMonitor
-) {
+): MovieAppState = remember(navController, coroutineScope, networkMonitor) {
     MovieAppState(
         navController = navController,
         coroutineScope = coroutineScope,
@@ -86,7 +81,6 @@ class MovieAppState(
 
         when (topLevelDestination) {
             TopLevelDestination.HOME -> navController.navigateToHome(topLevelNavOptions)
-            TopLevelDestination.SEARCH -> navController.navigateToSearch(topLevelNavOptions)
             TopLevelDestination.FAVORITE -> navController.navigateToFavorite(topLevelNavOptions)
             TopLevelDestination.MY -> navController.navigateToMy(topLevelNavOptions)
         }

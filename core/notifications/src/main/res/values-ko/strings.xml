@@ -1,0 +1,4 @@
+<resources>
+    <string name="system_notification_channel_name">시스템 알림</string>
+    <string name="coming_soon_movie">영화가 곧 개봉합니다.</string>
+</resources>

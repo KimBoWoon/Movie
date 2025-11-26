@@ -7,65 +7,29 @@ import androidx.work.WorkInfo.State
 import androidx.work.WorkManager
 import com.bowoon.data.util.SyncManager
 import com.bowoon.sync.workers.MainMenuSyncWorker
-import com.bowoon.sync.workers.MyDataSyncWorker
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.conflate
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 internal class WorkManagerSyncManager @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val appContext: Context,
 ) : SyncManager {
-    override val isSyncing: Flow<Boolean> =
-        WorkManager.getInstance(context)
-            .getWorkInfosByTagFlow(MainMenuSyncWorker.WORKER_NAME)
-            .map(List<WorkInfo>::anyRunning)
-            .conflate()
-
     override fun syncMain() {
-        WorkManager.getInstance(context)
+        WorkManager.getInstance(appContext)
             .enqueueUniqueWork(
-                MainMenuSyncWorker.WORKER_NAME,
-                ExistingWorkPolicy.KEEP,
-                MainMenuSyncWorker.startUpSyncWork(false)
-            )
-    }
-
-    override fun myDataSync() {
-        WorkManager.getInstance(context)
-            .enqueueUniqueWork(
-                MyDataSyncWorker.WORKER_NAME,
-                ExistingWorkPolicy.KEEP,
-                MyDataSyncWorker.startUpSyncWork()
+                uniqueWorkName = MainMenuSyncWorker.WORKER_NAME,
+                existingWorkPolicy = ExistingWorkPolicy.KEEP,
+                request = MainMenuSyncWorker.startUpSyncWork(isForce = false)
             )
     }
 
     override fun requestSync() {
-        WorkManager.getInstance(context)
+        WorkManager.getInstance(appContext)
             .beginUniqueWork(
-                MyDataSyncWorker.WORKER_NAME,
-                ExistingWorkPolicy.KEEP,
-                MyDataSyncWorker.startUpSyncWork()
-            ).then(MainMenuSyncWorker.startUpSyncWork(true))
+                uniqueWorkName = MainMenuSyncWorker.WORKER_NAME,
+                existingWorkPolicy = ExistingWorkPolicy.KEEP,
+                request = MainMenuSyncWorker.startUpExpeditedSyncWork(isForce = true)
+            )
             .enqueue()
-    }
-
-    override suspend fun checkWork(
-        context: Context,
-        onSuccess: suspend () -> Unit,
-        onFailure: suspend () -> Unit
-    ) {
-        WorkManager.getInstance(context)
-            .getWorkInfosByTagFlow(MyDataSyncWorker.WORKER_NAME)
-            .map { works ->
-                works.find { it.id == MyDataSyncWorker.workerId }
-            }.collect { work ->
-                work?.getWorkResult(
-                    { onSuccess() },
-                    { onFailure() }
-                )
-            }
     }
 }
 

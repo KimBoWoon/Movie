@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="feature_home_name">홈</string>
+    <string name="feature_home_name">Home</string>
+    <string name="check_main_data">Checking main data</string>
+    <string name="title_movie_info">Movie Info</string>
+    <string name="now_playing_movies">Now Playing Movies</string>
+    <string name="upcoming_movies">Upcoming Movies</string>
+    <string name="release_movie">%s Release</string>
+    <string name="close">Close</string>
+    <string name="coming_soon_movie">Next week Release Movie</string>
+    <string name="no_show_today">No show today</string>
 </resources>

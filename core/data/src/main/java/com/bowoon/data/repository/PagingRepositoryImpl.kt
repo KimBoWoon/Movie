@@ -1,60 +1,50 @@
 package com.bowoon.data.repository
 
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
-import androidx.paging.PagingData
-import com.bowoon.data.paging.TMDBSearchPagingSource
-import com.bowoon.data.paging.TMDBSimilarMoviePagingSource
-import com.bowoon.datastore.InternalDataSource
+import androidx.paging.PagingSource
+import com.bowoon.data.paging.MovieReviewPagingSource
+import com.bowoon.data.paging.RecommendKeywordPagingSource
+import com.bowoon.data.paging.SearchPagingSource
+import com.bowoon.data.paging.SimilarMoviePagingSource
 import com.bowoon.model.Movie
-import com.bowoon.network.retrofit.Apis
-import kotlinx.coroutines.flow.Flow
+import com.bowoon.model.MovieReview
+import com.bowoon.model.SearchKeyword
+import com.bowoon.model.SearchType
+import com.bowoon.network.MovieNetworkDataSource
 import javax.inject.Inject
 
 class PagingRepositoryImpl @Inject constructor(
-    private val apis: Apis,
-    private val datastore: InternalDataSource,
-    private val myDataRepository: MyDataRepository
+    private val apis: MovieNetworkDataSource,
+    private val userDataRepository: UserDataRepository
 ) : PagingRepository {
-    override suspend fun searchMovies(
-        type: String,
+    override fun getSearchPagingSource(
+        type: SearchType,
         query: String
-    ): Flow<PagingData<Movie>> {
-        val language = datastore.getUserData().language
-        val region = datastore.getUserData().region
-        val isAdult = datastore.getUserData().isAdult
+    ): PagingSource<Int, Movie> = SearchPagingSource(
+        apis = apis,
+        type = type,
+        query = query,
+        userDataRepository = userDataRepository
+    )
 
-        return Pager(
-            config = PagingConfig(pageSize = 20, initialLoadSize = 20, prefetchDistance = 5),
-            pagingSourceFactory = {
-                TMDBSearchPagingSource(
-                    apis = apis,
-                    type = type,
-                    query = query,
-                    language = language,
-                    region = region,
-                    isAdult = isAdult,
-                    posterUrl = myDataRepository.posterUrl
-                )
-            }
-        ).flow
-    }
+    override fun getSimilarMoviePagingSource(
+        id: Int
+    ): PagingSource<Int, Movie> = SimilarMoviePagingSource(
+        apis = apis,
+        id = id,
+        userDataRepository = userDataRepository
+    )
 
-    override suspend fun getSimilarMovies(id: Int): Flow<PagingData<Movie>> {
-        val language = datastore.getUserData().language
-        val region = datastore.getUserData().region
+    override fun getRecommendKeywordPagingSource(query: String): PagingSource<Int, SearchKeyword> =
+        RecommendKeywordPagingSource(
+            apis = apis,
+            query = query
+        )
 
-        return Pager(
-            config = PagingConfig(pageSize = 20, initialLoadSize = 20, prefetchDistance = 5),
-            pagingSourceFactory = {
-                TMDBSimilarMoviePagingSource(
-                    apis = apis,
-                    id = id,
-                    language = language,
-                    region = region,
-                    posterUrl = myDataRepository.posterUrl
-                )
-            }
-        ).flow
-    }
+    override fun getMovieReviews(
+        movieId: Int
+    ): PagingSource<Int, MovieReview> = MovieReviewPagingSource(
+        apis = apis,
+        id = movieId,
+        userDataRepository = userDataRepository
+    )
 }

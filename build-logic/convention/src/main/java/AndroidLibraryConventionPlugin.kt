@@ -22,11 +22,12 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
                 defaultConfig {
                     compileSdk = Config.Library.MIN_SDK_VERSION
                     minSdk = Config.Library.COMPILE_SDK_VERSION
+                    testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
                     buildTypes {
                         release {
                             proguardFiles(
-                                getDefaultProguardFile(Config.ApplicationSetting.defaultProguardFile),
-                                Config.ApplicationSetting.proguardFile
+                                getDefaultProguardFile(Config.ApplicationSetting.DEFAULT_PROGUARD_FILE),
+                                Config.ApplicationSetting.PROGUARD_FILE
                             )
                             buildConfigField("Boolean", "IS_DEBUGGING_LOGGING", "false")
                         }
@@ -47,6 +48,8 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
             }
 
             dependencies {
+                add("testImplementation", project(":core:testing"))
+                add("androidTestImplementation", project(":core:testing"))
                 add("implementation", libs.findLibrary("androidx.core.ktx").get())
                 add("implementation", libs.findLibrary("androidx.appcompat").get())
                 add("implementation", libs.findLibrary("material").get())

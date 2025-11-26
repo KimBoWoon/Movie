@@ -1,4 +1,5 @@
 <resources>
     <string name="not_connected">⚠️ 인터넷에 연결되어 있지 않습니다.</string>
     <string name="double_back_message">뒤로 버튼 한번 더 입력하면 앱이 종료 됩니다.</string>
+    <string name="release_movie_notification_channel_name">영화 개봉 알림</string>
 </resources>

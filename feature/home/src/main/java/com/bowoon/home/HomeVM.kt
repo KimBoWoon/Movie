@@ -1,62 +1,50 @@
 package com.bowoon.home
 
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bowoon.common.Result
 import com.bowoon.common.asResult
 import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.data.repository.UserDataRepository
-import com.bowoon.data.util.SyncManager
 import com.bowoon.model.MainMenu
-import com.bowoon.model.Movie
-import com.bowoon.model.MovieDetail
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import org.threeten.bp.LocalDate
-import org.threeten.bp.Period
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeVM @Inject constructor(
-    savedStateHandle: SavedStateHandle,
-    syncManager: SyncManager,
-    userDataRepository: UserDataRepository,
-    databaseRepository: DatabaseRepository
+    databaseRepository: DatabaseRepository,
+    private val userDataRepository: UserDataRepository
 ) : ViewModel() {
     companion object {
         private const val TAG = "HomeVM"
     }
 
-    var isShowReleaseMoviesDialog by mutableStateOf(savedStateHandle.get<Boolean>("isShowReleaseMoviesDialog") ?: true)
-    val favoriteMovies = databaseRepository.getMovies()
-        .asResult()
-        .map {
-            when (it) {
-                is Result.Loading -> FavoriteMoviesState.Loading
-                is Result.Success -> FavoriteMoviesState.Success(it.data)
-                is Result.Error -> FavoriteMoviesState.Error(it.throwable)
+    val mainMenu = userDataRepository.internalData
+        .map { internalData ->
+            val isShowToday = internalData.noShowToday.isEmpty() || LocalDate.parse(internalData.noShowToday).isBefore(LocalDate.now())
+
+            if (!isShowNextWeekReleaseMovie.value) {
+                isShowNextWeekReleaseMovie.value = !isShowToday
             }
-        }.stateIn(
-            scope = viewModelScope,
-            initialValue = FavoriteMoviesState.Loading,
-            started = SharingStarted.WhileSubscribed(5_000)
-        )
-    val isSyncing = syncManager.isSyncing
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = false,
-        )
-    val mainMenu = userDataRepository.userData
-        .map { it.mainMenu }
-        .asResult()
+
+            MainMenu(
+                nowPlayingMovies = internalData.mainMenu.nowPlayingMovies,
+                upComingMovies = internalData.mainMenu.upComingMovies,
+                nextWeekReleaseMovies = databaseRepository.getNextWeekReleaseMovies()
+            )
+        }.onEach {
+            if (it.nextWeekReleaseMovies.isEmpty()) {
+                isShowNextWeekReleaseMovie.value = true
+            }
+        }.asResult()
         .map {
             when (it) {
                 is Result.Loading -> MainMenuState.Loading
@@ -65,43 +53,23 @@ class HomeVM @Inject constructor(
             }
         }.stateIn(
             scope = viewModelScope,
-            initialValue = MainMenuState.Loading,
-            started = SharingStarted.WhileSubscribed(5_000)
+            started = SharingStarted.Lazily,
+            initialValue = MainMenuState.Loading
         )
+    val isShowNextWeekReleaseMovie = mutableStateOf(value = false)
 
-    fun getReleaseMovies(): Flow<List<Movie>> =
-        favoriteMovies.map { state ->
-            when (state) {
-                is FavoriteMoviesState.Loading -> emptyList()
-                is FavoriteMoviesState.Success -> state.favoriteMovies
-                    .filter {
-                        !it.releaseDate.isNullOrEmpty() &&
-                                Period.between(
-                                    LocalDate.now(),
-                                    LocalDate.parse(it.releaseDate)
-                                ).days in 0..1
-                    }
-                    .map { movieDetail ->
-                        Movie(
-                            id = movieDetail.id,
-                            title = movieDetail.title,
-                            posterPath = movieDetail.posterPath,
-                            releaseDate = movieDetail.releaseDate
-                        )
-                    }
-                is FavoriteMoviesState.Error -> emptyList()
-            }
+    fun onNoShowToday() {
+        viewModelScope.launch {
+            userDataRepository.updateUserData(
+                userData = userDataRepository.internalData.first().copy(noShowToday = LocalDate.now().toString()),
+                isSync = false
+            )
         }
+    }
 }
 
 sealed interface MainMenuState {
     data object Loading : MainMenuState
     data class Success(val mainMenu: MainMenu) : MainMenuState
     data class Error(val throwable: Throwable) : MainMenuState
-}
-
-sealed interface FavoriteMoviesState {
-    data object Loading : FavoriteMoviesState
-    data class Success(val favoriteMovies: List<MovieDetail>) : FavoriteMoviesState
-    data class Error(val throwable: Throwable) : FavoriteMoviesState
 }

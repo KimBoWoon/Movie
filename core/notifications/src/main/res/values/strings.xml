@@ -1,0 +1,4 @@
+<resources>
+    <string name="system_notification_channel_name">System Notification</string>
+    <string name="coming_soon_movie">The movie is coming out soon.</string>
+</resources>

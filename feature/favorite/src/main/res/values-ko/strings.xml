@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="feature_favorite_name">찜</string>
+    <string name="empty_favorite_movie">찜한 영화가 없습니다.</string>
+    <string name="empty_favorite_people">찜한 인물이 없습니다.</string>
+    <string name="remove_favorite">찜에서 제거됐습니다.</string>
+    <string name="movie">영화</string>
+    <string name="people">인물</string>
+</resources>

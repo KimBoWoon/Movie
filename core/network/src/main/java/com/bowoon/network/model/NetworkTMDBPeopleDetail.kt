@@ -1,7 +1,7 @@
 package com.bowoon.network.model
 
-import com.bowoon.model.DetailImage
-import com.bowoon.model.PeopleDetail
+import com.bowoon.model.Image
+import com.bowoon.model.People
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -63,8 +63,8 @@ data class NetworkTMDBPeopleProfile(
     val width: Int? = null
 )
 
-fun NetworkTMDBPeopleDetail.asExternalModel(): PeopleDetail =
-    PeopleDetail(
+fun NetworkTMDBPeopleDetail.asExternalModel(): People =
+    People(
         adult = adult,
         alsoKnownAs = alsoKnownAs,
         biography = biography,
@@ -82,9 +82,9 @@ fun NetworkTMDBPeopleDetail.asExternalModel(): PeopleDetail =
         profilePath = profilePath
     )
 
-fun NetworkTMDBPeopleImages.asExternalModel(): List<DetailImage> =
+fun NetworkTMDBPeopleImages.asExternalModel(): List<Image> =
     profiles?.map {
-        DetailImage(
+        Image(
             aspectRatio = it.aspectRatio,
             filePath = it.filePath,
             height = it.height,
@@ -95,9 +95,9 @@ fun NetworkTMDBPeopleImages.asExternalModel(): List<DetailImage> =
         )
     } ?: emptyList()
 
-fun List<NetworkTMDBPeopleProfile>.asExternalModel(): List<DetailImage> =
+fun List<NetworkTMDBPeopleProfile>.asExternalModel(): List<Image> =
     map {
-        DetailImage(
+        Image(
             aspectRatio = it.aspectRatio,
             filePath = it.filePath,
             height = it.height,

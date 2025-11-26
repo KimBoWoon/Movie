@@ -3,67 +3,77 @@ package com.bowoon.data.repository
 import com.bowoon.datastore.InternalDataSource
 import com.bowoon.model.CombineCredits
 import com.bowoon.model.ExternalIds
-import com.bowoon.model.MovieDetail
-import com.bowoon.model.MovieSearchData
-import com.bowoon.model.PeopleDetail
-import com.bowoon.network.ApiResponse
-import com.bowoon.network.model.asExternalModel
-import com.bowoon.network.retrofit.Apis
+import com.bowoon.model.Movie
+import com.bowoon.model.People
+import com.bowoon.model.SearchData
+import com.bowoon.model.Series
+import com.bowoon.network.MovieNetworkDataSource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import org.threeten.bp.LocalDate
 import javax.inject.Inject
 
 class DetailRepositoryImpl @Inject constructor(
-    private val apis: Apis,
+    private val apis: MovieNetworkDataSource,
     private val datastore: InternalDataSource
 ) : DetailRepository {
-    override fun getMovieDetail(id: Int): Flow<MovieDetail> = flow {
+    override fun getMovie(id: Int): Flow<Movie> = flow {
         val language = datastore.getUserData().language
         val region = datastore.getUserData().region
 
-        when (val response = apis.tmdbApis.getMovieDetail(id = id, language = "$language-$region", region = region, includeImageLanguage = "$language,null")) {
-            is ApiResponse.Failure -> throw response.throwable
-            is ApiResponse.Success -> emit(response.data.asExternalModel())
-        }
+        emit(apis.getMovie(id = id, language = "$language-$region", region = region, includeImageLanguage = "$language,null"))
     }
 
     override fun discoverMovie(
         releaseDateGte: String,
         releaseDateLte: String
-    ): Flow<MovieSearchData> = flow {
+    ): Flow<SearchData> = flow {
         val language = "${datastore.getUserData().language}-${datastore.getUserData().region}"
         val region = datastore.getUserData().region
         val isAdult = datastore.getUserData().isAdult
 
-        when (val response = apis.tmdbApis.discoverMovie(releaseDateGte = releaseDateGte, releaseDateLte = releaseDateLte, includeAdult = isAdult, language = language, region = region)) {
-            is ApiResponse.Failure -> throw response.throwable
-            is ApiResponse.Success -> emit(response.data.asExternalModel())
-        }
+        emit(
+            apis.discoverMovie(
+                releaseDateGte = releaseDateGte,
+                releaseDateLte = releaseDateLte,
+                includeAdult = isAdult,
+                language = language,
+                region = region
+            )
+        )
     }
 
-    override fun getPeople(personId: Int): Flow<PeopleDetail> = flow {
+    override fun getPeople(personId: Int): Flow<People> = flow {
         val language = datastore.getUserData().language
         val region = datastore.getUserData().region
 
-        when (val response = apis.tmdbApis.getPeopleDetail(personId = personId, language = "$language-$region", includeImageLanguage = "$language,null")) {
-            is ApiResponse.Failure -> throw response.throwable
-            is ApiResponse.Success -> emit(response.data.asExternalModel())
-        }
+        emit(apis.getPeopleDetail(personId = personId, language = "$language-$region", includeImageLanguage = "$language,null"))
     }
 
     override fun getCombineCredits(personId: Int): Flow<CombineCredits> = flow {
         val language = "${datastore.getUserData().language}-${datastore.getUserData().region}"
 
-        when (val response = apis.tmdbApis.getCombineCredits(personId = personId, language = language)) {
-            is ApiResponse.Failure -> throw response.throwable
-            is ApiResponse.Success -> emit(response.data.asExternalModel())
-        }
+        emit(apis.getCombineCredits(personId = personId, language = language))
     }
 
     override fun getExternalIds(personId: Int): Flow<ExternalIds> = flow {
-        when (val response = apis.tmdbApis.getExternalIds(personId = personId)) {
-            is ApiResponse.Failure -> throw response.throwable
-            is ApiResponse.Success -> emit(response.data.asExternalModel())
-        }
+        emit(apis.getExternalIds(personId = personId))
+    }
+
+    override fun getMovieSeries(collectionId: Int): Flow<Series> = flow {
+        val language = "${datastore.getUserData().language}-${datastore.getUserData().region}"
+
+        apis.getMovieSeries(collectionId = collectionId, language = language).let { movieSeries ->
+            movieSeries.copy(
+                parts = movieSeries.parts
+                    ?.sortedBy { movie ->
+                        movie.releaseDate
+                            .takeIf { !it.isNullOrEmpty() }
+                            .let { releaseDate ->
+                                LocalDate.parse(releaseDate ?: "9999-12-31")
+                            }
+                }
+            )
+        }.run { emit(this) }
     }
 }

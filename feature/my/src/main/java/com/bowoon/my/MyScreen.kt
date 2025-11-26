@@ -1,51 +1,64 @@
 package com.bowoon.my
 
+import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.bowoon.data.repository.LocalInitDataComposition
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.bowoon.common.Log
+import com.bowoon.common.getVersionName
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.DarkThemeConfig
-import com.bowoon.model.InitData
 import com.bowoon.model.InternalData
-import com.bowoon.model.LanguageItem
+import com.bowoon.model.MovieAppData
 import com.bowoon.model.PosterSize
-import com.bowoon.model.Region
-import com.bowoon.ui.Title
-import com.bowoon.ui.dp150
-import com.bowoon.ui.dp16
-import com.bowoon.ui.dp250
-import com.bowoon.ui.dp56
+import com.bowoon.movie.feature.my.R
+import com.bowoon.ui.utils.dp16
+import com.bowoon.ui.utils.dp50
+import com.bowoon.ui.utils.dp500
+import com.bowoon.ui.utils.dp56
 
 @Composable
 fun MyScreen(
@@ -53,143 +66,186 @@ fun MyScreen(
 ) {
     LocalFirebaseLogHelper.current.sendLog("MyScreen", "my screen init")
 
-    val initData = LocalInitDataComposition.current
+    val internalData by viewModel.myData.collectAsStateWithLifecycle()
+    val movieAppData by viewModel.movieAppData.movieAppData.collectAsStateWithLifecycle()
 
     MyScreen(
-        initData = initData,
+        internalData = internalData,
+        movieAppData = movieAppData,
         updateUserData = viewModel::updateUserData
     )
 }
 
-@Composable
-fun MyScreen(
-    initData: InitData,
-    updateUserData: (InternalData, Boolean) -> Unit
-) {
-    Box(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        MyDataComponent(
-            initData = initData,
-            updateUserData = updateUserData
-        )
-    }
+sealed interface MyMenu {
+    data class Display(val label: String, val content: String) : MyMenu
+    data class Switch(val label: String, val selected: Boolean, val onClick: ((Boolean) -> Unit)) : MyMenu
+    data class Language(val label: String, val selected: Any, val content: String, val onClick: (() -> Unit)) : MyMenu
+    data class Dialog(val label: String, val selected: Any, val content: String, val onClick: (() -> Unit)) : MyMenu
 }
 
 @Composable
-fun MyDataComponent(
-    initData: InitData,
+fun MyScreen(
+    internalData: InternalData,
+    movieAppData: MovieAppData,
     updateUserData: (InternalData, Boolean) -> Unit
 ) {
+    val context = LocalContext.current
+    var isShowChooseDialog by remember { mutableStateOf(value = false) }
+    var isShowLanguageChangeDialog by remember { mutableStateOf(value = false) }
+    var chooseDialogItem by remember { mutableStateOf(value = listOf<Any>()) }
+    var selectedOption by remember { mutableStateOf<Any?>(value = null) }
+    val menuList = mutableListOf<MyMenu>(
+        MyMenu.Display(
+            label = stringResource(id = R.string.main_update_data_setting),
+            content = internalData.updateDate
+        ),
+        MyMenu.Dialog(
+            label = stringResource(id = R.string.dark_mode_setting),
+            selected = internalData.isDarkMode,
+            content = when (internalData.isDarkMode) {
+                DarkThemeConfig.FOLLOW_SYSTEM -> stringResource(id = R.string.dark_mode_setting_system_follow)
+                DarkThemeConfig.LIGHT -> stringResource(id = R.string.dark_mode_setting_light)
+                DarkThemeConfig.DARK -> stringResource(id = R.string.dark_mode_setting_dark)
+            },
+            onClick = {
+                isShowChooseDialog = true
+                chooseDialogItem = DarkThemeConfig.entries
+                selectedOption = internalData.imageQuality
+            }
+        ),
+        MyMenu.Switch(
+            label = stringResource(id = R.string.is_adult_setting),
+            selected = internalData.isAdult,
+            onClick = { updateUserData(internalData.copy(isAdult = it), false) }),
+        MyMenu.Switch(
+            label = stringResource(id = R.string.auto_playing_trailer_setting),
+            selected = internalData.autoPlayTrailer,
+            onClick = { updateUserData(internalData.copy(autoPlayTrailer = it), false) }),
+        MyMenu.Language(
+            label = stringResource(id = R.string.language_setting),
+            selected = movieAppData.language.find { it.isSelected } ?: "",
+            content = "${internalData.language}-${internalData.region}",
+            onClick = { isShowLanguageChangeDialog = true }),
+        MyMenu.Dialog(
+            label = stringResource(id = R.string.image_quality_setting),
+            selected = internalData.imageQuality,
+            content = internalData.imageQuality,
+            onClick = {
+                isShowChooseDialog = true
+                chooseDialogItem = movieAppData.posterSize
+                selectedOption = movieAppData.posterSize.find { it.isSelected }
+            }
+        ),
+        MyMenu.Display(
+            label = stringResource(id = R.string.version_info),
+            content = getVersionName(context = context)
+        )
+    )
+
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        Title(title = "마이페이지")
-        Text(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = dp16),
-            text = "메인 업데이트 날짜 ${initData.internalData.updateDate}"
+        LazyColumn(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            item {
+                menuList.forEach { menu ->
+                    when (menu) {
+                        is MyMenu.Dialog -> {
+                            ChooseMenuComponent(
+                                title = menu.label,
+                                content = menu.content,
+                                onClick = menu.onClick
+                            )
+                        }
+                        is MyMenu.Display -> {
+                            DisplayMenuComponent(
+                                title = menu.label,
+                                content = menu.content
+                            )
+                        }
+                        is MyMenu.Language -> {
+                            DisplayMenuComponent(
+                                title = menu.label,
+                                content = menu.content,
+                                onClick = menu.onClick
+                            )
+                        }
+                        is MyMenu.Switch -> {
+                            SwitchMenuComponent(
+                                title = menu.label,
+                                checked = menu.selected,
+                                onClick = menu.onClick
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (isShowLanguageChangeDialog) {
+        LanguageChooseMenuComponent(
+            internalData = internalData,
+            movieAppData = movieAppData,
+            updateUserData = updateUserData,
+            onDismiss = { isShowLanguageChangeDialog = false }
         )
-        DarkThemeConfigComponent(
-            initData = initData,
-            updateUserData = updateUserData
+    } else if (isShowChooseDialog) {
+        ChooseDialog(
+            list = chooseDialogItem,
+            selectedOption = selectedOption,
+            dismiss = { isShowChooseDialog = false },
+            updateUserData = { chooseItem ->
+                when (chooseItem) {
+                    is DarkThemeConfig -> updateUserData(internalData.copy(isDarkMode = chooseItem), false)
+                    is PosterSize -> updateUserData(internalData.copy(imageQuality = chooseItem.size ?: ""), true)
+                }
+            }
         )
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = dp16),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(text = "성인")
-            Switch(
-                checked = initData.internalData.isAdult,
-                onCheckedChange = {
-                    updateUserData(initData.internalData.copy(isAdult = it), false)
-                }
-            )
-        }
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = dp16),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(text = "예고편 자동 재생")
-            Switch(
-                checked = initData.internalData.autoPlayTrailer,
-                onCheckedChange = {
-                    updateUserData(initData.internalData.copy(autoPlayTrailer = it), false)
-                }
-            )
-        }
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = dp16),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(text = "언어")
-            ExposedDropdownLanguageMenu(
-                list = initData.language ?: emptyList(),
-                updateLanguage = {
-                    updateUserData(initData.internalData.copy(language = it.iso6391 ?: ""), true)
-                }
-            )
-        }
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = dp16),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(text = "지역")
-            ExposedDropdownRegionMenu(
-                list = initData.region ?: emptyList(),
-                updateRegion = {
-                    updateUserData(initData.internalData.copy(region = it.iso31661 ?: ""), true)
-                }
-            )
-        }
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = dp16),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(text = "이미지 퀄리티")
-            ExposedDropdownPosterSizeMenu(
-                list = initData.posterSize ?: emptyList(),
-                updateImageQuality = {
-                    updateUserData(initData.internalData.copy(imageQuality = it.size ?: ""), true)
-                }
-            )
-        }
     }
 }
 
 @Composable
-fun DarkThemeConfigComponent(
-    initData: InitData,
-    updateUserData: (InternalData, Boolean) -> Unit
+fun <T> ChooseDialog(
+    list: List<T>,
+    selectedOption: T,
+    dismiss: () -> Unit,
+    updateUserData: (T) -> Unit
 ) {
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = dp16),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+    Dialog(
+        onDismissRequest = { dismiss() },
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            dismissOnBackPress = true,
+            dismissOnClickOutside = false
+        )
     ) {
-        val (selectedOption, onOptionSelected) = remember {
-            mutableStateOf(initData.internalData.isDarkMode)
-        }
-
-        Text(text = "다크모드 설정")
-        Column(modifier = Modifier.selectableGroup()) {
-            DarkThemeConfig.entries.forEach { darkThemeConfig ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth(0.8f)
+                .heightIn(max = dp500)
+                .background(color = Color.White)
+        ) {
+            items(
+                items = list,
+                key = {
+                    when (it) {
+                        is DarkThemeConfig -> it.label
+                        is PosterSize -> it.size ?: ""
+                        else -> it ?: ""
+                    }
+                }
+            ) { item ->
                 Row(
                     Modifier
                         .fillMaxWidth()
                         .height(dp56)
                         .selectable(
-                            selected = (darkThemeConfig == selectedOption),
+                            selected = (item == selectedOption),
                             onClick = {
-                                onOptionSelected(darkThemeConfig)
-                                updateUserData(
-                                    initData.internalData.copy(isDarkMode = darkThemeConfig),
-                                    false
-                                )
+                                updateUserData(item)
+                                dismiss()
                             },
                             role = Role.RadioButton
                         )
@@ -197,13 +253,18 @@ fun DarkThemeConfigComponent(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     RadioButton(
-                        selected = (darkThemeConfig == selectedOption),
+                        selected = (item == selectedOption),
                         onClick = null
                     )
                     Text(
-                        text = darkThemeConfig.name,
+                        modifier = Modifier.padding(start = dp16),
+                        text = when (item) {
+                            is DarkThemeConfig -> item.label
+                            is PosterSize -> item.size ?: ""
+                            else -> ""
+                        },
                         style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.padding(start = dp16)
+                        color = Color.Black
                     )
                 }
             }
@@ -211,145 +272,219 @@ fun DarkThemeConfigComponent(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExposedDropdownLanguageMenu(
-    list: List<LanguageItem>,
-    updateLanguage: (LanguageItem) -> Unit
+fun DisplayMenuComponent(
+    title: String,
+    content: String,
+    onClick: (() -> Unit)? = null
 ) {
-    var expanded by remember { mutableStateOf(false) }
-    var selectedItem = list.find { it.isSelected }
-
-    ExposedDropdownMenuBox(
-        modifier = Modifier.width(dp150),
-        expanded = expanded,
-        onExpandedChange = { expanded = !expanded }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(height = dp50)
+            .clickable(
+                interactionSource = if (onClick == null) null else remember { MutableInteractionSource() },
+                indication = if (onClick == null) null else LocalIndication.current
+            ) { onClick?.let { it() } },
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        TextField(
-            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable).wrapContentSize(),
-            readOnly = true,
-            value = "${selectedItem?.iso6391} (${selectedItem?.englishName})",
-            onValueChange = {},
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            maxLines = 1
+        Text(
+            modifier = Modifier.padding(start = dp16),
+            text = title
         )
-
-        ExposedDropdownMenu(
-            modifier = Modifier.heightIn(max = dp250),
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
+        Row(
+            modifier = Modifier.padding(end = dp16),
+            horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            list.sortedBy { it.iso6391 }.forEach {
-                DropdownMenuItem(
-                    text = {
-                        Text(
-                            text = "${it.iso6391} (${it.englishName})",
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    },
-                    onClick = {
-                        selectedItem = it
-                        expanded = false
-                        updateLanguage(it)
-                    }
+            Text(text = content)
+            if (onClick != null) {
+                Icon(
+                    modifier = Modifier.rotate(degrees = 90f),
+                    imageVector = Icons.Filled.KeyboardArrowUp,
+                    contentDescription = "moreIcon"
                 )
             }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExposedDropdownRegionMenu(
-    list: List<Region>,
-    updateRegion: (Region) -> Unit
+fun SwitchMenuComponent(
+    title: String,
+    checked: Boolean,
+    onClick: ((Boolean) -> Unit)
 ) {
-    var expanded by remember { mutableStateOf(false) }
-    var selectedItem = list.find { it.isSelected }
-
-    ExposedDropdownMenuBox(
-        modifier = Modifier.width(dp150),
-        expanded = expanded,
-        onExpandedChange = { expanded = !expanded }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(height = dp50),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        TextField(
-            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable).wrapContentSize(),
-            readOnly = true,
-            value = "${selectedItem?.iso31661} (${selectedItem?.nativeName ?: selectedItem?.englishName})",
-            onValueChange = {},
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            maxLines = 1
+        Text(
+            modifier = Modifier.padding(start = dp16),
+            text = title
         )
+        Switch(
+            modifier = Modifier.padding(end = dp16),
+            checked = checked,
+            onCheckedChange = { onClick(it) }
+        )
+    }
+}
 
-        ExposedDropdownMenu(
-            modifier = Modifier.heightIn(max = dp250),
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
+@Composable
+fun ChooseMenuComponent(
+    title: String,
+    content: String,
+    onClick: (() -> Unit)? = null
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(height = dp50)
+            .clickable { onClick?.let { it() } },
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            modifier = Modifier.padding(start = dp16),
+            text = title
+        )
+        Row(
+            modifier = Modifier.padding(end = dp16),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            list.sortedBy { it.iso31661 }.forEach {
-                DropdownMenuItem(
-                    text = {
-                        Text(
-                            text = "${it.iso31661} (${it.nativeName ?: it.englishName})",
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    },
-                    onClick = {
-                        selectedItem = it
-                        expanded = false
-                        updateRegion(it)
+            Text(text = content)
+            Icon(
+                modifier = Modifier.rotate(degrees = 90f),
+                imageVector = Icons.Filled.KeyboardArrowUp,
+                contentDescription = "moreIcon"
+            )
+        }
+    }
+}
+
+@Composable
+fun LanguageChooseMenuComponent(
+    internalData: InternalData,
+    movieAppData: MovieAppData,
+    updateUserData: (InternalData, Boolean) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var language by remember { mutableStateOf(value = internalData.language) }
+    var region by remember { mutableStateOf(value = internalData.region) }
+    val isChooseLanguageExpand = remember { mutableStateOf(value = false) }
+    val isChooseRegionExpand = remember { mutableStateOf(value = false) }
+
+    Dialog(
+        onDismissRequest = { onDismiss() },
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            dismissOnBackPress = true,
+            dismissOnClickOutside = false
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth(fraction = 0.8f)
+                .background(color = MaterialTheme.colorScheme.inverseOnSurface),
+            verticalArrangement = Arrangement.Center
+        ) {
+            SearchTypeComponent(
+                list = movieAppData.language.sortedBy { it.iso6391 }.map { "${it.iso6391} (${it.englishName})" },
+                selectedOption = language,
+                updateUserData = { selectedLanguage ->
+                    movieAppData.language.find { language -> "${language.iso6391} (${language.englishName})" == selectedLanguage }?.let {
+                        language = it.iso6391 ?: ""
                     }
-                )
+                },
+                isExpand = isChooseLanguageExpand
+            )
+            HorizontalDivider()
+            SearchTypeComponent(
+                list = movieAppData.region.sortedBy { it.iso31661 }.map { "${it.iso31661} (${it.englishName})" },
+                selectedOption = region,
+                updateUserData = { selectedRegion ->
+                    movieAppData.region.find { language -> "${language.iso31661} (${language.englishName})" == selectedRegion }?.let {
+                        region = it.iso31661 ?: ""
+                    }
+                },
+                isExpand = isChooseRegionExpand
+            )
+            HorizontalDivider()
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(height = dp50)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .weight(weight = 1.0f)
+                        .fillMaxHeight()
+                        .clickable {
+                            updateUserData(
+                                internalData.copy(language = language, region = region),
+                                true
+                            )
+                            onDismiss()
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(text = stringResource(id = R.string.confirm))
+                }
+                VerticalDivider(modifier = Modifier.height(height = dp50))
+                Box(
+                    modifier = Modifier
+                        .weight(weight = 1.0f)
+                        .fillMaxHeight()
+                        .clickable { onDismiss() },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(text = stringResource(id = R.string.cancel))
+                }
             }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExposedDropdownPosterSizeMenu(
-    list: List<PosterSize>,
-    updateImageQuality: (PosterSize) -> Unit
+fun SearchTypeComponent(
+    list: List<String>,
+    selectedOption: String,
+    updateUserData: (String) -> Unit,
+    isExpand: MutableState<Boolean>
 ) {
-    var expanded by remember { mutableStateOf(false) }
-    var selectedItem = list.find { it.isSelected }
-
-    ExposedDropdownMenuBox(
-        modifier = Modifier.width(dp150),
-        expanded = expanded,
-        onExpandedChange = { expanded = !expanded }
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(height = dp50)
+            .clickable { isExpand.value = true },
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
-        TextField(
-            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
-            readOnly = true,
-            value = "${selectedItem?.size}",
-            onValueChange = {},
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            maxLines = 1
+        Text(
+            modifier = Modifier.testTag(tag = "language"),
+            text = selectedOption,
+            color = MaterialTheme.colorScheme.onSurface
         )
-
-        ExposedDropdownMenu(
-            modifier = Modifier.heightIn(max = dp250),
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
+        DropdownMenu(
+            modifier = Modifier.wrapContentSize(),
+            expanded = isExpand.value,
+            onDismissRequest = { isExpand.value = false }
         ) {
             list.forEach {
                 DropdownMenuItem(
-                    text = {
-                        Text(
-                            text = "${it.size}",
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    },
+                    modifier = Modifier.testTag(tag = it),
                     onClick = {
-                        selectedItem = it
-                        expanded = false
-                        updateImageQuality(it)
-                    }
+                        Log.d(it)
+                        updateUserData(it)
+                        isExpand.value = false
+                    },
+                    text = { Text(text = it) }
                 )
+                HorizontalDivider()
             }
         }
     }

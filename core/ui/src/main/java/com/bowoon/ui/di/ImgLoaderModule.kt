@@ -17,7 +17,7 @@ import javax.inject.Singleton
 private const val TAG = "#ImageLoader"
 const val CACHE_FOLDER_NAME = "image"
 const val MEMORY_CACHE_PERCENT = 0.25
-const val CACHE_BYTES_SIZE = 512L * 1024 * 1024 // 512MB`
+const val CACHE_BYTES_SIZE = 512L * 1024 * 1024 // 512MB
 
 @Module
 @InstallIn(SingletonComponent::class)

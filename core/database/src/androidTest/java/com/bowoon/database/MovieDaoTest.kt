@@ -1,0 +1,148 @@
+package com.bowoon.database
+
+import com.bowoon.database.model.MovieEntity
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.runTest
+import org.junit.Test
+import org.threeten.bp.Instant
+import kotlin.test.assertEquals
+
+internal class MovieDaoTest : DatabaseTest() {
+    @Test
+    fun getMovieTest() = runTest {
+        val favoriteMovies = listOf(
+            MovieEntity(
+                id = 1,
+                timestamp = Instant.now().epochSecond,
+                posterPath = "/Movie_1.png",
+                title = "movie_1",
+                releaseDate = "2025-01-01"
+            ),
+            MovieEntity(
+                id = 2,
+                timestamp = Instant.now().epochSecond,
+                posterPath = "/Movie_2.png",
+                title = "movie_2",
+                releaseDate = "2025-01-02"
+            ),
+            MovieEntity(
+                id = 3,
+                timestamp = Instant.now().epochSecond,
+                posterPath = "/Movie_3.png",
+                title = "movie_3",
+                releaseDate = "2025-01-03"
+            )
+        )
+
+        movieDao.upsertMovies(favoriteMovies)
+
+        assertEquals(
+            movieDao.getMovieEntities().first(),
+            favoriteMovies
+        )
+    }
+
+    @Test
+    fun deleteMovieTest() = runTest {
+        val favoriteMovies = listOf(
+            MovieEntity(
+                id = 1,
+                timestamp = Instant.now().epochSecond,
+                posterPath = "/Movie_1.png",
+                title = "movie_1",
+                releaseDate = "2025-01-01"
+            ),
+            MovieEntity(
+                id = 2,
+                timestamp = Instant.now().epochSecond,
+                posterPath = "/Movie_2.png",
+                title = "movie_2",
+                releaseDate = "2025-01-02"
+            ),
+            MovieEntity(
+                id = 3,
+                timestamp = Instant.now().epochSecond,
+                posterPath = "/Movie_3.png",
+                title = "movie_3",
+                releaseDate = "2025-01-03"
+            )
+        )
+
+        movieDao.upsertMovies(favoriteMovies)
+
+        assertEquals(
+            movieDao.getMovieEntities().first(),
+            favoriteMovies
+        )
+
+        movieDao.deleteMovie(2)
+
+        assertEquals(
+            movieDao.getMovieEntities().first(),
+            favoriteMovies.filter { it.id != 2 }
+        )
+    }
+
+    @Test
+    fun insertOrIgnoreTest() = runTest {
+        val favoriteMovies = listOf(
+            MovieEntity(
+                id = 1,
+                timestamp = Instant.now().epochSecond,
+                posterPath = "/Movie_1.png",
+                title = "movie_1",
+                releaseDate = "2025-01-01"
+            ),
+            MovieEntity(
+                id = 2,
+                timestamp = Instant.now().epochSecond,
+                posterPath = "/Movie_2.png",
+                title = "movie_2",
+                releaseDate = "2025-01-02"
+            ),
+            MovieEntity(
+                id = 3,
+                timestamp = Instant.now().epochSecond,
+                posterPath = "/Movie_3.png",
+                title = "movie_3",
+                releaseDate = "2025-01-03"
+            )
+        )
+        val movie = MovieEntity(
+            id = 4,
+            timestamp = Instant.now().epochSecond,
+            posterPath = "/Movie_4.png",
+            title = "movie_4",
+            releaseDate = "2025-01-04"
+        )
+
+        movieDao.upsertMovies(favoriteMovies)
+
+        assertEquals(
+            movieDao.getMovieEntities().first(),
+            favoriteMovies
+        )
+
+        movieDao.insertOrIgnoreMovies(
+            MovieEntity(
+                id = 3,
+                timestamp = Instant.now().epochSecond,
+                posterPath = "/Movie_4.png",
+                title = "movie_4",
+                releaseDate = "2025-01-04"
+            )
+        )
+
+        assertEquals(
+            movieDao.getMovieEntities().first(),
+            favoriteMovies
+        )
+
+        movieDao.insertOrIgnoreMovies(movie)
+
+        assertEquals(
+            movieDao.getMovieEntities().first(),
+            favoriteMovies + movie
+        )
+    }
+}

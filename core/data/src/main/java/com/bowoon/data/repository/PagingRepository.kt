@@ -1,10 +1,17 @@
 package com.bowoon.data.repository
 
-import androidx.paging.PagingData
+import androidx.paging.PagingSource
 import com.bowoon.model.Movie
-import kotlinx.coroutines.flow.Flow
+import com.bowoon.model.MovieReview
+import com.bowoon.model.SearchKeyword
+import com.bowoon.model.SearchType
 
 interface PagingRepository {
-    suspend fun searchMovies(type: String, query: String): Flow<PagingData<Movie>>
-    suspend fun getSimilarMovies(id: Int): Flow<PagingData<Movie>>
+    fun getSearchPagingSource(
+        type: SearchType,
+        query: String
+    ): PagingSource<Int, Movie>
+    fun getSimilarMoviePagingSource(id: Int): PagingSource<Int, Movie>
+    fun getRecommendKeywordPagingSource(query: String): PagingSource<Int, SearchKeyword>
+    fun getMovieReviews(movieId: Int): PagingSource<Int, MovieReview>
 }

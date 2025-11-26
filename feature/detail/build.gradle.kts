@@ -23,8 +23,15 @@ dependencies {
         libs.androidx.media3.exoplayer,
         libs.androidx.media3.ui,
         libs.youtube.player,
-        libs.androidx.compose.paging
+        libs.androidx.compose.paging,
+        libs.threetenabp
     ).forEach {
         implementation(it)
     }
+
+    testImplementation(libs.androidx.paging.testing)
+    testImplementation(libs.androidx.paging.common)
+    testImplementation(libs.turbine)
+
+    androidTestImplementation(projects.core.testing)
 }

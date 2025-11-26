@@ -8,7 +8,8 @@ android {
 
 dependencies {
     arrayOf(
-        libs.kotlinx.serialization.json
+        libs.kotlinx.serialization.json,
+        libs.androidx.paging.common
     ).forEach {
         implementation(it)
     }

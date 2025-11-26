@@ -10,12 +10,13 @@ android {
 dependencies {
     arrayOf(
         projects.core.common,
-        libs.threetenabp,
-        libs.androidx.compose.paging
+        libs.threetenabp
     ).forEach {
         implementation(it)
     }
 
     api(projects.core.data)
     api(projects.core.model)
+
+    testImplementation(libs.androidx.paging.testing)
 }

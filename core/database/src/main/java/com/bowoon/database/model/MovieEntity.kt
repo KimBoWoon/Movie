@@ -1,29 +1,22 @@
 package com.bowoon.database.model
 
-import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.bowoon.model.MovieDetail
-import com.bowoon.model.Releases
+import com.bowoon.model.Movie
 
 @Entity(tableName = "movies")
 data class MovieEntity(
     @PrimaryKey
     val id: Int,
-    @ColumnInfo(defaultValue = "")
     val posterPath: String,
     val timestamp: Long,
-    val releases: Releases?,
-    @ColumnInfo(defaultValue = "", typeAffinity = ColumnInfo.TEXT)
-    val releaseDate: String,
-    @ColumnInfo(defaultValue = "", typeAffinity = ColumnInfo.TEXT)
-    val title: String
+    val title: String?,
+    val releaseDate: String?
 )
 
-fun MovieEntity.asExternalModel(): MovieDetail = MovieDetail(
+fun MovieEntity.asExternalModel(): Movie = Movie(
     id = id,
-    title = title,
     posterPath = posterPath,
-    releases = releases,
+    title = title,
     releaseDate = releaseDate
 )

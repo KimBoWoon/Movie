@@ -8,20 +8,20 @@ plugins {
     alias(libs.plugins.bowoon.android.application.flavors)
 }
 
-task("createReleaseNote") {
+tasks.register("createReleaseNote") {
     val releaseNote = File("releaseNote.txt")
-    val logs = ByteArrayOutputStream().use {
+    val logs = ByteArrayOutputStream().use { os ->
         exec {
-            commandLine("git", "log", "--oneline", "HEAD")
-            standardOutput = it
+            executable = "git"
+            args = listOf<String>("log", "--pretty=format:(#%h) %cn %s")
+            standardOutput = os
         }
-        it.toString().trim()
+        os.toString().trim()
     }
-    val result = """
-$logs
-""".trimIndent()
     releaseNote.delete()
-    releaseNote.writeText(result)
+    releaseNote.writeText(
+        text = logs.takeIf { it.isNotEmpty() }?.trimIndent() ?: "empty logs..."
+    )
 }
 
 dependencies {
@@ -40,6 +40,7 @@ dependencies {
         projects.feature.favorite,
         projects.feature.my,
         projects.feature.people,
+        projects.feature.series,
         libs.coil.compose,
         libs.androidx.navigation.compose,
         libs.androidx.compose.material3.navigationSuite,
@@ -54,4 +55,27 @@ dependencies {
 
 //    ksp(libs.hilt.compiler)
     ksp(libs.hilt.ext.compiler)
+
+    arrayOf(
+        libs.hilt.android.testing,
+        projects.core.testing
+    ).forEach {
+        androidTestImplementation(it)
+    }
+
+    arrayOf(
+//        projects.core.dataTest,
+        projects.core.datastoreTest,
+        projects.core.testing,
+        libs.hilt.android.testing,
+//        projects.sync.syncTest,
+        libs.kotlin.test,
+        libs.androidx.navigation.testing,
+        libs.robolectric,
+//        libs.roborazzi,
+//        projects.core.screenshotTesting,
+        libs.androidx.ui.test.junit4
+    ).forEach {
+        testImplementation(it)
+    }
 }

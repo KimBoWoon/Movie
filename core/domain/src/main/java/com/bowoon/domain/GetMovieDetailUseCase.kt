@@ -2,158 +2,73 @@ package com.bowoon.domain
 
 import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.data.repository.DetailRepository
-import com.bowoon.data.repository.MyDataRepository
 import com.bowoon.data.repository.UserDataRepository
-import com.bowoon.model.BelongsToCollection
-import com.bowoon.model.Cast
-import com.bowoon.model.Credits
-import com.bowoon.model.Crew
-import com.bowoon.model.DetailImage
-import com.bowoon.model.MovieDetail
-import com.bowoon.model.MovieDetailImages
-import kotlinx.coroutines.flow.Flow
+import com.bowoon.model.InternalData
+import com.bowoon.model.MovieDetailInfo
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 class GetMovieDetailUseCase @Inject constructor(
-    private val detailRepository: DetailRepository,
-    private val userDataRepository: UserDataRepository,
+    userDataRepository: UserDataRepository,
     private val databaseRepository: DatabaseRepository,
-    private val myDataRepository: MyDataRepository
+    private val detailRepository: DetailRepository
 ) {
-    operator fun invoke(id: Int): Flow<MovieDetail> =
-        combine(
-            detailRepository.getMovieDetail(id),
-            userDataRepository.userData,
-            databaseRepository.getMovies(),
-            myDataRepository.posterUrl
-        ) { movie, userData, favoriteMovies, posterUrl ->
-            MovieDetail(
-                adult = movie.adult,
-                autoPlayTrailer = userData.autoPlayTrailer,
-                alternativeTitles = movie.alternativeTitles,
-                backdropPath = "$posterUrl${movie.backdropPath}",
-                belongsToCollection = getBelongsToCollection(movie.belongsToCollection, posterUrl),
-                budget = movie.budget,
-                credits = getCredits(movie.credits, posterUrl),
-                genres = movie.genres,
-                homepage = movie.homepage,
-                id = movie.id,
-                images = getImages(movie.images, posterUrl),
-                imdbId = movie.imdbId,
-                keywords = movie.keywords,
-                originCountry = movie.originCountry,
-                originalLanguage = movie.originalLanguage,
-                originalTitle = movie.originalTitle,
-                overview = movie.overview,
-                popularity = movie.popularity,
-                posterPath = "${movie.posterPath}",
-                productionCountries = movie.productionCountries,
-                productionCompanies = movie.productionCompanies,
-                releaseDate = movie.releases?.countries?.find { it.iso31661.equals(userData.region, true) }?.releaseDate,
-                releases = movie.releases,
-                revenue = movie.revenue,
-                runtime = movie.runtime,
-                spokenLanguages = movie.spokenLanguages,
-                status = movie.status,
-                tagline = movie.tagline,
-                title = movie.title,
-                translations = movie.translations,
-                video = movie.video,
-                videos = movie.videos,
-                voteCount = movie.voteCount,
-                voteAverage = movie.voteAverage,
-                certification = movie.releases?.countries?.find { it.iso31661.equals(userData.region, true) }?.certification,
-                favoriteMovies = favoriteMovies,
-                posterUrl = posterUrl,
-                isFavorite = favoriteMovies.find { it.id == movie.id } != null
-            )
-        }
-
-    private fun getCredits(
-        credits: Credits?,
-        posterUrl: String
-    ): Credits = Credits(
-        cast = credits?.cast?.map {
-            Cast(
-                adult = it.adult,
-                castId = it.castId,
-                character = it.character,
-                creditId = it.creditId,
-                gender = it.gender,
-                id = it.id,
-                knownForDepartment = it.knownForDepartment,
-                name = it.name,
-                order = it.order,
-                originalName = it.originalName,
-                popularity = it.popularity,
-                profilePath = "$posterUrl${it.profilePath}"
-            )
-        },
-        crew = credits?.crew?.map {
-            Crew(
-                adult = it.adult,
-                creditId = it.creditId,
-                department = it.department,
-                gender = it.gender,
-                id = it.id,
-                job = it.job,
-                knownForDepartment = it.knownForDepartment,
-                name = it.name,
-                originalName = it.originalName,
-                popularity = it.popularity,
-                profilePath = "$posterUrl${it.profilePath}"
-            )
-        }
-    )
-
-    private fun getImages(
-        images: MovieDetailImages?,
-        posterUrl: String
-    ): MovieDetailImages =
-        MovieDetailImages(
-            backdrops = images?.backdrops?.map {
-                DetailImage(
-                    aspectRatio = it.aspectRatio,
-                    filePath = "$posterUrl${it.filePath}",
-                    height = it.height,
-                    iso6391 = it.iso6391,
-                    voteAverage = it.voteAverage,
-                    voteCount = it.voteCount,
-                    width = it.width
-                )
-            },
-            logos = images?.logos?.map {
-                DetailImage(
-                    aspectRatio = it.aspectRatio,
-                    filePath = "$posterUrl${it.filePath}",
-                    height = it.height,
-                    iso6391 = it.iso6391,
-                    voteAverage = it.voteAverage,
-                    voteCount = it.voteCount,
-                    width = it.width
-                )
-            },
-            posters = images?.posters?.map {
-                DetailImage(
-                    aspectRatio = it.aspectRatio,
-                    filePath = "$posterUrl${it.filePath}",
-                    height = it.height,
-                    iso6391 = it.iso6391,
-                    voteAverage = it.voteAverage,
-                    voteCount = it.voteCount,
-                    width = it.width
-                )
-            }
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
+        close(message = throwable.message ?: "something wrong...", cause = throwable)
+    }
+    private val backgroundScope = CoroutineScope(Dispatchers.IO + coroutineExceptionHandler)
+    private val seriesId = MutableStateFlow<Int?>(null)
+    private val internalData = userDataRepository.internalData
+        .stateIn(
+            scope = backgroundScope,
+            started = SharingStarted.Eagerly,
+            initialValue = InternalData()
         )
 
-    private fun getBelongsToCollection(
-        belongsToCollection: BelongsToCollection?,
-        posterUrl: String
-    ): BelongsToCollection = BelongsToCollection(
-        backdropPath = "$posterUrl${belongsToCollection?.backdropPath}",
-        id = belongsToCollection?.id,
-        name = belongsToCollection?.name,
-        posterPath = "$posterUrl${belongsToCollection?.posterPath}"
-    )
+    operator fun invoke(id: Int) = combine(
+        detailRepository.getMovie(id)
+            .map { movie ->
+                movie.copy(
+                    releaseDate = movie.releases?.countries?.find { country ->
+                        country.iso31661.equals(other = internalData.value.region, ignoreCase = true)
+                    }?.releaseDate ?: movie.releaseDate,
+                    certification = movie.releases?.countries?.find { country ->
+                        country.iso31661.equals(other = internalData.value.region, ignoreCase = true)
+                    }?.certification ?: movie.certification
+                )
+            }.onEach { movie ->
+                movie.belongsToCollection?.id?.let { seriesId ->
+                    this@GetMovieDetailUseCase.seriesId.emit(value = seriesId)
+                }
+            },
+        @OptIn(ExperimentalCoroutinesApi::class)
+        seriesId.flatMapLatest { seriesId ->
+            seriesId?.let {
+                detailRepository.getMovieSeries(collectionId = it)
+            } ?: flowOf(null)
+        },
+        databaseRepository.getMovies()
+    ) { movie, series, favoriteMovies ->
+        MovieDetailInfo(
+            detail = movie.copy(isFavorite = favoriteMovies.find { it.id == movie.id } != null),
+            series = series,
+            autoPlayTrailer = internalData.value.autoPlayTrailer
+        )
+    }
+
+    fun close(message: String, cause: Throwable?) {
+        backgroundScope.cancel(message = message, cause = cause)
+    }
 }

@@ -29,13 +29,13 @@ internal class ApiResultCall<R>(
                                     ApiResponse.Failure(
                                         code = response.code(),
                                         message = response.message(),
-                                        body = response.errorBody()?.run { string() } ?: run { null }
+                                        body = response.errorBody()?.string()
                                     )
                                 )
                             )
                         }
                     }
-                } ?: callback.onResponse(this@ApiResultCall, Response.success(ApiResponse.Failure(throwable = IllegalStateException("empty body!"))))
+                } ?: callback.onResponse(this@ApiResultCall, Response.success(ApiResponse.Failure(throwable = IllegalStateException(response.errorBody()?.string() ?: "empty body!"))))
             }
 
             override fun onFailure(call: Call<R?>, throwable: Throwable) {

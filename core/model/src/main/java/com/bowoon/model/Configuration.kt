@@ -5,11 +5,11 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Configuration(
     val changeKeys: List<String>? = null,
-    val images: Images? = null
+    val images: ImageInfo? = null
 )
 
 @Serializable
-data class Images(
+data class ImageInfo(
     val backdropSizes: List<String>? = null,
     val baseUrl: String? = null,
     val logoSizes: List<String>? = null,

@@ -1,9 +1,7 @@
 package com.bowoon.network.model
 
-
-import com.bowoon.model.SearchPeopleData
-import com.bowoon.model.SearchPeopleKnownFor
-import com.bowoon.model.SearchPeopleItem
+import com.bowoon.model.Movie
+import com.bowoon.model.SearchData
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -75,8 +73,8 @@ data class NetworkTMDBSearchPeopleKnownFor(
     val voteCount: Int? = null
 )
 
-fun NetworkTMDBSearchPeople.asExternalModel(): SearchPeopleData =
-    SearchPeopleData(
+fun NetworkTMDBSearchPeople.asExternalModel(): SearchData =
+    SearchData(
         page = page,
         results = results?.asExternalModel(),
         totalPages = totalPages,
@@ -84,42 +82,12 @@ fun NetworkTMDBSearchPeople.asExternalModel(): SearchPeopleData =
     )
 
 @JvmName("NetworkTMDBSearchPeopleResultAsExternalModel")
-fun List<NetworkTMDBSearchPeopleResult>.asExternalModel(): List<SearchPeopleItem> =
+fun List<NetworkTMDBSearchPeopleResult>.asExternalModel(): List<Movie> =
     map {
-        SearchPeopleItem(
+        Movie(
             adult = it.adult,
-            gender = it.gender,
             id = it.id,
-            knownFor = it.knownFor?.asExternalModel(),
-            knownForDepartment = it.knownForDepartment,
-            name = it.name,
-            originalName = it.originalName,
-            popularity = it.popularity,
-            profilePath = it.profilePath,
-            searchTitle = it.name,
-            tmdbId = it.id,
-            imagePath = it.profilePath
-        )
-    }
-
-@JvmName("NetworkTMDBSearchPeopleKnownForAsExternalModel")
-fun List<NetworkTMDBSearchPeopleKnownFor>.asExternalModel(): List<SearchPeopleKnownFor> =
-    map {
-        SearchPeopleKnownFor(
-            adult = it.adult,
-            backdropPath = it.backdropPath,
-            genreIds = it.genreIds,
-            id = it.id,
-            mediaType = it.mediaType,
-            originalLanguage = it.originalLanguage,
-            originalTitle = it.originalTitle,
-            overview = it.overview,
-            popularity = it.popularity,
-            posterPath = it.posterPath,
-            releaseDate = it.releaseDate,
-            title = it.title,
-            video = it.video,
-            voteAverage = it.voteAverage,
-            voteCount = it.voteCount
+            title = it.name,
+            posterPath = it.profilePath
         )
     }
