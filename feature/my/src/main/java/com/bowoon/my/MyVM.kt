@@ -33,3 +33,9 @@ class MyVM @Inject constructor(
         }
     }
 }
+
+sealed interface MyMenu {
+    data class Display(val label: String, val content: String) : MyMenu
+    data class Switch(val label: String, val selected: Boolean, val onClick: ((Boolean) -> Unit)) : MyMenu
+    data class Dialog(val label: String, val selected: Any, val list: List<Any>, val content: String, val updateLambda: (Any?) -> Unit) : MyMenu
+}

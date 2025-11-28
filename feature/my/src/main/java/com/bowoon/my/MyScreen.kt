@@ -76,13 +76,6 @@ fun MyScreen(
     )
 }
 
-sealed interface MyMenu {
-    data class Display(val label: String, val content: String) : MyMenu
-    data class Switch(val label: String, val selected: Boolean, val onClick: ((Boolean) -> Unit)) : MyMenu
-    data class Language(val label: String, val selected: Any, val content: String, val onClick: (() -> Unit)) : MyMenu
-    data class Dialog(val label: String, val selected: Any, val content: String, val onClick: (() -> Unit)) : MyMenu
-}
-
 @Composable
 fun MyScreen(
     internalData: InternalData,
@@ -94,6 +87,7 @@ fun MyScreen(
     var isShowLanguageChangeDialog by remember { mutableStateOf(value = false) }
     var chooseDialogItem by remember { mutableStateOf(value = listOf<Any>()) }
     var selectedOption by remember { mutableStateOf<Any?>(value = null) }
+    var updateUserDataLambda by remember { mutableStateOf<(Any?) -> Unit>(value = {}) }
     val menuList = mutableListOf<MyMenu>(
         MyMenu.Display(
             label = stringResource(id = R.string.main_update_data_setting),
@@ -102,39 +96,37 @@ fun MyScreen(
         MyMenu.Dialog(
             label = stringResource(id = R.string.dark_mode_setting),
             selected = internalData.isDarkMode,
+            list = DarkThemeConfig.entries,
             content = when (internalData.isDarkMode) {
                 DarkThemeConfig.FOLLOW_SYSTEM -> stringResource(id = R.string.dark_mode_setting_system_follow)
                 DarkThemeConfig.LIGHT -> stringResource(id = R.string.dark_mode_setting_light)
                 DarkThemeConfig.DARK -> stringResource(id = R.string.dark_mode_setting_dark)
             },
-            onClick = {
-                isShowChooseDialog = true
-                chooseDialogItem = DarkThemeConfig.entries
-                selectedOption = internalData.imageQuality
-            }
+            updateLambda = { updateUserData(internalData.copy(isDarkMode = it as DarkThemeConfig), false) }
         ),
         MyMenu.Switch(
             label = stringResource(id = R.string.is_adult_setting),
             selected = internalData.isAdult,
-            onClick = { updateUserData(internalData.copy(isAdult = it), false) }),
+            onClick = { updateUserData(internalData.copy(isAdult = it), false) }
+        ),
         MyMenu.Switch(
             label = stringResource(id = R.string.auto_playing_trailer_setting),
             selected = internalData.autoPlayTrailer,
-            onClick = { updateUserData(internalData.copy(autoPlayTrailer = it), false) }),
-        MyMenu.Language(
+            onClick = { updateUserData(internalData.copy(autoPlayTrailer = it), false) }
+        ),
+        MyMenu.Dialog(
             label = stringResource(id = R.string.language_setting),
             selected = movieAppData.language.find { it.isSelected } ?: "",
+            list = movieAppData.language,
             content = "${internalData.language}-${internalData.region}",
-            onClick = { isShowLanguageChangeDialog = true }),
+            updateLambda = { updateUserData(internalData.copy(language = it as String), true) }
+        ),
         MyMenu.Dialog(
             label = stringResource(id = R.string.image_quality_setting),
             selected = internalData.imageQuality,
+            list = movieAppData.posterSize,
             content = internalData.imageQuality,
-            onClick = {
-                isShowChooseDialog = true
-                chooseDialogItem = movieAppData.posterSize
-                selectedOption = movieAppData.posterSize.find { it.isSelected }
-            }
+            updateLambda = { updateUserData(internalData.copy(imageQuality = (it as PosterSize).size ?: ""), false) }
         ),
         MyMenu.Display(
             label = stringResource(id = R.string.version_info),
@@ -152,23 +144,26 @@ fun MyScreen(
                 menuList.forEach { menu ->
                     when (menu) {
                         is MyMenu.Dialog -> {
-                            ChooseMenuComponent(
+                            val languageLabel = stringResource(id = R.string.language_setting)
+
+                            DisplayMenuComponent(
                                 title = menu.label,
                                 content = menu.content,
-                                onClick = menu.onClick
+                                onClick = {
+                                    when (menu.label) {
+                                        languageLabel -> isShowLanguageChangeDialog = true
+                                        else -> isShowChooseDialog = true
+                                    }
+                                    selectedOption = menu.selected
+                                    chooseDialogItem = menu.list
+                                    updateUserDataLambda = menu.updateLambda
+                                }
                             )
                         }
                         is MyMenu.Display -> {
                             DisplayMenuComponent(
                                 title = menu.label,
                                 content = menu.content
-                            )
-                        }
-                        is MyMenu.Language -> {
-                            DisplayMenuComponent(
-                                title = menu.label,
-                                content = menu.content,
-                                onClick = menu.onClick
                             )
                         }
                         is MyMenu.Switch -> {
@@ -184,25 +179,23 @@ fun MyScreen(
         }
     }
 
-    if (isShowLanguageChangeDialog) {
-        LanguageChooseMenuComponent(
-            internalData = internalData,
-            movieAppData = movieAppData,
-            updateUserData = updateUserData,
-            onDismiss = { isShowLanguageChangeDialog = false }
-        )
-    } else if (isShowChooseDialog) {
-        ChooseDialog(
-            list = chooseDialogItem,
-            selectedOption = selectedOption,
-            dismiss = { isShowChooseDialog = false },
-            updateUserData = { chooseItem ->
-                when (chooseItem) {
-                    is DarkThemeConfig -> updateUserData(internalData.copy(isDarkMode = chooseItem), false)
-                    is PosterSize -> updateUserData(internalData.copy(imageQuality = chooseItem.size ?: ""), true)
-                }
-            }
-        )
+    when {
+        isShowLanguageChangeDialog -> {
+            LanguageChooseMenuComponent(
+                internalData = internalData,
+                movieAppData = movieAppData,
+                updateUserData = updateUserData,
+                onDismiss = { isShowLanguageChangeDialog = false }
+            )
+        }
+        isShowChooseDialog -> {
+            ChooseDialog(
+                list = chooseDialogItem,
+                selectedOption = selectedOption,
+                dismiss = { isShowChooseDialog = false },
+                updateUserData = updateUserDataLambda
+            )
+        }
     }
 }
 
@@ -223,7 +216,7 @@ fun <T> ChooseDialog(
     ) {
         LazyColumn(
             modifier = Modifier
-                .fillMaxWidth(0.8f)
+                .fillMaxWidth(fraction = 0.8f)
                 .heightIn(max = dp500)
                 .background(color = Color.White)
         ) {
@@ -240,9 +233,13 @@ fun <T> ChooseDialog(
                 Row(
                     Modifier
                         .fillMaxWidth()
-                        .height(dp56)
+                        .height(height = dp56)
                         .selectable(
-                            selected = (item == selectedOption),
+                            selected = when (item) {
+                                is String -> item == selectedOption
+                                is PosterSize -> item.isSelected
+                                else -> false
+                            },
                             onClick = {
                                 updateUserData(item)
                                 dismiss()
@@ -253,7 +250,11 @@ fun <T> ChooseDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     RadioButton(
-                        selected = (item == selectedOption),
+                        selected = when (item) {
+                            is String -> item == selectedOption
+                            is PosterSize -> item.isSelected
+                            else -> false
+                        },
                         onClick = null
                     )
                     Text(
@@ -335,38 +336,6 @@ fun SwitchMenuComponent(
 }
 
 @Composable
-fun ChooseMenuComponent(
-    title: String,
-    content: String,
-    onClick: (() -> Unit)? = null
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(height = dp50)
-            .clickable { onClick?.let { it() } },
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(
-            modifier = Modifier.padding(start = dp16),
-            text = title
-        )
-        Row(
-            modifier = Modifier.padding(end = dp16),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(text = content)
-            Icon(
-                modifier = Modifier.rotate(degrees = 90f),
-                imageVector = Icons.Filled.KeyboardArrowUp,
-                contentDescription = "moreIcon"
-            )
-        }
-    }
-}
-
-@Composable
 fun LanguageChooseMenuComponent(
     internalData: InternalData,
     movieAppData: MovieAppData,
@@ -392,7 +361,7 @@ fun LanguageChooseMenuComponent(
                 .background(color = MaterialTheme.colorScheme.inverseOnSurface),
             verticalArrangement = Arrangement.Center
         ) {
-            SearchTypeComponent(
+            DropdownItemComponent(
                 list = movieAppData.language.sortedBy { it.iso6391 }.map { "${it.iso6391} (${it.englishName})" },
                 selectedOption = language,
                 updateUserData = { selectedLanguage ->
@@ -403,7 +372,7 @@ fun LanguageChooseMenuComponent(
                 isExpand = isChooseLanguageExpand
             )
             HorizontalDivider()
-            SearchTypeComponent(
+            DropdownItemComponent(
                 list = movieAppData.region.sortedBy { it.iso31661 }.map { "${it.iso31661} (${it.englishName})" },
                 selectedOption = region,
                 updateUserData = { selectedRegion ->
@@ -450,7 +419,7 @@ fun LanguageChooseMenuComponent(
 }
 
 @Composable
-fun SearchTypeComponent(
+fun DropdownItemComponent(
     list: List<String>,
     selectedOption: String,
     updateUserData: (String) -> Unit,

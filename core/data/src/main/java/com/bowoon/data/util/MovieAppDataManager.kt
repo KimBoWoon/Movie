@@ -6,6 +6,7 @@ import com.bowoon.common.Log
 import com.bowoon.common.di.ApplicationScope
 import com.bowoon.datastore.InternalDataSource
 import com.bowoon.model.Configuration
+import com.bowoon.model.Genres
 import com.bowoon.model.Language
 import com.bowoon.model.MovieAppData
 import com.bowoon.model.PosterSize
@@ -18,10 +19,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 class MovieAppDataManager @Inject constructor(
     private val apis: MovieNetworkDataSource,
@@ -29,16 +32,29 @@ class MovieAppDataManager @Inject constructor(
     datastore: InternalDataSource,
     @ApplicationScope appScope: CoroutineScope
 ) : ApplicationData {
+    var language = ""
+    var genres = Genres()
+
+    init {
+        appScope.launch {
+            language = datastore.userData.map { it.language }.first()
+        }
+    }
+
     override val movieAppData = combine(
         datastore.userData,
         getConfiguration(),
         getAvailableLanguage(),
         getAvailableRegion(),
         datastore.userData.map {
-            apis.getGenres(language = "${it.language}-${it.region}")
+            if (language != it.language) {
+                genres = apis.getGenres(language = "${it.language}-${it.region}")
+            }
+            genres
         }
     ) { internalData, configuration, language, region, genres ->
         Log.d("${configuration.images?.secureBaseUrl}${internalData.imageQuality}")
+
         MovieAppData(
             isAdult = internalData.isAdult,
             autoPlayTrailer = internalData.autoPlayTrailer,
