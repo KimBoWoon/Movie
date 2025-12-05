@@ -6,6 +6,7 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -37,6 +38,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
@@ -92,46 +94,50 @@ fun MovieMainScreen(
                             .height(height = dp40)
                             .clip(shape = RoundedCornerShape(percent = 50))
                             .background(color = MaterialTheme.colorScheme.inverseOnSurface)
-                            .bounceClick(onClick = { appState.navController.navigate(SearchRoute) }),
-                        contentAlignment = Alignment.Center
+                            .bounceClick(onClick = { appState.navController.navigate(SearchRoute) })
                     ) {
-                        Icon(
-                            modifier = Modifier
-                                .wrapContentSize()
-                                .padding(start = dp20)
-                                .align(Alignment.CenterStart)
-                                .clickable {
-                                    appState.navController.navigate(route = SearchRoute)
-                                },
-                            imageVector = Icons.Default.Search,
-                            contentDescription = "goToSearch",
-                            tint = MaterialTheme.colorScheme.onSurface
-                        )
-                        if (nextWeekReleaseMovies.isEmpty()) {
-                            Text(
-                                modifier = Modifier.wrapContentWidth(),
-                                text = stringResource(id = R.string.go_to_search),
-                                maxLines = 1
-                            )
-                        } else if (nextWeekReleaseMovies.size == 1) {
-                            val nextWeekReleaseMovie = nextWeekReleaseMovies.first()
-
-                            Text(
+                        Row(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
                                 modifier = Modifier
-                                    .wrapContentWidth()
-                                    .clickable {
-                                        nextWeekReleaseMovie.id?.let {
-                                            appState.navController.navigate(route = DetailRoute(id = it))
-                                        }
-                                    },
-                                text = "${nextWeekReleaseMovie.title} 곧 개봉합니다!",
-                                maxLines = 1
+                                    .wrapContentSize()
+                                    .padding(start = dp20)
+                                    .align(Alignment.CenterVertically)
+                                    .clickable { appState.navController.navigate(route = SearchRoute) },
+                                imageVector = Icons.Default.Search,
+                                contentDescription = "goToSearch",
+                                tint = MaterialTheme.colorScheme.onSurface
                             )
-                        } else {
-                            VerticalRollingAnimation(
-                                appState = appState,
-                                nextWeekReleaseMovies = nextWeekReleaseMovies
-                            )
+                            if (nextWeekReleaseMovies.isEmpty()) {
+                                Text(
+                                    modifier = Modifier.wrapContentWidth(),
+                                    text = stringResource(id = R.string.go_to_search),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            } else if (nextWeekReleaseMovies.size == 1) {
+                                val nextWeekReleaseMovie = nextWeekReleaseMovies.first()
+
+                                Text(
+                                    modifier = Modifier
+                                        .wrapContentWidth()
+                                        .clickable {
+                                            nextWeekReleaseMovie.id?.let {
+                                                appState.navController.navigate(route = DetailRoute(id = it))
+                                            }
+                                        },
+                                    text = "${nextWeekReleaseMovie.title} 곧 개봉합니다!",
+                                    maxLines = 1
+                                )
+                            } else {
+                                VerticalRollingAnimation(
+                                    modifier = Modifier.padding(start = dp10, end = dp20),
+                                    appState = appState,
+                                    nextWeekReleaseMovies = nextWeekReleaseMovies
+                                )
+                            }
                         }
                     }
                 }

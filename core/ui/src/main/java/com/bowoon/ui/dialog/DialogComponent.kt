@@ -162,7 +162,7 @@ fun RowScope.DialogButton(
         modifier = modifier
             .fillMaxWidth()
             .fillMaxHeight()
-            .weight(1f)
+            .weight(weight = 1f)
             .bounceClick { onClick() },
         contentAlignment = Alignment.Center
     ) {

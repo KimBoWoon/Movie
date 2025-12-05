@@ -281,7 +281,7 @@ fun SearchBarComponent(
 
                 Box(
                     modifier = Modifier
-                        .weight(1f)
+                        .weight(weight = 1f)
                         .align(Alignment.CenterVertically)
                 ) {
                     innerTextField()
