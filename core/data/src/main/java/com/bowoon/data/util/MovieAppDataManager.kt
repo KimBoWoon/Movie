@@ -19,12 +19,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 
 class MovieAppDataManager @Inject constructor(
     private val apis: MovieNetworkDataSource,
@@ -35,12 +33,6 @@ class MovieAppDataManager @Inject constructor(
     var language = ""
     var genres = Genres()
 
-    init {
-        appScope.launch {
-            language = datastore.userData.map { it.language }.first()
-        }
-    }
-
     override val movieAppData = combine(
         datastore.userData,
         getConfiguration(),
@@ -48,12 +40,14 @@ class MovieAppDataManager @Inject constructor(
         getAvailableRegion(),
         datastore.userData.map {
             if (language != it.language) {
+                language = it.language
                 genres = apis.getGenres(language = "${it.language}-${it.region}")
             }
             genres
         }
     ) { internalData, configuration, language, region, genres ->
         Log.d("${configuration.images?.secureBaseUrl}${internalData.imageQuality}")
+        Log.d("movieAppDataGenres -> $genres")
 
         MovieAppData(
             isAdult = internalData.isAdult,

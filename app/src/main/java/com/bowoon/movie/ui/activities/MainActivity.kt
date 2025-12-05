@@ -15,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.bowoon.common.AppDoubleBackToExit
@@ -94,13 +95,16 @@ class MainActivity : ComponentActivity() {
             CompositionLocalProvider(value = LocalFirebaseLogHelper provides movieFirebase) {
                 LocalFirebaseLogHelper.current.sendLog(name = javaClass.simpleName, message = "compose start!")
 
+                val nextWeekReleaseMovies by viewModel.nextWeekReleaseMovies.collectAsStateWithLifecycle()
+
                 MovieTheme(darkTheme = darkTheme) {
                     val appState = rememberMovieAppState(networkMonitor = networkMonitor)
                     val snackbarHostState = remember { SnackbarHostState() }
 
                     MovieMainScreen(
                         appState = appState,
-                        snackbarHostState = snackbarHostState
+                        snackbarHostState = snackbarHostState,
+                        nextWeekReleaseMovies = nextWeekReleaseMovies
                     )
                 }
             }

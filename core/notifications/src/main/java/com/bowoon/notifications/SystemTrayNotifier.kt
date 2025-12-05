@@ -18,12 +18,15 @@ import coil3.request.ImageRequest
 import coil3.request.transformations
 import coil3.toBitmap
 import coil3.transform.RoundedCornersTransformation
+import com.bowoon.common.Dispatcher
+import com.bowoon.common.Dispatchers.IO
 import com.bowoon.data.util.ApplicationData
 import com.bowoon.model.Movie
 import com.bowoon.movie.core.notifications.R
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -40,6 +43,7 @@ const val DEEP_LINK_URI_PATTERN = "$DEEP_LINK_BASE_PATH/{id}"
 @Singleton
 class SystemTrayNotifier @Inject constructor(
     @param:ApplicationContext private val context: Context,
+    @param:Dispatcher(dispatcher = IO) private val ioDispatcher: CoroutineDispatcher,
     private val movieAppData: ApplicationData
 ) : Notifier {
     override suspend fun postMovieNotifications(movies: List<Movie>) {
@@ -83,8 +87,8 @@ class SystemTrayNotifier @Inject constructor(
         }
     }
 
-    suspend fun loadNotificationImage(context: Context, imageUrl: String): Bitmap? =
-        withContext(context = Dispatchers.IO) {
+    suspend fun loadNotificationImage(context: Context, imageUrl: String): Bitmap? = coroutineScope {
+        async(context = ioDispatcher) {
             context.imageLoader.execute(
                 request = ImageRequest.Builder(context = context)
                     .data(data = imageUrl)
@@ -92,6 +96,7 @@ class SystemTrayNotifier @Inject constructor(
                     .build()
             ).image?.toBitmap()
         }
+    }.await()
 }
 
 fun Context.createMovieNotification(

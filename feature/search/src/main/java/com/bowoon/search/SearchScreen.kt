@@ -550,7 +550,11 @@ fun RecommendKeywordComponent(
         modifier = Modifier.fillMaxSize()
     ) {
         when (recommendKeyword) {
-            is RecommendKeywordUiState.Loading -> CircularProgressComponent(modifier = Modifier.wrapContentSize().align(alignment = Alignment.Center))
+            is RecommendKeywordUiState.Loading -> CircularProgressComponent(
+                modifier = Modifier
+                    .wrapContentSize()
+                    .align(alignment = Alignment.Center)
+            )
             is RecommendKeywordUiState.Success -> {
                 val recommendKeyword = recommendKeyword.pagingData.collectAsLazyPagingItems()
 

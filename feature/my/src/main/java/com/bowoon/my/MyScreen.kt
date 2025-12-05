@@ -236,7 +236,7 @@ fun <T> ChooseDialog(
                         .height(height = dp56)
                         .selectable(
                             selected = when (item) {
-                                is String -> item == selectedOption
+                                is DarkThemeConfig -> item == selectedOption
                                 is PosterSize -> item.isSelected
                                 else -> false
                             },
@@ -251,7 +251,7 @@ fun <T> ChooseDialog(
                 ) {
                     RadioButton(
                         selected = when (item) {
-                            is String -> item == selectedOption
+                            is DarkThemeConfig -> item == selectedOption
                             is PosterSize -> item.isSelected
                             else -> false
                         },

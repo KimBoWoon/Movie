@@ -4,11 +4,11 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.bowoon.common.Log
 import com.bowoon.data.repository.UserDataRepository
+import com.bowoon.model.InternalData
 import com.bowoon.model.Movie
 import com.bowoon.model.SimilarMovie
 import com.bowoon.network.MovieNetworkDataSource
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.firstOrNull
 import javax.inject.Inject
 
 class SimilarMoviePagingSource @Inject constructor(
@@ -18,7 +18,8 @@ class SimilarMoviePagingSource @Inject constructor(
 ) : PagingSource<Int, Movie>() {
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Movie> =
         runCatching {
-            val language = userDataRepository.internalData.map { "${it.language}-${it.region}" }.first()
+            val internalData = userDataRepository.internalData.firstOrNull() ?: InternalData()
+            val language = "${internalData.language}-${internalData.region}"
             val response = apis.getSimilarMovies(id = id, language = language, page = params.key ?: 1)
 
             LoadResult.Page(

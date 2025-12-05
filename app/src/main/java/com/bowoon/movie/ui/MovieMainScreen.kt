@@ -4,14 +4,20 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.Scaffold
@@ -27,7 +33,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -37,11 +42,14 @@ import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.bowoon.detail.navigation.DetailRoute
 import com.bowoon.firebase.LocalFirebaseLogHelper
+import com.bowoon.model.Movie
 import com.bowoon.movie.MovieAppState
 import com.bowoon.movie.R
 import com.bowoon.movie.navigation.MovieAppNavHost
 import com.bowoon.movie.navigation.TopLevelDestination
+import com.bowoon.movie.utils.VerticalRollingAnimation
 import com.bowoon.search.navigation.SearchRoute
 import com.bowoon.ui.BottomNavigationBarItem
 import com.bowoon.ui.MovieNavigationDefaults
@@ -51,6 +59,7 @@ import com.bowoon.ui.utils.bounceClick
 import com.bowoon.ui.utils.dp1
 import com.bowoon.ui.utils.dp10
 import com.bowoon.ui.utils.dp16
+import com.bowoon.ui.utils.dp20
 import com.bowoon.ui.utils.dp40
 import com.bowoon.ui.utils.dp50
 import kotlin.reflect.KClass
@@ -59,7 +68,8 @@ import kotlin.reflect.KClass
 @Composable
 fun MovieMainScreen(
     appState: MovieAppState,
-    snackbarHostState: SnackbarHostState
+    snackbarHostState: SnackbarHostState,
+    nextWeekReleaseMovies: List<Movie>
 ) {
     val currentBackStack by appState.navController.currentBackStackEntryAsState()
     val topHierarchy = currentBackStack?.destination?.route in TopLevelDestination.entries.map { it.route.qualifiedName }
@@ -85,10 +95,44 @@ fun MovieMainScreen(
                             .bounceClick(onClick = { appState.navController.navigate(SearchRoute) }),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            text = "검색으로 넘어가기",
-                            color = Color.White
+                        Icon(
+                            modifier = Modifier
+                                .wrapContentSize()
+                                .padding(start = dp20)
+                                .align(Alignment.CenterStart)
+                                .clickable {
+                                    appState.navController.navigate(route = SearchRoute)
+                                },
+                            imageVector = Icons.Default.Search,
+                            contentDescription = "goToSearch",
+                            tint = MaterialTheme.colorScheme.onSurface
                         )
+                        if (nextWeekReleaseMovies.isEmpty()) {
+                            Text(
+                                modifier = Modifier.wrapContentWidth(),
+                                text = stringResource(id = R.string.go_to_search),
+                                maxLines = 1
+                            )
+                        } else if (nextWeekReleaseMovies.size == 1) {
+                            val nextWeekReleaseMovie = nextWeekReleaseMovies.first()
+
+                            Text(
+                                modifier = Modifier
+                                    .wrapContentWidth()
+                                    .clickable {
+                                        nextWeekReleaseMovie.id?.let {
+                                            appState.navController.navigate(route = DetailRoute(id = it))
+                                        }
+                                    },
+                                text = "${nextWeekReleaseMovie.title} 곧 개봉합니다!",
+                                maxLines = 1
+                            )
+                        } else {
+                            VerticalRollingAnimation(
+                                appState = appState,
+                                nextWeekReleaseMovies = nextWeekReleaseMovies
+                            )
+                        }
                     }
                 }
             )

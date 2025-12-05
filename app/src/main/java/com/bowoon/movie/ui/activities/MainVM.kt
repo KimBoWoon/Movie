@@ -4,12 +4,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bowoon.common.Result
 import com.bowoon.common.asResult
+import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.data.util.ApplicationData
 import com.bowoon.model.DarkThemeConfig
 import com.bowoon.model.MovieAppData
 import com.bowoon.ui.image.imageUrl
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
@@ -17,7 +19,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainVM @Inject constructor(
-    appData: ApplicationData
+    appData: ApplicationData,
+    private val databaseRepository: DatabaseRepository
 ) : ViewModel() {
     val movieAppData = appData.movieAppData
         .onEach { imageUrl = it.getImageUrl() }
@@ -33,6 +36,13 @@ class MainVM @Inject constructor(
             started = SharingStarted.Eagerly,
             initialValue = MovieAppDataState.Loading
         )
+    val nextWeekReleaseMovies = flow {
+        emit(value = databaseRepository.getNextWeekReleaseMovies().filter { it.id != null })
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Lazily,
+        initialValue = emptyList()
+    )
 }
 
 sealed interface MovieAppDataState {
