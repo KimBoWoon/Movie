@@ -8,7 +8,6 @@ import com.bowoon.common.asResult
 import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.model.MainMenu
-import com.bowoon.notifications.SystemTrayNotifier
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.first
@@ -22,8 +21,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeVM @Inject constructor(
     databaseRepository: DatabaseRepository,
-    private val userDataRepository: UserDataRepository,
-    private val notifier: SystemTrayNotifier
+    private val userDataRepository: UserDataRepository
 ) : ViewModel() {
     companion object {
         private const val TAG = "HomeVM"
@@ -46,7 +44,6 @@ class HomeVM @Inject constructor(
             if (it.nextWeekReleaseMovies.isEmpty()) {
                 isShowNextWeekReleaseMovie.value = true
             }
-            notifier.postMovieNotifications(it.nextWeekReleaseMovies)
         }.asResult()
         .map {
             when (it) {
