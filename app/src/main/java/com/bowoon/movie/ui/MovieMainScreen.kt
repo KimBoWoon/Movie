@@ -128,7 +128,7 @@ fun MovieMainScreen(
                                                 appState.navController.navigate(route = DetailRoute(id = it))
                                             }
                                         },
-                                    text = "${nextWeekReleaseMovie.title} 곧 개봉합니다!",
+                                    text = stringResource(id = R.string.next_week_release_movie, nextWeekReleaseMovie.title ?: ""),
                                     maxLines = 1
                                 )
                             } else {

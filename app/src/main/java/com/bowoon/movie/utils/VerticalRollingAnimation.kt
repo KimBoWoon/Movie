@@ -14,11 +14,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.bowoon.common.Log
 import com.bowoon.detail.navigation.DetailRoute
 import com.bowoon.model.Movie
 import com.bowoon.movie.MovieAppState
+import com.bowoon.movie.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -45,7 +48,7 @@ fun VerticalRollingAnimation(
                         appState.navController.navigate(route = DetailRoute(id = it))
                     }
                 },
-            text = "$hideTitle 곧 개봉합니다!",
+            text = stringResource(id = R.string.next_week_release_movie, hideTitle),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -57,7 +60,7 @@ fun VerticalRollingAnimation(
                         appState.navController.navigate(route = DetailRoute(id = it))
                     }
                 },
-            text = "$showTitle 곧 개봉합니다!",
+            text = stringResource(id = R.string.next_week_release_movie, showTitle),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -66,6 +69,7 @@ fun VerticalRollingAnimation(
     LaunchedEffect(key1 = Unit) {
         launch {
             while (isActive) {
+                Log.d("hide animation -> $isActive")
                 hideAnimation.animateTo(
                     targetValue = -100f,
                     animationSpec = tween(durationMillis = 1000)
@@ -82,6 +86,7 @@ fun VerticalRollingAnimation(
         }
         launch {
             while (isActive) {
+                Log.d("show animation -> $isActive")
                 showAnimation.animateTo(
                     targetValue = 0f,
                     animationSpec = tween(durationMillis = 1000)
