@@ -18,12 +18,18 @@ import coil3.request.ImageRequest
 import coil3.request.transformations
 import coil3.toBitmap
 import coil3.transform.RoundedCornersTransformation
+import com.bowoon.common.Dispatcher
+import com.bowoon.common.Dispatchers.IO
 import com.bowoon.data.util.ApplicationData
 import com.bowoon.model.Movie
 import com.bowoon.movie.core.notifications.R
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -40,51 +46,55 @@ const val DEEP_LINK_URI_PATTERN = "$DEEP_LINK_BASE_PATH/{id}"
 @Singleton
 class SystemTrayNotifier @Inject constructor(
     @param:ApplicationContext private val context: Context,
+    @param:Dispatcher(dispatcher = IO) private val ioDispatcher: CoroutineDispatcher,
     private val movieAppData: ApplicationData
 ) : Notifier {
-    override suspend fun postMovieNotifications(movies: List<Movie>) {
+    override fun postMovieNotifications(movies: List<Movie>) {
         if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_DENIED) return
 
         val comingSoonMovie = context.getString(R.string.coming_soon_movie)
         val imageUrl = movieAppData.movieAppData.value.getImageUrl()
 
-        val notifications = movies.map { movie ->
-            val bigPictureBitmap = loadNotificationImage(context = context, imageUrl = "$imageUrl${movie.posterPath}")
-            val bigPictureStyle = NotificationCompat.BigPictureStyle()
-                .bigPicture(bigPictureBitmap)
+        CoroutineScope(context = ioDispatcher).launch {
+            val notifications = movies.map { movie ->
+                async(context = ioDispatcher) { loadNotificationImage(context = context, imageUrl = "$imageUrl${movie.posterPath}") }
+            }.awaitAll().let { bitmapList ->
+                movies.mapIndexed { index, movie ->
+                    context.createMovieNotification {
+                        setSmallIcon(R.drawable.ic_launcher_round)
+                            .setLargeIcon(bitmapList[index])
+                            .setContentTitle(comingSoonMovie)
+                            .setContentText(movie.title)
+                            .setContentIntent(context.moviePendingIntent(movie = movie))
+                            .setStyle(NotificationCompat.BigPictureStyle().bigPicture(bitmapList[index]))
+                            .setGroup(MOVIE_NOTIFICATION_GROUP)
+                            .setAutoCancel(true)
+                    }
+                }
+            }
 
-            context.createMovieNotification {
+            notifications.forEachIndexed { index, notification ->
+                NotificationManagerCompat.from(context).apply {
+                    notify(movies[index].id ?: 0, notification)
+                }
+            }
+
+            val summaryMovieNotification = context.createMovieNotification {
                 setSmallIcon(R.drawable.ic_launcher_round)
-                    .setLargeIcon(bigPictureBitmap)
                     .setContentTitle(comingSoonMovie)
-                    .setContentText(movie.title)
-                    .setContentIntent(context.moviePendingIntent(movie = movie))
-                    .setStyle(bigPictureStyle)
                     .setGroup(MOVIE_NOTIFICATION_GROUP)
+                    .setGroupSummary(true)
                     .setAutoCancel(true)
             }
-        }
 
-        val summaryMovieNotification = context.createMovieNotification {
-            setSmallIcon(R.drawable.ic_launcher_round)
-                .setContentTitle(comingSoonMovie)
-                .setGroup(MOVIE_NOTIFICATION_GROUP)
-                .setGroupSummary(true)
-                .setAutoCancel(true)
-        }
-
-        notifications.forEachIndexed { index, notification ->
-            NotificationManagerCompat.from(context).apply {
-                notify(movies[index].id ?: 0, notification)
+            if (movies.isNotEmpty()) {
+                NotificationManagerCompat.from(context).notify(SUMMARY_ID, summaryMovieNotification)
             }
-        }
-        if (notifications.isNotEmpty()) {
-            NotificationManagerCompat.from(context).notify(SUMMARY_ID, summaryMovieNotification)
         }
     }
 
-    suspend fun loadNotificationImage(context: Context, imageUrl: String): Bitmap? =
-        withContext(context = Dispatchers.IO) {
+    suspend fun loadNotificationImage(context: Context, imageUrl: String): Bitmap? = coroutineScope {
+        async(context = ioDispatcher) {
             context.imageLoader.execute(
                 request = ImageRequest.Builder(context = context)
                     .data(data = imageUrl)
@@ -92,6 +102,7 @@ class SystemTrayNotifier @Inject constructor(
                     .build()
             ).image?.toBitmap()
         }
+    }.await()
 }
 
 fun Context.createMovieNotification(

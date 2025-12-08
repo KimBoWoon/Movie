@@ -281,7 +281,7 @@ fun SearchBarComponent(
 
                 Box(
                     modifier = Modifier
-                        .weight(1f)
+                        .weight(weight = 1f)
                         .align(Alignment.CenterVertically)
                 ) {
                     innerTextField()
@@ -550,7 +550,11 @@ fun RecommendKeywordComponent(
         modifier = Modifier.fillMaxSize()
     ) {
         when (recommendKeyword) {
-            is RecommendKeywordUiState.Loading -> CircularProgressComponent(modifier = Modifier.wrapContentSize().align(alignment = Alignment.Center))
+            is RecommendKeywordUiState.Loading -> CircularProgressComponent(
+                modifier = Modifier
+                    .wrapContentSize()
+                    .align(alignment = Alignment.Center)
+            )
             is RecommendKeywordUiState.Success -> {
                 val recommendKeyword = recommendKeyword.pagingData.collectAsLazyPagingItems()
 

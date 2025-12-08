@@ -2,4 +2,6 @@
     <string name="not_connected">⚠️ You aren’t connected to the internet</string>
     <string name="double_back_message">Press back again to leave the app.</string>
     <string name="release_movie_notification_channel_name">Movie release notification</string>
+    <string name="go_to_search">Go to search</string>
+    <string name="next_week_release_movie">&lt;%s&gt; Coming soon</string>
 </resources>

@@ -36,7 +36,7 @@ fun RowScope.BottomNavigationBarItem(
     Column(
         modifier = Modifier
             .semantics { contentDescription = label }
-            .weight(1f)
+            .weight(weight = 1f)
             .bounceClick(onClick = onClick),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
@@ -88,7 +88,7 @@ fun ColumnScope.BottomNavigationRailItem(
                     "unselected_$label"
                 }
             }
-            .weight(1f)
+            .weight(weight = 1f)
             .bounceClick(onClick = onClick),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

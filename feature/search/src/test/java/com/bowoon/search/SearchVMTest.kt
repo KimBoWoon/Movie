@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.paging.PagingSource
 import com.bowoon.data.paging.RecommendKeywordPagingSource
 import com.bowoon.data.paging.SearchPagingSource
+import com.bowoon.model.InternalData
 import com.bowoon.model.Movie
 import com.bowoon.model.SearchKeyword
 import com.bowoon.model.SearchType
@@ -16,6 +17,7 @@ import com.bowoon.testing.utils.MainDispatcherRule
 import com.bowoon.testing.utils.TestMovieAppDataManager
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -46,6 +48,9 @@ class SearchVMTest {
             movieAppData = testMovieAppDataManager,
             pagingRepository = testPagingRepository
         )
+        runBlocking {
+            testUserDataRepository.updateUserData(userData = InternalData(), isSync = false)
+        }
     }
 
     @Test
