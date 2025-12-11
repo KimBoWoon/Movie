@@ -63,7 +63,7 @@ class MainActivity : ComponentActivity() {
 
         movieFirebase.sendLog(javaClass.simpleName, "create MainActivity")
 
-        var darkTheme by mutableStateOf(resources.configuration.isSystemInDarkTheme)
+        var darkTheme by mutableStateOf(value = resources.configuration.isSystemInDarkTheme)
 
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(state = Lifecycle.State.STARTED) {

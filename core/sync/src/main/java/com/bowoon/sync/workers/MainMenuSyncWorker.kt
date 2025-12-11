@@ -7,6 +7,8 @@ import androidx.work.ForegroundInfo
 import androidx.work.OneTimeWorkRequest
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
+import androidx.work.PeriodicWorkRequest
+import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkerParameters
 import com.bowoon.common.Dispatcher
 import com.bowoon.common.Dispatchers
@@ -41,15 +43,20 @@ class MainMenuSyncWorker @AssistedInject constructor(
                 .setInitialDelay(duration = calculateInitialDelay(), timeUnit = TimeUnit.MILLISECONDS)
                 .addTag(tag = WORKER_NAME)
                 .setConstraints(SyncConstraints)
-                .setInputData(MainMenuSyncWorker::class.delegatedData(isForce))
+                .setInputData(inputData = MainMenuSyncWorker::class.delegatedData(isForce))
                 .build()
 
         fun startUpExpeditedSyncWork(isForce: Boolean = false): OneTimeWorkRequest =
             OneTimeWorkRequestBuilder<DelegatingWorker>()
                 .addTag(tag = EXPEDITED_SYNC_WORK_NAME)
                 .setExpedited(policy = OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-                .setConstraints(SyncConstraints)
-                .setInputData(MainMenuSyncWorker::class.delegatedData(isForce))
+                .setConstraints(constraints = SyncConstraints)
+                .setInputData(inputData = MainMenuSyncWorker::class.delegatedData(isForce))
+                .build()
+
+        fun test(isForce: Boolean = false): PeriodicWorkRequest =
+            PeriodicWorkRequestBuilder<DelegatingWorker>(repeatInterval = 20, repeatIntervalTimeUnit = TimeUnit.MINUTES)
+                .setInputData(inputData = MainMenuSyncWorker::class.delegatedData(isForce))
                 .build()
     }
 

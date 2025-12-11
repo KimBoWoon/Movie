@@ -81,7 +81,7 @@ class MovieAppDataManager @Inject constructor(
                 )
             } ?: emptyList()
         )
-    }.flowOn(ioDispatcher)
+    }.flowOn(context = ioDispatcher)
         .stateIn(
             scope = appScope,
             started = SharingStarted.Lazily,

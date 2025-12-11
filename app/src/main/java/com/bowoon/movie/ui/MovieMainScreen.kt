@@ -134,8 +134,10 @@ fun MovieMainScreen(
                             } else {
                                 VerticalRollingAnimation(
                                     modifier = Modifier.padding(start = dp10, end = dp20),
-                                    appState = appState,
-                                    nextWeekReleaseMovies = nextWeekReleaseMovies
+                                    nextWeekReleaseMovies = nextWeekReleaseMovies,
+                                    goToMovie = { id ->
+                                        appState.navController.navigate(route = DetailRoute(id = id))
+                                    }
                                 )
                             }
                         }

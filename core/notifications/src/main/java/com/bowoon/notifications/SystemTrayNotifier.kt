@@ -20,6 +20,7 @@ import coil3.toBitmap
 import coil3.transform.RoundedCornersTransformation
 import com.bowoon.common.Dispatcher
 import com.bowoon.common.Dispatchers.IO
+import com.bowoon.common.Log
 import com.bowoon.data.util.ApplicationData
 import com.bowoon.model.Movie
 import com.bowoon.movie.core.notifications.R
@@ -29,6 +30,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -53,22 +55,32 @@ class SystemTrayNotifier @Inject constructor(
         if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_DENIED) return
 
         val comingSoonMovie = context.getString(R.string.coming_soon_movie)
-        val imageUrl = movieAppData.movieAppData.value.getImageUrl()
 
         CoroutineScope(context = ioDispatcher).launch {
+            val imageUrl = movieAppData.movieAppData.first().getImageUrl()
+            Log.d("imageUrl -> $imageUrl")
             val notifications = movies.map { movie ->
                 async(context = ioDispatcher) { loadNotificationImage(context = context, imageUrl = "$imageUrl${movie.posterPath}") }
             }.awaitAll().let { bitmapList ->
                 movies.mapIndexed { index, movie ->
                     context.createMovieNotification {
-                        setSmallIcon(R.drawable.ic_launcher_round)
-                            .setLargeIcon(bitmapList[index])
-                            .setContentTitle(comingSoonMovie)
-                            .setContentText(movie.title)
-                            .setContentIntent(context.moviePendingIntent(movie = movie))
-                            .setStyle(NotificationCompat.BigPictureStyle().bigPicture(bitmapList[index]))
-                            .setGroup(MOVIE_NOTIFICATION_GROUP)
-                            .setAutoCancel(true)
+                        if (bitmapList[index] == null) {
+                            setSmallIcon(R.drawable.ic_launcher_round)
+                                .setContentTitle(comingSoonMovie)
+                                .setContentText(movie.title)
+                                .setContentIntent(context.moviePendingIntent(movie = movie))
+                                .setGroup(MOVIE_NOTIFICATION_GROUP)
+                                .setAutoCancel(true)
+                        } else {
+                            setSmallIcon(R.drawable.ic_launcher_round)
+                                .setLargeIcon(bitmapList[index])
+                                .setContentTitle(comingSoonMovie)
+                                .setContentText(movie.title)
+                                .setContentIntent(context.moviePendingIntent(movie = movie))
+                                .setStyle(NotificationCompat.BigPictureStyle().bigPicture(bitmapList[index]))
+                                .setGroup(MOVIE_NOTIFICATION_GROUP)
+                                .setAutoCancel(true)
+                        }
                     }
                 }
             }
@@ -93,16 +105,17 @@ class SystemTrayNotifier @Inject constructor(
         }
     }
 
-    suspend fun loadNotificationImage(context: Context, imageUrl: String): Bitmap? = coroutineScope {
+    private suspend fun loadNotificationImage(context: Context, imageUrl: String): Bitmap? = coroutineScope {
         async(context = ioDispatcher) {
             context.imageLoader.execute(
                 request = ImageRequest.Builder(context = context)
                     .data(data = imageUrl)
-                    .transformations(RoundedCornersTransformation(radius = 50f))
+                    .size(width = context.resources.displayMetrics.widthPixels, height = context.resources.displayMetrics.widthPixels / 2)
+                    .transformations(RoundedCornersTransformation(radius = 20f))
                     .build()
             ).image?.toBitmap()
-        }
-    }.await()
+        }.await()
+    }
 }
 
 fun Context.createMovieNotification(
