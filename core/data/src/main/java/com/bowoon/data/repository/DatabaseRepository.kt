@@ -1,5 +1,8 @@
 package com.bowoon.data.repository
 
+import androidx.paging.PagingSource
+import com.bowoon.database.model.NowPlayingMovieEntity
+import com.bowoon.database.model.UpComingMovieEntity
 import com.bowoon.model.Movie
 import com.bowoon.model.People
 import kotlinx.coroutines.flow.Flow
@@ -15,4 +18,7 @@ interface DatabaseRepository {
     suspend fun insertPeople(people: People): Long
     suspend fun deletePeople(people: People)
     suspend fun upsertPeoples(peoples: List<People>)
+
+    fun getNowPlayingMovies(): PagingSource<Int, NowPlayingMovieEntity>
+    fun getUpComingMovies(): PagingSource<Int, UpComingMovieEntity>
 }

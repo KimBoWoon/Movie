@@ -3,14 +3,22 @@ package com.bowoon.home
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.cachedIn
+import androidx.paging.map
 import com.bowoon.common.Result
 import com.bowoon.common.asResult
+import com.bowoon.data.model.asExternalModel
 import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.data.repository.UserDataRepository
+import com.bowoon.database.model.NowPlayingMovieEntity
+import com.bowoon.database.model.UpComingMovieEntity
 import com.bowoon.model.MainMenu
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
@@ -27,35 +35,40 @@ class HomeVM @Inject constructor(
         private const val TAG = "HomeVM"
     }
 
-    val mainMenu = userDataRepository.internalData
-        .map { internalData ->
-            val isShowToday = internalData.noShowToday.isEmpty() || LocalDate.parse(internalData.noShowToday).isBefore(LocalDate.now())
-
-            if (!isShowNextWeekReleaseMovie.value) {
-                isShowNextWeekReleaseMovie.value = !isShowToday
-            }
-
-            MainMenu(
-                nowPlayingMovies = internalData.mainMenu.nowPlayingMovies,
-                upComingMovies = internalData.mainMenu.upComingMovies,
-                nextWeekReleaseMovies = databaseRepository.getNextWeekReleaseMovies()
-            )
-        }.onEach {
-            if (it.nextWeekReleaseMovies.isEmpty()) {
-                isShowNextWeekReleaseMovie.value = true
-            }
-        }.asResult()
-        .map {
-            when (it) {
+    val mainMenu = flow {
+        emit(value = MainMenu(nextWeekReleaseMovies = databaseRepository.getNextWeekReleaseMovies()))
+    }.onEach {
+        if (it.nextWeekReleaseMovies.isEmpty()) {
+            isShowNextWeekReleaseMovie.value = true
+        }
+    }.asResult()
+        .map { result ->
+            when (result) {
                 is Result.Loading -> MainMenuState.Loading
-                is Result.Success -> MainMenuState.Success(it.data)
-                is Result.Error -> MainMenuState.Error(it.throwable)
+                is Result.Success -> MainMenuState.Success(mainMenu = result.data)
+                is Result.Error -> MainMenuState.Error(throwable = result.throwable)
             }
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.Lazily,
-            initialValue = MainMenuState.Loading
-        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Lazily,
+        initialValue = MainMenuState.Loading
+    )
+    val nowPlayingMoviePager = Pager(
+        config = PagingConfig(pageSize = 20, prefetchDistance = 5),
+        pagingSourceFactory = {
+            databaseRepository.getNowPlayingMovies()
+        }
+    ).flow.map { pagingData ->
+        pagingData.map(transform = NowPlayingMovieEntity::asExternalModel)
+    }.cachedIn(scope = viewModelScope)
+    val upComingMoviePager = Pager(
+        config = PagingConfig(pageSize = 20, prefetchDistance = 5),
+        pagingSourceFactory = {
+            databaseRepository.getUpComingMovies()
+        }
+    ).flow.map { pagingData ->
+        pagingData.map(transform = UpComingMovieEntity::asExternalModel)
+    }.cachedIn(scope = viewModelScope)
     val isShowNextWeekReleaseMovie = mutableStateOf(value = false)
 
     fun onNoShowToday() {

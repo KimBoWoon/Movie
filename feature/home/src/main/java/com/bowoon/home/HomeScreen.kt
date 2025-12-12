@@ -43,10 +43,11 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.bowoon.common.Log
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.firebase.LocalFirebaseLogHelper
-import com.bowoon.model.MainMenu
 import com.bowoon.model.Movie
 import com.bowoon.movie.feature.home.R
 import com.bowoon.ui.components.CircularProgressComponent
@@ -72,9 +73,13 @@ fun HomeScreen(
 
     val mainMenuState by viewModel.mainMenu.collectAsStateWithLifecycle()
     val isShowNextWeekReleaseMovie = remember { viewModel.isShowNextWeekReleaseMovie }
+    val nowPlayingMovies = viewModel.nowPlayingMoviePager.collectAsLazyPagingItems()
+    val upComingMovies = viewModel.upComingMoviePager.collectAsLazyPagingItems()
 
     HomeScreen(
         mainMenuState = mainMenuState,
+        nowPlayingMovies = nowPlayingMovies,
+        upComingMovies = upComingMovies,
         isShowNextWeekReleaseMovie = isShowNextWeekReleaseMovie,
         goToMovie = goToMovie,
         onNoShowToday = viewModel::onNoShowToday
@@ -84,6 +89,8 @@ fun HomeScreen(
 @Composable
 fun HomeScreen(
     mainMenuState: MainMenuState,
+    nowPlayingMovies: LazyPagingItems<Movie>,
+    upComingMovies: LazyPagingItems<Movie>,
     isShowNextWeekReleaseMovie: MutableState<Boolean>,
     goToMovie: (Int) -> Unit,
     onNoShowToday: () -> Unit
@@ -109,7 +116,8 @@ fun HomeScreen(
                 Log.d("${mainMenuState.mainMenu}")
 
                 MainComponent(
-                    mainMenu = mainMenuState.mainMenu,
+                    nowPlayingMovies = nowPlayingMovies,
+                    upComingMovies = upComingMovies,
                     goToMovie = goToMovie
                 )
 
@@ -132,7 +140,8 @@ fun HomeScreen(
 
 @Composable
 fun MainComponent(
-    mainMenu: MainMenu,
+    nowPlayingMovies: LazyPagingItems<Movie>,
+    upComingMovies: LazyPagingItems<Movie>,
     goToMovie: (Int) -> Unit
 ) {
     val lazyListState = rememberLazyListState()
@@ -147,17 +156,17 @@ fun MainComponent(
             modifier = Modifier.fillMaxSize(),
             state = lazyListState
         ) {
-            if (mainMenu.nowPlayingMovies.isNotEmpty()) {
+            if (nowPlayingMovies.itemCount != 0) {
                 horizontalMovieListComponent(
                     title = nowPlayingMoviesTitle,
-                    movies = mainMenu.nowPlayingMovies,
+                    pager = nowPlayingMovies,
                     goToMovie = goToMovie
                 )
             }
-            if (mainMenu.upComingMovies.isNotEmpty()) {
+            if (upComingMovies.itemCount != 0) {
                 horizontalMovieListComponent(
                     title = upcomingMoviesTitle,
-                    movies = mainMenu.upComingMovies,
+                    pager = upComingMovies,
                     goToMovie = goToMovie
                 )
             }
@@ -190,6 +199,38 @@ fun LazyListScope.horizontalMovieListComponent(
                     movie = movies[index],
                     goToMovie = goToMovie
                 )
+            }
+        }
+    }
+}
+
+fun LazyListScope.horizontalMovieListComponent(
+    title: String,
+    pager: LazyPagingItems<Movie>,
+    goToMovie: (Int) -> Unit
+) {
+    item {
+        Text(
+            modifier = Modifier
+                .padding(all = dp16)
+                .fillMaxWidth(),
+            text = title
+        )
+        LazyRow(
+            modifier = Modifier.wrapContentSize(),
+            contentPadding = PaddingValues(horizontal = dp16),
+            horizontalArrangement = Arrangement.spacedBy(space = dp16)
+        ) {
+            items(
+                count = pager.itemCount,
+                key = { index -> "${pager.peek(index)?.id}_${index}_${pager.peek(index)?.title}" }
+            ) { index ->
+                pager[index]?.let {
+                    MainMovieItem(
+                        movie = it,
+                        goToMovie = goToMovie
+                    )
+                }
             }
         }
     }

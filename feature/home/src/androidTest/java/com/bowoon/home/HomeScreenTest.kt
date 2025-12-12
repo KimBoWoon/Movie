@@ -7,11 +7,8 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.bowoon.model.InternalData
-import com.bowoon.model.MainMenu
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.bowoon.model.Movie
-import com.bowoon.testing.model.nowPlayingMoviesTestData
-import com.bowoon.testing.model.upcomingMoviesTestData
 import com.bowoon.testing.repository.TestDatabaseRepository
 import com.bowoon.testing.repository.TestUserDataRepository
 import com.jakewharton.threetenabp.AndroidThreeTen
@@ -45,11 +42,16 @@ class HomeScreenTest {
             setContent {
                 val mainMenuState by viewModel.mainMenu.collectAsStateWithLifecycle()
                 val isShowNextWeekReleaseMovie = viewModel.isShowNextWeekReleaseMovie
+                val nowPlayingMovies = viewModel.nowPlayingMoviePager.collectAsLazyPagingItems()
+                val upComingMovies = viewModel.upComingMoviePager.collectAsLazyPagingItems()
 
                 HomeScreen(
-                    mainMenuState = mainMenuState,
+                    mainMenuState = MainMenuState.Loading,
+                    nowPlayingMovies = nowPlayingMovies,
+                    upComingMovies = upComingMovies,
                     isShowNextWeekReleaseMovie = isShowNextWeekReleaseMovie,
-                    goToMovie = {}
+                    goToMovie = {},
+                    onNoShowToday = {}
                 )
             }
 
@@ -63,26 +65,22 @@ class HomeScreenTest {
             setContent {
                 val mainMenuState by viewModel.mainMenu.collectAsStateWithLifecycle()
                 val isShowNextWeekReleaseMovie = viewModel.isShowNextWeekReleaseMovie
+                val nowPlayingMovies = viewModel.nowPlayingMoviePager.collectAsLazyPagingItems()
+                val upComingMovies = viewModel.upComingMoviePager.collectAsLazyPagingItems()
 
                 HomeScreen(
                     mainMenuState = mainMenuState,
+                    nowPlayingMovies = nowPlayingMovies,
+                    upComingMovies = upComingMovies,
                     isShowNextWeekReleaseMovie = isShowNextWeekReleaseMovie,
-                    goToMovie = {}
+                    goToMovie = {},
+                    onNoShowToday = {}
                 )
             }
 
             runBlocking {
                 AndroidThreeTen.init(composeTestRule.activity)
                 val releaseDate = LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("uuuu-MM-dd"))
-                testUserDataRepository.updateUserData(
-                    userData = InternalData(
-                        mainMenu = MainMenu(
-                            nowPlayingMovies = nowPlayingMoviesTestData,
-                            upComingMovies = upcomingMoviesTestData
-                        )
-                    ),
-                    isSync = true
-                )
                 testDatabaseRepository.insertMovie(movie = Movie(id = 0, title = "movie_1", posterPath = "/moviePoster.png", releaseDate = releaseDate))
             }
 
@@ -92,4 +90,27 @@ class HomeScreenTest {
             onNodeWithText(text = "upcomingMovie_1").assertExists().assertIsDisplayed()
         }
     }
+
+//    @Test
+//    fun homeScreenErrorTest() {
+//        composeTestRule.apply {
+//            setContent {
+//                val mainMenuState by viewModel.mainMenu.collectAsStateWithLifecycle()
+//                val isShowNextWeekReleaseMovie = viewModel.isShowNextWeekReleaseMovie
+//                val nowPlayingMovies = viewModel.nowPlayingMoviePager.collectAsLazyPagingItems()
+//                val upComingMovies = viewModel.upComingMoviePager.collectAsLazyPagingItems()
+//
+//                HomeScreen(
+//                    mainMenuState = MainMenuState.Error(RuntimeException("something wrong...")),
+//                    nowPlayingMovies = nowPlayingMovies,
+//                    upComingMovies = upComingMovies,
+//                    isShowNextWeekReleaseMovie = isShowNextWeekReleaseMovie,
+//                    goToMovie = {},
+//                    onNoShowToday = {}
+//                )
+//            }
+//
+//            onNodeWithText(text = "something wrong...").assertExists().assertIsDisplayed()
+//        }
+//    }
 }

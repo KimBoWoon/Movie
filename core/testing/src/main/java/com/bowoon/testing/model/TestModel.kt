@@ -193,14 +193,21 @@ val nowPlayingMoviesTestData =
 val upcomingMoviesTestData =
     listOf(Movie(id = 0, title = "upcomingMovie_1", posterPath = "/upcomingMovie_1.png"))
 val mainMenuTestData = MainMenu(
-    nowPlayingMovies = listOf(
-        Movie(
-            id = 0,
-            title = "nowPlaying_1",
-            posterPath = "posterUrl/nowPlaying_1.png"
-        )
-    ),
-    upComingMovies = listOf(
+//    nowPlayingMovies = listOf(
+//        Movie(
+//            id = 0,
+//            title = "nowPlaying_1",
+//            posterPath = "posterUrl/nowPlaying_1.png"
+//        )
+//    ),
+//    upComingMovies = listOf(
+//        Movie(
+//            id = 0,
+//            title = "upcomingMovie_1",
+//            posterPath = "posterUrl/upcomingMovie_1.png"
+//        )
+//    )
+    nextWeekReleaseMovies = listOf(
         Movie(
             id = 0,
             title = "upcomingMovie_1",

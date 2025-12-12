@@ -1,6 +1,11 @@
 package com.bowoon.testing.repository
 
+import android.annotation.SuppressLint
+import androidx.paging.PagingSource
+import androidx.paging.testing.asPagingSourceFactory
 import com.bowoon.data.repository.DatabaseRepository
+import com.bowoon.database.model.NowPlayingMovieEntity
+import com.bowoon.database.model.UpComingMovieEntity
 import com.bowoon.model.Movie
 import com.bowoon.model.People
 import kotlinx.coroutines.channels.BufferOverflow
@@ -60,4 +65,26 @@ class TestDatabaseRepository : DatabaseRepository {
             }
         )
     }
+
+    @SuppressLint("VisibleForTests")
+    override fun getNowPlayingMovies(): PagingSource<Int, NowPlayingMovieEntity> =
+        (0..100).map {
+            NowPlayingMovieEntity(
+                releaseDate = "releaseDate_$it",
+                title = "nowPlaying_$it",
+                id = it,
+                posterPath = "/imagePath_$it.png"
+            )
+        }.asPagingSourceFactory().invoke()
+
+    @SuppressLint("VisibleForTests")
+    override fun getUpComingMovies(): PagingSource<Int, UpComingMovieEntity> =
+        (0..100).map {
+            UpComingMovieEntity(
+                releaseDate = "releaseDate_$it",
+                title = "upcomingMovie_$it",
+                id = it,
+                posterPath = "/imagePath_$it.png"
+            )
+        }.asPagingSourceFactory().invoke()
 }

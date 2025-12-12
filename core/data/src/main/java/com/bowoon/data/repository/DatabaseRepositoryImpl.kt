@@ -1,9 +1,12 @@
 package com.bowoon.data.repository
 
+import androidx.paging.PagingSource
 import com.bowoon.database.dao.MovieDao
 import com.bowoon.database.dao.PeopleDao
 import com.bowoon.database.model.MovieEntity
+import com.bowoon.database.model.NowPlayingMovieEntity
 import com.bowoon.database.model.PeopleEntity
+import com.bowoon.database.model.UpComingMovieEntity
 import com.bowoon.database.model.asExternalModel
 import com.bowoon.model.Movie
 import com.bowoon.model.People
@@ -93,4 +96,10 @@ class DatabaseRepositoryImpl @Inject constructor(
                 )
             }
         )
+
+    override fun getNowPlayingMovies(): PagingSource<Int, NowPlayingMovieEntity> =
+        movieDao.getNowPlayingMovie()
+
+    override fun getUpComingMovies(): PagingSource<Int, UpComingMovieEntity> =
+        movieDao.getUpComingMovie()
 }

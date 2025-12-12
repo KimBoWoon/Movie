@@ -6,7 +6,7 @@ kotlin = "2.2.21"
 googleService = "4.4.4"
 
 # agp
-agp = "8.13.1"
+agp = "8.13.2"
 
 # ksp
 ksp = "2.3.1"

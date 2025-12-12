@@ -42,18 +42,18 @@ class HomeVMTest {
 
     @Test
     fun userDataLoadingTest() = runTest {
-        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.mainMenu.collect() }
-        assertEquals(viewModel.mainMenu.value, MainMenuState.Loading)
+        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.nextWeekReleaseMovies.collect() }
+        assertEquals(viewModel.nextWeekReleaseMovies.value, MainMenuState.Loading)
     }
 
     @Test
     fun userDataSuccessTest() = runTest {
-        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.mainMenu.collect() }
-        assertEquals(viewModel.mainMenu.value, MainMenuState.Loading)
+        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.nextWeekReleaseMovies.collect() }
+        assertEquals(viewModel.nextWeekReleaseMovies.value, MainMenuState.Loading)
         testUserDataRepository.updateUserData(InternalData(mainMenu = mainMenuTestData), false)
         testDatabaseRepository.upsertMovies(emptyList())
         assertEquals(
-            expected = viewModel.mainMenu.value,
+            expected = viewModel.nextWeekReleaseMovies.value,
             actual = MainMenuState.Success(
                 mainMenu = mainMenuTestData.copy(
                     nowPlayingMovies = mainMenuTestData.nowPlayingMovies,

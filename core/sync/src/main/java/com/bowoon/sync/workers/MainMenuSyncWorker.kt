@@ -14,6 +14,8 @@ import com.bowoon.common.Dispatcher
 import com.bowoon.common.Dispatchers
 import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.data.repository.MainMenuRepository
+import com.bowoon.data.repository.UserDataRepository
+import com.bowoon.data.util.Synchronizer
 import com.bowoon.notifications.SystemTrayNotifier
 import com.bowoon.sync.initializers.SyncConstraints
 import com.bowoon.sync.initializers.syncForegroundInfo
@@ -22,6 +24,9 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
 
@@ -30,10 +35,11 @@ class MainMenuSyncWorker @AssistedInject constructor(
     @Assisted private val appContext: Context,
     @Assisted private val workerParams: WorkerParameters,
     @param:Dispatcher(Dispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
+    private val userDateRepository: UserDataRepository,
     private val mainMenuRepository: MainMenuRepository,
     private val databaseRepository: DatabaseRepository,
     private val notifier: SystemTrayNotifier
-) : CoroutineWorker(appContext, workerParams) {
+) : CoroutineWorker(appContext, workerParams), Synchronizer {
     companion object {
         const val WORKER_NAME = "MainMenuSyncWorker"
         const val EXPEDITED_SYNC_WORK_NAME = "EXPEDITED_SYNC_WORK_NAME"
@@ -60,6 +66,18 @@ class MainMenuSyncWorker @AssistedInject constructor(
                 .build()
     }
 
+    override suspend fun getChangeListVersions(): String =
+        userDateRepository.internalData.map { it.updateDate }.firstOrNull() ?: ""
+
+    override suspend fun updateChangeListVersions(update: () -> String) {
+        userDateRepository.updateUserData(
+            userData = userDateRepository.internalData.first().copy(updateDate = update()),
+            isSync = false
+        )
+    }
+
+    override fun getIsForce(): Boolean = inputData.getBoolean(key = "IS_FORCE", defaultValue = false)
+
     private val isForce = inputData.getBoolean(key = "IS_FORCE", defaultValue = false)
 
     override suspend fun getForegroundInfo(): ForegroundInfo =
@@ -67,21 +85,19 @@ class MainMenuSyncWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result = withContext(context = ioDispatcher) {
         async {
-            mainMenuRepository.syncWith(
-                isForce = isForce,
-                notification = {
-                    databaseRepository
-                        .getNextWeekReleaseMovies()
-                        .takeIf { it.isNotEmpty() }
-                        ?.let { favoriteMovies ->
-                            notifier.postMovieNotifications(movies = favoriteMovies)
-                        }
-                }
-            )
+            mainMenuRepository.sync()
         }.await()
             .let { isSuccess ->
                 when (isSuccess) {
-                    true -> Result.success()
+                    true -> {
+                        databaseRepository
+                            .getNextWeekReleaseMovies()
+                            .takeIf { it.isNotEmpty() }
+                            ?.let { favoriteMovies ->
+                                notifier.postMovieNotifications(movies = favoriteMovies)
+                            }
+                        Result.success()
+                    }
                     false -> if (runAttemptCount > 5) Result.failure() else Result.retry()
                 }
             }

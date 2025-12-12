@@ -16,7 +16,8 @@ dependencies {
         libs.androidx.datastore,
         libs.androidx.room.runtime,
         libs.androidx.room.ktx,
-        libs.threetenabp
+        libs.threetenabp,
+        "androidx.room:room-paging:2.6.1"
     ).forEach {
         implementation(it)
     }

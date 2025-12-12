@@ -17,7 +17,8 @@ android {
 dependencies {
     arrayOf(
         libs.androidx.compose.paging,
-        libs.threetenabp
+        libs.threetenabp,
+//        projects.core.notifications
     ).forEach {
         implementation(it)
     }

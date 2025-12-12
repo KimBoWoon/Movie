@@ -10,14 +10,18 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.bowoon.database.dao.MovieDao
 import com.bowoon.database.dao.PeopleDao
 import com.bowoon.database.model.MovieEntity
+import com.bowoon.database.model.NowPlayingMovieEntity
 import com.bowoon.database.model.PeopleEntity
+import com.bowoon.database.model.UpComingMovieEntity
 
 @Database(
     entities = [
         MovieEntity::class,
-        PeopleEntity::class
+        PeopleEntity::class,
+        NowPlayingMovieEntity::class,
+        UpComingMovieEntity::class
     ],
-    version = 4,
+    version = 5,
     autoMigrations = [
         AutoMigration(
             from = 1,
@@ -52,6 +56,30 @@ internal object DatabaseMigrations {
         override fun migrate(db: SupportSQLiteDatabase) {
             db.execSQL(sql = """ALTER TABLE movies ADD COLUMN title TEXT DEFAULT """"")
             db.execSQL(sql = """ALTER TABLE movies ADD COLUMN releaseDate TEXT DEFAULT """"")
+        }
+    }
+    val MIGRATION_4_5 = object : Migration(startVersion = 4, endVersion = 5) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                sql = """
+                    CREATE TABLE nowplayingmovie (
+                        id INTEGER PRIMARY KEY NOT NULL,
+                        posterPath TEXT NOT NULL,
+                        releaseDate TEXT,
+                        title TEXT
+                    )
+                """.trimIndent()
+            )
+            db.execSQL(
+                sql = """
+                    CREATE TABLE upcomingmovie (
+                        id INTEGER PRIMARY KEY NOT NULL,
+                        posterPath TEXT NOT NULL,
+                        releaseDate TEXT,
+                        title TEXT
+                    )
+                """.trimIndent()
+            )
         }
     }
 }

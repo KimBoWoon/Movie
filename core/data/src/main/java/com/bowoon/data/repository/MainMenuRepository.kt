@@ -1,10 +1,9 @@
 package com.bowoon.data.repository
 
+import com.bowoon.data.util.Syncable
 import com.bowoon.model.Movie
 
-interface MainMenuRepository {
-//    suspend fun syncWith(isForce: Boolean): Boolean
-    suspend fun syncWith(isForce: Boolean, notification: suspend () -> Unit): Boolean
+interface MainMenuRepository : Syncable {
     suspend fun getNowPlaying(): List<Movie>
     suspend fun getUpcomingMovies(): List<Movie>
 }
