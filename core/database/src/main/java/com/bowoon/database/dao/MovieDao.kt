@@ -29,9 +29,6 @@ interface MovieDao {
     suspend fun getNextWeekReleaseMovies(): List<MovieEntity>
 
     @Query(value = "SELECT * FROM nowplayingmovie")
-    fun getNowPlayingMovieEntities(): PagingSource<Int, NowPlayingMovieEntity>
-
-    @Query(value = "SELECT * FROM nowplayingmovie")
     fun getNowPlayingMovie(): PagingSource<Int, NowPlayingMovieEntity>
 
     @Query(value = "SELECT * FROM upcomingmovie")
