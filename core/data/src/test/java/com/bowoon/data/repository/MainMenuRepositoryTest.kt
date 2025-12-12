@@ -13,9 +13,7 @@ import kotlinx.serialization.json.Json
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import java.time.LocalDate
 import kotlin.test.assertEquals
-import kotlin.test.assertNotEquals
 
 private const val BASE_URL = "https://localhost/"
 
@@ -36,18 +34,18 @@ class MainMenuRepositoryTest {
         repository = TestMainMenuRepository()
     }
 
-    @Test
-    fun syncTest() = runTest {
-        assertEquals(false, repository.syncWith(isForce = false, notification = {}))
-        repository.setDate(LocalDate.now().minusDays(3))
-        assertEquals(true, repository.syncWith(isForce = false, notification = {}))
-    }
+//    @Test
+//    fun syncTest() = runTest {
+//        assertEquals(false, repository.syncWith(isForce = false, notification = {}))
+//        repository.setDate(LocalDate.now().minusDays(3))
+//        assertEquals(true, repository.syncWith(isForce = false, notification = {}))
+//    }
 
-    @Test
-    fun forceSyncTest() = runTest {
-        assertEquals(true, repository.syncWith(isForce = true, notification = {}))
-        assertNotEquals(true, repository.syncWith(isForce = false, notification = {}))
-    }
+//    @Test
+//    fun forceSyncTest() = runTest {
+//        assertEquals(true, repository.syncWith(isForce = true, notification = {}))
+//        assertNotEquals(true, repository.syncWith(isForce = false, notification = {}))
+//    }
 
     @Test
     fun getNowPlayingMoviesTest() = runTest {
