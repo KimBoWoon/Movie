@@ -8,6 +8,7 @@ import com.bowoon.database.model.NowPlayingMovieEntity
 import com.bowoon.database.model.UpComingMovieEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import org.threeten.bp.LocalDate
 
@@ -33,9 +34,11 @@ class TestMovieDao : MovieDao {
         entitiesStateFlow.update { entities -> entities.filterNot { it.id == id } }
     }
 
-    override suspend fun getNextWeekReleaseMovies(): List<MovieEntity> = entitiesStateFlow.value.filter {
-        LocalDate.parse(it.releaseDate) in LocalDate.now()..LocalDate.now().plusDays(7)
-    }.sortedWith(compareBy({ it.releaseDate }, { it.title }))
+    override fun getNextWeekReleaseMovies(): Flow<List<MovieEntity>> = entitiesStateFlow.map { favoriteMovieList ->
+        favoriteMovieList.filter {
+            LocalDate.parse(it.releaseDate) in LocalDate.now()..LocalDate.now().plusDays(7)
+        }.sortedWith(compareBy({ it.releaseDate }, { it.title }))
+    }
 
     override fun getNowPlayingMovie(): PagingSource<Int, NowPlayingMovieEntity> =
         (0..100).map {
