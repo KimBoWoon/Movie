@@ -13,7 +13,6 @@ import com.bowoon.testing.model.upComingMovieTest
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.flow
 import java.time.LocalDate
 
 class TestDatabaseRepository : DatabaseRepository {
@@ -41,22 +40,13 @@ class TestDatabaseRepository : DatabaseRepository {
         )
     }
 
-    override suspend fun getNextWeekReleaseMovies(): List<Movie> {
-        val now = LocalDate.now()
-        val nextWeekReleaseMovies = currentMovieDatabase.filter { movie ->
-            !movie.releaseDate?.trim().isNullOrEmpty() && LocalDate.parse(movie.releaseDate ?: "") in (now..now.plusDays(7))
-        }
-        movieDatabase.emit(nextWeekReleaseMovies)
-        return nextWeekReleaseMovies
-    }
-
-    override fun getNextWeekReleaseMoviesFlow(): Flow<List<Movie>> {
+    override fun getNextWeekReleaseMovies(): Flow<List<Movie>> {
         val now = LocalDate.now()
         val nextWeekReleaseMovies = currentMovieDatabase.filter { movie ->
             !movie.releaseDate?.trim().isNullOrEmpty() && LocalDate.parse(movie.releaseDate ?: "") in (now..now.plusDays(7))
         }
         movieDatabase.tryEmit(nextWeekReleaseMovies)
-        return flow { emit(value = nextWeekReleaseMovies) }
+        return movieDatabase
     }
 
     override fun getPeople(): Flow<List<People>> = peopleDatabase

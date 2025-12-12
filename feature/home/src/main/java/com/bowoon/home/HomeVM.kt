@@ -34,7 +34,7 @@ class HomeVM @Inject constructor(
         private const val TAG = "HomeVM"
     }
 
-    val mainMenu = databaseRepository.getNextWeekReleaseMoviesFlow()
+    val mainMenu = databaseRepository.getNextWeekReleaseMovies()
         .onEach {
             if (it.isEmpty()) {
                 isShowNextWeekReleaseMovie.value = true

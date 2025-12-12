@@ -35,7 +35,7 @@ class MainVM @Inject constructor(
             started = SharingStarted.Eagerly,
             initialValue = MovieAppDataState.Loading
         )
-    val nextWeekReleaseMovies = databaseRepository.getNextWeekReleaseMoviesFlow()
+    val nextWeekReleaseMovies = databaseRepository.getNextWeekReleaseMovies()
         .map {
             it.filter { it.id != null }
         }.stateIn(
