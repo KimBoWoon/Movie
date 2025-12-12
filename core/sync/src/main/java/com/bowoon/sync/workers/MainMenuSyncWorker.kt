@@ -78,8 +78,6 @@ class MainMenuSyncWorker @AssistedInject constructor(
 
     override fun getIsForce(): Boolean = inputData.getBoolean(key = "IS_FORCE", defaultValue = false)
 
-    private val isForce = inputData.getBoolean(key = "IS_FORCE", defaultValue = false)
-
     override suspend fun getForegroundInfo(): ForegroundInfo =
         appContext.syncForegroundInfo()
 
@@ -91,7 +89,7 @@ class MainMenuSyncWorker @AssistedInject constructor(
                 when (isSuccess) {
                     true -> {
                         databaseRepository
-                            .getNextWeekReleaseMoviesFlow()
+                            .getNextWeekReleaseMovies()
                             .map { it.takeIf { it.isNotEmpty() } }
                             .let { favoriteMovies ->
                                 notifier.postMovieNotifications(movies = favoriteMovies.firstOrNull() ?: emptyList())
