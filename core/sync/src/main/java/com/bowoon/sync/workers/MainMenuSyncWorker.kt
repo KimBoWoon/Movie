@@ -91,10 +91,10 @@ class MainMenuSyncWorker @AssistedInject constructor(
                 when (isSuccess) {
                     true -> {
                         databaseRepository
-                            .getNextWeekReleaseMovies()
-                            .takeIf { it.isNotEmpty() }
-                            ?.let { favoriteMovies ->
-                                notifier.postMovieNotifications(movies = favoriteMovies)
+                            .getNextWeekReleaseMoviesFlow()
+                            .map { it.takeIf { it.isNotEmpty() } }
+                            .let { favoriteMovies ->
+                                notifier.postMovieNotifications(movies = favoriteMovies.firstOrNull() ?: emptyList())
                             }
                         Result.success()
                     }

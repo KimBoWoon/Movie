@@ -11,7 +11,6 @@ import com.bowoon.model.MovieAppData
 import com.bowoon.ui.image.imageUrl
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
@@ -36,13 +35,14 @@ class MainVM @Inject constructor(
             started = SharingStarted.Eagerly,
             initialValue = MovieAppDataState.Loading
         )
-    val nextWeekReleaseMovies = flow {
-        emit(value = databaseRepository.getNextWeekReleaseMovies().filter { it.id != null })
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.Lazily,
-        initialValue = emptyList()
-    )
+    val nextWeekReleaseMovies = databaseRepository.getNextWeekReleaseMoviesFlow()
+        .map {
+            it.filter { it.id != null }
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Lazily,
+            initialValue = emptyList()
+        )
 }
 
 sealed interface MovieAppDataState {

@@ -8,9 +8,12 @@ import com.bowoon.database.model.NowPlayingMovieEntity
 import com.bowoon.database.model.UpComingMovieEntity
 import com.bowoon.model.Movie
 import com.bowoon.model.People
+import com.bowoon.testing.model.nowPlayingMovieTest
+import com.bowoon.testing.model.upComingMovieTest
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.flow
 import java.time.LocalDate
 
 class TestDatabaseRepository : DatabaseRepository {
@@ -47,6 +50,15 @@ class TestDatabaseRepository : DatabaseRepository {
         return nextWeekReleaseMovies
     }
 
+    override fun getNextWeekReleaseMoviesFlow(): Flow<List<Movie>> {
+        val now = LocalDate.now()
+        val nextWeekReleaseMovies = currentMovieDatabase.filter { movie ->
+            !movie.releaseDate?.trim().isNullOrEmpty() && LocalDate.parse(movie.releaseDate ?: "") in (now..now.plusDays(7))
+        }
+        movieDatabase.tryEmit(nextWeekReleaseMovies)
+        return flow { emit(value = nextWeekReleaseMovies) }
+    }
+
     override fun getPeople(): Flow<List<People>> = peopleDatabase
 
     override suspend fun insertPeople(people: People): Long {
@@ -68,23 +80,9 @@ class TestDatabaseRepository : DatabaseRepository {
 
     @SuppressLint("VisibleForTests")
     override fun getNowPlayingMovies(): PagingSource<Int, NowPlayingMovieEntity> =
-        (0..100).map {
-            NowPlayingMovieEntity(
-                releaseDate = "releaseDate_$it",
-                title = "nowPlaying_$it",
-                id = it,
-                posterPath = "/imagePath_$it.png"
-            )
-        }.asPagingSourceFactory().invoke()
+        nowPlayingMovieTest.asPagingSourceFactory().invoke()
 
     @SuppressLint("VisibleForTests")
     override fun getUpComingMovies(): PagingSource<Int, UpComingMovieEntity> =
-        (0..100).map {
-            UpComingMovieEntity(
-                releaseDate = "releaseDate_$it",
-                title = "upcomingMovie_$it",
-                id = it,
-                posterPath = "/imagePath_$it.png"
-            )
-        }.asPagingSourceFactory().invoke()
+        upComingMovieTest.asPagingSourceFactory().invoke()
 }

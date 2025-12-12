@@ -14,11 +14,10 @@ import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.database.model.NowPlayingMovieEntity
 import com.bowoon.database.model.UpComingMovieEntity
-import com.bowoon.model.MainMenu
+import com.bowoon.model.Movie
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
@@ -35,24 +34,23 @@ class HomeVM @Inject constructor(
         private const val TAG = "HomeVM"
     }
 
-    val mainMenu = flow {
-        emit(value = MainMenu(nextWeekReleaseMovies = databaseRepository.getNextWeekReleaseMovies()))
-    }.onEach {
-        if (it.nextWeekReleaseMovies.isEmpty()) {
-            isShowNextWeekReleaseMovie.value = true
-        }
-    }.asResult()
+    val mainMenu = databaseRepository.getNextWeekReleaseMoviesFlow()
+        .onEach {
+            if (it.isEmpty()) {
+                isShowNextWeekReleaseMovie.value = true
+            }
+        }.asResult()
         .map { result ->
             when (result) {
                 is Result.Loading -> MainMenuState.Loading
-                is Result.Success -> MainMenuState.Success(mainMenu = result.data)
+                is Result.Success -> MainMenuState.Success(nextWeekReleaseMovies = result.data)
                 is Result.Error -> MainMenuState.Error(throwable = result.throwable)
             }
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.Lazily,
-        initialValue = MainMenuState.Loading
-    )
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Lazily,
+            initialValue = MainMenuState.Loading
+        )
     val nowPlayingMoviePager = Pager(
         config = PagingConfig(pageSize = 20, prefetchDistance = 5),
         pagingSourceFactory = {
@@ -83,6 +81,6 @@ class HomeVM @Inject constructor(
 
 sealed interface MainMenuState {
     data object Loading : MainMenuState
-    data class Success(val mainMenu: MainMenu) : MainMenuState
+    data class Success(val nextWeekReleaseMovies: List<Movie>) : MainMenuState
     data class Error(val throwable: Throwable) : MainMenuState
 }

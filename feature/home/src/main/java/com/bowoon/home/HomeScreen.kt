@@ -113,7 +113,7 @@ fun HomeScreen(
             }
             is MainMenuState.Success -> {
                 LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data load success")
-                Log.d("${mainMenuState.mainMenu}")
+                Log.d("${mainMenuState.nextWeekReleaseMovies}")
 
                 MainComponent(
                     nowPlayingMovies = nowPlayingMovies,
@@ -125,7 +125,7 @@ fun HomeScreen(
                     ReleaseMoviesDialog(
                         onNoShowToday = onNoShowToday,
                         onDismiss = { isShowNextWeekReleaseMovie.value = true },
-                        releaseMovies = mainMenuState.mainMenu.nextWeekReleaseMovies,
+                        releaseMovies = mainMenuState.nextWeekReleaseMovies,
                         goToMovie = goToMovie
                     )
                 }

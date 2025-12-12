@@ -53,6 +53,7 @@ class SystemTrayNotifier @Inject constructor(
 ) : Notifier {
     override fun postMovieNotifications(movies: List<Movie>) {
         if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_DENIED) return
+        if (movies.isEmpty()) return
 
         val comingSoonMovie = context.getString(R.string.coming_soon_movie)
 

@@ -1,5 +1,7 @@
 package com.bowoon.testing.model
 
+import com.bowoon.database.model.NowPlayingMovieEntity
+import com.bowoon.database.model.UpComingMovieEntity
 import com.bowoon.model.AlternativeTitle
 import com.bowoon.model.AlternativeTitles
 import com.bowoon.model.BelongsToCollection
@@ -394,3 +396,21 @@ val peopleDetailTestData = People(
     profilePath = "/profilePath.png",
     isFavorite = true
 )
+
+val nowPlayingMovieTest = (0..100).map {
+    NowPlayingMovieEntity(
+        releaseDate = "releaseDate_$it",
+        title = "nowPlaying_$it",
+        id = it,
+        posterPath = "/imagePath_$it.png"
+    )
+}
+
+val upComingMovieTest = (0..100).map {
+    UpComingMovieEntity(
+        releaseDate = "releaseDate_$it",
+        title = "upcomingMovie_$it",
+        id = it,
+        posterPath = "/imagePath_$it.png"
+    )
+}

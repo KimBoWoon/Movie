@@ -1,8 +1,10 @@
 package com.bowoon.home
 
-import com.bowoon.model.InternalData
+import androidx.paging.PagingSource
+import com.bowoon.model.Movie
 import com.bowoon.testing.TestSyncManager
-import com.bowoon.testing.model.mainMenuTestData
+import com.bowoon.testing.model.nowPlayingMovieTest
+import com.bowoon.testing.model.upComingMovieTest
 import com.bowoon.testing.repository.TestDatabaseRepository
 import com.bowoon.testing.repository.TestPagingRepository
 import com.bowoon.testing.repository.TestUserDataRepository
@@ -15,6 +17,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import java.time.LocalDate
 import kotlin.test.assertEquals
 
 class HomeVMTest {
@@ -42,64 +45,64 @@ class HomeVMTest {
 
     @Test
     fun userDataLoadingTest() = runTest {
-        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.nextWeekReleaseMovies.collect() }
-        assertEquals(viewModel.nextWeekReleaseMovies.value, MainMenuState.Loading)
+        backgroundScope.launch(context = UnconfinedTestDispatcher()) { viewModel.mainMenu.collect() }
+        assertEquals(expected = viewModel.mainMenu.value, actual = MainMenuState.Loading)
     }
 
     @Test
     fun userDataSuccessTest() = runTest {
-        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.nextWeekReleaseMovies.collect() }
-        assertEquals(viewModel.nextWeekReleaseMovies.value, MainMenuState.Loading)
-        testUserDataRepository.updateUserData(InternalData(mainMenu = mainMenuTestData), false)
-        testDatabaseRepository.upsertMovies(emptyList())
+        backgroundScope.launch(context = UnconfinedTestDispatcher()) { viewModel.mainMenu.collect() }
+        val movie = Movie(id = 1, title = "testMovie1", releaseDate = LocalDate.now().plusDays(1).toString())
+        assertEquals(expected = viewModel.mainMenu.value, actual = MainMenuState.Loading)
+//        testUserDataRepository.updateUserData(InternalData(mainMenu = mainMenuTestData), false)
+        testDatabaseRepository.insertMovie(movie = movie)
         assertEquals(
-            expected = viewModel.nextWeekReleaseMovies.value,
+            expected = viewModel.mainMenu.value,
             actual = MainMenuState.Success(
-                mainMenu = mainMenuTestData.copy(
-                    nowPlayingMovies = mainMenuTestData.nowPlayingMovies,
-                    upComingMovies = mainMenuTestData.upComingMovies,
-                    nextWeekReleaseMovies = emptyList()
+                nextWeekReleaseMovies = listOf(movie)
+            )
+        )
+    }
+
+    @Test
+    fun nowPlayingMovieTest() = runTest {
+        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.nowPlayingMoviePager.collect { println(it) } }
+        val result = testDatabaseRepository.getNowPlayingMovies()
+
+        assertEquals(
+            expected = PagingSource.LoadResult.Page(
+                data = nowPlayingMovieTest,
+                prevKey = null,
+                nextKey = 2
+            ),
+            actual = result.load(
+                params = PagingSource.LoadParams.Refresh(
+                    key = null,
+                    loadSize = 2,
+                    placeholdersEnabled = false
                 )
             )
         )
     }
 
-//    @Test
-//    fun nowPlayingMovieTest() = runTest {
-//        val userdata = testUserDataRepository.internalData.first()
-//        val language = "${userdata.language}-${userdata.region}"
-//        val region = userdata.region
-//        val result = testPagingRepository.getNowPlaying(language = language, region = region, "2025-02-24", "2025-03-24")
-//
-//        assertEquals(
-//            viewModel.nowPlaying.first(),
-//            result.load(
-//                params = PagingSource.LoadParams.Refresh(
-//                    key = 1,
-//                    loadSize = 1,
-//                    placeholdersEnabled = false
-//                )
-//            )
-//        )
-//    }
-//
-//    @Test
-//    fun upComingMovieTest() = runTest {
-//        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.upComing.collect { println(it) } }
-//        val userdata = testUserDataRepository.internalData.first()
-//        val language = "${userdata.language}-${userdata.region}"
-//        val region = userdata.region
-//        val result = testPagingRepository.getUpComingMovies(language = language, region = region, "2025-03-24", "2025-04-24")
-//
-//        assertEquals(
-//            viewModel.upComing.first(),
-//            result.load(
-//                params = PagingSource.LoadParams.Refresh(
-//                    key = 1,
-//                    loadSize = 1,
-//                    placeholdersEnabled = false
-//                )
-//            )
-//        )
-//    }
+    @Test
+    fun upComingMovieTest() = runTest {
+        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.upComingMoviePager.collect { println(it) } }
+        val result = testDatabaseRepository.getUpComingMovies()
+
+        assertEquals(
+            expected = PagingSource.LoadResult.Page(
+                data = upComingMovieTest,
+                prevKey = null,
+                nextKey = 2
+            ),
+            actual = result.load(
+                params = PagingSource.LoadParams.Refresh(
+                    key = null,
+                    loadSize = 2,
+                    placeholdersEnabled = false
+                )
+            )
+        )
+    }
 }

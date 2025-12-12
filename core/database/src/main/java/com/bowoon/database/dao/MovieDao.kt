@@ -26,7 +26,7 @@ interface MovieDao {
     suspend fun deleteMovie(id: Int)
 
     @Query(value = "SELECT * FROM movies WHERE releaseDate BETWEEN DATE('now', 'localtime') AND DATE('now', '+7 day', 'localtime') ORDER BY releaseDate ASC, title ASC")
-    suspend fun getNextWeekReleaseMovies(): List<MovieEntity>
+    fun getNextWeekReleaseMovies(): Flow<List<MovieEntity>>
 
     @Query(value = "SELECT * FROM nowplayingmovie")
     fun getNowPlayingMovie(): PagingSource<Int, NowPlayingMovieEntity>
