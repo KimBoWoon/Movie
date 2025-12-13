@@ -31,7 +31,7 @@ interface MovieDao {
     @Query(value = "SELECT * FROM nowplayingmovie")
     fun getNowPlayingMovie(): PagingSource<Int, NowPlayingMovieEntity>
 
-    @Query(value = "SELECT * FROM upcomingmovie")
+    @Query(value = "SELECT * FROM upcomingmovie ORDER BY releaseDate ASC, title ASC")
     fun getUpComingMovie(): PagingSource<Int, UpComingMovieEntity>
 
     @Query(value = "DELETE FROM nowplayingmovie")

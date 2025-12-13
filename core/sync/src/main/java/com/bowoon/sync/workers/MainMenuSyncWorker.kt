@@ -78,6 +78,15 @@ class MainMenuSyncWorker @AssistedInject constructor(
 
     override fun getIsForce(): Boolean = inputData.getBoolean(key = "IS_FORCE", defaultValue = false)
 
+    override suspend fun afterUpdate() {
+        databaseRepository
+            .getNextWeekReleaseMovies()
+            .map { it.takeIf { it.isNotEmpty() } }
+            .let { favoriteMovies ->
+                notifier.postMovieNotifications(movies = favoriteMovies.firstOrNull() ?: emptyList())
+            }
+    }
+
     override suspend fun getForegroundInfo(): ForegroundInfo =
         appContext.syncForegroundInfo()
 
@@ -87,15 +96,7 @@ class MainMenuSyncWorker @AssistedInject constructor(
         }.await()
             .let { isSuccess ->
                 when (isSuccess) {
-                    true -> {
-                        databaseRepository
-                            .getNextWeekReleaseMovies()
-                            .map { it.takeIf { it.isNotEmpty() } }
-                            .let { favoriteMovies ->
-                                notifier.postMovieNotifications(movies = favoriteMovies.firstOrNull() ?: emptyList())
-                            }
-                        Result.success()
-                    }
+                    true -> Result.success()
                     false -> if (runAttemptCount > 5) Result.failure() else Result.retry()
                 }
             }
