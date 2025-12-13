@@ -2,7 +2,6 @@ package com.bowoon.data
 
 import com.bowoon.data.util.Synchronizer
 import com.bowoon.datastore.InternalDataSource
-import com.bowoon.model.InternalData
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 
@@ -16,7 +15,7 @@ class TestSynchronizer(
         datastore.userData.map { it.updateDate }.firstOrNull() ?: ""
 
     override suspend fun updateChangeListVersions(update: () -> String) {
-        datastore.updateUserData(userData = datastore.userData.map { it.copy(updateDate = update()) }.firstOrNull() ?: InternalData())
+        datastore.updateMainDate(value = update())
     }
 
     override fun getIsForce(): Boolean = true

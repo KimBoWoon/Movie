@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.data.util.ApplicationData
+import com.bowoon.model.DarkThemeConfig
 import com.bowoon.model.InternalData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -27,9 +28,39 @@ class MyVM @Inject constructor(
             initialValue = InternalData()
         )
 
-    fun updateUserData(userData: InternalData, isSync: Boolean) {
+    fun updateIsAdult(value: Boolean) {
         viewModelScope.launch {
-            userDataRepository.updateUserData(userData, isSync)
+            userDataRepository.updateIsAdult(value = value)
+        }
+    }
+
+    fun updateAutoPlayTrailer(value: Boolean) {
+        viewModelScope.launch {
+            userDataRepository.updateAutoPlayTrailer(value = value)
+        }
+    }
+
+    fun updateIsDarkMode(darkThemeConfig: DarkThemeConfig) {
+        viewModelScope.launch {
+            userDataRepository.updateIsDarkMode(darkThemeConfig = darkThemeConfig)
+        }
+    }
+
+    fun updateRegion(value: String) {
+        viewModelScope.launch {
+            userDataRepository.updateRegion(value = value)
+        }
+    }
+
+    fun updateLanguage(value: String) {
+        viewModelScope.launch {
+            userDataRepository.updateLanguage(value = value)
+        }
+    }
+
+    fun updateImageQuality(value: String) {
+        viewModelScope.launch {
+            userDataRepository.updateImageQuality(value = value)
         }
     }
 }

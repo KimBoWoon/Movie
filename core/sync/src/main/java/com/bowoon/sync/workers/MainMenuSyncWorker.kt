@@ -24,7 +24,6 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
@@ -70,10 +69,7 @@ class MainMenuSyncWorker @AssistedInject constructor(
         userDateRepository.internalData.map { it.updateDate }.firstOrNull() ?: ""
 
     override suspend fun updateChangeListVersions(update: () -> String) {
-        userDateRepository.updateUserData(
-            userData = userDateRepository.internalData.first().copy(updateDate = update()),
-            isSync = false
-        )
+        userDateRepository.updateMainDate(value = update())
     }
 
     override fun getIsForce(): Boolean = inputData.getBoolean(key = "IS_FORCE", defaultValue = false)

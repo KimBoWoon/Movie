@@ -39,8 +39,7 @@ class DetailRepositoryTest {
     fun setup() {
         movieApis = TestMovieDataSource()
         datastore = InternalDataSource(
-            datastore = InMemoryDataStore(preferencesOf()),
-            json = Json { ignoreUnknownKeys = true }
+            datastore = InMemoryDataStore(initialValue = preferencesOf())
         )
         repository = DetailRepositoryImpl(
             apis = movieApis,

@@ -14,7 +14,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.PagingData
 import com.bowoon.model.Genre
-import com.bowoon.model.InternalData
 import com.bowoon.model.MovieAppData
 import com.bowoon.model.SearchType
 import com.bowoon.testing.model.genreListTestData
@@ -23,7 +22,6 @@ import com.bowoon.testing.repository.TestPagingRepository
 import com.bowoon.testing.repository.TestUserDataRepository
 import com.bowoon.testing.utils.TestMovieAppDataManager
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -48,12 +46,8 @@ class SearchScreenTest {
         viewModel = SearchVM(
             savedStateHandle = savedStateHandle,
             movieAppData = movieAppDataRepository,
-            pagingRepository = testPagingRepository,
-            userDataRepository = testUserDataRepository
+            pagingRepository = testPagingRepository
         )
-        runBlocking {
-            testUserDataRepository.updateUserData(userData = InternalData(), isSync = false)
-        }
     }
 
     @Test

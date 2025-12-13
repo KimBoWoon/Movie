@@ -72,7 +72,12 @@ fun MyScreen(
     MyScreen(
         internalData = internalData,
         movieAppData = movieAppData,
-        updateUserData = viewModel::updateUserData
+        updateIsAdult = viewModel::updateIsAdult,
+        updateAutoPlayTrailer = viewModel::updateAutoPlayTrailer,
+        updateIsDarkMode = viewModel::updateIsDarkMode,
+        updateRegion = viewModel::updateRegion,
+        updateLanguage = viewModel::updateLanguage,
+        updateImageQuality = viewModel::updateImageQuality
     )
 }
 
@@ -80,7 +85,12 @@ fun MyScreen(
 fun MyScreen(
     internalData: InternalData,
     movieAppData: MovieAppData,
-    updateUserData: (InternalData, Boolean) -> Unit
+    updateIsAdult: (Boolean) -> Unit,
+    updateAutoPlayTrailer: (Boolean) -> Unit,
+    updateIsDarkMode: (DarkThemeConfig) -> Unit,
+    updateRegion: (String) -> Unit,
+    updateLanguage: (String) -> Unit,
+    updateImageQuality: (String) -> Unit
 ) {
     val context = LocalContext.current
     var isShowChooseDialog by remember { mutableStateOf(value = false) }
@@ -102,31 +112,31 @@ fun MyScreen(
                 DarkThemeConfig.LIGHT -> stringResource(id = R.string.dark_mode_setting_light)
                 DarkThemeConfig.DARK -> stringResource(id = R.string.dark_mode_setting_dark)
             },
-            updateLambda = { updateUserData(internalData.copy(isDarkMode = it as DarkThemeConfig), false) }
+            updateLambda = { updateIsDarkMode(it as DarkThemeConfig) }
         ),
         MyMenu.Switch(
             label = stringResource(id = R.string.is_adult_setting),
             selected = internalData.isAdult,
-            onClick = { updateUserData(internalData.copy(isAdult = it), false) }
+            onClick = { updateIsAdult(it) }
         ),
         MyMenu.Switch(
             label = stringResource(id = R.string.auto_playing_trailer_setting),
             selected = internalData.autoPlayTrailer,
-            onClick = { updateUserData(internalData.copy(autoPlayTrailer = it), false) }
+            onClick = { updateAutoPlayTrailer(it) }
         ),
         MyMenu.Dialog(
             label = stringResource(id = R.string.language_setting),
             selected = movieAppData.language.find { it.isSelected } ?: "",
             list = movieAppData.language,
             content = "${internalData.language}-${internalData.region}",
-            updateLambda = { updateUserData(internalData.copy(language = it as String), true) }
+            updateLambda = {}
         ),
         MyMenu.Dialog(
             label = stringResource(id = R.string.image_quality_setting),
             selected = internalData.imageQuality,
             list = movieAppData.posterSize,
             content = internalData.imageQuality,
-            updateLambda = { updateUserData(internalData.copy(imageQuality = (it as PosterSize).size ?: ""), false) }
+            updateLambda = { updateImageQuality((it as PosterSize).size ?: "") }
         ),
         MyMenu.Display(
             label = stringResource(id = R.string.version_info),
@@ -184,7 +194,8 @@ fun MyScreen(
             LanguageChooseMenuComponent(
                 internalData = internalData,
                 movieAppData = movieAppData,
-                updateUserData = updateUserData,
+                updateRegion = updateRegion,
+                updateLanguage = updateLanguage,
                 onDismiss = { isShowLanguageChangeDialog = false }
             )
         }
@@ -339,7 +350,8 @@ fun SwitchMenuComponent(
 fun LanguageChooseMenuComponent(
     internalData: InternalData,
     movieAppData: MovieAppData,
-    updateUserData: (InternalData, Boolean) -> Unit,
+    updateRegion: (String) -> Unit,
+    updateLanguage: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
     var language by remember { mutableStateOf(value = internalData.language) }
@@ -393,10 +405,8 @@ fun LanguageChooseMenuComponent(
                         .weight(weight = 1.0f)
                         .fillMaxHeight()
                         .clickable {
-                            updateUserData(
-                                internalData.copy(language = language, region = region),
-                                true
-                            )
+                            updateRegion(region)
+                            updateLanguage(language)
                             onDismiss()
                         },
                     contentAlignment = Alignment.Center

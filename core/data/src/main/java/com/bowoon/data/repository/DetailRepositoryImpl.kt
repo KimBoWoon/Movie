@@ -18,8 +18,8 @@ class DetailRepositoryImpl @Inject constructor(
     private val datastore: InternalDataSource
 ) : DetailRepository {
     override fun getMovie(id: Int): Flow<Movie> = flow {
-        val language = datastore.getUserData().language
-        val region = datastore.getUserData().region
+        val language = datastore.getLanguage()
+        val region = datastore.getRegion()
 
         emit(apis.getMovie(id = id, language = "$language-$region", region = region, includeImageLanguage = "$language,null"))
     }
@@ -28,9 +28,9 @@ class DetailRepositoryImpl @Inject constructor(
         releaseDateGte: String,
         releaseDateLte: String
     ): Flow<SearchData> = flow {
-        val language = "${datastore.getUserData().language}-${datastore.getUserData().region}"
-        val region = datastore.getUserData().region
-        val isAdult = datastore.getUserData().isAdult
+        val language = "${datastore.getLanguage()}-${datastore.getRegion()}"
+        val region = datastore.getRegion()
+        val isAdult = datastore.getIsAdult()
 
         emit(
             apis.discoverMovie(
@@ -44,14 +44,14 @@ class DetailRepositoryImpl @Inject constructor(
     }
 
     override fun getPeople(personId: Int): Flow<People> = flow {
-        val language = datastore.getUserData().language
-        val region = datastore.getUserData().region
+        val language = datastore.getLanguage()
+        val region = datastore.getRegion()
 
         emit(apis.getPeopleDetail(personId = personId, language = "$language-$region", includeImageLanguage = "$language,null"))
     }
 
     override fun getCombineCredits(personId: Int): Flow<CombineCredits> = flow {
-        val language = "${datastore.getUserData().language}-${datastore.getUserData().region}"
+        val language = "${datastore.getLanguage()}-${datastore.getRegion()}"
 
         emit(apis.getCombineCredits(personId = personId, language = language))
     }
@@ -61,7 +61,7 @@ class DetailRepositoryImpl @Inject constructor(
     }
 
     override fun getMovieSeries(collectionId: Int): Flow<Series> = flow {
-        val language = "${datastore.getUserData().language}-${datastore.getUserData().region}"
+        val language = "${datastore.getLanguage()}-${datastore.getRegion()}"
 
         apis.getMovieSeries(collectionId = collectionId, language = language).let { movieSeries ->
             movieSeries.copy(

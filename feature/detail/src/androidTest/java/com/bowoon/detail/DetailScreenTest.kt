@@ -21,7 +21,6 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.bowoon.data.paging.SimilarMoviePagingSource
 import com.bowoon.domain.GetMovieDetailUseCase
 import com.bowoon.model.Genre
-import com.bowoon.model.InternalData
 import com.bowoon.model.Movie
 import com.bowoon.model.MovieAppData
 import com.bowoon.model.PosterSize
@@ -94,7 +93,6 @@ class DetailScreenTest {
 
         AndroidThreeTen.init(composeTestRule.activity)
         runBlocking {
-            testUserDataRepository.updateUserData(userData = InternalData(), isSync = false)
             testMovieAppDataManager.setMovieAppData(movieAppData)
         }
     }

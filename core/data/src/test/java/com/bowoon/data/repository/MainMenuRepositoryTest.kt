@@ -9,7 +9,6 @@ import com.bowoon.testing.TestMovieDataSource
 import com.bowoon.testing.repository.TestMainMenuRepository
 import com.bowoon.testing.utils.MainDispatcherRule
 import kotlinx.coroutines.test.runTest
-import kotlinx.serialization.json.Json
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -28,8 +27,7 @@ class MainMenuRepositoryTest {
     fun setup() {
         movieApis = TestMovieDataSource()
         datastore = InternalDataSource(
-            datastore = InMemoryDataStore(initialValue = preferencesOf()),
-            json = Json { ignoreUnknownKeys = true }
+            datastore = InMemoryDataStore(initialValue = preferencesOf())
         )
         repository = TestMainMenuRepository()
         synchronizer = TestSynchronizer(datastore)

@@ -54,7 +54,6 @@ class MovieAppDataManager @Inject constructor(
             autoPlayTrailer = internalData.autoPlayTrailer,
             isDarkMode = internalData.isDarkMode,
             updateDate = internalData.updateDate,
-            mainMenu = internalData.mainMenu,
             imageQuality = internalData.imageQuality,
             secureBaseUrl = configuration.images?.secureBaseUrl ?: "",
             genres = genres.genres ?: emptyList(),

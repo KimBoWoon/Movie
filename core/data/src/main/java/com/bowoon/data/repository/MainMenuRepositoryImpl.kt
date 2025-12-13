@@ -29,14 +29,14 @@ class MainMenuRepositoryImpl @Inject constructor(
                 targetDt.isAfter(updateDate) || getIsForce()
             },
             nowPlayingMovies = {
-                val language = datastore.getUserData().language
-                val region = datastore.getUserData().region
+                val language = datastore.getLanguage()
+                val region = datastore.getRegion()
 
                 apis.getNowPlaying(language = language, region = region, page = 1)
             },
             upComingMovies = {
-                val language = datastore.getUserData().language
-                val region = datastore.getUserData().region
+                val language = datastore.getLanguage()
+                val region = datastore.getRegion()
 
                 apis.getUpcomingMovie(language = language, region = region, page = 1)
             },

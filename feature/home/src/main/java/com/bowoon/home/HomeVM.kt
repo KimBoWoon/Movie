@@ -17,7 +17,6 @@ import com.bowoon.database.model.UpComingMovieEntity
 import com.bowoon.model.Movie
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
@@ -71,10 +70,7 @@ class HomeVM @Inject constructor(
 
     fun onNoShowToday() {
         viewModelScope.launch {
-            userDataRepository.updateUserData(
-                userData = userDataRepository.internalData.first().copy(noShowToday = LocalDate.now().toString()),
-                isSync = false
-            )
+            userDataRepository.updateNoShowToday(value = LocalDate.now().toString())
         }
     }
 }

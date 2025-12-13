@@ -1,6 +1,7 @@
 package com.bowoon.testing.repository
 
 import com.bowoon.data.repository.UserDataRepository
+import com.bowoon.model.DarkThemeConfig
 import com.bowoon.model.InternalData
 import kotlinx.coroutines.channels.BufferOverflow.DROP_OLDEST
 import kotlinx.coroutines.flow.Flow
@@ -14,8 +15,8 @@ class TestUserDataRepository : UserDataRepository {
     private val currentFcmToken get() = _fcmToken.replayCache.firstOrNull() ?: ""
     override val internalData: Flow<InternalData> = _userData.filterNotNull()
 
-    override suspend fun updateUserData(userData: InternalData, isSync: Boolean) {
-        _userData.tryEmit(userData)
+    init {
+        _userData.tryEmit(value = InternalData())
     }
 
     override suspend fun updateFCMToken(token: String) {
@@ -23,4 +24,36 @@ class TestUserDataRepository : UserDataRepository {
     }
 
     override suspend fun getFCMToken(): String = currentFcmToken
+
+    override suspend fun updateIsAdult(value: Boolean) {
+        _userData.tryEmit(value = currentUserData.copy(isAdult = value))
+    }
+
+    override suspend fun updateAutoPlayTrailer(value: Boolean) {
+        _userData.tryEmit(value = currentUserData.copy(autoPlayTrailer = value))
+    }
+
+    override suspend fun updateIsDarkMode(darkThemeConfig: DarkThemeConfig) {
+        _userData.tryEmit(value = currentUserData.copy(isDarkMode = darkThemeConfig))
+    }
+
+    override suspend fun updateMainDate(value: String) {
+        _userData.tryEmit(value = currentUserData.copy(updateDate = value))
+    }
+
+    override suspend fun updateRegion(value: String) {
+        _userData.tryEmit(value = currentUserData.copy(region = value))
+    }
+
+    override suspend fun updateLanguage(value: String) {
+        _userData.tryEmit(value = currentUserData.copy(language = value))
+    }
+
+    override suspend fun updateImageQuality(value: String) {
+        _userData.tryEmit(value = currentUserData.copy(imageQuality = value))
+    }
+
+    override suspend fun updateNoShowToday(value: String) {
+        _userData.tryEmit(value = currentUserData.copy(noShowToday = value))
+    }
 }
