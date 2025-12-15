@@ -47,9 +47,40 @@ class UserDataRepositoryImpl @Inject constructor(
         datastore.updateNoShowToday(value = value)
     }
 
+    override suspend fun updateSecureBaseUrl(value: String) {
+        datastore.updateSecureBaseUrl(value = value)
+    }
+
+    override suspend fun getSecureBaseUrl(): String =
+        datastore.getSecureBaseUrl()
+
     override suspend fun updateFCMToken(token: String) {
         datastore.updateFCMToken(token)
     }
+
+    override suspend fun getIsAdult(): Boolean =
+        datastore.getIsAdult()
+
+    override suspend fun getAutoPlayTrailer(): Boolean =
+        datastore.getAutoPlayTrailer()
+
+    override suspend fun getIsDarkMode(): String =
+        datastore.getIsDarkMode()
+
+    override suspend fun getMainDate(): String =
+        datastore.getMainDate()
+
+    override suspend fun getRegion(): String =
+        datastore.getRegion()
+
+    override suspend fun getLanguage(): String =
+        datastore.getLanguage()
+
+    override suspend fun getImageQuality(): String =
+        datastore.getImageQuality()
+
+    override suspend fun getNoShowToday(): String =
+        datastore.getNoShowToday()
 
     override suspend fun getFCMToken(): String = datastore.getFCMToken()
 }

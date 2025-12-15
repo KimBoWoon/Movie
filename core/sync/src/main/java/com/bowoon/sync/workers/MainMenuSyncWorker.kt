@@ -16,7 +16,7 @@ import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.data.repository.MainMenuRepository
 import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.data.util.Synchronizer
-import com.bowoon.notifications.SystemTrayNotifier
+import com.bowoon.notifications.Notifier
 import com.bowoon.sync.initializers.SyncConstraints
 import com.bowoon.sync.initializers.syncForegroundInfo
 import com.bowoon.sync.utils.calculateInitialDelay
@@ -37,7 +37,7 @@ class MainMenuSyncWorker @AssistedInject constructor(
     private val userDateRepository: UserDataRepository,
     private val mainMenuRepository: MainMenuRepository,
     private val databaseRepository: DatabaseRepository,
-    private val notifier: SystemTrayNotifier
+    private val notifier: Notifier
 ) : CoroutineWorker(appContext, workerParams), Synchronizer {
     companion object {
         const val WORKER_NAME = "MainMenuSyncWorker"
@@ -65,16 +65,20 @@ class MainMenuSyncWorker @AssistedInject constructor(
                 .build()
     }
 
-    override suspend fun getChangeListVersions(): String =
+    override suspend fun getVersion(): String =
         userDateRepository.internalData.map { it.updateDate }.firstOrNull() ?: ""
 
-    override suspend fun updateChangeListVersions(update: () -> String) {
-        userDateRepository.updateMainDate(value = update())
+    override suspend fun updateVersion(update: () -> String) {
+        val date = update()
+
+        if (date.isNotEmpty()) {
+            userDateRepository.updateMainDate(value = update())
+        }
     }
 
     override fun getIsForce(): Boolean = inputData.getBoolean(key = "IS_FORCE", defaultValue = false)
 
-    override suspend fun afterUpdate() {
+    override suspend fun afterSync() {
         databaseRepository
             .getNextWeekReleaseMovies()
             .map { it.takeIf { it.isNotEmpty() } }

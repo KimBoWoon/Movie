@@ -21,6 +21,7 @@ import coil3.transform.RoundedCornersTransformation
 import com.bowoon.common.Dispatcher
 import com.bowoon.common.Dispatchers.IO
 import com.bowoon.common.Log
+import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.data.util.ApplicationData
 import com.bowoon.model.Movie
 import com.bowoon.movie.core.notifications.R
@@ -49,7 +50,7 @@ const val DEEP_LINK_URI_PATTERN = "$DEEP_LINK_BASE_PATH/{id}"
 class SystemTrayNotifier @Inject constructor(
     @param:ApplicationContext private val context: Context,
     @param:Dispatcher(dispatcher = IO) private val ioDispatcher: CoroutineDispatcher,
-    private val movieAppData: ApplicationData
+    private val userDataRepository: UserDataRepository
 ) : Notifier {
     override fun postMovieNotifications(movies: List<Movie>) {
         if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_DENIED) return
@@ -58,7 +59,7 @@ class SystemTrayNotifier @Inject constructor(
         val comingSoonMovie = context.getString(R.string.coming_soon_movie)
 
         CoroutineScope(context = ioDispatcher).launch {
-            val imageUrl = movieAppData.movieAppData.first().getImageUrl()
+            val imageUrl = userDataRepository.getSecureBaseUrl()
             Log.d("imageUrl -> $imageUrl")
             val notifications = movies.map { movie ->
                 async(context = ioDispatcher) { loadNotificationImage(context = context, imageUrl = "$imageUrl${movie.posterPath}") }

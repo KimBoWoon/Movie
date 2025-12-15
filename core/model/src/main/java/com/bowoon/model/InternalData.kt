@@ -11,5 +11,6 @@ data class InternalData(
     val region: String = "KR",
     val language: String = "ko",
     val imageQuality: String = "original",
-    val noShowToday: String = ""
+    val noShowToday: String = "",
+    val secureBaseUrl: String = ""
 )

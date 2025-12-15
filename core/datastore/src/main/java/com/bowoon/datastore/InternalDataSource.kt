@@ -29,7 +29,7 @@ class InternalDataSource @Inject constructor(
         private val LANGUAGE = stringPreferencesKey(name = "language")
         private val IMAGE_QUALITY = stringPreferencesKey(name = "imageQuality")
         private val NO_SHOW_TODAY = stringPreferencesKey(name = "noShowToday")
-
+        private val SECURE_BASE_URL = stringPreferencesKey(name = "secureBaseUrl")
     }
 
     val userData = datastore.data.map { preferences ->
@@ -45,7 +45,8 @@ class InternalDataSource @Inject constructor(
             region = preferences[REGION] ?: "KR",
             language = preferences[LANGUAGE] ?: "ko",
             imageQuality = preferences[IMAGE_QUALITY] ?: "original",
-            noShowToday = preferences[NO_SHOW_TODAY] ?: ""
+            noShowToday = preferences[NO_SHOW_TODAY] ?: "",
+            secureBaseUrl = preferences[SECURE_BASE_URL] ?: ""
         )
     }
 
@@ -117,6 +118,14 @@ class InternalDataSource @Inject constructor(
         }
     }
 
+    suspend fun updateSecureBaseUrl(value: String) {
+        datastore.updateData { preferences ->
+            preferences.toMutablePreferences().also { preferences ->
+                preferences[SECURE_BASE_URL] = value
+            }
+        }
+    }
+
     suspend fun getIsAdult(): Boolean =
         datastore.data.map { preferences ->
             preferences[IS_ADULT]
@@ -155,6 +164,11 @@ class InternalDataSource @Inject constructor(
     suspend fun getNoShowToday(): String =
         datastore.data.map { preferences ->
             preferences[NO_SHOW_TODAY]
+        }.firstOrNull() ?: ""
+
+    suspend fun getSecureBaseUrl(): String =
+        datastore.data.map { preferences ->
+            preferences[SECURE_BASE_URL]
         }.firstOrNull() ?: ""
 
     suspend fun updateFCMToken(token: String) {

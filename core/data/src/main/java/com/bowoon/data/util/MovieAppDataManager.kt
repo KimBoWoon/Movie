@@ -4,6 +4,7 @@ import com.bowoon.common.Dispatcher
 import com.bowoon.common.Dispatchers
 import com.bowoon.common.Log
 import com.bowoon.common.di.ApplicationScope
+import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.datastore.InternalDataSource
 import com.bowoon.model.Configuration
 import com.bowoon.model.Genres
@@ -25,10 +26,11 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
 class MovieAppDataManager @Inject constructor(
-    private val apis: MovieNetworkDataSource,
     @param:Dispatcher(dispatcher = Dispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
+    @ApplicationScope appScope: CoroutineScope,
+    private val apis: MovieNetworkDataSource,
     datastore: InternalDataSource,
-    @ApplicationScope appScope: CoroutineScope
+    userDataRepository: UserDataRepository
 ) : ApplicationData {
     var language = ""
     var genres = Genres()
@@ -48,6 +50,8 @@ class MovieAppDataManager @Inject constructor(
     ) { internalData, configuration, language, region, genres ->
         Log.d("${configuration.images?.secureBaseUrl}${internalData.imageQuality}")
         Log.d("movieAppDataGenres -> $genres")
+
+        userDataRepository.updateSecureBaseUrl(value = "${configuration.images?.secureBaseUrl}${internalData.imageQuality}")
 
         MovieAppData(
             isAdult = internalData.isAdult,

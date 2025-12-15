@@ -16,4 +16,14 @@ interface UserDataRepository {
     suspend fun updateLanguage(value: String)
     suspend fun updateImageQuality(value: String)
     suspend fun updateNoShowToday(value: String)
+    suspend fun updateSecureBaseUrl(value: String)
+    suspend fun getIsAdult(): Boolean
+    suspend fun getAutoPlayTrailer(): Boolean
+    suspend fun getIsDarkMode(): String
+    suspend fun getMainDate(): String
+    suspend fun getRegion(): String
+    suspend fun getLanguage(): String
+    suspend fun getImageQuality(): String
+    suspend fun getNoShowToday(): String
+    suspend fun getSecureBaseUrl(): String
 }

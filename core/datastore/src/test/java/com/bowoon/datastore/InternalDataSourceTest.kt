@@ -138,4 +138,17 @@ class InternalDataSourceTest {
             actual = "2025-12-13"
         )
     }
+
+    @Test
+    fun updateNoSecureBaseUrlTest() = runTest {
+        assertEquals(
+            expected = internalDataSource.getSecureBaseUrl(),
+            actual = ""
+        )
+        internalDataSource.updateSecureBaseUrl(value = "secureBaseUrl")
+        assertEquals(
+            expected = internalDataSource.getSecureBaseUrl(),
+            actual = "secureBaseUrl"
+        )
+    }
 }

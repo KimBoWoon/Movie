@@ -52,6 +52,7 @@ internal object DatabaseMigrations {
         DeleteColumn(tableName = "movies", columnName = "title")
     )
     class Schema1to2 : AutoMigrationSpec
+
     val MIGRATION_3_4 = object : Migration(startVersion = 3, endVersion = 4) {
         override fun migrate(db: SupportSQLiteDatabase) {
             db.execSQL(sql = """ALTER TABLE movies ADD COLUMN title TEXT DEFAULT """"")

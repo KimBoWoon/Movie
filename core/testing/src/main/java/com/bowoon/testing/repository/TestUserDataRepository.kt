@@ -56,4 +56,38 @@ class TestUserDataRepository : UserDataRepository {
     override suspend fun updateNoShowToday(value: String) {
         _userData.tryEmit(value = currentUserData.copy(noShowToday = value))
     }
+
+    override suspend fun updateSecureBaseUrl(value: String) {
+        _userData.tryEmit(value = currentUserData.copy(secureBaseUrl = value))
+    }
+
+    override suspend fun getIsAdult(): Boolean =
+        currentUserData.isAdult
+
+    override suspend fun getAutoPlayTrailer(): Boolean =
+        currentUserData.autoPlayTrailer
+
+    override suspend fun getIsDarkMode(): String = when (currentUserData.isDarkMode) {
+        DarkThemeConfig.FOLLOW_SYSTEM -> "FOLLOW_SYSTEM"
+        DarkThemeConfig.LIGHT -> "LIGHT"
+        DarkThemeConfig.DARK -> "DARK"
+    }
+
+    override suspend fun getMainDate(): String =
+        currentUserData.updateDate
+
+    override suspend fun getRegion(): String =
+        currentUserData.region
+
+    override suspend fun getLanguage(): String =
+        currentUserData.language
+
+    override suspend fun getImageQuality(): String =
+        currentUserData.imageQuality
+
+    override suspend fun getNoShowToday(): String =
+        currentUserData.noShowToday
+
+    override suspend fun getSecureBaseUrl(): String =
+        currentUserData.secureBaseUrl
 }

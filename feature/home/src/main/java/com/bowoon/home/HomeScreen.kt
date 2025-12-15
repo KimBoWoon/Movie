@@ -176,36 +176,6 @@ fun MainComponent(
 
 fun LazyListScope.horizontalMovieListComponent(
     title: String,
-    movies: List<Movie>,
-    goToMovie: (Int) -> Unit
-) {
-    item {
-        Text(
-            modifier = Modifier
-                .padding(all = dp16)
-                .fillMaxWidth(),
-            text = title
-        )
-        LazyRow(
-            modifier = Modifier.wrapContentSize(),
-            contentPadding = PaddingValues(horizontal = dp16),
-            horizontalArrangement = Arrangement.spacedBy(space = dp16)
-        ) {
-            items(
-                count = movies.size,
-                key = { index -> "${movies[index].id}_${index}_${movies[index].title}" }
-            ) { index ->
-                MainMovieItem(
-                    movie = movies[index],
-                    goToMovie = goToMovie
-                )
-            }
-        }
-    }
-}
-
-fun LazyListScope.horizontalMovieListComponent(
-    title: String,
     pager: LazyPagingItems<Movie>,
     goToMovie: (Int) -> Unit
 ) {
@@ -243,7 +213,7 @@ fun MainMovieItem(
 ) {
     Column(
         modifier = Modifier
-            .width(dp150)
+            .width(width = dp150)
             .wrapContentHeight()
             .bounceClick { goToMovie(movie.id ?: -1) }
     ) {

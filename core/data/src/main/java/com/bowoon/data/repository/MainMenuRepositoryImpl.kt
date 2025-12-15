@@ -3,11 +3,14 @@ package com.bowoon.data.repository
 import com.bowoon.data.model.asNowPlayingMovieEntity
 import com.bowoon.data.model.asUpComingMovieEntity
 import com.bowoon.data.util.Synchronizer
-import com.bowoon.data.util.changeMainSync
+import com.bowoon.data.util.changeListSync
 import com.bowoon.database.dao.MovieDao
 import com.bowoon.datastore.InternalDataSource
 import com.bowoon.model.Movie
 import com.bowoon.network.MovieNetworkDataSource
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import org.threeten.bp.LocalDate
 import javax.inject.Inject
 
@@ -16,40 +19,59 @@ class MainMenuRepositoryImpl @Inject constructor(
     private val datastore: InternalDataSource,
     private val movieDao: MovieDao
 ) : MainMenuRepository {
-    override suspend fun syncWith(synchronizer: Synchronizer): Boolean =
-        synchronizer.changeMainSync(
-            updateChecker = {
-                val date = getChangeListVersions()
-                val targetDt = LocalDate.now().minusDays(1)
-                val updateDate = when (date.isNotEmpty()) {
-                    true -> LocalDate.parse(date)
-                    false -> LocalDate.MIN
+    override suspend fun syncWith(synchronizer: Synchronizer): Boolean = coroutineScope {
+        val nowPlayingMovieDeferred = async {
+            synchronizer.changeListSync(
+                updateChecker = {
+                    val date = getVersion()
+                    val targetDt = LocalDate.now().minusDays(1)
+                    val updateDate = when (date.isNotEmpty()) {
+                        true -> LocalDate.parse(date)
+                        false -> LocalDate.MIN
+                    }
+
+                    targetDt.isAfter(updateDate) || getIsForce()
+                },
+                getList = {
+                    val language = datastore.getLanguage()
+                    val region = datastore.getRegion()
+
+                    apis.getNowPlaying(language = language, region = region, page = 1)
+                },
+                versionUpdater = { "" },
+                modelDeleter = { movieDao.deleteNowPlayingMovie() },
+                modelUpdater = {
+                    movieDao.upsertNowPlayingMovie(entities = it.map(transform = Movie::asNowPlayingMovieEntity))
                 }
+            )
+        }
+        val upComingMovieDeferred = async {
+            synchronizer.changeListSync(
+                updateChecker = {
+                    val date = getVersion()
+                    val targetDt = LocalDate.now().minusDays(1)
+                    val updateDate = when (date.isNotEmpty()) {
+                        true -> LocalDate.parse(date)
+                        false -> LocalDate.MIN
+                    }
 
-                targetDt.isAfter(updateDate) || getIsForce()
-            },
-            nowPlayingMovies = {
-                val language = datastore.getLanguage()
-                val region = datastore.getRegion()
+                    targetDt.isAfter(updateDate) || getIsForce()
+                },
+                getList = {
+                    val language = datastore.getLanguage()
+                    val region = datastore.getRegion()
 
-                apis.getNowPlaying(language = language, region = region, page = 1)
-            },
-            upComingMovies = {
-                val language = datastore.getLanguage()
-                val region = datastore.getRegion()
-
-                apis.getUpcomingMovie(language = language, region = region, page = 1)
-            },
-            versionUpdater = {
-                LocalDate.now().minusDays(1).toString()
-            },
-            modelDeleter = {
-                movieDao.deleteNowPlayingMovie()
-                movieDao.deleteUpComingMovie()
-            },
-            modelUpdater = {
-                movieDao.upsertNowPlayingMovie(entities = it[0].map(transform = Movie::asNowPlayingMovieEntity))
-                movieDao.upsertUpComingMovie(entities = it[1].map(transform = Movie::asUpComingMovieEntity))
-            }
-        )
+                    apis.getUpcomingMovie(language = language, region = region, page = 1)
+                },
+                versionUpdater = { "" },
+                modelDeleter = { movieDao.deleteUpComingMovie() },
+                modelUpdater = {
+                    movieDao.upsertUpComingMovie(entities = it.map(transform = Movie::asUpComingMovieEntity))
+                }
+            )
+        }
+        val result = awaitAll(nowPlayingMovieDeferred, upComingMovieDeferred)
+        datastore.updateMainDate(value = LocalDate.now().minusDays(1).toString())
+        result
+    }.all { it }
 }

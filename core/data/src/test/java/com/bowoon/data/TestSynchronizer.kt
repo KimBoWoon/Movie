@@ -11,10 +11,10 @@ import kotlinx.coroutines.flow.map
 class TestSynchronizer(
     private val datastore: InternalDataSource
 ) : Synchronizer {
-    override suspend fun getChangeListVersions(): String =
+    override suspend fun getVersion(): String =
         datastore.userData.map { it.updateDate }.firstOrNull() ?: ""
 
-    override suspend fun updateChangeListVersions(update: () -> String) {
+    override suspend fun updateVersion(update: () -> String) {
         datastore.updateMainDate(value = update())
     }
 
