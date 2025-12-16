@@ -11,13 +11,12 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.bowoon.model.Movie
 import com.bowoon.testing.repository.TestDatabaseRepository
 import com.bowoon.testing.repository.TestUserDataRepository
-import com.jakewharton.threetenabp.AndroidThreeTen
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.threeten.bp.LocalDate
-import org.threeten.bp.format.DateTimeFormatter
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 class HomeScreenTest {
     @get:Rule
@@ -79,7 +78,6 @@ class HomeScreenTest {
             }
 
             runBlocking {
-                AndroidThreeTen.init(composeTestRule.activity)
                 val releaseDate = LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("uuuu-MM-dd"))
                 testDatabaseRepository.insertMovie(movie = Movie(id = 0, title = "movie_1", posterPath = "/moviePoster.png", releaseDate = releaseDate))
             }

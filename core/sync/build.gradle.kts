@@ -15,8 +15,7 @@ dependencies {
         projects.core.data,
         projects.core.notifications,
         libs.androidx.work.ktx,
-        libs.hilt.ext.work,
-        libs.threetenabp
+        libs.hilt.ext.work
     ).forEach {
         implementation(it)
     }

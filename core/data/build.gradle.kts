@@ -16,8 +16,7 @@ android {
 
 dependencies {
     arrayOf(
-        libs.androidx.compose.paging,
-        libs.threetenabp
+        libs.androidx.compose.paging
     ).forEach {
         implementation(it)
     }

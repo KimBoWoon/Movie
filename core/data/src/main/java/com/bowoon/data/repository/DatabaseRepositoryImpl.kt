@@ -12,7 +12,7 @@ import com.bowoon.model.Movie
 import com.bowoon.model.People
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import org.threeten.bp.Instant
+import java.time.Instant
 import javax.inject.Inject
 
 class DatabaseRepositoryImpl @Inject constructor(

@@ -34,9 +34,24 @@ class MainMenuRepositoryTest {
     }
 
     @Test
+    fun syncNotNecessaryTest() = runTest {
+        assertEquals(expected = false, actual = repository.syncWith(synchronizer))
+        repository.setDate(LocalDate.now())
+        assertEquals(expected = false, actual = repository.syncWith(synchronizer))
+    }
+
+    @Test
     fun syncTest() = runTest {
-        assertEquals(false, repository.syncWith(synchronizer))
+        assertEquals(expected = false, actual = repository.syncWith(synchronizer))
         repository.setDate(LocalDate.now().minusDays(3))
-        assertEquals(true, repository.syncWith(synchronizer))
+        assertEquals(expected = true, actual = repository.syncWith(synchronizer))
+    }
+
+    @Test
+    fun forceSyncTest() = runTest {
+        assertEquals(expected = false, actual = repository.syncWith(synchronizer))
+        repository.setDate(LocalDate.now())
+        repository.setIsForce(value = true)
+        assertEquals(expected = true, actual = repository.syncWith(synchronizer))
     }
 }

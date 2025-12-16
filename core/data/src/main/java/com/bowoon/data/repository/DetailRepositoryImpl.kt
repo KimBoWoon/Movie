@@ -10,7 +10,7 @@ import com.bowoon.model.Series
 import com.bowoon.network.MovieNetworkDataSource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import org.threeten.bp.LocalDate
+import java.time.LocalDate
 import javax.inject.Inject
 
 class DetailRepositoryImpl @Inject constructor(

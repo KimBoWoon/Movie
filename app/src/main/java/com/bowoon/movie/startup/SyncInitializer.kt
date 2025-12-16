@@ -17,5 +17,5 @@ class SyncInitializer : Initializer<Unit> {
     }
 
     override fun dependencies(): List<Class<out Initializer<*>?>?> =
-        listOf(ThreeTenABPInitializer::class.java)
+        emptyList()
 }

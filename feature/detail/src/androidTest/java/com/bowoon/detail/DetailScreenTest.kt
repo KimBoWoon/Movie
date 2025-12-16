@@ -38,7 +38,6 @@ import com.bowoon.testing.repository.TestDetailRepository
 import com.bowoon.testing.repository.TestPagingRepository
 import com.bowoon.testing.repository.TestUserDataRepository
 import com.bowoon.testing.utils.TestMovieAppDataManager
-import com.jakewharton.threetenabp.AndroidThreeTen
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -91,7 +90,6 @@ class DetailScreenTest {
             pagingRepository = testPagingRepository
         )
 
-        AndroidThreeTen.init(composeTestRule.activity)
         runBlocking {
             testMovieAppDataManager.setMovieAppData(movieAppData)
         }

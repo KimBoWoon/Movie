@@ -9,8 +9,7 @@ android {
 
 dependencies {
     arrayOf(
-        projects.core.common,
-        libs.threetenabp
+        projects.core.common
     ).forEach {
         implementation(it)
     }

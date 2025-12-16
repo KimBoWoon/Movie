@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
-import org.threeten.bp.LocalDate
+import java.time.LocalDate
 
 class TestMovieDao : MovieDao {
     private val entitiesStateFlow = MutableStateFlow(value = emptyList<MovieEntity>())

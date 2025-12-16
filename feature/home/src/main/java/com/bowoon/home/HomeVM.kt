@@ -21,7 +21,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import org.threeten.bp.LocalDate
+import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
@@ -35,7 +35,15 @@ class HomeVM @Inject constructor(
 
     val mainMenu = databaseRepository.getNextWeekReleaseMovies()
         .onEach {
-            if (it.isEmpty()) {
+            val noShowToday = userDataRepository.getNoShowToday().let { noShowToday ->
+                if (noShowToday.isEmpty()) {
+                    false
+                } else {
+                    !LocalDate.parse(noShowToday).isBefore(LocalDate.now())
+                }
+            }
+
+            if (it.isEmpty() || noShowToday) {
                 isShowNextWeekReleaseMovie.value = true
             }
         }.asResult()

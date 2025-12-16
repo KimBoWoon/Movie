@@ -7,12 +7,18 @@ import java.time.LocalDate
 
 class TestMainMenuRepository : MainMenuRepository {
     private var date = LocalDate.now()
+    private var isForce = false
 
     override suspend fun syncWith(synchronizer: Synchronizer): Boolean =
-        LocalDate.now().minusDays(1).isAfter(date)
+        LocalDate.now().minusDays(1).isAfter(date) || isForce
 
     @VisibleForTesting
     fun setDate(date: LocalDate) {
         this.date = date
+    }
+
+    @VisibleForTesting
+    fun setIsForce(value: Boolean) {
+        this@TestMainMenuRepository.isForce = value
     }
 }

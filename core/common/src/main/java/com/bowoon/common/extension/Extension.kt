@@ -1,10 +1,10 @@
 package com.bowoon.common.extension
 
 import com.bowoon.common.Log
-import org.threeten.bp.Instant
-import org.threeten.bp.LocalDateTime
-import org.threeten.bp.ZoneOffset
-import org.threeten.bp.format.DateTimeFormatter
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 
 fun formatStringTime(time: String): String = runCatching {
     val minSeconds = 10

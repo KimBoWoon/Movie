@@ -17,8 +17,7 @@ dependencies {
         projects.core.firebase,
         libs.androidx.navigation.compose,
         libs.androidx.compose.hilt.navigation,
-        libs.androidx.compose.paging,
-        libs.threetenabp
+        libs.androidx.compose.paging
     ).forEach {
         implementation(it)
     }

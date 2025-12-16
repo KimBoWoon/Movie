@@ -3,7 +3,7 @@ package com.bowoon.data.repository
 import com.bowoon.data.model.asNowPlayingMovieEntity
 import com.bowoon.data.model.asUpComingMovieEntity
 import com.bowoon.data.util.Synchronizer
-import com.bowoon.data.util.changeListSync
+import com.bowoon.data.util.updateMovieSync
 import com.bowoon.database.dao.MovieDao
 import com.bowoon.datastore.InternalDataSource
 import com.bowoon.model.Movie
@@ -11,7 +11,7 @@ import com.bowoon.network.MovieNetworkDataSource
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import org.threeten.bp.LocalDate
+import java.time.LocalDate
 import javax.inject.Inject
 
 class MainMenuRepositoryImpl @Inject constructor(
@@ -21,7 +21,7 @@ class MainMenuRepositoryImpl @Inject constructor(
 ) : MainMenuRepository {
     override suspend fun syncWith(synchronizer: Synchronizer): Boolean = coroutineScope {
         val nowPlayingMovieDeferred = async {
-            synchronizer.changeListSync(
+            synchronizer.updateMovieSync(
                 updateChecker = {
                     val date = getVersion()
                     val targetDt = LocalDate.now().minusDays(1)
@@ -30,7 +30,7 @@ class MainMenuRepositoryImpl @Inject constructor(
                         false -> LocalDate.MIN
                     }
 
-                    targetDt.isAfter(updateDate) || getIsForce()
+                    targetDt.isAfter(updateDate) || getSyncInputData().firstOrNull { it.first == "IS_FORCE" }?.second as Boolean
                 },
                 getList = {
                     val language = datastore.getLanguage()
@@ -46,7 +46,7 @@ class MainMenuRepositoryImpl @Inject constructor(
             )
         }
         val upComingMovieDeferred = async {
-            synchronizer.changeListSync(
+            synchronizer.updateMovieSync(
                 updateChecker = {
                     val date = getVersion()
                     val targetDt = LocalDate.now().minusDays(1)
@@ -55,7 +55,7 @@ class MainMenuRepositoryImpl @Inject constructor(
                         false -> LocalDate.MIN
                     }
 
-                    targetDt.isAfter(updateDate) || getIsForce()
+                    targetDt.isAfter(updateDate) || getSyncInputData().firstOrNull { it.first == "IS_FORCE" }?.second as Boolean
                 },
                 getList = {
                     val language = datastore.getLanguage()

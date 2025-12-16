@@ -4,7 +4,7 @@ import com.bowoon.database.model.MovieEntity
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
-import org.threeten.bp.Instant
+import java.time.Instant
 import kotlin.test.assertEquals
 
 internal class MovieDaoTest : DatabaseTest() {

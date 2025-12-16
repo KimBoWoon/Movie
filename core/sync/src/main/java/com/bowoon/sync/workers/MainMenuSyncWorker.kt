@@ -42,6 +42,7 @@ class MainMenuSyncWorker @AssistedInject constructor(
     companion object {
         const val WORKER_NAME = "MainMenuSyncWorker"
         const val EXPEDITED_SYNC_WORK_NAME = "EXPEDITED_SYNC_WORK_NAME"
+        const val IS_FORCE = "IS_FORCE"
 
         fun startUpSyncWork(isForce: Boolean = false): OneTimeWorkRequest =
             OneTimeWorkRequestBuilder<DelegatingWorker>()
@@ -66,7 +67,7 @@ class MainMenuSyncWorker @AssistedInject constructor(
     }
 
     override suspend fun getVersion(): String =
-        userDateRepository.internalData.map { it.updateDate }.firstOrNull() ?: ""
+        userDateRepository.getMainDate()
 
     override suspend fun updateVersion(update: () -> String) {
         val date = update()
@@ -76,7 +77,12 @@ class MainMenuSyncWorker @AssistedInject constructor(
         }
     }
 
-    override fun getIsForce(): Boolean = inputData.getBoolean(key = "IS_FORCE", defaultValue = false)
+    override fun getSyncInputData(): List<Pair<String, Any?>> = mutableListOf(
+        Pair(
+            first = IS_FORCE,
+            second = inputData.getBoolean(key = IS_FORCE, defaultValue = false)
+        )
+    )
 
     override suspend fun afterSync() {
         databaseRepository

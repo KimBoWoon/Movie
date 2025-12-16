@@ -58,7 +58,7 @@ class SearchVM @Inject constructor(
         recommendKeywordJob = viewModelScope.launch {
             recommendKeywordPaging.emit(
                 value = RecommendKeywordUiState.Success(
-                    recommendKeywordFlow.debounce(300L)
+                    pagingData = recommendKeywordFlow.debounce(timeoutMillis = 300L)
                         .flatMapLatest {
                             Pager(
                                 config = PagingConfig(pageSize = 1, initialLoadSize = 1, prefetchDistance = 5),

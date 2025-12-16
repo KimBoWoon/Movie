@@ -1,7 +1,7 @@
 package com.bowoon.sync.utils
 
-import org.threeten.bp.LocalDateTime
-import org.threeten.bp.ZoneOffset
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 internal fun calculateInitialDelay(): Long {
     val currentDate = LocalDateTime.now()

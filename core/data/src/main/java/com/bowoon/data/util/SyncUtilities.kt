@@ -8,7 +8,7 @@ interface Synchronizer {
     suspend fun getVersion(): String
     suspend fun updateVersion(update: () -> String)
     suspend fun Syncable.sync(): Boolean = this@sync.syncWith(this@Synchronizer)
-    fun getIsForce(): Boolean
+    fun getSyncInputData(): List<Pair<String, Any?>>
     suspend fun afterSync() {}
 }
 
@@ -25,7 +25,7 @@ internal suspend fun <T> suspendRunCatching(block: suspend () -> T): Result<T> =
     Result.failure(exception = exception)
 }
 
-suspend fun Synchronizer.changeListSync(
+suspend fun Synchronizer.updateMovieSync(
     updateChecker: suspend Synchronizer.() -> Boolean,
     getList: suspend () -> List<Movie>,
     versionUpdater: () -> String,
@@ -37,9 +37,24 @@ suspend fun Synchronizer.changeListSync(
         Log.d("changeListSync -> $updateList")
         modelDeleter()
         modelUpdater(updateList)
-        if (!getIsForce()) afterSync()
+        (getSyncInputData().firstOrNull { it.first == "IS_FORCE" }?.second as Boolean).let { forceUpdate ->
+            if (!forceUpdate) afterSync()
+        }
         updateVersion(update = { versionUpdater() })
     } else {
         Log.d("changeListSync -> update not necessary")
     }
+}.isSuccess
+
+suspend fun Synchronizer.changeListSync(
+    getList: suspend () -> List<Movie>,
+    versionUpdater: () -> String,
+    modelDeleter: suspend () -> Unit,
+    modelUpdater: suspend (List<Movie>) -> Unit,
+): Boolean = suspendRunCatching {
+    val updateList = getList()
+    modelDeleter()
+    modelUpdater(updateList)
+    afterSync()
+    updateVersion(update = { versionUpdater() })
 }.isSuccess

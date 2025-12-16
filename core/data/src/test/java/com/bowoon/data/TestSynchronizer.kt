@@ -18,5 +18,10 @@ class TestSynchronizer(
         datastore.updateMainDate(value = update())
     }
 
-    override fun getIsForce(): Boolean = true
+    override fun getSyncInputData(): List<Pair<String, Any?>> = mutableListOf(
+        Pair(
+            first = "IS_FORCE",
+            second = true
+        )
+    )
 }
