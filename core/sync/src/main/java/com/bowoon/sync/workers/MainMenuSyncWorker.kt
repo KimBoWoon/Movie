@@ -19,7 +19,6 @@ import com.bowoon.data.util.Synchronizer
 import com.bowoon.notifications.Notifier
 import com.bowoon.sync.initializers.SyncConstraints
 import com.bowoon.sync.initializers.syncForegroundInfo
-import com.bowoon.sync.utils.calculateInitialDelay
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineDispatcher
@@ -44,14 +43,6 @@ class MainMenuSyncWorker @AssistedInject constructor(
         const val EXPEDITED_SYNC_WORK_NAME = "EXPEDITED_SYNC_WORK_NAME"
         const val IS_FORCE = "IS_FORCE"
 
-        fun startUpSyncWork(isForce: Boolean = false): OneTimeWorkRequest =
-            OneTimeWorkRequestBuilder<DelegatingWorker>()
-                .setInitialDelay(duration = calculateInitialDelay(), timeUnit = TimeUnit.MILLISECONDS)
-                .addTag(tag = WORKER_NAME)
-                .setConstraints(SyncConstraints)
-                .setInputData(inputData = MainMenuSyncWorker::class.delegatedData(isForce))
-                .build()
-
         fun startUpExpeditedSyncWork(isForce: Boolean = false): OneTimeWorkRequest =
             OneTimeWorkRequestBuilder<DelegatingWorker>()
                 .addTag(tag = EXPEDITED_SYNC_WORK_NAME)
@@ -60,9 +51,10 @@ class MainMenuSyncWorker @AssistedInject constructor(
                 .setInputData(inputData = MainMenuSyncWorker::class.delegatedData(isForce))
                 .build()
 
-        fun test(isForce: Boolean = false): PeriodicWorkRequest =
-            PeriodicWorkRequestBuilder<DelegatingWorker>(repeatInterval = 20, repeatIntervalTimeUnit = TimeUnit.MINUTES)
-                .setInputData(inputData = MainMenuSyncWorker::class.delegatedData(isForce))
+        fun startUpPeriodicSyncWork(): PeriodicWorkRequest =
+            PeriodicWorkRequestBuilder<DelegatingWorker>(repeatInterval = 1, repeatIntervalTimeUnit = TimeUnit.DAYS)
+                .addTag(tag = WORKER_NAME)
+                .setConstraints(SyncConstraints)
                 .build()
     }
 
@@ -73,7 +65,7 @@ class MainMenuSyncWorker @AssistedInject constructor(
         val date = update()
 
         if (date.isNotEmpty()) {
-            userDateRepository.updateMainDate(value = update())
+            userDateRepository.updateMainDate(value = date)
         }
     }
 

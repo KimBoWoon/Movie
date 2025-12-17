@@ -19,5 +19,5 @@ internal object TestDataStoreModule {
     @Provides
     @Singleton
     fun providesUserPreferencesDataStore(): DataStore<Preferences> =
-        InMemoryDataStore(preferencesOf())
+        InMemoryDataStore(initialValue = preferencesOf())
 }

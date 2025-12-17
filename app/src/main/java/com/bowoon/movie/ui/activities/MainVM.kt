@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.bowoon.common.Result
 import com.bowoon.common.asResult
 import com.bowoon.data.repository.DatabaseRepository
-import com.bowoon.data.util.ApplicationData
+import com.bowoon.data.util.DataManager
 import com.bowoon.model.DarkThemeConfig
 import com.bowoon.model.MovieAppData
 import com.bowoon.ui.image.imageUrl
@@ -18,7 +18,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainVM @Inject constructor(
-    appData: ApplicationData,
+    appData: DataManager,
     private val databaseRepository: DatabaseRepository
 ) : ViewModel() {
     val movieAppData = appData.movieAppData

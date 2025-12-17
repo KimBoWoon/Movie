@@ -3,7 +3,7 @@ package com.bowoon.my
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bowoon.data.repository.UserDataRepository
-import com.bowoon.data.util.ApplicationData
+import com.bowoon.data.util.DataManager
 import com.bowoon.model.DarkThemeConfig
 import com.bowoon.model.InternalData
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,7 +15,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MyVM @Inject constructor(
     private val userDataRepository: UserDataRepository,
-    val movieAppData: ApplicationData
+    val movieAppData: DataManager
 ) : ViewModel() {
     companion object {
         private const val TAG = "MyVM"

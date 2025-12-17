@@ -22,7 +22,6 @@ import com.bowoon.common.Dispatcher
 import com.bowoon.common.Dispatchers.IO
 import com.bowoon.common.Log
 import com.bowoon.data.repository.UserDataRepository
-import com.bowoon.data.util.ApplicationData
 import com.bowoon.model.Movie
 import com.bowoon.movie.core.notifications.R
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -31,7 +30,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton

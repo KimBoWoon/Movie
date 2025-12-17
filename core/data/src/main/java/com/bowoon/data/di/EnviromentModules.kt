@@ -1,8 +1,8 @@
 package com.bowoon.data.di
 
-import com.bowoon.data.util.ApplicationData
+import com.bowoon.data.util.DataManager
 import com.bowoon.data.util.ConnectivityManagerNetworkMonitor
-import com.bowoon.data.util.MovieAppDataManager
+import com.bowoon.data.util.ApplicationDataManager
 import com.bowoon.data.util.NetworkMonitor
 import dagger.Binds
 import dagger.Module
@@ -16,8 +16,8 @@ abstract class EnvironmentModules {
     @Binds
     @Singleton
     internal abstract fun bindsMovieAppData(
-        movieAppData: MovieAppDataManager
-    ): ApplicationData
+        movieAppData: ApplicationDataManager
+    ): DataManager
 
     @Binds
     @Singleton

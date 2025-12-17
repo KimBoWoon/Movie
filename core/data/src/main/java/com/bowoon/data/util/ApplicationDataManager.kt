@@ -25,13 +25,13 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
-class MovieAppDataManager @Inject constructor(
+class ApplicationDataManager @Inject constructor(
     @param:Dispatcher(dispatcher = Dispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
     @ApplicationScope appScope: CoroutineScope,
     private val apis: MovieNetworkDataSource,
     datastore: InternalDataSource,
     userDataRepository: UserDataRepository
-) : ApplicationData {
+) : DataManager {
     var language = ""
     var genres = Genres()
 

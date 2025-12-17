@@ -26,10 +26,9 @@ object DataStoreModule {
         @ApplicationContext context: Context,
         @Dispatcher(Dispatchers.IO) ioDispatcher: CoroutineDispatcher,
         @ApplicationScope scope: CoroutineScope
-    ): DataStore<Preferences> =
-        PreferenceDataStoreFactory.create(
-            scope = CoroutineScope(scope.coroutineContext + ioDispatcher),
-            migrations = listOf(),
-            produceFile = { context.preferencesDataStoreFile("movie") }
-        )
+    ): DataStore<Preferences> = PreferenceDataStoreFactory.create(
+        scope = CoroutineScope(context = scope.coroutineContext + ioDispatcher),
+        migrations = listOf(),
+        produceFile = { context.preferencesDataStoreFile("movie") }
+    )
 }
