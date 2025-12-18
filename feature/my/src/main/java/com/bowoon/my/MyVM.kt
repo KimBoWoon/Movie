@@ -34,15 +34,15 @@ class MyVM @Inject constructor(
         }
     }
 
-    fun updateAutoPlayTrailer(value: Boolean) {
+    fun updateIsAutoPlayTrailer(value: Boolean) {
         viewModelScope.launch {
-            userDataRepository.updateAutoPlayTrailer(value = value)
+            userDataRepository.updateIsAutoPlayTrailer(value = value)
         }
     }
 
-    fun updateIsDarkMode(darkThemeConfig: DarkThemeConfig) {
+    fun updateDarkMode(darkThemeConfig: DarkThemeConfig) {
         viewModelScope.launch {
-            userDataRepository.updateIsDarkMode(darkThemeConfig = darkThemeConfig)
+            userDataRepository.updateDarkMode(darkThemeConfig = darkThemeConfig)
         }
     }
 

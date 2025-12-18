@@ -64,7 +64,7 @@ class GetMovieDetailUseCase @Inject constructor(
         MovieDetailInfo(
             detail = movie.copy(isFavorite = favoriteMovies.find { it.id == movie.id } != null),
             series = series,
-            autoPlayTrailer = internalData.value.autoPlayTrailer
+            autoPlayTrailer = internalData.value.isAutoPlayTrailer
         )
     }
 

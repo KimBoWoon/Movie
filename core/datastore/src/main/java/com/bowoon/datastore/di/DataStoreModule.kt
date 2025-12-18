@@ -2,12 +2,13 @@ package com.bowoon.datastore.di
 
 import android.content.Context
 import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.PreferenceDataStoreFactory
-import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.preferences.preferencesDataStoreFile
 import com.bowoon.common.Dispatcher
 import com.bowoon.common.Dispatchers
 import com.bowoon.common.di.ApplicationScope
+import com.bowoon.datastore.protobuf.InternalDataPreferencesSerializer
+import com.bowoon.movie.core.datastore.InternalDataPreferences
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -25,10 +26,12 @@ object DataStoreModule {
     fun providesDatastore(
         @ApplicationContext context: Context,
         @Dispatcher(Dispatchers.IO) ioDispatcher: CoroutineDispatcher,
-        @ApplicationScope scope: CoroutineScope
-    ): DataStore<Preferences> = PreferenceDataStoreFactory.create(
+        @ApplicationScope scope: CoroutineScope,
+        serializer: InternalDataPreferencesSerializer,
+    ): DataStore<InternalDataPreferences> = DataStoreFactory.create(
+        serializer = serializer,
         scope = CoroutineScope(context = scope.coroutineContext + ioDispatcher),
         migrations = listOf(),
-        produceFile = { context.preferencesDataStoreFile("movie") }
+        produceFile = { context.preferencesDataStoreFile(name = "movie") }
     )
 }

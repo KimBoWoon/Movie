@@ -53,14 +53,14 @@ class MyVMTest {
     }
 
     @Test
-    fun updateAutoPlayTrailerTest() = runTest {
+    fun updateIsAutoPlayTrailerTest() = runTest {
         assertEquals(
-            expected = testUserDataRepository.internalData.first().autoPlayTrailer,
+            expected = testUserDataRepository.internalData.first().isAutoPlayTrailer,
             actual = true
         )
-        testUserDataRepository.updateAutoPlayTrailer(value = false)
+        testUserDataRepository.updateIsAutoPlayTrailer(value = false)
         assertEquals(
-            expected = testUserDataRepository.internalData.first().autoPlayTrailer,
+            expected = testUserDataRepository.internalData.first().isAutoPlayTrailer,
             actual = false
         )
     }
@@ -71,7 +71,7 @@ class MyVMTest {
             expected = testUserDataRepository.internalData.first().isDarkMode,
             actual = DarkThemeConfig.FOLLOW_SYSTEM
         )
-        testUserDataRepository.updateIsDarkMode(darkThemeConfig = DarkThemeConfig.LIGHT)
+        testUserDataRepository.updateDarkMode(darkThemeConfig = DarkThemeConfig.LIGHT)
         assertEquals(
             expected = testUserDataRepository.internalData.first().isDarkMode,
             actual = DarkThemeConfig.LIGHT
@@ -131,14 +131,14 @@ class MyVMTest {
     }
 
     @Test
-    fun updateNoShowTodayTest() = runTest {
+    fun updateShowNextReleaseMoviesDateTest() = runTest {
         assertEquals(
-            expected = testUserDataRepository.internalData.first().noShowToday,
+            expected = testUserDataRepository.internalData.first().showNextReleaseMoviesDate,
             actual = ""
         )
-        testUserDataRepository.updateNoShowToday(value = "2025-12-13")
+        testUserDataRepository.updateShowNextReleaseMoviesDate(value = "2025-12-13")
         assertEquals(
-            expected = testUserDataRepository.internalData.first().noShowToday,
+            expected = testUserDataRepository.internalData.first().showNextReleaseMoviesDate,
             actual = "2025-12-13"
         )
     }

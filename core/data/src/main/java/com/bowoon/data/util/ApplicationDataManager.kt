@@ -55,7 +55,7 @@ class ApplicationDataManager @Inject constructor(
 
         MovieAppData(
             isAdult = internalData.isAdult,
-            autoPlayTrailer = internalData.autoPlayTrailer,
+            autoPlayTrailer = internalData.isAutoPlayTrailer,
             isDarkMode = internalData.isDarkMode,
             updateDate = internalData.updateDate,
             imageQuality = internalData.imageQuality,

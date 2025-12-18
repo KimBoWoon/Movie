@@ -99,7 +99,7 @@ class DetailVMTest {
                 MovieDetailInfo(
                     detail = favoriteMovieDetailTestData,
                     series = movieSeriesTestData,
-                    autoPlayTrailer = testUserDataRepository.internalData.map { it.autoPlayTrailer }.first()
+                    autoPlayTrailer = testUserDataRepository.internalData.map { it.isAutoPlayTrailer }.first()
                 )
             )
         )
@@ -133,7 +133,7 @@ class DetailVMTest {
                 MovieDetailInfo(
                     detail = unFavoriteMovieDetailTestData,
                     series = movieSeriesTestData,
-                    autoPlayTrailer = testUserDataRepository.internalData.map { it.autoPlayTrailer }.first()
+                    autoPlayTrailer = testUserDataRepository.internalData.map { it.isAutoPlayTrailer }.first()
                 )
             )
         )
@@ -277,7 +277,7 @@ class DetailVMTest {
                 MovieDetailInfo(
                     detail = favoriteMovieDetailTestData,
                     series = movieSeriesTestData,
-                    autoPlayTrailer = testUserDataRepository.internalData.map { it.autoPlayTrailer }.first()
+                    autoPlayTrailer = testUserDataRepository.internalData.map { it.isAutoPlayTrailer }.first()
                 )
             )
         )

@@ -73,8 +73,8 @@ fun MyScreen(
         internalData = internalData,
         movieAppData = movieAppData,
         updateIsAdult = viewModel::updateIsAdult,
-        updateAutoPlayTrailer = viewModel::updateAutoPlayTrailer,
-        updateIsDarkMode = viewModel::updateIsDarkMode,
+        updateAutoPlayTrailer = viewModel::updateIsAutoPlayTrailer,
+        updateIsDarkMode = viewModel::updateDarkMode,
         updateRegion = viewModel::updateRegion,
         updateLanguage = viewModel::updateLanguage,
         updateImageQuality = viewModel::updateImageQuality
@@ -121,7 +121,7 @@ fun MyScreen(
         ),
         MyMenu.Switch(
             label = stringResource(id = R.string.auto_playing_trailer_setting),
-            selected = internalData.autoPlayTrailer,
+            selected = internalData.isAutoPlayTrailer,
             onClick = { updateAutoPlayTrailer(it) }
         ),
         MyMenu.Dialog(

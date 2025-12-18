@@ -50,7 +50,7 @@ class HomeScreenTest {
                     upComingMovies = upComingMovies,
                     isShowNextWeekReleaseMovie = isShowNextWeekReleaseMovie,
                     goToMovie = {},
-                    onNoShowToday = {}
+                    updateShowNextReleaseMoviesDate = {}
                 )
             }
 
@@ -73,7 +73,7 @@ class HomeScreenTest {
                     upComingMovies = upComingMovies,
                     isShowNextWeekReleaseMovie = isShowNextWeekReleaseMovie,
                     goToMovie = {},
-                    onNoShowToday = {}
+                    updateShowNextReleaseMoviesDate = {}
                 )
             }
 

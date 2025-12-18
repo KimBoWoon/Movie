@@ -17,12 +17,12 @@ class UserDataRepositoryImpl @Inject constructor(
         datastore.updateIsAdult(value = value)
     }
 
-    override suspend fun updateAutoPlayTrailer(value: Boolean) {
-        datastore.updateAutoPlayTrailer(value = value)
+    override suspend fun updateIsAutoPlayTrailer(value: Boolean) {
+        datastore.updateIsAutoPlayTrailer(value = value)
     }
 
-    override suspend fun updateIsDarkMode(darkThemeConfig: DarkThemeConfig) {
-        datastore.updateIsDarkMode(darkThemeConfig = darkThemeConfig)
+    override suspend fun updateDarkMode(darkThemeConfig: DarkThemeConfig) {
+        datastore.updateDarkMode(darkThemeConfig = darkThemeConfig)
     }
 
     override suspend fun updateMainDate(value: String) {
@@ -43,8 +43,8 @@ class UserDataRepositoryImpl @Inject constructor(
         datastore.updateImageQuality(value = value)
     }
 
-    override suspend fun updateNoShowToday(value: String) {
-        datastore.updateNoShowToday(value = value)
+    override suspend fun updateShowNextReleaseMoviesDate(value: String) {
+        datastore.updateShowNextReleaseMoviesDate(value = value)
     }
 
     override suspend fun updateSecureBaseUrl(value: String) {
@@ -64,8 +64,8 @@ class UserDataRepositoryImpl @Inject constructor(
     override suspend fun getAutoPlayTrailer(): Boolean =
         datastore.getAutoPlayTrailer()
 
-    override suspend fun getIsDarkMode(): String =
-        datastore.getIsDarkMode()
+    override suspend fun getDarkMode(): DarkThemeConfig =
+        datastore.getDarkMode()
 
     override suspend fun getMainDate(): String =
         datastore.getMainDate()
@@ -79,8 +79,8 @@ class UserDataRepositoryImpl @Inject constructor(
     override suspend fun getImageQuality(): String =
         datastore.getImageQuality()
 
-    override suspend fun getNoShowToday(): String =
-        datastore.getNoShowToday()
+    override suspend fun getShowNextReleaseMoviesDate(): String =
+        datastore.getShowNextReleaseMoviesDate()
 
     override suspend fun getFCMToken(): String = datastore.getFCMToken()
 }

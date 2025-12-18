@@ -1,8 +1,8 @@
 package com.bowoon.datastore
 
-import androidx.datastore.preferences.core.preferencesOf
 import com.bowoon.datastore_test.InMemoryDataStore
 import com.bowoon.model.DarkThemeConfig
+import com.bowoon.movie.core.datastore.InternalDataPreferences
 import com.bowoon.testing.utils.MainDispatcherRule
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -19,10 +19,14 @@ class InternalDataSourceTest {
     @Before
     fun setup() {
         internalDataSource = InternalDataSource(
-            datastore = InMemoryDataStore(initialValue = preferencesOf())
+            datastore = InMemoryDataStore(initialValue = InternalDataPreferences.getDefaultInstance())
         )
         runBlocking {
             internalDataSource.updateFCMToken(token = "")
+            internalDataSource.updateIsAdult(value = true)
+            internalDataSource.updateRegion(value = "KR")
+            internalDataSource.updateLanguage(value = "ko")
+            internalDataSource.updateImageQuality(value = "original")
         }
     }
 
@@ -54,7 +58,7 @@ class InternalDataSourceTest {
             expected = internalDataSource.getAutoPlayTrailer(),
             actual = false
         )
-        internalDataSource.updateAutoPlayTrailer(value = true)
+        internalDataSource.updateIsAutoPlayTrailer(value = true)
         assertEquals(
             expected = internalDataSource.getAutoPlayTrailer(),
             actual = true
@@ -64,13 +68,13 @@ class InternalDataSourceTest {
     @Test
     fun updateDarkModeSettingTest() = runTest {
         assertEquals(
-            expected = internalDataSource.getIsDarkMode(),
-            actual = "FOLLOW_SYSTEM"
+            expected = internalDataSource.getDarkMode(),
+            actual = DarkThemeConfig.FOLLOW_SYSTEM
         )
-        internalDataSource.updateIsDarkMode(darkThemeConfig = DarkThemeConfig.DARK)
+        internalDataSource.updateDarkMode(darkThemeConfig = DarkThemeConfig.DARK)
         assertEquals(
-            expected = internalDataSource.getIsDarkMode(),
-            actual = "DARK"
+            expected = internalDataSource.getDarkMode(),
+            actual = DarkThemeConfig.DARK
         )
     }
 
@@ -127,14 +131,14 @@ class InternalDataSourceTest {
     }
 
     @Test
-    fun updateNoShowTodayTest() = runTest {
+    fun updateShowNextReleaseMoviesDateTest() = runTest {
         assertEquals(
-            expected = internalDataSource.getNoShowToday(),
+            expected = internalDataSource.getShowNextReleaseMoviesDate(),
             actual = ""
         )
-        internalDataSource.updateNoShowToday(value = "2025-12-13")
+        internalDataSource.updateShowNextReleaseMoviesDate(value = "2025-12-13")
         assertEquals(
-            expected = internalDataSource.getNoShowToday(),
+            expected = internalDataSource.getShowNextReleaseMoviesDate(),
             actual = "2025-12-13"
         )
     }

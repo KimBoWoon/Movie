@@ -1,10 +1,10 @@
 package com.bowoon.data.repository
 
-import androidx.datastore.preferences.core.preferencesOf
 import com.bowoon.data.TestSynchronizer
 import com.bowoon.data.util.Synchronizer
 import com.bowoon.datastore.InternalDataSource
 import com.bowoon.datastore_test.InMemoryDataStore
+import com.bowoon.movie.core.datastore.InternalDataPreferences
 import com.bowoon.testing.TestMovieDataSource
 import com.bowoon.testing.repository.TestMainMenuRepository
 import com.bowoon.testing.utils.MainDispatcherRule
@@ -27,7 +27,7 @@ class MainMenuRepositoryTest {
     fun setup() {
         movieApis = TestMovieDataSource()
         datastore = InternalDataSource(
-            datastore = InMemoryDataStore(initialValue = preferencesOf())
+            datastore = InMemoryDataStore(initialValue = InternalDataPreferences.getDefaultInstance())
         )
         repository = TestMainMenuRepository()
         synchronizer = TestSynchronizer(datastore)

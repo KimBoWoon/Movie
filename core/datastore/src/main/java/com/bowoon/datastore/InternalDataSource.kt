@@ -1,12 +1,11 @@
 package com.bowoon.datastore
 
 import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.booleanPreferencesKey
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
 import com.bowoon.model.DarkThemeConfig
 import com.bowoon.model.InternalData
+import com.bowoon.movie.core.datastore.DarkThemeConfigProto
+import com.bowoon.movie.core.datastore.InternalDataPreferences
+import com.bowoon.movie.core.datastore.copy
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -15,64 +14,55 @@ import javax.inject.Inject
  * DataStore Repository
  */
 class InternalDataSource @Inject constructor(
-    private val datastore: DataStore<Preferences>
+    private val datastore: DataStore<InternalDataPreferences>
 ) {
     companion object {
         private const val TAG = "datastore"
-
-        private val FCM_TOKEN = stringPreferencesKey(name = "fcmToken")
-        private val IS_ADULT = booleanPreferencesKey(name = "isAdult")
-        private val AUTO_PLAY_TRAILER = booleanPreferencesKey(name = "autoPlayTrailer")
-        private val IS_DARK_MODE = stringPreferencesKey(name = "isDarkMode")
-        private val UPDATE_DATE = stringPreferencesKey(name = "updateDate")
-        private val REGION = stringPreferencesKey(name = "region")
-        private val LANGUAGE = stringPreferencesKey(name = "language")
-        private val IMAGE_QUALITY = stringPreferencesKey(name = "imageQuality")
-        private val NO_SHOW_TODAY = stringPreferencesKey(name = "noShowToday")
-        private val SECURE_BASE_URL = stringPreferencesKey(name = "secureBaseUrl")
     }
 
     val userData = datastore.data.map { preferences ->
         InternalData(
-            isAdult = preferences[IS_ADULT] ?: true,
-            autoPlayTrailer = preferences[AUTO_PLAY_TRAILER] ?: false,
-            isDarkMode = when (preferences[IS_DARK_MODE]) {
-                "LIGHT" -> DarkThemeConfig.LIGHT
-                "DARK" -> DarkThemeConfig.DARK
-                else -> DarkThemeConfig.FOLLOW_SYSTEM
+            isAdult = preferences.isAdult,
+            isAutoPlayTrailer = preferences.isAutoPlayTrailer,
+            isDarkMode = when (preferences.darkMode) {
+                DarkThemeConfigProto.DARK_THEME_CONFIG_UNSPECIFIED,
+                DarkThemeConfigProto.DARK_THEME_CONFIG_FOLLOW_SYSTEM,
+                DarkThemeConfigProto.UNRECOGNIZED -> DarkThemeConfig.FOLLOW_SYSTEM
+                DarkThemeConfigProto.DARK_THEME_CONFIG_LIGHT -> DarkThemeConfig.LIGHT
+                DarkThemeConfigProto.DARK_THEME_CONFIG_DARK -> DarkThemeConfig.DARK
             },
-            updateDate = preferences[UPDATE_DATE] ?: "",
-            region = preferences[REGION] ?: "KR",
-            language = preferences[LANGUAGE] ?: "ko",
-            imageQuality = preferences[IMAGE_QUALITY] ?: "original",
-            noShowToday = preferences[NO_SHOW_TODAY] ?: "",
-            secureBaseUrl = preferences[SECURE_BASE_URL] ?: ""
+            updateDate = preferences.updateDate,
+            region = preferences.region,
+            language = preferences.language,
+            imageQuality = preferences.imageQuality,
+            showNextReleaseMoviesDate = preferences.showNextReleaseMoviesDate,
+            secureBaseUrl = preferences.secureBaseUrl
         )
     }
 
     suspend fun updateIsAdult(value: Boolean) {
         datastore.updateData { preferences ->
-            preferences.toMutablePreferences().also { preferences ->
-                preferences[IS_ADULT] = value
+            preferences.copy {
+                isAdult = value
             }
         }
     }
 
-    suspend fun updateAutoPlayTrailer(value: Boolean) {
+    suspend fun updateIsAutoPlayTrailer(value: Boolean) {
         datastore.updateData { preferences ->
-            preferences.toMutablePreferences().also { preferences ->
-                preferences[AUTO_PLAY_TRAILER] = value
+            preferences.copy {
+                isAutoPlayTrailer = value
             }
         }
     }
 
-    suspend fun updateIsDarkMode(darkThemeConfig: DarkThemeConfig) {
+    suspend fun updateDarkMode(darkThemeConfig: DarkThemeConfig) {
         datastore.updateData { preferences ->
-            preferences.toMutablePreferences().also { preferences ->
-                preferences[IS_DARK_MODE] = when (darkThemeConfig) {
-                    DarkThemeConfig.LIGHT -> "LIGHT"
-                    DarkThemeConfig.DARK -> "DARK"
-                    else -> "FOLLOW_SYSTEM"
+            preferences.copy {
+                darkMode = when (darkThemeConfig) {
+                    DarkThemeConfig.FOLLOW_SYSTEM -> DarkThemeConfigProto.DARK_THEME_CONFIG_FOLLOW_SYSTEM
+                    DarkThemeConfig.LIGHT -> DarkThemeConfigProto.DARK_THEME_CONFIG_LIGHT
+                    DarkThemeConfig.DARK -> DarkThemeConfigProto.DARK_THEME_CONFIG_DARK
                 }
             }
         }
@@ -80,103 +70,113 @@ class InternalDataSource @Inject constructor(
 
     suspend fun updateMainDate(value: String) {
         datastore.updateData { preferences ->
-            preferences.toMutablePreferences().also { preferences ->
-                preferences[UPDATE_DATE] = value
+            preferences.copy {
+                updateDate = value
             }
         }
     }
 
     suspend fun updateRegion(value: String) {
         datastore.updateData { preferences ->
-            preferences.toMutablePreferences().also { preferences ->
-                preferences[REGION] = value
+            preferences.copy {
+                region = value
             }
         }
     }
 
     suspend fun updateLanguage(value: String) {
         datastore.updateData { preferences ->
-            preferences.toMutablePreferences().also { preferences ->
-                preferences[LANGUAGE] = value
+            preferences.copy {
+                language = value
             }
         }
     }
 
     suspend fun updateImageQuality(value: String) {
         datastore.updateData { preferences ->
-            preferences.toMutablePreferences().also { preferences ->
-                preferences[IMAGE_QUALITY] = value
+            preferences.copy {
+                imageQuality = value
             }
         }
     }
 
-    suspend fun updateNoShowToday(value: String) {
+    suspend fun updateShowNextReleaseMoviesDate(value: String) {
         datastore.updateData { preferences ->
-            preferences.toMutablePreferences().also { preferences ->
-                preferences[NO_SHOW_TODAY] = value
+            preferences.copy {
+                showNextReleaseMoviesDate = value
             }
         }
     }
 
     suspend fun updateSecureBaseUrl(value: String) {
         datastore.updateData { preferences ->
-            preferences.toMutablePreferences().also { preferences ->
-                preferences[SECURE_BASE_URL] = value
+            preferences.copy {
+                secureBaseUrl = value
             }
         }
     }
 
     suspend fun getIsAdult(): Boolean =
         datastore.data.map { preferences ->
-            preferences[IS_ADULT]
+            preferences.isAdult
         }.firstOrNull() ?: true
 
     suspend fun getAutoPlayTrailer(): Boolean =
         datastore.data.map { preferences ->
-            preferences[AUTO_PLAY_TRAILER]
+            preferences.isAutoPlayTrailer
         }.firstOrNull() ?: false
 
-    suspend fun getIsDarkMode(): String =
+    suspend fun getDarkMode(): DarkThemeConfig =
         datastore.data.map { preferences ->
-            preferences[IS_DARK_MODE]
-        }.firstOrNull() ?: "FOLLOW_SYSTEM"
+            when (preferences.darkMode) {
+                DarkThemeConfigProto.UNRECOGNIZED,
+                DarkThemeConfigProto.DARK_THEME_CONFIG_UNSPECIFIED,
+                DarkThemeConfigProto.DARK_THEME_CONFIG_FOLLOW_SYSTEM -> DarkThemeConfig.FOLLOW_SYSTEM
+                DarkThemeConfigProto.DARK_THEME_CONFIG_LIGHT -> DarkThemeConfig.LIGHT
+                DarkThemeConfigProto.DARK_THEME_CONFIG_DARK -> DarkThemeConfig.DARK
+            }
+        }.firstOrNull() ?: DarkThemeConfig.FOLLOW_SYSTEM
 
     suspend fun getMainDate(): String =
         datastore.data.map { preferences ->
-            preferences[UPDATE_DATE]
+            preferences.updateDate
         }.firstOrNull() ?: ""
 
     suspend fun getRegion(): String =
         datastore.data.map { preferences ->
-            preferences[REGION]
+            preferences.region
         }.firstOrNull() ?: "KR"
 
     suspend fun getLanguage(): String =
         datastore.data.map { preferences ->
-            preferences[LANGUAGE]
+            preferences.language
         }.firstOrNull() ?: "ko"
 
     suspend fun getImageQuality(): String =
         datastore.data.map { preferences ->
-            preferences[IMAGE_QUALITY]
+            preferences.imageQuality
         }.firstOrNull() ?: "original"
 
-    suspend fun getNoShowToday(): String =
+    suspend fun getShowNextReleaseMoviesDate(): String =
         datastore.data.map { preferences ->
-            preferences[NO_SHOW_TODAY]
+            preferences.showNextReleaseMoviesDate
         }.firstOrNull() ?: ""
 
     suspend fun getSecureBaseUrl(): String =
         datastore.data.map { preferences ->
-            preferences[SECURE_BASE_URL]
+            preferences.secureBaseUrl
         }.firstOrNull() ?: ""
 
     suspend fun updateFCMToken(token: String) {
-        datastore.edit { preferences ->
-            preferences[FCM_TOKEN] = token
+        datastore.updateData { preferences ->
+            preferences.copy {
+                fcmToken = token
+            }
         }
     }
 
     suspend fun getFCMToken(): String =
-        datastore.data.map { it[FCM_TOKEN] }.firstOrNull() ?: ""
+        datastore.data.map { preferences ->
+            preferences.fcmToken
+        }.firstOrNull() ?: ""
 }

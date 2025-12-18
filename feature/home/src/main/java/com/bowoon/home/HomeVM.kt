@@ -35,15 +35,15 @@ class HomeVM @Inject constructor(
 
     val mainMenu = databaseRepository.getNextWeekReleaseMovies()
         .onEach {
-            val noShowToday = userDataRepository.getNoShowToday().let { noShowToday ->
-                if (noShowToday.isEmpty()) {
+            val showNextReleaseMoviesDate = userDataRepository.getShowNextReleaseMoviesDate().let { showNextReleaseMoviesDate ->
+                if (showNextReleaseMoviesDate.isEmpty()) {
                     false
                 } else {
-                    !LocalDate.parse(noShowToday).isBefore(LocalDate.now())
+                    !LocalDate.parse(showNextReleaseMoviesDate).isBefore(LocalDate.now())
                 }
             }
 
-            if (it.isEmpty() || noShowToday) {
+            if (it.isEmpty() || showNextReleaseMoviesDate) {
                 isShowNextWeekReleaseMovie.value = true
             }
         }.asResult()
@@ -76,9 +76,9 @@ class HomeVM @Inject constructor(
     }.cachedIn(scope = viewModelScope)
     val isShowNextWeekReleaseMovie = mutableStateOf(value = false)
 
-    fun onNoShowToday() {
+    fun updateShowNextReleaseMoviesDate() {
         viewModelScope.launch {
-            userDataRepository.updateNoShowToday(value = LocalDate.now().toString())
+            userDataRepository.updateShowNextReleaseMoviesDate(value = LocalDate.now().toString())
         }
     }
 }

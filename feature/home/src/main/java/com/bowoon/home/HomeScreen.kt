@@ -82,7 +82,7 @@ fun HomeScreen(
         upComingMovies = upComingMovies,
         isShowNextWeekReleaseMovie = isShowNextWeekReleaseMovie,
         goToMovie = goToMovie,
-        onNoShowToday = viewModel::onNoShowToday
+        updateShowNextReleaseMoviesDate = viewModel::updateShowNextReleaseMoviesDate
     )
 }
 
@@ -93,7 +93,7 @@ fun HomeScreen(
     upComingMovies: LazyPagingItems<Movie>,
     isShowNextWeekReleaseMovie: MutableState<Boolean>,
     goToMovie: (Int) -> Unit,
-    onNoShowToday: () -> Unit
+    updateShowNextReleaseMoviesDate: () -> Unit
 ) {
     LocalFirebaseLogHelper.current.sendLog("HomeScreen", "init screen")
 
@@ -123,7 +123,7 @@ fun HomeScreen(
 
                 if (!isShowNextWeekReleaseMovie.value) {
                     ReleaseMoviesDialog(
-                        onNoShowToday = onNoShowToday,
+                        updateShowNextReleaseMoviesDate = updateShowNextReleaseMoviesDate,
                         onDismiss = { isShowNextWeekReleaseMovie.value = true },
                         releaseMovies = mainMenuState.nextWeekReleaseMovies,
                         goToMovie = goToMovie
@@ -248,7 +248,7 @@ fun MainMovieItem(
 
 @Composable
 fun ReleaseMoviesDialog(
-    onNoShowToday: () -> Unit,
+    updateShowNextReleaseMoviesDate: () -> Unit,
     onDismiss: () -> Unit,
     releaseMovies: List<Movie>,
     goToMovie: (Int) -> Unit
@@ -339,7 +339,7 @@ fun ReleaseMoviesDialog(
                     .fillMaxWidth()
                     .wrapContentHeight()
                     .clickable {
-                        onNoShowToday()
+                        updateShowNextReleaseMoviesDate()
                         onDismiss()
                     },
                 text = stringResource(id = R.string.no_show_today),

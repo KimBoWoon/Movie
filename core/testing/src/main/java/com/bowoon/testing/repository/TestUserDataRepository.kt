@@ -29,11 +29,11 @@ class TestUserDataRepository : UserDataRepository {
         _userData.tryEmit(value = currentUserData.copy(isAdult = value))
     }
 
-    override suspend fun updateAutoPlayTrailer(value: Boolean) {
-        _userData.tryEmit(value = currentUserData.copy(autoPlayTrailer = value))
+    override suspend fun updateIsAutoPlayTrailer(value: Boolean) {
+        _userData.tryEmit(value = currentUserData.copy(isAutoPlayTrailer = value))
     }
 
-    override suspend fun updateIsDarkMode(darkThemeConfig: DarkThemeConfig) {
+    override suspend fun updateDarkMode(darkThemeConfig: DarkThemeConfig) {
         _userData.tryEmit(value = currentUserData.copy(isDarkMode = darkThemeConfig))
     }
 
@@ -53,8 +53,8 @@ class TestUserDataRepository : UserDataRepository {
         _userData.tryEmit(value = currentUserData.copy(imageQuality = value))
     }
 
-    override suspend fun updateNoShowToday(value: String) {
-        _userData.tryEmit(value = currentUserData.copy(noShowToday = value))
+    override suspend fun updateShowNextReleaseMoviesDate(value: String) {
+        _userData.tryEmit(value = currentUserData.copy(showNextReleaseMoviesDate = value))
     }
 
     override suspend fun updateSecureBaseUrl(value: String) {
@@ -65,13 +65,9 @@ class TestUserDataRepository : UserDataRepository {
         currentUserData.isAdult
 
     override suspend fun getAutoPlayTrailer(): Boolean =
-        currentUserData.autoPlayTrailer
+        currentUserData.isAutoPlayTrailer
 
-    override suspend fun getIsDarkMode(): String = when (currentUserData.isDarkMode) {
-        DarkThemeConfig.FOLLOW_SYSTEM -> "FOLLOW_SYSTEM"
-        DarkThemeConfig.LIGHT -> "LIGHT"
-        DarkThemeConfig.DARK -> "DARK"
-    }
+    override suspend fun getDarkMode(): DarkThemeConfig = currentUserData.isDarkMode
 
     override suspend fun getMainDate(): String =
         currentUserData.updateDate
@@ -85,8 +81,8 @@ class TestUserDataRepository : UserDataRepository {
     override suspend fun getImageQuality(): String =
         currentUserData.imageQuality
 
-    override suspend fun getNoShowToday(): String =
-        currentUserData.noShowToday
+    override suspend fun getShowNextReleaseMoviesDate(): String =
+        currentUserData.showNextReleaseMoviesDate
 
     override suspend fun getSecureBaseUrl(): String =
         currentUserData.secureBaseUrl
