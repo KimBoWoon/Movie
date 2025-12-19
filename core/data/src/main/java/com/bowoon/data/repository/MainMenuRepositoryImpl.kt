@@ -1,5 +1,6 @@
 package com.bowoon.data.repository
 
+import com.bowoon.common.Log
 import com.bowoon.data.model.asNowPlayingMovieEntity
 import com.bowoon.data.model.asUpComingMovieEntity
 import com.bowoon.data.util.Synchronizer
@@ -36,7 +37,12 @@ class MainMenuRepositoryImpl @Inject constructor(
                     val language = datastore.getLanguage()
                     val region = datastore.getRegion()
 
-                    apis.getNowPlaying(language = language, region = region, page = 1)
+                    runCatching {
+                        apis.getNowPlaying(language = language, region = region, page = 1)
+                    }.getOrElse { e ->
+                        Log.e(e.message ?: "sync error!")
+                        emptyList()
+                    }
                 },
                 versionUpdater = { "" },
                 modelDeleter = { movieDao.deleteNowPlayingMovie() },
@@ -61,7 +67,12 @@ class MainMenuRepositoryImpl @Inject constructor(
                     val language = datastore.getLanguage()
                     val region = datastore.getRegion()
 
-                    apis.getUpcomingMovie(language = language, region = region, page = 1)
+                    runCatching {
+                        apis.getUpcomingMovie(language = language, region = region, page = 1)
+                    }.getOrElse { e ->
+                        Log.e(e.message ?: "sync error!")
+                        emptyList()
+                    }
                 },
                 versionUpdater = { "" },
                 modelDeleter = { movieDao.deleteUpComingMovie() },
