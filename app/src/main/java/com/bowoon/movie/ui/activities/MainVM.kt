@@ -18,17 +18,17 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainVM @Inject constructor(
-    appData: DataManager,
-    private val databaseRepository: DatabaseRepository
+    dataManager: DataManager,
+    databaseRepository: DatabaseRepository
 ) : ViewModel() {
-    val movieAppData = appData.movieAppData
+    val movieAppData = dataManager.movieAppData
         .onEach { imageUrl = it.getImageUrl() }
         .asResult()
         .map {
             when (it) {
                 is Result.Loading -> MovieAppDataState.Loading
-                is Result.Success -> MovieAppDataState.Success(it.data)
-                is Result.Error -> MovieAppDataState.Error(it.throwable)
+                is Result.Success -> MovieAppDataState.Success(data = it.data)
+                is Result.Error -> MovieAppDataState.Error(throwable = it.throwable)
             }
         }.stateIn(
             scope = viewModelScope,

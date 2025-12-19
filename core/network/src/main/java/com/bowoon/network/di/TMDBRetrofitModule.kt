@@ -24,9 +24,9 @@ object TMDBRetrofitModule {
         okHttpProfilerInterceptor: OkHttpProfilerInterceptor,
         networkLogInterceptor: NetworkLogInterceptor
     ): OkHttpClient = OkHttpClient().newBuilder().apply {
-        connectTimeout(1, TimeUnit.MINUTES)
-        readTimeout(30, TimeUnit.SECONDS)
-        writeTimeout(15, TimeUnit.SECONDS)
+        connectTimeout(timeout = 1, unit = TimeUnit.MINUTES)
+        readTimeout(timeout = 30, unit = TimeUnit.SECONDS)
+        writeTimeout(timeout = 15, unit = TimeUnit.SECONDS)
         addNetworkInterceptor(httpLoggingInterceptor)
         if (BuildConfig.IS_DEBUGGING_LOGGING) {
             addInterceptor(okHttpProfilerInterceptor)
@@ -34,9 +34,9 @@ object TMDBRetrofitModule {
         }
         addInterceptor { chain: Interceptor.Chain ->
             chain.proceed(
-                chain.request().newBuilder().apply {
-                    addHeader("accept", "application/json")
-                    addHeader("Authorization", "Bearer ${BuildConfig.TMDB_OPEN_API_KEY}")
+                request = chain.request().newBuilder().apply {
+                    addHeader(name = "accept", value = "application/json")
+                    addHeader(name = "Authorization", value = "Bearer ${BuildConfig.TMDB_OPEN_API_KEY}")
                 }.build()
             )
         }

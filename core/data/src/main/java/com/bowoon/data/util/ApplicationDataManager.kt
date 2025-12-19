@@ -43,7 +43,12 @@ class ApplicationDataManager @Inject constructor(
         datastore.userData.map {
             if (language != it.language) {
                 language = it.language
-                genres = apis.getGenres(language = "${it.language}-${it.region}")
+                genres = runCatching {
+                    apis.getGenres(language = "${it.language}-${it.region}")
+                }.getOrElse { e ->
+                    Log.e(e.message ?: "somgthing wrong...")
+                    Genres()
+                }
             }
             genres
         }
@@ -91,7 +96,31 @@ class ApplicationDataManager @Inject constructor(
             initialValue = MovieAppData()
         )
 
-    private fun getConfiguration(): Flow<Configuration> = flow { emit(value = apis.getConfiguration()) }
-    private fun getAvailableLanguage(): Flow<List<Language>> = flow { emit(value = apis.getAvailableLanguage()) }
-    private fun getAvailableRegion(): Flow<Regions> = flow { emit(value = apis.getAvailableRegion()) }
+    private fun getConfiguration(): Flow<Configuration> = flow {
+        runCatching {
+            apis.getConfiguration()
+        }.onSuccess {
+            emit(value = it)
+        }.onFailure { e ->
+            Log.e(e.message ?: "something wrong...")
+        }
+    }
+    private fun getAvailableLanguage(): Flow<List<Language>> = flow {
+        runCatching {
+            apis.getAvailableLanguage()
+        }.onSuccess {
+            emit(value = it)
+        }.onFailure { e ->
+            Log.e(e.message ?: "something wrong...")
+        }
+    }
+    private fun getAvailableRegion(): Flow<Regions> = flow {
+        runCatching {
+            apis.getAvailableRegion()
+        }.onSuccess {
+            emit(value = it)
+        }.onFailure { e ->
+            Log.e(e.message ?: "something wrong...")
+        }
+    }
 }
