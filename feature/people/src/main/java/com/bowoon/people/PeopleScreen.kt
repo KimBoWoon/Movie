@@ -29,11 +29,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,7 +43,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -152,11 +151,12 @@ fun PeopleDetailComponent(
     val relatedMovie = people.combineCredits?.getRelatedMovie() ?: emptyList()
     val snackbarMessage = if (people.isFavorite) stringResource(id = com.bowoon.movie.feature.people.R.string.remove_favorite_people) else stringResource(id = com.bowoon.movie.feature.people.R.string.add_favorite_people)
     val scrollState = rememberLazyGridState()
-    val toggle = remember { mutableStateOf(value = false) }
-    val peopleImagesHeight = remember { mutableStateOf(value = dp0) }
+    var toggle by remember { mutableStateOf(value = false) }
+    var peopleImagesHeight by remember { mutableStateOf(value = dp0) }
     val peopleInfoHeight by animateDpAsState(
-        targetValue = if (toggle.value) peopleImagesHeight.value / 4 else peopleImagesHeight.value
+        targetValue = if (toggle) peopleImagesHeight / 4 else peopleImagesHeight
     )
+    val density = LocalDensity.current
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -180,9 +180,21 @@ fun PeopleDetailComponent(
         Box {
             people.images.takeIf { !it.isNullOrEmpty() }?.let { images ->
                 PeopleImageComponent(
-                    images = images,
-                    peopleImagesHeight = peopleImagesHeight,
-                    toggle = toggle
+                    modifier = Modifier
+                        .semantics { contentDescription = "peopleImageHorizontalPager" }
+                        .fillMaxSize()
+                        .aspectRatio(ratio = POSTER_IMAGE_RATIO, matchHeightConstraintsFirst = true)
+                        .onSizeChanged { size ->
+                            peopleImagesHeight = if (images.isEmpty()) {
+                                size.height.dp
+                            } else {
+                                with(receiver = density) {
+                                    (size.height.toFloat() / 1.2f).toInt().toDp()
+                                }
+                            }
+                        }
+                        .clickable(interactionSource = null, indication = null) { toggle = !toggle },
+                    images = images
                 )
             }
 
@@ -251,28 +263,13 @@ fun PeopleDetailComponent(
 
 @Composable
 fun BoxScope.PeopleImageComponent(
-    images: List<Image>,
-    peopleImagesHeight: MutableState<Dp>,
-    toggle: MutableState<Boolean>
+    modifier: Modifier = Modifier,
+    images: List<Image> = emptyList()
 ) {
-    val density = LocalDensity.current
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { images.size })
 
     HorizontalPager(
-        modifier = Modifier
-            .semantics { contentDescription = "peopleImageHorizontalPager" }
-            .fillMaxSize()
-            .aspectRatio(ratio = POSTER_IMAGE_RATIO, matchHeightConstraintsFirst = true)
-            .onSizeChanged { size ->
-                peopleImagesHeight.value = if (images.isEmpty()) {
-                    size.height.dp
-                } else {
-                    with(receiver = density) {
-                        (size.height.toFloat() / 1.2f).toInt().toDp()
-                    }
-                }
-            }
-            .clickable(interactionSource = null, indication = null) { toggle.value = !toggle.value },
+        modifier = modifier,
         state = pagerState,
 //        contentPadding = PaddingValues(horizontal = dp10),
 //        pageSpacing = dp5

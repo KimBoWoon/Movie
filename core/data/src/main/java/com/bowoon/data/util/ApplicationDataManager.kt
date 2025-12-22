@@ -40,13 +40,13 @@ class ApplicationDataManager @Inject constructor(
         getConfiguration(),
         getAvailableLanguage(),
         getAvailableRegion(),
-        datastore.userData.map {
-            if (language != it.language) {
-                language = it.language
+        datastore.userData.map { internalData ->
+            if (language != internalData.language) {
+                language = internalData.language
                 genres = runCatching {
-                    apis.getGenres(language = "${it.language}-${it.region}")
+                    apis.getGenres(language = "${internalData.language}-${internalData.region}")
                 }.getOrElse { e ->
-                    Log.e(e.message ?: "somgthing wrong...")
+                    Log.e(e.message ?: "something wrong...")
                     Genres()
                 }
             }

@@ -1,6 +1,7 @@
 package com.bowoon.sync.status
 
 import android.content.Context
+import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
 import androidx.work.WorkInfo
 import androidx.work.WorkInfo.State
@@ -18,18 +19,27 @@ internal class WorkManagerSyncManager @Inject constructor(
 ) : SyncManager {
     override fun syncMain() {
 //        WorkManager.getInstance(context = appContext).cancelAllWork()
+//        WorkManager.getInstance(context = appContext)
+//            .enqueueUniqueWork(
+//                uniqueWorkName = MainMenuSyncWorker.WORKER_NAME,
+//                existingWorkPolicy = ExistingWorkPolicy.KEEP,
+//                request = MainMenuSyncWorker.startUpSyncWork()
+//            )
         WorkManager.getInstance(context = appContext)
-            .enqueueUniqueWork(
+            .enqueueUniquePeriodicWork(
                 uniqueWorkName = MainMenuSyncWorker.WORKER_NAME,
-                existingWorkPolicy = ExistingWorkPolicy.KEEP,
-                request = MainMenuSyncWorker.startUpSyncWork()
+                existingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.KEEP,
+                request = MainMenuSyncWorker.startUpPeriodicSyncWork()
             )
+//        CoroutineScope(Dispatchers.IO).launch {
+//            checkWorkState(id = work.id)
+//        }
     }
 
     override fun requestSync() {
         WorkManager.getInstance(context = appContext)
             .beginUniqueWork(
-                uniqueWorkName = MainMenuSyncWorker.WORKER_NAME,
+                uniqueWorkName = MainMenuSyncWorker.EXPEDITED_SYNC_WORK_NAME,
                 existingWorkPolicy = ExistingWorkPolicy.KEEP,
                 request = MainMenuSyncWorker.startUpExpeditedSyncWork(isForce = true)
             ).enqueue()

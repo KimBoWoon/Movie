@@ -112,7 +112,7 @@ fun MovieMainScreen(
                             )
                             if (nextWeekReleaseMovies.isEmpty()) {
                                 Text(
-                                    modifier = Modifier.wrapContentWidth(),
+                                    modifier = Modifier.wrapContentWidth().padding(start = dp10),
                                     text = stringResource(id = R.string.go_to_search),
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
