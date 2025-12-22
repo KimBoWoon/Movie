@@ -1,8 +1,15 @@
 package com.bowoon.testing.repository
 
+import android.annotation.SuppressLint
+import androidx.paging.PagingSource
+import androidx.paging.testing.asPagingSourceFactory
 import com.bowoon.data.repository.DatabaseRepository
+import com.bowoon.database.model.NowPlayingMovieEntity
+import com.bowoon.database.model.UpComingMovieEntity
 import com.bowoon.model.Movie
 import com.bowoon.model.People
+import com.bowoon.testing.model.nowPlayingMovieTest
+import com.bowoon.testing.model.upComingMovieTest
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -33,13 +40,13 @@ class TestDatabaseRepository : DatabaseRepository {
         )
     }
 
-    override suspend fun getNextWeekReleaseMovies(): List<Movie> {
+    override fun getNextWeekReleaseMovies(): Flow<List<Movie>> {
         val now = LocalDate.now()
         val nextWeekReleaseMovies = currentMovieDatabase.filter { movie ->
             !movie.releaseDate?.trim().isNullOrEmpty() && LocalDate.parse(movie.releaseDate ?: "") in (now..now.plusDays(7))
         }
-        movieDatabase.emit(nextWeekReleaseMovies)
-        return nextWeekReleaseMovies
+        movieDatabase.tryEmit(nextWeekReleaseMovies)
+        return movieDatabase
     }
 
     override fun getPeople(): Flow<List<People>> = peopleDatabase
@@ -60,4 +67,12 @@ class TestDatabaseRepository : DatabaseRepository {
             }
         )
     }
+
+    @SuppressLint("VisibleForTests")
+    override fun getNowPlayingMovies(): PagingSource<Int, NowPlayingMovieEntity> =
+        nowPlayingMovieTest.asPagingSourceFactory().invoke()
+
+    @SuppressLint("VisibleForTests")
+    override fun getUpComingMovies(): PagingSource<Int, UpComingMovieEntity> =
+        upComingMovieTest.asPagingSourceFactory().invoke()
 }

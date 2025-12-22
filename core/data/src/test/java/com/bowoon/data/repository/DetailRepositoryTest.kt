@@ -1,8 +1,8 @@
 package com.bowoon.data.repository
 
-import androidx.datastore.preferences.core.preferencesOf
 import com.bowoon.datastore.InternalDataSource
 import com.bowoon.datastore_test.InMemoryDataStore
+import com.bowoon.movie.core.datastore.InternalDataPreferences
 import com.bowoon.network.TMDBApis
 import com.bowoon.testing.TestMovieDataSource
 import com.bowoon.testing.model.combineCreditsTestData
@@ -39,8 +39,7 @@ class DetailRepositoryTest {
     fun setup() {
         movieApis = TestMovieDataSource()
         datastore = InternalDataSource(
-            datastore = InMemoryDataStore(preferencesOf()),
-            json = Json { ignoreUnknownKeys = true }
+            datastore = InMemoryDataStore(initialValue = InternalDataPreferences.getDefaultInstance())
         )
         repository = DetailRepositoryImpl(
             apis = movieApis,

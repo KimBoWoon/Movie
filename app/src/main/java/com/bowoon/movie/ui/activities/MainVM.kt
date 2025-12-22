@@ -5,13 +5,12 @@ import androidx.lifecycle.viewModelScope
 import com.bowoon.common.Result
 import com.bowoon.common.asResult
 import com.bowoon.data.repository.DatabaseRepository
-import com.bowoon.data.util.ApplicationData
+import com.bowoon.data.util.DataManager
 import com.bowoon.model.DarkThemeConfig
 import com.bowoon.model.MovieAppData
 import com.bowoon.ui.image.imageUrl
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
@@ -19,30 +18,31 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainVM @Inject constructor(
-    appData: ApplicationData,
-    private val databaseRepository: DatabaseRepository
+    dataManager: DataManager,
+    databaseRepository: DatabaseRepository
 ) : ViewModel() {
-    val movieAppData = appData.movieAppData
+    val movieAppData = dataManager.movieAppData
         .onEach { imageUrl = it.getImageUrl() }
         .asResult()
         .map {
             when (it) {
                 is Result.Loading -> MovieAppDataState.Loading
-                is Result.Success -> MovieAppDataState.Success(it.data)
-                is Result.Error -> MovieAppDataState.Error(it.throwable)
+                is Result.Success -> MovieAppDataState.Success(data = it.data)
+                is Result.Error -> MovieAppDataState.Error(throwable = it.throwable)
             }
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
             initialValue = MovieAppDataState.Loading
         )
-    val nextWeekReleaseMovies = flow {
-        emit(value = databaseRepository.getNextWeekReleaseMovies().filter { it.id != null })
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.Lazily,
-        initialValue = emptyList()
-    )
+    val nextWeekReleaseMovies = databaseRepository.getNextWeekReleaseMovies()
+        .map {
+            it.filter { it.id != null }
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Lazily,
+            initialValue = emptyList()
+        )
 }
 
 sealed interface MovieAppDataState {

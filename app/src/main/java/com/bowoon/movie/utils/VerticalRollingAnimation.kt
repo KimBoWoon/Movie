@@ -18,9 +18,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.bowoon.common.Log
-import com.bowoon.detail.navigation.DetailRoute
 import com.bowoon.model.Movie
-import com.bowoon.movie.MovieAppState
 import com.bowoon.movie.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -29,8 +27,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun VerticalRollingAnimation(
     modifier: Modifier = Modifier,
-    appState: MovieAppState,
-    nextWeekReleaseMovies: List<Movie>
+    nextWeekReleaseMovies: List<Movie>,
+    goToMovie: (Int) -> Unit
 ) {
     var hideIndex by remember { mutableIntStateOf(value = 0) }
     var hideTitle by remember { mutableStateOf(value = nextWeekReleaseMovies[hideIndex].title ?: "") }
@@ -44,8 +42,8 @@ fun VerticalRollingAnimation(
             modifier = modifier
                 .offset(y = hideAnimation.value.dp)
                 .clickable {
-                    nextWeekReleaseMovies[hideIndex].id?.let {
-                        appState.navController.navigate(route = DetailRoute(id = it))
+                    nextWeekReleaseMovies[hideIndex].id?.let { id ->
+                        goToMovie(id)
                     }
                 },
             text = stringResource(id = R.string.next_week_release_movie, hideTitle),
@@ -56,8 +54,8 @@ fun VerticalRollingAnimation(
             modifier = modifier
                 .offset(y = showAnimation.value.dp)
                 .clickable {
-                    nextWeekReleaseMovies[showIndex].id?.let {
-                        appState.navController.navigate(route = DetailRoute(id = it))
+                    nextWeekReleaseMovies[showIndex].id?.let { id ->
+                        goToMovie(id)
                     }
                 },
             text = stringResource(id = R.string.next_week_release_movie, showTitle),
@@ -69,7 +67,7 @@ fun VerticalRollingAnimation(
     LaunchedEffect(key1 = Unit) {
         launch {
             while (isActive) {
-                Log.d("hide animation -> $isActive")
+//                Log.d("hide animation -> $isActive")
                 hideAnimation.animateTo(
                     targetValue = -100f,
                     animationSpec = tween(durationMillis = 1000)
@@ -86,7 +84,7 @@ fun VerticalRollingAnimation(
         }
         launch {
             while (isActive) {
-                Log.d("show animation -> $isActive")
+//                Log.d("show animation -> $isActive")
                 showAnimation.animateTo(
                     targetValue = 0f,
                     animationSpec = tween(durationMillis = 1000)

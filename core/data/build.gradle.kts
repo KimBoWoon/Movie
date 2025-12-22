@@ -16,8 +16,7 @@ android {
 
 dependencies {
     arrayOf(
-        libs.androidx.compose.paging,
-        libs.threetenabp
+        libs.androidx.compose.paging
     ).forEach {
         implementation(it)
     }
@@ -29,6 +28,7 @@ dependencies {
 
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.kotlinx.serialization.json)
+    testImplementation(libs.androidx.paging.testing)
     testImplementation(projects.core.datastoreTest)
 
     androidTestImplementation(libs.kotlinx.coroutines.test)

@@ -1,9 +1,9 @@
 package com.bowoon.datastore_test
 
 import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.preferencesOf
 import com.bowoon.datastore.di.DataStoreModule
+import com.bowoon.datastore.protobuf.InternalDataPreferencesSerializer
+import com.bowoon.movie.core.datastore.InternalDataPreferences
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.components.SingletonComponent
@@ -18,6 +18,8 @@ import javax.inject.Singleton
 internal object TestDataStoreModule {
     @Provides
     @Singleton
-    fun providesUserPreferencesDataStore(): DataStore<Preferences> =
-        InMemoryDataStore(preferencesOf())
+    fun providesUserPreferencesDataStore(
+        serializer: InternalDataPreferencesSerializer
+    ): DataStore<InternalDataPreferences> =
+        InMemoryDataStore(initialValue = serializer.defaultValue)
 }

@@ -3,8 +3,6 @@ package com.bowoon.movie
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.os.Build.VERSION
-import android.os.Build.VERSION_CODES
 import androidx.core.app.NotificationManagerCompat
 import com.bowoon.common.Log
 import com.bowoon.common.di.ApplicationScope
@@ -38,8 +36,6 @@ class MovieFirebase @Inject constructor(
     }
 
     fun createFCMChannel(context: Context) {
-        if (VERSION.SDK_INT < VERSION_CODES.O) return
-
         Log.d("create fcm notification channel")
 
         val channel = NotificationChannel(

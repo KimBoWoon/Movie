@@ -1,11 +1,11 @@
 package com.bowoon.testing.utils
 
 import androidx.annotation.VisibleForTesting
-import com.bowoon.data.util.ApplicationData
+import com.bowoon.data.util.DataManager
 import com.bowoon.model.MovieAppData
 import kotlinx.coroutines.flow.MutableStateFlow
 
-class TestMovieAppDataManager : ApplicationData {
+class TestMovieAppDataManager : DataManager {
     override val movieAppData = MutableStateFlow(value = MovieAppData())
 
     @VisibleForTesting

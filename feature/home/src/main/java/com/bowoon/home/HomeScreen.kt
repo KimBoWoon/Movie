@@ -43,10 +43,11 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.bowoon.common.Log
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.firebase.LocalFirebaseLogHelper
-import com.bowoon.model.MainMenu
 import com.bowoon.model.Movie
 import com.bowoon.movie.feature.home.R
 import com.bowoon.ui.components.CircularProgressComponent
@@ -72,21 +73,27 @@ fun HomeScreen(
 
     val mainMenuState by viewModel.mainMenu.collectAsStateWithLifecycle()
     val isShowNextWeekReleaseMovie = remember { viewModel.isShowNextWeekReleaseMovie }
+    val nowPlayingMovies = viewModel.nowPlayingMoviePager.collectAsLazyPagingItems()
+    val upComingMovies = viewModel.upComingMoviePager.collectAsLazyPagingItems()
 
     HomeScreen(
         mainMenuState = mainMenuState,
+        nowPlayingMovies = nowPlayingMovies,
+        upComingMovies = upComingMovies,
         isShowNextWeekReleaseMovie = isShowNextWeekReleaseMovie,
         goToMovie = goToMovie,
-        onNoShowToday = viewModel::onNoShowToday
+        updateShowNextReleaseMoviesDate = viewModel::updateShowNextReleaseMoviesDate
     )
 }
 
 @Composable
 fun HomeScreen(
     mainMenuState: MainMenuState,
+    nowPlayingMovies: LazyPagingItems<Movie>,
+    upComingMovies: LazyPagingItems<Movie>,
     isShowNextWeekReleaseMovie: MutableState<Boolean>,
     goToMovie: (Int) -> Unit,
-    onNoShowToday: () -> Unit
+    updateShowNextReleaseMoviesDate: () -> Unit
 ) {
     LocalFirebaseLogHelper.current.sendLog("HomeScreen", "init screen")
 
@@ -106,18 +113,19 @@ fun HomeScreen(
             }
             is MainMenuState.Success -> {
                 LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data load success")
-                Log.d("${mainMenuState.mainMenu}")
+                Log.d("${mainMenuState.nextWeekReleaseMovies}")
 
                 MainComponent(
-                    mainMenu = mainMenuState.mainMenu,
+                    nowPlayingMovies = nowPlayingMovies,
+                    upComingMovies = upComingMovies,
                     goToMovie = goToMovie
                 )
 
                 if (!isShowNextWeekReleaseMovie.value) {
                     ReleaseMoviesDialog(
-                        onNoShowToday = onNoShowToday,
+                        updateShowNextReleaseMoviesDate = updateShowNextReleaseMoviesDate,
                         onDismiss = { isShowNextWeekReleaseMovie.value = true },
-                        releaseMovies = mainMenuState.mainMenu.nextWeekReleaseMovies,
+                        releaseMovies = mainMenuState.nextWeekReleaseMovies,
                         goToMovie = goToMovie
                     )
                 }
@@ -132,7 +140,8 @@ fun HomeScreen(
 
 @Composable
 fun MainComponent(
-    mainMenu: MainMenu,
+    nowPlayingMovies: LazyPagingItems<Movie>,
+    upComingMovies: LazyPagingItems<Movie>,
     goToMovie: (Int) -> Unit
 ) {
     val lazyListState = rememberLazyListState()
@@ -147,17 +156,17 @@ fun MainComponent(
             modifier = Modifier.fillMaxSize(),
             state = lazyListState
         ) {
-            if (mainMenu.nowPlayingMovies.isNotEmpty()) {
+            if (nowPlayingMovies.itemCount != 0) {
                 horizontalMovieListComponent(
                     title = nowPlayingMoviesTitle,
-                    movies = mainMenu.nowPlayingMovies,
+                    pager = nowPlayingMovies,
                     goToMovie = goToMovie
                 )
             }
-            if (mainMenu.upComingMovies.isNotEmpty()) {
+            if (upComingMovies.itemCount != 0) {
                 horizontalMovieListComponent(
                     title = upcomingMoviesTitle,
-                    movies = mainMenu.upComingMovies,
+                    pager = upComingMovies,
                     goToMovie = goToMovie
                 )
             }
@@ -167,7 +176,7 @@ fun MainComponent(
 
 fun LazyListScope.horizontalMovieListComponent(
     title: String,
-    movies: List<Movie>,
+    pager: LazyPagingItems<Movie>,
     goToMovie: (Int) -> Unit
 ) {
     item {
@@ -183,13 +192,15 @@ fun LazyListScope.horizontalMovieListComponent(
             horizontalArrangement = Arrangement.spacedBy(space = dp16)
         ) {
             items(
-                count = movies.size,
-                key = { index -> "${movies[index].id}_${index}_${movies[index].title}" }
+                count = pager.itemCount,
+                key = { index -> "${pager.peek(index)?.id}_${index}_${pager.peek(index)?.title}" }
             ) { index ->
-                MainMovieItem(
-                    movie = movies[index],
-                    goToMovie = goToMovie
-                )
+                pager[index]?.let {
+                    MainMovieItem(
+                        movie = it,
+                        goToMovie = goToMovie
+                    )
+                }
             }
         }
     }
@@ -202,7 +213,7 @@ fun MainMovieItem(
 ) {
     Column(
         modifier = Modifier
-            .width(dp150)
+            .width(width = dp150)
             .wrapContentHeight()
             .bounceClick { goToMovie(movie.id ?: -1) }
     ) {
@@ -237,7 +248,7 @@ fun MainMovieItem(
 
 @Composable
 fun ReleaseMoviesDialog(
-    onNoShowToday: () -> Unit,
+    updateShowNextReleaseMoviesDate: () -> Unit,
     onDismiss: () -> Unit,
     releaseMovies: List<Movie>,
     goToMovie: (Int) -> Unit
@@ -328,7 +339,7 @@ fun ReleaseMoviesDialog(
                     .fillMaxWidth()
                     .wrapContentHeight()
                     .clickable {
-                        onNoShowToday()
+                        updateShowNextReleaseMoviesDate()
                         onDismiss()
                     },
                 text = stringResource(id = R.string.no_show_today),

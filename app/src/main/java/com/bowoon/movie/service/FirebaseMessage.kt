@@ -6,7 +6,7 @@ import android.content.pm.PackageManager.PERMISSION_GRANTED
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import coil3.ImageLoader
+import coil3.imageLoader
 import coil3.request.ImageRequest
 import coil3.toBitmap
 import com.bowoon.common.Log
@@ -71,9 +71,9 @@ class MovieFCMService : FirebaseMessagingService() {
             }
 
             notiData.imageUrl?.let { imageUri ->
-                ImageLoader(applicationContext).enqueue(
-                    ImageRequest.Builder(applicationContext)
-                        .data(imageUri)
+                applicationContext.imageLoader.enqueue(
+                    request = ImageRequest.Builder(applicationContext)
+                        .data(data = imageUri)
                         .listener(
                             onSuccess = { request, result ->
                                 val movieNotification = createMovieNotification {

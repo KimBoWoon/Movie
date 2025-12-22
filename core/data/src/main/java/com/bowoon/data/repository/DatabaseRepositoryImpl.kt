@@ -1,15 +1,18 @@
 package com.bowoon.data.repository
 
+import androidx.paging.PagingSource
 import com.bowoon.database.dao.MovieDao
 import com.bowoon.database.dao.PeopleDao
 import com.bowoon.database.model.MovieEntity
+import com.bowoon.database.model.NowPlayingMovieEntity
 import com.bowoon.database.model.PeopleEntity
+import com.bowoon.database.model.UpComingMovieEntity
 import com.bowoon.database.model.asExternalModel
 import com.bowoon.model.Movie
 import com.bowoon.model.People
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import org.threeten.bp.Instant
+import java.time.Instant
 import javax.inject.Inject
 
 class DatabaseRepositoryImpl @Inject constructor(
@@ -54,9 +57,9 @@ class DatabaseRepositoryImpl @Inject constructor(
         )
     }
 
-    override suspend fun getNextWeekReleaseMovies(): List<Movie> =
+    override fun getNextWeekReleaseMovies(): Flow<List<Movie>> =
         movieDao.getNextWeekReleaseMovies().map { movieEntity ->
-            movieEntity.asExternalModel()
+            movieEntity.map { it.asExternalModel() }
         }
 
     override fun getPeople(): Flow<List<People>> =
@@ -93,4 +96,10 @@ class DatabaseRepositoryImpl @Inject constructor(
                 )
             }
         )
+
+    override fun getNowPlayingMovies(): PagingSource<Int, NowPlayingMovieEntity> =
+        movieDao.getNowPlayingMovie()
+
+    override fun getUpComingMovies(): PagingSource<Int, UpComingMovieEntity> =
+        movieDao.getUpComingMovie()
 }

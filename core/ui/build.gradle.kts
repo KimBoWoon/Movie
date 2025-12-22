@@ -19,7 +19,6 @@ dependencies {
         libs.androidx.compose.material3.icons,
         libs.coil.okhttp,
         libs.coil.compose,
-        libs.threetenabp,
         libs.androidx.compose.constraintLayout,
         libs.lottie.compose
     ).forEach {

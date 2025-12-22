@@ -22,6 +22,6 @@ internal object DatabaseModule {
         context = context,
         klass = MovieDatabase::class.java,
         name = "movie-database",
-    ).addMigrations(DatabaseMigrations.MIGRATION_3_4)
+    ).addMigrations(DatabaseMigrations.MIGRATION_3_4, DatabaseMigrations.MIGRATION_4_5)
         .build()
 }

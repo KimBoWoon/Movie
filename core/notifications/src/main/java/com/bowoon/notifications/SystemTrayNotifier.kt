@@ -20,7 +20,8 @@ import coil3.toBitmap
 import coil3.transform.RoundedCornersTransformation
 import com.bowoon.common.Dispatcher
 import com.bowoon.common.Dispatchers.IO
-import com.bowoon.data.util.ApplicationData
+import com.bowoon.common.Log
+import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.model.Movie
 import com.bowoon.movie.core.notifications.R
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -47,28 +48,39 @@ const val DEEP_LINK_URI_PATTERN = "$DEEP_LINK_BASE_PATH/{id}"
 class SystemTrayNotifier @Inject constructor(
     @param:ApplicationContext private val context: Context,
     @param:Dispatcher(dispatcher = IO) private val ioDispatcher: CoroutineDispatcher,
-    private val movieAppData: ApplicationData
+    private val userDataRepository: UserDataRepository
 ) : Notifier {
     override fun postMovieNotifications(movies: List<Movie>) {
         if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_DENIED) return
+        if (movies.isEmpty()) return
 
         val comingSoonMovie = context.getString(R.string.coming_soon_movie)
-        val imageUrl = movieAppData.movieAppData.value.getImageUrl()
 
         CoroutineScope(context = ioDispatcher).launch {
+            val imageUrl = userDataRepository.getSecureBaseUrl()
+            Log.d("imageUrl -> $imageUrl")
             val notifications = movies.map { movie ->
                 async(context = ioDispatcher) { loadNotificationImage(context = context, imageUrl = "$imageUrl${movie.posterPath}") }
             }.awaitAll().let { bitmapList ->
                 movies.mapIndexed { index, movie ->
                     context.createMovieNotification {
-                        setSmallIcon(R.drawable.ic_launcher_round)
-                            .setLargeIcon(bitmapList[index])
-                            .setContentTitle(comingSoonMovie)
-                            .setContentText(movie.title)
-                            .setContentIntent(context.moviePendingIntent(movie = movie))
-                            .setStyle(NotificationCompat.BigPictureStyle().bigPicture(bitmapList[index]))
-                            .setGroup(MOVIE_NOTIFICATION_GROUP)
-                            .setAutoCancel(true)
+                        if (bitmapList[index] == null) {
+                            setSmallIcon(R.drawable.ic_launcher_round)
+                                .setContentTitle(comingSoonMovie)
+                                .setContentText(movie.title)
+                                .setContentIntent(context.moviePendingIntent(movie = movie))
+                                .setGroup(MOVIE_NOTIFICATION_GROUP)
+                                .setAutoCancel(true)
+                        } else {
+                            setSmallIcon(R.drawable.ic_launcher_round)
+                                .setLargeIcon(bitmapList[index])
+                                .setContentTitle(comingSoonMovie)
+                                .setContentText(movie.title)
+                                .setContentIntent(context.moviePendingIntent(movie = movie))
+                                .setStyle(NotificationCompat.BigPictureStyle().bigPicture(bitmapList[index]))
+                                .setGroup(MOVIE_NOTIFICATION_GROUP)
+                                .setAutoCancel(true)
+                        }
                     }
                 }
             }
@@ -93,16 +105,17 @@ class SystemTrayNotifier @Inject constructor(
         }
     }
 
-    suspend fun loadNotificationImage(context: Context, imageUrl: String): Bitmap? = coroutineScope {
+    private suspend fun loadNotificationImage(context: Context, imageUrl: String): Bitmap? = coroutineScope {
         async(context = ioDispatcher) {
             context.imageLoader.execute(
                 request = ImageRequest.Builder(context = context)
                     .data(data = imageUrl)
-                    .transformations(RoundedCornersTransformation(radius = 50f))
+                    .size(width = context.resources.displayMetrics.widthPixels, height = context.resources.displayMetrics.widthPixels / 2)
+                    .transformations(RoundedCornersTransformation(radius = 20f))
                     .build()
             ).image?.toBitmap()
-        }
-    }.await()
+        }.await()
+    }
 }
 
 fun Context.createMovieNotification(

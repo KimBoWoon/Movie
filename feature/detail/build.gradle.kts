@@ -17,14 +17,12 @@ dependencies {
         projects.core.model,
         projects.core.notifications,
         projects.core.firebase,
-        projects.feature.people,
         libs.androidx.navigation.compose,
         libs.androidx.compose.hilt.navigation,
         libs.androidx.media3.exoplayer,
         libs.androidx.media3.ui,
         libs.youtube.player,
-        libs.androidx.compose.paging,
-        libs.threetenabp
+        libs.androidx.compose.paging
     ).forEach {
         implementation(it)
     }

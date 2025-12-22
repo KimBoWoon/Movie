@@ -8,9 +8,10 @@ import androidx.paging.testing.TestPager
 import androidx.paging.testing.asSnapshot
 import com.bowoon.data.paging.MovieReviewPagingSource
 import com.bowoon.data.paging.SimilarMoviePagingSource
-import com.bowoon.detail.navigation.DetailRoute
+import com.bowoon.detail.movie.DetailState
+import com.bowoon.detail.movie.DetailVM
+import com.bowoon.detail.movie.navigation.DetailRoute
 import com.bowoon.domain.GetMovieDetailUseCase
-import com.bowoon.model.InternalData
 import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetailInfo
 import com.bowoon.model.MovieReview
@@ -67,7 +68,6 @@ class DetailVMTest {
             pagingRepository = testPagingRepository
         )
         runBlocking {
-            testUserDataRepository.updateUserData(userData = InternalData(), isSync = false)
             testDataBaseRepository.insertMovie(movie = Movie(id = 0, title = "movie_1", posterPath = "/movieImagePath.png"))
             testDetailRepository.setMovieSeries(movieSeriesTestData)
         }
@@ -101,7 +101,7 @@ class DetailVMTest {
                 MovieDetailInfo(
                     detail = favoriteMovieDetailTestData,
                     series = movieSeriesTestData,
-                    autoPlayTrailer = testUserDataRepository.internalData.map { it.autoPlayTrailer }.first()
+                    autoPlayTrailer = testUserDataRepository.internalData.map { it.isAutoPlayTrailer }.first()
                 )
             )
         )
@@ -135,7 +135,7 @@ class DetailVMTest {
                 MovieDetailInfo(
                     detail = unFavoriteMovieDetailTestData,
                     series = movieSeriesTestData,
-                    autoPlayTrailer = testUserDataRepository.internalData.map { it.autoPlayTrailer }.first()
+                    autoPlayTrailer = testUserDataRepository.internalData.map { it.isAutoPlayTrailer }.first()
                 )
             )
         )
@@ -279,7 +279,7 @@ class DetailVMTest {
                 MovieDetailInfo(
                     detail = favoriteMovieDetailTestData,
                     series = movieSeriesTestData,
-                    autoPlayTrailer = testUserDataRepository.internalData.map { it.autoPlayTrailer }.first()
+                    autoPlayTrailer = testUserDataRepository.internalData.map { it.isAutoPlayTrailer }.first()
                 )
             )
         )

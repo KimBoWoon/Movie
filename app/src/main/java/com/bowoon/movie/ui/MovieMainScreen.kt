@@ -44,7 +44,7 @@ import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.bowoon.detail.navigation.DetailRoute
+import com.bowoon.detail.movie.navigation.DetailRoute
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.Movie
 import com.bowoon.movie.MovieAppState
@@ -112,7 +112,7 @@ fun MovieMainScreen(
                             )
                             if (nextWeekReleaseMovies.isEmpty()) {
                                 Text(
-                                    modifier = Modifier.wrapContentWidth(),
+                                    modifier = Modifier.wrapContentWidth().padding(start = dp10),
                                     text = stringResource(id = R.string.go_to_search),
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
@@ -134,8 +134,10 @@ fun MovieMainScreen(
                             } else {
                                 VerticalRollingAnimation(
                                     modifier = Modifier.padding(start = dp10, end = dp20),
-                                    appState = appState,
-                                    nextWeekReleaseMovies = nextWeekReleaseMovies
+                                    nextWeekReleaseMovies = nextWeekReleaseMovies,
+                                    goToMovie = { id ->
+                                        appState.navController.navigate(route = DetailRoute(id = id))
+                                    }
                                 )
                             }
                         }

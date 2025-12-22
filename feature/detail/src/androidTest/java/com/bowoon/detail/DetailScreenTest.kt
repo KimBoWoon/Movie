@@ -19,9 +19,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.PagingSource
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.bowoon.data.paging.SimilarMoviePagingSource
+import com.bowoon.detail.movie.DetailScreen
+import com.bowoon.detail.movie.DetailState
+import com.bowoon.detail.movie.DetailVM
 import com.bowoon.domain.GetMovieDetailUseCase
 import com.bowoon.model.Genre
-import com.bowoon.model.InternalData
 import com.bowoon.model.Movie
 import com.bowoon.model.MovieAppData
 import com.bowoon.model.PosterSize
@@ -39,7 +41,6 @@ import com.bowoon.testing.repository.TestDetailRepository
 import com.bowoon.testing.repository.TestPagingRepository
 import com.bowoon.testing.repository.TestUserDataRepository
 import com.bowoon.testing.utils.TestMovieAppDataManager
-import com.jakewharton.threetenabp.AndroidThreeTen
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -92,9 +93,7 @@ class DetailScreenTest {
             pagingRepository = testPagingRepository
         )
 
-        AndroidThreeTen.init(composeTestRule.activity)
         runBlocking {
-            testUserDataRepository.updateUserData(userData = InternalData(), isSync = false)
             testMovieAppDataManager.setMovieAppData(movieAppData)
         }
     }

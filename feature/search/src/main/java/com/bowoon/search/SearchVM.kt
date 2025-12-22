@@ -12,7 +12,7 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.filter
 import com.bowoon.data.repository.PagingRepository
-import com.bowoon.data.util.ApplicationData
+import com.bowoon.data.util.DataManager
 import com.bowoon.model.Genre
 import com.bowoon.model.Movie
 import com.bowoon.model.SearchKeyword
@@ -36,7 +36,7 @@ import javax.inject.Inject
 class SearchVM @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val pagingRepository: PagingRepository,
-    internal val movieAppData: ApplicationData
+    internal val movieAppData: DataManager
 ) : ViewModel() {
     companion object {
         private const val TAG = "SearchVM"
@@ -58,7 +58,7 @@ class SearchVM @Inject constructor(
         recommendKeywordJob = viewModelScope.launch {
             recommendKeywordPaging.emit(
                 value = RecommendKeywordUiState.Success(
-                    recommendKeywordFlow.debounce(300L)
+                    pagingData = recommendKeywordFlow.debounce(timeoutMillis = 300L)
                         .flatMapLatest {
                             Pager(
                                 config = PagingConfig(pageSize = 1, initialLoadSize = 1, prefetchDistance = 5),

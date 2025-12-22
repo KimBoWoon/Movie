@@ -13,7 +13,9 @@ tasks.register("createReleaseNote") {
     val logs = ByteArrayOutputStream().use { os ->
         exec {
             executable = "git"
-            args = listOf<String>("log", "--pretty=format:(#%h) %cn %s")
+            args = listOf<String>("log", "--oneline", "--pretty=format:(#%h) %cn %s", "release/${android.defaultConfig.versionName}..develop")
+//            args = listOf<String>("log", "--merges", "--oneline", "--pretty=format:(#%h) %cn %s", "release/${android.defaultConfig.versionName}")
+//            args = listOf<String>("log", "--pretty=format:(#%h) %cn %s")
             standardOutput = os
         }
         os.toString().trim()
@@ -39,12 +41,9 @@ dependencies {
         projects.feature.search,
         projects.feature.favorite,
         projects.feature.my,
-        projects.feature.people,
-        projects.feature.series,
         libs.coil.compose,
         libs.androidx.navigation.compose,
         libs.androidx.compose.material3.navigationSuite,
-        libs.threetenabp,
         libs.androidx.work.ktx,
         libs.androidx.splash,
         libs.androidx.startup,

@@ -25,8 +25,8 @@ import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFact
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType
 import okhttp3.OkHttpClient
-import org.threeten.bp.LocalDate
 import retrofit2.Retrofit
+import java.time.LocalDate
 import javax.inject.Inject
 import javax.inject.Singleton
 

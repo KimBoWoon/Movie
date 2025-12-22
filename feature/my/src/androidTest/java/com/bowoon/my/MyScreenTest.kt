@@ -6,8 +6,6 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.bowoon.common.getVersionName
-import com.bowoon.model.InternalData
 import com.bowoon.model.MovieAppData
 import com.bowoon.model.PosterSize
 import com.bowoon.testing.model.configurationTestData
@@ -16,7 +14,6 @@ import com.bowoon.testing.model.languageListTestData
 import com.bowoon.testing.model.regionTestData
 import com.bowoon.testing.repository.TestUserDataRepository
 import com.bowoon.testing.utils.TestMovieAppDataManager
-import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -47,12 +44,6 @@ class MyScreenTest {
         )
 
         testMovieAppDataManager.setMovieAppData(movieAppData)
-        runBlocking {
-            testUserDataRepository.updateUserData(
-                userData = InternalData(updateDate = "2025-03-12"),
-                isSync = false
-            )
-        }
     }
 
     @Test
@@ -60,12 +51,17 @@ class MyScreenTest {
         composeTestRule.apply {
             setContent {
                 val internalData by viewModel.myData.collectAsStateWithLifecycle()
-                val movieAppData by viewModel.movieAppData.collectAsStateWithLifecycle()
+                val movieAppData by viewModel.movieAppData.movieAppData.collectAsStateWithLifecycle()
 
                 MyScreen(
                     internalData = internalData,
-                    updateUserData = { _, _ -> },
-                    movieAppData = movieAppData
+                    movieAppData = movieAppData,
+                    updateIsAdult = {},
+                    updateAutoPlayTrailer = {},
+                    updateIsDarkMode = {},
+                    updateRegion = {},
+                    updateLanguage = {},
+                    updateImageQuality = {},
                 )
             }
 

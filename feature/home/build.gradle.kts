@@ -20,9 +20,10 @@ dependencies {
         libs.coil.compose,
         libs.androidx.navigation.compose,
         libs.androidx.compose.hilt.navigation,
-        libs.androidx.compose.paging,
-        libs.threetenabp
+        libs.androidx.compose.paging
     ).forEach {
         implementation(it)
     }
+
+    testImplementation(libs.androidx.paging.testing)
 }

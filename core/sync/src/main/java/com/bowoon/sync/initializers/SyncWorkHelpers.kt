@@ -17,7 +17,7 @@ private const val SYNC_NOTIFICATION_CHANNEL_ID = "SyncNotificationChannel"
 
 val SyncConstraints
     get() = Constraints.Builder()
-        .setRequiredNetworkType(NetworkType.CONNECTED)
+        .setRequiredNetworkType(networkType = NetworkType.CONNECTED)
         .build()
 
 fun Context.syncForegroundInfo() = ForegroundInfo(
@@ -26,20 +26,18 @@ fun Context.syncForegroundInfo() = ForegroundInfo(
 )
 
 private fun Context.syncWorkNotification(): Notification {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        val channel = NotificationChannel(
-            SYNC_NOTIFICATION_CHANNEL_ID,
-            "sync",
-            NotificationManager.IMPORTANCE_DEFAULT,
-        ).apply {
-            description = "movie data loading..."
-        }
-
-        val notificationManager: NotificationManager? =
-            getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
-
-        notificationManager?.createNotificationChannel(channel)
+    val channel = NotificationChannel(
+        SYNC_NOTIFICATION_CHANNEL_ID,
+        "sync",
+        NotificationManager.IMPORTANCE_DEFAULT,
+    ).apply {
+        description = "movie data loading..."
     }
+
+    val notificationManager: NotificationManager? =
+        getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
+
+    notificationManager?.createNotificationChannel(channel)
 
     return NotificationCompat.Builder(
         this,
