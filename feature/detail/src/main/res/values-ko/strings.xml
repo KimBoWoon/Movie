@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Detail -->
     <string name="add_favorite_movie">보고 싶은 영화에서 제거했습니다.</string>
     <string name="remove_favorite_movie">보고 싶은 영화에 추가했습니다.</string>
     <string name="similar_movie_not_found">비슷한 영화가 없습니다.</string>
@@ -19,4 +20,12 @@
     <string name="movie_reviews">리뷰</string>
     <string name="movie_images">이미지</string>
     <string name="movie_similar_movies">다른 영화</string>
+
+    <!-- Series -->
+    <string name="title_series">시리즈</string>
+
+    <!-- People -->
+    <string name="title_people">인물 정보</string>
+    <string name="add_favorite_people">"좋아하는 인물에 추가했습니다."</string>
+    <string name="remove_favorite_people">"좋아하는 인물에서 제거했습니다."</string>
 </resources>

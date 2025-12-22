@@ -19,6 +19,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.PagingSource
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.bowoon.data.paging.SimilarMoviePagingSource
+import com.bowoon.detail.movie.DetailScreen
+import com.bowoon.detail.movie.DetailState
+import com.bowoon.detail.movie.DetailVM
 import com.bowoon.domain.GetMovieDetailUseCase
 import com.bowoon.model.Genre
 import com.bowoon.model.Movie

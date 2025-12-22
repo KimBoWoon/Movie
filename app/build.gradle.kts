@@ -39,8 +39,6 @@ dependencies {
         projects.feature.search,
         projects.feature.favorite,
         projects.feature.my,
-        projects.feature.people,
-        projects.feature.series,
         libs.coil.compose,
         libs.androidx.navigation.compose,
         libs.androidx.compose.material3.navigationSuite,

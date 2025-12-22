@@ -8,7 +8,9 @@ import androidx.paging.testing.TestPager
 import androidx.paging.testing.asSnapshot
 import com.bowoon.data.paging.MovieReviewPagingSource
 import com.bowoon.data.paging.SimilarMoviePagingSource
-import com.bowoon.detail.navigation.DetailRoute
+import com.bowoon.detail.movie.DetailState
+import com.bowoon.detail.movie.DetailVM
+import com.bowoon.detail.movie.navigation.DetailRoute
 import com.bowoon.domain.GetMovieDetailUseCase
 import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetailInfo

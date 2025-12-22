@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Detail -->
     <string name="add_favorite_movie">Add Favorite Movie</string>
     <string name="remove_favorite_movie">Remove Favorite Movie</string>
     <string name="similar_movie_not_found">Similar Movie Not Found…</string>
@@ -19,4 +20,12 @@
     <string name="movie_reviews">Review</string>
     <string name="movie_images">Images</string>
     <string name="movie_similar_movies">Similar Movies</string>
+
+    <!-- Series -->
+    <string name="title_series">Series</string>
+
+    <!-- People -->
+    <string name="title_people">People Info</string>
+    <string name="add_favorite_people">Add Favorite</string>
+    <string name="remove_favorite_people">Remove Favorite</string>
 </resources>

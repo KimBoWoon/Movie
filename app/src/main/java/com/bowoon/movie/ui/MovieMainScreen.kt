@@ -44,7 +44,7 @@ import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.bowoon.detail.navigation.DetailRoute
+import com.bowoon.detail.movie.navigation.DetailRoute
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.Movie
 import com.bowoon.movie.MovieAppState

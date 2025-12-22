@@ -17,7 +17,6 @@ dependencies {
         projects.core.model,
         projects.core.notifications,
         projects.core.firebase,
-        projects.feature.people,
         libs.androidx.navigation.compose,
         libs.androidx.compose.hilt.navigation,
         libs.androidx.media3.exoplayer,
