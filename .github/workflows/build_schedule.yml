@@ -1,8 +1,8 @@
 #name: build of schedule
 #
-##on:
-##  schedule:
-##    - cron: '0 6 * * *'
+#on:
+#  schedule:
+#    - cron: '0 6 * * *'
 #
 #on:
 #  push:
@@ -19,7 +19,7 @@
 #
 #    steps:
 #      - name: checkout to develop
-#        uses: actions/checkout@v5
+#        uses: actions/checkout@v6
 #        with:
 #          ref: develop
 #      - name: set up JDK 17
