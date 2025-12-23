@@ -1,8 +1,8 @@
 #name: build of schedule
 #
-##on:
-##  schedule:
-##    - cron: '0 6 * * *'
+#on:
+#  schedule:
+#    - cron: '0 6 * * *'
 #
 #on:
 #  push:
