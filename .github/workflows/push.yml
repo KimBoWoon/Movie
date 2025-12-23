@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - name: checkout to develop
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 #        with:
 #          ref: develop
       - name: set up JDK 17
