@@ -14,8 +14,7 @@ jobs:
       GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
 
     steps:
-      - name: checkout to develop
-        uses: actions/checkout@v6
+      - uses: actions/checkout@v6
       - name: git command
         run: |
           git fetch
