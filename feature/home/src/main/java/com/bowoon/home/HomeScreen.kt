@@ -278,15 +278,15 @@ fun ReleaseMoviesDialog(
                         onDismiss()
                     },
                 state = pagerState,
-            ) {
-                Log.d("NextWeekReleaseMovies Index -> ${pagerState.currentPage}")
+            ) { index ->
+                Log.d("NextWeekReleaseMovies Index -> ${index}")
                 Box {
                     DynamicAsyncImageLoader(
                         modifier = Modifier
                             .fillMaxWidth()
                             .aspectRatio(ratio = POSTER_IMAGE_RATIO)
                             .clip(shape = RoundedCornerShape(topStart = dp10, topEnd = dp10)),
-                        source = "${releaseMovies[pagerState.currentPage].posterPath}",
+                        source = "${releaseMovies[index].posterPath}",
                         contentDescription = "ReleaseMovieImage"
                     )
                     Text(

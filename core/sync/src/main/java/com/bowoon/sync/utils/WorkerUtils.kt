@@ -11,5 +11,5 @@ internal fun calculateInitialDelay(): Long {
         dueDate = dueDate.plusDays(1)
     }
 
-    return dueDate.toEpochSecond(ZoneOffset.UTC) - currentDate.toEpochSecond(ZoneOffset.UTC)
+    return dueDate.toInstant(ZoneOffset.UTC).toEpochMilli() - currentDate.toInstant(ZoneOffset.UTC).toEpochMilli()
 }

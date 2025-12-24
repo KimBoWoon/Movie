@@ -14,8 +14,6 @@ tasks.register("createReleaseNote") {
         exec {
             executable = "git"
             args = listOf<String>("log", "--oneline", "--pretty=format:(#%h) %cn %s", "remotes/origin/release/${android.defaultConfig.versionName}..remotes/origin/develop")
-//            args = listOf<String>("log", "--merges", "--oneline", "--pretty=format:(#%h) %cn %s", "release/${android.defaultConfig.versionName}")
-//            args = listOf<String>("log", "--pretty=format:(#%h) %cn %s")
             standardOutput = os
         }
         os.toString().trim()
@@ -24,7 +22,6 @@ tasks.register("createReleaseNote") {
     releaseNote.writeText(
         text = logs.takeIf { it.isNotEmpty() }?.trimIndent() ?: "empty logs..."
     )
-    println(logs.takeIf { it.isNotEmpty() }?.trimIndent() ?: "empty logs...")
 }
 
 dependencies {

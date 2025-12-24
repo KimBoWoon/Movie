@@ -7,8 +7,6 @@ import androidx.work.ForegroundInfo
 import androidx.work.OneTimeWorkRequest
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
-import androidx.work.PeriodicWorkRequest
-import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkerParameters
 import com.bowoon.common.Dispatcher
 import com.bowoon.common.Dispatchers
@@ -19,6 +17,7 @@ import com.bowoon.data.util.Synchronizer
 import com.bowoon.notifications.Notifier
 import com.bowoon.sync.initializers.SyncConstraints
 import com.bowoon.sync.initializers.syncForegroundInfo
+import com.bowoon.sync.utils.calculateInitialDelay
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineDispatcher
@@ -51,16 +50,10 @@ class MainMenuSyncWorker @AssistedInject constructor(
                 .setInputData(inputData = MainMenuSyncWorker::class.delegatedData(isForce))
                 .build()
 
-//        fun startUpSyncWork(): OneTimeWorkRequest =
-//            OneTimeWorkRequestBuilder<DelegatingWorker>()
-//                .addTag(tag = WORKER_NAME)
-//                .setInitialDelay(duration = calculateInitialDelay(), timeUnit = TimeUnit.MILLISECONDS)
-//                .setConstraints(constraints = SyncConstraints)
-//                .build()
-
-        fun startUpPeriodicSyncWork(): PeriodicWorkRequest =
-            PeriodicWorkRequestBuilder<DelegatingWorker>(repeatInterval = 1, repeatIntervalTimeUnit = TimeUnit.DAYS)
+        fun startUpSyncWork(): OneTimeWorkRequest =
+            OneTimeWorkRequestBuilder<DelegatingWorker>()
                 .addTag(tag = WORKER_NAME)
+                .setInitialDelay(duration = calculateInitialDelay(), timeUnit = TimeUnit.MILLISECONDS)
                 .setConstraints(constraints = SyncConstraints)
                 .build()
     }
