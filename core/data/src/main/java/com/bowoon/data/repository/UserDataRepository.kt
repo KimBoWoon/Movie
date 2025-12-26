@@ -17,6 +17,7 @@ interface UserDataRepository {
     suspend fun updateImageQuality(value: String)
     suspend fun updateShowNextReleaseMoviesDate(value: String)
     suspend fun updateSecureBaseUrl(value: String)
+    suspend fun updateFirstInstall(value: Boolean)
     suspend fun getIsAdult(): Boolean
     suspend fun getAutoPlayTrailer(): Boolean
     suspend fun getDarkMode(): DarkThemeConfig
@@ -24,6 +25,7 @@ interface UserDataRepository {
     suspend fun getRegion(): String
     suspend fun getLanguage(): String
     suspend fun getImageQuality(): String
+    suspend fun getFirstInstall(): Boolean
     suspend fun getShowNextReleaseMoviesDate(): String
     suspend fun getSecureBaseUrl(): String
 }

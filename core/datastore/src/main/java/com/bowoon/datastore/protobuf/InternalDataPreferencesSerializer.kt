@@ -16,19 +16,17 @@ class InternalDataPreferencesSerializer @Inject constructor(
 
     override suspend fun readFrom(input: InputStream): InternalDataPreferences =
         try {
-            val internalData = InternalDataPreferences.parseFrom(input)
-            internalData.also {
-                if (it.region.isEmpty()) {
-                    it.copy { region = "KR" }
+            InternalDataPreferences.parseFrom(input).copy {
+                if (region.isEmpty()) {
+                    region = "KR"
                 }
-                if (it.language.isEmpty()) {
-                    it.copy { region = "ko" }
+                if (language.isEmpty()) {
+                    language = "ko"
                 }
-                if (it.imageQuality.isEmpty()) {
-                    it.copy { region = "original" }
+                if (imageQuality.isEmpty()) {
+                    imageQuality = "original"
                 }
             }
-            internalData
         } catch (exception: InvalidProtocolBufferException) {
             throw CorruptionException(message = "Cannot read proto.", cause = exception)
         }
