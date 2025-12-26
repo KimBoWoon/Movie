@@ -28,7 +28,7 @@ import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
 
 @HiltWorker
-class MainMenuSyncWorker @AssistedInject constructor(
+class MainSyncWorker @AssistedInject constructor(
     @Assisted private val appContext: Context,
     @Assisted private val workerParams: WorkerParameters,
     @param:Dispatcher(Dispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
@@ -38,7 +38,7 @@ class MainMenuSyncWorker @AssistedInject constructor(
     private val notifier: Notifier
 ) : CoroutineWorker(appContext, workerParams), Synchronizer {
     companion object {
-        const val WORKER_NAME = "MainMenuSyncWorker"
+        const val WORKER_NAME = "MainSyncWorker"
         const val EXPEDITED_SYNC_WORK_NAME = "EXPEDITED_SYNC_WORK_NAME"
         const val IS_FORCE = "IS_FORCE"
 
@@ -47,7 +47,7 @@ class MainMenuSyncWorker @AssistedInject constructor(
                 .addTag(tag = EXPEDITED_SYNC_WORK_NAME)
                 .setExpedited(policy = OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                 .setConstraints(constraints = SyncConstraints)
-                .setInputData(inputData = MainMenuSyncWorker::class.delegatedData(isForce))
+                .setInputData(inputData = MainSyncWorker::class.delegatedData(isForce))
                 .build()
 
         fun startUpSyncWork(): OneTimeWorkRequest =
@@ -77,11 +77,12 @@ class MainMenuSyncWorker @AssistedInject constructor(
     )
 
     override suspend fun afterSync() {
+        notifier.postNotification(message = "Sync success")
         databaseRepository
             .getNextWeekReleaseMovies()
             .map { it.takeIf { it.isNotEmpty() } }
-            .let { favoriteMovies ->
-                notifier.postMovieNotifications(movies = favoriteMovies.firstOrNull() ?: emptyList())
+            .firstOrNull()?.also { movies ->
+                notifier.postMovieNotifications(movies = movies)
             }
     }
 

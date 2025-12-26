@@ -116,6 +116,14 @@ class InternalDataSource @Inject constructor(
         }
     }
 
+    suspend fun updateFirstInstall(value: Boolean) {
+        datastore.updateData { preferences ->
+            preferences.copy {
+                isFirstInstall = value
+            }
+        }
+    }
+
     suspend fun getIsAdult(): Boolean =
         datastore.data.map { preferences ->
             preferences.isAdult
@@ -166,6 +174,11 @@ class InternalDataSource @Inject constructor(
         datastore.data.map { preferences ->
             preferences.secureBaseUrl
         }.firstOrNull() ?: ""
+
+    suspend fun getFirstInstall(): Boolean =
+        datastore.data.map { preferences ->
+            preferences.isFirstInstall
+        }.firstOrNull() ?: false
 
     suspend fun updateFCMToken(token: String) {
         datastore.updateData { preferences ->

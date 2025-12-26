@@ -279,7 +279,7 @@ fun ReleaseMoviesDialog(
                     },
                 state = pagerState,
             ) { index ->
-                Log.d("NextWeekReleaseMovies Index -> ${index}")
+                Log.d("NextWeekReleaseMovies Index -> $index")
                 Box {
                     DynamicAsyncImageLoader(
                         modifier = Modifier

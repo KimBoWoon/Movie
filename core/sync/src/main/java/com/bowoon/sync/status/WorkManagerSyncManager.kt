@@ -7,34 +7,31 @@ import androidx.work.WorkInfo.State
 import androidx.work.WorkManager
 import com.bowoon.common.Log
 import com.bowoon.data.util.SyncManager
-import com.bowoon.sync.workers.MainMenuSyncWorker
+import com.bowoon.sync.workers.MainSyncWorker
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.filterNotNull
 import java.util.UUID
 import javax.inject.Inject
 
 internal class WorkManagerSyncManager @Inject constructor(
-    @param:ApplicationContext private val appContext: Context,
+    @param:ApplicationContext private val appContext: Context
 ) : SyncManager {
     override fun syncMain() {
-//        WorkManager.getInstance(context = appContext).cancelAllWork()
-//        WorkManager.getInstance(context = appContext).cancelUniqueWork(uniqueWorkName = MainMenuSyncWorker.WORKER_NAME)
-//        WorkManager.getInstance(context = appContext).cancelAllWorkByTag(tag = MainMenuSyncWorker.WORKER_NAME)
         WorkManager.getInstance(context = appContext)
             .enqueueUniqueWork(
-                uniqueWorkName = MainMenuSyncWorker.WORKER_NAME,
+                uniqueWorkName = MainSyncWorker.WORKER_NAME,
                 existingWorkPolicy = ExistingWorkPolicy.KEEP,
-                request = MainMenuSyncWorker.startUpSyncWork()
+                request = MainSyncWorker.startUpSyncWork()
             )
     }
 
     override fun requestSync() {
         WorkManager.getInstance(context = appContext)
-            .beginUniqueWork(
-                uniqueWorkName = MainMenuSyncWorker.EXPEDITED_SYNC_WORK_NAME,
+            .enqueueUniqueWork(
+                uniqueWorkName = MainSyncWorker.EXPEDITED_SYNC_WORK_NAME,
                 existingWorkPolicy = ExistingWorkPolicy.KEEP,
-                request = MainMenuSyncWorker.startUpExpeditedSyncWork(isForce = true)
-            ).enqueue()
+                request = MainSyncWorker.startUpExpeditedSyncWork(isForce = true)
+            )
     }
 
     suspend fun checkWorkState(id: UUID) {

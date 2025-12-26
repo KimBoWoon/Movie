@@ -5,7 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.bowoon.common.Result
 import com.bowoon.common.asResult
 import com.bowoon.data.repository.DatabaseRepository
+import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.data.util.DataManager
+import com.bowoon.data.util.SyncManager
 import com.bowoon.model.DarkThemeConfig
 import com.bowoon.model.MovieAppData
 import com.bowoon.ui.image.imageUrl
@@ -14,13 +16,28 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class MainVM @Inject constructor(
     dataManager: DataManager,
-    databaseRepository: DatabaseRepository
+    databaseRepository: DatabaseRepository,
+    userDataRepository: UserDataRepository,
+    syncManager: SyncManager
 ) : ViewModel() {
+    init {
+        viewModelScope.launch {
+            val isFirstInstall = userDataRepository.getFirstInstall()
+
+            if (!isFirstInstall) {
+                syncManager.requestSync()
+                syncManager.syncMain()
+                userDataRepository.updateFirstInstall(value = true)
+            }
+        }
+    }
+
     val movieAppData = dataManager.movieAppData
         .onEach { imageUrl = it.getImageUrl() }
         .asResult()

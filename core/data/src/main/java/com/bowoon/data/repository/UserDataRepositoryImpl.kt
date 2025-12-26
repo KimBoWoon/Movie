@@ -51,6 +51,10 @@ class UserDataRepositoryImpl @Inject constructor(
         datastore.updateSecureBaseUrl(value = value)
     }
 
+    override suspend fun updateFirstInstall(value: Boolean) {
+        datastore.updateFirstInstall(value = value)
+    }
+
     override suspend fun getSecureBaseUrl(): String =
         datastore.getSecureBaseUrl()
 
@@ -58,29 +62,23 @@ class UserDataRepositoryImpl @Inject constructor(
         datastore.updateFCMToken(token)
     }
 
-    override suspend fun getIsAdult(): Boolean =
-        datastore.getIsAdult()
+    override suspend fun getIsAdult(): Boolean = datastore.getIsAdult()
 
-    override suspend fun getAutoPlayTrailer(): Boolean =
-        datastore.getAutoPlayTrailer()
+    override suspend fun getAutoPlayTrailer(): Boolean = datastore.getAutoPlayTrailer()
 
-    override suspend fun getDarkMode(): DarkThemeConfig =
-        datastore.getDarkMode()
+    override suspend fun getDarkMode(): DarkThemeConfig = datastore.getDarkMode()
 
-    override suspend fun getMainDate(): String =
-        datastore.getMainDate()
+    override suspend fun getMainDate(): String = datastore.getMainDate()
 
-    override suspend fun getRegion(): String =
-        datastore.getRegion()
+    override suspend fun getRegion(): String = datastore.getRegion()
 
-    override suspend fun getLanguage(): String =
-        datastore.getLanguage()
+    override suspend fun getLanguage(): String = datastore.getLanguage()
 
-    override suspend fun getImageQuality(): String =
-        datastore.getImageQuality()
+    override suspend fun getImageQuality(): String = datastore.getImageQuality()
 
-    override suspend fun getShowNextReleaseMoviesDate(): String =
-        datastore.getShowNextReleaseMoviesDate()
+    override suspend fun getShowNextReleaseMoviesDate(): String = datastore.getShowNextReleaseMoviesDate()
 
     override suspend fun getFCMToken(): String = datastore.getFCMToken()
+
+    override suspend fun getFirstInstall(): Boolean = datastore.getFirstInstall()
 }
