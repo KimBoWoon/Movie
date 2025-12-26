@@ -53,8 +53,8 @@ class MainVM @Inject constructor(
             initialValue = MovieAppDataState.Loading
         )
     val nextWeekReleaseMovies = databaseRepository.getNextWeekReleaseMovies()
-        .map {
-            it.filter { it.id != null }
+        .map { movies ->
+            movies.filter { movie -> movie.id != null }
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.Lazily,

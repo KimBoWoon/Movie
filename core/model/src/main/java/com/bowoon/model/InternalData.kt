@@ -12,5 +12,6 @@ data class InternalData(
     val language: String = "ko",
     val imageQuality: String = "original",
     val showNextReleaseMoviesDate: String = "",
-    val secureBaseUrl: String = ""
+    val secureBaseUrl: String = "",
+    val isFirstInstall: Boolean = false
 )

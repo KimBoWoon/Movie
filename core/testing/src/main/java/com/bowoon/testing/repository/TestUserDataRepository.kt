@@ -61,6 +61,10 @@ class TestUserDataRepository : UserDataRepository {
         _userData.tryEmit(value = currentUserData.copy(secureBaseUrl = value))
     }
 
+    override suspend fun updateFirstInstall(value: Boolean) {
+        _userData.tryEmit(value = currentUserData.copy(isFirstInstall = value))
+    }
+
     override suspend fun getIsAdult(): Boolean =
         currentUserData.isAdult
 
@@ -86,4 +90,7 @@ class TestUserDataRepository : UserDataRepository {
 
     override suspend fun getSecureBaseUrl(): String =
         currentUserData.secureBaseUrl
+
+    override suspend fun getFirstInstall(): Boolean =
+        currentUserData.isFirstInstall
 }
