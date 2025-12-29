@@ -23,5 +23,13 @@ internal object DatabaseModule {
         klass = MovieDatabase::class.java,
         name = "movie-database",
     ).addMigrations(DatabaseMigrations.MIGRATION_3_4, DatabaseMigrations.MIGRATION_4_5)
+//        .addCallback(
+//            callback = object : RoomDatabase.Callback() {
+//                override fun onOpen(db: SupportSQLiteDatabase) {
+//                    initMovies(db = db)
+//                    initPeople(db = db)
+//                }
+//            }
+//        )
         .build()
 }
