@@ -8,9 +8,9 @@ import androidx.paging.testing.TestPager
 import androidx.paging.testing.asSnapshot
 import com.bowoon.data.paging.MovieReviewPagingSource
 import com.bowoon.data.paging.SimilarMoviePagingSource
-import com.bowoon.detail.movie.DetailState
+import com.bowoon.detail.movie.MovieState
 import com.bowoon.detail.movie.DetailVM
-import com.bowoon.detail.movie.navigation.DetailRoute
+import com.bowoon.detail.movie.navigation.MovieNavKey
 import com.bowoon.domain.GetMovieDetailUseCase
 import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetailInfo
@@ -60,7 +60,7 @@ class DetailVMTest {
 
     @Before
     fun setup() {
-        savedStateHandle = SavedStateHandle(route = DetailRoute(id = 0))
+        savedStateHandle = SavedStateHandle(route = MovieNavKey(id = 0))
         viewModel = DetailVM(
             savedStateHandle = savedStateHandle,
             databaseRepository = testDataBaseRepository,
@@ -75,18 +75,18 @@ class DetailVMTest {
 
     @Test
     fun getFavoriteMovieDetailTest() = runTest {
-        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.detail.collect() }
+        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.movie.collect() }
 
         val testPager = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 7, prefetchDistance = 5),
             pagingSource = testPagingRepository.getSimilarMoviePagingSource(id = 0)
         )
 
-        assertEquals(viewModel.detail.value, DetailState.Loading)
+        assertEquals(viewModel.movie.value, MovieState.Loading)
 
         testDetailRepository.setMovie(favoriteMovieDetailTestData)
 
-        assertTrue(viewModel.detail.value is DetailState.Success)
+        assertTrue(viewModel.movie.value is MovieState.Success)
 
         val similarMovies = viewModel.similarMovies
 
@@ -96,8 +96,8 @@ class DetailVMTest {
         )
 
         assertEquals(
-            viewModel.detail.value,
-            DetailState.Success(
+            viewModel.movie.value,
+            MovieState.Success(
                 MovieDetailInfo(
                     detail = favoriteMovieDetailTestData,
                     series = movieSeriesTestData,
@@ -109,18 +109,18 @@ class DetailVMTest {
 
     @Test
     fun getUnFavoriteMovieDetailFlowTest() = runTest {
-        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.detail.collect() }
+        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.movie.collect() }
 
         val testPager = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 7, prefetchDistance = 5),
             pagingSource = testPagingRepository.getSimilarMoviePagingSource(id = 0)
         )
 
-        assertEquals(viewModel.detail.value, DetailState.Loading)
+        assertEquals(viewModel.movie.value, MovieState.Loading)
 
         testDetailRepository.setMovie(unFavoriteMovieDetailTestData)
 
-        assertTrue(viewModel.detail.value is DetailState.Success)
+        assertTrue(viewModel.movie.value is MovieState.Success)
 
         val similarMovies = viewModel.similarMovies
 
@@ -130,8 +130,8 @@ class DetailVMTest {
         )
 
         assertEquals(
-            viewModel.detail.value,
-            DetailState.Success(
+            viewModel.movie.value,
+            MovieState.Success(
                 MovieDetailInfo(
                     detail = unFavoriteMovieDetailTestData,
                     series = movieSeriesTestData,
@@ -197,18 +197,18 @@ class DetailVMTest {
 
     @Test
     fun insertFavoriteTest() = runTest {
-        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.detail.collect() }
+        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.movie.collect() }
         val movie = Movie(id = 23, title = "movie_0", posterPath = "/imagePath.png")
 
         testDetailRepository.setMovie(favoriteMovieDetailTestData.copy(id = 23))
 
         assertEquals(
-            assertIs<DetailState.Success>(viewModel.detail.value).movieInfo.detail.isFavorite,
+            assertIs<MovieState.Success>(viewModel.movie.value).movieInfo.detail.isFavorite,
             false
         )
         viewModel.insertMovie(movie)
         assertEquals(
-            assertIs<DetailState.Success>(viewModel.detail.value).movieInfo.detail.isFavorite,
+            assertIs<MovieState.Success>(viewModel.movie.value).movieInfo.detail.isFavorite,
             true
         )
 
@@ -225,7 +225,7 @@ class DetailVMTest {
 
     @Test
     fun deleteFavoriteTest() = runTest {
-        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.detail.collect { println(it) } }
+        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.movie.collect { println(it) } }
         val movie = Movie(id = 0, title = "movie_1", posterPath = "/movieImagePath.png")
 
         testDetailRepository.setMovie(favoriteMovieDetailTestData)
@@ -253,18 +253,18 @@ class DetailVMTest {
 
     @Test
     fun restartFlowTest() = runTest {
-        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.detail.collect() }
+        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.movie.collect() }
 
         val testPager = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 7, prefetchDistance = 5),
             pagingSource = testPagingRepository.getSimilarMoviePagingSource(id = 0)
         )
 
-        assertEquals(viewModel.detail.value, DetailState.Loading)
+        assertEquals(viewModel.movie.value, MovieState.Loading)
 
         testDetailRepository.setMovie(favoriteMovieDetailTestData)
 
-        assertTrue(viewModel.detail.value is DetailState.Success)
+        assertTrue(viewModel.movie.value is MovieState.Success)
 
         val similarMovies = viewModel.similarMovies
 
@@ -274,8 +274,8 @@ class DetailVMTest {
         )
 
         assertEquals(
-            viewModel.detail.value,
-            DetailState.Success(
+            viewModel.movie.value,
+            MovieState.Success(
                 MovieDetailInfo(
                     detail = favoriteMovieDetailTestData,
                     series = movieSeriesTestData,

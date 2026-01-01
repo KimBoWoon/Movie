@@ -2,7 +2,7 @@ package com.bowoon.detail
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.testing.invoke
-import com.bowoon.detail.series.navigation.SeriesRoute
+import com.bowoon.detail.series.navigation.SeriesNavKey
 import com.bowoon.detail.series.SeriesState
 import com.bowoon.detail.series.SeriesVM
 import com.bowoon.testing.model.movieSeriesTestData
@@ -31,7 +31,7 @@ class SeriesVMTest {
 
     @Before
     fun setup() {
-        savedStateHandle = SavedStateHandle(route = SeriesRoute(id = 0))
+        savedStateHandle = SavedStateHandle(route = SeriesNavKey(id = 0))
         testDetailRepository = TestDetailRepository()
         testMovieAppDataManager = TestMovieAppDataManager()
 

@@ -34,14 +34,17 @@ dependencies {
         projects.core.notifications,
         projects.core.firebase,
         projects.core.domain,
+        projects.core.navigation,
         projects.feature.home,
         projects.feature.detail,
         projects.feature.search,
         projects.feature.favorite,
         projects.feature.my,
         libs.coil.compose,
-        libs.androidx.navigation.compose,
+//        libs.androidx.navigation3.runtime,
+//        libs.androidx.navigation3.ui,
         libs.androidx.compose.material3.navigationSuite,
+        libs.androidx.compose.material3.adaptive.navigation3,
         libs.androidx.work.ktx,
         libs.androidx.splash,
         libs.androidx.startup,
@@ -50,7 +53,6 @@ dependencies {
         implementation(it)
     }
 
-//    ksp(libs.hilt.compiler)
     ksp(libs.hilt.ext.compiler)
 
     arrayOf(
@@ -61,17 +63,13 @@ dependencies {
     }
 
     arrayOf(
-//        projects.core.dataTest,
         projects.core.datastoreTest,
         projects.core.testing,
         libs.hilt.android.testing,
-//        projects.sync.syncTest,
         libs.kotlin.test,
         libs.androidx.navigation.testing,
         libs.robolectric,
-//        libs.roborazzi,
-//        projects.core.screenshotTesting,
-        libs.androidx.ui.test.junit4
+        libs.androidx.compose.ui.test.junit4
     ).forEach {
         testImplementation(it)
     }

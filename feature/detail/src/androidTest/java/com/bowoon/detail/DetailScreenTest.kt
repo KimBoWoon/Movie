@@ -19,8 +19,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.PagingSource
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.bowoon.data.paging.SimilarMoviePagingSource
-import com.bowoon.detail.movie.DetailScreen
-import com.bowoon.detail.movie.DetailState
+import com.bowoon.detail.movie.MovieScreen
+import com.bowoon.detail.movie.MovieState
 import com.bowoon.detail.movie.DetailVM
 import com.bowoon.domain.GetMovieDetailUseCase
 import com.bowoon.model.Genre
@@ -102,12 +102,12 @@ class DetailScreenTest {
     fun detailLoadingTest() = runTest {
         composeTestRule.apply {
             setContent {
-                val movie by viewModel.detail.collectAsStateWithLifecycle()
+                val movie by viewModel.movie.collectAsStateWithLifecycle()
                 val similarMovie = viewModel.similarMovies.collectAsLazyPagingItems()
                 val movieReview = viewModel.movieReviews.collectAsLazyPagingItems()
 
-                DetailScreen(
-                    detailState = movie,
+                MovieScreen(
+                    movieState = movie,
                     similarMovies = similarMovie,
                     movieReviews = movieReview,
                     goToMovie = {},
@@ -131,8 +131,8 @@ class DetailScreenTest {
                 val similarMovie = viewModel.similarMovies.collectAsLazyPagingItems()
                 val movieReview = viewModel.movieReviews.collectAsLazyPagingItems()
 
-                DetailScreen(
-                    detailState = DetailState.Error(throwable = Throwable("something wrong...")),
+                MovieScreen(
+                    movieState = MovieState.Error(throwable = Throwable("something wrong...")),
                     similarMovies = similarMovie,
                     movieReviews = movieReview,
                     goToMovie = {},
@@ -153,12 +153,12 @@ class DetailScreenTest {
     fun detailSuccessTest() = runTest {
         composeTestRule.apply {
             setContent {
-                val movie by viewModel.detail.collectAsStateWithLifecycle()
+                val movie by viewModel.movie.collectAsStateWithLifecycle()
                 val similarMovie = viewModel.similarMovies.collectAsLazyPagingItems()
                 val movieReview = viewModel.movieReviews.collectAsLazyPagingItems()
 
-                DetailScreen(
-                    detailState = movie,
+                MovieScreen(
+                    movieState = movie,
                     similarMovies = similarMovie,
                     movieReviews = movieReview,
                     goToMovie = {},
@@ -190,12 +190,12 @@ class DetailScreenTest {
     fun seriesTest() = runTest {
         composeTestRule.apply {
             setContent {
-                val movie by viewModel.detail.collectAsStateWithLifecycle()
+                val movie by viewModel.movie.collectAsStateWithLifecycle()
                 val similarMovie = viewModel.similarMovies.collectAsLazyPagingItems()
                 val movieReview = viewModel.movieReviews.collectAsLazyPagingItems()
 
-                DetailScreen(
-                    detailState = movie,
+                MovieScreen(
+                    movieState = movie,
                     similarMovies = similarMovie,
                     movieReviews = movieReview,
                     goToMovie = {},
@@ -237,12 +237,12 @@ class DetailScreenTest {
     fun castAndCrewTest() = runTest {
         composeTestRule.apply {
             setContent {
-                val movie by viewModel.detail.collectAsStateWithLifecycle()
+                val movie by viewModel.movie.collectAsStateWithLifecycle()
                 val similarMovie = viewModel.similarMovies.collectAsLazyPagingItems()
                 val movieReview = viewModel.movieReviews.collectAsLazyPagingItems()
 
-                DetailScreen(
-                    detailState = movie,
+                MovieScreen(
+                    movieState = movie,
                     similarMovies = similarMovie,
                     movieReviews = movieReview,
                     goToMovie = {},
@@ -278,12 +278,12 @@ class DetailScreenTest {
     fun movieImagesTest() = runTest {
         composeTestRule.apply {
             setContent {
-                val movie by viewModel.detail.collectAsStateWithLifecycle()
+                val movie by viewModel.movie.collectAsStateWithLifecycle()
                 val similarMovie = viewModel.similarMovies.collectAsLazyPagingItems()
                 val movieReview = viewModel.movieReviews.collectAsLazyPagingItems()
 
-                DetailScreen(
-                    detailState = movie,
+                MovieScreen(
+                    movieState = movie,
                     similarMovies = similarMovie,
                     movieReviews = movieReview,
                     goToMovie = {},
@@ -333,12 +333,12 @@ class DetailScreenTest {
 
         composeTestRule.apply {
             setContent {
-                val movie by viewModel.detail.collectAsStateWithLifecycle()
+                val movie by viewModel.movie.collectAsStateWithLifecycle()
                 val similarMovie = viewModel.similarMovies.collectAsLazyPagingItems()
                 val movieReview = viewModel.movieReviews.collectAsLazyPagingItems()
 
-                DetailScreen(
-                    detailState = movie,
+                MovieScreen(
+                    movieState = movie,
                     similarMovies = similarMovie,
                     movieReviews = movieReview,
                     goToMovie = {},
@@ -394,12 +394,12 @@ class DetailScreenTest {
     fun addFavoriteTest() = runTest {
         composeTestRule.apply {
             setContent {
-                val movie by viewModel.detail.collectAsStateWithLifecycle()
+                val movie by viewModel.movie.collectAsStateWithLifecycle()
                 val similarMovie = viewModel.similarMovies.collectAsLazyPagingItems()
                 val movieReview = viewModel.movieReviews.collectAsLazyPagingItems()
 
-                DetailScreen(
-                    detailState = movie,
+                MovieScreen(
+                    movieState = movie,
                     similarMovies = similarMovie,
                     movieReviews = movieReview,
                     goToMovie = {},
@@ -439,12 +439,12 @@ class DetailScreenTest {
     fun deleteFavoriteTest() = runTest {
         composeTestRule.apply {
             setContent {
-                val movie by viewModel.detail.collectAsStateWithLifecycle()
+                val movie by viewModel.movie.collectAsStateWithLifecycle()
                 val similarMovie = viewModel.similarMovies.collectAsLazyPagingItems()
                 val movieReview = viewModel.movieReviews.collectAsLazyPagingItems()
 
-                DetailScreen(
-                    detailState = movie,
+                MovieScreen(
+                    movieState = movie,
                     similarMovies = similarMovie,
                     movieReviews = movieReview,
                     goToMovie = {},

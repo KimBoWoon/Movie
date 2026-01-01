@@ -1,31 +1,34 @@
 package com.bowoon.detail.series
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.toRoute
 import com.bowoon.common.Result
 import com.bowoon.common.asResult
 import com.bowoon.common.restartableStateIn
 import com.bowoon.data.repository.DetailRepository
-import com.bowoon.detail.series.navigation.SeriesRoute
 import com.bowoon.model.Series
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
 
-@HiltViewModel
-class SeriesVM @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+@HiltViewModel(assistedFactory = SeriesVM.Factory::class)
+class SeriesVM @AssistedInject constructor(
+    @Assisted val id: Int,
     detailRepository: DetailRepository
 ) : ViewModel() {
     companion object {
-        private const val TAG = "SeriesVM"
+        internal const val TAG = "SeriesVM"
     }
 
-    private val collectionId = savedStateHandle.toRoute<SeriesRoute>().id
-    val series = detailRepository.getMovieSeries(collectionId)
+    @AssistedFactory
+    interface Factory {
+        fun create(id: Int): SeriesVM
+    }
+
+    val series = detailRepository.getMovieSeries(collectionId = id)
         .asResult()
         .map {
             when (it) {

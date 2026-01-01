@@ -13,6 +13,7 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import com.bowoon.ui.components.FavoriteButtonComponent
 import org.junit.Rule
 import org.junit.Test
 
@@ -24,10 +25,10 @@ class FavoriteButtonTest {
     fun showFavoriteButtonTest() {
         composeTestRule.apply {
             setContent {
-                FavoriteButton(
+                FavoriteButtonComponent(
                     modifier = Modifier.testTag("favoriteButton"),
                     isFavorite = true,
-                    onClick = {  }
+                    onClick = { }
                 )
             }
 
@@ -41,10 +42,10 @@ class FavoriteButtonTest {
     fun showUnFavoriteButtonTest() {
         composeTestRule.apply {
             setContent {
-                FavoriteButton(
+                FavoriteButtonComponent(
                     modifier = Modifier.testTag("favoriteButton"),
                     isFavorite = false,
-                    onClick = {  }
+                    onClick = { }
                 )
             }
 
@@ -61,13 +62,13 @@ class FavoriteButtonTest {
                 var isFavorite by remember { mutableStateOf(true) }
 
                 if (isFavorite) {
-                    FavoriteButton(
+                    FavoriteButtonComponent(
                         modifier = Modifier.testTag("favoriteButton"),
                         isFavorite = isFavorite,
                         onClick = { isFavorite = false }
                     )
                 } else {
-                    FavoriteButton(
+                    FavoriteButtonComponent(
                         modifier = Modifier.testTag("favoriteButton"),
                         isFavorite = isFavorite,
                         onClick = { isFavorite = true }
@@ -91,13 +92,13 @@ class FavoriteButtonTest {
                 var isFavorite by remember { mutableStateOf(false) }
 
                 if (isFavorite) {
-                    FavoriteButton(
+                    FavoriteButtonComponent(
                         modifier = Modifier.testTag("favoriteButton"),
                         isFavorite = isFavorite,
                         onClick = { isFavorite = false }
                     )
                 } else {
-                    FavoriteButton(
+                    FavoriteButtonComponent(
                         modifier = Modifier.testTag("favoriteButton"),
                         isFavorite = isFavorite,
                         onClick = { isFavorite = true }

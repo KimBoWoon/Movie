@@ -119,7 +119,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun DetailScreen(
+fun MovieScreen(
     goToBack: () -> Unit,
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
@@ -128,12 +128,12 @@ fun DetailScreen(
 ) {
     LocalFirebaseLogHelper.current.sendLog("DetailScreen", "detail screen start!")
 
-    val detailState by viewModel.detail.collectAsStateWithLifecycle()
+    val movieState by viewModel.movie.collectAsStateWithLifecycle()
     val similarMovies = viewModel.similarMovies.collectAsLazyPagingItems()
     val movieReviews = viewModel.movieReviews.collectAsLazyPagingItems()
 
-    DetailScreen(
-        detailState = detailState,
+    MovieScreen(
+        movieState = movieState,
         similarMovies = similarMovies,
         movieReviews = movieReviews,
         goToMovie = goToMovie,
@@ -147,8 +147,8 @@ fun DetailScreen(
 }
 
 @Composable
-fun DetailScreen(
-    detailState: DetailState,
+fun MovieScreen(
+    movieState: MovieState,
     similarMovies: LazyPagingItems<Movie>,
     movieReviews: LazyPagingItems<ReviewDataModel>,
     goToMovie: (Int) -> Unit,
@@ -162,8 +162,8 @@ fun DetailScreen(
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        when (detailState) {
-            is DetailState.Loading -> {
+        when (movieState) {
+            is MovieState.Loading -> {
                 Log.d("loading...")
                 LocalFirebaseLogHelper.current.sendLog(name = "DetailScreen", message = "loading...")
 
@@ -173,12 +173,12 @@ fun DetailScreen(
                         .align(Alignment.Center)
                 )
             }
-            is DetailState.Success -> {
-                Log.d("${detailState.movieInfo.detail}")
-                LocalFirebaseLogHelper.current.sendLog(name = "DetailScreen", message = "${detailState.movieInfo}")
+            is MovieState.Success -> {
+                Log.d("${movieState.movieInfo.detail}")
+                LocalFirebaseLogHelper.current.sendLog(name = "DetailScreen", message = "${movieState.movieInfo}")
 
                 MovieDetailComponent(
-                    movieInfo = detailState.movieInfo,
+                    movieInfo = movieState.movieInfo,
                     similarMovies = similarMovies,
                     movieReviews = movieReviews,
                     goToMovie = goToMovie,
@@ -189,13 +189,13 @@ fun DetailScreen(
                     deleteFavoriteMovie = deleteFavoriteMovie
                 )
             }
-            is DetailState.Error -> {
-                Log.e("${detailState.throwable.message}")
-                LocalFirebaseLogHelper.current.sendLog(name = "DetailScreen", message = "${detailState.throwable.message}")
+            is MovieState.Error -> {
+                Log.e("${movieState.throwable.message}")
+                LocalFirebaseLogHelper.current.sendLog(name = "DetailScreen", message = "${movieState.throwable.message}")
 
                 ConfirmDialog(
                     title = stringResource(id = com.bowoon.movie.core.network.R.string.network_failed),
-                    message = "${detailState.throwable.message}",
+                    message = "${movieState.throwable.message}",
                     confirmPair = stringResource(id = com.bowoon.movie.core.ui.R.string.retry_message) to { restart() },
                     dismissPair = stringResource(id = com.bowoon.movie.core.ui.R.string.back_message) to goToBack
                 )

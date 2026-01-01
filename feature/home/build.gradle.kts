@@ -17,8 +17,9 @@ dependencies {
         projects.core.model,
         projects.core.notifications,
         projects.core.firebase,
+        projects.core.navigation,
         libs.coil.compose,
-        libs.androidx.navigation.compose,
+        libs.androidx.navigation3.runtime,
         libs.androidx.compose.hilt.navigation,
         libs.androidx.compose.paging
     ).forEach {

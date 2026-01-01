@@ -25,7 +25,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.bowoon.ui.FavoriteButton
 import com.bowoon.ui.utils.Line
 import com.bowoon.ui.utils.border
 import com.bowoon.ui.utils.dp16
@@ -78,7 +77,7 @@ fun TitleComponent(
         )
 
         onFavoriteClick?.let { onFavorite ->
-            FavoriteButton(
+            FavoriteButtonComponent(
                 modifier = Modifier
                     .padding(end = dp16)
                     .wrapContentSize(),

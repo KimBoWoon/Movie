@@ -19,13 +19,14 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
-class ApplicationDataManager @Inject constructor(
+class MovieDataManager @Inject constructor(
     @param:Dispatcher(dispatcher = Dispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
     @ApplicationScope appScope: CoroutineScope,
     private val apis: MovieNetworkDataSource,
@@ -89,6 +90,8 @@ class ApplicationDataManager @Inject constructor(
                 )
             } ?: emptyList()
         )
+    }.catch { e ->
+        Log.printStackTrace(tr = e)
     }.flowOn(context = ioDispatcher)
         .stateIn(
             scope = appScope,

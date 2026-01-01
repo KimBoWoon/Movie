@@ -1,9 +1,7 @@
 package com.bowoon.detail.movie
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.toRoute
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
@@ -14,40 +12,45 @@ import com.bowoon.common.asResult
 import com.bowoon.common.restartableStateIn
 import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.data.repository.PagingRepository
-import com.bowoon.detail.movie.navigation.DetailRoute
 import com.bowoon.domain.GetMovieDetailUseCase
 import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetailInfo
 import com.bowoon.model.MovieReview
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class DetailVM @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+@HiltViewModel(assistedFactory = DetailVM.Factory::class)
+class DetailVM @AssistedInject constructor(
+    @Assisted val id: Int,
     private val getMovieDetail: GetMovieDetailUseCase,
     private val databaseRepository: DatabaseRepository,
     private val pagingRepository: PagingRepository
 ) : ViewModel() {
     companion object {
-        private const val TAG = "DetailVM"
+        private const val TAG = "MovieVM"
     }
 
-    private val id = savedStateHandle.toRoute<DetailRoute>().id
-    val detail = getMovieDetail(id = id)
+    @AssistedFactory
+    interface Factory {
+        fun create(id: Int): DetailVM
+    }
+
+    val movie = getMovieDetail(id = id)
         .asResult()
         .map { result ->
             when (result) {
-                is Result.Loading -> DetailState.Loading
-                is Result.Success -> DetailState.Success(movieInfo = result.data)
-                is Result.Error -> DetailState.Error(throwable = result.throwable)
+                is Result.Loading -> MovieState.Loading
+                is Result.Success -> MovieState.Success(movieInfo = result.data)
+                is Result.Error -> MovieState.Error(throwable = result.throwable)
             }
         }.restartableStateIn(
             scope = viewModelScope,
-            initialValue = DetailState.Loading,
+            initialValue = MovieState.Loading,
             started = SharingStarted.Lazily
         )
     val similarMovies = Pager(
@@ -71,7 +74,7 @@ class DetailVM @Inject constructor(
     }.cachedIn(scope = viewModelScope)
 
     fun restart() {
-        detail.restart()
+        movie.restart()
     }
 
     fun insertMovie(movie: Movie) {
@@ -91,10 +94,10 @@ class DetailVM @Inject constructor(
     }
 }
 
-sealed interface DetailState {
-    data object Loading : DetailState
-    data class Success(val movieInfo: MovieDetailInfo) : DetailState
-    data class Error(val throwable: Throwable) : DetailState
+sealed interface MovieState {
+    data object Loading : MovieState
+    data class Success(val movieInfo: MovieDetailInfo) : MovieState
+    data class Error(val throwable: Throwable) : MovieState
 }
 
 sealed interface ReviewDataModel {

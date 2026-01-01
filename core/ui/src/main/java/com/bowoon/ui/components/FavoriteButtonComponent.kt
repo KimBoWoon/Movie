@@ -1,4 +1,4 @@
-package com.bowoon.ui
+package com.bowoon.ui.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -12,7 +12,7 @@ import com.bowoon.movie.core.ui.R
 import com.bowoon.ui.utils.dp5
 
 @Composable
-fun FavoriteButton(
+fun FavoriteButtonComponent(
     modifier: Modifier = Modifier,
     isFavorite: Boolean,
     onClick: () -> Unit
@@ -30,34 +30,4 @@ fun FavoriteButton(
             contentDescription = "unFavorite"
         )
     }
-
-//    FilledIconToggleButton(
-//        modifier = modifier,
-//        checked = isFavorite,
-//        onCheckedChange = { onClick() },
-//        enabled = true,
-//        colors = IconButtonDefaults.iconToggleButtonColors(
-//            checkedContainerColor = Color.Transparent,
-//            checkedContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-//            disabledContainerColor = if (isFavorite) {
-//                MaterialTheme.colorScheme.onBackground.copy(
-//                    alpha = 0.12f
-//                )
-//            } else {
-//                Color.Transparent
-//            },
-//        )
-//    ) {
-//        if (isFavorite) {
-//            Icon(
-//                painter = painterResource(R.drawable.ic_like_on),
-//                contentDescription = "favorite",
-//            )
-//        } else {
-//            Icon(
-//                painter = painterResource(R.drawable.ic_like_off),
-//                contentDescription = "unFavorite",
-//            )
-//        }
-//    }
 }

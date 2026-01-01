@@ -1,25 +1,21 @@
 package com.bowoon.favorite.navigation
 
 import androidx.annotation.Keep
-import androidx.navigation.NavController
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavOptions
-import androidx.navigation.compose.composable
+import androidx.navigation3.runtime.EntryProviderScope
+import androidx.navigation3.runtime.NavKey
 import com.bowoon.favorite.FavoriteScreen
 import kotlinx.serialization.Serializable
 
 @Serializable
 @Keep
-data object FavoriteRoute
+data object FavoriteNavKey : NavKey
 
-fun NavController.navigateToFavorite(navOptions: NavOptions) = navigate(route = FavoriteRoute, navOptions)
-
-fun NavGraphBuilder.favoriteScreen(
+fun EntryProviderScope<NavKey>.favoriteEntry(
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean
 ) {
-    composable<FavoriteRoute>() {
+    entry<FavoriteNavKey> {
         FavoriteScreen(
             goToMovie = goToMovie,
             goToPeople = goToPeople,

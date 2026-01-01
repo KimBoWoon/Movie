@@ -2,7 +2,7 @@ package com.bowoon.detail
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.testing.invoke
-import com.bowoon.detail.people.navigation.PeopleRoute
+import com.bowoon.detail.people.navigation.PeopleNavKey
 import com.bowoon.detail.people.PeopleState
 import com.bowoon.detail.people.PeopleVM
 import com.bowoon.domain.GetPeopleDetailUseCase
@@ -40,7 +40,7 @@ class PeopleVMTest {
 
     @Before
     fun setup() {
-        savedStateHandle = SavedStateHandle(route = PeopleRoute(id = 0))
+        savedStateHandle = SavedStateHandle(route = PeopleNavKey(id = 0))
         testDatabaseRepository = TestDatabaseRepository()
         testDetailRepository = TestDetailRepository()
         testMovieAppDataManager = TestMovieAppDataManager()

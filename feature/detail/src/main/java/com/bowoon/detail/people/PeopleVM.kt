@@ -1,25 +1,24 @@
 package com.bowoon.detail.people
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.toRoute
 import com.bowoon.common.Result
 import com.bowoon.common.asResult
 import com.bowoon.common.restartableStateIn
 import com.bowoon.data.repository.DatabaseRepository
-import com.bowoon.detail.people.navigation.PeopleRoute
 import com.bowoon.domain.GetPeopleDetailUseCase
 import com.bowoon.model.People
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class PeopleVM @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+@HiltViewModel(assistedFactory = PeopleVM.Factory::class)
+class PeopleVM @AssistedInject constructor(
+    @Assisted val id: Int,
     getPeopleDetail: GetPeopleDetailUseCase,
     private val databaseRepository: DatabaseRepository
 ) : ViewModel() {
@@ -27,7 +26,11 @@ class PeopleVM @Inject constructor(
         private const val TAG = "PeopleVM"
     }
 
-    private val id = savedStateHandle.toRoute<PeopleRoute>().id
+    @AssistedFactory
+    interface Factory {
+        fun create(id: Int): PeopleVM
+    }
+
     val people = getPeopleDetail(id)
         .asResult()
         .map {
