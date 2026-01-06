@@ -7,6 +7,8 @@ import androidx.work.ForegroundInfo
 import androidx.work.OneTimeWorkRequest
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
+import androidx.work.PeriodicWorkRequest
+import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkerParameters
 import com.bowoon.common.Dispatcher
 import com.bowoon.common.Dispatchers
@@ -39,6 +41,8 @@ class MainSyncWorker @AssistedInject constructor(
 ) : CoroutineWorker(appContext, workerParams), Synchronizer {
     companion object {
         const val WORKER_NAME = "MainSyncWorker"
+        const val WORKER_TAG = "MAIN_MOVIE_SYNC_WORKER"
+        const val PERIODIC_WORKER_TAG = "PERIODIC_WORKER_TAG"
         const val EXPEDITED_SYNC_WORK_NAME = "EXPEDITED_SYNC_WORK_NAME"
         const val IS_FORCE = "IS_FORCE"
 
@@ -52,8 +56,16 @@ class MainSyncWorker @AssistedInject constructor(
 
         fun startUpSyncWork(): OneTimeWorkRequest =
             OneTimeWorkRequestBuilder<DelegatingWorker>()
-                .addTag(tag = WORKER_NAME)
+                .addTag(tag = WORKER_TAG)
                 .setInitialDelay(duration = calculateInitialDelay(), timeUnit = TimeUnit.MILLISECONDS)
+                .setConstraints(SyncConstraints)
+                .setInputData(MainSyncWorker::class.delegatedData(isForce = false))
+                .build()
+
+        fun startPeriodicSyncWork(): PeriodicWorkRequest =
+            PeriodicWorkRequestBuilder<DelegatingWorker>(repeatInterval = 1, repeatIntervalTimeUnit = TimeUnit.DAYS)
+                .addTag(tag = PERIODIC_WORKER_TAG)
+                .setInputData(inputData = MainSyncWorker::class.delegatedData(isForce = false))
                 .setConstraints(constraints = SyncConstraints)
                 .build()
     }
@@ -95,8 +107,14 @@ class MainSyncWorker @AssistedInject constructor(
         }.await()
             .let { isSuccess ->
                 when (isSuccess) {
-                    true -> Result.success()
-                    false -> if (runAttemptCount > 5) Result.failure() else Result.retry()
+                    true -> {
+                        notifier.postNotification(message = "Sync success")
+                        Result.success()
+                    }
+                    false -> {
+                        notifier.postNotification(message = "Sync fail")
+                        if (runAttemptCount > 5) Result.failure() else Result.retry()
+                    }
                 }
             }
     }

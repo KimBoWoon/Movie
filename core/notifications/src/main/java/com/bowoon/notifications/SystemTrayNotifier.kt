@@ -40,9 +40,21 @@ val SUMMARY_ID = 0
 private const val MOVIE_NOTIFICATION_REQUEST_CODE = 0
 private const val TARGET_ACTIVITY_NAME = "com.bowoon.movie.ui.activities.MainActivity"
 private const val DEEP_LINK_SCHEME_AND_HOST = "movieinfo://movie"
-private const val DEEP_LINK_MOVIE_ID_PATH = "detail"
+private const val DEEP_LINK_MOVIE_ID_PATH = "movie"
 private const val DEEP_LINK_BASE_PATH = "$DEEP_LINK_SCHEME_AND_HOST/$DEEP_LINK_MOVIE_ID_PATH"
 const val DEEP_LINK_URI_PATTERN = "$DEEP_LINK_BASE_PATH/{id}"
+
+//private const val MAX_NUM_NOTIFICATIONS = 5
+//private const val TARGET_ACTIVITY_NAME = "com.google.samples.apps.nowinandroid.MainActivity"
+//private const val NEWS_NOTIFICATION_REQUEST_CODE = 0
+//private const val NEWS_NOTIFICATION_SUMMARY_ID = 1
+//private const val NEWS_NOTIFICATION_CHANNEL_ID = ""
+//private const val NEWS_NOTIFICATION_GROUP = "NEWS_NOTIFICATIONS"
+//private const val DEEP_LINK_SCHEME_AND_HOST = "https://www.nowinandroid.apps.samples.google.com"
+//private const val DEEP_LINK_FOR_YOU_PATH = "foryou"
+//private const val DEEP_LINK_BASE_PATH = "$DEEP_LINK_SCHEME_AND_HOST/$DEEP_LINK_FOR_YOU_PATH"
+//const val DEEP_LINK_NEWS_RESOURCE_ID_KEY = "linkedNewsResourceId"
+//const val DEEP_LINK_URI_PATTERN = "$DEEP_LINK_BASE_PATH/{$DEEP_LINK_NEWS_RESOURCE_ID_KEY}"
 
 @Singleton
 class SystemTrayNotifier @Inject constructor(
@@ -59,7 +71,7 @@ class SystemTrayNotifier @Inject constructor(
         }
 
         NotificationManagerCompat.from(context).apply {
-            notify(0, notification)
+            notify(1, notification)
         }
     }
 

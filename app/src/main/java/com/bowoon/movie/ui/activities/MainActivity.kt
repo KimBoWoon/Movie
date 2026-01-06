@@ -24,8 +24,9 @@ import com.bowoon.data.util.NetworkMonitor
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.movie.MovieFirebase
 import com.bowoon.movie.R
+import com.bowoon.movie.deeplink.parseDeepLink
 import com.bowoon.movie.rememberMovieAppState
-import com.bowoon.movie.ui.MovieMainScreen
+import com.bowoon.movie.ui.MovieApp
 import com.bowoon.movie.utils.isSystemInDarkTheme
 import com.bowoon.ui.theme.MovieTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -55,11 +56,13 @@ class MainActivity : ComponentActivity() {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
 
-        onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(enabled = true) {
-            override fun handleOnBackPressed() {
-                appDoubleBackToExit.onBackPressed(callback = { finish() })
+        onBackPressedDispatcher.addCallback(
+            onBackPressedCallback = object : OnBackPressedCallback(enabled = true) {
+                override fun handleOnBackPressed() {
+                    appDoubleBackToExit.onBackPressed(callback = { finish() })
+                }
             }
-        })
+        )
 
         movieFirebase.sendLog(javaClass.simpleName, "create MainActivity")
 
@@ -91,6 +94,8 @@ class MainActivity : ComponentActivity() {
 
         splashScreen.setKeepOnScreenCondition { viewModel.movieAppData.value.shouldKeepSplashScreen() }
 
+        val key = parseDeepLink(uri = intent.data)
+
         setContent {
             CompositionLocalProvider(value = LocalFirebaseLogHelper provides movieFirebase) {
                 LocalFirebaseLogHelper.current.sendLog(name = javaClass.simpleName, message = "compose start!")
@@ -101,10 +106,11 @@ class MainActivity : ComponentActivity() {
                     val appState = rememberMovieAppState(networkMonitor = networkMonitor)
                     val snackbarHostState = remember { SnackbarHostState() }
 
-                    MovieMainScreen(
+                    MovieApp(
                         appState = appState,
                         snackbarHostState = snackbarHostState,
-                        nextWeekReleaseMovies = nextWeekReleaseMovies
+                        nextWeekReleaseMovies = nextWeekReleaseMovies,
+                        deeplink = key
                     )
                 }
             }

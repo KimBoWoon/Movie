@@ -9,6 +9,7 @@ import androidx.compose.runtime.saveable.rememberSerializable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
@@ -76,7 +77,8 @@ fun NavigationState.toEntries(
 ): SnapshotStateList<NavEntry<NavKey>> {
     val decoratedEntries = backStacks.mapValues { (_, stack) ->
         val decorators = listOf(
-            rememberSaveableStateHolderNavEntryDecorator<NavKey>()
+            rememberSaveableStateHolderNavEntryDecorator<NavKey>(), // 백 스택의 항목 상태를 관리하는 객체
+            rememberViewModelStoreNavEntryDecorator() // 각 컴포저블 화면마다 독립적인 뷰모델을 사용하는 객체
         )
         rememberDecoratedNavEntries(
             backStack = stack,
@@ -100,12 +102,11 @@ class Navigator(val state: NavigationState) {
      * @param route 목적지
      */
     fun navigate(route: NavKey) {
-        if (route in state.backStacks.keys) {
-            // 현재 최상위 목적지를 변경
-            state.topLevelRoute = route
-        } else {
-            // 최상위 목적지에 스택을 추가
-            state.backStacks[state.topLevelRoute]?.add(route)
+        when (route) {
+            // 목적지가 최상위일 때 최상위 목적지 변경
+            in state.backStacks.keys -> state.topLevelRoute = route
+            // 최상위 목적지 하위에 스택 추가
+            else -> state.backStacks[state.topLevelRoute]?.add(route)
         }
     }
 
@@ -113,12 +114,11 @@ class Navigator(val state: NavigationState) {
      * 뒤로 이동
      */
     fun goBack() {
-        val currentStack = state.backStacks[state.topLevelRoute]
-            ?: error("Stack for ${state.topLevelRoute} not found")
+        val currentStack = state.backStacks[state.topLevelRoute] ?: error("Stack for ${state.topLevelRoute} not found")
         val currentRoute = currentStack.last()
 
-        // 현재 목적지가 최상위 목적지와 같으면 시작지점으로 보냄
         if (currentRoute == state.topLevelRoute) {
+            // 현재 목적지가 최상위 목적지와 같으면 시작지점으로 보냄
             state.topLevelRoute = state.startRoute
         } else {
             // 아니면 뒤로 이동

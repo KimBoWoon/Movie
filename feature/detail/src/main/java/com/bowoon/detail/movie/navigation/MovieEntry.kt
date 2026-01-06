@@ -3,8 +3,8 @@ package com.bowoon.detail.movie.navigation
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
-import com.bowoon.detail.movie.MovieScreen
 import com.bowoon.detail.movie.DetailVM
+import com.bowoon.detail.movie.MovieScreen
 import com.bowoon.navigation.Navigator
 import kotlinx.serialization.Serializable
 

@@ -80,13 +80,14 @@ import com.bowoon.ui.utils.dp50
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3AdaptiveApi::class)
 @Composable
-fun MovieMainScreen(
+fun MovieApp(
     appState: MovieAppState,
     snackbarHostState: SnackbarHostState,
-    nextWeekReleaseMovies: List<Movie>
+    nextWeekReleaseMovies: List<Movie>,
+    deeplink: NavKey? = null
 ) {
     val navigator = remember { Navigator(appState.navigationState) }
-    val topHierarchy = appState.navigationState.backStacks[appState.navigationState.topLevelRoute]?.last() in TOP_LEVEL_NAV_ITEMS.map { it.key }
+    val isTopLevelRoute = appState.navigationState.backStacks[appState.navigationState.topLevelRoute]?.last() in TOP_LEVEL_NAV_ITEMS.map { it.key }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -94,7 +95,7 @@ fun MovieMainScreen(
         topBar = {
             MovieSearchTopBar(
                 navigator = navigator,
-                topHierarchy = topHierarchy,
+                isTopLevelRoute = isTopLevelRoute,
                 nextWeekReleaseMovies = nextWeekReleaseMovies
             )
         },
@@ -102,7 +103,7 @@ fun MovieMainScreen(
             MovieBottomBar(
                 appState = appState,
                 navigator = navigator,
-                topHierarchy = topHierarchy
+                isTopLevelRoute = isTopLevelRoute
             )
         }
     ) { innerPadding ->
@@ -185,18 +186,21 @@ fun MovieMainScreen(
             sceneStrategy = listDetailStrategy,
             onBack = { navigator.goBack() },
         )
+
+        // TODO 리컴포지션을 회피할 방법을 생각해야봐야함
+        LaunchedEffect(key1 = Unit) { if (deeplink != null) navigator.navigate(route = deeplink) }
     }
 }
 
 @Composable
 fun MovieSearchTopBar(
     navigator: Navigator,
-    topHierarchy: Boolean,
+    isTopLevelRoute: Boolean,
     nextWeekReleaseMovies: List<Movie>
 ) {
     AnimatedVisibility(
         modifier = Modifier.statusBarsPadding(),
-        visible = topHierarchy,
+        visible = isTopLevelRoute,
         label = "TopSearchBarAnimation",
         enter = expandVertically(),
         exit = shrinkVertically(),
@@ -265,10 +269,10 @@ fun MovieSearchTopBar(
 fun MovieBottomBar(
     appState: MovieAppState,
     navigator: Navigator,
-    topHierarchy: Boolean
+    isTopLevelRoute: Boolean
 ) {
     AnimatedVisibility(
-        visible = topHierarchy,
+        visible = isTopLevelRoute,
         label = "BottomNavigationAnimation",
         enter = expandVertically(),
         exit = shrinkVertically(),

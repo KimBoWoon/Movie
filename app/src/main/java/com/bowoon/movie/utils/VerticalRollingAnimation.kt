@@ -16,8 +16,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
-import com.bowoon.common.Log
+import androidx.compose.ui.unit.IntOffset
 import com.bowoon.model.Movie
 import com.bowoon.movie.R
 import kotlinx.coroutines.delay
@@ -40,7 +39,7 @@ fun VerticalRollingAnimation(
     Box {
         Text(
             modifier = modifier
-                .offset(y = hideAnimation.value.dp)
+                .offset { IntOffset(x = 0, y = hideAnimation.value.toInt()) }
                 .clickable {
                     nextWeekReleaseMovies[hideIndex].id?.let { id ->
                         goToMovie(id)
@@ -52,7 +51,7 @@ fun VerticalRollingAnimation(
         )
         Text(
             modifier = modifier
-                .offset(y = showAnimation.value.dp)
+                .offset { IntOffset(x = 0, y = showAnimation.value.toInt()) }
                 .clickable {
                     nextWeekReleaseMovies[showIndex].id?.let { id ->
                         goToMovie(id)
@@ -67,7 +66,6 @@ fun VerticalRollingAnimation(
     LaunchedEffect(key1 = Unit) {
         launch {
             while (isActive) {
-//                Log.d("hide animation -> $isActive")
                 hideAnimation.animateTo(
                     targetValue = -100f,
                     animationSpec = tween(durationMillis = 1000)
@@ -84,7 +82,6 @@ fun VerticalRollingAnimation(
         }
         launch {
             while (isActive) {
-//                Log.d("show animation -> $isActive")
                 showAnimation.animateTo(
                     targetValue = 0f,
                     animationSpec = tween(durationMillis = 1000)

@@ -10,6 +10,7 @@ android {
 
 dependencies {
     api(libs.androidx.navigation3.runtime)
+    implementation(libs.androidx.lifecycle.viewmodel.navigation3)
 //    implementation(libs.androidx.compose.material3.navigationSuite)
 //    implementation(libs.androidx.compose.material3.adaptive.navigation3)
 //    implementation(libs.androidx.savedstate.compose)

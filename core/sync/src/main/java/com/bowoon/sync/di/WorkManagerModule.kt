@@ -1,7 +1,7 @@
 package com.bowoon.sync.di
 
 import com.bowoon.data.util.SyncManager
-import com.bowoon.sync.status.WorkManagerSyncManager
+import com.bowoon.sync.status.WorkSyncManager
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -12,6 +12,6 @@ import dagger.hilt.components.SingletonComponent
 abstract class SyncModule {
     @Binds
     internal abstract fun bindsSyncStatusMonitor(
-        syncStatusMonitor: WorkManagerSyncManager,
+        syncStatusMonitor: WorkSyncManager,
     ): SyncManager
 }

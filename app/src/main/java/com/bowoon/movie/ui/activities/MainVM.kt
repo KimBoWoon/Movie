@@ -10,6 +10,7 @@ import com.bowoon.data.util.DataManager
 import com.bowoon.data.util.SyncManager
 import com.bowoon.model.DarkThemeConfig
 import com.bowoon.model.MovieAppData
+import com.bowoon.notifications.Notifier
 import com.bowoon.ui.image.imageUrl
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -24,7 +25,8 @@ class MainVM @Inject constructor(
     dataManager: DataManager,
     databaseRepository: DatabaseRepository,
     userDataRepository: UserDataRepository,
-    syncManager: SyncManager
+    syncManager: SyncManager,
+    notifier: Notifier
 ) : ViewModel() {
     init {
         viewModelScope.launch {
@@ -55,6 +57,8 @@ class MainVM @Inject constructor(
     val nextWeekReleaseMovies = databaseRepository.getNextWeekReleaseMovies()
         .map { movies ->
             movies.filter { movie -> movie.id != null }
+        }.onEach { movies ->
+            notifier.postMovieNotifications(movies = movies)
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.Lazily,

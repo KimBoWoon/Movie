@@ -5,6 +5,7 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.WorkInfo
 import androidx.work.WorkInfo.State
 import androidx.work.WorkManager
+import androidx.work.WorkQuery
 import com.bowoon.common.Log
 import com.bowoon.data.util.SyncManager
 import com.bowoon.sync.workers.MainSyncWorker
@@ -13,16 +14,38 @@ import kotlinx.coroutines.flow.filterNotNull
 import java.util.UUID
 import javax.inject.Inject
 
-internal class WorkManagerSyncManager @Inject constructor(
+internal class WorkSyncManager @Inject constructor(
     @param:ApplicationContext private val appContext: Context
 ) : SyncManager {
+    companion object {
+        private const val TAG = "WorkSyncManager"
+        private const val ONE_TIME_UNIQUE_WORKER = "ONE_TIME_UNIQUE_WORKER"
+        private const val PERIODIC_UNIQUE_WORKER = "PERIODIC_UNIQUE_WORKER"
+    }
+
+    init {
+        WorkManager.getInstance(context = appContext)
+            .getWorkInfos(workQuery = WorkQuery.fromStates(State.entries))
+            .get()
+            .forEach { workInfo ->
+                Log.d(TAG, workInfo.toString())
+            }
+    }
+
     override fun syncMain() {
+//        WorkManager.getInstance(context = appContext).cancelAllWork()
         WorkManager.getInstance(context = appContext)
             .enqueueUniqueWork(
-                uniqueWorkName = MainSyncWorker.WORKER_NAME,
+                uniqueWorkName = ONE_TIME_UNIQUE_WORKER,
                 existingWorkPolicy = ExistingWorkPolicy.KEEP,
                 request = MainSyncWorker.startUpSyncWork()
             )
+//        WorkManager.getInstance(context = appContext)
+//            .enqueueUniquePeriodicWork(
+//                uniqueWorkName = PERIODIC_UNIQUE_WORKER,
+//                existingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.KEEP,
+//                request = MainSyncWorker.startPeriodicSyncWork()
+//            )
     }
 
     override fun requestSync() {

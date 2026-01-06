@@ -19,29 +19,25 @@ import com.bowoon.my.navigation.MyNavKey
 data class TopLevelDestination(
     val selectedIcon: ImageVector,
     val unselectedIcon: ImageVector,
-    @param:StringRes val titleTextId: Int,
-//    val route: NavKey,
+    @param:StringRes val titleTextId: Int
 )
 
 val HOME = TopLevelDestination(
     selectedIcon = Icons.Rounded.Home,
     unselectedIcon = Icons.Outlined.Home,
-    titleTextId = com.bowoon.movie.feature.home.R.string.feature_home_name,
-//    route = HomeRoute
+    titleTextId = com.bowoon.movie.feature.home.R.string.feature_home_name
 )
 
 val FAVORITE = TopLevelDestination(
     selectedIcon = Icons.Rounded.Favorite,
     unselectedIcon = Icons.Outlined.FavoriteBorder,
-    titleTextId = com.bowoon.movie.feature.favorite.R.string.feature_favorite_name,
-//    route = FavoriteRoute
+    titleTextId = com.bowoon.movie.feature.favorite.R.string.feature_favorite_name
 )
 
 val MY = TopLevelDestination(
     selectedIcon = Icons.Rounded.Settings,
     unselectedIcon = Icons.Outlined.Settings,
-    titleTextId = com.bowoon.movie.feature.my.R.string.feature_my_name,
-//    route = MyRoute
+    titleTextId = com.bowoon.movie.feature.my.R.string.feature_my_name
 )
 
 val TOP_LEVEL_NAV_ITEMS = mapOf(

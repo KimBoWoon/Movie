@@ -12,6 +12,7 @@ interface InitializerEntryPoint {
     fun inject(imageLoaderInitializer: ImageLoaderInitializer)
     fun inject(firebaseInitializer: FirebaseInitializer)
     fun inject(syncInitializer: SyncInitializer)
+    fun inject(workManagerInitializer: WorkManagerInitializer)
 
     companion object {
         fun resolve(context: Context): InitializerEntryPoint {
