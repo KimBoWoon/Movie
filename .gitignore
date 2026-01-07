@@ -36,5 +36,5 @@ google-services.json
 releaseNote.txt
 
 # workflows
-workflows/build_schedule.yml
-workflows/push.yml
+.github/workflows/build_schedule.yml
+.github/workflows/push.yml
