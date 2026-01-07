@@ -1,11 +1,11 @@
 package com.bowoon.sync.status
 
 import android.content.Context
+import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
 import androidx.work.WorkInfo
 import androidx.work.WorkInfo.State
 import androidx.work.WorkManager
-import androidx.work.WorkQuery
 import com.bowoon.common.Log
 import com.bowoon.data.util.SyncManager
 import com.bowoon.sync.workers.MainSyncWorker
@@ -23,29 +23,29 @@ internal class WorkSyncManager @Inject constructor(
         private const val PERIODIC_UNIQUE_WORKER = "PERIODIC_UNIQUE_WORKER"
     }
 
-    init {
-        WorkManager.getInstance(context = appContext)
-            .getWorkInfos(workQuery = WorkQuery.fromStates(State.entries))
-            .get()
-            .forEach { workInfo ->
-                Log.d(TAG, workInfo.toString())
-            }
-    }
+//    init {
+//        WorkManager.getInstance(context = appContext)
+//            .getWorkInfos(workQuery = WorkQuery.fromStates(State.entries))
+//            .get()
+//            .forEach { workInfo ->
+//                Log.d(TAG, workInfo.toString())
+//            }
+//    }
 
     override fun syncMain() {
 //        WorkManager.getInstance(context = appContext).cancelAllWork()
-        WorkManager.getInstance(context = appContext)
-            .enqueueUniqueWork(
-                uniqueWorkName = ONE_TIME_UNIQUE_WORKER,
-                existingWorkPolicy = ExistingWorkPolicy.KEEP,
-                request = MainSyncWorker.startUpSyncWork()
-            )
 //        WorkManager.getInstance(context = appContext)
-//            .enqueueUniquePeriodicWork(
-//                uniqueWorkName = PERIODIC_UNIQUE_WORKER,
-//                existingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.KEEP,
-//                request = MainSyncWorker.startPeriodicSyncWork()
+//            .enqueueUniqueWork(
+//                uniqueWorkName = ONE_TIME_UNIQUE_WORKER,
+//                existingWorkPolicy = ExistingWorkPolicy.KEEP,
+//                request = MainSyncWorker.startUpSyncWork()
 //            )
+        WorkManager.getInstance(context = appContext)
+            .enqueueUniquePeriodicWork(
+                uniqueWorkName = PERIODIC_UNIQUE_WORKER,
+                existingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.KEEP,
+                request = MainSyncWorker.startPeriodicSyncWork()
+            )
     }
 
     override fun requestSync() {

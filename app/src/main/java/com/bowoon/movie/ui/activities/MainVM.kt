@@ -57,8 +57,6 @@ class MainVM @Inject constructor(
     val nextWeekReleaseMovies = databaseRepository.getNextWeekReleaseMovies()
         .map { movies ->
             movies.filter { movie -> movie.id != null }
-        }.onEach { movies ->
-            notifier.postMovieNotifications(movies = movies)
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.Lazily,

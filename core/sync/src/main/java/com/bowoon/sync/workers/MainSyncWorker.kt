@@ -89,7 +89,6 @@ class MainSyncWorker @AssistedInject constructor(
     )
 
     override suspend fun afterSync() {
-        notifier.postNotification(message = "Sync success")
         databaseRepository
             .getNextWeekReleaseMovies()
             .map { it.takeIf { it.isNotEmpty() } }
@@ -107,14 +106,8 @@ class MainSyncWorker @AssistedInject constructor(
         }.await()
             .let { isSuccess ->
                 when (isSuccess) {
-                    true -> {
-                        notifier.postNotification(message = "Sync success")
-                        Result.success()
-                    }
-                    false -> {
-                        notifier.postNotification(message = "Sync fail")
-                        if (runAttemptCount > 5) Result.failure() else Result.retry()
-                    }
+                    true -> Result.success()
+                    false -> if (runAttemptCount > 5) Result.failure() else Result.retry()
                 }
             }
     }
