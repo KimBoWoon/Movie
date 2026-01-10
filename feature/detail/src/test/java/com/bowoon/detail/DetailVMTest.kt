@@ -1,16 +1,13 @@
 package com.bowoon.detail
 
-import androidx.lifecycle.SavedStateHandle
-import androidx.navigation.testing.invoke
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.paging.testing.TestPager
 import androidx.paging.testing.asSnapshot
 import com.bowoon.data.paging.MovieReviewPagingSource
 import com.bowoon.data.paging.SimilarMoviePagingSource
-import com.bowoon.detail.movie.MovieState
 import com.bowoon.detail.movie.DetailVM
-import com.bowoon.detail.movie.navigation.MovieNavKey
+import com.bowoon.detail.movie.MovieState
 import com.bowoon.domain.GetMovieDetailUseCase
 import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetailInfo
@@ -55,14 +52,12 @@ class DetailVMTest {
         userDataRepository = testUserDataRepository,
         databaseRepository = testDataBaseRepository
     )
-    private lateinit var savedStateHandle: SavedStateHandle
     private lateinit var viewModel: DetailVM
 
     @Before
     fun setup() {
-        savedStateHandle = SavedStateHandle(route = MovieNavKey(id = 0))
         viewModel = DetailVM(
-            savedStateHandle = savedStateHandle,
+            id = 0,
             databaseRepository = testDataBaseRepository,
             getMovieDetail = getMovieDetailUseCase,
             pagingRepository = testPagingRepository

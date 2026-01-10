@@ -1,8 +1,5 @@
 package com.bowoon.detail
 
-import androidx.lifecycle.SavedStateHandle
-import androidx.navigation.testing.invoke
-import com.bowoon.detail.people.navigation.PeopleNavKey
 import com.bowoon.detail.people.PeopleState
 import com.bowoon.detail.people.PeopleVM
 import com.bowoon.domain.GetPeopleDetailUseCase
@@ -32,7 +29,6 @@ class PeopleVMTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
     private lateinit var viewModel: PeopleVM
-    private lateinit var savedStateHandle: SavedStateHandle
     private lateinit var testDatabaseRepository: TestDatabaseRepository
     private lateinit var testDetailRepository: TestDetailRepository
     private lateinit var getPeopleDetailUseCase: GetPeopleDetailUseCase
@@ -40,7 +36,6 @@ class PeopleVMTest {
 
     @Before
     fun setup() {
-        savedStateHandle = SavedStateHandle(route = PeopleNavKey(id = 0))
         testDatabaseRepository = TestDatabaseRepository()
         testDetailRepository = TestDetailRepository()
         testMovieAppDataManager = TestMovieAppDataManager()
@@ -49,7 +44,7 @@ class PeopleVMTest {
             databaseRepository = testDatabaseRepository
         )
         viewModel = PeopleVM(
-            savedStateHandle = savedStateHandle,
+            id = 0,
             getPeopleDetail = getPeopleDetailUseCase,
             databaseRepository = testDatabaseRepository
         )
