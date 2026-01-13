@@ -66,6 +66,7 @@ class NavigationState(
         } else {
             listOf(startRoute, topLevelRoute)
         }
+    var isFromDeeplink: Boolean = false
 }
 
 /**
@@ -112,12 +113,20 @@ class Navigator(val state: NavigationState) {
 
     /**
      * 뒤로 이동
+     *
+     * TODO 딥링크로 앱 접속시 로직 확인 필요
      */
     fun goBack() {
         val currentStack = state.backStacks[state.topLevelRoute] ?: error("Stack for ${state.topLevelRoute} not found")
         val currentRoute = currentStack.last()
 
         if (currentRoute == state.topLevelRoute) {
+            // 딥링크로 앱 실행시 백스택 관리를 위해 딥링크로 들어오게된 부분들을 빼준다
+            if (state.isFromDeeplink && state.backStacks[state.topLevelRoute]?.size != 1) {
+                state.backStacks[state.topLevelRoute]?.removeLastOrNull()
+            } else {
+                state.isFromDeeplink = false
+            }
             // 현재 목적지가 최상위 목적지와 같으면 시작지점으로 보냄
             state.topLevelRoute = state.startRoute
         } else {

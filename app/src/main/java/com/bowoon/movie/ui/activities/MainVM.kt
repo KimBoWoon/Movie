@@ -14,6 +14,7 @@ import com.bowoon.notifications.Notifier
 import com.bowoon.ui.image.imageUrl
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
@@ -29,6 +30,7 @@ class MainVM @Inject constructor(
     notifier: Notifier
 ) : ViewModel() {
     init {
+//        notifier.postNotification("go to favorite and people tab")
         viewModelScope.launch {
             val isFirstInstall = userDataRepository.getFirstInstall()
 
@@ -37,6 +39,7 @@ class MainVM @Inject constructor(
                 syncManager.syncMain()
                 userDataRepository.updateFirstInstall(value = true)
             }
+//            notifier.postMovieNotifications(movies = databaseRepository.getNextWeekReleaseMovies().first())
         }
     }
 

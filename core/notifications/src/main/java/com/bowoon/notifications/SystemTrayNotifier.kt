@@ -44,18 +44,6 @@ private const val DEEP_LINK_MOVIE_ID_PATH = "movie"
 private const val DEEP_LINK_BASE_PATH = "$DEEP_LINK_SCHEME_AND_HOST/$DEEP_LINK_MOVIE_ID_PATH"
 const val DEEP_LINK_URI_PATTERN = "$DEEP_LINK_BASE_PATH/{id}"
 
-//private const val MAX_NUM_NOTIFICATIONS = 5
-//private const val TARGET_ACTIVITY_NAME = "com.google.samples.apps.nowinandroid.MainActivity"
-//private const val NEWS_NOTIFICATION_REQUEST_CODE = 0
-//private const val NEWS_NOTIFICATION_SUMMARY_ID = 1
-//private const val NEWS_NOTIFICATION_CHANNEL_ID = ""
-//private const val NEWS_NOTIFICATION_GROUP = "NEWS_NOTIFICATIONS"
-//private const val DEEP_LINK_SCHEME_AND_HOST = "https://www.nowinandroid.apps.samples.google.com"
-//private const val DEEP_LINK_FOR_YOU_PATH = "foryou"
-//private const val DEEP_LINK_BASE_PATH = "$DEEP_LINK_SCHEME_AND_HOST/$DEEP_LINK_FOR_YOU_PATH"
-//const val DEEP_LINK_NEWS_RESOURCE_ID_KEY = "linkedNewsResourceId"
-//const val DEEP_LINK_URI_PATTERN = "$DEEP_LINK_BASE_PATH/{$DEEP_LINK_NEWS_RESOURCE_ID_KEY}"
-
 @Singleton
 class SystemTrayNotifier @Inject constructor(
     @param:ApplicationContext private val context: Context,
@@ -68,6 +56,22 @@ class SystemTrayNotifier @Inject constructor(
         val notification = context.createMovieNotification {
             setSmallIcon(R.drawable.ic_launcher_round)
                 .setContentTitle(message)
+                .setContentIntent(
+                    PendingIntent.getActivity(
+                        context,
+                        MOVIE_NOTIFICATION_REQUEST_CODE,
+                        Intent().apply {
+                            action = Intent.ACTION_VIEW
+                            data = "movieinfo://movie/favorite?tab=1".toUri()
+                            flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+                            component = ComponentName(
+                                context.packageName,
+                                TARGET_ACTIVITY_NAME,
+                            )
+                        },
+                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                    )
+                )
         }
 
         NotificationManagerCompat.from(context).apply {
@@ -161,7 +165,7 @@ fun Context.ensureNotificationChannelExists() {
         getString(R.string.system_notification_channel_name),
         NotificationManager.IMPORTANCE_DEFAULT,
     ).apply {
-        description = "곧 개봉하는 영화가 있습니다."
+        description = getString(R.string.coming_soon_movie)
     }
 
     NotificationManagerCompat.from(this).createNotificationChannel(channel)
@@ -183,4 +187,4 @@ fun Context.moviePendingIntent(
     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
 )
 
-private fun Movie.movieDeepLinkUri() = "$DEEP_LINK_BASE_PATH/$id".toUri()
+private fun Movie.movieDeepLinkUri() = "$DEEP_LINK_BASE_PATH?id=$id".toUri()

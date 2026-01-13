@@ -8,7 +8,18 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 @Keep
-data object FavoriteNavKey : NavKey
+data class FavoriteNavKey(
+    val tab: Int = 0
+) : NavKey {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        return other is FavoriteNavKey
+    }
+
+    override fun hashCode(): Int {
+        return javaClass.hashCode()
+    }
+}
 
 fun EntryProviderScope<NavKey>.favoriteEntry(
     goToMovie: (Int) -> Unit,
@@ -19,7 +30,8 @@ fun EntryProviderScope<NavKey>.favoriteEntry(
         FavoriteScreen(
             goToMovie = goToMovie,
             goToPeople = goToPeople,
-            onShowSnackbar = onShowSnackbar
+            onShowSnackbar = onShowSnackbar,
+            initialTab = it.tab
         )
     }
 }

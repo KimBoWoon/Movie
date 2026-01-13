@@ -55,6 +55,7 @@ import com.bowoon.detail.series.navigation.navigateToSeries
 import com.bowoon.detail.series.navigation.seriesEntry
 import com.bowoon.favorite.navigation.favoriteEntry
 import com.bowoon.firebase.LocalFirebaseLogHelper
+import com.bowoon.home.navigation.HomeNavKey
 import com.bowoon.home.navigation.homeEntry
 import com.bowoon.model.Movie
 import com.bowoon.movie.MovieAppState
@@ -84,10 +85,11 @@ fun MovieApp(
     appState: MovieAppState,
     snackbarHostState: SnackbarHostState,
     nextWeekReleaseMovies: List<Movie>,
-    deeplink: NavKey? = null
+    deeplinkBackstack: List<NavKey> = emptyList(),
+    onDeeplinkProcessed: () -> Unit
 ) {
-    val navigator = remember { Navigator(appState.navigationState) }
-    val isTopLevelRoute = appState.navigationState.backStacks[appState.navigationState.topLevelRoute]?.last() in TOP_LEVEL_NAV_ITEMS.map { it.key }
+    val navigator = remember { Navigator(state = appState.navigationState) }
+    val isTopLevelRoute = navigator.state.backStacks[navigator.state.topLevelRoute]?.last()?.javaClass in TOP_LEVEL_NAV_ITEMS.map { it.key.javaClass }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -101,7 +103,6 @@ fun MovieApp(
         },
         bottomBar = {
             MovieBottomBar(
-                appState = appState,
                 navigator = navigator,
                 isTopLevelRoute = isTopLevelRoute
             )
@@ -182,13 +183,40 @@ fun MovieApp(
 
         NavDisplay(
             modifier = Modifier.padding(paddingValues = innerPadding),
-            entries = appState.navigationState.toEntries(entryProvider),
+            entries = navigator.state.toEntries(entryProvider),
             sceneStrategy = listDetailStrategy,
             onBack = { navigator.goBack() },
         )
+    }
 
-        // TODO 리컴포지션을 회피할 방법을 생각해야봐야함
-        LaunchedEffect(key1 = Unit) { if (deeplink != null) navigator.navigate(route = deeplink) }
+    LaunchedEffect(key1 = deeplinkBackstack) {
+        var deeplinkList = deeplinkBackstack
+
+        if (deeplinkList.isNotEmpty()) {
+            navigator.state.isFromDeeplink = true
+        }
+
+        while (deeplinkList.isNotEmpty()) {
+            val firstRoute = deeplinkList.first()
+            val targetTabKey = TOP_LEVEL_NAV_ITEMS.keys.firstOrNull { it.javaClass == firstRoute.javaClass } ?: HomeNavKey
+
+            navigator.state.topLevelRoute = if (TOP_LEVEL_NAV_ITEMS.keys.firstOrNull { it.javaClass == firstRoute.javaClass } != null) firstRoute else HomeNavKey
+
+            if (navigator.state.backStacks[targetTabKey] != null) {
+                navigator.state.backStacks[targetTabKey]?.add(element = firstRoute)
+//                if (navigator.state.backStacks[targetTabKey]?.get(0)?.javaClass == firstRoute.javaClass) {
+//                    navigator.state.backStacks[targetTabKey]?.clear()
+//                    navigator.state.backStacks[targetTabKey]?.add(element = firstRoute)
+//                } else {
+//                    navigator.state.backStacks[targetTabKey]?.clear()
+//                    navigator.state.backStacks[targetTabKey]?.add(element = firstRoute)
+//                }
+            }
+
+            deeplinkList = deeplinkList.drop(n = 1)
+        }
+
+        onDeeplinkProcessed()
     }
 }
 
@@ -231,7 +259,9 @@ fun MovieSearchTopBar(
                     )
                     if (nextWeekReleaseMovies.isEmpty()) {
                         Text(
-                            modifier = Modifier.wrapContentWidth().padding(start = dp10),
+                            modifier = Modifier
+                                .wrapContentWidth()
+                                .padding(start = dp10),
                             text = stringResource(id = R.string.go_to_search),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
@@ -267,7 +297,6 @@ fun MovieSearchTopBar(
 
 @Composable
 fun MovieBottomBar(
-    appState: MovieAppState,
     navigator: Navigator,
     isTopLevelRoute: Boolean
 ) {
@@ -278,7 +307,6 @@ fun MovieBottomBar(
         exit = shrinkVertically(),
         content = {
             MovieNavigation(
-                appState = appState,
                 navigator = navigator
             )
         }
@@ -287,7 +315,6 @@ fun MovieBottomBar(
 
 @Composable
 fun MovieNavigation(
-    appState: MovieAppState,
     navigator: Navigator
 ) {
     val context = LocalContext.current
@@ -308,11 +335,11 @@ fun MovieNavigation(
     ) {
         TOP_LEVEL_NAV_ITEMS.forEach { (navKey, navItem) ->
             BottomNavigationBarItem(
-                selected = navKey == appState.navigationState.topLevelRoute,
+                selected = navKey == navigator.state.topLevelRoute,
                 label = context.getString(navItem.titleTextId),
                 selectedIcon = navItem.selectedIcon,
                 unSelectedIcon = navItem.unselectedIcon,
-                onClick = { navigator.navigate(navKey) }
+                onClick = { navigator.navigate(route = navKey) }
             )
         }
     }
