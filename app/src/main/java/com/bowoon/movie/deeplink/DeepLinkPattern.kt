@@ -42,6 +42,7 @@ internal class DeepLinkPattern<T : NavKey>(
 ) {
     /**
      * Help differentiate if a path segment is an argument or a static value
+     * 중괄호 안에 있는 매개변수 추출을 위한 정규표현식
      */
     private val regexPatternFillIn = Regex(pattern = "\\{(.+?)\\}")
 
@@ -66,7 +67,7 @@ internal class DeepLinkPattern<T : NavKey>(
                 add(PathSegment(stringValue = argName, isParamArg = true,typeParser = getTypeParser(kind = elementDescriptor.kind)))
             } else {
                 // if its not a path arg, then its just a static string path segment
-                add(PathSegment(stringValue = segment,isParamArg = false, typeParser = getTypeParser(kind = PrimitiveKind.STRING)))
+                add(PathSegment(stringValue = segment, isParamArg = false, typeParser = getTypeParser(kind = PrimitiveKind.STRING)))
             }
         }
     }

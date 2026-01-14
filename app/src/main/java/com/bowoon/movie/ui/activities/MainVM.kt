@@ -10,11 +10,9 @@ import com.bowoon.data.util.DataManager
 import com.bowoon.data.util.SyncManager
 import com.bowoon.model.DarkThemeConfig
 import com.bowoon.model.MovieAppData
-import com.bowoon.notifications.Notifier
 import com.bowoon.ui.image.imageUrl
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
@@ -27,10 +25,10 @@ class MainVM @Inject constructor(
     databaseRepository: DatabaseRepository,
     userDataRepository: UserDataRepository,
     syncManager: SyncManager,
-    notifier: Notifier
+//    notifier: Notifier
 ) : ViewModel() {
     init {
-//        notifier.postNotification("go to favorite and people tab")
+//        notifier.postNotification("test deeplink")
         viewModelScope.launch {
             val isFirstInstall = userDataRepository.getFirstInstall()
 

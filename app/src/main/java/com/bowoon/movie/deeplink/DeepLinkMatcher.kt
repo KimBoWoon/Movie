@@ -16,8 +16,9 @@ internal class DeepLinkMatcher<T : NavKey>(
     fun match(): DeepLinkMatchResult<T>? {
         if (request.pathSegments.size != deepLinkPattern.pathSegments.size) return null
         // exact match (url does not contain any arguments)
-        if (request.uri == deepLinkPattern.uriPattern)
+        if (request.uri == deepLinkPattern.uriPattern) {
             return DeepLinkMatchResult(serializer = deepLinkPattern.serializer, args = mapOf())
+        }
 
         val args = mutableMapOf<String, Any>()
         // match the path
@@ -28,8 +29,6 @@ internal class DeepLinkMatcher<T : NavKey>(
             .zip(other = deepLinkPattern.pathSegments.asSequence())
             .forEach { (requestedSegment, candidateSegment) ->
                 // retrieve the two path segments to compare
-//                val requestedSegment = it.first
-//                val candidateSegment = it.second
                 // if the potential match expects a path arg for this segment, try to parse the
                 // requested segment into the expected type
                 if (candidateSegment.isParamArg) {
@@ -58,7 +57,7 @@ internal class DeepLinkMatcher<T : NavKey>(
             args[name] = queryParsedValue
         }
         // provide the serializer of the matching key and map of arg names to parsed arg values
-        return DeepLinkMatchResult(serializer = deepLinkPattern.serializer, args)
+        return DeepLinkMatchResult(serializer = deepLinkPattern.serializer, args = args)
     }
 }
 

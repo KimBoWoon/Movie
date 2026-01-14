@@ -44,7 +44,7 @@ internal class WorkSyncManager @Inject constructor(
         WorkManager.getInstance(context = appContext)
             .enqueueUniquePeriodicWork(
                 uniqueWorkName = PERIODIC_UNIQUE_WORKER,
-                existingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.UPDATE,
+                existingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.KEEP,
                 request = MainSyncWorker.startPeriodicSyncWork()
             )
     }

@@ -12,28 +12,49 @@ import com.bowoon.my.navigation.MyNavKey
  * copyright https://github.com/android/nav3-recipes/tree/main
  */
 
+/**
+ * Movie App Deeplink
+ */
 internal val deepLinkPatterns: List<DeepLinkPattern<out NavKey>> = listOf(
-    DeepLinkPattern(serializer = HomeNavKey.serializer(), uriPattern = ("movieinfo://movie/home").toUri()),
-//    DeepLinkPattern(serializer = FavoriteNavKey.serializer(), uriPattern = ("movieinfo://movie/favorite").toUri()),
-//    DeepLinkPattern(serializer = FavoriteNavKey.serializer(), uriPattern = ("movieinfo://movie/favorite/movie").toUri()),
-//    DeepLinkPattern(serializer = FavoriteNavKey.serializer(), uriPattern = ("movieinfo://movie/favorite/tab/1").toUri()),
-    DeepLinkPattern(serializer = FavoriteNavKey.serializer(), uriPattern = ("movieinfo://movie/favorite?tab={tab}").toUri()),
-    DeepLinkPattern(serializer = MyNavKey.serializer(), uriPattern = ("movieinfo://movie/my").toUri()),
-//    DeepLinkPattern(serializer = MovieNavKey.serializer(), uriPattern = ("movieinfo://movie/detail/movie/{id}").toUri())
-    DeepLinkPattern(serializer = MovieNavKey.serializer(), uriPattern = ("movieinfo://movie/movie?id={id}").toUri())
+//    DeepLinkPattern(
+//        serializer = HomeNavKey.serializer(),
+//        uriPattern = ("movieinfo://movie/favorite/{tab}/search").toUri()
+//    ),
+    DeepLinkPattern(
+        serializer = HomeNavKey.serializer(),
+        uriPattern = ("movieinfo://movie/home").toUri()
+    ),
+    DeepLinkPattern(
+        serializer = FavoriteNavKey.serializer(),
+        uriPattern = ("movieinfo://movie/favorite?tab={tab}").toUri()
+    ),
+    DeepLinkPattern(
+        serializer = MyNavKey.serializer(),
+        uriPattern = ("movieinfo://movie/my").toUri()
+    ),
+    DeepLinkPattern(
+        serializer = MovieNavKey.serializer(),
+        uriPattern = ("movieinfo://movie/movie?id={id}").toUri()
+    )
 )
 
-fun parseDeepLink(uri: Uri?): NavKey? = uri?.let {
-    /** STEP 2. Parse requested deeplink */
+/**
+ * Deeplink parse
+ *
+ * @param uri Deeplink로 전달받은 URI
+ */
+fun parseDeepLink(uri: Uri?): NavKey = uri?.let {
+    /** Parse requested deeplink */
     val request = DeepLinkRequest(uri)
-    /** STEP 3. Compared requested with supported deeplink to find match*/
+
+    // 요청된 딥링크와 패턴을 비교하여 일치하는 패턴을 찾음
     val match = deepLinkPatterns.firstNotNullOfOrNull { pattern ->
         DeepLinkMatcher(request = request, deepLinkPattern = pattern).match()
     }
-    /** STEP 4. If match is found, associate match to the correct key*/
+    // 일치하는 항목을 찾으면 NavKey로 변환
     match?.let {
-        //leverage kotlinx.serialization's Decoder to decode
-        // match result into a backstack key
+        // kotlinx.serialization's Decoder를 사용하여 디코딩
+        // 결과를 백스택 키로 일치 시키기
         KeyDecoder(arguments = match.args).decodeSerializableValue(deserializer = match.serializer)
     }
-} /*?: HomeNavKey*/ // fallback if intent. uri is null or match is not found
+} ?: HomeNavKey // fallback if intent. uri is null or match is not found
