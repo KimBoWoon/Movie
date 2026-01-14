@@ -43,7 +43,7 @@ jobs:
         run: |
           echo "$GOOGLE_SERVICES_JSON" > ./app/google-services.json
       - name: build release
-        run: ./gradlew bundleProdRelease
+        run: ./gradlew assembleProdRelease
       - name: create release note
         run: ./gradlew createReleaseNote
 #        run: git log --pretty=format:"(#%h) %cn %s" HEAD..origin/develop > releaseNote.txt
@@ -54,4 +54,4 @@ jobs:
           serviceCredentialsFileContent: ${{ secrets.CREDENTIAL_FILE_CONTENT }}
           releaseNotesFile: ./releaseNote.txt
           groups: MovieAppTester
-          file: ./app/build/outputs/bundle/prodRelease/app-prod-release.aab
+          file: ./app/build/outputs/apk/prod/release/app-prod-release.apk
