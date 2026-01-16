@@ -9,8 +9,7 @@ Android 개발
 * [김보운](https://github.com/KimBoWoon)
 
 ## 스크린샷
-![메인 화면](/screenshot/Screenshot_20260116_150104.png)
-<img src = "/screenshot/Screenshot_20260116_150104.png" width="50%" height="50%">
+<img src = "/screenshot/Screenshot_20260116_150104.png" width="20%" height="20%">
 
 ## 사용 기술
 * retrofit2
