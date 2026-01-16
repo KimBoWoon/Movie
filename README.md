@@ -9,14 +9,23 @@ Android 개발
 * [김보운](https://github.com/KimBoWoon)
 
 ## 스크린샷
-<img src = "/screenshot/Screenshot_20260116_150104.png" width="20%" height="20%">
+<img src = "/screenshot/Screenshot_20260116_150104.png" width="30%" height="30%">
 
 ## 사용 기술
-* retrofit2
-* datastore
-* room
-* workManager
+* Language
+  * Kotlin
+* UI
+  * Compose
+* DI
+  * Hilt
+* Network
+  * Retrofit2
+* Jetpack library
+  * Datastore
+  * Room
+  * WorkManager
+  * Navigation3
 * Coroutine / Flow
 * Firebase
-* navigation3
-* compose
+* Coil
+* Kotlin Serialization
