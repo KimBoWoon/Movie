@@ -85,6 +85,25 @@ internal class DeepLinkPattern<T : NavKey>(
         }
     }
 
+//    val a: List<NavKey> = buildList {
+//        uriPattern.pathSegments.forEach { segment ->
+//            // first, check if it is a path arg
+//            var result = regexPatternFillIn.find(input = segment)
+//            if (result != null) {
+//                // if so, extract the path arg name (the string value within the curly braces)
+//                val argName = result.groups[1]!!.value
+//                // from [T], read the primitive type of this argument to get the correct type parser
+//                val elementIndex = serializer.descriptor.getElementIndex(name = argName)
+//                val elementDescriptor = serializer.descriptor.getElementDescriptor(index = elementIndex)
+//                // finally, add the arg name and its respective type parser to the map
+//                add()
+//            } else {
+//                // if its not a path arg, then its just a static string path segment
+//                add()
+//            }
+//        }
+//    }
+
     /**
      * Metadata about a supported path segment
      */

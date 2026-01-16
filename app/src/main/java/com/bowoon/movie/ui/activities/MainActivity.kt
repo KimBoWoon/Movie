@@ -1,7 +1,6 @@
 package com.bowoon.movie.ui.activities
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
@@ -25,17 +24,13 @@ import com.bowoon.common.AppDoubleBackToExit
 import com.bowoon.common.Log
 import com.bowoon.common.isSystemInDarkTheme
 import com.bowoon.data.util.NetworkMonitor
-import com.bowoon.detail.movie.navigation.MovieNavKey
-import com.bowoon.favorite.navigation.FavoriteNavKey
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.movie.MovieFirebase
 import com.bowoon.movie.R
-import com.bowoon.movie.deeplink.parseDeepLink
+import com.bowoon.movie.deeplink.parseDeeplink
 import com.bowoon.movie.rememberMovieAppState
 import com.bowoon.movie.ui.MovieApp
 import com.bowoon.movie.utils.isSystemInDarkTheme
-import com.bowoon.my.navigation.MyNavKey
-import com.bowoon.search.navigation.SearchNavKey
 import com.bowoon.ui.theme.MovieTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.combine
@@ -66,7 +61,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         intent?.let {
-            deeplinkBackstack = parseDeeplink(intent = it)
+            deeplinkBackstack = parseDeeplink(uri = intent.data)
         }
 
         onBackPressedDispatcher.addCallback(
@@ -133,20 +128,8 @@ class MainActivity : ComponentActivity() {
         super.onNewIntent(intent = intent)
         Log.d("onNewIntent")
         setIntent(intent)
-        deeplinkBackstack = parseDeeplink(intent = intent)
-    }
-
-    private fun parseDeeplink(intent: Intent): List<NavKey> {
-        // retrieve the target Uri
-        val uri: Uri? = intent.data
-        // associate the target with the correct backstack key
-        return when (val key = parseDeepLink(uri)) {
-            is FavoriteNavKey -> listOf(FavoriteNavKey(tab = key.tab))
-            is MyNavKey -> listOf(MyNavKey)
-            is MovieNavKey -> listOf(MovieNavKey(id = key.id))
-            is SearchNavKey -> listOf(SearchNavKey)
-            else -> emptyList()
-        }
+        deeplinkBackstack = parseDeeplink(uri = intent.data)
+//        Log.d(parseDeepLink(uri = intent.data).toString())
     }
 }
 

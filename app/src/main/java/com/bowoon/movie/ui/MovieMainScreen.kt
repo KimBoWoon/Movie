@@ -190,33 +190,29 @@ fun MovieApp(
     }
 
     LaunchedEffect(key1 = deeplinkBackstack) {
-        var deeplinkList = deeplinkBackstack
+        if (deeplinkBackstack.isNotEmpty()) {
+            var deeplinkList = deeplinkBackstack
+            var targetTabKey: NavKey? = HomeNavKey
 
-        if (deeplinkList.isNotEmpty()) {
             navigator.state.isFromDeeplink = true
-        }
 
-        while (deeplinkList.isNotEmpty()) {
-            val firstRoute = deeplinkList.first()
-            val targetTabKey = TOP_LEVEL_NAV_ITEMS.keys.firstOrNull { it.javaClass == firstRoute.javaClass } ?: HomeNavKey
+            while (deeplinkList.isNotEmpty()) {
+                val firstRoute = deeplinkList.first()
+                targetTabKey = TOP_LEVEL_NAV_ITEMS.keys.firstOrNull { it.javaClass == firstRoute.javaClass } ?: targetTabKey
 
-            navigator.state.topLevelRoute = if (TOP_LEVEL_NAV_ITEMS.keys.firstOrNull { it.javaClass == firstRoute.javaClass } != null) firstRoute else HomeNavKey
+                if (TOP_LEVEL_NAV_ITEMS.keys.firstOrNull { it.javaClass == firstRoute.javaClass } != null) {
+                    navigator.state.topLevelRoute = firstRoute
+                }
 
-            if (navigator.state.backStacks[targetTabKey] != null) {
-                navigator.state.backStacks[targetTabKey]?.add(element = firstRoute)
-//                if (navigator.state.backStacks[targetTabKey]?.get(0)?.javaClass == firstRoute.javaClass) {
-//                    navigator.state.backStacks[targetTabKey]?.clear()
-//                    navigator.state.backStacks[targetTabKey]?.add(element = firstRoute)
-//                } else {
-//                    navigator.state.backStacks[targetTabKey]?.clear()
-//                    navigator.state.backStacks[targetTabKey]?.add(element = firstRoute)
-//                }
+                if (navigator.state.backStacks[targetTabKey] != null) {
+                    navigator.state.backStacks[targetTabKey]?.add(element = firstRoute)
+                }
+
+                deeplinkList = deeplinkList.drop(n = 1)
             }
 
-            deeplinkList = deeplinkList.drop(n = 1)
+            onDeeplinkProcessed()
         }
-
-        onDeeplinkProcessed()
     }
 }
 
@@ -240,7 +236,7 @@ fun MovieSearchTopBar(
                     .height(height = dp40)
                     .clip(shape = RoundedCornerShape(percent = 50))
                     .background(color = MaterialTheme.colorScheme.inverseOnSurface)
-                    .bounceClick(onClick = { navigator.navigate(route = SearchNavKey) }),
+                    .bounceClick(onClick = { navigator.navigate(route = SearchNavKey()) }),
                 contentAlignment = Alignment.Center
             ) {
                 Row(
@@ -252,7 +248,7 @@ fun MovieSearchTopBar(
                             .wrapContentSize()
                             .padding(start = dp20)
                             .align(Alignment.CenterVertically)
-                            .clickable { navigator.navigate(route = SearchNavKey) },
+                            .clickable { navigator.navigate(route = SearchNavKey()) },
                         imageVector = Icons.Default.Search,
                         contentDescription = "goToSearch",
                         tint = MaterialTheme.colorScheme.onSurface

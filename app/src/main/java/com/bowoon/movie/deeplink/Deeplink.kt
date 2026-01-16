@@ -4,9 +4,12 @@ import android.net.Uri
 import androidx.core.net.toUri
 import androidx.navigation3.runtime.NavKey
 import com.bowoon.detail.movie.navigation.MovieNavKey
+import com.bowoon.detail.people.navigation.PeopleNavKey
+import com.bowoon.detail.series.navigation.SeriesNavKey
 import com.bowoon.favorite.navigation.FavoriteNavKey
 import com.bowoon.home.navigation.HomeNavKey
 import com.bowoon.my.navigation.MyNavKey
+import com.bowoon.search.navigation.SearchNavKey
 
 /**
  * copyright https://github.com/android/nav3-recipes/tree/main
@@ -16,25 +19,29 @@ import com.bowoon.my.navigation.MyNavKey
  * Movie App Deeplink
  */
 internal val deepLinkPatterns: List<DeepLinkPattern<out NavKey>> = listOf(
-//    DeepLinkPattern(
-//        serializer = HomeNavKey.serializer(),
-//        uriPattern = ("movieinfo://movie/favorite/{tab}/search").toUri()
-//    ),
+    DeepLinkPattern(
+        serializer = FavoriteNavKey.serializer(),
+        uriPattern = "https://www.bowoon.movie.com/favorite/{tab}".toUri()
+    ),
     DeepLinkPattern(
         serializer = HomeNavKey.serializer(),
-        uriPattern = ("movieinfo://movie/home").toUri()
+        uriPattern = "https://www.bowoon.movie.com/home".toUri()
     ),
     DeepLinkPattern(
         serializer = FavoriteNavKey.serializer(),
-        uriPattern = ("movieinfo://movie/favorite?tab={tab}").toUri()
+        uriPattern = "https://www.bowoon.movie.com/favorite?tab={tab}".toUri()
     ),
     DeepLinkPattern(
         serializer = MyNavKey.serializer(),
-        uriPattern = ("movieinfo://movie/my").toUri()
+        uriPattern = "https://www.bowoon.movie.com/my".toUri()
     ),
     DeepLinkPattern(
         serializer = MovieNavKey.serializer(),
-        uriPattern = ("movieinfo://movie/movie?id={id}").toUri()
+        uriPattern = "https://www.bowoon.movie.com/movie?id={id}".toUri()
+    ),
+    DeepLinkPattern(
+        serializer = SearchNavKey.serializer(),
+        uriPattern = "https://www.bowoon.movie.com/search?query={query}".toUri()
     )
 )
 
@@ -58,3 +65,57 @@ fun parseDeepLink(uri: Uri?): NavKey = uri?.let {
         KeyDecoder(arguments = match.args).decodeSerializableValue(deserializer = match.serializer)
     }
 } ?: HomeNavKey // fallback if intent. uri is null or match is not found
+
+fun parseDeeplink(uri: Uri?): List<NavKey> = uri?.let {
+    buildList {
+        var index = 0
+        val pathSegments = uri.pathSegments ?: emptyList()
+
+        while (index < pathSegments.size) {
+            when (pathSegments[index]) {
+                "home" -> {
+                    add(HomeNavKey)
+                    index++
+                }
+                "favorite" -> {
+                    val query = uri.getQueryParameter("tab")?.toIntOrNull()
+                    val path = if (index + 1 < pathSegments.size) pathSegments[index + 1].toIntOrNull() else 0
+                    val tabIndex = query ?: path
+
+                    if (tabIndex == null) {
+                        add(FavoriteNavKey(tab = 0))
+                        index++
+                    } else {
+                        add(FavoriteNavKey(tab = tabIndex))
+                        index += 2
+                    }
+                }
+                "my" -> {
+                    add(MyNavKey)
+                    index++
+                }
+                "search" -> {
+                    add(
+                        SearchNavKey(
+                            query = uri.getQueryParameter("query") ?: "",
+                            searchType = uri.getQueryParameter("searchType") ?: ""
+                        )
+                    )
+                    index++
+                }
+                "movie" -> {
+                    add(MovieNavKey(id = uri.getQueryParameter("id")?.toIntOrNull() ?: -1))
+                    index++
+                }
+                "people" -> {
+                    add(PeopleNavKey(id = uri.getQueryParameter("id")?.toIntOrNull() ?: -1))
+                    index++
+                }
+                "series" -> {
+                    add(SeriesNavKey(id = uri.getQueryParameter("id")?.toIntOrNull() ?: -1))
+                    index++
+                }
+            }
+        }
+    }
+} ?: emptyList()

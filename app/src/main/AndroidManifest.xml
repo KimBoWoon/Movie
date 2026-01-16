@@ -35,8 +35,9 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
-                <data android:scheme="movieinfo" />
-                <data android:host="movie" />
+                <data
+                    android:host="www.bowoon.movie.com"
+                    android:scheme="https" />
             </intent-filter>
         </activity>
 

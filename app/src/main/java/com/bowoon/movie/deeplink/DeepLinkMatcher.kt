@@ -9,12 +9,14 @@ internal class DeepLinkMatcher<T : NavKey>(
     val deepLinkPattern: DeepLinkPattern<T>
 ) {
     /**
-     * Match a [DeepLinkRequest] to a [DeepLinkPattern].
+     * [DeepLinkRequest]를 [DeepLinkPattern]에 매치 시킨다
      *
-     * Returns a [DeepLinkMatchResult] if this matches the pattern, returns null otherwise
+     * 패턴과 일치하면 [DeepLinkMatchResult]를 반환, 그렇지 않으면 null을 반환
      */
     fun match(): DeepLinkMatchResult<T>? {
-        if (request.pathSegments.size != deepLinkPattern.pathSegments.size) return null
+        if (request.pathSegments.size != deepLinkPattern.pathSegments.size) {
+            return null
+        }
         // exact match (url does not contain any arguments)
         if (request.uri == deepLinkPattern.uriPattern) {
             return DeepLinkMatchResult(serializer = deepLinkPattern.serializer, args = mapOf())

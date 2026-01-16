@@ -24,11 +24,9 @@ class MainVM @Inject constructor(
     dataManager: DataManager,
     databaseRepository: DatabaseRepository,
     userDataRepository: UserDataRepository,
-    syncManager: SyncManager,
-//    notifier: Notifier
+    syncManager: SyncManager
 ) : ViewModel() {
     init {
-//        notifier.postNotification("test deeplink")
         viewModelScope.launch {
             val isFirstInstall = userDataRepository.getFirstInstall()
 
@@ -37,7 +35,6 @@ class MainVM @Inject constructor(
                 syncManager.syncMain()
                 userDataRepository.updateFirstInstall(value = true)
             }
-//            notifier.postMovieNotifications(movies = databaseRepository.getNextWeekReleaseMovies().first())
         }
     }
 

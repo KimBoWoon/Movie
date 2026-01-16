@@ -39,7 +39,7 @@ private const val MOVIE_NOTIFICATION_GROUP = "MOVIE_NOTIFICATIONS"
 val SUMMARY_ID = 0
 private const val MOVIE_NOTIFICATION_REQUEST_CODE = 0
 private const val TARGET_ACTIVITY_NAME = "com.bowoon.movie.ui.activities.MainActivity"
-private const val DEEP_LINK_SCHEME_AND_HOST = "movieinfo://movie"
+private const val DEEP_LINK_SCHEME_AND_HOST = "https://www.bowoon.movie.com"
 private const val DEEP_LINK_MOVIE_ID_PATH = "movie"
 private const val DEEP_LINK_BASE_PATH = "$DEEP_LINK_SCHEME_AND_HOST/$DEEP_LINK_MOVIE_ID_PATH"
 const val DEEP_LINK_URI_PATTERN = "$DEEP_LINK_BASE_PATH/{id}"
@@ -50,7 +50,7 @@ class SystemTrayNotifier @Inject constructor(
     @param:Dispatcher(dispatcher = IO) private val ioDispatcher: CoroutineDispatcher,
     private val userDataRepository: UserDataRepository
 ) : Notifier {
-    override fun postNotification(message: String) {
+    override fun postNotification(id: Int, message: String) {
         if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_DENIED) return
 
         val notification = context.createMovieNotification {
@@ -62,7 +62,7 @@ class SystemTrayNotifier @Inject constructor(
                         MOVIE_NOTIFICATION_REQUEST_CODE,
                         Intent().apply {
                             action = Intent.ACTION_VIEW
-                            data = "movieinfo://movie/favorite?tab=1".toUri()
+                            data = message.toUri()
                             flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
                             component = ComponentName(
                                 context.packageName,
@@ -75,7 +75,7 @@ class SystemTrayNotifier @Inject constructor(
         }
 
         NotificationManagerCompat.from(context).apply {
-            notify(1, notification)
+            notify(id, notification)
         }
     }
 

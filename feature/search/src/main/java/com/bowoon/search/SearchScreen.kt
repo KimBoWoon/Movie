@@ -109,22 +109,35 @@ fun SearchScreen(
     goToPeople: (Int) -> Unit,
     goToSeries: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
+    query: String,
+    searchType: SearchType,
     viewModel: SearchVM = hiltViewModel()
 ) {
     LocalFirebaseLogHelper.current.sendLog("SearchScreen", "search screen init")
 
     val searchUiState by viewModel.searchResult.collectAsStateWithLifecycle()
     val selectedGenre by viewModel.selectedGenre.collectAsStateWithLifecycle()
-    val searchType by viewModel.searchType.collectAsStateWithLifecycle()
+    val searchType by viewModel.searchType.collectAsStateWithLifecycle(initialValue = searchType)
     val recommendKeyword by viewModel.recommendKeywordPaging.collectAsStateWithLifecycle()
     val inputKeyword = stringResource(id = R.string.input_keyword)
     val movieAppData by viewModel.movieAppData.movieAppData.collectAsStateWithLifecycle()
     val lifecycle = LocalLifecycleOwner.current.lifecycle
 
-    LaunchedEffect(key1 = inputKeyword) {
+    LaunchedEffect(key1 = Unit) {
         viewModel.showSnackbar
             .flowWithLifecycle(lifecycle = lifecycle, minActiveState = Lifecycle.State.STARTED)
             .collect { onShowSnackbar(inputKeyword, null) }
+    }
+
+    LaunchedEffect(key1 = searchType) {
+        viewModel.updateSearchType(searchType = searchType)
+    }
+
+    LaunchedEffect(key1 = query) {
+        if (query.trim().isNotEmpty()) {
+            viewModel.updateKeyword(keyword = query)
+            viewModel.searchMovies()
+        }
     }
 
     SearchScreen(
@@ -343,7 +356,12 @@ fun SearchTypeComponent(
     searchType: SearchType,
     updateSearchType: (SearchType) -> Unit
 ) {
-    var isExpand by remember { mutableStateOf(false) }
+    var isExpand by remember { mutableStateOf(value = false) }
+    val types = listOf(
+        stringResource(id = R.string.search_type_movie),
+        stringResource(id = R.string.search_type_people),
+        stringResource(id = R.string.search_type_movie)
+    )
 
     Column {
         Row(
