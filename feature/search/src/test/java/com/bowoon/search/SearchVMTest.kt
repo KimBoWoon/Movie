@@ -51,9 +51,9 @@ class SearchVMTest {
     @Test
     fun updateKeywordTest() {
         assertEquals(viewModel.searchQuery, "")
-        viewModel.updateKeyword("mission")
+        viewModel.updateQuery("mission")
         assertEquals(viewModel.searchQuery, "mission")
-        viewModel.updateKeyword("미션")
+        viewModel.updateQuery("미션")
         assertEquals(viewModel.searchQuery, "미션")
     }
 
@@ -69,7 +69,7 @@ class SearchVMTest {
     @Test
     fun searchMovieStateTest() = runTest {
         backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.searchResult.collect() }
-        viewModel.updateKeyword("미션")
+        viewModel.updateQuery("미션")
         viewModel.searchMovies()
 
 //        assertEquals(viewModel.searchMovieState.value, PagingData.empty<Movie>())
@@ -104,7 +104,7 @@ class SearchVMTest {
     fun recommendedKeywordTest() = runTest {
         backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.recommendKeywordPaging.collect() }
 
-        viewModel.updateKeyword("mission")
+        viewModel.updateQuery("mission")
 
         val pagingSource = RecommendKeywordPagingSource(
             apis = TestMovieDataSource(),

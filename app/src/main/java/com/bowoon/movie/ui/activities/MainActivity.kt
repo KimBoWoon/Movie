@@ -1,5 +1,6 @@
 package com.bowoon.movie.ui.activities
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
@@ -18,13 +19,15 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation3.runtime.NavKey
 import com.bowoon.common.AppDoubleBackToExit
+import com.bowoon.common.Log
 import com.bowoon.common.isSystemInDarkTheme
 import com.bowoon.data.util.NetworkMonitor
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.movie.MovieFirebase
 import com.bowoon.movie.R
-import com.bowoon.movie.deeplink.parseDeepLink
+import com.bowoon.movie.deeplink.parseDeeplink
 import com.bowoon.movie.rememberMovieAppState
 import com.bowoon.movie.ui.MovieApp
 import com.bowoon.movie.utils.isSystemInDarkTheme
@@ -51,10 +54,15 @@ class MainActivity : ComponentActivity() {
             exitText = getString(R.string.double_back_message)
         )
     }
+    private var deeplinkBackstack by mutableStateOf<List<NavKey>>(value = emptyList())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
+
+        intent?.let {
+            deeplinkBackstack = parseDeeplink(uri = intent.data)
+        }
 
         onBackPressedDispatcher.addCallback(
             onBackPressedCallback = object : OnBackPressedCallback(enabled = true) {
@@ -94,8 +102,6 @@ class MainActivity : ComponentActivity() {
 
         splashScreen.setKeepOnScreenCondition { viewModel.movieAppData.value.shouldKeepSplashScreen() }
 
-        val key = parseDeepLink(uri = intent.data)
-
         setContent {
             CompositionLocalProvider(value = LocalFirebaseLogHelper provides movieFirebase) {
                 LocalFirebaseLogHelper.current.sendLog(name = javaClass.simpleName, message = "compose start!")
@@ -110,11 +116,19 @@ class MainActivity : ComponentActivity() {
                         appState = appState,
                         snackbarHostState = snackbarHostState,
                         nextWeekReleaseMovies = nextWeekReleaseMovies,
-                        deeplink = key
+                        deeplinkBackstack = deeplinkBackstack,
+                        onDeeplinkProcessed = { deeplinkBackstack = emptyList() }
                     )
                 }
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent = intent)
+        Log.d("onNewIntent")
+        setIntent(intent)
+        deeplinkBackstack = parseDeeplink(uri = intent.data)
     }
 }
 

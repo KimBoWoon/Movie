@@ -8,4 +8,7 @@
     <string name="input_keyword">Input Keyword</string>
     <string name="do_search">Enter a search term to search for it!</string>
     <string name="recommend_keyword">Recommended keyword</string>
+    <string name="search_type_movie">Movie</string>
+    <string name="search_type_people">People</string>
+    <string name="search_type_series">Series</string>
 </resources>

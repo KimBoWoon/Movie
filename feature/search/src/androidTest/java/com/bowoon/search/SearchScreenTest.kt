@@ -13,6 +13,7 @@ import androidx.compose.ui.test.performScrollToNode
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.PagingData
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.bowoon.model.Genre
 import com.bowoon.model.MovieAppData
 import com.bowoon.model.SearchType
@@ -22,6 +23,9 @@ import com.bowoon.testing.repository.TestPagingRepository
 import com.bowoon.testing.repository.TestUserDataRepository
 import com.bowoon.testing.utils.TestMovieAppDataManager
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -61,7 +65,7 @@ class SearchScreenTest {
 
                 SearchScreen(
                     searchUiState = searchState,
-                    recommendKeyword = RecommendKeywordUiState.Loading,
+                    recommendKeyword = viewModel.recommendKeywordPaging.collectAsLazyPagingItems(),
                     keyword = viewModel.searchQuery,
                     searchType = searchType,
                     movieAppData = movieAppData,
@@ -70,7 +74,7 @@ class SearchScreenTest {
                     goToPeople = {},
                     goToSeries = {},
                     onSearchClick = viewModel::searchMovies,
-                    updateKeyword = viewModel::updateKeyword,
+                    updateKeyword = viewModel::updateQuery,
                     updateSearchType = viewModel::updateSearchType,
                     updateGenre = viewModel::updateGenre
                 )
@@ -91,13 +95,13 @@ class SearchScreenTest {
                 val searchType by viewModel.searchType.collectAsStateWithLifecycle()
                 val selectedGenre by viewModel.selectedGenre.collectAsStateWithLifecycle()
 
-                viewModel.updateKeyword("mission")
+                viewModel.updateQuery("mission")
 
                 val movieAppData by movieAppDataRepository.movieAppData.collectAsStateWithLifecycle()
 
                 SearchScreen(
                     searchUiState = searchState,
-                    recommendKeyword = RecommendKeywordUiState.Loading,
+                    recommendKeyword = viewModel.recommendKeywordPaging.collectAsLazyPagingItems(),
                     keyword = viewModel.searchQuery,
                     searchType = searchType,
                     movieAppData = movieAppData,
@@ -106,7 +110,7 @@ class SearchScreenTest {
                     goToPeople = {},
                     goToSeries = {},
                     onSearchClick = viewModel::searchMovies,
-                    updateKeyword = viewModel::updateKeyword,
+                    updateKeyword = viewModel::updateQuery,
                     updateSearchType = viewModel::updateSearchType,
                     updateGenre = viewModel::updateGenre
                 )
@@ -120,13 +124,14 @@ class SearchScreenTest {
     }
 
     @Test
-    fun recommendKeywordTest() {
+    fun recommendKeywordTest() = runTest(UnconfinedTestDispatcher()) {
+        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.recommendKeywordPaging.collect { println("recommendKeywordPaging -> $it") } }
         composeTestRule.apply {
             setContent {
                 RecommendKeywordComponent(
-                    recommendKeyword = RecommendKeywordUiState.Success(pagingData = flowOf(PagingData.from(data = testRecommendedKeyword))),
+                    recommendKeyword = flowOf(value = PagingData.from(data = testRecommendedKeyword)).collectAsLazyPagingItems(),
                     keyword = viewModel.searchQuery,
-                    updateKeyword = viewModel::updateKeyword,
+                    updateKeyword = viewModel::updateQuery,
                     onSearchClick = viewModel::searchMovies,
                     recommendKeywordVisible = {}
                 )
@@ -134,7 +139,7 @@ class SearchScreenTest {
 
             onNodeWithText(text = "추천 검색어").assertExists().assertIsDisplayed()
             onNodeWithContentDescription(label = "recommendedKeywordClose").assertExists().assertIsDisplayed()
-            (0 ..5).forEach {
+            (0..5).forEach {
                 onNodeWithContentDescription(label = "recommendKeywordList").performScrollToNode(matcher = hasContentDescription(value = "mission$it")).assertExists().assertIsDisplayed()
             }
 
@@ -150,11 +155,11 @@ class SearchScreenTest {
                 val selectedGenre by viewModel.selectedGenre.collectAsStateWithLifecycle()
                 val movieAppData by movieAppDataRepository.movieAppData.collectAsStateWithLifecycle()
 
-                viewModel.updateKeyword("mission")
+                viewModel.updateQuery("mission")
 
                 SearchScreen(
                     searchUiState = searchState,
-                    recommendKeyword = RecommendKeywordUiState.Loading,
+                    recommendKeyword = viewModel.recommendKeywordPaging.collectAsLazyPagingItems(),
                     keyword = viewModel.searchQuery,
                     searchType = searchType,
                     movieAppData = movieAppData,
@@ -163,7 +168,7 @@ class SearchScreenTest {
                     goToPeople = {},
                     goToSeries = {},
                     onSearchClick = viewModel::searchMovies,
-                    updateKeyword = viewModel::updateKeyword,
+                    updateKeyword = viewModel::updateQuery,
                     updateSearchType = viewModel::updateSearchType,
                     updateGenre = viewModel::updateGenre
                 )
@@ -187,13 +192,13 @@ class SearchScreenTest {
                 val searchType by viewModel.searchType.collectAsStateWithLifecycle()
                 val selectedGenre by viewModel.selectedGenre.collectAsStateWithLifecycle()
 
-                viewModel.updateKeyword("name")
+                viewModel.updateQuery("name")
 
                 val movieAppData by movieAppDataRepository.movieAppData.collectAsStateWithLifecycle()
 
                 SearchScreen(
                     searchUiState = searchState,
-                    recommendKeyword = RecommendKeywordUiState.Loading,
+                    recommendKeyword = viewModel.recommendKeywordPaging.collectAsLazyPagingItems(),
                     keyword = viewModel.searchQuery,
                     searchType = searchType,
                     movieAppData = movieAppData,
@@ -202,7 +207,7 @@ class SearchScreenTest {
                     goToPeople = {},
                     goToSeries = {},
                     onSearchClick = viewModel::searchMovies,
-                    updateKeyword = viewModel::updateKeyword,
+                    updateKeyword = viewModel::updateQuery,
                     updateSearchType = viewModel::updateSearchType,
                     updateGenre = viewModel::updateGenre
                 )
@@ -267,11 +272,11 @@ class SearchScreenTest {
                 val selectedGenre by viewModel.selectedGenre.collectAsStateWithLifecycle()
                 val movieAppData by movieAppDataRepository.movieAppData.collectAsStateWithLifecycle()
 
-                viewModel.updateKeyword("mission")
+                viewModel.updateQuery("mission")
 
                 SearchScreen(
                     searchUiState = searchState,
-                    recommendKeyword = RecommendKeywordUiState.Loading,
+                    recommendKeyword = viewModel.recommendKeywordPaging.collectAsLazyPagingItems(),
                     keyword = viewModel.searchQuery,
                     searchType = searchType,
                     movieAppData = movieAppData,
@@ -280,7 +285,7 @@ class SearchScreenTest {
                     goToPeople = {},
                     goToSeries = {},
                     onSearchClick = viewModel::searchMovies,
-                    updateKeyword = viewModel::updateKeyword,
+                    updateKeyword = viewModel::updateQuery,
                     updateSearchType = viewModel::updateSearchType,
                     updateGenre = viewModel::updateGenre
                 )

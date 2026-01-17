@@ -6,6 +6,7 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.WorkInfo
 import androidx.work.WorkInfo.State
 import androidx.work.WorkManager
+import androidx.work.WorkQuery
 import com.bowoon.common.Log
 import com.bowoon.data.util.SyncManager
 import com.bowoon.sync.workers.MainSyncWorker
@@ -25,7 +26,7 @@ internal class WorkSyncManager @Inject constructor(
 
 //    init {
 //        WorkManager.getInstance(context = appContext)
-//            .getWorkInfos(workQuery = WorkQuery.fromStates(State.entries))
+//            .getWorkInfos(workQuery = WorkQuery.fromStates(states = State.entries))
 //            .get()
 //            .forEach { workInfo ->
 //                Log.d(TAG, workInfo.toString())

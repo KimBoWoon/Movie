@@ -55,6 +55,7 @@ import com.bowoon.detail.series.navigation.navigateToSeries
 import com.bowoon.detail.series.navigation.seriesEntry
 import com.bowoon.favorite.navigation.favoriteEntry
 import com.bowoon.firebase.LocalFirebaseLogHelper
+import com.bowoon.home.navigation.HomeNavKey
 import com.bowoon.home.navigation.homeEntry
 import com.bowoon.model.Movie
 import com.bowoon.movie.MovieAppState
@@ -84,10 +85,11 @@ fun MovieApp(
     appState: MovieAppState,
     snackbarHostState: SnackbarHostState,
     nextWeekReleaseMovies: List<Movie>,
-    deeplink: NavKey? = null
+    deeplinkBackstack: List<NavKey> = emptyList(),
+    onDeeplinkProcessed: () -> Unit
 ) {
-    val navigator = remember { Navigator(appState.navigationState) }
-    val isTopLevelRoute = appState.navigationState.backStacks[appState.navigationState.topLevelRoute]?.last() in TOP_LEVEL_NAV_ITEMS.map { it.key }
+    val navigator = remember { Navigator(state = appState.navigationState) }
+    val isTopLevelRoute = navigator.state.backStacks[navigator.state.topLevelRoute]?.last()?.javaClass in TOP_LEVEL_NAV_ITEMS.map { it.key.javaClass }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -101,7 +103,6 @@ fun MovieApp(
         },
         bottomBar = {
             MovieBottomBar(
-                appState = appState,
                 navigator = navigator,
                 isTopLevelRoute = isTopLevelRoute
             )
@@ -182,13 +183,41 @@ fun MovieApp(
 
         NavDisplay(
             modifier = Modifier.padding(paddingValues = innerPadding),
-            entries = appState.navigationState.toEntries(entryProvider),
+            entries = navigator.state.toEntries(entryProvider),
             sceneStrategy = listDetailStrategy,
             onBack = { navigator.goBack() },
         )
+    }
 
-        // TODO 리컴포지션을 회피할 방법을 생각해야봐야함
-        LaunchedEffect(key1 = Unit) { if (deeplink != null) navigator.navigate(route = deeplink) }
+    LaunchedEffect(key1 = deeplinkBackstack) {
+        if (deeplinkBackstack.isNotEmpty()) {
+            var deeplinkList = deeplinkBackstack
+            var targetTabKey: NavKey? = HomeNavKey
+
+            // 딥링크로 진입시 백스택 초기화
+            navigator.state.backStacks.entries.forEach { (_, value) ->
+                while (value.size > 1) {
+                    value.removeAt(index = value.lastIndex)
+                }
+            }
+
+            while (deeplinkList.isNotEmpty()) {
+                val firstRoute = deeplinkList.first()
+                targetTabKey = TOP_LEVEL_NAV_ITEMS.keys.firstOrNull { it.javaClass == firstRoute.javaClass } ?: targetTabKey
+
+                if (TOP_LEVEL_NAV_ITEMS.keys.firstOrNull { it.javaClass == firstRoute.javaClass } != null) {
+                    navigator.state.topLevelRoute = firstRoute
+                }
+
+                if (navigator.state.backStacks[targetTabKey] != null) {
+                    navigator.state.backStacks[targetTabKey]?.add(element = firstRoute)
+                }
+
+                deeplinkList = deeplinkList.drop(n = 1)
+            }
+
+            onDeeplinkProcessed()
+        }
     }
 }
 
@@ -212,7 +241,7 @@ fun MovieSearchTopBar(
                     .height(height = dp40)
                     .clip(shape = RoundedCornerShape(percent = 50))
                     .background(color = MaterialTheme.colorScheme.inverseOnSurface)
-                    .bounceClick(onClick = { navigator.navigate(route = SearchNavKey) }),
+                    .bounceClick(onClick = { navigator.navigate(route = SearchNavKey()) }),
                 contentAlignment = Alignment.Center
             ) {
                 Row(
@@ -224,14 +253,16 @@ fun MovieSearchTopBar(
                             .wrapContentSize()
                             .padding(start = dp20)
                             .align(Alignment.CenterVertically)
-                            .clickable { navigator.navigate(route = SearchNavKey) },
+                            .clickable { navigator.navigate(route = SearchNavKey()) },
                         imageVector = Icons.Default.Search,
                         contentDescription = "goToSearch",
                         tint = MaterialTheme.colorScheme.onSurface
                     )
                     if (nextWeekReleaseMovies.isEmpty()) {
                         Text(
-                            modifier = Modifier.wrapContentWidth().padding(start = dp10),
+                            modifier = Modifier
+                                .wrapContentWidth()
+                                .padding(start = dp10),
                             text = stringResource(id = R.string.go_to_search),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
@@ -267,7 +298,6 @@ fun MovieSearchTopBar(
 
 @Composable
 fun MovieBottomBar(
-    appState: MovieAppState,
     navigator: Navigator,
     isTopLevelRoute: Boolean
 ) {
@@ -278,7 +308,6 @@ fun MovieBottomBar(
         exit = shrinkVertically(),
         content = {
             MovieNavigation(
-                appState = appState,
                 navigator = navigator
             )
         }
@@ -287,7 +316,6 @@ fun MovieBottomBar(
 
 @Composable
 fun MovieNavigation(
-    appState: MovieAppState,
     navigator: Navigator
 ) {
     val context = LocalContext.current
@@ -308,11 +336,11 @@ fun MovieNavigation(
     ) {
         TOP_LEVEL_NAV_ITEMS.forEach { (navKey, navItem) ->
             BottomNavigationBarItem(
-                selected = navKey == appState.navigationState.topLevelRoute,
+                selected = navKey == navigator.state.topLevelRoute,
                 label = context.getString(navItem.titleTextId),
                 selectedIcon = navItem.selectedIcon,
                 unSelectedIcon = navItem.unselectedIcon,
-                onClick = { navigator.navigate(navKey) }
+                onClick = { navigator.navigate(route = navKey) }
             )
         }
     }

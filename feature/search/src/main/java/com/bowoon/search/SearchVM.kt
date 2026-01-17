@@ -20,14 +20,13 @@ import com.bowoon.model.SearchType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -44,39 +43,25 @@ class SearchVM @Inject constructor(
         private const val SEARCH_TYPE = "searchType"
     }
 
-    private var recommendKeywordJob: Job? = null
     var searchQuery by mutableStateOf(value = "")
         private set
     val selectedGenre = savedStateHandle.getStateFlow<Genre?>(key = GENRE, initialValue = null)
     val searchType = savedStateHandle.getStateFlow<SearchType>(key = SEARCH_TYPE, initialValue = SearchType.MOVIE)
     val searchResult = MutableStateFlow<SearchUiState>(value = SearchUiState.SearchHint)
-    val recommendKeywordPaging = MutableStateFlow<RecommendKeywordUiState>(value = RecommendKeywordUiState.Loading)
+    var recommendKeywordPaging: Flow<PagingData<SearchKeyword>> = emptyFlow()
     val showSnackbar = MutableSharedFlow<Unit>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
     private val recommendKeywordFlow = MutableStateFlow<String>(value = "")
 
     init {
-        recommendKeywordJob = viewModelScope.launch {
-            recommendKeywordPaging.emit(
-                value = RecommendKeywordUiState.Success(
-                    pagingData = recommendKeywordFlow.debounce(timeoutMillis = 300L)
-                        .flatMapLatest {
-                            Pager(
-                                config = PagingConfig(pageSize = 1, initialLoadSize = 1, prefetchDistance = 5),
-                                initialKey = 1,
-                                pagingSourceFactory = { pagingRepository.getRecommendKeywordPagingSource(query = it) }
-                            ).flow.cachedIn(scope = viewModelScope)
-                        }
-                )
-            )
-        }
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-
-        if (recommendKeywordJob != null) {
-            recommendKeywordJob?.cancel()
-            recommendKeywordJob = null
+        viewModelScope.launch {
+            recommendKeywordFlow.debounce(timeoutMillis = 300L)
+                .collect { query ->
+                    recommendKeywordPaging = Pager(
+                        config = PagingConfig(pageSize = 1, initialLoadSize = 1, prefetchDistance = 5),
+                        initialKey = 1,
+                        pagingSourceFactory = { pagingRepository.getRecommendKeywordPagingSource(query = query) }
+                    ).flow.cachedIn(scope = viewModelScope)
+                }
         }
     }
 
@@ -84,9 +69,9 @@ class SearchVM @Inject constructor(
         savedStateHandle[GENRE] = if (genre == selectedGenre.value) null else genre
     }
 
-    fun updateKeyword(keyword: String) {
-        searchQuery = keyword
-        viewModelScope.launch { recommendKeywordFlow.emit(value = keyword) }
+    fun updateQuery(query: String) {
+        searchQuery = query
+        viewModelScope.launch { recommendKeywordFlow.emit(value = query) }
     }
 
     fun updateSearchType(searchType: SearchType) {
@@ -131,9 +116,4 @@ sealed interface SearchUiState {
     data object SearchHint : SearchUiState
     data class Success(val pagingData: Flow<PagingData<Movie>>) : SearchUiState
     data class Error(val throwable: Throwable) : SearchUiState
-}
-
-sealed interface RecommendKeywordUiState {
-    data object Loading : RecommendKeywordUiState
-    data class Success(val pagingData: Flow<PagingData<SearchKeyword>>) : RecommendKeywordUiState
 }
