@@ -8,4 +8,7 @@
     <string name="input_keyword">검색어를 입력하세요.</string>
     <string name="do_search">검색어를 입력해 검색해보세요!</string>
     <string name="recommend_keyword">추천 검색어</string>
+    <string name="search_type_movie">영화</string>
+    <string name="search_type_people">인물</string>
+    <string name="search_type_series">시리즈</string>
 </resources>

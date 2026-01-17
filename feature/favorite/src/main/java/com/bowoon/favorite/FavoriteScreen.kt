@@ -19,6 +19,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -53,6 +54,7 @@ fun FavoriteScreen(
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
+    initialTab: Int = 0,
     viewModel: FavoriteVM = hiltViewModel()
 ) {
     LocalFirebaseLogHelper.current.sendLog("FavoriteScreen", "favorite screen init")
@@ -64,6 +66,7 @@ fun FavoriteScreen(
         favoriteMovies = favoriteMovies,
         favoritePeoples = favoritePeoples,
         onShowSnackbar = onShowSnackbar,
+        initialTab = initialTab,
         goToMovie = goToMovie,
         goToPeople = goToPeople,
         deleteFavoriteMovie = viewModel::deleteMovie,
@@ -76,6 +79,7 @@ fun FavoriteScreen(
     favoriteMovies: List<Movie>,
     favoritePeoples: List<People>,
     onShowSnackbar: suspend (String, String?) -> Boolean,
+    initialTab: Int = 0,
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     deleteFavoriteMovie: (Movie) -> Unit,
@@ -85,13 +89,19 @@ fun FavoriteScreen(
         stringResource(id = R.string.movie),
         stringResource(id = R.string.people)
     )
-    val pagerState = rememberPagerState(initialPage = 0, pageCount = { favoriteTabs.size })
+    val pagerState = rememberPagerState(initialPage = initialTab, pageCount = { favoriteTabs.size })
     val scope = rememberCoroutineScope()
     val removeFavoriteText = stringResource(id = R.string.remove_favorite)
     val tabClickEvent: (Int, Int) -> Unit = { current, index ->
         scope.launch {
             Log.d("current > $current, index > $index")
             pagerState.animateScrollToPage(index)
+        }
+    }
+
+    LaunchedEffect(key1 = initialTab) {
+        if (pagerState.currentPage != initialTab) {
+            pagerState.scrollToPage(page = initialTab)
         }
     }
 

@@ -77,6 +77,7 @@ import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.Genre
 import com.bowoon.model.Movie
 import com.bowoon.model.MovieAppData
+import com.bowoon.model.SearchKeyword
 import com.bowoon.model.SearchType
 import com.bowoon.movie.feature.search.R
 import com.bowoon.ui.components.CircularProgressComponent
@@ -109,22 +110,35 @@ fun SearchScreen(
     goToPeople: (Int) -> Unit,
     goToSeries: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
+    query: String,
+    searchType: SearchType,
     viewModel: SearchVM = hiltViewModel()
 ) {
     LocalFirebaseLogHelper.current.sendLog("SearchScreen", "search screen init")
 
     val searchUiState by viewModel.searchResult.collectAsStateWithLifecycle()
     val selectedGenre by viewModel.selectedGenre.collectAsStateWithLifecycle()
-    val searchType by viewModel.searchType.collectAsStateWithLifecycle()
-    val recommendKeyword by viewModel.recommendKeywordPaging.collectAsStateWithLifecycle()
+    val searchType by viewModel.searchType.collectAsStateWithLifecycle(initialValue = searchType)
+    val recommendKeyword = viewModel.recommendKeywordPaging.collectAsLazyPagingItems()
     val inputKeyword = stringResource(id = R.string.input_keyword)
     val movieAppData by viewModel.movieAppData.movieAppData.collectAsStateWithLifecycle()
     val lifecycle = LocalLifecycleOwner.current.lifecycle
 
-    LaunchedEffect(key1 = inputKeyword) {
+    LaunchedEffect(key1 = Unit) {
         viewModel.showSnackbar
             .flowWithLifecycle(lifecycle = lifecycle, minActiveState = Lifecycle.State.STARTED)
             .collect { onShowSnackbar(inputKeyword, null) }
+    }
+
+    LaunchedEffect(key1 = query, key2 = searchType) {
+        // 이미 검색 결과가 있는(Success) 상태라면 딥링크 검색을 트리거하지 않음
+        if (searchUiState is SearchUiState.SearchHint) {
+            if (query.trim().isNotEmpty()) {
+                viewModel.updateSearchType(searchType)
+                viewModel.updateQuery(query = query)
+                viewModel.searchMovies()
+            }
+        }
     }
 
     SearchScreen(
@@ -138,7 +152,7 @@ fun SearchScreen(
         goToPeople = goToPeople,
         goToSeries = goToSeries,
         onSearchClick = viewModel::searchMovies,
-        updateKeyword = viewModel::updateKeyword,
+        updateKeyword = viewModel::updateQuery,
         updateSearchType = viewModel::updateSearchType,
         updateGenre = viewModel::updateGenre
     )
@@ -147,7 +161,7 @@ fun SearchScreen(
 @Composable
 fun SearchScreen(
     searchUiState: SearchUiState,
-    recommendKeyword: RecommendKeywordUiState,
+    recommendKeyword: LazyPagingItems<SearchKeyword>,
     keyword: String,
     searchType: SearchType,
     movieAppData: MovieAppData,
@@ -343,7 +357,12 @@ fun SearchTypeComponent(
     searchType: SearchType,
     updateSearchType: (SearchType) -> Unit
 ) {
-    var isExpand by remember { mutableStateOf(false) }
+    var isExpand by remember { mutableStateOf(value = false) }
+    val types = listOf(
+        stringResource(id = R.string.search_type_movie),
+        stringResource(id = R.string.search_type_people),
+        stringResource(id = R.string.search_type_movie)
+    )
 
     Column {
         Row(
@@ -538,7 +557,7 @@ fun SearchPagingComponent(
 
 @Composable
 fun RecommendKeywordComponent(
-    recommendKeyword: RecommendKeywordUiState,
+    recommendKeyword: LazyPagingItems<SearchKeyword>,
     keyword: String,
     updateKeyword: (String) -> Unit,
     onSearchClick: () -> Unit,
@@ -549,76 +568,65 @@ fun RecommendKeywordComponent(
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        when (recommendKeyword) {
-            is RecommendKeywordUiState.Loading -> CircularProgressComponent(
-                modifier = Modifier
-                    .wrapContentSize()
-                    .align(alignment = Alignment.Center)
-            )
-            is RecommendKeywordUiState.Success -> {
-                val recommendKeyword = recommendKeyword.pagingData.collectAsLazyPagingItems()
-
-                LazyColumn(
+        LazyColumn(
+            modifier = Modifier
+                .semantics { contentDescription = "recommendKeywordList" }
+                .fillMaxSize()
+        ) {
+            item {
+                Row(
                     modifier = Modifier
-                        .semantics { contentDescription = "recommendKeywordList" }
-                        .fillMaxSize()
+                        .fillMaxWidth()
+                        .height(height = dp60),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    item {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(height = dp60),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                modifier = Modifier.padding(start = dp16),
-                                text = stringResource(id = R.string.recommend_keyword),
-                                fontSize = sp20,
-                                fontWeight = FontWeight.Bold,
-                                textAlign = TextAlign.Center,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                            Icon(
-                                modifier = Modifier
-                                    .clickable { recommendKeywordVisible(false) }
-                                    .padding(end = dp16),
-                                imageVector = Icons.Filled.Close,
-                                contentDescription = "recommendedKeywordClose"
-                            )
-                        }
-                    }
-                    items(
-                        count = recommendKeyword.itemCount,
-                        key = { index -> recommendKeyword.peek(index)?.id ?: -1 }
-                    ) { index ->
-                        recommendKeyword[index]?.let { recommendKeyword ->
-                            val annotatedString = recommendKeyword.name.matchedColorString(keyword = keyword, color = MaterialTheme.colorScheme.primary)
-                            Text(
-                                modifier = Modifier
-                                    .semantics { contentDescription = annotatedString.toString() }
-                                    .padding(start = dp16, end = dp16, top = dp10)
-                                    .fillMaxWidth()
-                                    .height(height = dp35)
-                                    .bounceClick {
-                                        updateKeyword(recommendKeyword.name ?: "")
-                                        onSearchClick()
-                                        focusManager.clearFocus()
-                                        recommendKeywordVisible(false)
-                                    },
-                                text = annotatedString,
-                                textAlign = TextAlign.Center,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        }
-                    }
-                    if (recommendKeyword.loadState.append is LoadState.Loading) {
-                        item {
-                            CircularProgressComponent(modifier = Modifier.wrapContentSize())
-                        }
-                    }
+                    Text(
+                        modifier = Modifier.padding(start = dp16),
+                        text = stringResource(id = R.string.recommend_keyword),
+                        fontSize = sp20,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Icon(
+                        modifier = Modifier
+                            .clickable { recommendKeywordVisible(false) }
+                            .padding(end = dp16),
+                        imageVector = Icons.Filled.Close,
+                        contentDescription = "recommendedKeywordClose"
+                    )
+                }
+            }
+            items(
+                count = recommendKeyword.itemCount,
+                key = { index -> recommendKeyword.peek(index)?.id ?: -1 }
+            ) { index ->
+                recommendKeyword[index]?.let { recommendKeyword ->
+                    val annotatedString = recommendKeyword.name.matchedColorString(keyword = keyword, color = MaterialTheme.colorScheme.primary)
+                    Text(
+                        modifier = Modifier
+                            .semantics { contentDescription = annotatedString.toString() }
+                            .padding(start = dp16, end = dp16, top = dp10)
+                            .fillMaxWidth()
+                            .height(height = dp35)
+                            .bounceClick {
+                                updateKeyword(recommendKeyword.name ?: "")
+                                onSearchClick()
+                                focusManager.clearFocus()
+                                recommendKeywordVisible(false)
+                            },
+                        text = annotatedString,
+                        textAlign = TextAlign.Center,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+            if (recommendKeyword.loadState.append is LoadState.Loading) {
+                item {
+                    CircularProgressComponent(modifier = Modifier.wrapContentSize())
                 }
             }
         }

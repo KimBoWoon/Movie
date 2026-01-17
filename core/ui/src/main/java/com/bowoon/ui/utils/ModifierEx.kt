@@ -18,11 +18,15 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
+import kotlin.io.path.moveTo
 
 enum class ButtonState { Pressed, Idle }
 
@@ -144,5 +148,53 @@ fun Modifier.animateRotation(
         }
 
         rotate(rotation.value)
+    }
+)
+
+fun Modifier.topRoundedBorder(
+    strokeWidth: Dp,
+    color: Color,
+    cornerRadius: Dp
+) = composed(
+    factory = {
+        val density = LocalDensity.current
+        val strokeWidthPx = density.run { strokeWidth.toPx() }
+        val cornerRadiusPx = density.run { cornerRadius.toPx() }
+
+        drawBehind {
+            val width = size.width
+            val height = size.height
+
+            val path = Path().apply {
+                // 좌측 하단에서 시작
+                moveTo(0f, height)
+                // 좌측 상단으로 이동 (라운드 시작 전까지)
+                lineTo(0f, cornerRadiusPx)
+                // 좌측 상단 라운드
+                arcTo(
+                    rect = Rect(0f, 0f, cornerRadiusPx * 2, cornerRadiusPx * 2),
+                    startAngleDegrees = 180f,
+                    sweepAngleDegrees = 90f,
+                    forceMoveTo = false
+                )
+                // 상단 라인 (우측 상단 라운드 전까지)
+                lineTo(width - cornerRadiusPx, 0f)
+                // 우측 상단 라운드
+                arcTo(
+                    rect = Rect(width - cornerRadiusPx * 2, 0f, width, cornerRadiusPx * 2),
+                    startAngleDegrees = 270f,
+                    sweepAngleDegrees = 90f,
+                    forceMoveTo = false
+                )
+                // 우측 하단으로 이동
+                lineTo(width, height)
+            }
+
+            drawPath(
+                path = path,
+                color = color,
+                style = Stroke(width = strokeWidthPx)
+            )
+        }
     }
 )

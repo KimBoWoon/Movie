@@ -112,12 +112,20 @@ class Navigator(val state: NavigationState) {
 
     /**
      * 뒤로 이동
+     *
+     * TODO 딥링크로 앱 접속시 로직 확인 필요
      */
     fun goBack() {
         val currentStack = state.backStacks[state.topLevelRoute] ?: error("Stack for ${state.topLevelRoute} not found")
         val currentRoute = currentStack.last()
 
         if (currentRoute == state.topLevelRoute) {
+            // 최상위 목적지 일 때 백스택이 잔여물을 모두 빼준다
+            if (state.backStacks[state.topLevelRoute]?.size != 1) {
+                while ((state.backStacks[state.topLevelRoute]?.size ?: 0) > 1) {
+                    state.backStacks[state.topLevelRoute]?.removeAt(index = state.backStacks[state.topLevelRoute]?.lastIndex ?: 0)
+                }
+            }
             // 현재 목적지가 최상위 목적지와 같으면 시작지점으로 보냄
             state.topLevelRoute = state.startRoute
         } else {

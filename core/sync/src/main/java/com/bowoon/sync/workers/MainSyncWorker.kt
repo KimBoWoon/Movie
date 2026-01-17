@@ -27,6 +27,9 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import java.time.LocalDateTime
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import java.util.concurrent.TimeUnit
 
 @HiltWorker
@@ -65,6 +68,16 @@ class MainSyncWorker @AssistedInject constructor(
         fun startPeriodicSyncWork(): PeriodicWorkRequest =
             PeriodicWorkRequestBuilder<DelegatingWorker>(repeatInterval = 1, repeatIntervalTimeUnit = TimeUnit.DAYS)
                 .addTag(tag = PERIODIC_WORKER_TAG)
+                .setNextScheduleTimeOverride(
+                    nextScheduleTimeOverrideMillis = LocalDateTime.now()
+                        .withHour(0)
+                        .withMinute(0)
+                        .withSecond(0)
+                        .withNano(0)
+                        .plusDays(1)
+                        .toInstant(ZoneOffset.from(ZonedDateTime.now()))
+                        .toEpochMilli()
+                )
                 .setInputData(inputData = MainSyncWorker::class.delegatedData(isForce = false))
                 .setConstraints(constraints = SyncConstraints)
                 .build()

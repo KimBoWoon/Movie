@@ -10,7 +10,6 @@ import com.bowoon.data.util.DataManager
 import com.bowoon.data.util.SyncManager
 import com.bowoon.model.DarkThemeConfig
 import com.bowoon.model.MovieAppData
-import com.bowoon.notifications.Notifier
 import com.bowoon.ui.image.imageUrl
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -25,8 +24,7 @@ class MainVM @Inject constructor(
     dataManager: DataManager,
     databaseRepository: DatabaseRepository,
     userDataRepository: UserDataRepository,
-    syncManager: SyncManager,
-    notifier: Notifier
+    syncManager: SyncManager
 ) : ViewModel() {
     init {
         viewModelScope.launch {

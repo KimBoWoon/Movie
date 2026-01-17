@@ -72,7 +72,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                         isJniDebuggable = true
                         buildConfigField("Boolean", "IS_DEBUGGING_LOGGING", "true")
                         buildConfigField("String", "GIT_HASH", "\"$gitHash\"")
-                        manifestPlaceholders["appName"] = "Movie-QA"
+                        manifestPlaceholders["appName"] = "Movie-debug"
                         signingConfig = signingConfigs.getByName(Config.Application.Movie.Sign.Debug.name)
                     }
                     release {
