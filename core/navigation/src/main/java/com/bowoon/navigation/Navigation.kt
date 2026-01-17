@@ -106,7 +106,11 @@ class Navigator(val state: NavigationState) {
             // 목적지가 최상위일 때 최상위 목적지 변경
             in state.backStacks.keys -> state.topLevelRoute = route
             // 최상위 목적지 하위에 스택 추가
-            else -> state.backStacks[state.topLevelRoute]?.add(route)
+            else -> {
+                if (state.backStacks[state.topLevelRoute]?.lastOrNull() != route) {
+                    state.backStacks[state.topLevelRoute]?.add(route)
+                }
+            }
         }
     }
 
