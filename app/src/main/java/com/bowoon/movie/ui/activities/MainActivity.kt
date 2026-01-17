@@ -129,7 +129,6 @@ class MainActivity : ComponentActivity() {
         Log.d("onNewIntent")
         setIntent(intent)
         deeplinkBackstack = parseDeeplink(uri = intent.data)
-//        Log.d(parseDeepLink(uri = intent.data).toString())
     }
 }
 

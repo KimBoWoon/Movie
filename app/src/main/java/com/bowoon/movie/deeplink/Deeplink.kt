@@ -66,6 +66,13 @@ fun parseDeepLink(uri: Uri?): NavKey = uri?.let {
     }
 } ?: HomeNavKey // fallback if intent. uri is null or match is not found
 
+/**
+ * Deeplink parse
+ *
+ * path는 딥링크 경로, query는 매개변수
+ *
+ * @param uri Deeplink로 전달받은 URI
+ */
 fun parseDeeplink(uri: Uri?): List<NavKey> = uri?.let {
     buildList {
         var index = 0

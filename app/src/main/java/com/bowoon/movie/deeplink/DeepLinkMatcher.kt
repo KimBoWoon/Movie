@@ -17,22 +17,19 @@ internal class DeepLinkMatcher<T : NavKey>(
         if (request.pathSegments.size != deepLinkPattern.pathSegments.size) {
             return null
         }
-        // exact match (url does not contain any arguments)
+        // 매개변수가 없이 uri가 패턴과 일치할 때
         if (request.uri == deepLinkPattern.uriPattern) {
             return DeepLinkMatchResult(serializer = deepLinkPattern.serializer, args = mapOf())
         }
 
         val args = mutableMapOf<String, Any>()
-        // match the path
+
+        // path match
         request.pathSegments
             .asSequence()
-            // zip to compare the two objects side by side, order matters here so we
-            // need to make sure the compared segments are at the same position within the url
             .zip(other = deepLinkPattern.pathSegments.asSequence())
             .forEach { (requestedSegment, candidateSegment) ->
-                // retrieve the two path segments to compare
-                // if the potential match expects a path arg for this segment, try to parse the
-                // requested segment into the expected type
+                // 경로를 분석하여 매개변수일 경우
                 if (candidateSegment.isParamArg) {
                     val parsedValue = try {
                         candidateSegment.typeParser.invoke(requestedSegment)
@@ -42,11 +39,12 @@ internal class DeepLinkMatcher<T : NavKey>(
                     }
                     args[candidateSegment.stringValue] = parsedValue
                 } else if (requestedSegment != candidateSegment.stringValue) {
-                    // if it's path arg is not the expected type, its not a match
+                    // 예상되는 유형이 아니며 일치하지 않는 경우
                     return null
                 }
             }
-        // match queries (if any)
+
+        // query match
         request.queries.forEach { query ->
             val name = query.key
             val queryStringParser = deepLinkPattern.queryValueParsers[name]
@@ -58,19 +56,17 @@ internal class DeepLinkMatcher<T : NavKey>(
             }
             args[name] = queryParsedValue
         }
-        // provide the serializer of the matching key and map of arg names to parsed arg values
+
         return DeepLinkMatchResult(serializer = deepLinkPattern.serializer, args = args)
     }
 }
 
 /**
- * Created when a requested deeplink matches with a supported deeplink
+ * uri 구문 분석이 완료된 결과물
  *
- * @param [T] the backstack key associated with the deeplink that matched with the requested deeplink
- * @param serializer serializer for [T]
- * @param args The map of argument name to argument value. The value is expected to have already
- * been parsed from the raw url string back into its proper KType as declared in [T].
- * Includes arguments for all parts of the uri - path, query, etc.
+ * @param [T] 딥링크에서 변환될 NavKey
+ * @param serializer [T] 변환을 위한 직렬화
+ * @param args 매칭된 매개변수 맵
  * */
 internal data class DeepLinkMatchResult<T : NavKey>(
     val serializer: KSerializer<T>,
