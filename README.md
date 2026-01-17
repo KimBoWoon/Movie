@@ -10,6 +10,8 @@ Android 개발
 
 ## 스크린샷
 <img src = "/screenshot/Screenshot_20260116_150104.png" width="30%" height="30%">
+<img src = "/screenshot/Screenshot_20260117_171019.png" width="30%" height="30%">
+<img src = "/screenshot/Screenshot_20260117_171236.png" width="30%" height="30%">
 
 ## 사용 기술
 * Language
