@@ -66,7 +66,6 @@ class NavigationState(
         } else {
             listOf(startRoute, topLevelRoute)
         }
-    var isFromDeeplink: Boolean = false
 }
 
 /**
@@ -121,11 +120,11 @@ class Navigator(val state: NavigationState) {
         val currentRoute = currentStack.last()
 
         if (currentRoute == state.topLevelRoute) {
-            // 딥링크로 앱 실행시 백스택 관리를 위해 딥링크로 들어오게된 부분들을 빼준다
-            if (state.isFromDeeplink && state.backStacks[state.topLevelRoute]?.size != 1) {
-                state.backStacks[state.topLevelRoute]?.removeLastOrNull()
-            } else {
-                state.isFromDeeplink = false
+            // 최상위 목적지 일 때 백스택이 잔여물을 모두 빼준다
+            if (state.backStacks[state.topLevelRoute]?.size != 1) {
+                while ((state.backStacks[state.topLevelRoute]?.size ?: 0) > 1) {
+                    state.backStacks[state.topLevelRoute]?.removeAt(index = state.backStacks[state.topLevelRoute]?.lastIndex ?: 0)
+                }
             }
             // 현재 목적지가 최상위 목적지와 같으면 시작지점으로 보냄
             state.topLevelRoute = state.startRoute

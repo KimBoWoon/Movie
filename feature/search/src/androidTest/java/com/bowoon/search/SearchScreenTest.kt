@@ -70,7 +70,7 @@ class SearchScreenTest {
                     goToPeople = {},
                     goToSeries = {},
                     onSearchClick = viewModel::searchMovies,
-                    updateKeyword = viewModel::updateKeyword,
+                    updateKeyword = viewModel::updateQuery,
                     updateSearchType = viewModel::updateSearchType,
                     updateGenre = viewModel::updateGenre
                 )
@@ -91,7 +91,7 @@ class SearchScreenTest {
                 val searchType by viewModel.searchType.collectAsStateWithLifecycle()
                 val selectedGenre by viewModel.selectedGenre.collectAsStateWithLifecycle()
 
-                viewModel.updateKeyword("mission")
+                viewModel.updateQuery("mission")
 
                 val movieAppData by movieAppDataRepository.movieAppData.collectAsStateWithLifecycle()
 
@@ -106,7 +106,7 @@ class SearchScreenTest {
                     goToPeople = {},
                     goToSeries = {},
                     onSearchClick = viewModel::searchMovies,
-                    updateKeyword = viewModel::updateKeyword,
+                    updateKeyword = viewModel::updateQuery,
                     updateSearchType = viewModel::updateSearchType,
                     updateGenre = viewModel::updateGenre
                 )
@@ -126,7 +126,7 @@ class SearchScreenTest {
                 RecommendKeywordComponent(
                     recommendKeyword = RecommendKeywordUiState.Success(pagingData = flowOf(PagingData.from(data = testRecommendedKeyword))),
                     keyword = viewModel.searchQuery,
-                    updateKeyword = viewModel::updateKeyword,
+                    updateKeyword = viewModel::updateQuery,
                     onSearchClick = viewModel::searchMovies,
                     recommendKeywordVisible = {}
                 )
@@ -150,7 +150,7 @@ class SearchScreenTest {
                 val selectedGenre by viewModel.selectedGenre.collectAsStateWithLifecycle()
                 val movieAppData by movieAppDataRepository.movieAppData.collectAsStateWithLifecycle()
 
-                viewModel.updateKeyword("mission")
+                viewModel.updateQuery("mission")
 
                 SearchScreen(
                     searchUiState = searchState,
@@ -163,7 +163,7 @@ class SearchScreenTest {
                     goToPeople = {},
                     goToSeries = {},
                     onSearchClick = viewModel::searchMovies,
-                    updateKeyword = viewModel::updateKeyword,
+                    updateKeyword = viewModel::updateQuery,
                     updateSearchType = viewModel::updateSearchType,
                     updateGenre = viewModel::updateGenre
                 )
@@ -187,7 +187,7 @@ class SearchScreenTest {
                 val searchType by viewModel.searchType.collectAsStateWithLifecycle()
                 val selectedGenre by viewModel.selectedGenre.collectAsStateWithLifecycle()
 
-                viewModel.updateKeyword("name")
+                viewModel.updateQuery("name")
 
                 val movieAppData by movieAppDataRepository.movieAppData.collectAsStateWithLifecycle()
 
@@ -202,7 +202,7 @@ class SearchScreenTest {
                     goToPeople = {},
                     goToSeries = {},
                     onSearchClick = viewModel::searchMovies,
-                    updateKeyword = viewModel::updateKeyword,
+                    updateKeyword = viewModel::updateQuery,
                     updateSearchType = viewModel::updateSearchType,
                     updateGenre = viewModel::updateGenre
                 )
@@ -267,7 +267,7 @@ class SearchScreenTest {
                 val selectedGenre by viewModel.selectedGenre.collectAsStateWithLifecycle()
                 val movieAppData by movieAppDataRepository.movieAppData.collectAsStateWithLifecycle()
 
-                viewModel.updateKeyword("mission")
+                viewModel.updateQuery("mission")
 
                 SearchScreen(
                     searchUiState = searchState,
@@ -280,7 +280,7 @@ class SearchScreenTest {
                     goToPeople = {},
                     goToSeries = {},
                     onSearchClick = viewModel::searchMovies,
-                    updateKeyword = viewModel::updateKeyword,
+                    updateKeyword = viewModel::updateQuery,
                     updateSearchType = viewModel::updateSearchType,
                     updateGenre = viewModel::updateGenre
                 )

@@ -19,10 +19,10 @@ fun EntryProviderScope<NavKey>.searchEntry(
     goToSeries: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean
 ) {
-    entry<SearchNavKey> {
-        Log.d("deeplink query -> ${it.query}, deeplink searchType -> ${it.searchType}")
+    entry<SearchNavKey> { searchNavKey ->
+        Log.d("deeplink query -> ${searchNavKey.query}, deeplink searchType -> ${searchNavKey.searchType}")
 
-        val searchType = when (it.searchType) {
+        val searchType = when (searchNavKey.searchType) {
             "movie" -> SearchType.MOVIE
             "people" -> SearchType.PEOPLE
             "series" -> SearchType.SERIES
@@ -34,7 +34,7 @@ fun EntryProviderScope<NavKey>.searchEntry(
             goToPeople = goToPeople,
             goToSeries = goToSeries,
             onShowSnackbar = onShowSnackbar,
-            query = it.query,
+            query = searchNavKey.query,
             searchType = searchType
         )
     }

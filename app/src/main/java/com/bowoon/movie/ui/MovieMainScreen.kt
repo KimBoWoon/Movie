@@ -194,7 +194,12 @@ fun MovieApp(
             var deeplinkList = deeplinkBackstack
             var targetTabKey: NavKey? = HomeNavKey
 
-            navigator.state.isFromDeeplink = true
+            // 딥링크로 진입시 백스택 초기화
+            navigator.state.backStacks.entries.forEach { (_, value) ->
+                while (value.size > 1) {
+                    value.removeAt(index = value.lastIndex)
+                }
+            }
 
             while (deeplinkList.isNotEmpty()) {
                 val firstRoute = deeplinkList.first()

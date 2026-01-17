@@ -50,7 +50,7 @@ class SystemTrayNotifier @Inject constructor(
     @param:Dispatcher(dispatcher = IO) private val ioDispatcher: CoroutineDispatcher,
     private val userDataRepository: UserDataRepository
 ) : Notifier {
-    override fun postNotification(id: Int, message: String) {
+    override fun postTestNotification(id: Int, message: String) {
         if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_DENIED) return
 
         val notification = context.createMovieNotification {
