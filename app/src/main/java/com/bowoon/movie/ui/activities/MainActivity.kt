@@ -10,6 +10,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,9 +26,12 @@ import com.bowoon.common.Log
 import com.bowoon.common.isSystemInDarkTheme
 import com.bowoon.data.util.NetworkMonitor
 import com.bowoon.firebase.LocalFirebaseLogHelper
+import com.bowoon.home.navigation.HomeNavKey
+import com.bowoon.movie.MovieAppState
 import com.bowoon.movie.MovieFirebase
 import com.bowoon.movie.R
 import com.bowoon.movie.deeplink.parseDeeplink
+import com.bowoon.movie.navigation.TOP_LEVEL_NAV_ITEMS
 import com.bowoon.movie.rememberMovieAppState
 import com.bowoon.movie.ui.MovieApp
 import com.bowoon.movie.utils.isSystemInDarkTheme
@@ -112,12 +116,16 @@ class MainActivity : ComponentActivity() {
                     val appState = rememberMovieAppState(networkMonitor = networkMonitor)
                     val snackbarHostState = remember { SnackbarHostState() }
 
+                    LaunchedEffect(key1 = deeplinkBackstack) {
+                        if (deeplinkBackstack.isNotEmpty()) {
+                            navigationSetting(appState = appState)
+                        }
+                    }
+
                     MovieApp(
                         appState = appState,
                         snackbarHostState = snackbarHostState,
-                        nextWeekReleaseMovies = nextWeekReleaseMovies,
-                        deeplinkBackstack = deeplinkBackstack,
-                        onDeeplinkProcessed = { deeplinkBackstack = emptyList() }
+                        nextWeekReleaseMovies = nextWeekReleaseMovies
                     )
                 }
             }
@@ -129,6 +137,33 @@ class MainActivity : ComponentActivity() {
         Log.d("onNewIntent")
         setIntent(intent)
         deeplinkBackstack = parseDeeplink(uri = intent.data)
+    }
+
+    fun navigationSetting(appState: MovieAppState) {
+        if (deeplinkBackstack.isNotEmpty()) {
+            var targetTabKey: NavKey? = HomeNavKey
+
+            // 딥링크로 진입시 백스택 초기화
+            appState.navigationState.backStacks.entries.forEach { (_, value) ->
+                while (value.size > 1) {
+                    value.removeAt(index = value.lastIndex)
+                }
+            }
+
+            deeplinkBackstack.forEach { navKey ->
+                targetTabKey = TOP_LEVEL_NAV_ITEMS.keys.firstOrNull { it.javaClass == navKey.javaClass } ?: targetTabKey
+
+                if (TOP_LEVEL_NAV_ITEMS.keys.firstOrNull { it.javaClass == navKey.javaClass } != null) {
+                    appState.navigationState.topLevelRoute = navKey
+                }
+
+                if (appState.navigationState.backStacks[targetTabKey] != null) {
+                    appState.navigationState.backStacks[targetTabKey]?.add(element = navKey)
+                }
+            }
+        }
+
+        deeplinkBackstack = emptyList()
     }
 }
 

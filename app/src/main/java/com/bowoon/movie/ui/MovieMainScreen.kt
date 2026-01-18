@@ -55,7 +55,6 @@ import com.bowoon.detail.series.navigation.navigateToSeries
 import com.bowoon.detail.series.navigation.seriesEntry
 import com.bowoon.favorite.navigation.favoriteEntry
 import com.bowoon.firebase.LocalFirebaseLogHelper
-import com.bowoon.home.navigation.HomeNavKey
 import com.bowoon.home.navigation.homeEntry
 import com.bowoon.model.Movie
 import com.bowoon.movie.MovieAppState
@@ -84,9 +83,7 @@ import com.bowoon.ui.utils.dp50
 fun MovieApp(
     appState: MovieAppState,
     snackbarHostState: SnackbarHostState,
-    nextWeekReleaseMovies: List<Movie>,
-    deeplinkBackstack: List<NavKey> = emptyList(),
-    onDeeplinkProcessed: () -> Unit
+    nextWeekReleaseMovies: List<Movie>
 ) {
     val navigator = remember { Navigator(state = appState.navigationState) }
     val isTopLevelRoute = navigator.state.backStacks[navigator.state.topLevelRoute]?.last()?.javaClass in TOP_LEVEL_NAV_ITEMS.map { it.key.javaClass }
@@ -187,37 +184,6 @@ fun MovieApp(
             sceneStrategy = listDetailStrategy,
             onBack = { navigator.goBack() },
         )
-    }
-
-    LaunchedEffect(key1 = deeplinkBackstack) {
-        if (deeplinkBackstack.isNotEmpty()) {
-            var deeplinkList = deeplinkBackstack
-            var targetTabKey: NavKey? = HomeNavKey
-
-            // 딥링크로 진입시 백스택 초기화
-            navigator.state.backStacks.entries.forEach { (_, value) ->
-                while (value.size > 1) {
-                    value.removeAt(index = value.lastIndex)
-                }
-            }
-
-            while (deeplinkList.isNotEmpty()) {
-                val firstRoute = deeplinkList.first()
-                targetTabKey = TOP_LEVEL_NAV_ITEMS.keys.firstOrNull { it.javaClass == firstRoute.javaClass } ?: targetTabKey
-
-                if (TOP_LEVEL_NAV_ITEMS.keys.firstOrNull { it.javaClass == firstRoute.javaClass } != null) {
-                    navigator.state.topLevelRoute = firstRoute
-                }
-
-                if (navigator.state.backStacks[targetTabKey] != null) {
-                    navigator.state.backStacks[targetTabKey]?.add(element = firstRoute)
-                }
-
-                deeplinkList = deeplinkList.drop(n = 1)
-            }
-
-            onDeeplinkProcessed()
-        }
     }
 }
 

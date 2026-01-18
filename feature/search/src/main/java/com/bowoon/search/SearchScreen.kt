@@ -348,7 +348,7 @@ fun SearchTypeComponent(
     val types = listOf(
         stringResource(id = R.string.search_type_movie),
         stringResource(id = R.string.search_type_people),
-        stringResource(id = R.string.search_type_movie)
+        stringResource(id = R.string.search_type_series)
     )
 
     Column {
@@ -365,7 +365,7 @@ fun SearchTypeComponent(
             )
             Icon(
                 modifier = Modifier
-                    .size(dp15)
+                    .size(size = dp15)
                     .animateRotation(
                         expanded = isExpand,
                         startAngle = 0f,
@@ -381,15 +381,22 @@ fun SearchTypeComponent(
             expanded = isExpand,
             onDismissRequest = { isExpand = false }
         ) {
-            SearchType.entries.forEach { type ->
+            types.forEach { type ->
                 DropdownMenuItem(
-                    modifier = Modifier.testTag(tag = type.label),
+                    modifier = Modifier.testTag(tag = type),
                     onClick = {
-                        Log.d(type.label)
-                        updateSearchType(type)
+                        Log.d(type)
+                        updateSearchType(
+                            when (type) {
+                                types[0] -> SearchType.MOVIE
+                                types[1] -> SearchType.PEOPLE
+                                types[2] -> SearchType.SERIES
+                                else -> SearchType.MOVIE
+                            }
+                        )
                         isExpand = false
                     },
-                    text = { Text(text = type.label) }
+                    text = { Text(text = type) }
                 )
             }
         }
