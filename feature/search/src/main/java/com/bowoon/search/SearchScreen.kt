@@ -110,15 +110,13 @@ fun SearchScreen(
     goToPeople: (Int) -> Unit,
     goToSeries: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
-    query: String,
-    searchType: SearchType,
     viewModel: SearchVM = hiltViewModel()
 ) {
     LocalFirebaseLogHelper.current.sendLog("SearchScreen", "search screen init")
 
     val searchUiState by viewModel.searchResult.collectAsStateWithLifecycle()
     val selectedGenre by viewModel.selectedGenre.collectAsStateWithLifecycle()
-    val searchType by viewModel.searchType.collectAsStateWithLifecycle(initialValue = searchType)
+    val searchType by viewModel.searchType.collectAsStateWithLifecycle()
     val recommendKeyword = viewModel.recommendKeywordPaging.collectAsLazyPagingItems()
     val inputKeyword = stringResource(id = R.string.input_keyword)
     val movieAppData by viewModel.movieAppData.movieAppData.collectAsStateWithLifecycle()
@@ -128,17 +126,6 @@ fun SearchScreen(
         viewModel.showSnackbar
             .flowWithLifecycle(lifecycle = lifecycle, minActiveState = Lifecycle.State.STARTED)
             .collect { onShowSnackbar(inputKeyword, null) }
-    }
-
-    LaunchedEffect(key1 = query, key2 = searchType) {
-        // 이미 검색 결과가 있는(Success) 상태라면 딥링크 검색을 트리거하지 않음
-        if (searchUiState is SearchUiState.SearchHint) {
-            if (query.trim().isNotEmpty()) {
-                viewModel.updateSearchType(searchType)
-                viewModel.updateQuery(query = query)
-                viewModel.searchMovies()
-            }
-        }
     }
 
     SearchScreen(

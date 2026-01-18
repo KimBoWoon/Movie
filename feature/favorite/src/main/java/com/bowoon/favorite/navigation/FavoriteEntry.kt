@@ -1,9 +1,11 @@
 package com.bowoon.favorite.navigation
 
 import androidx.annotation.Keep
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import com.bowoon.favorite.FavoriteScreen
+import com.bowoon.favorite.FavoriteVM
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -26,12 +28,18 @@ fun EntryProviderScope<NavKey>.favoriteEntry(
     goToPeople: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean
 ) {
-    entry<FavoriteNavKey> {
+    entry<FavoriteNavKey> { navKey ->
+        val viewModel = hiltViewModel<FavoriteVM, FavoriteVM.Factory>(
+            key = FavoriteVM.TAG
+        ) { factory ->
+            factory.create(tab = navKey.tab)
+        }
+
         FavoriteScreen(
             goToMovie = goToMovie,
             goToPeople = goToPeople,
             onShowSnackbar = onShowSnackbar,
-            initialTab = it.tab
+            viewModel = viewModel
         )
     }
 }

@@ -1,10 +1,12 @@
 package com.bowoon.search.navigation
 
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import com.bowoon.common.Log
 import com.bowoon.model.SearchType
 import com.bowoon.search.SearchScreen
+import com.bowoon.search.SearchVM
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -34,8 +36,11 @@ fun EntryProviderScope<NavKey>.searchEntry(
             goToPeople = goToPeople,
             goToSeries = goToSeries,
             onShowSnackbar = onShowSnackbar,
-            query = searchNavKey.query,
-            searchType = searchType
+            viewModel = hiltViewModel<SearchVM, SearchVM.Factory>(
+                key = SearchVM.TAG
+            ) { factory ->
+                factory.create(initialQuery = searchNavKey.query, initialSearchType = searchType)
+            }
         )
     }
 }

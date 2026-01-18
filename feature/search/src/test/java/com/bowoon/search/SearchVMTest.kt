@@ -42,6 +42,8 @@ class SearchVMTest {
         testMovieAppDataManager = TestMovieAppDataManager()
         apis = TestMovieDataSource()
         viewModel = SearchVM(
+            initialQuery = "",
+            initialSearchType = SearchType.MOVIE,
             savedStateHandle = savedStateHandle,
             movieAppData = testMovieAppDataManager,
             pagingRepository = testPagingRepository
