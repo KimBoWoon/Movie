@@ -133,7 +133,7 @@ fun SearchScreen(
         recommendKeyword = recommendKeyword,
         keyword = viewModel.searchQuery,
         searchType = searchType,
-        movieAppData = movieAppData,
+        movieAppData = movieAppData.getMovieAppData(),
         selectedGenre = selectedGenre,
         goToMovie = goToMovie,
         goToPeople = goToPeople,

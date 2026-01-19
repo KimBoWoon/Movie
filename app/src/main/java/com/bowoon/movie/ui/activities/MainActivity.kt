@@ -104,6 +104,7 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+        // true -> 스플래쉬 화면 노출, false -> 스플래쉬 화면 미노출
         splashScreen.setKeepOnScreenCondition { viewModel.movieAppData.value.shouldKeepSplashScreen() }
 
         setContent {
@@ -149,6 +150,8 @@ class MainActivity : ComponentActivity() {
                     value.removeAt(index = value.lastIndex)
                 }
             }
+
+            appState.navigationState.topLevelRoute = HomeNavKey
 
             deeplinkBackstack.forEach { navKey ->
                 targetTabKey = TOP_LEVEL_NAV_ITEMS.keys.firstOrNull { it.javaClass == navKey.javaClass } ?: targetTabKey

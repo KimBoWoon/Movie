@@ -3,6 +3,8 @@ package com.bowoon.data.util
 import com.bowoon.common.Dispatcher
 import com.bowoon.common.Dispatchers
 import com.bowoon.common.Log
+import com.bowoon.common.Result
+import com.bowoon.common.asResult
 import com.bowoon.common.di.ApplicationScope
 import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.datastore.InternalDataSource
@@ -19,7 +21,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -90,40 +91,27 @@ class MovieDataManager @Inject constructor(
                 )
             } ?: emptyList()
         )
-    }.catch { e ->
-        Log.printStackTrace(tr = e)
-    }.flowOn(context = ioDispatcher)
+    }.asResult()
+        .map { result ->
+            when (result) {
+                is Result.Loading -> MovieAppDataState.Loading
+                is Result.Success -> MovieAppDataState.Success(data = result.data)
+                is Result.Error -> MovieAppDataState.Error(throwable = result.throwable)
+            }
+        }.flowOn(context = ioDispatcher)
         .stateIn(
             scope = appScope,
             started = SharingStarted.Lazily,
-            initialValue = MovieAppData()
+            initialValue = MovieAppDataState.Loading
         )
 
     private fun getConfiguration(): Flow<Configuration> = flow {
-        runCatching {
-            apis.getConfiguration()
-        }.onSuccess {
-            emit(value = it)
-        }.onFailure { e ->
-            Log.e(e.message ?: "something wrong...")
-        }
+        emit(value = apis.getConfiguration())
     }
     private fun getAvailableLanguage(): Flow<List<Language>> = flow {
-        runCatching {
-            apis.getAvailableLanguage()
-        }.onSuccess {
-            emit(value = it)
-        }.onFailure { e ->
-            Log.e(e.message ?: "something wrong...")
-        }
+        emit(value = apis.getAvailableLanguage())
     }
     private fun getAvailableRegion(): Flow<Regions> = flow {
-        runCatching {
-            apis.getAvailableRegion()
-        }.onSuccess {
-            emit(value = it)
-        }.onFailure { e ->
-            Log.e(e.message ?: "something wrong...")
-        }
+        emit(value = apis.getAvailableRegion())
     }
 }

@@ -71,7 +71,7 @@ fun MyScreen(
 
     MyScreen(
         internalData = internalData,
-        movieAppData = movieAppData,
+        movieAppData = movieAppData.getMovieAppData(),
         updateIsAdult = viewModel::updateIsAdult,
         updateAutoPlayTrailer = viewModel::updateIsAutoPlayTrailer,
         updateIsDarkMode = viewModel::updateDarkMode,
