@@ -20,13 +20,16 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-@HiltViewModel(assistedFactory = DetailVM.Factory::class)
-class DetailVM @AssistedInject constructor(
-    @Assisted val id: Int,
+@HiltViewModel(assistedFactory = MovieVM.Factory::class)
+class MovieVM @AssistedInject constructor(
+    @Assisted(value = "id") val id: Int,
+    @Assisted(value = "initialTabIndex") val initialTabIndex: Int,
     private val getMovieDetail: GetMovieDetailUseCase,
     private val databaseRepository: DatabaseRepository,
     private val pagingRepository: PagingRepository
@@ -37,7 +40,10 @@ class DetailVM @AssistedInject constructor(
 
     @AssistedFactory
     interface Factory {
-        fun create(id: Int): DetailVM
+        fun create(
+            @Assisted(value = "id") id: Int,
+            @Assisted(value = "initialTabIndex") initialTabIndex: Int
+        ): MovieVM
     }
 
     val movie = getMovieDetail(id = id)
@@ -53,6 +59,8 @@ class DetailVM @AssistedInject constructor(
             initialValue = MovieState.Loading,
             started = SharingStarted.Lazily
         )
+    private val _tabIndex = MutableStateFlow(value = initialTabIndex)
+    val tabIndex = _tabIndex.asStateFlow()
     val similarMovies = Pager(
         config = PagingConfig(pageSize = 1, initialLoadSize = 1, prefetchDistance = 5),
         initialKey = 1,
@@ -75,6 +83,10 @@ class DetailVM @AssistedInject constructor(
 
     fun restart() {
         movie.restart()
+    }
+
+    fun updateTabIndex(index: Int) {
+        _tabIndex.value = index
     }
 
     fun insertMovie(movie: Movie) {

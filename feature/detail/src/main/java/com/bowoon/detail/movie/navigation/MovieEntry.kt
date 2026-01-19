@@ -3,14 +3,15 @@ package com.bowoon.detail.movie.navigation
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
-import com.bowoon.detail.movie.DetailVM
+import com.bowoon.detail.movie.MovieVM
 import com.bowoon.detail.movie.MovieScreen
 import com.bowoon.navigation.Navigator
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class MovieNavKey(
-    val id: Int
+    val id: Int,
+    val tab: Int = 0
 ) : NavKey
 
 fun EntryProviderScope<NavKey>.movieEntry(
@@ -25,10 +26,10 @@ fun EntryProviderScope<NavKey>.movieEntry(
             goToMovie = goToMovie,
             goToPeople = goToPeople,
             onShowSnackbar = onShowSnackbar,
-            viewModel = hiltViewModel<DetailVM, DetailVM.Factory>(
+            viewModel = hiltViewModel<MovieVM, MovieVM.Factory>(
                 key = detailRoute.id.toString(),
             ) { factory ->
-                factory.create(id = detailRoute.id)
+                factory.create(id = detailRoute.id, initialTabIndex = detailRoute.tab)
             }
         )
     }

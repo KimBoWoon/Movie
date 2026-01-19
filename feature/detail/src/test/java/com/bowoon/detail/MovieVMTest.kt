@@ -6,8 +6,8 @@ import androidx.paging.testing.TestPager
 import androidx.paging.testing.asSnapshot
 import com.bowoon.data.paging.MovieReviewPagingSource
 import com.bowoon.data.paging.SimilarMoviePagingSource
-import com.bowoon.detail.movie.DetailVM
 import com.bowoon.detail.movie.MovieState
+import com.bowoon.detail.movie.MovieVM
 import com.bowoon.domain.GetMovieDetailUseCase
 import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetailInfo
@@ -40,7 +40,7 @@ import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 @RunWith(RobolectricTestRunner::class)
-class DetailVMTest {
+class MovieVMTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
     private val testDataBaseRepository = TestDatabaseRepository()
@@ -52,12 +52,13 @@ class DetailVMTest {
         userDataRepository = testUserDataRepository,
         databaseRepository = testDataBaseRepository
     )
-    private lateinit var viewModel: DetailVM
+    private lateinit var viewModel: MovieVM
 
     @Before
     fun setup() {
-        viewModel = DetailVM(
+        viewModel = MovieVM(
             id = 0,
+            initialTabIndex = 0,
             databaseRepository = testDataBaseRepository,
             getMovieDetail = getMovieDetailUseCase,
             pagingRepository = testPagingRepository
@@ -289,5 +290,22 @@ class DetailVMTest {
 //        getMovieDetailUseCase(0)
 
 //        assertEquals(viewModel.detail.value, DetailState.Success(favoriteMovieDetailTestData, movieSeriesTestData, emptyFlow()))
+    }
+
+    @Test
+    fun updateTabIndexTest() = runTest {
+        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.tabIndex.collect() }
+
+        assertEquals(
+            expected = viewModel.tabIndex.value,
+            actual = 0
+        )
+
+        viewModel.updateTabIndex(index = 1)
+
+        assertEquals(
+            expected = viewModel.tabIndex.value,
+            actual = 1
+        )
     }
 }

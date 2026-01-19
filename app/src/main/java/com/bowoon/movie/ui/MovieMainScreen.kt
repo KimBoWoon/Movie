@@ -29,7 +29,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
-import androidx.compose.material3.adaptive.navigation3.rememberListDetailSceneStrategy
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -43,7 +42,6 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import com.bowoon.detail.movie.navigation.MovieNavKey
@@ -120,7 +118,6 @@ fun MovieApp(
             }
         }
 
-        val listDetailStrategy = rememberListDetailSceneStrategy<NavKey>()
         val entryProvider = entryProvider {
             movieEntry(
                 goToBack = { navigator.goBack() },
@@ -181,7 +178,6 @@ fun MovieApp(
         NavDisplay(
             modifier = Modifier.padding(paddingValues = innerPadding),
             entries = navigator.state.toEntries(entryProvider),
-            sceneStrategy = listDetailStrategy,
             onBack = { navigator.goBack() },
         )
     }
