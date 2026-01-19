@@ -56,7 +56,7 @@ class SeriesScreenTest {
         savedStateHandle = SavedStateHandle(initialState = mapOf("id" to 0))
         testDetailRepository = TestDetailRepository()
         viewModel = SeriesVM(
-            savedStateHandle = savedStateHandle,
+            id = 0,
             detailRepository = testDetailRepository
         )
         composeTestRule.activity.apply {

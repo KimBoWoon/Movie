@@ -68,7 +68,7 @@ class PeopleScreenTest {
             databaseRepository = testDatabaseRepository
         )
         viewModel = PeopleVM(
-            savedStateHandle = savedStateHandle,
+            id = 0,
             getPeopleDetail = getPeopleDetail,
             databaseRepository = testDatabaseRepository
         )

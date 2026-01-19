@@ -48,6 +48,8 @@ class SearchScreenTest {
         movieAppDataRepository = TestMovieAppDataManager()
         movieAppDataRepository.setMovieAppData(movieAppData = MovieAppData(genres = genres))
         viewModel = SearchVM(
+            initialQuery = "",
+            initialSearchType = SearchType.MOVIE,
             savedStateHandle = savedStateHandle,
             movieAppData = movieAppDataRepository,
             pagingRepository = testPagingRepository

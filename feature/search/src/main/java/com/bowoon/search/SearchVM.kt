@@ -17,6 +17,9 @@ import com.bowoon.model.Genre
 import com.bowoon.model.Movie
 import com.bowoon.model.SearchKeyword
 import com.bowoon.model.SearchType
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -28,31 +31,44 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
-@HiltViewModel
-class SearchVM @Inject constructor(
+@HiltViewModel(assistedFactory = SearchVM.Factory::class)
+class SearchVM @AssistedInject constructor(
+    @Assisted initialQuery: String,
+    @Assisted initialSearchType: SearchType,
     private val savedStateHandle: SavedStateHandle,
     private val pagingRepository: PagingRepository,
     internal val movieAppData: DataManager
 ) : ViewModel() {
     companion object {
-        private const val TAG = "SearchVM"
+        internal const val TAG = "SearchVM"
         private const val GENRE = "genre"
         private const val SEARCH_TYPE = "searchType"
     }
 
-    var searchQuery by mutableStateOf(value = "")
+    @AssistedFactory
+    interface Factory {
+        fun create(
+            initialQuery: String,
+            initialSearchType: SearchType
+        ): SearchVM
+    }
+
+    var searchQuery by mutableStateOf(value = initialQuery)
         private set
     val selectedGenre = savedStateHandle.getStateFlow<Genre?>(key = GENRE, initialValue = null)
-    val searchType = savedStateHandle.getStateFlow<SearchType>(key = SEARCH_TYPE, initialValue = SearchType.MOVIE)
+    val searchType = savedStateHandle.getStateFlow<SearchType>(key = SEARCH_TYPE, initialValue = initialSearchType)
     val searchResult = MutableStateFlow<SearchUiState>(value = SearchUiState.SearchHint)
     var recommendKeywordPaging: Flow<PagingData<SearchKeyword>> = emptyFlow()
     val showSnackbar = MutableSharedFlow<Unit>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
     private val recommendKeywordFlow = MutableStateFlow<String>(value = "")
 
     init {
+        if (initialQuery.trim().isNotEmpty()) {
+            searchMovies()
+        }
+
         viewModelScope.launch {
             recommendKeywordFlow.debounce(timeoutMillis = 300L)
                 .collect { query ->

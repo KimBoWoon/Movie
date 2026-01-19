@@ -19,9 +19,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.PagingSource
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.bowoon.data.paging.SimilarMoviePagingSource
+import com.bowoon.detail.movie.DetailVM
 import com.bowoon.detail.movie.MovieScreen
 import com.bowoon.detail.movie.MovieState
-import com.bowoon.detail.movie.DetailVM
 import com.bowoon.domain.GetMovieDetailUseCase
 import com.bowoon.model.Genre
 import com.bowoon.model.Movie
@@ -87,7 +87,7 @@ class DetailScreenTest {
             detailRepository = testDetailRepository
         )
         viewModel = DetailVM(
-            savedStateHandle = savedStateHandle,
+            id = 0,
             getMovieDetail = movieDetailUseCase,
             databaseRepository = testDatabaseRepository,
             pagingRepository = testPagingRepository
@@ -215,9 +215,9 @@ class DetailScreenTest {
             testPagingRepository.getSimilarMoviePagingSource(id = 0)
             testDetailRepository.setMovieSeries(movieSeries = movieSeriesTestData)
 
+            onNodeWithContentDescription(label = "detailTabRow").assertExists().assertIsDisplayed()
             onNodeWithText(text = "시리즈")
                 .performScrollTo()
-                .performClick()
                 .assertExists()
                 .assertIsDisplayed()
                 .performClick()
@@ -262,9 +262,9 @@ class DetailScreenTest {
             testPagingRepository.getSimilarMoviePagingSource(id = 0)
             testDetailRepository.setMovieSeries(movieSeries = movieSeriesTestData)
 
+            onNodeWithContentDescription(label = "detailTabRow").assertExists().assertIsDisplayed()
             onNodeWithText(text = "배우 / 감독")
                 .performScrollTo()
-                .performClick()
                 .assertExists()
                 .assertIsDisplayed()
                 .performClick()
@@ -303,9 +303,9 @@ class DetailScreenTest {
             testPagingRepository.getSimilarMoviePagingSource(id = 0)
             testDetailRepository.setMovieSeries(movieSeries = movieSeriesTestData)
 
+            onNodeWithContentDescription(label = "detailTabRow").assertExists().assertIsDisplayed()
             onNodeWithText(text = "이미지")
                 .performScrollTo()
-                .performClick()
                 .assertExists()
                 .assertIsDisplayed()
                 .performClick()
@@ -358,9 +358,9 @@ class DetailScreenTest {
             testPagingRepository.getSimilarMoviePagingSource(id = 0)
             testDetailRepository.setMovieSeries(movieSeries = movieSeriesTestData)
 
-            onNodeWithText(text = "다른 영화")
-                .performScrollTo()
-                .performClick()
+            onNodeWithContentDescription(label = "detailTabRow").assertExists().assertIsDisplayed()
+            onNodeWithContentDescription(label = "detailTabRow", useUnmergedTree = true)
+                .performScrollToNode(matcher = hasText(text = "다른 영화"))
                 .assertExists()
                 .assertIsDisplayed()
                 .performClick()

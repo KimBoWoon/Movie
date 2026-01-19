@@ -123,14 +123,15 @@ class Navigator(val state: NavigationState) {
         val currentStack = state.backStacks[state.topLevelRoute] ?: error("Stack for ${state.topLevelRoute} not found")
         val currentRoute = currentStack.last()
 
+        // 최상위 목적지 일 때
         if (currentRoute == state.topLevelRoute) {
-            // 최상위 목적지 일 때 백스택이 잔여물을 모두 빼준다
-            if (state.backStacks[state.topLevelRoute]?.size != 1) {
+            // 백스택에 남은 경로를 모두 빼준다
+            if ((state.backStacks[state.topLevelRoute]?.size ?: 0) > 1) {
                 while ((state.backStacks[state.topLevelRoute]?.size ?: 0) > 1) {
                     state.backStacks[state.topLevelRoute]?.removeAt(index = state.backStacks[state.topLevelRoute]?.lastIndex ?: 0)
                 }
             }
-            // 현재 목적지가 최상위 목적지와 같으면 시작지점으로 보냄
+            // 시작지점으로 보냄
             state.topLevelRoute = state.startRoute
         } else {
             // 아니면 뒤로 이동

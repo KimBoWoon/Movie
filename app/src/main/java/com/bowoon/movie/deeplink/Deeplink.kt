@@ -71,58 +71,91 @@ fun parseDeepLink(uri: Uri?): NavKey = uri?.let {
  *
  * path는 딥링크 경로, query는 매개변수
  *
+ * 경로를 나타내는 부분 고민이 필요함
+ *
+ * 예를 들어 찜 내비게이션에서 인물 탭으로 이동 후 검색으로 이동했을 때
+ * 현재 이런 경로가 옴 -> https://www.bowoon.movie.com/favoritePeople/search?query=미션&searchType=movie
+ * 또한, 영화, 인물, 시리즈 부분이 경로로 찹조될 때 _ 를 사용하여 경로를 분리하여 사용
+ * ex -> (movie, people, series)_id => movie_123, people_456, series_789
+ *
+ * 이런 부분을 다시 생각해봐야함
+ *
  * @param uri Deeplink로 전달받은 URI
+ * @return 딥링크 경로를 담은 리스트
  */
 fun parseDeeplink(uri: Uri?): List<NavKey> = uri?.let {
-    buildList {
-        var index = 0
-        val pathSegments = uri.pathSegments ?: emptyList()
+    // 경로와 도착지를 담아 리스트로 반환
+    uri.parseDeeplinkPath().plus(element = uri.getDeeplinkDestination(destination = uri.lastPathSegment))
+} ?: emptyList()
 
-        while (index < pathSegments.size) {
-            when (pathSegments[index]) {
-                "home" -> {
-                    add(HomeNavKey)
-                    index++
-                }
-                "favorite" -> {
-                    val query = uri.getQueryParameter("tab")?.toIntOrNull()
-                    val path = if (index + 1 < pathSegments.size) pathSegments[index + 1].toIntOrNull() else 0
-                    val tabIndex = query ?: path
+/**
+ * 딥링크 경로 파싱
+ *
+ * @return 경로를 담은 리스트 반환
+ */
+fun Uri?.parseDeeplinkPath(): List<NavKey> {
+    if (this == null) {
+        return emptyList()
+    }
 
-                    if (tabIndex == null) {
-                        add(FavoriteNavKey(tab = 0))
-                        index++
-                    } else {
-                        add(FavoriteNavKey(tab = tabIndex))
-                        index += 2
-                    }
+    val paths = pathSegments.dropLast(n = 1)
+
+    if (paths.isEmpty()) {
+        return emptyList()
+    }
+
+    return buildList {
+        paths.forEach { path ->
+            when {
+                path == "home" -> add(HomeNavKey)
+                path == "favoriteMovie" -> add(FavoriteNavKey(tab = 0))
+                path == "favoritePeople" -> add(FavoriteNavKey(tab = 1))
+                path == "my" -> add(MyNavKey)
+                path.split("_").first() == "search" -> {
+                    val query = path.split("_")[1]
+                    val searchType = path.split("_")[2]
+
+                    add(SearchNavKey(query = query, searchType = searchType))
                 }
-                "my" -> {
-                    add(MyNavKey)
-                    index++
+                path.split("_").first() == "movie" -> {
+                    val id = path.split("_")[1].toIntOrNull()
+                    add(MovieNavKey(id = id ?: -1))
                 }
-                "search" -> {
-                    add(
-                        SearchNavKey(
-                            query = uri.getQueryParameter("query") ?: "",
-                            searchType = uri.getQueryParameter("searchType") ?: ""
-                        )
-                    )
-                    index++
+                path.split("_").first() == "people" -> {
+                    val id = path.split("_")[1].toIntOrNull()
+                    add(PeopleNavKey(id = id ?: -1))
                 }
-                "movie" -> {
-                    add(MovieNavKey(id = uri.getQueryParameter("id")?.toIntOrNull() ?: -1))
-                    index++
-                }
-                "people" -> {
-                    add(PeopleNavKey(id = uri.getQueryParameter("id")?.toIntOrNull() ?: -1))
-                    index++
-                }
-                "series" -> {
-                    add(SeriesNavKey(id = uri.getQueryParameter("id")?.toIntOrNull() ?: -1))
-                    index++
+                path.split("_").first() == "series" -> {
+                    val id = path.split("_")[1].toIntOrNull()
+                    add(SeriesNavKey(id = id ?: -1))
                 }
             }
         }
     }
-} ?: emptyList()
+}
+
+/**
+ * 딥링크 도착지를 반환하는 함수
+ *
+ * @param destination 도작지
+ * @return 도착지 Navkey를 반환
+ */
+fun Uri?.getDeeplinkDestination(destination: String?): NavKey {
+    if (this == null) {
+        return HomeNavKey
+    }
+
+    return when (destination) {
+        "home" -> HomeNavKey
+        "favorite" -> FavoriteNavKey(tab = getQueryParameter("tab")?.toIntOrNull() ?: 0)
+        "my" -> MyNavKey
+        "search" -> SearchNavKey(
+            query = getQueryParameter("query") ?: "",
+            searchType = getQueryParameter("searchType") ?: ""
+        )
+        "movie" -> MovieNavKey(id = getQueryParameter("id")?.toIntOrNull() ?: -1)
+        "people" -> PeopleNavKey(id = getQueryParameter("id")?.toIntOrNull() ?: -1)
+        "series" -> SeriesNavKey(id = getQueryParameter("id")?.toIntOrNull() ?: -1)
+        else -> HomeNavKey
+    }
+}

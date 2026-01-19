@@ -4,22 +4,19 @@ import com.bowoon.model.Movie
 import com.bowoon.model.People
 import com.bowoon.testing.repository.TestDatabaseRepository
 import com.bowoon.testing.utils.MainDispatcherRule
-import com.bowoon.testing.utils.TestMovieAppDataManager
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import kotlin.test.assertEquals
 
 class FavoriteVMTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
     private val testDatabaseRepository = TestDatabaseRepository()
-    private val testMovieAppDataManager = TestMovieAppDataManager()
     private lateinit var viewModel: FavoriteVM
     private val movie1 = Movie(id = 0, title = "movie_1", posterPath = "/movieImagePath_0.png")
     private val movie2 = Movie(id = 1, title = "movie_2", posterPath = "/movieImagePath_1.png")
@@ -29,56 +26,89 @@ class FavoriteVMTest {
     @Before
     fun setup() {
         viewModel = FavoriteVM(
+            initialTabIndex = 0,
             databaseRepository = testDatabaseRepository
         )
-        runBlocking {
-            testDatabaseRepository.insertMovie(movie1)
-            testDatabaseRepository.insertMovie(movie2)
-            testDatabaseRepository.insertPeople(people1)
-            testDatabaseRepository.insertPeople(people2)
-        }
+    }
+
+    @Test
+    fun changeTabIndexTest() = runTest {
+        backgroundScope.launch(context = UnconfinedTestDispatcher()) { viewModel.tabIndex.collect() }
+
+        assertEquals(
+            expected = viewModel.tabIndex.value,
+            actual = 0
+        )
+
+        viewModel.updateTabIndex(index = 1)
+
+        assertEquals(
+            expected = viewModel.tabIndex.value,
+            actual = 1
+        )
     }
 
     @Test
     fun favoriteMovieLoadingTest() = runTest {
-        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.favoriteMovies.collect() }
+        backgroundScope.launch(context = UnconfinedTestDispatcher()) { viewModel.favoriteMovies.collect() }
+
         assertEquals(
-            viewModel.favoriteMovies.value,
-            listOf(movie1, movie2)
+            expected = viewModel.favoriteMovies.value,
+            actual = emptyList()
+        )
+
+        testDatabaseRepository.insertMovie(movie = movie1)
+        testDatabaseRepository.insertMovie(movie = movie2)
+
+        assertEquals(
+            expected = viewModel.favoriteMovies.value,
+            actual = listOf(movie1, movie2)
         )
     }
 
     @Test
     fun favoritePeopleLoadingTest() = runTest {
-        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.favoritePeoples.collect() }
+        backgroundScope.launch(context = UnconfinedTestDispatcher()) { viewModel.favoritePeoples.collect() }
 
         assertEquals(
-            viewModel.favoritePeoples.value,
-            listOf(people1, people2)
+            expected = viewModel.favoritePeoples.value,
+            actual = emptyList()
+        )
+
+        testDatabaseRepository.insertPeople(people = people1)
+        testDatabaseRepository.insertPeople(people = people2)
+
+        assertEquals(
+            expected = viewModel.favoritePeoples.value,
+            actual = listOf(people1, people2)
         )
     }
 
     @Test
     fun deleteMovieTest() = runTest {
-        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.favoriteMovies.collect() }
+        backgroundScope.launch(context = UnconfinedTestDispatcher()) { viewModel.favoriteMovies.collect() }
 
-        viewModel.deleteMovie(movie1)
+        testDatabaseRepository.insertMovie(movie = movie1)
+        testDatabaseRepository.insertMovie(movie = movie2)
+        viewModel.deleteMovie(movie = movie1)
 
         assertEquals(
-            viewModel.favoriteMovies.value,
-            listOf(movie2)
+            expected = viewModel.favoriteMovies.value,
+            actual = listOf(movie2)
         )
     }
 
     @Test
     fun deletePeopleTest() = runTest {
-        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.favoritePeoples.collect() }
+        backgroundScope.launch(context = UnconfinedTestDispatcher()) { viewModel.favoritePeoples.collect() }
 
-        viewModel.deletePeople(people1)
+        testDatabaseRepository.insertPeople(people = people1)
+        testDatabaseRepository.insertPeople(people = people2)
+        viewModel.deletePeople(people = people1)
 
         assertEquals(
-            viewModel.favoritePeoples.value,
-            listOf(people2)
+            expected = viewModel.favoritePeoples.value,
+            actual = listOf(people2)
         )
     }
 }

@@ -54,21 +54,22 @@ fun FavoriteScreen(
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
-    initialTab: Int = 0,
     viewModel: FavoriteVM = hiltViewModel()
 ) {
     LocalFirebaseLogHelper.current.sendLog("FavoriteScreen", "favorite screen init")
 
     val favoriteMovies by viewModel.favoriteMovies.collectAsStateWithLifecycle()
     val favoritePeoples by viewModel.favoritePeoples.collectAsStateWithLifecycle()
+    val tabIndex by viewModel.tabIndex.collectAsStateWithLifecycle()
 
     FavoriteScreen(
         favoriteMovies = favoriteMovies,
         favoritePeoples = favoritePeoples,
         onShowSnackbar = onShowSnackbar,
-        initialTab = initialTab,
+        initialTab = tabIndex,
         goToMovie = goToMovie,
         goToPeople = goToPeople,
+        updateTabIndex = viewModel::updateTabIndex,
         deleteFavoriteMovie = viewModel::deleteMovie,
         deleteFavoritePeople = viewModel::deletePeople
     )
@@ -82,6 +83,7 @@ fun FavoriteScreen(
     initialTab: Int = 0,
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
+    updateTabIndex: (Int) -> Unit,
     deleteFavoriteMovie: (Movie) -> Unit,
     deleteFavoritePeople: (People) -> Unit
 ) {
@@ -95,7 +97,8 @@ fun FavoriteScreen(
     val tabClickEvent: (Int, Int) -> Unit = { current, index ->
         scope.launch {
             Log.d("current > $current, index > $index")
-            pagerState.animateScrollToPage(index)
+            updateTabIndex(index)
+            pagerState.animateScrollToPage(page = index)
         }
     }
 

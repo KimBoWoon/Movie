@@ -28,6 +28,7 @@ class FavoriteScreenTest {
     fun setup() {
         testDataBaseRepository = TestDatabaseRepository()
         viewModel = FavoriteVM(
+            initialTabIndex = 0,
             databaseRepository = testDataBaseRepository
         )
     }
@@ -45,6 +46,7 @@ class FavoriteScreenTest {
                     onShowSnackbar = { _, _ -> true},
                     goToMovie = {},
                     goToPeople = {},
+                    updateTabIndex = viewModel::updateTabIndex,
                     deleteFavoriteMovie = viewModel::deleteMovie,
                     deleteFavoritePeople = viewModel::deletePeople
                 )
@@ -69,6 +71,7 @@ class FavoriteScreenTest {
                     onShowSnackbar = { _, _ -> true},
                     goToMovie = {},
                     goToPeople = {},
+                    updateTabIndex = viewModel::updateTabIndex,
                     deleteFavoriteMovie = viewModel::deleteMovie,
                     deleteFavoritePeople = viewModel::deletePeople
                 )
@@ -93,6 +96,7 @@ class FavoriteScreenTest {
                     onShowSnackbar = { _, _ -> true},
                     goToMovie = {},
                     goToPeople = {},
+                    updateTabIndex = viewModel::updateTabIndex,
                     deleteFavoriteMovie = viewModel::deleteMovie,
                     deleteFavoritePeople = viewModel::deletePeople
                 )
@@ -122,6 +126,7 @@ class FavoriteScreenTest {
                     onShowSnackbar = { _, _ -> true},
                     goToMovie = {},
                     goToPeople = {},
+                    updateTabIndex = viewModel::updateTabIndex,
                     deleteFavoriteMovie = viewModel::deleteMovie,
                     deleteFavoritePeople = viewModel::deletePeople
                 )
@@ -151,6 +156,7 @@ class FavoriteScreenTest {
                     onShowSnackbar = { _, _ -> true},
                     goToMovie = {},
                     goToPeople = {},
+                    updateTabIndex = viewModel::updateTabIndex,
                     deleteFavoriteMovie = viewModel::deleteMovie,
                     deleteFavoritePeople = viewModel::deletePeople
                 )
@@ -184,6 +190,7 @@ class FavoriteScreenTest {
                     onShowSnackbar = { _, _ -> true},
                     goToMovie = {},
                     goToPeople = {},
+                    updateTabIndex = viewModel::updateTabIndex,
                     deleteFavoriteMovie = viewModel::deleteMovie,
                     deleteFavoritePeople = viewModel::deletePeople
                 )
