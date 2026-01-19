@@ -75,8 +75,10 @@ fun parseDeepLink(uri: Uri?): NavKey = uri?.let {
  *
  * 예를 들어 찜 내비게이션에서 인물 탭으로 이동 후 검색으로 이동했을 때
  * 현재 이런 경로가 옴 -> https://www.bowoon.movie.com/favoritePeople/search?query=미션&searchType=movie
+ * 또한, 영화, 인물, 시리즈 부분이 경로로 찹조될 때 _ 를 사용하여 경로를 분리하여 사용
+ * ex -> (movie, people, series)_id => movie_123, people_456, series_789
  *
- * 인물탭을 나타내는 경로는 favoritePeople이고 이게 맞을지는 다시 생각해봐야함
+ * 이런 부분을 다시 생각해봐야함
  *
  * @param uri Deeplink로 전달받은 URI
  * @return 딥링크 경로를 담은 리스트
