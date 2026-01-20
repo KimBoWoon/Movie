@@ -28,7 +28,7 @@ class MyVMTest {
         testMovieAppDataManager = TestMovieAppDataManager()
         viewModel = MyVM(
             userDataRepository = testUserDataRepository,
-            movieAppData = testMovieAppDataManager
+            dataManager = testMovieAppDataManager
         )
     }
 

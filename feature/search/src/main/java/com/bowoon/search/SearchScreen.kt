@@ -119,7 +119,7 @@ fun SearchScreen(
     val searchType by viewModel.searchType.collectAsStateWithLifecycle()
     val recommendKeyword = viewModel.recommendKeywordPaging.collectAsLazyPagingItems()
     val inputKeyword = stringResource(id = R.string.input_keyword)
-    val movieAppData by viewModel.movieAppData.movieAppData.collectAsStateWithLifecycle()
+    val movieAppData by viewModel.movieAppData.collectAsStateWithLifecycle()
     val lifecycle = LocalLifecycleOwner.current.lifecycle
 
     LaunchedEffect(key1 = Unit) {
@@ -133,7 +133,7 @@ fun SearchScreen(
         recommendKeyword = recommendKeyword,
         keyword = viewModel.searchQuery,
         searchType = searchType,
-        movieAppData = movieAppData.getMovieAppData(),
+        movieAppData = movieAppData,
         selectedGenre = selectedGenre,
         goToMovie = goToMovie,
         goToPeople = goToPeople,

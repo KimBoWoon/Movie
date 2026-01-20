@@ -6,8 +6,10 @@ import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.data.util.DataManager
 import com.bowoon.model.DarkThemeConfig
 import com.bowoon.model.InternalData
+import com.bowoon.model.MovieAppData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -15,7 +17,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MyVM @Inject constructor(
     private val userDataRepository: UserDataRepository,
-    val movieAppData: DataManager
+    private val dataManager: DataManager
 ) : ViewModel() {
     companion object {
         private const val TAG = "MyVM"
@@ -26,6 +28,13 @@ class MyVM @Inject constructor(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),
             initialValue = InternalData()
+        )
+    val movieAppData = dataManager.movieAppData
+        .map { it.getMovieAppData() }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(),
+            initialValue = MovieAppData()
         )
 
     fun updateIsAdult(value: Boolean) {

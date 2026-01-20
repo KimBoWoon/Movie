@@ -15,6 +15,7 @@ import com.bowoon.data.repository.PagingRepository
 import com.bowoon.data.util.DataManager
 import com.bowoon.model.Genre
 import com.bowoon.model.Movie
+import com.bowoon.model.MovieAppData
 import com.bowoon.model.SearchKeyword
 import com.bowoon.model.SearchType
 import dagger.assisted.Assisted
@@ -27,9 +28,12 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
@@ -39,7 +43,7 @@ class SearchVM @AssistedInject constructor(
     @Assisted initialSearchType: SearchType,
     private val savedStateHandle: SavedStateHandle,
     private val pagingRepository: PagingRepository,
-    internal val movieAppData: DataManager
+    private val dataManager: DataManager
 ) : ViewModel() {
     companion object {
         internal const val TAG = "SearchVM"
@@ -63,6 +67,13 @@ class SearchVM @AssistedInject constructor(
     var recommendKeywordPaging: Flow<PagingData<SearchKeyword>> = emptyFlow()
     val showSnackbar = MutableSharedFlow<Unit>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
     private val recommendKeywordFlow = MutableStateFlow<String>(value = "")
+    val movieAppData = dataManager.movieAppData
+        .map { it.getMovieAppData() }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(),
+            initialValue = MovieAppData()
+        )
 
     init {
         if (initialQuery.trim().isNotEmpty()) {
