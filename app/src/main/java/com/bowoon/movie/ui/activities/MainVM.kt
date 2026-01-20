@@ -78,14 +78,14 @@ class MainVM @Inject constructor(
             }
 
             if (it.isEmpty() || showNextReleaseMoviesDate) {
-                emptyList()
+                it to false
             } else {
-                it
+                it to true
             }
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.Lazily,
-            initialValue = emptyList()
+            initialValue = Pair(first = emptyList(), second = false)
         )
 
     fun updateShowNextReleaseMoviesDate() {

@@ -125,7 +125,7 @@ class MainActivity : ComponentActivity() {
                     }
 
                     LaunchedEffect(key1 = nextWeekReleaseMovies) {
-                        if (nextWeekReleaseMovies.isNotEmpty()) {
+                        if (nextWeekReleaseMovies.second) {
                             appState.navigationState.backStacks[appState.navigationState.startRoute]?.add(element = NextWeekReleaseMoviesNavKey)
                         }
                     }
@@ -133,7 +133,7 @@ class MainActivity : ComponentActivity() {
                     MovieApp(
                         appState = appState,
                         snackbarHostState = snackbarHostState,
-                        nextWeekReleaseMovies = nextWeekReleaseMovies,
+                        nextWeekReleaseMovies = nextWeekReleaseMovies.first,
                         updateShowNextReleaseMoviesDate = viewModel::updateShowNextReleaseMoviesDate
                     )
                 }

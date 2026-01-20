@@ -85,7 +85,7 @@ fun parseDeepLink(uri: Uri?): NavKey = uri?.let {
  */
 fun parseDeeplink(uri: Uri?): List<NavKey> = uri?.let {
     // 경로와 도착지를 담아 리스트로 반환
-    uri.parseIntPath().plus(element = uri.getDeeplinkDestination(destination = uri.lastPathSegment))
+    uri.parsePath().plus(element = uri.getDeeplinkDestination(destination = uri.lastPathSegment))
 } ?: emptyList()
 
 /**
@@ -93,7 +93,7 @@ fun parseDeeplink(uri: Uri?): List<NavKey> = uri?.let {
  *
  * @return 경로를 담은 리스트 반환
  */
-fun Uri?.parseIntPath(): List<NavKey> {
+fun Uri?.parsePath(): List<NavKey> {
     if (this == null) {
         return emptyList()
     }
@@ -157,7 +157,10 @@ fun Uri?.getDeeplinkDestination(destination: String?): NavKey {
             query = getQueryParameter("query") ?: "",
             searchType = getQueryParameter("searchType") ?: ""
         )
-        "movie" -> MovieNavKey(id = getQueryParameter("id")?.toIntOrNull() ?: -1)
+        "movie" -> MovieNavKey(
+            id = getQueryParameter("id")?.toIntOrNull() ?: -1,
+            tab = getQueryParameter("tab")?.toIntOrNull() ?: 0
+        )
         "people" -> PeopleNavKey(id = getQueryParameter("id")?.toIntOrNull() ?: -1)
         "series" -> SeriesNavKey(id = getQueryParameter("id")?.toIntOrNull() ?: -1)
         else -> HomeNavKey
