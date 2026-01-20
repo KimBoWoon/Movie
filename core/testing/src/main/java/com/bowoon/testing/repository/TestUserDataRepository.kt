@@ -13,6 +13,7 @@ class TestUserDataRepository : UserDataRepository {
     private val _fcmToken = MutableSharedFlow<String>(replay = 1, onBufferOverflow = DROP_OLDEST)
     private val currentUserData get() = _userData.replayCache.firstOrNull() ?: InternalData()
     private val currentFcmToken get() = _fcmToken.replayCache.firstOrNull() ?: ""
+    private var workedTime = 0L
     override val internalData: Flow<InternalData> = _userData.filterNotNull()
 
     init {
@@ -65,6 +66,10 @@ class TestUserDataRepository : UserDataRepository {
         _userData.tryEmit(value = currentUserData.copy(isFirstInstall = value))
     }
 
+    override suspend fun updateWorkScheduleTime(value: Long) {
+        workedTime = value
+    }
+
     override suspend fun getIsAdult(): Boolean =
         currentUserData.isAdult
 
@@ -93,4 +98,6 @@ class TestUserDataRepository : UserDataRepository {
 
     override suspend fun getFirstInstall(): Boolean =
         currentUserData.isFirstInstall
+
+    override suspend fun getWorkScheduleTime(): Long = workedTime
 }
