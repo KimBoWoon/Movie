@@ -34,6 +34,7 @@ import com.bowoon.movie.deeplink.parseDeeplink
 import com.bowoon.movie.navigation.TOP_LEVEL_NAV_ITEMS
 import com.bowoon.movie.rememberMovieAppState
 import com.bowoon.movie.ui.MovieApp
+import com.bowoon.movie.ui.NextWeekReleaseMoviesNavKey
 import com.bowoon.movie.utils.isSystemInDarkTheme
 import com.bowoon.ui.theme.MovieTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -123,10 +124,17 @@ class MainActivity : ComponentActivity() {
                         }
                     }
 
+                    LaunchedEffect(key1 = nextWeekReleaseMovies) {
+                        if (nextWeekReleaseMovies.isNotEmpty()) {
+                            appState.navigationState.backStacks[appState.navigationState.startRoute]?.add(element = NextWeekReleaseMoviesNavKey)
+                        }
+                    }
+
                     MovieApp(
                         appState = appState,
                         snackbarHostState = snackbarHostState,
-                        nextWeekReleaseMovies = nextWeekReleaseMovies
+                        nextWeekReleaseMovies = nextWeekReleaseMovies,
+                        updateShowNextReleaseMoviesDate = viewModel::updateShowNextReleaseMoviesDate
                     )
                 }
             }

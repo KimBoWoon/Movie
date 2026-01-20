@@ -62,6 +62,10 @@ class UserDataRepositoryImpl @Inject constructor(
         datastore.updateFCMToken(token)
     }
 
+    override suspend fun updateWorkScheduleTime(value: Long) {
+        datastore.updateWorkScheduleTime(value = value)
+    }
+
     override suspend fun getIsAdult(): Boolean = datastore.getIsAdult()
 
     override suspend fun getAutoPlayTrailer(): Boolean = datastore.getAutoPlayTrailer()
@@ -81,4 +85,6 @@ class UserDataRepositoryImpl @Inject constructor(
     override suspend fun getFCMToken(): String = datastore.getFCMToken()
 
     override suspend fun getFirstInstall(): Boolean = datastore.getFirstInstall()
+
+    override suspend fun getWorkScheduleTime(): Long = datastore.getWorkScheduleTime()
 }

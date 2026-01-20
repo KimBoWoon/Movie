@@ -18,6 +18,7 @@ interface UserDataRepository {
     suspend fun updateShowNextReleaseMoviesDate(value: String)
     suspend fun updateSecureBaseUrl(value: String)
     suspend fun updateFirstInstall(value: Boolean)
+    suspend fun updateWorkScheduleTime(value: Long)
     suspend fun getIsAdult(): Boolean
     suspend fun getAutoPlayTrailer(): Boolean
     suspend fun getDarkMode(): DarkThemeConfig
@@ -28,4 +29,5 @@ interface UserDataRepository {
     suspend fun getFirstInstall(): Boolean
     suspend fun getShowNextReleaseMoviesDate(): String
     suspend fun getSecureBaseUrl(): String
+    suspend fun getWorkScheduleTime(): Long
 }

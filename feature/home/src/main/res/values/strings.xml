@@ -6,7 +6,4 @@
     <string name="now_playing_movies">Now Playing Movies</string>
     <string name="upcoming_movies">Upcoming Movies</string>
     <string name="release_movie">%s Release</string>
-    <string name="close">Close</string>
-    <string name="coming_soon_movie">Next week Release Movie</string>
-    <string name="no_show_today">No show today</string>
 </resources>

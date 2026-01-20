@@ -6,4 +6,5 @@ package com.bowoon.data.util
 interface SyncManager {
     fun syncMain()
     fun requestSync()
+    fun updateWorker()
 }

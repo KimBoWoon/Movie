@@ -24,17 +24,17 @@ class TestDatabaseRepository : DatabaseRepository {
     override fun getMovies(): Flow<List<Movie>> = movieDatabase
 
     override suspend fun insertMovie(movie: Movie): Long {
-        movieDatabase.emit(currentMovieDatabase + movie)
+        movieDatabase.emit(value = currentMovieDatabase + movie)
         return movie.id?.toLong() ?: throw RuntimeException("room database insert failed...")
     }
 
     override suspend fun deleteMovie(movie: Movie) {
-        movieDatabase.emit(currentMovieDatabase.filter { it.id != movie.id })
+        movieDatabase.emit(value = currentMovieDatabase.filter { it.id != movie.id })
     }
 
     override suspend fun upsertMovies(movies: List<Movie>) {
         movieDatabase.emit(
-            (currentMovieDatabase + movies).map { movie ->
+            value = (currentMovieDatabase + movies).map { movie ->
                 movies.find { it.id == movie.id } ?: movie
             }
         )
@@ -52,17 +52,17 @@ class TestDatabaseRepository : DatabaseRepository {
     override fun getPeople(): Flow<List<People>> = peopleDatabase
 
     override suspend fun insertPeople(people: People): Long {
-        peopleDatabase.emit(currentPeopleDatabase + people)
+        peopleDatabase.emit(value = currentPeopleDatabase + people)
         return people.id?.toLong() ?: throw RuntimeException("room database insert failed...")
     }
 
     override suspend fun deletePeople(people: People) {
-        peopleDatabase.emit(currentPeopleDatabase.filter { it.id != people.id })
+        peopleDatabase.emit(value = currentPeopleDatabase.filter { it.id != people.id })
     }
 
     override suspend fun upsertPeoples(peoples: List<People>) {
         peopleDatabase.emit(
-            (currentPeopleDatabase + peoples).map { people ->
+            value = (currentPeopleDatabase + peoples).map { people ->
                 peoples.find { it.id == people.id } ?: people
             }
         )

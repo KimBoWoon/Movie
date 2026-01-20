@@ -124,6 +124,15 @@ class InternalDataSource @Inject constructor(
         }
     }
 
+    suspend fun updateWorkScheduleTime(value: Long) {
+        datastore.updateData { preferences ->
+            preferences.copy {
+                workScheduleTime = value
+            }
+        }
+    }
+
+
     suspend fun getIsAdult(): Boolean =
         datastore.data.map { preferences ->
             preferences.isAdult
@@ -179,6 +188,11 @@ class InternalDataSource @Inject constructor(
         datastore.data.map { preferences ->
             preferences.isFirstInstall
         }.firstOrNull() ?: false
+
+    suspend fun getWorkScheduleTime(): Long =
+        datastore.data.map { preferences ->
+            preferences.workScheduleTime
+        }.firstOrNull() ?: 0
 
     suspend fun updateFCMToken(token: String) {
         datastore.updateData { preferences ->

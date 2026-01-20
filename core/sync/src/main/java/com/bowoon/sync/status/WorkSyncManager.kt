@@ -6,7 +6,6 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.WorkInfo
 import androidx.work.WorkInfo.State
 import androidx.work.WorkManager
-import androidx.work.WorkQuery
 import com.bowoon.common.Log
 import com.bowoon.data.util.SyncManager
 import com.bowoon.sync.workers.MainSyncWorker
@@ -45,6 +44,15 @@ internal class WorkSyncManager @Inject constructor(
             .enqueueUniquePeriodicWork(
                 uniqueWorkName = PERIODIC_UNIQUE_WORKER,
                 existingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.KEEP,
+                request = MainSyncWorker.startPeriodicSyncWork()
+            )
+    }
+
+    override fun updateWorker() {
+        WorkManager.getInstance(context = appContext)
+            .enqueueUniquePeriodicWork(
+                uniqueWorkName = PERIODIC_UNIQUE_WORKER,
+                existingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.UPDATE,
                 request = MainSyncWorker.startPeriodicSyncWork()
             )
     }
