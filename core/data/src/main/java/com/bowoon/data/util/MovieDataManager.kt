@@ -45,12 +45,7 @@ class MovieDataManager @Inject constructor(
         datastore.userData.map { internalData ->
             if (language != internalData.language) {
                 language = internalData.language
-                genres = runCatching {
-                    apis.getGenres(language = "${internalData.language}-${internalData.region}")
-                }.getOrElse { e ->
-                    Log.e(e.message ?: "something wrong...")
-                    Genres()
-                }
+                genres = apis.getGenres(language = "${internalData.language}-${internalData.region}")
             }
             genres
         }

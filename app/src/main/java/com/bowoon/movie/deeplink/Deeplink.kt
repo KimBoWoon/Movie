@@ -85,7 +85,7 @@ fun parseDeepLink(uri: Uri?): NavKey = uri?.let {
  */
 fun parseDeeplink(uri: Uri?): List<NavKey> = uri?.let {
     // 경로와 도착지를 담아 리스트로 반환
-    uri.parseDeeplinkPath().plus(element = uri.getDeeplinkDestination(destination = uri.lastPathSegment))
+    uri.parseIntPath().plus(element = uri.getDeeplinkDestination(destination = uri.lastPathSegment))
 } ?: emptyList()
 
 /**
@@ -93,7 +93,7 @@ fun parseDeeplink(uri: Uri?): List<NavKey> = uri?.let {
  *
  * @return 경로를 담은 리스트 반환
  */
-fun Uri?.parseDeeplinkPath(): List<NavKey> {
+fun Uri?.parseIntPath(): List<NavKey> {
     if (this == null) {
         return emptyList()
     }
@@ -106,28 +106,32 @@ fun Uri?.parseDeeplinkPath(): List<NavKey> {
 
     return buildList {
         paths.forEach { path ->
-            when {
-                path == "home" -> add(HomeNavKey)
-                path == "favoriteMovie" -> add(FavoriteNavKey(tab = 0))
-                path == "favoritePeople" -> add(FavoriteNavKey(tab = 1))
-                path == "my" -> add(MyNavKey)
-                path.split("_").first() == "search" -> {
-                    val query = path.split("_")[1]
-                    val searchType = path.split("_")[2]
+            val pathSplit = path.split("_")
+            val startPath = pathSplit.first()
+
+            when (startPath) {
+                "home" -> add(HomeNavKey)
+                "favoriteMovie" -> add(FavoriteNavKey(tab = 0))
+                "favoritePeople" -> add(FavoriteNavKey(tab = 1))
+                "my" -> add(MyNavKey)
+                "search" -> {
+                    val query = pathSplit.parseStringPath(index = 1)
+                    val searchType = pathSplit.parseStringPath(index = 2, defaultValue = "movie")
 
                     add(SearchNavKey(query = query, searchType = searchType))
                 }
-                path.split("_").first() == "movie" -> {
-                    val id = path.split("_")[1].toIntOrNull()
-                    add(MovieNavKey(id = id ?: -1))
+                "movie" -> {
+                    val id = pathSplit.parseIntPath(index = 1)
+                    val tab = pathSplit.parseIntPath(index = 2, defaultValue = 0)
+                    add(MovieNavKey(id = id, tab = tab))
                 }
-                path.split("_").first() == "people" -> {
-                    val id = path.split("_")[1].toIntOrNull()
-                    add(PeopleNavKey(id = id ?: -1))
+                "people" -> {
+                    val id = pathSplit.parseIntPath(index = 1)
+                    add(PeopleNavKey(id = id))
                 }
-                path.split("_").first() == "series" -> {
-                    val id = path.split("_")[1].toIntOrNull()
-                    add(SeriesNavKey(id = id ?: -1))
+                "series" -> {
+                    val id = pathSplit.parseIntPath(index = 1)
+                    add(SeriesNavKey(id = id))
                 }
             }
         }

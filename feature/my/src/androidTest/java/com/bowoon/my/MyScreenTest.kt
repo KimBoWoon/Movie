@@ -40,7 +40,7 @@ class MyScreenTest {
         testMovieAppDataManager = TestMovieAppDataManager()
         viewModel = MyVM(
             userDataRepository = testUserDataRepository,
-            movieAppData = testMovieAppDataManager
+            dataManager = testMovieAppDataManager
         )
 
         testMovieAppDataManager.setMovieAppData(movieAppData)

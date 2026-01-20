@@ -67,11 +67,11 @@ fun MyScreen(
     LocalFirebaseLogHelper.current.sendLog("MyScreen", "my screen init")
 
     val internalData by viewModel.myData.collectAsStateWithLifecycle()
-    val movieAppData by viewModel.movieAppData.movieAppData.collectAsStateWithLifecycle()
+    val movieAppData by viewModel.movieAppData.collectAsStateWithLifecycle()
 
     MyScreen(
         internalData = internalData,
-        movieAppData = movieAppData.getMovieAppData(),
+        movieAppData = movieAppData,
         updateIsAdult = viewModel::updateIsAdult,
         updateAutoPlayTrailer = viewModel::updateIsAutoPlayTrailer,
         updateIsDarkMode = viewModel::updateDarkMode,

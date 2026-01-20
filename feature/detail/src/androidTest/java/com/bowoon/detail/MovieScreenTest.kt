@@ -19,7 +19,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.PagingSource
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.bowoon.data.paging.SimilarMoviePagingSource
-import com.bowoon.detail.movie.DetailVM
+import com.bowoon.detail.movie.MovieVM
 import com.bowoon.detail.movie.MovieScreen
 import com.bowoon.detail.movie.MovieState
 import com.bowoon.domain.GetMovieDetailUseCase
@@ -49,10 +49,10 @@ import org.junit.Rule
 import org.junit.Test
 import kotlin.test.assertEquals
 
-class DetailScreenTest {
+class MovieScreenTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<ComponentActivity>()
-    private lateinit var viewModel: DetailVM
+    private lateinit var viewModel: MovieVM
     private lateinit var savedStateHandle: SavedStateHandle
     private lateinit var testUserDataRepository: TestUserDataRepository
     private lateinit var movieDetailUseCase: GetMovieDetailUseCase
@@ -86,8 +86,9 @@ class DetailScreenTest {
             databaseRepository = testDatabaseRepository,
             detailRepository = testDetailRepository
         )
-        viewModel = DetailVM(
+        viewModel = MovieVM(
             id = 0,
+            initialTabIndex = 0,
             getMovieDetail = movieDetailUseCase,
             databaseRepository = testDatabaseRepository,
             pagingRepository = testPagingRepository
@@ -110,10 +111,12 @@ class DetailScreenTest {
                     movieState = movie,
                     similarMovies = similarMovie,
                     movieReviews = movieReview,
+                    tabIndex = 0,
                     goToMovie = {},
                     goToPeople = {},
                     goToBack = {},
                     onShowSnackbar = { _, _ -> true },
+                    updateTabIndex = viewModel::updateTabIndex,
                     insertFavoriteMovie = viewModel::insertMovie,
                     deleteFavoriteMovie = viewModel::deleteMovie,
                     restart = viewModel::restart
@@ -135,10 +138,12 @@ class DetailScreenTest {
                     movieState = MovieState.Error(throwable = Throwable("something wrong...")),
                     similarMovies = similarMovie,
                     movieReviews = movieReview,
+                    tabIndex = 0,
                     goToMovie = {},
                     goToPeople = {},
                     goToBack = {},
                     onShowSnackbar = { _, _ -> true },
+                    updateTabIndex = viewModel::updateTabIndex,
                     insertFavoriteMovie = viewModel::insertMovie,
                     deleteFavoriteMovie = viewModel::deleteMovie,
                     restart = viewModel::restart
@@ -161,10 +166,12 @@ class DetailScreenTest {
                     movieState = movie,
                     similarMovies = similarMovie,
                     movieReviews = movieReview,
+                    tabIndex = 0,
                     goToMovie = {},
                     goToPeople = {},
                     goToBack = {},
                     onShowSnackbar = { _, _ -> true },
+                    updateTabIndex = viewModel::updateTabIndex,
                     insertFavoriteMovie = viewModel::insertMovie,
                     deleteFavoriteMovie = viewModel::deleteMovie,
                     restart = viewModel::restart
@@ -198,10 +205,12 @@ class DetailScreenTest {
                     movieState = movie,
                     similarMovies = similarMovie,
                     movieReviews = movieReview,
+                    tabIndex = 0,
                     goToMovie = {},
                     goToPeople = {},
                     goToBack = {},
                     onShowSnackbar = { _, _ -> true },
+                    updateTabIndex = viewModel::updateTabIndex,
                     insertFavoriteMovie = viewModel::insertMovie,
                     deleteFavoriteMovie = viewModel::deleteMovie,
                     restart = viewModel::restart
@@ -245,10 +254,12 @@ class DetailScreenTest {
                     movieState = movie,
                     similarMovies = similarMovie,
                     movieReviews = movieReview,
+                    tabIndex = 0,
                     goToMovie = {},
                     goToPeople = {},
                     goToBack = {},
                     onShowSnackbar = { _, _ -> true },
+                    updateTabIndex = viewModel::updateTabIndex,
                     insertFavoriteMovie = viewModel::insertMovie,
                     deleteFavoriteMovie = viewModel::deleteMovie,
                     restart = viewModel::restart
@@ -286,10 +297,12 @@ class DetailScreenTest {
                     movieState = movie,
                     similarMovies = similarMovie,
                     movieReviews = movieReview,
+                    tabIndex = 0,
                     goToMovie = {},
                     goToPeople = {},
                     goToBack = {},
                     onShowSnackbar = { _, _ -> true },
+                    updateTabIndex = viewModel::updateTabIndex,
                     insertFavoriteMovie = viewModel::insertMovie,
                     deleteFavoriteMovie = viewModel::deleteMovie,
                     restart = viewModel::restart
@@ -341,10 +354,12 @@ class DetailScreenTest {
                     movieState = movie,
                     similarMovies = similarMovie,
                     movieReviews = movieReview,
+                    tabIndex = 0,
                     goToMovie = {},
                     goToPeople = {},
                     goToBack = {},
                     onShowSnackbar = { _, _ -> true },
+                    updateTabIndex = viewModel::updateTabIndex,
                     insertFavoriteMovie = viewModel::insertMovie,
                     deleteFavoriteMovie = viewModel::deleteMovie,
                     restart = viewModel::restart
@@ -402,10 +417,12 @@ class DetailScreenTest {
                     movieState = movie,
                     similarMovies = similarMovie,
                     movieReviews = movieReview,
+                    tabIndex = 0,
                     goToMovie = {},
                     goToPeople = {},
                     goToBack = {},
                     onShowSnackbar = { _, _ -> true },
+                    updateTabIndex = viewModel::updateTabIndex,
                     insertFavoriteMovie = viewModel::insertMovie,
                     deleteFavoriteMovie = viewModel::deleteMovie,
                     restart = viewModel::restart
@@ -447,10 +464,12 @@ class DetailScreenTest {
                     movieState = movie,
                     similarMovies = similarMovie,
                     movieReviews = movieReview,
+                    tabIndex = 0,
                     goToMovie = {},
                     goToPeople = {},
                     goToBack = {},
                     onShowSnackbar = { _, _ -> true },
+                    updateTabIndex = viewModel::updateTabIndex,
                     insertFavoriteMovie = viewModel::insertMovie,
                     deleteFavoriteMovie = viewModel::deleteMovie,
                     restart = viewModel::restart

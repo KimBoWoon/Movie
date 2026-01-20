@@ -1,7 +1,5 @@
 package com.bowoon.home
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,30 +15,19 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.LazyPagingItems
@@ -51,17 +38,12 @@ import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.Movie
 import com.bowoon.movie.feature.home.R
 import com.bowoon.ui.components.CircularProgressComponent
-import com.bowoon.ui.dialog.Indexer
 import com.bowoon.ui.image.DynamicAsyncImageLoader
 import com.bowoon.ui.utils.bounceClick
 import com.bowoon.ui.utils.dp10
 import com.bowoon.ui.utils.dp150
 import com.bowoon.ui.utils.dp16
-import com.bowoon.ui.utils.dp20
-import com.bowoon.ui.utils.dp300
 import com.bowoon.ui.utils.sp10
-import com.bowoon.ui.utils.sp15
-import com.bowoon.ui.utils.sp20
 import com.bowoon.ui.utils.sp8
 
 @Composable
@@ -72,28 +54,17 @@ fun HomeScreen(
     LocalFirebaseLogHelper.current.sendLog("HomeScreen", "init screen")
 
     val mainMenuState by viewModel.mainMenu.collectAsStateWithLifecycle()
-    val isShowNextWeekReleaseMovie = remember { viewModel.isShowNextWeekReleaseMovie }
-    val nowPlayingMovies = viewModel.nowPlayingMoviePager.collectAsLazyPagingItems()
-    val upComingMovies = viewModel.upComingMoviePager.collectAsLazyPagingItems()
 
     HomeScreen(
         mainMenuState = mainMenuState,
-        nowPlayingMovies = nowPlayingMovies,
-        upComingMovies = upComingMovies,
-        isShowNextWeekReleaseMovie = isShowNextWeekReleaseMovie,
         goToMovie = goToMovie,
-        updateShowNextReleaseMoviesDate = viewModel::updateShowNextReleaseMoviesDate
     )
 }
 
 @Composable
 fun HomeScreen(
     mainMenuState: MainMenuState,
-    nowPlayingMovies: LazyPagingItems<Movie>,
-    upComingMovies: LazyPagingItems<Movie>,
-    isShowNextWeekReleaseMovie: MutableState<Boolean>,
     goToMovie: (Int) -> Unit,
-    updateShowNextReleaseMoviesDate: () -> Unit
 ) {
     LocalFirebaseLogHelper.current.sendLog("HomeScreen", "init screen")
 
@@ -113,26 +84,21 @@ fun HomeScreen(
             }
             is MainMenuState.Success -> {
                 LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data load success")
-                Log.d("${mainMenuState.nextWeekReleaseMovies}")
+                Log.d("${mainMenuState.nowPlayingMoviePager}, ${mainMenuState.upComingMoviePager}")
 
                 MainComponent(
-                    nowPlayingMovies = nowPlayingMovies,
-                    upComingMovies = upComingMovies,
+                    nowPlayingMovies = mainMenuState.nowPlayingMoviePager.collectAsLazyPagingItems(),
+                    upComingMovies = mainMenuState.upComingMoviePager.collectAsLazyPagingItems(),
                     goToMovie = goToMovie
                 )
-
-                if (!isShowNextWeekReleaseMovie.value) {
-                    ReleaseMoviesDialog(
-                        updateShowNextReleaseMoviesDate = updateShowNextReleaseMoviesDate,
-                        onDismiss = { isShowNextWeekReleaseMovie.value = true },
-                        releaseMovies = mainMenuState.nextWeekReleaseMovies,
-                        goToMovie = goToMovie
-                    )
-                }
             }
             is MainMenuState.Error -> {
                 LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data load Error > ${mainMenuState.throwable.message}")
                 Log.e("${mainMenuState.throwable.message}")
+                Text(
+                    modifier = Modifier.fillMaxSize(),
+                    text = mainMenuState.throwable.message ?: stringResource(id = com.bowoon.movie.core.network.R.string.something_wrong)
+                )
             }
         }
     }
@@ -187,7 +153,7 @@ fun LazyListScope.horizontalMovieListComponent(
             text = title
         )
         LazyRow(
-            modifier = Modifier.wrapContentSize(),
+            modifier = Modifier.semantics { contentDescription = if (title == "상영중인 영화") "nowPlayingMovies" else "upComingMovies" }.wrapContentSize(),
             contentPadding = PaddingValues(horizontal = dp16),
             horizontalArrangement = Arrangement.spacedBy(space = dp16)
         ) {
@@ -243,111 +209,5 @@ fun MainMovieItem(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
-    }
-}
-
-@Composable
-fun ReleaseMoviesDialog(
-    updateShowNextReleaseMoviesDate: () -> Unit,
-    onDismiss: () -> Unit,
-    releaseMovies: List<Movie>,
-    goToMovie: (Int) -> Unit
-) {
-    Dialog(
-        onDismissRequest = { onDismiss() },
-        properties = DialogProperties(
-            usePlatformDefaultWidth = false,
-            dismissOnBackPress = true,
-            dismissOnClickOutside = false
-        )
-    ) {
-        val pagerState = rememberPagerState(initialPage = 0) { releaseMovies.size }
-
-        Column(
-            modifier = Modifier
-                .width(width = dp300)
-                .background(color = Color.White, shape = RoundedCornerShape(size = dp10)),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            HorizontalPager(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable {
-                        goToMovie(releaseMovies[pagerState.currentPage].id ?: -1)
-                        onDismiss()
-                    },
-                state = pagerState,
-            ) { index ->
-                Log.d("NextWeekReleaseMovies Index -> $index")
-                Box {
-                    DynamicAsyncImageLoader(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .aspectRatio(ratio = POSTER_IMAGE_RATIO)
-                            .clip(shape = RoundedCornerShape(topStart = dp10, topEnd = dp10)),
-                        source = "${releaseMovies[index].posterPath}",
-                        contentDescription = "ReleaseMovieImage"
-                    )
-                    Text(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .align(Alignment.BottomCenter)
-                            .background(color = Color(color = 0x33000000)),
-                        text = stringResource(id = R.string.release_movie, releaseMovies[pagerState.currentPage].releaseDate ?: ""),
-                        textAlign = TextAlign.Center,
-                        color = Color.White
-                    )
-                    Indexer(
-                        modifier = Modifier
-                            .padding(top = dp10, end = dp10)
-                            .wrapContentSize()
-                            .background(
-                                color = Color(color = 0x33000000),
-                                shape = RoundedCornerShape(size = dp20)
-                            )
-                            .align(Alignment.TopEnd),
-                        current = pagerState.currentPage + 1,
-                        size = pagerState.pageCount
-                    )
-                }
-            }
-            Text(
-                modifier = Modifier.align(Alignment.CenterHorizontally),
-                text = stringResource(id = R.string.coming_soon_movie),
-                color = Color.Black
-            )
-            Button(
-                modifier = Modifier.padding(horizontal = dp16, vertical = dp10),
-                onClick = { onDismiss() }
-            ) {
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                        .background(color = MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(size = dp20)),
-                    text = stringResource(id = R.string.close),
-                    textAlign = TextAlign.Center,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = sp20,
-                    color = Color.White
-                )
-            }
-            Text(
-                modifier = Modifier
-                    .padding(bottom = dp10)
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .clickable {
-                        updateShowNextReleaseMoviesDate()
-                        onDismiss()
-                    },
-                text = stringResource(id = R.string.no_show_today),
-                textAlign = TextAlign.Center,
-                fontWeight = FontWeight.Bold,
-                fontSize = sp15,
-                color = Color.Black
-            )
-        }
     }
 }

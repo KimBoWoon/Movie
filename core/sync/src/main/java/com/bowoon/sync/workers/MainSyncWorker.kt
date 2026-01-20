@@ -27,6 +27,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
@@ -108,6 +109,7 @@ class MainSyncWorker @AssistedInject constructor(
             .firstOrNull()?.also { movies ->
                 notifier.postMovieNotifications(movies = movies)
             }
+        userDateRepository.updateWorkScheduleTime(value = Instant.now().toEpochMilli())
     }
 
     override suspend fun getForegroundInfo(): ForegroundInfo =

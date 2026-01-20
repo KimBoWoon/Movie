@@ -399,7 +399,7 @@ val peopleDetailTestData = People(
 
 val nowPlayingMovieTest = (0..100).map {
     NowPlayingMovieEntity(
-        releaseDate = "releaseDate_$it",
+        releaseDate = "nowPlaying_releaseDate_$it",
         title = "nowPlaying_$it",
         id = it,
         posterPath = "/imagePath_$it.png"
@@ -408,7 +408,7 @@ val nowPlayingMovieTest = (0..100).map {
 
 val upComingMovieTest = (0..100).map {
     UpComingMovieEntity(
-        releaseDate = "releaseDate_$it",
+        releaseDate = "upcomingMovie_releaseDate_$it",
         title = "upcomingMovie_$it",
         id = it,
         posterPath = "/imagePath_$it.png"

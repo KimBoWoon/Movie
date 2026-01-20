@@ -17,4 +17,5 @@ message InternalDataPreferences {
   string showNextReleaseMoviesDate = 9;
   string secureBaseUrl = 10;
   bool isFirstInstall = 11;
+  uint64 workScheduleTime = 12;
 }

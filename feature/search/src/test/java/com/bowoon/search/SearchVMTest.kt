@@ -45,7 +45,7 @@ class SearchVMTest {
             initialQuery = "",
             initialSearchType = SearchType.MOVIE,
             savedStateHandle = savedStateHandle,
-            movieAppData = testMovieAppDataManager,
+            dataManager = testMovieAppDataManager,
             pagingRepository = testPagingRepository
         )
     }

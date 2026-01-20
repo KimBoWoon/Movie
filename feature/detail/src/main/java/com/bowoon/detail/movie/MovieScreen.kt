@@ -124,11 +124,12 @@ fun MovieScreen(
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
-    viewModel: DetailVM = hiltViewModel()
+    viewModel: MovieVM = hiltViewModel()
 ) {
     LocalFirebaseLogHelper.current.sendLog("DetailScreen", "detail screen start!")
 
     val movieState by viewModel.movie.collectAsStateWithLifecycle()
+    val tabIndex by viewModel.tabIndex.collectAsStateWithLifecycle()
     val similarMovies = viewModel.similarMovies.collectAsLazyPagingItems()
     val movieReviews = viewModel.movieReviews.collectAsLazyPagingItems()
 
@@ -136,10 +137,12 @@ fun MovieScreen(
         movieState = movieState,
         similarMovies = similarMovies,
         movieReviews = movieReviews,
+        tabIndex = tabIndex,
         goToMovie = goToMovie,
         goToPeople = goToPeople,
         goToBack = goToBack,
         onShowSnackbar = onShowSnackbar,
+        updateTabIndex = viewModel::updateTabIndex,
         insertFavoriteMovie = viewModel::insertMovie,
         deleteFavoriteMovie = viewModel::deleteMovie,
         restart = viewModel::restart
@@ -151,10 +154,12 @@ fun MovieScreen(
     movieState: MovieState,
     similarMovies: LazyPagingItems<Movie>,
     movieReviews: LazyPagingItems<ReviewDataModel>,
+    tabIndex: Int,
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     goToBack: () -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
+    updateTabIndex: (Int) -> Unit,
     insertFavoriteMovie: (Movie) -> Unit,
     deleteFavoriteMovie: (Movie) -> Unit,
     restart: () -> Unit
@@ -181,10 +186,12 @@ fun MovieScreen(
                     movieInfo = movieState.movieInfo,
                     similarMovies = similarMovies,
                     movieReviews = movieReviews,
+                    tabIndex = tabIndex,
                     goToMovie = goToMovie,
                     goToPeople = goToPeople,
                     goToBack = goToBack,
                     onShowSnackbar = onShowSnackbar,
+                    updateTabIndex = updateTabIndex,
                     insertFavoriteMovie = insertFavoriteMovie,
                     deleteFavoriteMovie = deleteFavoriteMovie
                 )
@@ -209,10 +216,12 @@ fun MovieDetailComponent(
     movieInfo: MovieDetailInfo,
     similarMovies: LazyPagingItems<Movie>,
     movieReviews: LazyPagingItems<ReviewDataModel>,
+    tabIndex: Int,
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     goToBack: () -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
+    updateTabIndex: (Int) -> Unit,
     insertFavoriteMovie: (Movie) -> Unit,
     deleteFavoriteMovie: (Movie) -> Unit,
 ) {
@@ -232,12 +241,13 @@ fun MovieDetailComponent(
         tabList.remove(element = stringResource(id = R.string.movie_reviews))
     }
     val pagerState = rememberPagerState(
-        initialPage = 0,
+        initialPage = tabIndex,
         pageCount = { tabList.size }
     )
     val tabClickEvent: (Int, Int) -> Unit = { current, index ->
         scope.launch {
             pagerState.animateScrollToPage(page = index)
+            updateTabIndex(index)
         }
     }
     val favoriteMessage = if (movieInfo.detail.isFavorite) stringResource(id = R.string.add_favorite_movie) else stringResource(id = R.string.remove_favorite_movie)
@@ -273,7 +283,6 @@ fun MovieDetailComponent(
         ) { tabs ->
             HorizontalPager(
                 modifier = Modifier
-//                    .semantics { contentDescription = "detailTabRow" }
                     .fillMaxWidth()
                     .wrapContentHeight(),
                 state = pagerState,
