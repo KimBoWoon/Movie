@@ -27,8 +27,7 @@ class MainVM @Inject constructor(
     private val userDataRepository: UserDataRepository,
     dataManager: DataManager,
     databaseRepository: DatabaseRepository,
-    syncManager: SyncManager,
-    val userDataRepository: UserDataRepository
+    syncManager: SyncManager
 ) : ViewModel() {
     init {
         viewModelScope.launch {
