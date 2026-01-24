@@ -3,17 +3,17 @@ package com.bowoon.my.navigation
 import androidx.annotation.Keep
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
-import com.bowoon.my.MyScreen
+import com.bowoon.my.SettingScreen
 import kotlinx.serialization.Serializable
 
 @Serializable
 @Keep
-data object MyNavKey : NavKey
+data object SettingNavKey : NavKey
 
-fun EntryProviderScope<NavKey>.myEntry(
+fun EntryProviderScope<NavKey>.settingEntry(
 
 ) {
-    entry<MyNavKey> {
-        MyScreen()
+    entry<SettingNavKey> {
+        SettingScreen()
     }
 }

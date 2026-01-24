@@ -21,7 +21,7 @@ import org.junit.Test
 class MyScreenTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<ComponentActivity>()
-    private lateinit var viewModel: MyVM
+    private lateinit var viewModel: SettingVM
     private lateinit var testUserDataRepository: TestUserDataRepository
     private lateinit var testMovieAppDataManager: TestMovieAppDataManager
     private val movieAppData = MovieAppData(
@@ -38,7 +38,7 @@ class MyScreenTest {
     fun setup() {
         testUserDataRepository = TestUserDataRepository()
         testMovieAppDataManager = TestMovieAppDataManager()
-        viewModel = MyVM(
+        viewModel = SettingVM(
             userDataRepository = testUserDataRepository,
             dataManager = testMovieAppDataManager
         )
@@ -53,7 +53,7 @@ class MyScreenTest {
                 val internalData by viewModel.myData.collectAsStateWithLifecycle()
                 val movieAppData by viewModel.movieAppData.movieAppData.collectAsStateWithLifecycle()
 
-                MyScreen(
+                SettingScreen(
                     internalData = internalData,
                     movieAppData = movieAppData,
                     updateIsAdult = {},

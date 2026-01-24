@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.model.Movie
 import com.bowoon.model.People
+import com.bowoon.movie.feature.favorite.R
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -60,4 +61,9 @@ class FavoriteVM @AssistedInject constructor(
             databaseRepository.deletePeople(people = people)
         }
     }
+}
+
+enum class FavoriteTab(val stringId: Int) {
+    MOVIE(stringId = R.string.movie),
+    PEOPLE(stringId = R.string.people)
 }

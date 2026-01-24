@@ -61,15 +61,15 @@ import com.bowoon.ui.utils.dp500
 import com.bowoon.ui.utils.dp56
 
 @Composable
-fun MyScreen(
-    viewModel: MyVM = hiltViewModel()
+fun SettingScreen(
+    viewModel: SettingVM = hiltViewModel()
 ) {
     LocalFirebaseLogHelper.current.sendLog("MyScreen", "my screen init")
 
     val internalData by viewModel.myData.collectAsStateWithLifecycle()
     val movieAppData by viewModel.movieAppData.collectAsStateWithLifecycle()
 
-    MyScreen(
+    SettingScreen(
         internalData = internalData,
         movieAppData = movieAppData,
         updateIsAdult = viewModel::updateIsAdult,
@@ -82,7 +82,7 @@ fun MyScreen(
 }
 
 @Composable
-fun MyScreen(
+fun SettingScreen(
     internalData: InternalData,
     movieAppData: MovieAppData,
     updateIsAdult: (Boolean) -> Unit,

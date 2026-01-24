@@ -24,6 +24,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainVM @Inject constructor(
+    private val userDataRepository: UserDataRepository,
     dataManager: DataManager,
     databaseRepository: DatabaseRepository,
     syncManager: SyncManager,

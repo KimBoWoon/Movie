@@ -79,7 +79,7 @@ import com.bowoon.movie.MovieAppState
 import com.bowoon.movie.R
 import com.bowoon.movie.navigation.TOP_LEVEL_NAV_ITEMS
 import com.bowoon.movie.utils.VerticalRollingAnimation
-import com.bowoon.my.navigation.myEntry
+import com.bowoon.my.navigation.settingEntry
 import com.bowoon.navigation.Navigator
 import com.bowoon.navigation.toEntries
 import com.bowoon.search.navigation.SearchNavKey
@@ -188,7 +188,7 @@ fun MovieApp(
             homeEntry(
                 goToMovie = navigator::navigateToMovie
             )
-            myEntry()
+            settingEntry()
             searchEntry(
                 goToMovie = navigator::navigateToMovie,
                 goToPeople = navigator::navigateToPeople,

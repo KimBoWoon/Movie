@@ -87,10 +87,9 @@ fun FavoriteScreen(
     deleteFavoriteMovie: (Movie) -> Unit,
     deleteFavoritePeople: (People) -> Unit
 ) {
-    val favoriteTabs = listOf(
-        stringResource(id = R.string.movie),
-        stringResource(id = R.string.people)
-    )
+    val favoriteTabs = FavoriteTab.entries.map { favoriteTab ->
+        stringResource(id = favoriteTab.stringId)
+    }
     val pagerState = rememberPagerState(initialPage = initialTab, pageCount = { favoriteTabs.size })
     val scope = rememberCoroutineScope()
     val removeFavoriteText = stringResource(id = R.string.remove_favorite)
