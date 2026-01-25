@@ -12,16 +12,7 @@ import kotlinx.serialization.Serializable
 @Keep
 data class FavoriteNavKey(
     val tab: Int = 0
-) : NavKey {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        return other is FavoriteNavKey
-    }
-
-    override fun hashCode(): Int {
-        return javaClass.hashCode()
-    }
-}
+) : NavKey
 
 fun EntryProviderScope<NavKey>.favoriteEntry(
     goToMovie: (Int) -> Unit,

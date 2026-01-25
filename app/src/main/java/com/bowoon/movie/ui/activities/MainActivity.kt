@@ -20,6 +20,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation3.runtime.NavKey
 import com.bowoon.common.AppDoubleBackToExit
 import com.bowoon.common.Log
 import com.bowoon.common.isSystemInDarkTheme
@@ -29,6 +30,7 @@ import com.bowoon.movie.MovieAppState
 import com.bowoon.movie.MovieFirebase
 import com.bowoon.movie.R
 import com.bowoon.movie.deeplink.DeeplinkParser
+import com.bowoon.movie.navigation.TOP_LEVEL_NAV_ITEMS
 import com.bowoon.movie.rememberMovieAppState
 import com.bowoon.movie.ui.MovieApp
 import com.bowoon.movie.ui.NextWeekReleaseMoviesNavKey
@@ -44,7 +46,6 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val viewModel: MainVM by viewModels()
-    private lateinit var appState: MovieAppState
     @Inject
     lateinit var networkMonitor: NetworkMonitor
     @Inject
@@ -58,14 +59,16 @@ class MainActivity : ComponentActivity() {
         )
     }
     @Inject
-    lateinit var deeplinkParserFactory: DeeplinkParser.Factory
-    private val deeplinkParser by lazy {
-        deeplinkParserFactory.create(navigationState = appState.navigationState)
-    }
+    lateinit var deeplinkParser: DeeplinkParser
+    private var deeplinkBackstack by mutableStateOf<List<NavKey>>(value = emptyList())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
+
+        intent?.let {
+            deeplinkBackstack = deeplinkParser.parseDeeplink(uri = intent.data)
+        }
 
         onBackPressedDispatcher.addCallback(
             onBackPressedCallback = object : OnBackPressedCallback(enabled = true) {
@@ -113,11 +116,13 @@ class MainActivity : ComponentActivity() {
                 val nextWeekReleaseMovies by viewModel.nextWeekReleaseMovies.collectAsStateWithLifecycle()
 
                 MovieTheme(darkTheme = darkTheme) {
-                    appState = rememberMovieAppState(networkMonitor = networkMonitor)
+                    val appState = rememberMovieAppState(networkMonitor = networkMonitor)
                     val snackbarHostState = remember { SnackbarHostState() }
 
-                    LaunchedEffect(key1 = intent.data) {
-                        deeplinkParser.parseDeeplink(uri = intent.data, navigationState = appState.navigationState)
+                    LaunchedEffect(key1 = deeplinkBackstack) {
+                        if (deeplinkBackstack.isNotEmpty()) {
+                            navigationSetting(appState = appState)
+                        }
                     }
 
                     LaunchedEffect(key1 = nextWeekReleaseMovies) {
@@ -141,7 +146,31 @@ class MainActivity : ComponentActivity() {
         super.onNewIntent(intent = intent)
         Log.d("onNewIntent")
         setIntent(intent)
-        deeplinkParser.parseDeeplink(uri = intent.data, navigationState = appState.navigationState)
+        deeplinkBackstack = deeplinkParser.parseDeeplink(uri = intent.data)
+    }
+
+    fun navigationSetting(appState: MovieAppState) {
+        // 딥링크로 진입시 백스택 초기화
+        appState.navigationState.backStacks.entries.forEach { (_, value) ->
+            while (value.size > 1) {
+                value.removeAt(index = value.lastIndex)
+            }
+        }
+
+        appState.navigationState.topLevelRoute = appState.navigationState.startRoute
+
+        deeplinkBackstack.forEach { navKey ->
+            val targetTabKey = TOP_LEVEL_NAV_ITEMS.keys.firstOrNull { it.javaClass == navKey.javaClass }?.let { topLevelNavKey ->
+                appState.navigationState.topLevelRoute = topLevelNavKey
+                topLevelNavKey
+            } ?: appState.navigationState.startRoute
+
+            if (appState.navigationState.backStacks[targetTabKey] != null) {
+                appState.navigationState.backStacks[targetTabKey]?.add(element = navKey)
+            }
+        }
+
+        deeplinkBackstack = emptyList()
     }
 }
 
