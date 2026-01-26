@@ -9,7 +9,7 @@ import org.gradle.kotlin.dsl.dependencies
 
 class AndroidFeatureConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
-        with(target) {
+        with(receiver = target) {
             apply(plugin = "bowoon.android.library")
             apply(plugin = "bowoon.hilt")
             apply(plugin = "org.jetbrains.kotlin.plugin.serialization")
@@ -20,15 +20,15 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
             }
 
             dependencies {
-                add("implementation", project(":core:ui"))
-                add("implementation", libs.findLibrary("androidx.compose.material3.icons").get())
-                add("implementation", libs.findLibrary("androidx.compose.hilt.navigation").get())
-                add("implementation", libs.findLibrary("androidx.lifecycle.runtimeCompose").get())
-                add("implementation", libs.findLibrary("androidx.lifecycle.viewModelCompose").get())
-                add("implementation", libs.findLibrary("androidx.navigation.compose").get())
-                add("implementation", libs.findLibrary("kotlinx.serialization.json").get())
-                add("testImplementation", libs.findLibrary("androidx.navigation.testing").get())
-                add("androidTestImplementation", libs.findLibrary("androidx.lifecycle.runtimeTesting").get())
+                "implementation"(project(":core:ui"))
+                "implementation"(dependency = libs.findLibrary("androidx.compose.material3.icons").get())
+                "implementation"(dependency = libs.findLibrary("androidx.compose.hilt.navigation").get())
+                "implementation"(dependency = libs.findLibrary("androidx.lifecycle.runtimeCompose").get())
+                "implementation"(dependency = libs.findLibrary("androidx.lifecycle.viewModelCompose").get())
+                "implementation"(dependency = libs.findLibrary("androidx.navigation.compose").get())
+                "implementation"(dependency = libs.findLibrary("kotlinx.serialization.json").get())
+                "testImplementation"(dependency = libs.findLibrary("androidx.navigation.testing").get())
+                "androidTestImplementation"(dependency = libs.findLibrary("androidx.lifecycle.runtimeTesting").get())
             }
         }
     }

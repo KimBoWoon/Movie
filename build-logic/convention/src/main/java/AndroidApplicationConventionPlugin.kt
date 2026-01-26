@@ -12,9 +12,8 @@ import org.gradle.kotlin.dsl.dependencies
 
 class AndroidApplicationConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
-        with(target) {
+        with(receiver = target) {
             apply(plugin = "com.android.application")
-//            apply(plugin = "org.jetbrains.kotlin.android")
 
             extensions.configure<ApplicationExtension> {
                 defaultConfig {
@@ -51,8 +50,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                 namespace = Config.Application.Movie.applicationId
 
                 val gitHash = project.providers.exec {
-                    executable = "git"
-                    commandLine("rev-parse", "--short", "HEAD")
+                    commandLine("git", "rev-parse", "--short", "HEAD")
                 }.standardOutput.asText.map { it.trim() }.get()
 
                 buildTypes {
@@ -83,17 +81,17 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                     }
                 }
 
-                configureKotlinAndroid(this)
+                configureKotlinAndroid(commonExtensions = this)
             }
 
             dependencies {
-                add("testImplementation", project(":core:testing"))
-                add("implementation", libs.findLibrary("androidx.compose.material3.icons").get())
-                add("implementation", libs.findLibrary("androidx.core.ktx").get())
-                add("implementation", libs.findLibrary("androidx.appcompat").get())
-                add("testImplementation", libs.findLibrary("junit").get())
-                add("androidTestImplementation", libs.findLibrary("androidx.junit").get())
-                add("androidTestImplementation", libs.findLibrary("androidx.espresso.core").get())
+                "testImplementation"(project(":core:testing"))
+                "implementation"(dependency = libs.findLibrary("androidx.compose.material3.icons").get())
+                "implementation"(dependency = libs.findLibrary("androidx.core.ktx").get())
+                "implementation"(dependency = libs.findLibrary("androidx.appcompat").get())
+                "testImplementation"(dependency = libs.findLibrary("junit").get())
+                "androidTestImplementation"(dependency = libs.findLibrary("androidx.junit").get())
+                "androidTestImplementation"(dependency = libs.findLibrary("androidx.espresso.core").get())
             }
         }
     }

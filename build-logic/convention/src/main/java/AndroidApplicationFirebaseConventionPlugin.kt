@@ -3,25 +3,23 @@ import com.bowoon.convention.libs
 import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.exclude
 
 class AndroidApplicationFirebaseConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
-        with(target) {
-            with(pluginManager) {
-                apply("com.google.gms.google-services")
-//                apply("com.google.firebase.firebase-perf")
-                apply("com.google.firebase.crashlytics")
-            }
+        with(receiver = target) {
+            apply(plugin = "com.google.gms.google-services")
+//            apply(plugin = "com.google.firebase.firebase-perf")
+            apply(plugin = "com.google.firebase.crashlytics")
 
             dependencies {
                 val bom = libs.findLibrary("firebase-bom").get()
-                add("implementation", platform(bom))
-                add("implementation", libs.findLibrary("firebase.analytics").get())
-//                add("implementation", libs.findLibrary("firebase.performance").get())
-                "implementation"(libs.findLibrary("firebase.performance").get()) {
+                "implementation"(dependency = platform(bom))
+                "implementation"(dependency = libs.findLibrary("firebase.analytics").get())
+                "implementation"(dependency = libs.findLibrary("firebase.performance").get()) {
                     /*
                     Exclusion of protobuf / protolite dependencies is necessary as the
                     datastore-proto brings in protobuf dependencies. These are the source of truth
@@ -31,8 +29,8 @@ class AndroidApplicationFirebaseConventionPlugin : Plugin<Project> {
                     exclude(group = "com.google.protobuf", module = "protobuf-javalite")
                     exclude(group = "com.google.firebase", module = "protolite-well-known-types")
                 }
-                add("implementation", libs.findLibrary("firebase.crashlytics").get())
-                add("implementation", libs.findLibrary("firebase.message").get())
+                "implementation"(dependency = libs.findLibrary("firebase.crashlytics").get())
+                "implementation"(dependency = libs.findLibrary("firebase.message").get())
             }
 
             extensions.configure<ApplicationExtension> {

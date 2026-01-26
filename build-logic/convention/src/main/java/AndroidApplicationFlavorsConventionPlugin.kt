@@ -6,7 +6,7 @@ import org.gradle.kotlin.dsl.configure
 
 class AndroidApplicationFlavorsConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
-        with(target) {
+        with(receiver = target) {
             extensions.configure<ApplicationExtension> {
                 configureFlavors(this)
             }

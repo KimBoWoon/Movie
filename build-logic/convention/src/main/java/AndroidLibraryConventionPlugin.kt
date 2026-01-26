@@ -1,5 +1,6 @@
 import com.android.build.api.dsl.LibraryExtension
 import com.bowoon.convention.Config
+import com.bowoon.convention.configureFlavors
 import com.bowoon.convention.configureKotlinAndroid
 import com.bowoon.convention.libs
 import org.gradle.api.Plugin
@@ -11,9 +12,8 @@ import org.gradle.kotlin.dsl.kotlin
 
 class AndroidLibraryConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
-        with(target) {
+        with(receiver = target) {
             apply(plugin = "com.android.library")
-//            apply(plugin = "org.jetbrains.kotlin.android")
             apply(plugin = "kotlin-parcelize")
             apply(plugin = "org.jetbrains.kotlin.plugin.serialization")
 
@@ -42,22 +42,22 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
                     }
                 }
 
-//                configureFlavors(this)
-                configureKotlinAndroid(this)
+                configureFlavors(commonExtension = this)
+                configureKotlinAndroid(commonExtensions = this)
             }
 
             dependencies {
-                add("testImplementation", project(":core:testing"))
-                add("androidTestImplementation", project(":core:testing"))
-                add("implementation", libs.findLibrary("androidx.core.ktx").get())
-                add("implementation", libs.findLibrary("androidx.appcompat").get())
-                add("implementation", libs.findLibrary("material").get())
-                add("testImplementation", libs.findLibrary("junit").get())
-                add("androidTestImplementation", libs.findLibrary("androidx.junit").get())
-                add("androidTestImplementation", libs.findLibrary("androidx.espresso.core").get())
-                add("androidTestImplementation", kotlin("test"))
-                add("testImplementation", kotlin("test"))
-                add("testImplementation", libs.findLibrary("robolectric").get())
+                "testImplementation"(project(":core:testing"))
+                "androidTestImplementation"(project(":core:testing"))
+                "implementation"(dependency = libs.findLibrary("androidx.core.ktx").get())
+                "implementation"(dependency = libs.findLibrary("androidx.appcompat").get())
+                "implementation"(dependency = libs.findLibrary("material").get())
+                "testImplementation"(dependency = libs.findLibrary("junit").get())
+                "androidTestImplementation"(dependency = libs.findLibrary("androidx.junit").get())
+                "androidTestImplementation"(dependency = libs.findLibrary("androidx.espresso.core").get())
+                "androidTestImplementation"(kotlin("test"))
+                "testImplementation"(kotlin("test"))
+                "testImplementation"(dependency = libs.findLibrary("robolectric").get())
             }
         }
     }
