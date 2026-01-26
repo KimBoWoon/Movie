@@ -5,8 +5,8 @@ import androidx.startup.Initializer
 import com.bowoon.common.Log
 import com.bowoon.movie.BuildConfig
 import com.bowoon.movie.MovieFirebase
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.Firebase
+import com.google.firebase.crashlytics.crashlytics
 import javax.inject.Inject
 
 class FirebaseInitializer : Initializer<Unit> {

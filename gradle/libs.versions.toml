@@ -78,9 +78,9 @@ serialization-converter = "1.0.0"
 coil = "3.3.0"
 
 # firebase
-firebaseBom = "33.16.0"
-firebaseCrashlyticsPlugin = "3.0.4"
-firebasePerfPlugin = "2.0.0"
+firebaseBom = "34.8.0"
+firebaseCrashlyticsPlugin = "3.0.6"
+firebasePerfPlugin = "2.0.2"
 
 # test
 androidxTestRules = "1.7.0"
@@ -204,10 +204,10 @@ coil-core = { group = "io.coil-kt.coil3", name = "coil-core", version.ref = "coi
 
 # firebase
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
-firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics-ktx" }
-firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics-ktx" }
-firebase-performance = { group = "com.google.firebase", name = "firebase-perf-ktx" }
-firebase-message = { group = "com.google.firebase", name = "firebase-messaging-ktx" }
+firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics" }
+firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
+firebase-performance = { group = "com.google.firebase", name = "firebase-perf" }
+firebase-message = { group = "com.google.firebase", name = "firebase-messaging" }
 firebase-crashlytics-gradlePlugin = { group = "com.google.firebase", name = "firebase-crashlytics-gradle", version.ref = "firebaseCrashlyticsPlugin" }
 firebase-performance-gradlePlugin = { group = "com.google.firebase", name = "perf-plugin", version.ref = "firebasePerfPlugin" }
 

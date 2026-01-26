@@ -10,8 +10,8 @@ import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.firebase.FIREBASE_LOG_MESSAGE
 import com.bowoon.firebase.LogHelper
 import com.google.android.gms.tasks.OnCompleteListener
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.Firebase
+import com.google.firebase.crashlytics.crashlytics
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
