@@ -41,9 +41,9 @@ import kotlinx.coroutines.launch
 class SearchVM @AssistedInject constructor(
     @Assisted initialQuery: String,
     @Assisted initialSearchType: SearchType,
+    dataManager: DataManager,
     private val savedStateHandle: SavedStateHandle,
-    private val pagingRepository: PagingRepository,
-    private val dataManager: DataManager
+    private val pagingRepository: PagingRepository
 ) : ViewModel() {
     companion object {
         internal const val TAG = "SearchVM"

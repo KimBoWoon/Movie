@@ -345,11 +345,13 @@ fun SearchTypeComponent(
     updateSearchType: (SearchType) -> Unit
 ) {
     var isExpand by remember { mutableStateOf(value = false) }
-    val types = listOf(
-        stringResource(id = R.string.search_type_movie),
-        stringResource(id = R.string.search_type_people),
-        stringResource(id = R.string.search_type_series)
-    )
+    val types = SearchType.entries.map {
+        when (it) {
+            SearchType.MOVIE -> stringResource(id = R.string.search_type_movie)
+            SearchType.PEOPLE -> stringResource(id = R.string.search_type_people)
+            SearchType.SERIES -> stringResource(id = R.string.search_type_series)
+        }
+    }
 
     Column {
         Row(

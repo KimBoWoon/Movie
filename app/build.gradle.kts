@@ -9,8 +9,7 @@ plugins {
 tasks.register("createReleaseNote") {
     val releaseNote = File("releaseNote.txt")
     val logs = project.providers.exec {
-        executable = "git"
-        commandLine("log", "--oneline", "--pretty=format:* (#%h) %cn %s", "remotes/origin/release/${android.defaultConfig.versionName}..remotes/origin/develop")
+        commandLine("git", "log", "--oneline", "--pretty=format:* (#%h) %cn %s", "remotes/origin/release/${android.defaultConfig.versionName}..remotes/origin/develop")
     }.standardOutput.asText.map { it.trim() }.get()
     releaseNote.delete()
     releaseNote.writeText(
