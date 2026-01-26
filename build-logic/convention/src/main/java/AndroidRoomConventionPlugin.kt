@@ -14,17 +14,17 @@ class AndroidRoomConventionPlugin : Plugin<Project> {
             apply(plugin = "com.google.devtools.ksp")
 
             extensions.configure<KspExtension> {
-                arg("room.generateKotlin", "true")
+                arg(k = "room.generateKotlin", v = "true")
             }
 
             extensions.configure<RoomExtension> {
-                schemaDirectory("$projectDir/schemas")
+                schemaDirectory(path = "$projectDir/schemas")
             }
 
             dependencies {
-                "implementation"(libs.findLibrary("androidx.room.runtime").get())
-                "implementation"(libs.findLibrary("androidx.room.ktx").get())
-                "ksp"(libs.findLibrary("androidx.room.compiler").get())
+                "implementation"(dependency = libs.findLibrary("androidx.room.runtime").get())
+                "implementation"(dependency = libs.findLibrary("androidx.room.ktx").get())
+                "ksp"(dependency = libs.findLibrary("androidx.room.compiler").get())
             }
         }
     }

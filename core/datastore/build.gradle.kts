@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.bowoon.android.library)
     alias(libs.plugins.bowoon.hilt)
-    id("com.google.protobuf") version "0.9.6"
+    alias(libs.plugins.protobuf)
 }
 
 android {
@@ -31,7 +31,7 @@ protobuf {
 }
 
 androidComponents.beforeVariants {
-    android.sourceSets.register(it.name) {
+    android.sourceSets.getByName(it.name) {
         val buildDir = layout.buildDirectory.get().asFile
         java.srcDir(buildDir.resolve("generated/source/proto/${it.name}/java"))
         kotlin.srcDir(buildDir.resolve("generated/source/proto/${it.name}/kotlin"))

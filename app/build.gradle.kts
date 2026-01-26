@@ -1,5 +1,3 @@
-import java.io.ByteArrayOutputStream
-
 plugins {
     alias(libs.plugins.bowoon.android.application)
     alias(libs.plugins.bowoon.android.application.compose)
@@ -10,14 +8,10 @@ plugins {
 
 tasks.register("createReleaseNote") {
     val releaseNote = File("releaseNote.txt")
-    val logs = ByteArrayOutputStream().use { os ->
-        exec {
-            executable = "git"
-            args = listOf<String>("log", "--oneline", "--pretty=format:* (#%h) %cn %s", "remotes/origin/release/${android.defaultConfig.versionName}..remotes/origin/develop")
-            standardOutput = os
-        }
-        os.toString().trim()
-    }
+    val logs = project.providers.exec {
+        executable = "git"
+        commandLine("log", "--oneline", "--pretty=format:* (#%h) %cn %s", "remotes/origin/release/${android.defaultConfig.versionName}..remotes/origin/develop")
+    }.standardOutput.asText.map { it.trim() }.get()
     releaseNote.delete()
     releaseNote.writeText(
         text = logs.takeIf { it.isNotEmpty() }?.trimIndent() ?: "empty logs..."

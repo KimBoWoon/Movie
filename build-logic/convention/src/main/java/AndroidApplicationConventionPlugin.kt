@@ -9,38 +9,36 @@ import org.gradle.api.Project
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.dependencies
-import java.io.ByteArrayOutputStream
 
 class AndroidApplicationConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
             apply(plugin = "com.android.application")
-            apply(plugin = "org.jetbrains.kotlin.android")
+//            apply(plugin = "org.jetbrains.kotlin.android")
 
             extensions.configure<ApplicationExtension> {
                 defaultConfig {
                     compileSdk = Config.Application.Movie.compileSdkVersion
                     minSdk = Config.Application.Movie.minSdkVersion
-                    extensions.configure<ApplicationExtension> {
-                        applicationId = Config.Application.Movie.applicationId
-                        targetSdk = Config.Application.Movie.targetSdkVersion
-                        versionName = Config.Application.Movie.versionName
-                        versionCode = Config.Application.Movie.versionCode
-                        testInstrumentationRunner = "com.bowoon.testing.MovieTestRunner"
 
-                        signingConfigs {
-                            register(Config.Application.Movie.Sign.Release.name) {
-                                storeFile = file(getProp(Config.Application.Movie.Sign.Release.storeFile))
-                                storePassword = getProp(Config.Application.Movie.Sign.Release.storePassword)
-                                keyAlias = getProp(Config.Application.Movie.Sign.Release.keyAlias)
-                                keyPassword = getProp(Config.Application.Movie.Sign.Release.keyPassword)
-                            }
-                            register(Config.Application.Movie.Sign.Debug.name) {
-                                storeFile = file(getProp(Config.Application.Movie.Sign.Debug.storeFile))
-                                storePassword = getProp(Config.Application.Movie.Sign.Debug.storePassword)
-                                keyAlias = getProp(Config.Application.Movie.Sign.Debug.keyAlias)
-                                keyPassword = getProp(Config.Application.Movie.Sign.Debug.keyPassword)
-                            }
+                    applicationId = Config.Application.Movie.applicationId
+                    targetSdk = Config.Application.Movie.targetSdkVersion
+                    versionName = Config.Application.Movie.versionName
+                    versionCode = Config.Application.Movie.versionCode
+                    testInstrumentationRunner = "com.bowoon.testing.MovieTestRunner"
+
+                    signingConfigs {
+                        register(Config.Application.Movie.Sign.Release.name) {
+                            storeFile = file(getProp(Config.Application.Movie.Sign.Release.storeFile))
+                            storePassword = getProp(Config.Application.Movie.Sign.Release.storePassword)
+                            keyAlias = getProp(Config.Application.Movie.Sign.Release.keyAlias)
+                            keyPassword = getProp(Config.Application.Movie.Sign.Release.keyPassword)
+                        }
+                        register(Config.Application.Movie.Sign.Debug.name) {
+                            storeFile = file(getProp(Config.Application.Movie.Sign.Debug.storeFile))
+                            storePassword = getProp(Config.Application.Movie.Sign.Debug.storePassword)
+                            keyAlias = getProp(Config.Application.Movie.Sign.Debug.keyAlias)
+                            keyPassword = getProp(Config.Application.Movie.Sign.Debug.keyPassword)
                         }
                     }
 
@@ -52,17 +50,10 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
 
                 namespace = Config.Application.Movie.applicationId
 
-                val gitHash = ByteArrayOutputStream().use {
-//                    DefaultProviderFactory().exec {
-//                        commandLine("git", "rev-parse", "--short", "HEAD")
-//                        standardOutput = it
-//                    }
-                    exec {
-                        commandLine("git", "rev-parse", "--short", "HEAD")
-                        standardOutput = it
-                    }
-                    it.toString().trim()
-                }
+                val gitHash = project.providers.exec {
+                    executable = "git"
+                    commandLine("rev-parse", "--short", "HEAD")
+                }.standardOutput.asText.map { it.trim() }.get()
 
                 buildTypes {
                     debug {

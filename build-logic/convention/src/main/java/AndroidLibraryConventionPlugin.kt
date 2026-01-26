@@ -1,6 +1,5 @@
-import com.android.build.gradle.LibraryExtension
+import com.android.build.api.dsl.LibraryExtension
 import com.bowoon.convention.Config
-import com.bowoon.convention.configureFlavors
 import com.bowoon.convention.configureKotlinAndroid
 import com.bowoon.convention.libs
 import org.gradle.api.Plugin
@@ -14,7 +13,7 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
             apply(plugin = "com.android.library")
-            apply(plugin = "org.jetbrains.kotlin.android")
+//            apply(plugin = "org.jetbrains.kotlin.android")
             apply(plugin = "kotlin-parcelize")
             apply(plugin = "org.jetbrains.kotlin.plugin.serialization")
 
@@ -43,7 +42,7 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
                     }
                 }
 
-                configureFlavors(this)
+//                configureFlavors(this)
                 configureKotlinAndroid(this)
             }
 

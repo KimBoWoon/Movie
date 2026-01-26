@@ -10,19 +10,19 @@ class AndroidHiltConventionPlugin : Plugin<Project> {
             apply(plugin = "com.google.devtools.ksp")
 
             dependencies {
-                "ksp"(libs.findLibrary("hilt.compiler").get())
+                "ksp"(dependency = libs.findLibrary("hilt.compiler").get())
             }
 
             pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {
                 dependencies {
-                    "implementation"(libs.findLibrary("hilt.core").get())
+                    "implementation"(dependency = libs.findLibrary("hilt.core").get())
                 }
             }
 
             pluginManager.withPlugin("com.android.base") {
                 apply(plugin = "dagger.hilt.android.plugin")
                 dependencies {
-                    "implementation"(libs.findLibrary("hilt.android").get())
+                    "implementation"(dependency = libs.findLibrary("hilt.android").get())
                 }
             }
         }

@@ -8,21 +8,21 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 fun Project.configureKotlinAndroid(
-    commonExtensions: CommonExtension<*, *, *, *, *, *>
+    commonExtensions: CommonExtension
 ) {
     commonExtensions.apply {
         compileSdk = Config.ApplicationSetting.COMPILE_SDK_VERSION
 
-        defaultConfig {
+        defaultConfig.apply {
             minSdk = Config.ApplicationSetting.MIN_SDK_VERSION
         }
 
-        compileOptions {
+        compileOptions.apply {
             sourceCompatibility = JavaVersion.VERSION_11
             targetCompatibility = JavaVersion.VERSION_11
         }
 
-        lint {
+        lint.apply {
             abortOnError = false
         }
 
@@ -30,7 +30,7 @@ fun Project.configureKotlinAndroid(
             compilerOptions.jvmTarget.set(JvmTarget.JVM_11)
         }
 
-        buildFeatures {
+        buildFeatures.apply {
             buildConfig = true
         }
     }

@@ -13,16 +13,16 @@ import java.io.File
  * Configure Compose-specific options
  */
 internal fun Project.configureAndroidCompose(
-    commonExtension: CommonExtension<*, *, *, *, *, *>,
+    commonExtension: CommonExtension,
 ) {
     val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
     commonExtension.apply {
-        buildFeatures {
+        buildFeatures.apply {
             compose = true
         }
 
-        composeOptions {
+        composeOptions.apply {
             kotlinCompilerExtensionVersion = libs.findVersion("compose.compiler").get().toString()
         }
 
