@@ -12,4 +12,5 @@ sealed interface DeeplinkCommand {
     data class GoToSearch(val query: String, val searchType: String) : DeeplinkCommand
     data class SearchToMovie(val query: String, val searchType: String, val id: Int, val tabIndex: Int = 0) : DeeplinkCommand
     data class SearchToPeople(val query: String, val searchType: String, val id: Int) : DeeplinkCommand
+    data class SearchToSeries(val query: String, val searchType: String, val id: Int) : DeeplinkCommand
 }

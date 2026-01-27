@@ -127,8 +127,10 @@ class Navigator(val state: NavigationState) {
         if (currentRoute == state.topLevelRoute) {
             // 백스택에 남은 경로를 모두 빼준다
             if ((state.backStacks[state.topLevelRoute]?.size ?: 0) > 1) {
-                while ((state.backStacks[state.topLevelRoute]?.size ?: 0) > 1) {
-                    state.backStacks[state.topLevelRoute]?.removeAt(index = state.backStacks[state.topLevelRoute]?.lastIndex ?: 0)
+                state.backStacks.entries.forEach { (_, value) ->
+                    while (value.size > 1) {
+                        value.removeAt(index = value.lastIndex)
+                    }
                 }
             }
             // 시작지점으로 보냄

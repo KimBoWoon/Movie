@@ -93,8 +93,8 @@ robolectric = "4.16.1"
 # turbin
 turbine = "1.2.1"
 
-## threentenabp
-#threentenabp = "1.4.9"
+# threentenabp
+threentenabp = "1.4.9"
 
 # youtube player
 youtubePlayer = "13.0.0"
@@ -222,8 +222,8 @@ robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "
 # turbin
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
 
-## threentenabp
-#threetenabp = { group = "com.jakewharton.threetenabp", name = "threetenabp", version.ref = "threentenabp" }
+# threentenabp
+threetenabp = { group = "com.jakewharton.threetenabp", name = "threetenabp", version.ref = "threentenabp" }
 
 # youtube player
 youtube-player = { group = "com.pierfrancescosoffritti.androidyoutubeplayer", name = "core", version.ref = "youtubePlayer" }
@@ -240,7 +240,6 @@ room-gradlePlugin = { group = "androidx.room", name = "room-gradle-plugin", vers
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

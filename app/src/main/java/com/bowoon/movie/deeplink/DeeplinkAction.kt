@@ -11,5 +11,6 @@ enum class DeeplinkAction(val value: String) {
     GO_TO_SERIES(value = "go_to_series"),
     GO_TO_SEARCH(value = "go_to_search"),
     SEARCH_TO_MOVIE(value = "search_to_movie"),
-    SEARCH_TO_PEOPLE(value = "search_to_people")
+    SEARCH_TO_PEOPLE(value = "search_to_people"),
+    SEARCH_TO_SERIES(value = "search_to_series")
 }

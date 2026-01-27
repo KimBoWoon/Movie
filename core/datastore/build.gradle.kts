@@ -33,8 +33,8 @@ protobuf {
 androidComponents.beforeVariants {
     android.sourceSets.register(it.name) {
         val buildDir = layout.buildDirectory.get().asFile
-        java.srcDir(buildDir.resolve("generated/source/proto/${it.name}/java"))
-        kotlin.srcDir(buildDir.resolve("generated/source/proto/${it.name}/kotlin"))
+        java.srcDir(srcDir = buildDir.resolve(relative = "generated/source/proto/${it.name}/java"))
+        kotlin.srcDir(srcDir = buildDir.resolve(relative = "generated/source/proto/${it.name}/kotlin"))
     }
 }
 
@@ -47,8 +47,17 @@ dependencies {
         implementation(it)
     }
 
-    api(libs.protobuf.kotlin.lite)
-    api(libs.androidx.datastore)
-    api(projects.core.model)
-    testImplementation(projects.core.datastoreTest)
+    arrayOf(
+        libs.protobuf.kotlin.lite,
+        libs.androidx.datastore,
+        projects.core.model
+    ).forEach {
+        api(it)
+    }
+
+    arrayOf(
+        projects.core.datastoreTest
+    ).forEach {
+        testImplementation(it)
+    }
 }
