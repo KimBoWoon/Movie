@@ -29,7 +29,7 @@ import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.movie.MovieAppState
 import com.bowoon.movie.MovieFirebase
 import com.bowoon.movie.R
-import com.bowoon.movie.deeplink.DeeplinkParser
+import com.bowoon.movie.deeplink.parseDeeplink
 import com.bowoon.movie.navigation.TOP_LEVEL_NAV_ITEMS
 import com.bowoon.movie.rememberMovieAppState
 import com.bowoon.movie.ui.MovieApp
@@ -58,8 +58,6 @@ class MainActivity : ComponentActivity() {
             exitText = getString(R.string.double_back_message)
         )
     }
-    @Inject
-    lateinit var deeplinkParser: DeeplinkParser
     private var deeplinkBackstack by mutableStateOf<List<NavKey>>(value = emptyList())
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,7 +65,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         intent?.let {
-            deeplinkBackstack = deeplinkParser.parseDeeplink(uri = intent.data)
+            deeplinkBackstack = parseDeeplink(uri = intent.data)
         }
 
         onBackPressedDispatcher.addCallback(
@@ -146,7 +144,7 @@ class MainActivity : ComponentActivity() {
         super.onNewIntent(intent = intent)
         Log.d("onNewIntent")
         setIntent(intent)
-        deeplinkBackstack = deeplinkParser.parseDeeplink(uri = intent.data)
+        deeplinkBackstack = parseDeeplink(uri = intent.data)
     }
 
     fun navigationSetting(appState: MovieAppState) {
