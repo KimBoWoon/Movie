@@ -61,8 +61,19 @@ class MainVM @Inject constructor(
     }
 
     val movieAppData = dataManager.movieAppData
-        .onEach { imageUrl = it.getMovieAppData().getImageUrl() }
-        .stateIn(
+        .onEach {
+            val url = it.getMovieAppData().getImageUrl()
+
+            if (url.startsWith(prefix = "http://") || url.startsWith(prefix = "https://")) {
+                imageUrl = url
+            }
+        }.map { result ->
+            when (result) {
+                is MovieAppDataState.Loading -> MovieAppDataState.Loading
+                is MovieAppDataState.Success -> MovieAppDataState.Success(data = result.data)
+                is MovieAppDataState.Error -> MovieAppDataState.Error(throwable = result.throwable)
+            }
+        }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
             initialValue = MovieAppDataState.Loading

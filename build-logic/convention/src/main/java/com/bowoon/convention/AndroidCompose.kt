@@ -28,16 +28,16 @@ internal fun Project.configureAndroidCompose(
 
         dependencies {
             val bom = libs.findLibrary("androidx.compose.bom").get()
-            add("implementation", platform(bom))
-            add("implementation", libs.findLibrary("androidx.activity.compose").get())
-            add("implementation", libs.findLibrary("androidx.compose.ui").get())
-            add("implementation", libs.findLibrary("androidx.compose.ui.graphics").get())
-            add("implementation", libs.findLibrary("androidx.compose.ui.tooling.preview").get())
-            add("implementation", libs.findLibrary("androidx.compose.material3").get())
-            add("debugImplementation", libs.findLibrary("androidx.compose.ui.tooling").get())
-            add("androidTestImplementation", platform(bom))
-            add("androidTestImplementation", libs.findLibrary("androidx.compose.ui.test.junit4").get())
-            add("androidTestImplementation", libs.findLibrary("androidx.compose.ui.test.manifest").get())
+            "implementation"(dependency = platform(bom))
+            "implementation"(dependency = libs.findLibrary("androidx.activity.compose").get())
+            "implementation"(dependency = libs.findLibrary("androidx.compose.ui").get())
+            "implementation"(dependency = libs.findLibrary("androidx.compose.ui.graphics").get())
+            "implementation"(dependency = libs.findLibrary("androidx.compose.ui.tooling.preview").get())
+            "implementation"(dependency = libs.findLibrary("androidx.compose.material3").get())
+            "debugImplementation"(dependency = libs.findLibrary("androidx.compose.ui.tooling").get())
+            "androidTestImplementation"(dependency = platform(bom))
+            "androidTestImplementation"(dependency = libs.findLibrary("androidx.compose.ui.test.junit4").get())
+            "androidTestImplementation"(dependency = libs.findLibrary("androidx.compose.ui.test.manifest").get())
         }
     }
 

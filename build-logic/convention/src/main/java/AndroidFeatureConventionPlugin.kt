@@ -16,7 +16,7 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
 
             extensions.configure<LibraryExtension> {
                 testOptions.animationsDisabled = true
-                configureGradleManagedDevices(this)
+                configureGradleManagedDevices(commonExtension = this)
             }
 
             dependencies {

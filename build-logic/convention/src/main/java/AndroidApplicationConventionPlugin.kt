@@ -24,20 +24,20 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                     targetSdk = Config.Application.Movie.targetSdkVersion
                     versionName = Config.Application.Movie.versionName
                     versionCode = Config.Application.Movie.versionCode
-                    testInstrumentationRunner = "com.bowoon.testing.MovieTestRunner"
+                    testInstrumentationRunner = Config.ApplicationSetting.MOVIE_TEST_INSTRUMENTATION_RUNNER
 
                     signingConfigs {
                         register(Config.Application.Movie.Sign.Release.name) {
-                            storeFile = file(getProp(Config.Application.Movie.Sign.Release.storeFile))
-                            storePassword = getProp(Config.Application.Movie.Sign.Release.storePassword)
-                            keyAlias = getProp(Config.Application.Movie.Sign.Release.keyAlias)
-                            keyPassword = getProp(Config.Application.Movie.Sign.Release.keyPassword)
+                            storeFile = file(getProp(propertyKey = Config.Application.Movie.Sign.Release.storeFile))
+                            storePassword = getProp(propertyKey = Config.Application.Movie.Sign.Release.storePassword)
+                            keyAlias = getProp(propertyKey = Config.Application.Movie.Sign.Release.keyAlias)
+                            keyPassword = getProp(propertyKey = Config.Application.Movie.Sign.Release.keyPassword)
                         }
                         register(Config.Application.Movie.Sign.Debug.name) {
-                            storeFile = file(getProp(Config.Application.Movie.Sign.Debug.storeFile))
-                            storePassword = getProp(Config.Application.Movie.Sign.Debug.storePassword)
-                            keyAlias = getProp(Config.Application.Movie.Sign.Debug.keyAlias)
-                            keyPassword = getProp(Config.Application.Movie.Sign.Debug.keyPassword)
+                            storeFile = file(getProp(propertyKey = Config.Application.Movie.Sign.Debug.storeFile))
+                            storePassword = getProp(propertyKey = Config.Application.Movie.Sign.Debug.storePassword)
+                            keyAlias = getProp(propertyKey = Config.Application.Movie.Sign.Debug.keyAlias)
+                            keyPassword = getProp(propertyKey = Config.Application.Movie.Sign.Debug.keyPassword)
                         }
                     }
 

@@ -18,6 +18,7 @@ object Config {
         const val COMPILE_SDK_VERSION = 36
         const val MIN_SDK_VERSION = 26
         const val TEST_INSTRUMENTATION_RUNNER = "androidx.test.runner.AndroidJUnitRunner"
+        const val MOVIE_TEST_INSTRUMENTATION_RUNNER = "androidx.test.runner.AndroidJUnitRunner"
         const val DEFAULT_PROGUARD_FILE = "proguard-android-optimize.txt"
         const val PROGUARD_FILE = "proguard-rules.pro"
         const val DATE_FORMAT = "HHmmss"

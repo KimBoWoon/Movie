@@ -19,25 +19,50 @@ import com.bowoon.network.MovieNetworkDataSource
 import jakarta.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 
 class MovieDataManager @Inject constructor(
     @param:Dispatcher(dispatcher = Dispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
     @ApplicationScope appScope: CoroutineScope,
     private val apis: MovieNetworkDataSource,
-    datastore: InternalDataSource,
-    userDataRepository: UserDataRepository
+    private val userDataRepository: UserDataRepository,
+    private val datastore: InternalDataSource,
+    networkMonitor: NetworkMonitor
 ) : DataManager {
     var language = ""
     var genres = Genres()
 
-    override val movieAppData = combine(
+    private val cached = MutableStateFlow<MovieAppDataState?>(value = null)
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val movieAppData = networkMonitor.isOnline
+        .distinctUntilChanged()
+        .filter { it }
+        .flatMapLatest { _ ->
+            cached.value?.let { flowOf(value = it) } ?: loadData()
+        }.onEach {
+            if (it is MovieAppDataState.Success) {
+                cached.value = it
+            }
+        }.stateIn(
+            scope = appScope,
+            started = SharingStarted.Lazily,
+            initialValue = MovieAppDataState.Success(data = MovieAppData())
+        )
+
+    fun loadData(): Flow<MovieAppDataState> = combine(
         datastore.userData,
         getConfiguration(),
         getAvailableLanguage(),
@@ -94,11 +119,6 @@ class MovieDataManager @Inject constructor(
                 is Result.Error -> MovieAppDataState.Error(throwable = result.throwable)
             }
         }.flowOn(context = ioDispatcher)
-        .stateIn(
-            scope = appScope,
-            started = SharingStarted.Lazily,
-            initialValue = MovieAppDataState.Loading
-        )
 
     private fun getConfiguration(): Flow<Configuration> = flow {
         emit(value = apis.getConfiguration())

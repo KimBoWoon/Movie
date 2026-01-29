@@ -21,7 +21,8 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
                 defaultConfig {
                     compileSdk = Config.Library.MIN_SDK_VERSION
                     minSdk = Config.Library.COMPILE_SDK_VERSION
-                    testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+                    testInstrumentationRunner = Config.ApplicationSetting.TEST_INSTRUMENTATION_RUNNER
+
                     buildTypes {
                         release {
                             proguardFiles(

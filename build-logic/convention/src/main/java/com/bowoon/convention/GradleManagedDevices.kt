@@ -13,9 +13,9 @@ import org.gradle.kotlin.dsl.invoke
 internal fun configureGradleManagedDevices(
     commonExtension: CommonExtension,
 ) {
-    val pixel4 = DeviceConfig("Pixel 4", 30, "aosp-atd")
-    val pixel6 = DeviceConfig("Pixel 6", 31, "aosp")
-    val pixelC = DeviceConfig("Pixel C", 30, "aosp-atd")
+    val pixel4 = DeviceConfig(device = "Pixel 4", apiLevel = 30, systemImageSource = "aosp-atd")
+    val pixel6 = DeviceConfig(device = "Pixel 6", apiLevel = 31, systemImageSource = "aosp")
+    val pixelC = DeviceConfig(device = "Pixel C", apiLevel = 30, systemImageSource = "aosp-atd")
 
     val allDevices = listOf(pixel4, pixel6, pixelC)
     val ciDevices = listOf(pixel4, pixelC)
@@ -24,7 +24,7 @@ internal fun configureGradleManagedDevices(
         managedDevices {
             allDevices {
                 allDevices.forEach { deviceConfig ->
-                    maybeCreate(deviceConfig.taskName, ManagedVirtualDevice::class.java).apply {
+                    maybeCreate(name = deviceConfig.taskName, type = ManagedVirtualDevice::class.java).apply {
                         device = deviceConfig.device
                         apiLevel = deviceConfig.apiLevel
                         systemImageSource = deviceConfig.systemImageSource
@@ -32,9 +32,9 @@ internal fun configureGradleManagedDevices(
                 }
             }
             groups {
-                maybeCreate("ci").apply {
+                maybeCreate(name = "ci").apply {
                     ciDevices.forEach { deviceConfig ->
-                        targetDevices.add(localDevices[deviceConfig.taskName])
+                        targetDevices.add(element = localDevices[deviceConfig.taskName])
                     }
                 }
             }
@@ -48,9 +48,9 @@ private data class DeviceConfig(
     val systemImageSource: String,
 ) {
     val taskName = buildString {
-        append(device.lowercase().replace(" ", ""))
+        append(device.lowercase().replace(oldValue = " ", newValue = ""))
         append("api")
         append(apiLevel.toString())
-        append(systemImageSource.replace("-", ""))
+        append(systemImageSource.replace(oldValue = "-", newValue = ""))
     }
 }
