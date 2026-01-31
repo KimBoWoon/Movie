@@ -10,6 +10,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
@@ -28,8 +29,8 @@ class GetMovieDetailUseCase @Inject constructor(
     private val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         close(message = throwable.message ?: "something wrong...", cause = throwable)
     }
-    private val backgroundScope = CoroutineScope(Dispatchers.IO + coroutineExceptionHandler)
-    private val seriesId = MutableStateFlow<Int?>(null)
+    private val backgroundScope = CoroutineScope(context = Dispatchers.IO + coroutineExceptionHandler)
+    private val seriesId = MutableStateFlow<Int?>(value = null)
     private val internalData = userDataRepository.internalData
         .stateIn(
             scope = backgroundScope,
@@ -37,7 +38,7 @@ class GetMovieDetailUseCase @Inject constructor(
             initialValue = InternalData()
         )
 
-    operator fun invoke(id: Int) = combine(
+    operator fun invoke(id: Int): Flow<MovieDetailInfo> = combine(
         detailRepository.getMovie(id)
             .map { movie ->
                 movie.copy(

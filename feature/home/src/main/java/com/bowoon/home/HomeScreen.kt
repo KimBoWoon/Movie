@@ -153,7 +153,10 @@ fun LazyListScope.horizontalMovieListComponent(
             text = title
         )
         LazyRow(
-            modifier = Modifier.semantics { contentDescription = if (title == "상영중인 영화") "nowPlayingMovies" else "upComingMovies" }.wrapContentSize(),
+            modifier = Modifier
+                .semantics {
+                    contentDescription = if (title == "상영중인 영화") "nowPlayingMovies" else "upComingMovies"
+                }.wrapContentSize(),
             contentPadding = PaddingValues(horizontal = dp16),
             horizontalArrangement = Arrangement.spacedBy(space = dp16)
         ) {
