@@ -10,10 +10,11 @@ import com.bowoon.model.MovieReview
 import com.bowoon.model.SearchKeyword
 import com.bowoon.model.SearchType
 import com.bowoon.network.MovieNetworkDataSource
+import com.bowoon.network.di.CoroutineNetwork
 import javax.inject.Inject
 
 class PagingRepositoryImpl @Inject constructor(
-    private val apis: MovieNetworkDataSource,
+    @param:CoroutineNetwork private val apis: MovieNetworkDataSource,
     private val userDataRepository: UserDataRepository
 ) : PagingRepository {
     override fun getSearchPagingSource(

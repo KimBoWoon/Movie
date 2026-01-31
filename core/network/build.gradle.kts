@@ -14,6 +14,9 @@ android {
 }
 
 dependencies {
+    implementation("io.reactivex.rxjava3:rxandroid:3.0.2")
+    implementation("io.reactivex.rxjava3:rxkotlin:3.0.1")
+    implementation("com.squareup.retrofit2:adapter-rxjava3:3.0.0")
     arrayOf(
         projects.core.common,
         libs.kotlinx.serialization.converter,

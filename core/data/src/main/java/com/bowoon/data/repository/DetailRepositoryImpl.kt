@@ -8,13 +8,15 @@ import com.bowoon.model.People
 import com.bowoon.model.SearchData
 import com.bowoon.model.Series
 import com.bowoon.network.MovieNetworkDataSource
+import com.bowoon.network.di.CoroutineNetwork
+import com.bowoon.network.di.RxNetwork
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.time.LocalDate
 import javax.inject.Inject
 
 class DetailRepositoryImpl @Inject constructor(
-    private val apis: MovieNetworkDataSource,
+    @param:CoroutineNetwork private val apis: MovieNetworkDataSource,
     private val datastore: InternalDataSource
 ) : DetailRepository {
     override fun getMovie(id: Int): Flow<Movie> = flow {

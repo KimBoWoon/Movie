@@ -18,6 +18,8 @@ tasks.register("createReleaseNote") {
 }
 
 dependencies {
+    implementation("io.reactivex.rxjava3:rxandroid:3.0.2")
+    implementation("io.reactivex.rxjava3:rxkotlin:3.0.1")
     arrayOf(
         projects.core.common,
         projects.core.data,

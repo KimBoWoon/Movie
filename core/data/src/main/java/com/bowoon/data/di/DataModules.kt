@@ -8,6 +8,8 @@ import com.bowoon.data.repository.MainMenuRepository
 import com.bowoon.data.repository.MainMenuRepositoryImpl
 import com.bowoon.data.repository.PagingRepository
 import com.bowoon.data.repository.PagingRepositoryImpl
+import com.bowoon.data.repository.RxDetailRepository
+import com.bowoon.data.repository.RxDetailRepositoryImpl
 import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.data.repository.UserDataRepositoryImpl
 import dagger.Binds
@@ -27,6 +29,11 @@ abstract class DataModules {
     abstract fun bindDetailRepository(
         detailRepository: DetailRepositoryImpl
     ): DetailRepository
+
+    @Binds
+    abstract fun bindRxDetailRepository(
+        detailRepository: RxDetailRepositoryImpl
+    ): RxDetailRepository
 
     @Binds
     abstract fun bindDatabaseRepository(

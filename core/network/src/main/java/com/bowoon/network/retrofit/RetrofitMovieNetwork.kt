@@ -20,6 +20,7 @@ import com.bowoon.network.ApiResponse
 import com.bowoon.network.CustomCallAdapter
 import com.bowoon.network.MovieNetworkDataSource
 import com.bowoon.network.TMDBApis
+import com.bowoon.network.di.CoroutineNetwork
 import com.bowoon.network.model.asExternalModel
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.json.Json
@@ -34,6 +35,7 @@ import javax.inject.Singleton
  * 데이터를 가져오는 Api
  * @param retrofit 레트로핏 모듈
  */
+@CoroutineNetwork
 @Singleton
 class RetrofitMovieNetwork @Inject constructor(
     tmdbUrl: String,

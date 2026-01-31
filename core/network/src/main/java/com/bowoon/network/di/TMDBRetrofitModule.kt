@@ -46,6 +46,7 @@ object TMDBRetrofitModule {
     fun provideKotlinSerialization(): Json = Json {
         ignoreUnknownKeys = true
         prettyPrint = true
+        isLenient = true
     }
 
     @Provides

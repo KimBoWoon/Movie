@@ -15,6 +15,9 @@ android {
 }
 
 dependencies {
+    implementation("io.reactivex.rxjava3:rxandroid:3.0.2")
+    implementation("io.reactivex.rxjava3:rxkotlin:3.0.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-rx3:1.10.2")
     arrayOf(
         libs.androidx.compose.paging
     ).forEach {

@@ -17,6 +17,7 @@ import com.bowoon.network.model.NetworkTMDBSearchKeywordData
 import com.bowoon.network.model.NetworkTMDBSearchMovie
 import com.bowoon.network.model.NetworkTMDBSearchPeople
 import com.bowoon.network.model.NetworkTMDBSearchSeries
+import io.reactivex.rxjava3.core.Single
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -145,4 +146,130 @@ interface TMDBApis {
         @Query("language") language: String = "ko-KR",
         @Query("page") page: Int = 1
     ): ApiResponse<NetworkTMDBMovieReviews>
+}
+
+interface TMDBRxApis {
+    @GET("/3/configuration")
+    fun getConfiguration(): Single<NetworkTMDBConfiguration>
+
+    @GET("/3/certification/movie/list")
+    fun getCertification(): Single<NetworkTMDBCertificationData>
+
+    @GET("/3/genre/movie/list")
+    fun getGenres(
+        @Query("language") language: String = "ko-KR"
+    ): Single<NetworkTMDBMovieGenres>
+
+    @GET("/3/movie/now_playing")
+    fun getNowPlaying(
+        @Query("language") language: String = "ko-KR",
+        @Query("region") region: String = "KR",
+        @Query("page") page: Int = 1
+    ): Single<NetworkTMDBMovieList>
+
+    @GET("/3/movie/upcoming")
+    fun getUpcomingMovie(
+        @Query("language") language: String = "ko-KR",
+        @Query("region") region: String = "KR",
+        @Query("page") page: Int = 1
+    ): Single<NetworkTMDBMovieList>
+
+    @GET("/3/search/movie")
+    fun searchMovies(
+        @Query("query") query: String,
+        @Query("include_adult") includeAdult: Boolean = true,
+        @Query("language") language: String = "ko-KR",
+        @Query("region") region: String = "KR",
+        @Query("page") page: Int = 1
+    ): Single<NetworkTMDBSearchMovie>
+
+    @GET("/3/search/person")
+    fun searchPeople(
+        @Query("query") query: String,
+        @Query("include_adult") includeAdult: Boolean = true,
+        @Query("language") language: String = "ko-KR",
+        @Query("region") region: String = "KR",
+        @Query("page") page: Int = 1
+    ): Single<NetworkTMDBSearchPeople>
+
+    @GET("/3/collection/{collection_id}")
+    fun getMovieSeries(
+        @Path("collection_id") collectionId: Int,
+        @Query("language") language: String = "ko-KR",
+    ): Single<NetworkTMDBMovieSeries>
+
+    @GET("/3/search/collection")
+    fun searchMovieSeries(
+        @Query("query") query: String,
+        @Query("include_adult") includeAdult: Boolean = true,
+        @Query("page") page: Int = 1,
+        @Query("language") language: String = "ko-KR",
+        @Query("region") region: String = "KR"
+    ): Single<NetworkTMDBSearchSeries>
+
+    @GET("/3/movie/{movie_id}")
+    fun getMovie(
+        @Path("movie_id") id: Int,
+        @Query("append_to_response") appendToResponse: String = "images,videos,credits,releases,keywords,alternative_titles",
+        @Query("language") language: String = "ko-KR",
+        @Query("include_image_language") includeImageLanguage: String = "ko",
+        @Query("region") region: String = "KR"
+    ): Single<NetworkTMDBMovie>
+
+    @GET("/3/movie/{movie_id}/similar")
+    fun getSimilarMovies(
+        @Path("movie_id") id: Int,
+        @Query("language") language: String = "ko-KR",
+        @Query("page") page: Int = 1,
+    ): Single<NetworkTMDBMovieDetailSimilar>
+
+    @GET("/3/discover/movie")
+    fun discoverMovie(
+        @Query("release_date.gte") releaseDateGte: String,
+        @Query("release_date.lte") releaseDateLte: String,
+        @Query("include_adult") includeAdult: Boolean = true,
+        @Query("language") language: String = "ko-KR",
+        @Query("region") region: String = "KR",
+        @Query("page") page: Int = 1,
+        @Query("sort_by") sortBy: String = "primary_release_date.asc",
+        @Query("with_release_type") withReleaseType: String = "2|3"
+    ): Single<NetworkTMDBSearchMovie>
+
+    @GET("/3/configuration/languages")
+    fun getAvailableLanguage(): Single<List<NetworkTMDBLanguageItem>>
+
+    @GET("/3/watch/providers/regions")
+    fun getAvailableRegion(): Single<NetworkTMDBRegion>
+
+    @GET("/3/person/{person_id}")
+    fun getPeopleDetail(
+        @Path("person_id") personId: Int,
+        @Query("append_to_response") appendToResponse: String = "images, combined_credits, external_ids",
+        @Query("language") language: String = "ko-KR",
+        @Query("include_image_language") includeImageLanguage: String = "ko"
+    ): Single<NetworkTMDBPeopleDetail>
+
+    @GET("/3/person/{person_id}/combined_credits")
+    fun getCombineCredits(
+        @Path("person_id") personId: Int,
+        @Query("language") language: String = "ko-KR"
+    ): Single<NetworkTMDBCombineCredits>
+
+    @GET("/3/person/{person_id}/external_ids")
+    fun getExternalIds(
+        @Path("person_id") personId: Int
+    ): Single<NetworkTMDBExternalIds>
+
+    @GET("/3/search/keyword")
+    fun getSearchKeyword(
+        @Query("query") query: String,
+        @Query("page") page: Int
+    ): Single<NetworkTMDBSearchKeywordData>
+
+    @GET("/3/movie/{movie_id}/reviews")
+    fun getMovieReview(
+        @Path("movie_id") movieId: Int,
+        @Query("language") language: String = "ko-KR",
+        @Query("page") page: Int = 1
+    ): Single<NetworkTMDBMovieReviews>
 }

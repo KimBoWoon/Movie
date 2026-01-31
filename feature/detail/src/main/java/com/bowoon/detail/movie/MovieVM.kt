@@ -1,5 +1,6 @@
 package com.bowoon.detail.movie
 
+import androidx.compose.ui.util.trace
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
@@ -7,12 +8,14 @@ import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
 import androidx.paging.insertSeparators
 import androidx.paging.map
+import com.bowoon.common.Log
 import com.bowoon.common.Result
 import com.bowoon.common.asResult
 import com.bowoon.common.restartableStateIn
 import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.data.repository.PagingRepository
 import com.bowoon.domain.GetMovieDetailUseCase
+import com.bowoon.domain.GetRxMovieDetailUseCase
 import com.bowoon.model.Movie
 import com.bowoon.model.MovieDetailInfo
 import com.bowoon.model.MovieReview
@@ -20,6 +23,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.reactivex.rxjava3.kotlin.subscribeBy
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -32,7 +36,8 @@ class MovieVM @AssistedInject constructor(
     @Assisted(value = "initialTabIndex") val initialTabIndex: Int,
     private val getMovieDetail: GetMovieDetailUseCase,
     private val databaseRepository: DatabaseRepository,
-    private val pagingRepository: PagingRepository
+    private val pagingRepository: PagingRepository,
+    private val getRxMovieDetailUseCase: GetRxMovieDetailUseCase
 ) : ViewModel() {
     companion object {
         private const val TAG = "MovieVM"
@@ -59,6 +64,13 @@ class MovieVM @AssistedInject constructor(
             initialValue = MovieState.Loading,
             started = SharingStarted.Lazily
         )
+    val rxMovie = trace("GetRxMovieDetail") {
+        getRxMovieDetailUseCase(id = id)
+    }.subscribeBy(
+        onNext = { Log.d("RxMovieState.Success ->", "${it.detail}") },
+        onError = { Log.d("RxMovieState.Error ->", "${it.message}") },
+        onComplete = { Log.d("RxMovieState.Complete") }
+    )
     private val _tabIndex = MutableStateFlow(value = initialTabIndex)
     val tabIndex = _tabIndex.asStateFlow()
     val similarMovies = Pager(

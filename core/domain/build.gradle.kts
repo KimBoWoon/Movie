@@ -8,6 +8,8 @@ android {
 }
 
 dependencies {
+    implementation("io.reactivex.rxjava3:rxandroid:3.0.2")
+    implementation("io.reactivex.rxjava3:rxkotlin:3.0.1")
     arrayOf(
         projects.core.common
     ).forEach {

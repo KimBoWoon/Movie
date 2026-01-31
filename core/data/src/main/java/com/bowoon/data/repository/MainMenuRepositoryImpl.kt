@@ -9,6 +9,7 @@ import com.bowoon.database.dao.MovieDao
 import com.bowoon.datastore.InternalDataSource
 import com.bowoon.model.Movie
 import com.bowoon.network.MovieNetworkDataSource
+import com.bowoon.network.di.CoroutineNetwork
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -16,7 +17,7 @@ import java.time.LocalDate
 import javax.inject.Inject
 
 class MainMenuRepositoryImpl @Inject constructor(
-    private val apis: MovieNetworkDataSource,
+    @param:CoroutineNetwork private val apis: MovieNetworkDataSource,
     private val datastore: InternalDataSource,
     private val movieDao: MovieDao
 ) : MainMenuRepository {

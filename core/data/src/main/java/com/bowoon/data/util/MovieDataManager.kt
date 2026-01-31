@@ -16,6 +16,7 @@ import com.bowoon.model.PosterSize
 import com.bowoon.model.Region
 import com.bowoon.model.Regions
 import com.bowoon.network.MovieNetworkDataSource
+import com.bowoon.network.di.CoroutineNetwork
 import jakarta.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -37,7 +38,7 @@ import kotlinx.coroutines.flow.stateIn
 class MovieDataManager @Inject constructor(
     @param:Dispatcher(dispatcher = Dispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
     @ApplicationScope appScope: CoroutineScope,
-    private val apis: MovieNetworkDataSource,
+    @param:CoroutineNetwork private val apis: MovieNetworkDataSource,
     private val userDataRepository: UserDataRepository,
     private val datastore: InternalDataSource,
     networkMonitor: NetworkMonitor
