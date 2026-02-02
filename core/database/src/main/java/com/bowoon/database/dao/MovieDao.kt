@@ -45,4 +45,7 @@ interface MovieDao {
 
     @Upsert
     suspend fun upsertUpComingMovie(entities: List<UpComingMovieEntity>)
+
+    @Query(value = "DELETE FROM movies")
+    fun deleteAllFavoriteMovies()
 }

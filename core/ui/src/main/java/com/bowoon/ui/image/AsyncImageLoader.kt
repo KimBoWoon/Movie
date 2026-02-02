@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.util.trace
 import coil3.compose.AsyncImagePainter
 import coil3.compose.rememberAsyncImagePainter
 import com.bowoon.ui.components.CircularProgressComponent
@@ -33,13 +34,15 @@ fun DynamicAsyncImageLoader(
     val isLocalInspection = LocalInspectionMode.current
     var isLoading by remember { mutableStateOf(value = true) }
     var isError by remember { mutableStateOf(value = false) }
-    val imageLoader = rememberAsyncImagePainter(
-        model = "$imageUrl$source",
-        onState = { state ->
-            isLoading = state is AsyncImagePainter.State.Loading
-            isError = state is AsyncImagePainter.State.Error
-        }
-    )
+    val imageLoader = trace("CoilImageLoad") {
+        rememberAsyncImagePainter(
+            model = "$imageUrl$source",
+            onState = { state ->
+                isLoading = state is AsyncImagePainter.State.Loading
+                isError = state is AsyncImagePainter.State.Error
+            }
+        )
+    }
 
     Box(
         modifier = modifier,

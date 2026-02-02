@@ -59,8 +59,8 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                         isMinifyEnabled = false
                         isDebuggable = true
                         isJniDebuggable = true
-                        buildConfigField("Boolean", "IS_DEBUGGING_LOGGING", "true")
-                        buildConfigField("String", "GIT_HASH", "\"$gitHash\"")
+                        buildConfigField(type = "Boolean", name = "IS_DEBUGGING_LOGGING", value = "true")
+                        buildConfigField(type = "String", name = "GIT_HASH", value = "\"$gitHash\"")
                         manifestPlaceholders["appName"] = "Movie-debug"
                         signingConfig = signingConfigs.getByName(Config.Application.Movie.Sign.Debug.name)
                     }
@@ -74,10 +74,17 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                             getDefaultProguardFile(Config.ApplicationSetting.DEFAULT_PROGUARD_FILE),
                             Config.ApplicationSetting.PROGUARD_FILE
                         )
-                        buildConfigField("Boolean", "IS_DEBUGGING_LOGGING", "false")
-                        buildConfigField("String", "GIT_HASH", "\"$gitHash\"")
+                        buildConfigField(type = "Boolean", name = "IS_DEBUGGING_LOGGING", value = "false")
+                        buildConfigField(type = "String", name = "GIT_HASH", value = "\"$gitHash\"")
                         manifestPlaceholders["appName"] = "Movie"
                         signingConfig = signingConfigs.getByName(Config.Application.Movie.Sign.Release.name)
+                    }
+                    create("benchmark") {
+                        initWith(buildTypes.getByName("release"))
+                        signingConfig = signingConfigs.getByName("debug")
+                        matchingFallbacks += listOf("release")
+                        isDebuggable = false
+                        manifestPlaceholders["appName"] = "Movie-Benchmark"
                     }
                 }
 
