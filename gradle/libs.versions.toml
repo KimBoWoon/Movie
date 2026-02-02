@@ -101,6 +101,8 @@ youtubePlayer = "13.0.0"
 
 # lottie
 lottieCompose = "6.7.1"
+uiautomator = "2.3.0"
+benchmarkMacroJunit4 = "1.4.1"
 
 [libraries]
 # gradle plugin
@@ -237,6 +239,8 @@ lottie-compose = { group = "com.airbnb.android", name = "lottie-compose", versio
 # plugin
 ksp-gradlePlugin = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
 room-gradlePlugin = { group = "androidx.room", name = "room-gradle-plugin", version.ref = "room" }
+androidx-uiautomator = { group = "androidx.test.uiautomator", name = "uiautomator", version.ref = "uiautomator" }
+androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "benchmarkMacroJunit4" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -264,3 +268,5 @@ bowoon-android-library-compose = { id = "bowoon.android.library.compose" }
 bowoon-android-room = { id = "bowoon.android.room" }
 bowoon-hilt = { id = "bowoon.hilt" }
 bowoon-jvm-library = { id = "bowoon.jvm.library" }
+bowoon-android-test = { id = "nowinandroid.android.test" }
+android-test = { id = "com.android.test", version.ref = "agp" }

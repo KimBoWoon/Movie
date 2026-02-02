@@ -10,8 +10,12 @@ import com.bowoon.database.model.UpComingMovieEntity
 import com.bowoon.database.model.asExternalModel
 import com.bowoon.model.Movie
 import com.bowoon.model.People
+import com.bowoon.movie.core.data.BuildConfig
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import java.time.Instant
 import javax.inject.Inject
 
@@ -19,6 +23,23 @@ class DatabaseRepositoryImpl @Inject constructor(
     private val movieDao: MovieDao,
     private val peopleDao: PeopleDao
 ) : DatabaseRepository {
+    init {
+        if (BuildConfig.BENCHMARK) {
+            CoroutineScope(context = Dispatchers.IO).launch {
+                movieDao.deleteAllFavoriteMovies()
+                movieDao.insertOrIgnoreMovies(
+                    MovieEntity(
+                        id = 575265,
+                        posterPath = "/c5pDU8SW0ZbmO5jHfw7fX6keyyR.jpg",
+                        title = "title",
+                        releaseDate = "releaseDate",
+                        timestamp = Instant.now().toEpochMilli()
+                    )
+                )
+            }
+        }
+    }
+
     override fun getMovies(): Flow<List<Movie>> =
         movieDao.getMovieEntities()
             .map { movieEntities ->

@@ -51,8 +51,9 @@ class MovieVM @AssistedInject constructor(
         ): MovieVM
     }
 
-    val movie = getMovieDetail(id = id)
-        .asResult()
+    val movie = trace("GetMovieDetail") {
+        getMovieDetail(id = id)
+    }.asResult()
         .map { result ->
             when (result) {
                 is Result.Loading -> MovieState.Loading

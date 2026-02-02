@@ -71,5 +71,9 @@ gradlePlugin {
             id = libs.plugins.bowoon.android.room.get().pluginId
             implementationClass = "AndroidRoomConventionPlugin"
         }
+        register("androidTest") {
+            id = libs.plugins.bowoon.android.test.get().pluginId
+            implementationClass = "AndroidTestConventionPlugin"
+        }
     }
 }
