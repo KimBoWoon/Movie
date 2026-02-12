@@ -52,7 +52,7 @@ jobs:
           BASE=$(git merge-base origin/develop HEAD)
           NOTES=$(git log --pretty=format:"(#%h) %cn %s" $BASE..HEAD)
 
-          echo "notes<<EOF" >> $GITHUB_OUTPUT
+          echo "releaseNote.txt<<EOF" >> $GITHUB_OUTPUT
           echo "$NOTES" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 #      - name: create release note
