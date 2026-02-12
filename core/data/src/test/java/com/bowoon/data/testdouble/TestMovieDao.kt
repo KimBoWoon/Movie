@@ -8,6 +8,7 @@ import com.bowoon.database.model.NowPlayingMovieEntity
 import com.bowoon.database.model.UpComingMovieEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import java.time.LocalDate
@@ -74,5 +75,13 @@ class TestMovieDao : MovieDao {
 
     override suspend fun upsertUpComingMovie(entities: List<UpComingMovieEntity>) {
         upComingMovieFlow.update { oldValues -> (entities + oldValues).distinctBy(UpComingMovieEntity::id) }
+    }
+
+    override fun isFavoriteMovie(id: Int): Flow<Boolean> = entitiesStateFlow.map {
+        it.find { entity -> entity.id == id } != null
+    }.distinctUntilChanged()
+
+    override fun deleteAllFavoriteMovies() {
+        entitiesStateFlow.tryEmit(value = emptyList())
     }
 }

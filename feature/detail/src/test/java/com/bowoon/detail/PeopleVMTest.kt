@@ -3,6 +3,7 @@ package com.bowoon.detail
 import com.bowoon.detail.people.PeopleState
 import com.bowoon.detail.people.PeopleVM
 import com.bowoon.domain.GetPeopleDetailUseCase
+import com.bowoon.domain.PeopleWithFavorite
 import com.bowoon.model.Movie
 import com.bowoon.model.People
 import com.bowoon.testing.model.combineCreditsTestData
@@ -13,6 +14,7 @@ import com.bowoon.testing.repository.TestDetailRepository
 import com.bowoon.testing.utils.MainDispatcherRule
 import com.bowoon.testing.utils.TestMovieAppDataManager
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -49,7 +51,7 @@ class PeopleVMTest {
             databaseRepository = testDatabaseRepository
         )
         runBlocking {
-            testDatabaseRepository.insertPeople(people = People(id = 0, name = "people_1", profilePath = "/peopleImagePath.png"))
+            testDatabaseRepository.insertPeople(people = People(id = 0, title = "people_1", posterPath = "/peopleImagePath.png"))
         }
     }
 
@@ -72,15 +74,25 @@ class PeopleVMTest {
 
         assertEquals(
             viewModel.people.value,
-            PeopleState.Success(peopleDetailTestData)
+            PeopleState.Success(
+                PeopleWithFavorite(
+                    people = peopleDetailTestData,
+                    isFavorite = testDatabaseRepository.isFavoritePeople(id = 0).first()
+                )
+            )
         )
     }
 
     @Test
     fun insertPeopleTest() = runTest {
+        viewModel = PeopleVM(
+            id = 124,
+            getPeopleDetail = getPeopleDetailUseCase,
+            databaseRepository = testDatabaseRepository
+        )
         backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.people.collect() }
 
-        val people = People(id = 124, combineCredits = combineCreditsTestData, externalIds = externalIdsTestData, isFavorite = false)
+        val people = People(id = 124, combineCredits = combineCreditsTestData, externalIds = externalIdsTestData)
 
         testDetailRepository.setPeopleDetail(people)
         testDetailRepository.setCombineCredits(combineCreditsTestData)
@@ -89,25 +101,36 @@ class PeopleVMTest {
 
         assertEquals(
             viewModel.people.value,
-            PeopleState.Success(people)
+            PeopleState.Success(
+                data = PeopleWithFavorite(
+                    people = people,
+                    isFavorite = testDatabaseRepository.isFavoritePeople(id = 124).first()
+                )
+            )
         )
     }
 
     @Test
     fun deletePeopleTest() = runTest {
+        viewModel = PeopleVM(
+            id = 124,
+            getPeopleDetail = getPeopleDetailUseCase,
+            databaseRepository = testDatabaseRepository
+        )
         backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.people.collect() }
 
-        val people = People(id = 124, combineCredits = combineCreditsTestData, externalIds = externalIdsTestData, isFavorite = true)
-
-        testDetailRepository.setPeopleDetail(people)
+        testDetailRepository.setPeopleDetail(peopleDetailTestData)
         testDetailRepository.setCombineCredits(combineCreditsTestData)
         testDetailRepository.setExternalIds(externalIdsTestData)
-        testDatabaseRepository.deletePeople(people = People(id = 124, name = "people_124", profilePath = "/peopleImagePath.png"))
+        testDatabaseRepository.deletePeople(people = People(id = 124, title = "people_124", posterPath = "/peopleImagePath.png"))
 
         assertEquals(
             viewModel.people.value,
             PeopleState.Success(
-                people.copy(isFavorite = false)
+                PeopleWithFavorite(
+                    people = peopleDetailTestData,
+                    isFavorite = testDatabaseRepository.isFavoritePeople(id = 124).first()
+                )
             )
         )
     }

@@ -40,6 +40,7 @@ import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.Movie
 import com.bowoon.model.People
+import com.bowoon.model.Tv
 import com.bowoon.movie.feature.favorite.R
 import com.bowoon.ui.components.FavoriteButtonComponent
 import com.bowoon.ui.components.ScrollToTopComponent
@@ -54,6 +55,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun FavoriteScreen(
     goToMovie: (Int) -> Unit,
+    goToTv: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
     viewModel: FavoriteVM = hiltViewModel()
@@ -61,18 +63,22 @@ fun FavoriteScreen(
     LocalFirebaseLogHelper.current.sendLog("FavoriteScreen", "favorite screen init")
 
     val favoriteMovies by viewModel.favoriteMovies.collectAsStateWithLifecycle()
+    val favoriteTvs by viewModel.favoriteTvs.collectAsStateWithLifecycle()
     val favoritePeoples by viewModel.favoritePeoples.collectAsStateWithLifecycle()
     val tabIndex by viewModel.tabIndex.collectAsStateWithLifecycle()
 
     FavoriteScreen(
         favoriteMovies = favoriteMovies,
+        favoriteTvs = favoriteTvs,
         favoritePeoples = favoritePeoples,
         onShowSnackbar = onShowSnackbar,
         initialTab = tabIndex,
         goToMovie = goToMovie,
+        goToTv = goToTv,
         goToPeople = goToPeople,
         updateTabIndex = viewModel::updateTabIndex,
         deleteFavoriteMovie = viewModel::deleteMovie,
+        deleteFavoriteTv = viewModel::deleteTv,
         deleteFavoritePeople = viewModel::deletePeople
     )
 }
@@ -80,13 +86,16 @@ fun FavoriteScreen(
 @Composable
 fun FavoriteScreen(
     favoriteMovies: List<Movie>,
+    favoriteTvs: List<Tv>,
     favoritePeoples: List<People>,
     onShowSnackbar: suspend (String, String?) -> Boolean,
     initialTab: Int = 0,
     goToMovie: (Int) -> Unit,
+    goToTv: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     updateTabIndex: (Int) -> Unit,
     deleteFavoriteMovie: (Movie) -> Unit,
+    deleteFavoriteTv: (Tv) -> Unit,
     deleteFavoritePeople: (People) -> Unit
 ) {
     val favoriteTabs = FavoriteTab.entries.map { favoriteTab ->
@@ -167,6 +176,50 @@ fun FavoriteScreen(
                             )
                         }
                     }
+                    stringResource(id = R.string.tv) -> {
+                        if (favoriteMovies.isEmpty()) {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    modifier = Modifier.testTag(tag = "favoriteMovieEmpty"),
+                                    text = stringResource(id = R.string.empty_favorite_movie)
+                                )
+                            }
+                        } else {
+                            FavoriteListComponent<Tv>(
+                                favoriteList = favoriteTvs,
+                                spanCount = 2,
+                                content = { tv ->
+                                    Box(
+                                        modifier = Modifier.bounceClick { goToTv(tv.id ?: -1) }
+                                    ) {
+                                        DynamicAsyncImageLoader(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .aspectRatio(ratio = POSTER_IMAGE_RATIO)
+                                                .clip(shape = RoundedCornerShape(size = dp10)),
+                                            source = tv.posterPath ?: "",
+                                            contentDescription = "FavoriteTvPoster"
+                                        )
+                                        FavoriteButtonComponent(
+                                            modifier = Modifier
+                                                .wrapContentSize()
+                                                .align(Alignment.TopEnd),
+                                            isFavorite = true,
+                                            onClick = {
+                                                deleteFavoriteTv(tv)
+                                                scope.launch {
+                                                    onShowSnackbar(removeFavoriteText, null)
+                                                }
+                                            }
+                                        )
+                                    }
+                                }
+                            )
+                        }
+                    }
                     stringResource(id = R.string.people) -> {
                         if (favoritePeoples.isEmpty()) {
                             Box(
@@ -194,7 +247,7 @@ fun FavoriteScreen(
                                                     .fillMaxWidth()
                                                     .aspectRatio(ratio = PEOPLE_IMAGE_RATIO)
                                                     .clip(shape = RoundedCornerShape(size = dp10)),
-                                                source = peopleDetail.profilePath ?: "",
+                                                source = peopleDetail.posterPath ?: "",
                                                 contentDescription = "FavoritePeopleProfileImage"
                                             )
                                             FavoriteButtonComponent(
@@ -212,7 +265,7 @@ fun FavoriteScreen(
                                         }
                                         Text(
                                             modifier = Modifier.wrapContentWidth().padding(top = dp5).align(Alignment.CenterHorizontally),
-                                            text = peopleDetail.name ?: "",
+                                            text = peopleDetail.title ?: "",
                                             maxLines = 1,
                                             overflow = TextOverflow.Ellipsis
                                         )

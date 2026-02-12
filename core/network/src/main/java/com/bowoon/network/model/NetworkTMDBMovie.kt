@@ -33,7 +33,7 @@ data class NetworkTMDBMovie(
     @SerialName("adult")
     val adult: Boolean? = null,
     @SerialName("alternative_titles")
-    val alternativeTitles: NetworkTMDBMovieDetailAlternativeTitles? = null,
+    val alternativeTitles: NetworkTMDBAlternativeTitles? = null,
     @SerialName("backdrop_path")
     val backdropPath: String? = null,
     @SerialName("belongs_to_collection")
@@ -41,15 +41,15 @@ data class NetworkTMDBMovie(
     @SerialName("budget")
     val budget: Long? = null,
     @SerialName("credits")
-    val credits: NetworkTMDBMovieDetailCredits? = null,
+    val credits: NetworkTMDBCredits? = null,
     @SerialName("genres")
-    val genres: List<NetworkTMDBMovieDetailGenre>? = null,
+    val genres: List<NetworkTMDBGenre>? = null,
     @SerialName("homepage")
     val homepage: String? = null,
     @SerialName("id")
     val id: Int? = null,
     @SerialName("images")
-    val images: NetworkTMDBMovieDetailImages? = null,
+    val images: NetworkTMDBImages? = null,
     @SerialName("imdb_id")
     val imdbId: String? = null,
     @SerialName("keywords")
@@ -67,9 +67,9 @@ data class NetworkTMDBMovie(
     @SerialName("poster_path")
     val posterPath: String? = null,
     @SerialName("production_companies")
-    val productionCompanies: List<NetworkTMDBMovieDetailProductionCompany>? = null,
+    val productionCompanies: List<NetworkTMDBProductionCompany>? = null,
     @SerialName("production_countries")
-    val productionCountries: List<NetworkTMDBMovieDetailProductionCountry>? = null,
+    val productionCountries: List<NetworkTMDBProductionCountry>? = null,
     @SerialName("release_date")
     val releaseDate: String? = null,
     @SerialName("releases")
@@ -79,7 +79,7 @@ data class NetworkTMDBMovie(
     @SerialName("runtime")
     val runtime: Int? = null,
     @SerialName("spoken_languages")
-    val spokenLanguages: List<NetworkTMDBMovieDetailSpokenLanguage>? = null,
+    val spokenLanguages: List<NetworkTMDBSpokenLanguage>? = null,
     @SerialName("status")
     val status: String? = null,
     @SerialName("tagline")
@@ -89,7 +89,7 @@ data class NetworkTMDBMovie(
     @SerialName("video")
     val video: Boolean? = null,
     @SerialName("videos")
-    val videos: NetworkTMDBMovieDetailVideos? = null,
+    val videos: NetworkTMDBVideos? = null,
     @SerialName("vote_average")
     val voteAverage: Double? = null,
     @SerialName("vote_count")
@@ -97,13 +97,13 @@ data class NetworkTMDBMovie(
 )
 
 @Serializable
-data class NetworkTMDBMovieDetailAlternativeTitles(
+data class NetworkTMDBAlternativeTitles(
     @SerialName("titles")
-    val titles: List<NetworkTMDBMovieDetailTitle>? = null
+    val titles: List<NetworkTMDBAlternativeTitle>? = null
 )
 
 @Serializable
-data class NetworkTMDBMovieDetailTitle(
+data class NetworkTMDBAlternativeTitle(
     @SerialName("iso_3166_1")
     val iso31661: String? = null,
     @SerialName("title")
@@ -125,15 +125,15 @@ data class NetworkTMDBMovieDetailBelongsToCollection(
 )
 
 @Serializable
-data class NetworkTMDBMovieDetailCredits(
+data class NetworkTMDBCredits(
     @SerialName("cast")
-    val cast: List<NetworkTMDBMovieDetailCast>? = null,
+    val cast: List<NetworkTMDBCast>? = null,
     @SerialName("crew")
-    val crew: List<NetworkTMDBMovieDetailCrew>? = null
+    val crew: List<NetworkTMDBCrew>? = null
 )
 
 @Serializable
-data class NetworkTMDBMovieDetailCast(
+data class NetworkTMDBCast(
     @SerialName("adult")
     val adult: Boolean? = null,
     @SerialName("cast_id")
@@ -161,7 +161,7 @@ data class NetworkTMDBMovieDetailCast(
 )
 
 @Serializable
-data class NetworkTMDBMovieDetailCrew(
+data class NetworkTMDBCrew(
     @SerialName("adult")
     val adult: Boolean? = null,
     @SerialName("credit_id")
@@ -187,7 +187,7 @@ data class NetworkTMDBMovieDetailCrew(
 )
 
 @Serializable
-data class NetworkTMDBMovieDetailGenre(
+data class NetworkTMDBGenre(
     @SerialName("id")
     val id: Int? = null,
     @SerialName("name")
@@ -195,17 +195,19 @@ data class NetworkTMDBMovieDetailGenre(
 )
 
 @Serializable
-data class NetworkTMDBMovieDetailImages(
+data class NetworkTMDBImages(
     @SerialName("backdrops")
-    val backdrops: List<NetworkTMDBMovieDetailImage>? = null,
+    val backdrops: List<NetworkTMDBImage>? = null,
     @SerialName("logos")
-    val logos: List<NetworkTMDBMovieDetailImage>? = null,
+    val logos: List<NetworkTMDBImage>? = null,
     @SerialName("posters")
-    val posters: List<NetworkTMDBMovieDetailImage>? = null
+    val posters: List<NetworkTMDBImage>? = null,
+    @SerialName("stills")
+    val stills: List<NetworkTMDBImage>? = null
 )
 
 @Serializable
-data class NetworkTMDBMovieDetailImage(
+data class NetworkTMDBImage(
     @SerialName("aspect_ratio")
     val aspectRatio: Double? = null,
     @SerialName("file_path")
@@ -225,31 +227,19 @@ data class NetworkTMDBMovieDetailImage(
 @Serializable
 data class NetworkTMDBMovieDetailKeywords(
     @SerialName("keywords")
-    val keywords: List<NetworkTMDBMovieDetailKeyword>? = null
+    val keywords: List<NetworkTMDBKeyword>? = null
 )
 
 @Serializable
-data class NetworkTMDBMovieDetailKeyword(
+data class NetworkTMDBKeyword(
     @SerialName("id")
     val id: Int? = null,
     @SerialName("name")
     val name: String? = null
 )
 
-//    @Serializable
-//    data class Lists(
-//        @SerialName("page")
-//        val page: Int? = null,
-//        @SerialName("results")
-//        val results: List<Any>? = null,
-//        @SerialName("total_pages")
-//        val totalPages: Int? = null,
-//        @SerialName("total_results")
-//        val totalResults: Int? = null
-//    )
-
 @Serializable
-data class NetworkTMDBMovieDetailProductionCompany(
+data class NetworkTMDBProductionCompany(
     @SerialName("id")
     val id: Int? = null,
     @SerialName("logo_path")
@@ -261,7 +251,7 @@ data class NetworkTMDBMovieDetailProductionCompany(
 )
 
 @Serializable
-data class NetworkTMDBMovieDetailProductionCountry(
+data class NetworkTMDBProductionCountry(
     @SerialName("iso_3166_1")
     val iso31661: String? = null,
     @SerialName("name")
@@ -288,20 +278,8 @@ data class NetworkTMDBMovieDetailCountry(
     val releaseDate: String? = null
 )
 
-//    @Serializable
-//    data class Reviews(
-//        @SerialName("page")
-//        val page: Int? = null,
-//        @SerialName("results")
-//        val results: List<Any>? = null,
-//        @SerialName("total_pages")
-//        val totalPages: Int? = null,
-//        @SerialName("total_results")
-//        val totalResults: Int? = null
-//    )
-
 @Serializable
-data class NetworkTMDBMovieDetailSpokenLanguage(
+data class NetworkTMDBSpokenLanguage(
     @SerialName("english_name")
     val englishName: String? = null,
     @SerialName("iso_639_1")
@@ -345,7 +323,7 @@ data class NetworkTMDBMovieDetailData(
 )
 
 @Serializable
-data class NetworkTMDBMovieDetailVideos(
+data class NetworkTMDBVideos(
     @SerialName("results")
     val results: List<NetworkTMDBVideoResult>? = null
 )
@@ -454,13 +432,13 @@ fun NetworkTMDBMovie.asExternalModel(): Movie =
         voteAverage = voteAverage
     )
 
-fun NetworkTMDBMovieDetailAlternativeTitles.asExternalModel(): AlternativeTitles =
+fun NetworkTMDBAlternativeTitles.asExternalModel(): AlternativeTitles =
     AlternativeTitles(
         titles = titles?.asExternalModel()
     )
 
 @JvmName("NetworkTMDBMovieDetailTitleAsExternalModel")
-fun List<NetworkTMDBMovieDetailTitle>.asExternalModel(): List<AlternativeTitle> =
+fun List<NetworkTMDBAlternativeTitle>.asExternalModel(): List<AlternativeTitle> =
     map {
         AlternativeTitle(
             iso31661 = it.iso31661,
@@ -477,42 +455,14 @@ fun NetworkTMDBMovieDetailBelongsToCollection.asExternalModel(): BelongsToCollec
         posterPath = posterPath
     )
 
-//fun NetworkTMDBMovieDetailChanges.asExternalModel(): Changes =
-//    Changes(
-//        changes = changes?.asExternalModel()
-//    )
-//
-//@JvmName("NetworkTMDBMovieDetailChangeAsExternalModel")
-//fun List<NetworkTMDBMovieDetailChange>.asExternalModel(): List<Change> =
-//    map {
-//        Change(
-//            items = it.items?.asExternalModel(),
-//            key = it.key
-//        )
-//    }
-//
-//@JvmName("NetworkTMDBMovieDetailItemAsExternalModel")
-//fun List<NetworkTMDBMovieDetailItem>.asExternalModel(): List<ChangeItem> =
-//    map {
-//        ChangeItem(
-//            action = it.action,
-//            id = it.id,
-//            iso31661 = it.iso31661,
-//            iso6391 = it.iso6391,
-//            originalValue = it.originalValue,
-//            time = it.time,
-//            value = it.value
-//        )
-//    }
-
-fun NetworkTMDBMovieDetailCredits.asExternalModel(): Credits =
+fun NetworkTMDBCredits.asExternalModel(): Credits =
     Credits(
         cast = cast?.asExternalModel(),
         crew = crew?.asExternalModel()
     )
 
 @JvmName("NetworkTMDBMovieDetailCastAsExternalModel")
-fun List<NetworkTMDBMovieDetailCast>.asExternalModel(): List<Cast> =
+fun List<NetworkTMDBCast>.asExternalModel(): List<Cast> =
     map {
         Cast(
             adult = it.adult,
@@ -531,7 +481,7 @@ fun List<NetworkTMDBMovieDetailCast>.asExternalModel(): List<Cast> =
     }
 
 @JvmName("NetworkTMDBMovieDetailCrewAsExternalModel")
-fun List<NetworkTMDBMovieDetailCrew>.asExternalModel(): List<Crew> =
+fun List<NetworkTMDBCrew>.asExternalModel(): List<Crew> =
     map {
         Crew(
             adult = it.adult,
@@ -549,7 +499,7 @@ fun List<NetworkTMDBMovieDetailCrew>.asExternalModel(): List<Crew> =
     }
 
 @JvmName("NetworkTMDBMovieDetailGenreAsExternalModel")
-fun List<NetworkTMDBMovieDetailGenre>.asExternalModel(): List<Genre> =
+fun List<NetworkTMDBGenre>.asExternalModel(): List<Genre> =
     map {
         Genre(
             id = it.id,
@@ -557,7 +507,7 @@ fun List<NetworkTMDBMovieDetailGenre>.asExternalModel(): List<Genre> =
         )
     }
 
-fun NetworkTMDBMovieDetailImages.asExternalModel(): Images =
+fun NetworkTMDBImages.asExternalModel(): Images =
     Images(
         backdrops = backdrops?.asExternalModel(),
         logos = logos?.asExternalModel(),
@@ -565,7 +515,7 @@ fun NetworkTMDBMovieDetailImages.asExternalModel(): Images =
     )
 
 @JvmName("NetworkTMDBMovieDetailImageAsExternalModel")
-fun List<NetworkTMDBMovieDetailImage>.asExternalModel(): List<Image> =
+fun List<NetworkTMDBImage>.asExternalModel(): List<Image> =
     map {
         Image(
             aspectRatio = it.aspectRatio,
@@ -584,7 +534,7 @@ fun NetworkTMDBMovieDetailKeywords.asExternalModel(): Keywords =
     )
 
 @JvmName("NetworkTMDBMovieDetailKeywordAsExternalModel")
-fun List<NetworkTMDBMovieDetailKeyword>.asExternalModel(): List<Keyword> =
+fun List<NetworkTMDBKeyword>.asExternalModel(): List<Keyword> =
     map {
         Keyword(
             id = it.id,
@@ -593,7 +543,7 @@ fun List<NetworkTMDBMovieDetailKeyword>.asExternalModel(): List<Keyword> =
     }
 
 @JvmName("NetworkTMDBMovieDetailProductionCountryAsExternalModel")
-fun List<NetworkTMDBMovieDetailProductionCountry>.asExternalModel(): List<ProductionCountry> =
+fun List<NetworkTMDBProductionCountry>.asExternalModel(): List<ProductionCountry> =
     map {
         ProductionCountry(
             iso31661 = it.iso31661,
@@ -602,7 +552,7 @@ fun List<NetworkTMDBMovieDetailProductionCountry>.asExternalModel(): List<Produc
     }
 
 @JvmName("NetworkTMDBMovieDetailProductionCompanyAsExternalModel")
-fun List<NetworkTMDBMovieDetailProductionCompany>.asExternalModel(): List<ProductionCompany> =
+fun List<NetworkTMDBProductionCompany>.asExternalModel(): List<ProductionCompany> =
     map {
         ProductionCompany(
             id = it.id,
@@ -630,7 +580,7 @@ fun List<NetworkTMDBMovieDetailCountry>.asExternalModel(): List<Country> =
     }
 
 @JvmName("NetworkTMDBMovieDetailSpokenLanguageAsExternalModel")
-fun List<NetworkTMDBMovieDetailSpokenLanguage>.asExternalModel(): List<SpokenLanguage> =
+fun List<NetworkTMDBSpokenLanguage>.asExternalModel(): List<SpokenLanguage> =
     map {
         SpokenLanguage(
             englishName = it.englishName,
@@ -665,7 +615,7 @@ fun NetworkTMDBMovieDetailData.asExternalModel(): TranslationInfo =
         title = title
     )
 
-fun NetworkTMDBMovieDetailVideos.asExternalModel(): Videos =
+fun NetworkTMDBVideos.asExternalModel(): Videos =
     Videos(
         results = results?.asExternalModel()
     )

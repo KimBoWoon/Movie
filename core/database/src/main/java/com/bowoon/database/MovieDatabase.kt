@@ -9,19 +9,22 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.bowoon.database.dao.MovieDao
 import com.bowoon.database.dao.PeopleDao
+import com.bowoon.database.dao.TvDao
 import com.bowoon.database.model.MovieEntity
 import com.bowoon.database.model.NowPlayingMovieEntity
 import com.bowoon.database.model.PeopleEntity
+import com.bowoon.database.model.TvEntity
 import com.bowoon.database.model.UpComingMovieEntity
 
 @Database(
     entities = [
         MovieEntity::class,
+        TvEntity::class,
         PeopleEntity::class,
         NowPlayingMovieEntity::class,
         UpComingMovieEntity::class
     ],
-    version = 5,
+    version = 6,
     autoMigrations = [
         AutoMigration(
             from = 1,
@@ -35,6 +38,7 @@ import com.bowoon.database.model.UpComingMovieEntity
 internal abstract class MovieDatabase : RoomDatabase() {
     abstract fun movieDao(): MovieDao
     abstract fun peopleDao(): PeopleDao
+    abstract fun tvDao(): TvDao
 }
 
 internal object DatabaseMigrations {
@@ -78,6 +82,22 @@ internal object DatabaseMigrations {
                         posterPath TEXT NOT NULL,
                         releaseDate TEXT,
                         title TEXT
+                    )
+                """.trimIndent()
+            )
+        }
+    }
+    val MIGRATION_5_6 = object : Migration(startVersion = 5, endVersion = 6) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                sql = """
+                    CREATE TABLE tvs (
+                        id INTEGER PRIMARY KEY NOT NULL,
+                        posterPath TEXT NOT NULL,
+                        timestamp INTEGER NOT NULL,
+                        name TEXT,
+                        firstAirDate TEXT,
+                        lastAirDate TEXT
                     )
                 """.trimIndent()
             )

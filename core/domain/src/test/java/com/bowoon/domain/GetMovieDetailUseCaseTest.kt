@@ -17,6 +17,7 @@ import com.bowoon.testing.repository.TestUserDataRepository
 import com.bowoon.testing.utils.MainDispatcherRule
 import com.bowoon.testing.utils.TestMovieAppDataManager
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -70,13 +71,23 @@ class GetMovieDetailUseCaseTest {
         val result = getMovieDetailUseCase(id = 0).first()
 
         assertEquals(
-            result.detail,
-            favoriteMovieDetailTestData.copy(isFavorite = false)
+            expected = result.movie,
+            actual = favoriteMovieDetailTestData
         )
 
         assertEquals(
-            result.series,
-            movieSeriesTestData
+            expected = result.movie.series,
+            actual = movieSeriesTestData
+        )
+
+        assertEquals(
+            expected = result.autoPlayTrailer,
+            actual = userDataRepository.internalData.map { it.isAutoPlayTrailer }.first()
+        )
+
+        assertEquals(
+            expected = result.isFavorite,
+            actual = databaseRepository.isFavoriteMovie(id = 0).first()
         )
     }
 
@@ -95,13 +106,23 @@ class GetMovieDetailUseCaseTest {
         val result = getMovieDetailUseCase(id = 324).first()
 
         assertEquals(
-            result.detail,
-            unFavoriteMovieDetailTestData.copy(isFavorite = true)
+            expected = result.movie,
+            actual = unFavoriteMovieDetailTestData
         )
 
         assertEquals(
-            result.series,
-            movieSeriesTestData
+            expected = result.movie.series,
+            actual = movieSeriesTestData
+        )
+
+        assertEquals(
+            expected = result.autoPlayTrailer,
+            actual = userDataRepository.internalData.map { it.isAutoPlayTrailer }.first()
+        )
+
+        assertEquals(
+            expected = result.isFavorite,
+            actual = databaseRepository.isFavoriteMovie(id = 324).first()
         )
     }
 }

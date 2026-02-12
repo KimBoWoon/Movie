@@ -4,7 +4,10 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.paging.testing.TestPager
 import com.bowoon.testing.repository.TestDatabaseRepository
+import com.bowoon.testing.repository.TestPagingRepository
+import com.bowoon.testing.repository.TestUserDataRepository
 import com.bowoon.testing.utils.MainDispatcherRule
+import com.bowoon.testing.utils.TestNetworkMonitor
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -19,11 +22,22 @@ class HomeVMTest {
     val mainDispatcherRule = MainDispatcherRule()
     private lateinit var viewModel: HomeVM
     private lateinit var testDatabaseRepository: TestDatabaseRepository
+    private lateinit var testPagingRepository: TestPagingRepository
+    private lateinit var testNetworkMonitor: TestNetworkMonitor
+    private lateinit var testUserRepository: TestUserDataRepository
 
     @Before
     fun setup() {
         testDatabaseRepository = TestDatabaseRepository()
-        viewModel = HomeVM(databaseRepository = testDatabaseRepository)
+        testPagingRepository = TestPagingRepository()
+        testNetworkMonitor = TestNetworkMonitor()
+        testUserRepository = TestUserDataRepository()
+        viewModel = HomeVM(
+            databaseRepository = testDatabaseRepository,
+            pagingRepository = testPagingRepository,
+            userDataRepository = testUserRepository,
+            networkMonitor = testNetworkMonitor
+        )
     }
 
     @Test

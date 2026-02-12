@@ -76,10 +76,10 @@ fun NetworkTMDBPeopleDetail.asExternalModel(): People =
         images = images?.asExternalModel(),
         imdbId = imdbId,
         knownForDepartment = knownForDepartment,
-        name = name,
+        title = name,
         placeOfBirth = placeOfBirth,
         popularity = popularity,
-        profilePath = profilePath
+        posterPath = profilePath
     )
 
 fun NetworkTMDBPeopleImages.asExternalModel(): List<Image> =

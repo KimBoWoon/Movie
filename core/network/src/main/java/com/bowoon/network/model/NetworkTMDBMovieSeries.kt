@@ -59,7 +59,7 @@ fun NetworkTMDBMovieSeries.asExternalModel(): Series =
     Series(
         backdropPath = backdropPath,
         id = id,
-        name = name,
+        title = name,
         overview = overview,
         parts = parts?.asExternalModel(),
         posterPath = posterPath

@@ -3,6 +3,7 @@ package com.bowoon.database.di
 import com.bowoon.database.MovieDatabase
 import com.bowoon.database.dao.MovieDao
 import com.bowoon.database.dao.PeopleDao
+import com.bowoon.database.dao.TvDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -20,4 +21,9 @@ internal object DaosModule {
     fun providesPeopleDao(
         database: MovieDatabase,
     ): PeopleDao = database.peopleDao()
+
+    @Provides
+    fun providesTvDao(
+        database: MovieDatabase,
+    ): TvDao = database.tvDao()
 }

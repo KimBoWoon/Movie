@@ -7,13 +7,20 @@ import com.bowoon.model.ExternalIds
 import com.bowoon.model.Genres
 import com.bowoon.model.Language
 import com.bowoon.model.Movie
-import com.bowoon.model.MovieReviews
 import com.bowoon.model.People
 import com.bowoon.model.Regions
+import com.bowoon.model.Reviews
 import com.bowoon.model.SearchData
 import com.bowoon.model.SearchKeywordData
 import com.bowoon.model.Series
 import com.bowoon.model.SimilarMovies
+import com.bowoon.model.SimilarTvs
+import com.bowoon.model.TrendingMovie
+import com.bowoon.model.TrendingPeople
+import com.bowoon.model.TrendingTv
+import com.bowoon.model.Tv
+import com.bowoon.model.TvEpisode
+import com.bowoon.model.TvSeasons
 
 interface MovieNetworkDataSource {
     suspend fun getConfiguration(): Configuration
@@ -35,6 +42,14 @@ interface MovieNetworkDataSource {
     ): List<Movie>
 
     suspend fun searchMovies(
+        query: String,
+        includeAdult: Boolean = true,
+        language: String = "ko-KR",
+        region: String = "KR",
+        page: Int = 1
+    ): SearchData
+
+    suspend fun searchTv(
         query: String,
         includeAdult: Boolean = true,
         language: String = "ko-KR",
@@ -77,6 +92,12 @@ interface MovieNetworkDataSource {
         page: Int = 1
     ): SimilarMovies
 
+    suspend fun getSimilarTv(
+        id: Int,
+        language: String = "ko-KR",
+        page: Int = 1
+    ): SimilarTvs
+
     suspend fun discoverMovie(
         releaseDateGte: String,
         releaseDateLte: String,
@@ -117,5 +138,43 @@ interface MovieNetworkDataSource {
         movieId: Int,
         language: String = "ko-KR",
         page: Int = 1
-    ): MovieReviews
+    ): Reviews
+
+    suspend fun getTvReviews(
+        seriesId: Int,
+        language: String = "ko-KR",
+        page: Int = 1
+    ): Reviews
+
+    suspend fun getTrendingMovie(timeWindow: String, language: String, page: Int): TrendingMovie
+
+    suspend fun getTrendingPeople(
+        timeWindow: String,
+        language: String,
+        page: Int = 1
+    ): TrendingPeople
+
+    suspend fun getTrendingTv(timeWindow: String, language: String, page: Int): TrendingTv
+
+    suspend fun getTv(
+        id: Int,
+        language: String,
+        appendToResponse: String = "images,videos,credits,releases,keywords,alternative_titles",
+        includeImageLanguage: String = "ko"
+    ): Tv
+
+    suspend fun getTvSeasons(
+        seriesId: Int,
+        seasonNumber: Int,
+        appendToResponse: String = "images,videos,credits,releases,keywords,alternative_titles",
+        language: String = "ko-KR"
+    ): TvSeasons
+
+    suspend fun getTvEpisode(
+        seriesId: Int,
+        seasonNumber: Int,
+        episodeNumber: Int,
+        appendToResponse: String = "images,videos,credits,releases,keywords,alternative_titles",
+        language: String = "ko-KR"
+    ): TvEpisode
 }

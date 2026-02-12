@@ -16,6 +16,9 @@ interface MovieDao {
     @Query(value = "SELECT * FROM movies")
     fun getMovieEntities(): Flow<List<MovieEntity>>
 
+    @Query("SELECT EXISTS(SELECT 1 FROM movies WHERE id = :id)")
+    fun isFavoriteMovie(id: Int): Flow<Boolean>
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertOrIgnoreMovies(movie: MovieEntity): Long
 

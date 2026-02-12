@@ -5,7 +5,7 @@ import androidx.paging.PagingState
 import com.bowoon.common.Log
 import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.model.InternalData
-import com.bowoon.model.Movie
+import com.bowoon.model.Media
 import com.bowoon.model.SearchType
 import com.bowoon.network.MovieNetworkDataSource
 import kotlinx.coroutines.flow.firstOrNull
@@ -16,8 +16,8 @@ class SearchPagingSource @Inject constructor(
     private val apis: MovieNetworkDataSource,
     private val type: SearchType,
     private val query: String
-) : PagingSource<Int, Movie>() {
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Movie> =
+) : PagingSource<Int, Media>() {
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Media> =
         runCatching {
             val internalData = userDataRepository.internalData.firstOrNull() ?: InternalData()
             val language = "${internalData.language}-${internalData.region}"
@@ -26,6 +26,7 @@ class SearchPagingSource @Inject constructor(
 
             val response = when (type) {
                 SearchType.MOVIE -> apis.searchMovies(query = query, includeAdult = isAdult, language = language, region = region, page = params.key ?: 1)
+                SearchType.TV -> apis.searchTv(query = query, includeAdult = isAdult, language = language, region = region, page = params.key ?: 1)
                 SearchType.PEOPLE -> apis.searchPeople(query = query, includeAdult = isAdult, language = language, region = region, page = params.key ?: 1)
                 SearchType.SERIES -> apis.searchSeries(query = query, includeAdult = isAdult, language = language, region = region, page = params.key ?: 1)
             }
@@ -40,7 +41,7 @@ class SearchPagingSource @Inject constructor(
             LoadResult.Error(e)
         }
 
-    override fun getRefreshKey(state: PagingState<Int, Movie>): Int? =
+    override fun getRefreshKey(state: PagingState<Int, Media>): Int? =
         state.anchorPosition?.let { anchorPosition ->
             val anchorPage = state.closestPageToPosition(anchorPosition)
             anchorPage?.prevKey ?: anchorPage?.nextKey

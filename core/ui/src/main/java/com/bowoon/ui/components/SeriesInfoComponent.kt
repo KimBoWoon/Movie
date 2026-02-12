@@ -32,7 +32,7 @@ fun LazyListScope.seriesInfoComponent(
                     .semantics { contentDescription = "belongsToCollectionName" }
                     .fillMaxWidth()
                     .wrapContentHeight(),
-                text = series.name ?: "",
+                text = series.title ?: "",
                 fontSize = sp20,
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.Bold

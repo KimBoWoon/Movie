@@ -8,13 +8,20 @@ import com.bowoon.model.Genres
 import com.bowoon.model.Language
 import com.bowoon.model.Movie
 import com.bowoon.model.MovieResult
-import com.bowoon.model.MovieReviews
 import com.bowoon.model.People
 import com.bowoon.model.Regions
+import com.bowoon.model.Reviews
 import com.bowoon.model.SearchData
 import com.bowoon.model.SearchKeywordData
 import com.bowoon.model.Series
 import com.bowoon.model.SimilarMovies
+import com.bowoon.model.SimilarTvs
+import com.bowoon.model.TrendingMovie
+import com.bowoon.model.TrendingPeople
+import com.bowoon.model.TrendingTv
+import com.bowoon.model.Tv
+import com.bowoon.model.TvEpisode
+import com.bowoon.model.TvSeasons
 import com.bowoon.model.asExternalMovie
 import com.bowoon.network.ApiResponse
 import com.bowoon.network.CustomCallAdapter
@@ -137,6 +144,25 @@ class RetrofitMovieNetwork @Inject constructor(
         is ApiResponse.Success -> response.data.asExternalModel()
     }
 
+    override suspend fun searchTv(
+        query: String,
+        includeAdult: Boolean,
+        language: String,
+        region: String,
+        page: Int
+    ): SearchData = when (
+        val response = tmdbApis.searchTv(
+            query = query,
+            includeAdult = includeAdult,
+            language = language,
+            region = region,
+            page = page
+        )
+    ) {
+        is ApiResponse.Failure -> throw response.throwable
+        is ApiResponse.Success -> response.data.asExternalModel()
+    }
+
     override suspend fun searchPeople(
         query: String,
         includeAdult: Boolean,
@@ -204,6 +230,15 @@ class RetrofitMovieNetwork @Inject constructor(
         language: String,
         page: Int
     ): SimilarMovies = when (val response = tmdbApis.getSimilarMovies(id = id, language = language, page = page)) {
+        is ApiResponse.Failure -> throw response.throwable
+        is ApiResponse.Success -> response.data.asExternalModel()
+    }
+
+    override suspend fun getSimilarTv(
+        id: Int,
+        language: String,
+        page: Int
+    ): SimilarTvs = when (val response = tmdbApis.getSimilarTv(id = id, language = language, page = page)) {
         is ApiResponse.Failure -> throw response.throwable
         is ApiResponse.Success -> response.data.asExternalModel()
     }
@@ -282,7 +317,65 @@ class RetrofitMovieNetwork @Inject constructor(
         movieId: Int,
         language: String,
         page: Int
-    ): MovieReviews = when (val response = tmdbApis.getMovieReview(movieId = movieId, language = language, page = page)) {
+    ): Reviews = when (val response = tmdbApis.getMovieReview(movieId = movieId, language = language, page = page)) {
+        is ApiResponse.Failure -> throw response.throwable
+        is ApiResponse.Success -> response.data.asExternalModel()
+    }
+
+    override suspend fun getTvReviews(
+        seriesId: Int,
+        language: String,
+        page: Int
+    ): Reviews = when (val response = tmdbApis.getTvReview(seriesId = seriesId, language = language, page = page)) {
+        is ApiResponse.Failure -> throw response.throwable
+        is ApiResponse.Success -> response.data.asExternalModel()
+    }
+
+    override suspend fun getTrendingMovie(timeWindow: String, language: String, page: Int): TrendingMovie =
+        when (val response = tmdbApis.getTrendingMovie(timeWindow = timeWindow, language = language, page = page)) {
+            is ApiResponse.Failure -> throw response.throwable
+            is ApiResponse.Success -> response.data.asExternalModel()
+        }
+
+    override suspend fun getTrendingPeople(timeWindow: String, language: String, page: Int): TrendingPeople =
+        when (val response = tmdbApis.getTrendingPeople(timeWindow = timeWindow, language = language, page = page)) {
+            is ApiResponse.Failure -> throw response.throwable
+            is ApiResponse.Success -> response.data.asExternalModel()
+        }
+
+    override suspend fun getTrendingTv(timeWindow: String, language: String, page: Int): TrendingTv =
+        when (val response = tmdbApis.getTrendingTv(timeWindow = timeWindow, language = language, page = page)) {
+            is ApiResponse.Failure -> throw response.throwable
+            is ApiResponse.Success -> response.data.asExternalModel()
+        }
+
+    override suspend fun getTv(
+        id: Int,
+        language: String,
+        appendToResponse: String,
+        includeImageLanguage: String
+    ): Tv = when (val response = tmdbApis.getTv(id = id, appendToResponse = appendToResponse, language = language, includeImageLanguage = includeImageLanguage)) {
+        is ApiResponse.Failure -> throw response.throwable
+        is ApiResponse.Success -> response.data.asExternalModel()
+    }
+
+    override suspend fun getTvSeasons(
+        seriesId: Int,
+        seasonNumber: Int,
+        appendToResponse: String,
+        language: String
+    ): TvSeasons = when (val response = tmdbApis.getTvSeasons(seriesId = seriesId, seasonNumber = seasonNumber, appendToResponse = appendToResponse, language = language)) {
+        is ApiResponse.Failure -> throw response.throwable
+        is ApiResponse.Success -> response.data.asExternalModel()
+    }
+
+    override suspend fun getTvEpisode(
+        seriesId: Int,
+        seasonNumber: Int,
+        episodeNumber: Int,
+        appendToResponse: String,
+        language: String
+    ): TvEpisode = when (val response = tmdbApis.getTvEpisode(seriesId = seriesId, seasonNumber = seasonNumber, episodeNumber = episodeNumber, appendToResponse = appendToResponse, language = language)) {
         is ApiResponse.Failure -> throw response.throwable
         is ApiResponse.Success -> response.data.asExternalModel()
     }

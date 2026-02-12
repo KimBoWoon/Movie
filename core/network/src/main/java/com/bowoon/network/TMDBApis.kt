@@ -17,6 +17,14 @@ import com.bowoon.network.model.NetworkTMDBSearchKeywordData
 import com.bowoon.network.model.NetworkTMDBSearchMovie
 import com.bowoon.network.model.NetworkTMDBSearchPeople
 import com.bowoon.network.model.NetworkTMDBSearchSeries
+import com.bowoon.network.model.NetworkTMDBSimilarTv
+import com.bowoon.network.model.NetworkTMDBTrendingMovie
+import com.bowoon.network.model.NetworkTMDBTrendingPeople
+import com.bowoon.network.model.NetworkTMDBTrendingTv
+import com.bowoon.network.model.NetworkTMDBTv
+import com.bowoon.network.model.NetworkTMDBTvEpisode
+import com.bowoon.network.model.NetworkTMDBTvReviews
+import com.bowoon.network.model.NetworkTMDBTvSeasons
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -56,6 +64,15 @@ interface TMDBApis {
         @Query("page") page: Int = 1
     ): ApiResponse<NetworkTMDBSearchMovie>
 
+    @GET("/3/search/tv")
+    suspend fun searchTv(
+        @Query("query") query: String,
+        @Query("include_adult") includeAdult: Boolean = true,
+        @Query("language") language: String = "ko-KR",
+        @Query("region") region: String = "KR",
+        @Query("page") page: Int = 1
+    ): ApiResponse<NetworkTMDBSearchMovie>
+
     @GET("/3/search/person")
     suspend fun searchPeople(
         @Query("query") query: String,
@@ -83,7 +100,7 @@ interface TMDBApis {
     @GET("/3/movie/{movie_id}")
     suspend fun getMovie(
         @Path("movie_id") id: Int,
-        @Query("append_to_response") appendToResponse: String = "images,videos,credits,releases,keywords,alternative_titles",
+        @Query("append_to_response") appendToResponse: String = "images,videos,credits,releases,alternative_titles",
         @Query("language") language: String = "ko-KR",
         @Query("include_image_language") includeImageLanguage: String = "ko",
         @Query("region") region: String = "KR"
@@ -95,6 +112,38 @@ interface TMDBApis {
         @Query("language") language: String = "ko-KR",
         @Query("page") page: Int = 1,
     ): ApiResponse<NetworkTMDBMovieDetailSimilar>
+
+    @GET("/3/tv/{series_id}/similar")
+    suspend fun getSimilarTv(
+        @Path("series_id") id: Int,
+        @Query("language") language: String = "ko-KR",
+        @Query("page") page: Int = 1,
+    ): ApiResponse<NetworkTMDBSimilarTv>
+
+    @GET("/3/tv/{series_id}")
+    suspend fun getTv(
+        @Path("series_id") id: Int,
+        @Query("append_to_response") appendToResponse: String = "images,videos,credits,releases,alternative_titles",
+        @Query("language") language: String = "ko-KR",
+        @Query("include_image_language") includeImageLanguage: String = "ko"
+    ): ApiResponse<NetworkTMDBTv>
+
+    @GET("/3/tv/{series_id}/season/{season_number}")
+    suspend fun getTvSeasons(
+        @Path("series_id") seriesId: Int,
+        @Path("season_number") seasonNumber: Int,
+        @Query("append_to_response") appendToResponse: String = "images,videos,credits,releases,alternative_titles",
+        @Query("language") language: String = "ko-KR"
+    ): ApiResponse<NetworkTMDBTvSeasons>
+
+    @GET("/3/tv/{series_id}/season/{season_number}/episode/{episode_number}")
+    suspend fun getTvEpisode(
+        @Path("series_id") seriesId: Int,
+        @Path("season_number") seasonNumber: Int,
+        @Path("episode_number") episodeNumber: Int,
+        @Query("append_to_response") appendToResponse: String = "images,videos,credits,releases,alternative_titles",
+        @Query("language") language: String = "ko-KR"
+    ): ApiResponse<NetworkTMDBTvEpisode>
 
     @GET("/3/discover/movie")
     suspend fun discoverMovie(
@@ -145,4 +194,32 @@ interface TMDBApis {
         @Query("language") language: String = "ko-KR",
         @Query("page") page: Int = 1
     ): ApiResponse<NetworkTMDBMovieReviews>
+
+    @GET("/3/tv/{series_id}/reviews")
+    suspend fun getTvReview(
+        @Path("series_id") seriesId: Int,
+        @Query("language") language: String = "ko-KR",
+        @Query("page") page: Int = 1
+    ): ApiResponse<NetworkTMDBTvReviews>
+
+    @GET("/3/trending/movie/{time_window}")
+    suspend fun getTrendingMovie(
+        @Path("time_window") timeWindow: String,
+        @Query("language") language: String,
+        @Query("page") page: Int = 1
+    ): ApiResponse<NetworkTMDBTrendingMovie>
+
+    @GET("/3/trending/person/{time_window}")
+    suspend fun getTrendingPeople(
+        @Path("time_window") timeWindow: String,
+        @Query("language") language: String,
+        @Query("page") page: Int = 1
+    ): ApiResponse<NetworkTMDBTrendingPeople>
+
+    @GET("/3/trending/tv/{time_window}")
+    suspend fun getTrendingTv(
+        @Path("time_window") timeWindow: String,
+        @Query("language") language: String,
+        @Query("page") page: Int = 1
+    ): ApiResponse<NetworkTMDBTrendingTv>
 }

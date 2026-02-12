@@ -11,11 +11,15 @@ import kotlinx.serialization.Serializable
 data object HomeNavKey : NavKey
 
 fun EntryProviderScope<NavKey>.homeEntry(
-    goToMovie: (Int) -> Unit
+    goToMovie: (Int) -> Unit,
+    goToPeople: (Int) -> Unit,
+    goToTv: (Int) -> Unit
 ) {
     entry<HomeNavKey> {
         HomeScreen(
-            goToMovie = goToMovie
+            goToMovie = goToMovie,
+            goToPeople = goToPeople,
+            goToTv = goToTv
         )
     }
 }

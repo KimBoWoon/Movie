@@ -25,22 +25,27 @@ import com.bowoon.model.Images
 import com.bowoon.model.Keyword
 import com.bowoon.model.Keywords
 import com.bowoon.model.Language
-import com.bowoon.model.MainMenu
+import com.bowoon.model.Media
 import com.bowoon.model.Movie
-import com.bowoon.model.MovieReview
 import com.bowoon.model.People
 import com.bowoon.model.ProductionCompany
 import com.bowoon.model.ProductionCountry
 import com.bowoon.model.Region
 import com.bowoon.model.Regions
 import com.bowoon.model.Releases
+import com.bowoon.model.Review
 import com.bowoon.model.SearchData
 import com.bowoon.model.SearchKeyword
 import com.bowoon.model.Series
 import com.bowoon.model.SeriesPart
 import com.bowoon.model.SimilarMovie
 import com.bowoon.model.SimilarMovies
+import com.bowoon.model.SimilarTv
+import com.bowoon.model.SimilarTvs
 import com.bowoon.model.SpokenLanguage
+import com.bowoon.model.Tv
+import com.bowoon.model.TvEpisode
+import com.bowoon.model.TvSeasons
 import com.bowoon.model.VideoInfo
 import com.bowoon.model.Videos
 import java.util.concurrent.atomic.AtomicInteger
@@ -177,6 +182,19 @@ val seriesSearchTestData = SearchData(
     totalResults = 5
 )
 
+val tvSearchTestData = SearchData(
+    page = 1,
+    results = listOf(
+        MovieFactory.createTvItem(),
+        MovieFactory.createTvItem(),
+        MovieFactory.createTvItem(),
+        MovieFactory.createTvItem(),
+        MovieFactory.createTvItem()
+    ),
+    totalPages = 1,
+    totalResults = 5
+)
+
 val similarMoviesTestData = SimilarMovies(
     page = 1,
     results = listOf(
@@ -190,37 +208,27 @@ val similarMoviesTestData = SimilarMovies(
     totalResults = 5
 )
 
+val similarTvTestData = SimilarTvs(
+    page = 1,
+    results = listOf(
+        MovieFactory.createSimilarTv(),
+        MovieFactory.createSimilarTv(),
+        MovieFactory.createSimilarTv(),
+        MovieFactory.createSimilarTv(),
+        MovieFactory.createSimilarTv()
+    ),
+    totalPages = 1,
+    totalResults = 5
+)
+
 val nowPlayingMoviesTestData =
     listOf(Movie(id = 0, title = "nowPlaying_1", posterPath = "/nowPlaying_1.png"))
 val upcomingMoviesTestData =
     listOf(Movie(id = 0, title = "upcomingMovie_1", posterPath = "/upcomingMovie_1.png"))
-val mainMenuTestData = MainMenu(
-//    nowPlayingMovies = listOf(
-//        Movie(
-//            id = 0,
-//            title = "nowPlaying_1",
-//            posterPath = "posterUrl/nowPlaying_1.png"
-//        )
-//    ),
-//    upComingMovies = listOf(
-//        Movie(
-//            id = 0,
-//            title = "upcomingMovie_1",
-//            posterPath = "posterUrl/upcomingMovie_1.png"
-//        )
-//    )
-    nextWeekReleaseMovies = listOf(
-        Movie(
-            id = 0,
-            title = "upcomingMovie_1",
-            posterPath = "posterUrl/upcomingMovie_1.png"
-        )
-    )
-)
 val movieSeriesTestData = Series(
     backdropPath = "/backdropPath.png",
     id = 896,
-    name = "movieSeries",
+    title = "movieSeries",
     overview = "movieSeriesOverview",
     parts = listOf(
         SeriesPart(id = 0, title = "movieSeries_0", releaseDate = "2024-09-23_0", overview = "movieSeries_0_overview", posterPath = "/movieSeriesPosterPath_1.png"),
@@ -234,7 +242,7 @@ val testRecommendedKeyword = (0..5).map {
     SearchKeyword(id = it, name = "mission$it")
 }
 val testMovieReviews = (0..5).map {
-    MovieReview(
+    Review(
         id = it.toString(),
         author = "author$it",
         authorDetails = null,
@@ -248,7 +256,7 @@ val testMovieReviews = (0..5).map {
 object MovieFactory {
     private val counter = AtomicInteger(0)
 
-    fun createMovieItem(): Movie {
+    fun createMovieItem(): Media {
         val id = counter.incrementAndGet()
         return Movie(
             id = id,
@@ -258,18 +266,27 @@ object MovieFactory {
         )
     }
 
-    fun createPeopleItem(): Movie {
+    fun createPeopleItem(): Media {
         val id = counter.incrementAndGet()
-        return Movie(
+        return People(
             id = id,
             title = "name_$id",
             posterPath = "/imagePath_$id.png",
         )
     }
 
-    fun createSeriesItem(): Movie {
+    fun createSeriesItem(): Media {
         val id = counter.incrementAndGet()
-        return Movie(
+        return Series(
+            id = id,
+            title = "name_$id",
+            posterPath = "/imagePath_$id.png"
+        )
+    }
+
+    fun createTvItem(): Media {
+        val id = counter.incrementAndGet()
+        return Tv(
             id = id,
             title = "name_$id",
             posterPath = "/imagePath_$id.png",
@@ -282,6 +299,15 @@ object MovieFactory {
         return SimilarMovie(
             id = id,
             title = "title_$id",
+            posterPath = "/imagePath_$id.png",
+        )
+    }
+
+    fun createSimilarTv(): SimilarTv {
+        val id = counter.incrementAndGet()
+        return SimilarTv(
+            id = id,
+            name = "title_$id",
             posterPath = "/imagePath_$id.png",
         )
     }
@@ -321,7 +347,7 @@ val favoriteMovieDetailTestData = Movie(
     voteAverage = 3.5,
     voteCount = 203,
     certification = "15",
-    isFavorite = true
+    series = movieSeriesTestData
 )
 
 val unFavoriteMovieDetailTestData = Movie(
@@ -358,7 +384,65 @@ val unFavoriteMovieDetailTestData = Movie(
     voteAverage = 3.5,
     voteCount = 203,
     certification = "15",
-    isFavorite = false
+    series = movieSeriesTestData
+)
+
+val tvTestData = Tv(
+    adult = true,
+    alternativeTitles = null,
+    backdropPath = "backdropPath",
+    createdBy = listOf(),
+    episodeRunTime = listOf(),
+    firstAirDate = "2025-12-25",
+    genres = listOf(Genre(id = 0, name = "genre")),
+    homepage = "homepage",
+    id = 0,
+    images = Images(backdrops = listOf(), logos = listOf(), posters = listOf()),
+    inProduction = true,
+    languages = listOf(),
+    lastAirDate = "2025-12-25",
+    lastEpisodeToAir = null,
+    nextEpisodeToAir = null,
+    networks = listOf(),
+    numberOfEpisodes = 0,
+    numberOfSeasons = 0,
+    originCountry = listOf(),
+    originalLanguage = "originalLanguage",
+    originalTitle = "originalName",
+    overview = "overview",
+    popularity = 3.5,
+    posterPath = "https://original/posterPath.png",
+    productionCompanies = listOf(ProductionCompany(id = 0, logoPath = "https://original/logoPath.png", name = "name", originCountry = "originCountry")),
+    productionCountries = listOf(ProductionCountry(iso31661 = "KR", name = "name")),
+    seasons = listOf(),
+    spokenLanguages = listOf(SpokenLanguage(englishName = "englishName", iso6391 = "ko", name = "name")),
+    status = "Release",
+    tagline = "tagline",
+    title = "title",
+    type = "type",
+    voteAverage = 3.5,
+    voteCount = 203,
+    credits = Credits(cast = listOf(), crew = listOf()),
+    videos = null,
+    keywords = null,
+    episode = null,
+    seasonList = mapOf(
+        "1" to TvSeasons(
+            airDate = "airDate",
+            credits = Credits(),
+            episodes = listOf(TvEpisode()),
+            _id = "_id",
+            id = 0,
+            images = null,
+            name = "name",
+            networks = listOf(),
+            overview = "tvSeasonOverview",
+            posterPath = "/tvSeasonPosterPath.png",
+            seasonNumber = 1,
+            videos = null,
+            voteAverage = 3.8
+        )
+    )
 )
 
 val combineCreditsTestData = CombineCredits(
@@ -390,11 +474,10 @@ val peopleDetailTestData = People(
     images = listOf(Image()),
     imdbId = "imdbId",
     knownForDepartment = "knownForDepartment",
-    name = "name",
+    title = "name",
     placeOfBirth = "placeOfBirth",
     popularity = 3.5,
-    profilePath = "/profilePath.png",
-    isFavorite = true
+    posterPath = "/profilePath.png"
 )
 
 val nowPlayingMovieTest = (0..100).map {

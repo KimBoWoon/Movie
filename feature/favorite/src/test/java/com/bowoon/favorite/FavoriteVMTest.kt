@@ -2,6 +2,7 @@ package com.bowoon.favorite
 
 import com.bowoon.model.Movie
 import com.bowoon.model.People
+import com.bowoon.model.Tv
 import com.bowoon.testing.repository.TestDatabaseRepository
 import com.bowoon.testing.utils.MainDispatcherRule
 import kotlinx.coroutines.flow.collect
@@ -20,8 +21,10 @@ class FavoriteVMTest {
     private lateinit var viewModel: FavoriteVM
     private val movie1 = Movie(id = 0, title = "movie_1", posterPath = "/movieImagePath_0.png")
     private val movie2 = Movie(id = 1, title = "movie_2", posterPath = "/movieImagePath_1.png")
-    private val people1 = People(id = 0, name = "people_1", profilePath = "/peopleImagePath_0.png")
-    private val people2 = People(id = 1, name = "people_2", profilePath = "/peopleImagePath_1.png")
+    private val people1 = People(id = 0, title = "people_1", posterPath = "/peopleImagePath_0.png")
+    private val people2 = People(id = 1, title = "people_2", posterPath = "/peopleImagePath_1.png")
+    private val tv1 = Tv(id = 0, title = "tv_1", posterPath = "/tvImagePath_0.png")
+    private val tv2 = Tv(id = 1, title = "tv_2", posterPath = "/tvImagePath_1.png")
 
     @Before
     fun setup() {
@@ -109,6 +112,20 @@ class FavoriteVMTest {
         assertEquals(
             expected = viewModel.favoritePeoples.value,
             actual = listOf(people2)
+        )
+    }
+
+    @Test
+    fun deleteTvTest() = runTest {
+        backgroundScope.launch(context = UnconfinedTestDispatcher()) { viewModel.favoriteTvs.collect() }
+
+        testDatabaseRepository.insertTv(tv = tv1)
+        testDatabaseRepository.insertTv(tv = tv2)
+        viewModel.deleteTv(tv = tv1)
+
+        assertEquals(
+            expected = viewModel.favoriteTvs.value,
+            actual = listOf(tv2)
         )
     }
 }

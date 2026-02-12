@@ -6,4 +6,5 @@
     <string name="remove_favorite">Remove favorite</string>
     <string name="movie">Movie</string>
     <string name="people">People</string>
+    <string name="tv">TV</string>
 </resources>

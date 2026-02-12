@@ -17,6 +17,7 @@ data class SearchNavKey(
 
 fun EntryProviderScope<NavKey>.searchEntry(
     goToMovie: (Int) -> Unit,
+    goToTv: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     goToSeries: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean
@@ -33,6 +34,7 @@ fun EntryProviderScope<NavKey>.searchEntry(
 
         SearchScreen(
             goToMovie = goToMovie,
+            goToTv = goToTv,
             goToPeople = goToPeople,
             goToSeries = goToSeries,
             onShowSnackbar = onShowSnackbar,

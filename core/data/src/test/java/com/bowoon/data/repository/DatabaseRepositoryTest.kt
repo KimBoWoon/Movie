@@ -2,6 +2,7 @@ package com.bowoon.data.repository
 
 import com.bowoon.data.testdouble.TestMovieDao
 import com.bowoon.data.testdouble.TestPeopleDao
+import com.bowoon.data.testdouble.TestTvDao
 import com.bowoon.model.Movie
 import com.bowoon.testing.utils.MainDispatcherRule
 import kotlinx.coroutines.flow.first
@@ -15,7 +16,8 @@ class DatabaseRepositoryTest {
     val mainDispatcherRule = MainDispatcherRule()
     private val repository = DatabaseRepositoryImpl(
         movieDao = TestMovieDao(),
-        peopleDao = TestPeopleDao()
+        peopleDao = TestPeopleDao(),
+        tvDao = TestTvDao()
     )
 
     @Test

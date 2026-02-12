@@ -3,12 +3,6 @@
     <!-- Detail -->
     <string name="add_favorite_movie">보고 싶은 영화에서 제거했습니다.</string>
     <string name="remove_favorite_movie">보고 싶은 영화에 추가했습니다.</string>
-    <string name="similar_movie_not_found">비슷한 영화가 없습니다.</string>
-    <string name="trailer_video_not_found">예고편이 없습니다.</string>
-    <string name="movie_image_not_found">등록된 이미지가 없습니다.</string>
-    <string name="movie_crew_not_found">등록된 배우 &amp; 스태프 정보가 없습니다.</string>
-    <string name="movie_actor">배우</string>
-    <string name="movie_staff">스태프</string>
     <string name="movie_runtime">%d분</string>
     <string name="movie_info_separator">|</string>
     <string name="movie_vote_average">%.2f</string>
@@ -28,4 +22,13 @@
     <string name="title_people">인물 정보</string>
     <string name="add_favorite_people">"좋아하는 인물에 추가했습니다."</string>
     <string name="remove_favorite_people">"좋아하는 인물에서 제거했습니다."</string>
+
+    <!-- TV -->
+    <string name="tv_detail">정보</string>
+    <string name="tv_season">시즌</string>
+    <string name="tv_episode">에피소드</string>
+    <string name="tv_actor_and_crew">배우 / 감독</string>
+    <string name="tv_reviews">리뷰</string>
+    <string name="tv_images">이미지</string>
+    <string name="tv_similar_tv">다른 작품</string>
 </resources>

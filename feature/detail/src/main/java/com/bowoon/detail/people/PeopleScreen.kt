@@ -36,7 +36,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -48,6 +47,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bowoon.common.Log
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
+import com.bowoon.domain.PeopleWithFavorite
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.Image
 import com.bowoon.model.People
@@ -59,7 +59,7 @@ import com.bowoon.ui.components.TitleComponent
 import com.bowoon.ui.dialog.ConfirmDialog
 import com.bowoon.ui.dialog.Indexer
 import com.bowoon.ui.image.DynamicAsyncImageLoader
-import com.bowoon.ui.utils.bounceClick
+import com.bowoon.ui.utils.roundedCornerClickable
 import com.bowoon.ui.utils.dp0
 import com.bowoon.ui.utils.dp10
 import com.bowoon.ui.utils.dp100
@@ -73,6 +73,7 @@ import kotlinx.coroutines.launch
 fun PeopleScreen(
     goToBack: () -> Unit,
     goToMovie: (Int) -> Unit,
+    goToTv: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
     viewModel: PeopleVM = hiltViewModel()
 ) {
@@ -86,6 +87,7 @@ fun PeopleScreen(
         insertFavoritePeople = viewModel::insertPeople,
         deleteFavoritePeople = viewModel::deletePeople,
         goToMovie = goToMovie,
+        goToTv = goToTv,
         onShowSnackbar = onShowSnackbar,
         restart = viewModel::restart
     )
@@ -98,6 +100,7 @@ fun PeopleScreen(
     insertFavoritePeople: (People) -> Unit,
     deleteFavoritePeople: (People) -> Unit,
     goToMovie: (Int) -> Unit,
+    goToTv: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
     restart: () -> Unit
 ) {
@@ -120,6 +123,7 @@ fun PeopleScreen(
                     people = peopleState.data,
                     goToBack = goToBack,
                     goToMovie = goToMovie,
+                    goToTv = goToTv,
                     insertFavoritePeople = insertFavoritePeople,
                     deleteFavoritePeople = deleteFavoritePeople,
                     onShowSnackbar = onShowSnackbar
@@ -140,15 +144,16 @@ fun PeopleScreen(
 
 @Composable
 fun PeopleDetailComponent(
-    people: People,
+    people: PeopleWithFavorite,
     goToBack: () -> Unit,
     goToMovie: (Int) -> Unit,
+    goToTv: (Int) -> Unit,
     insertFavoritePeople: (People) -> Unit,
     deleteFavoritePeople: (People) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean
 ) {
     val scope = rememberCoroutineScope()
-    val relatedMovie = people.combineCredits?.getRelatedMovie() ?: emptyList()
+    val relatedMovie = people.people.combineCredits?.getRelatedMovie() ?: emptyList()
     val snackbarMessage = if (people.isFavorite) stringResource(id = R.string.remove_favorite_people) else stringResource(id = R.string.add_favorite_people)
     val scrollState = rememberLazyGridState()
     var toggle by remember { mutableStateOf(value = false) }
@@ -162,13 +167,13 @@ fun PeopleDetailComponent(
         modifier = Modifier.fillMaxSize()
     ) {
         TitleComponent(
-            title = people.name ?: stringResource(id = R.string.title_people),
+            title = people.people.title ?: stringResource(id = R.string.title_people),
             goToBack = goToBack,
             onFavoriteClick = {
                 if (people.isFavorite) {
-                    deleteFavoritePeople(people)
+                    deleteFavoritePeople(people.people)
                 } else {
-                    insertFavoritePeople(people)
+                    insertFavoritePeople(people.people)
                 }
                 scope.launch {
                     onShowSnackbar(snackbarMessage, null)
@@ -178,7 +183,7 @@ fun PeopleDetailComponent(
         )
 
         Box {
-            people.images.takeIf { !it.isNullOrEmpty() }?.let { images ->
+            people.people.images.takeIf { !it.isNullOrEmpty() }?.let { images ->
                 PeopleImageComponent(
                     modifier = Modifier
                         .semantics { contentDescription = "peopleImageHorizontalPager" }
@@ -200,7 +205,7 @@ fun PeopleDetailComponent(
 
             Column(
                 modifier = Modifier
-                    .height(height = if (people.images.isNullOrEmpty()) Int.MAX_VALUE.dp else peopleInfoHeight)
+                    .height(height = if (people.people.images.isNullOrEmpty()) Int.MAX_VALUE.dp else peopleInfoHeight)
                     .align(alignment = Alignment.BottomCenter)
                     .background(
                         color = MaterialTheme.colorScheme.surfaceContainer,
@@ -231,13 +236,13 @@ fun PeopleDetailComponent(
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Column {
-                                PeopleInfoComponent(people = people)
-                                ExternalIdLinkComponent(people = people)
+                                PeopleInfoComponent(people = people.people)
+                                ExternalIdLinkComponent(people = people.people)
                             }
                         }
                     }
                     item(span = { GridItemSpan(currentLineSpan = maxLineSpan) }) {
-                        people.biography?.takeIf { it.isNotEmpty() }?.let {
+                        people.people.biography?.takeIf { it.isNotEmpty() }?.let {
                             Text(
                                 modifier = Modifier.semantics { contentDescription = "peopleBiography" },
                                 text = it
@@ -249,8 +254,14 @@ fun PeopleDetailComponent(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .aspectRatio(ratio = POSTER_IMAGE_RATIO)
-                                .clip(shape = RoundedCornerShape(size = dp10))
-                                .bounceClick { goToMovie(movie.id ?: -1) },
+                                .roundedCornerClickable(
+                                    onClick = {
+                                        when (movie.mediaType?.lowercase()) {
+                                            MediaType.MOVIE.label -> goToMovie(movie.id ?: -1)
+                                            MediaType.TV.label -> goToTv(movie.id ?: -1)
+                                        }
+                                    }, cornerRadius = dp10
+                                ),
                             source = movie.posterPath ?: "",
                             contentDescription = "RelatedMovie"
                         )
@@ -355,7 +366,7 @@ fun PeopleInfoComponent(
             .fillMaxWidth()
             .wrapContentHeight()
     ) {
-        people.name?.takeIf { it.isNotEmpty() }?.let {
+        people.title?.takeIf { it.isNotEmpty() }?.let {
             Text(
                 modifier = Modifier.semantics { contentDescription = "peopleName" },
                 text = it

@@ -71,10 +71,12 @@ import com.bowoon.detail.people.navigation.navigateToPeople
 import com.bowoon.detail.people.navigation.peopleEntry
 import com.bowoon.detail.series.navigation.navigateToSeries
 import com.bowoon.detail.series.navigation.seriesEntry
+import com.bowoon.detail.tv.navigation.navigateToTv
+import com.bowoon.detail.tv.navigation.tvEntry
 import com.bowoon.favorite.navigation.favoriteEntry
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.home.navigation.homeEntry
-import com.bowoon.model.Movie
+import com.bowoon.model.Media
 import com.bowoon.movie.MovieAppState
 import com.bowoon.movie.R
 import com.bowoon.movie.navigation.TOP_LEVEL_NAV_ITEMS
@@ -90,7 +92,7 @@ import com.bowoon.ui.dialog.Indexer
 import com.bowoon.ui.image.DynamicAsyncImageLoader
 import com.bowoon.ui.utils.Line
 import com.bowoon.ui.utils.border
-import com.bowoon.ui.utils.bounceClick
+import com.bowoon.ui.utils.roundedCornerClickable
 import com.bowoon.ui.utils.dp1
 import com.bowoon.ui.utils.dp10
 import com.bowoon.ui.utils.dp16
@@ -107,7 +109,7 @@ import kotlinx.serialization.Serializable
 fun MovieApp(
     appState: MovieAppState,
     snackbarHostState: SnackbarHostState,
-    nextWeekReleaseMovies: List<Movie>,
+    nextWeekReleaseMovies: List<Media>,
     updateShowNextReleaseMoviesDate: () -> Unit
 ) {
     val navigator = remember { Navigator(state = appState.navigationState) }
@@ -162,6 +164,7 @@ fun MovieApp(
             peopleEntry(
                 goToBack = { navigator.goBack() },
                 goToMovie = navigator::navigateToMovie,
+                goToTv = navigator::navigateToTv,
                 onShowSnackbar = { message, action ->
                     snackbarHostState.showSnackbar(
                         message = message,
@@ -174,8 +177,21 @@ fun MovieApp(
                 goToBack = { navigator.goBack() },
                 goToMovie = navigator::navigateToMovie
             )
+            tvEntry(
+                goToBack = { navigator.goBack() },
+                goToTv = navigator::navigateToTv,
+                goToPeople = navigator::navigateToPeople,
+                onShowSnackbar = { message, action ->
+                    snackbarHostState.showSnackbar(
+                        message = message,
+                        actionLabel = action,
+                        duration = SnackbarDuration.Short,
+                    ) == SnackbarResult.ActionPerformed
+                }
+            )
             favoriteEntry(
                 goToMovie = navigator::navigateToMovie,
+                goToTv = navigator::navigateToTv,
                 goToPeople = navigator::navigateToPeople,
                 onShowSnackbar = { message, action ->
                     snackbarHostState.showSnackbar(
@@ -186,11 +202,14 @@ fun MovieApp(
                 }
             )
             homeEntry(
-                goToMovie = navigator::navigateToMovie
+                goToMovie = navigator::navigateToMovie,
+                goToPeople = navigator::navigateToPeople,
+                goToTv = navigator::navigateToTv
             )
             settingEntry()
             searchEntry(
                 goToMovie = navigator::navigateToMovie,
+                goToTv = navigator::navigateToTv,
                 goToPeople = navigator::navigateToPeople,
                 goToSeries = navigator::navigateToSeries,
                 onShowSnackbar = { message, action ->
@@ -229,7 +248,7 @@ fun MovieApp(
 fun MovieSearchTopBar(
     navigator: Navigator,
     isTopLevelRoute: Boolean,
-    nextWeekReleaseMovies: List<Movie>
+    nextWeekReleaseMovies: List<Media>
 ) {
     AnimatedVisibility(
         modifier = Modifier.statusBarsPadding(),
@@ -245,7 +264,7 @@ fun MovieSearchTopBar(
                     .height(height = dp40)
                     .clip(shape = RoundedCornerShape(percent = 50))
                     .background(color = MaterialTheme.colorScheme.inverseOnSurface)
-                    .bounceClick(onClick = { navigator.navigate(route = SearchNavKey()) }),
+                    .roundedCornerClickable(onClick = { navigator.navigate(route = SearchNavKey()) }),
                 contentAlignment = Alignment.Center
             ) {
                 Row(
@@ -356,7 +375,7 @@ data object NextWeekReleaseMoviesNavKey : NavKey
 
 fun EntryProviderScope<NavKey>.nextWeekReleaseMoviesEntry(
     metadata: Map<String, Any>,
-    releaseMovies: List<Movie>,
+    releaseMovies: List<Media>,
     onDismiss: () -> Unit,
     goToMovie: (Int) -> Unit,
     updateShowNextReleaseMoviesDate: () -> Unit
@@ -377,7 +396,7 @@ fun EntryProviderScope<NavKey>.nextWeekReleaseMoviesEntry(
 fun ReleaseMoviesDialog(
     updateShowNextReleaseMoviesDate: () -> Unit,
     onDismiss: () -> Unit,
-    releaseMovies: List<Movie>,
+    releaseMovies: List<Media>,
     goToMovie: (Int) -> Unit
 ) {
     val pagerState = rememberPagerState(initialPage = 0) { releaseMovies.size }

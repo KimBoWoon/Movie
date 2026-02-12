@@ -52,6 +52,7 @@ val dp130 = 130.dp
 val dp150 = 150.dp
 val dp180 = 180.dp
 val dp200 = 200.dp
+val dp230 = 230.dp
 val dp250 = 250.dp
 val dp300 = 300.dp
 val dp500 = 500.dp

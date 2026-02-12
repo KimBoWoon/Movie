@@ -15,6 +15,6 @@ data class PeopleEntity(
 
 fun PeopleEntity.asExternalModel(): People = People(
     id = id,
-    name = name,
-    profilePath = profilePath
+    title = name,
+    posterPath = profilePath
 )

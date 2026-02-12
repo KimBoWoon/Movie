@@ -10,16 +10,18 @@ data class People(
     val externalIds: ExternalIds? = null,
     val gender: Int? = null,
     val homepage: String? = null,
-    val id: Int? = null,
+    override val id: Int? = null,
     val images: List<Image>? = null,
     val imdbId: String? = null,
     val knownForDepartment: String? = null,
-    val name: String? = null,
+    override val title: String? = null,
+    override val originalTitle: String? = null,
     val placeOfBirth: String? = null,
     val popularity: Double? = null,
-    val profilePath: String? = null,
-    val isFavorite: Boolean = false
-)
+    override val posterPath: String? = null,
+    override val genres: List<Genre>? = null,
+    override val releaseDate: String? = null
+) : Media
 
 data class RelatedMovie(
     val adult: Boolean? = null,

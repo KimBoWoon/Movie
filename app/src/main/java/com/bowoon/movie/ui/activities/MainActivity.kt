@@ -111,7 +111,7 @@ class MainActivity : ComponentActivity() {
             CompositionLocalProvider(value = LocalFirebaseLogHelper provides movieFirebase) {
                 LocalFirebaseLogHelper.current.sendLog(name = javaClass.simpleName, message = "compose start!")
 
-                val nextWeekReleaseMovies by viewModel.nextWeekReleaseMovies.collectAsStateWithLifecycle()
+                val nextWeekReleaseMedia by viewModel.nextWeekReleaseMedia.collectAsStateWithLifecycle(initialValue = Pair(first = emptyList(), second = false))
 
                 MovieTheme(darkTheme = darkTheme) {
                     val appState = rememberMovieAppState(networkMonitor = networkMonitor)
@@ -123,8 +123,8 @@ class MainActivity : ComponentActivity() {
                         }
                     }
 
-                    LaunchedEffect(key1 = nextWeekReleaseMovies) {
-                        if (nextWeekReleaseMovies.second) {
+                    LaunchedEffect(key1 = nextWeekReleaseMedia) {
+                        if (nextWeekReleaseMedia.second) {
                             appState.navigationState.backStacks[appState.navigationState.startRoute]?.add(element = NextWeekReleaseMoviesNavKey)
                         }
                     }
@@ -132,7 +132,7 @@ class MainActivity : ComponentActivity() {
                     MovieApp(
                         appState = appState,
                         snackbarHostState = snackbarHostState,
-                        nextWeekReleaseMovies = nextWeekReleaseMovies.first,
+                        nextWeekReleaseMovies = nextWeekReleaseMedia.first,
                         updateShowNextReleaseMoviesDate = viewModel::updateShowNextReleaseMoviesDate
                     )
                 }

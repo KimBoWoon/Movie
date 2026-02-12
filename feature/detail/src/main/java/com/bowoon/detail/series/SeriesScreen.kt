@@ -96,7 +96,7 @@ fun SeriesComponent(
         modifier = Modifier.fillMaxSize()
     ) {
         TitleComponent(
-            title = series.name ?: stringResource(id = R.string.title_series),
+            title = series.title ?: stringResource(id = R.string.title_series),
             goToBack = { goToBack() }
         )
         LazyColumn(

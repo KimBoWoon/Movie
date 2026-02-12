@@ -75,7 +75,7 @@ import com.bowoon.common.Log
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.Genre
-import com.bowoon.model.Movie
+import com.bowoon.model.Media
 import com.bowoon.model.MovieAppData
 import com.bowoon.model.SearchKeyword
 import com.bowoon.model.SearchType
@@ -87,6 +87,7 @@ import com.bowoon.ui.dialog.ConfirmDialog
 import com.bowoon.ui.image.DynamicAsyncImageLoader
 import com.bowoon.ui.utils.animateRotation
 import com.bowoon.ui.utils.bounceClick
+import com.bowoon.ui.utils.roundedCornerClickable
 import com.bowoon.ui.utils.dp0
 import com.bowoon.ui.utils.dp1
 import com.bowoon.ui.utils.dp10
@@ -107,6 +108,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun SearchScreen(
     goToMovie: (Int) -> Unit,
+    goToTv: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     goToSeries: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
@@ -136,6 +138,7 @@ fun SearchScreen(
         movieAppData = movieAppData,
         selectedGenre = selectedGenre,
         goToMovie = goToMovie,
+        goToTv = goToTv,
         goToPeople = goToPeople,
         goToSeries = goToSeries,
         onSearchClick = viewModel::searchMovies,
@@ -154,6 +157,7 @@ fun SearchScreen(
     movieAppData: MovieAppData,
     selectedGenre: Genre?,
     goToMovie: (Int) -> Unit,
+    goToTv: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     goToSeries: (Int) -> Unit,
     onSearchClick: () -> Unit,
@@ -194,6 +198,7 @@ fun SearchScreen(
                 scrollState = scrollState,
                 searchType = searchType,
                 goToMovie = goToMovie,
+                goToTv = goToTv,
                 goToPeople = goToPeople,
                 goToSeries = goToSeries,
                 movieAppData = movieAppData,
@@ -348,6 +353,7 @@ fun SearchTypeComponent(
     val types = SearchType.entries.map {
         when (it) {
             SearchType.MOVIE -> stringResource(id = R.string.search_type_movie)
+            SearchType.TV -> stringResource(id = R.string.search_type_tv)
             SearchType.PEOPLE -> stringResource(id = R.string.search_type_people)
             SearchType.SERIES -> stringResource(id = R.string.search_type_series)
         }
@@ -391,8 +397,9 @@ fun SearchTypeComponent(
                         updateSearchType(
                             when (type) {
                                 types[0] -> SearchType.MOVIE
-                                types[1] -> SearchType.PEOPLE
-                                types[2] -> SearchType.SERIES
+                                types[1] -> SearchType.TV
+                                types[2] -> SearchType.PEOPLE
+                                types[3] -> SearchType.SERIES
                                 else -> SearchType.MOVIE
                             }
                         )
@@ -411,6 +418,7 @@ fun SearchResultComponent(
     scrollState: LazyGridState,
     searchType: SearchType,
     goToMovie: (Int) -> Unit,
+    goToTv: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     goToSeries: (Int) -> Unit,
     movieAppData: MovieAppData,
@@ -450,6 +458,7 @@ fun SearchResultComponent(
                     selectedGenre = selectedGenre,
                     updateGenre = updateGenre,
                     goToMovie = goToMovie,
+                    goToTv = goToTv,
                     goToPeople = goToPeople,
                     goToSeries = goToSeries
                 )
@@ -469,13 +478,14 @@ fun SearchResultComponent(
 
 @Composable
 fun SearchPagingComponent(
-    pagingData: LazyPagingItems<Movie>,
+    pagingData: LazyPagingItems<Media>,
     scrollState: LazyGridState,
     searchType: SearchType,
     movieAppData: MovieAppData,
     selectedGenre: Genre?,
     updateGenre: (Genre) -> Unit,
     goToMovie: (Int) -> Unit,
+    goToTv: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     goToSeries: (Int) -> Unit
 ) {
@@ -523,14 +533,16 @@ fun SearchPagingComponent(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .aspectRatio(POSTER_IMAGE_RATIO)
-                                .clip(shape = RoundedCornerShape(size = dp10))
-                                .bounceClick {
-                                    when (searchType) {
-                                        SearchType.MOVIE -> goToMovie(item.id ?: -1)
-                                        SearchType.PEOPLE -> goToPeople(item.id ?: -1)
-                                        SearchType.SERIES -> goToSeries(item.id ?: -1)
-                                    }
-                                },
+                                .roundedCornerClickable(
+                                    onClick = {
+                                        when (searchType) {
+                                            SearchType.MOVIE -> goToMovie(item.id ?: -1)
+                                            SearchType.TV -> goToTv(item.id ?: -1)
+                                            SearchType.PEOPLE -> goToPeople(item.id ?: -1)
+                                            SearchType.SERIES -> goToSeries(item.id ?: -1)
+                                        }
+                                    }, cornerRadius = dp10
+                                ),
                             source = item.posterPath ?: "",
                             contentDescription = "${item.id}_${item.title}"
                         )

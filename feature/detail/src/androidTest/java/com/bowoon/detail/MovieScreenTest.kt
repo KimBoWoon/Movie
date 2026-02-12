@@ -231,7 +231,7 @@ class MovieScreenTest {
                 .assertIsDisplayed()
                 .performClick()
 
-            onNodeWithText(text = movieSeriesTestData.name!!).assertExists().assertIsDisplayed()
+            onNodeWithText(text = movieSeriesTestData.title!!).assertExists().assertIsDisplayed()
             onNodeWithText(text = movieSeriesTestData.overview!!).assertExists().assertIsDisplayed()
             movieSeriesTestData.parts?.forEach { part ->
                 onNodeWithContentDescription(label = "seriesList").performScrollToNode(matcher = hasContentDescription(value = part.posterPath!!)).assertExists().assertIsDisplayed()

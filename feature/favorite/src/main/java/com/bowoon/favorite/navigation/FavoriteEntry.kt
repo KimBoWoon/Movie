@@ -16,6 +16,7 @@ data class FavoriteNavKey(
 
 fun EntryProviderScope<NavKey>.favoriteEntry(
     goToMovie: (Int) -> Unit,
+    goToTv: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean
 ) {
@@ -28,6 +29,7 @@ fun EntryProviderScope<NavKey>.favoriteEntry(
 
         FavoriteScreen(
             goToMovie = goToMovie,
+            goToTv = goToTv,
             goToPeople = goToPeople,
             onShowSnackbar = onShowSnackbar,
             viewModel = viewModel

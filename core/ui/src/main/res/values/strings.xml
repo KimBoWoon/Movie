@@ -5,4 +5,10 @@
     <string name="retry_message">Retry</string>
     <string name="back_message">Back</string>
     <string name="input_search_hint">Input keyword</string>
+    <string name="trailer_video_not_found">Trailer Video Not Found…</string>
+    <string name="movie_image_not_found">Movie Image Not Found…</string>
+    <string name="movie_crew_not_found">Movie Crew &amp; Actor Not Found…</string>
+    <string name="movie_actor">Actor</string>
+    <string name="movie_staff">Staff</string>
+    <string name="similar_movie_not_found">Similar Movie Not Found…</string>
 </resources>

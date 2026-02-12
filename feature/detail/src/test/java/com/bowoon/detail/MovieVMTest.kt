@@ -9,9 +9,9 @@ import com.bowoon.data.paging.SimilarMoviePagingSource
 import com.bowoon.detail.movie.MovieState
 import com.bowoon.detail.movie.MovieVM
 import com.bowoon.domain.GetMovieDetailUseCase
+import com.bowoon.domain.MovieWithFavorite
 import com.bowoon.model.Movie
-import com.bowoon.model.MovieDetailInfo
-import com.bowoon.model.MovieReview
+import com.bowoon.model.Review
 import com.bowoon.testing.TestMovieDataSource
 import com.bowoon.testing.model.favoriteMovieDetailTestData
 import com.bowoon.testing.model.movieSeriesTestData
@@ -94,10 +94,10 @@ class MovieVMTest {
         assertEquals(
             viewModel.movie.value,
             MovieState.Success(
-                MovieDetailInfo(
-                    detail = favoriteMovieDetailTestData,
-                    series = movieSeriesTestData,
-                    autoPlayTrailer = testUserDataRepository.internalData.map { it.isAutoPlayTrailer }.first()
+                MovieWithFavorite(
+                    movie = favoriteMovieDetailTestData,
+                    autoPlayTrailer = testUserDataRepository.internalData.map { it.isAutoPlayTrailer }.first(),
+                    isFavorite = testDataBaseRepository.isFavoriteMovie(id = 0).first()
                 )
             )
         )
@@ -105,11 +105,18 @@ class MovieVMTest {
 
     @Test
     fun getUnFavoriteMovieDetailFlowTest() = runTest {
+        viewModel = MovieVM(
+            id = 324,
+            initialTabIndex = 0,
+            getMovieDetail = getMovieDetailUseCase,
+            databaseRepository = testDataBaseRepository,
+            pagingRepository = testPagingRepository
+        )
         backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.movie.collect() }
 
         val testPager = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 7, prefetchDistance = 5),
-            pagingSource = testPagingRepository.getSimilarMoviePagingSource(id = 0)
+            pagingSource = testPagingRepository.getSimilarMoviePagingSource(id = 324)
         )
 
         assertEquals(viewModel.movie.value, MovieState.Loading)
@@ -128,10 +135,10 @@ class MovieVMTest {
         assertEquals(
             viewModel.movie.value,
             MovieState.Success(
-                MovieDetailInfo(
-                    detail = unFavoriteMovieDetailTestData,
-                    series = movieSeriesTestData,
-                    autoPlayTrailer = testUserDataRepository.internalData.map { it.isAutoPlayTrailer }.first()
+                MovieWithFavorite(
+                    movie = unFavoriteMovieDetailTestData,
+                    autoPlayTrailer = testUserDataRepository.internalData.map { it.isAutoPlayTrailer }.first(),
+                    isFavorite = testDataBaseRepository.isFavoriteMovie(id = 324).first()
                 )
             )
         )
@@ -176,7 +183,7 @@ class MovieVMTest {
         )
 
         assertEquals(
-            expected = PagingSource.LoadResult.Page<Int, MovieReview>(
+            expected = PagingSource.LoadResult.Page<Int, Review>(
                 data = testMovieReviews,
                 prevKey = null,
                 nextKey = null
@@ -193,18 +200,26 @@ class MovieVMTest {
 
     @Test
     fun insertFavoriteTest() = runTest {
+        viewModel = MovieVM(
+            id = 23,
+            initialTabIndex = 0,
+            getMovieDetail = getMovieDetailUseCase,
+            databaseRepository = testDataBaseRepository,
+            pagingRepository = testPagingRepository
+        )
+
         backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.movie.collect() }
         val movie = Movie(id = 23, title = "movie_0", posterPath = "/imagePath.png")
 
         testDetailRepository.setMovie(favoriteMovieDetailTestData.copy(id = 23))
 
         assertEquals(
-            assertIs<MovieState.Success>(viewModel.movie.value).movieInfo.detail.isFavorite,
+            assertIs<MovieState.Success>(viewModel.movie.value).movie.isFavorite,
             false
         )
         viewModel.insertMovie(movie)
         assertEquals(
-            assertIs<MovieState.Success>(viewModel.movie.value).movieInfo.detail.isFavorite,
+            assertIs<MovieState.Success>(viewModel.movie.value).movie.isFavorite,
             true
         )
 
@@ -272,10 +287,10 @@ class MovieVMTest {
         assertEquals(
             viewModel.movie.value,
             MovieState.Success(
-                MovieDetailInfo(
-                    detail = favoriteMovieDetailTestData,
-                    series = movieSeriesTestData,
-                    autoPlayTrailer = testUserDataRepository.internalData.map { it.isAutoPlayTrailer }.first()
+                MovieWithFavorite(
+                    movie = favoriteMovieDetailTestData,
+                    autoPlayTrailer = testUserDataRepository.internalData.map { it.isAutoPlayTrailer }.first(),
+                    isFavorite = testDataBaseRepository.isFavoriteMovie(id = 0).first()
                 )
             )
         )

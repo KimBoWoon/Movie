@@ -10,21 +10,24 @@ import androidx.paging.insertSeparators
 import androidx.paging.map
 import com.bowoon.common.Result
 import com.bowoon.common.asResult
-import com.bowoon.common.restartableStateIn
 import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.data.repository.PagingRepository
 import com.bowoon.domain.GetMovieDetailUseCase
+import com.bowoon.domain.MovieWithFavorite
 import com.bowoon.model.Movie
-import com.bowoon.model.MovieDetailInfo
-import com.bowoon.model.MovieReview
+import com.bowoon.model.ReviewDataModel
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 @HiltViewModel(assistedFactory = MovieVM.Factory::class)
@@ -47,20 +50,23 @@ class MovieVM @AssistedInject constructor(
         ): MovieVM
     }
 
-    val movie = trace("GetMovieDetail") {
-        getMovieDetail(id = id)
-    }.asResult()
-        .map { result ->
+    private val reload = MutableSharedFlow<Unit>(replay = 1)
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val movie = reload
+        .flatMapLatest {
+            trace("GetMovieDetail") { getMovieDetail(id = id).asResult() }
+        }.map { result ->
             when (result) {
                 is Result.Loading -> MovieState.Loading
-                is Result.Success -> MovieState.Success(movieInfo = result.data)
+                is Result.Success -> MovieState.Success(movie = result.data)
                 is Result.Error -> MovieState.Error(throwable = result.throwable)
             }
-        }.restartableStateIn(
+        }.stateIn(
             scope = viewModelScope,
             initialValue = MovieState.Loading,
             started = SharingStarted.Lazily
         )
+
     private val _tabIndex = MutableStateFlow(value = initialTabIndex)
     val tabIndex = _tabIndex.asStateFlow()
     val similarMovies = Pager(
@@ -83,8 +89,16 @@ class MovieVM @AssistedInject constructor(
             }
     }.cachedIn(scope = viewModelScope)
 
+    init {
+        viewModelScope.launch {
+            reload.emit(value = Unit)
+        }
+    }
+
     fun restart() {
-        movie.restart()
+        viewModelScope.launch {
+            reload.emit(value = Unit)
+        }
     }
 
     fun updateTabIndex(index: Int) {
@@ -102,19 +116,10 @@ class MovieVM @AssistedInject constructor(
             databaseRepository.deleteMovie(movie)
         }
     }
-
-    override fun onCleared() {
-        getMovieDetail.close(message = "DetailVM is destroy", cause = null)
-    }
 }
 
 sealed interface MovieState {
     data object Loading : MovieState
-    data class Success(val movieInfo: MovieDetailInfo) : MovieState
+    data class Success(val movie: MovieWithFavorite) : MovieState
     data class Error(val throwable: Throwable) : MovieState
-}
-
-sealed interface ReviewDataModel {
-    object Separator : ReviewDataModel
-    data class Item(val review: MovieReview) : ReviewDataModel
 }

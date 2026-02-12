@@ -1,14 +1,25 @@
 package com.bowoon.model
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.Serializable
+
+@Serializable
+@Parcelize
 data class Series(
     val backdropPath: String? = null,
-    val id: Int? = null,
-    val name: String? = null,
+    override val id: Int? = null,
+    override val title: String? = null,
     val overview: String? = null,
     val parts: List<SeriesPart>? = null,
-    val posterPath: String? = null
-)
+    override val originalTitle: String? = null,
+    override val posterPath: String? = null,
+    override val genres: List<Genre>? = null,
+    override val releaseDate: String? = null
+) : Parcelable, Media
 
+@Serializable
+@Parcelize
 data class SeriesPart(
     val adult: Boolean? = null,
     val backdropPath: String? = null,
@@ -25,4 +36,4 @@ data class SeriesPart(
     val video: Boolean? = null,
     val voteAverage: Double? = null,
     val voteCount: Int? = null
-)
+) : Parcelable

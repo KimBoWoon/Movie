@@ -17,7 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
-import com.bowoon.model.Movie
+import com.bowoon.model.Media
 import com.bowoon.movie.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -26,7 +26,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun VerticalRollingAnimation(
     modifier: Modifier = Modifier,
-    nextWeekReleaseMovies: List<Movie>,
+    nextWeekReleaseMovies: List<Media>,
     goToMovie: (Int) -> Unit
 ) {
     var hideIndex by remember { mutableIntStateOf(value = 0) }

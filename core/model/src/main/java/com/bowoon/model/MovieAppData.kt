@@ -8,7 +8,6 @@ data class MovieAppData(
     val autoPlayTrailer: Boolean = true,
     val isDarkMode: DarkThemeConfig = DarkThemeConfig.FOLLOW_SYSTEM,
     val updateDate: String = "",
-    val mainMenu: MainMenu = MainMenu(),
     val imageQuality: String = "original",
     val secureBaseUrl: String = "",
     val genres: List<Genre> = emptyList(),

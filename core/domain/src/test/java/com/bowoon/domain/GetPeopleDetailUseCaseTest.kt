@@ -46,8 +46,13 @@ class GetPeopleDetailUseCaseTest {
         val result = getPeopleDetailUseCase(0)
 
         assertEquals(
-            result.first(),
-            peopleDetailTestData.copy(isFavorite = false)
+            result.first().people,
+            peopleDetailTestData
+        )
+
+        assertEquals(
+            result.first().isFavorite,
+            databaseRepository.isFavoritePeople(id = 0).first()
         )
     }
 
@@ -61,7 +66,7 @@ class GetPeopleDetailUseCaseTest {
         val result = getPeopleDetailUseCase(0)
 
         assertEquals(
-            result.first(),
+            result.first().people,
             peopleDetailTestData
         )
     }

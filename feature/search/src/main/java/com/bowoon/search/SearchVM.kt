@@ -14,7 +14,7 @@ import androidx.paging.filter
 import com.bowoon.data.repository.PagingRepository
 import com.bowoon.data.util.DataManager
 import com.bowoon.model.Genre
-import com.bowoon.model.Movie
+import com.bowoon.model.Media
 import com.bowoon.model.MovieAppData
 import com.bowoon.model.SearchKeyword
 import com.bowoon.model.SearchType
@@ -141,6 +141,6 @@ class SearchVM @AssistedInject constructor(
 
 sealed interface SearchUiState {
     data object SearchHint : SearchUiState
-    data class Success(val pagingData: Flow<PagingData<Movie>>) : SearchUiState
+    data class Success(val pagingData: Flow<PagingData<Media>>) : SearchUiState
     data class Error(val throwable: Throwable) : SearchUiState
 }

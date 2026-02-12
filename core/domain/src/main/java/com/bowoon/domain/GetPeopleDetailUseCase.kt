@@ -11,17 +11,24 @@ class GetPeopleDetailUseCase @Inject constructor(
     private val detailRepository: DetailRepository,
     private val databaseRepository: DatabaseRepository,
 ) {
-    operator fun invoke(personId: Int): Flow<People> =
+    operator fun invoke(personId: Int): Flow<PeopleWithFavorite> =
         combine(
             detailRepository.getPeople(personId = personId),
             detailRepository.getCombineCredits(personId = personId),
             detailRepository.getExternalIds(personId = personId),
-            databaseRepository.getPeople()
-        ) { peopleDetail, combineCredits, externalIds, favoritePeoples ->
-            peopleDetail.copy(
-                combineCredits = combineCredits,
-                externalIds = externalIds,
-                isFavorite = favoritePeoples.find { it.id == peopleDetail.id } != null
+            databaseRepository.isFavoritePeople(id = personId)
+        ) { peopleDetail, combineCredits, externalIds, isFavorite ->
+            PeopleWithFavorite(
+                people = peopleDetail.copy(
+                    combineCredits = combineCredits,
+                    externalIds = externalIds
+                ),
+                isFavorite = isFavorite
             )
         }
 }
+
+data class PeopleWithFavorite(
+    val people: People,
+    val isFavorite: Boolean
+)

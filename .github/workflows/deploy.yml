@@ -44,8 +44,19 @@ jobs:
           echo "$GOOGLE_SERVICES_JSON" > ./app/google-services.json
       - name: build release
         run: ./gradlew assembleProdRelease
-      - name: create release note
-        run: ./gradlew createReleaseNote
+      - name: Generate Release Notes
+        id: release_notes
+        run: |
+          git fetch origin develop
+
+          BASE=$(git merge-base origin/develop HEAD)
+          NOTES=$(git log --pretty=format:"(#%h) %cn %s" $BASE..HEAD)
+
+          echo "notes<<EOF" >> $GITHUB_OUTPUT
+          echo "$NOTES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+#      - name: create release note
+#        run: ./gradlew createReleaseNote
 #        run: git log --pretty=format:"(#%h) %cn %s" HEAD..origin/develop > releaseNote.txt
       - name: upload artifact to Firebase App Distribution
         uses: wzieba/Firebase-Distribution-Github-Action@v1.7.0

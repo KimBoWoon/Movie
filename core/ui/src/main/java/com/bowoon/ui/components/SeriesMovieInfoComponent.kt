@@ -22,7 +22,7 @@ import androidx.constraintlayout.compose.layoutId
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.model.SeriesPart
 import com.bowoon.ui.image.DynamicAsyncImageLoader
-import com.bowoon.ui.utils.bounceClick
+import com.bowoon.ui.utils.roundedCornerClickable
 import com.bowoon.ui.utils.dp10
 import com.bowoon.ui.utils.dp150
 import com.bowoon.ui.utils.sp12
@@ -50,7 +50,7 @@ fun SeriesMovieInfoComponent(
     goToMovie: (Int) -> Unit
 ) {
     Layout(
-        modifier = Modifier.bounceClick(onClick = { goToMovie(seriesPart.id ?: -1) }),
+        modifier = Modifier.roundedCornerClickable(onClick = { goToMovie(seriesPart.id ?: -1) }),
         content = {
             DynamicAsyncImageLoader(
                 modifier = Modifier

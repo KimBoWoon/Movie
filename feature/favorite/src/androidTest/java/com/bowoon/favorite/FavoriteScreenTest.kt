@@ -39,16 +39,20 @@ class FavoriteScreenTest {
             setContent {
                 val favoriteMovies by viewModel.favoriteMovies.collectAsStateWithLifecycle()
                 val favoritePeople by viewModel.favoritePeoples.collectAsStateWithLifecycle()
+                val favoriteTvs by viewModel.favoriteTvs.collectAsStateWithLifecycle()
 
                 FavoriteScreen(
                     favoriteMovies = favoriteMovies,
                     favoritePeoples = favoritePeople,
+                    favoriteTvs = favoriteTvs,
                     onShowSnackbar = { _, _ -> true},
+                    goToTv = {},
                     goToMovie = {},
                     goToPeople = {},
                     updateTabIndex = viewModel::updateTabIndex,
                     deleteFavoriteMovie = viewModel::deleteMovie,
-                    deleteFavoritePeople = viewModel::deletePeople
+                    deleteFavoritePeople = viewModel::deletePeople,
+                    deleteFavoriteTv = viewModel::deleteTv
                 )
             }
 
@@ -64,16 +68,20 @@ class FavoriteScreenTest {
             setContent {
                 val favoriteMovies by viewModel.favoriteMovies.collectAsStateWithLifecycle()
                 val favoritePeople by viewModel.favoritePeoples.collectAsStateWithLifecycle()
+                val favoriteTvs by viewModel.favoriteTvs.collectAsStateWithLifecycle()
 
                 FavoriteScreen(
                     favoriteMovies = favoriteMovies,
                     favoritePeoples = favoritePeople,
+                    favoriteTvs = favoriteTvs,
                     onShowSnackbar = { _, _ -> true},
+                    goToTv = {},
                     goToMovie = {},
                     goToPeople = {},
                     updateTabIndex = viewModel::updateTabIndex,
                     deleteFavoriteMovie = viewModel::deleteMovie,
-                    deleteFavoritePeople = viewModel::deletePeople
+                    deleteFavoritePeople = viewModel::deletePeople,
+                    deleteFavoriteTv = viewModel::deleteTv
                 )
             }
 
@@ -89,16 +97,20 @@ class FavoriteScreenTest {
             setContent {
                 val favoriteMovies by viewModel.favoriteMovies.collectAsStateWithLifecycle()
                 val favoritePeople by viewModel.favoritePeoples.collectAsStateWithLifecycle()
+                val favoriteTvs by viewModel.favoriteTvs.collectAsStateWithLifecycle()
 
                 FavoriteScreen(
                     favoriteMovies = favoriteMovies,
                     favoritePeoples = favoritePeople,
+                    favoriteTvs = favoriteTvs,
                     onShowSnackbar = { _, _ -> true},
+                    goToTv = {},
                     goToMovie = {},
                     goToPeople = {},
                     updateTabIndex = viewModel::updateTabIndex,
                     deleteFavoriteMovie = viewModel::deleteMovie,
-                    deleteFavoritePeople = viewModel::deletePeople
+                    deleteFavoritePeople = viewModel::deletePeople,
+                    deleteFavoriteTv = viewModel::deleteTv
                 )
             }
 
@@ -119,21 +131,25 @@ class FavoriteScreenTest {
             setContent {
                 val favoriteMovies by viewModel.favoriteMovies.collectAsStateWithLifecycle()
                 val favoritePeople by viewModel.favoritePeoples.collectAsStateWithLifecycle()
+                val favoriteTvs by viewModel.favoriteTvs.collectAsStateWithLifecycle()
 
                 FavoriteScreen(
                     favoriteMovies = favoriteMovies,
                     favoritePeoples = favoritePeople,
+                    favoriteTvs = favoriteTvs,
                     onShowSnackbar = { _, _ -> true},
+                    goToTv = {},
                     goToMovie = {},
                     goToPeople = {},
                     updateTabIndex = viewModel::updateTabIndex,
                     deleteFavoriteMovie = viewModel::deleteMovie,
-                    deleteFavoritePeople = viewModel::deletePeople
+                    deleteFavoritePeople = viewModel::deletePeople,
+                    deleteFavoriteTv = viewModel::deleteTv
                 )
             }
 
             runBlocking {
-                testDataBaseRepository.insertPeople(people = People(id = 0, name = "people_1", profilePath = "/peopleImage.png"))
+                testDataBaseRepository.insertPeople(people = People(id = 0, title = "people_1", posterPath = "/peopleImage.png"))
             }
 
             onNodeWithText(text = "인물").assertExists().assertIsDisplayed().performClick()
@@ -149,16 +165,20 @@ class FavoriteScreenTest {
             setContent {
                 val favoriteMovies by viewModel.favoriteMovies.collectAsStateWithLifecycle()
                 val favoritePeople by viewModel.favoritePeoples.collectAsStateWithLifecycle()
+                val favoriteTvs by viewModel.favoriteTvs.collectAsStateWithLifecycle()
 
                 FavoriteScreen(
                     favoriteMovies = favoriteMovies,
                     favoritePeoples = favoritePeople,
+                    favoriteTvs = favoriteTvs,
                     onShowSnackbar = { _, _ -> true},
+                    goToTv = {},
                     goToMovie = {},
                     goToPeople = {},
                     updateTabIndex = viewModel::updateTabIndex,
                     deleteFavoriteMovie = viewModel::deleteMovie,
-                    deleteFavoritePeople = viewModel::deletePeople
+                    deleteFavoritePeople = viewModel::deletePeople,
+                    deleteFavoriteTv = viewModel::deleteTv
                 )
             }
 
@@ -183,21 +203,25 @@ class FavoriteScreenTest {
             setContent {
                 val favoriteMovies by viewModel.favoriteMovies.collectAsStateWithLifecycle()
                 val favoritePeople by viewModel.favoritePeoples.collectAsStateWithLifecycle()
+                val favoriteTvs by viewModel.favoriteTvs.collectAsStateWithLifecycle()
 
                 FavoriteScreen(
                     favoriteMovies = favoriteMovies,
                     favoritePeoples = favoritePeople,
+                    favoriteTvs = favoriteTvs,
                     onShowSnackbar = { _, _ -> true},
+                    goToTv = {},
                     goToMovie = {},
                     goToPeople = {},
                     updateTabIndex = viewModel::updateTabIndex,
                     deleteFavoriteMovie = viewModel::deleteMovie,
-                    deleteFavoritePeople = viewModel::deletePeople
+                    deleteFavoritePeople = viewModel::deletePeople,
+                    deleteFavoriteTv = viewModel::deleteTv
                 )
             }
 
             runBlocking {
-                testDataBaseRepository.insertPeople(people = People(id = 0, name = "people_1", profilePath = "/peopleImage.png"))
+                testDataBaseRepository.insertPeople(people = People(id = 0, title = "people_1", posterPath = "/peopleImage.png"))
             }
 
             onNodeWithText(text = "인물").assertExists().assertIsDisplayed().performClick()

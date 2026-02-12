@@ -11,4 +11,5 @@
     <string name="search_type_movie">영화</string>
     <string name="search_type_people">인물</string>
     <string name="search_type_series">시리즈</string>
+    <string name="search_type_tv">TV</string>
 </resources>

@@ -20,7 +20,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
-import com.bowoon.ui.utils.bounceClick
+import com.bowoon.ui.utils.roundedCornerClickable
 import com.bowoon.ui.utils.dp24
 import com.bowoon.ui.utils.dp5
 import com.bowoon.ui.utils.sp12
@@ -37,7 +37,7 @@ fun RowScope.BottomNavigationBarItem(
         modifier = Modifier
             .semantics { contentDescription = label }
             .weight(weight = 1f)
-            .bounceClick(onClick = onClick),
+            .roundedCornerClickable(onClick = onClick),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -89,7 +89,7 @@ fun ColumnScope.BottomNavigationRailItem(
                 }
             }
             .weight(weight = 1f)
-            .bounceClick(onClick = onClick),
+            .roundedCornerClickable(onClick = onClick),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Icon(

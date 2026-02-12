@@ -3,13 +3,16 @@ package com.bowoon.data.repository
 import androidx.paging.PagingSource
 import com.bowoon.database.dao.MovieDao
 import com.bowoon.database.dao.PeopleDao
+import com.bowoon.database.dao.TvDao
 import com.bowoon.database.model.MovieEntity
 import com.bowoon.database.model.NowPlayingMovieEntity
 import com.bowoon.database.model.PeopleEntity
+import com.bowoon.database.model.TvEntity
 import com.bowoon.database.model.UpComingMovieEntity
 import com.bowoon.database.model.asExternalModel
 import com.bowoon.model.Movie
 import com.bowoon.model.People
+import com.bowoon.model.Tv
 import com.bowoon.movie.core.data.BuildConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,6 +24,7 @@ import javax.inject.Inject
 
 class DatabaseRepositoryImpl @Inject constructor(
     private val movieDao: MovieDao,
+    private val tvDao: TvDao,
     private val peopleDao: PeopleDao
 ) : DatabaseRepository {
     init {
@@ -46,6 +50,8 @@ class DatabaseRepositoryImpl @Inject constructor(
                 movieEntities.sortedByDescending { entity -> entity.timestamp }
                     .map(transform = MovieEntity::asExternalModel)
             }
+
+    override fun isFavoriteMovie(id: Int): Flow<Boolean> = movieDao.isFavoriteMovie(id = id)
 
     override suspend fun insertMovie(movie: Movie): Long =
         movieDao.insertOrIgnoreMovies(
@@ -80,7 +86,7 @@ class DatabaseRepositoryImpl @Inject constructor(
 
     override fun getNextWeekReleaseMovies(): Flow<List<Movie>> =
         movieDao.getNextWeekReleaseMovies().map { movieEntity ->
-            movieEntity.map { it.asExternalModel() }
+            movieEntity.map(transform = MovieEntity::asExternalModel)
         }
 
     override fun getPeople(): Flow<List<People>> =
@@ -90,13 +96,15 @@ class DatabaseRepositoryImpl @Inject constructor(
                     .map(transform = PeopleEntity::asExternalModel)
             }
 
+    override fun isFavoritePeople(id: Int): Flow<Boolean> = peopleDao.isFavoritePeople(id = id)
+
     override suspend fun insertPeople(people: People): Long =
         peopleDao.insertOrIgnorePeoples(
             PeopleEntity(
                 id = people.id ?: -1,
                 timestamp = Instant.now().toEpochMilli(),
-                name = people.name ?: "",
-                profilePath = people.profilePath ?: ""
+                name = people.title ?: "",
+                profilePath = people.posterPath ?: ""
             )
         )
 
@@ -112,8 +120,8 @@ class DatabaseRepositoryImpl @Inject constructor(
                 PeopleEntity(
                     id = people.id ?: -1,
                     timestamp = Instant.now().toEpochMilli(),
-                    name = people.name ?: "",
-                    profilePath = people.profilePath ?: ""
+                    name = people.title ?: "",
+                    profilePath = people.posterPath ?: ""
                 )
             }
         )
@@ -123,4 +131,49 @@ class DatabaseRepositoryImpl @Inject constructor(
 
     override fun getUpComingMovies(): PagingSource<Int, UpComingMovieEntity> =
         movieDao.getUpComingMovie()
+
+    override fun getTv(): Flow<List<Tv>> = tvDao.getTvEntities()
+        .map { tvEntities ->
+            tvEntities.sortedByDescending { entity -> entity.timestamp }
+                .map(transform = TvEntity::asExternalModel)
+        }
+
+    override fun isFavoriteTv(id: Int): Flow<Boolean> = tvDao.isFavoriteTv(id = id)
+
+    override suspend fun insertTv(tv: Tv): Long = tvDao.insertOrIgnoreTvs(
+        tv = TvEntity(
+            id = tv.id ?: -1,
+            posterPath = tv.posterPath ?: "",
+            name = tv.title ?: "",
+            firstAirDate = tv.firstAirDate ?: "",
+            lastAirDate = tv.lastAirDate,
+            timestamp = Instant.now().toEpochMilli()
+        )
+    )
+
+    override suspend fun deleteTv(tv: Tv) {
+        tv.id?.let { id ->
+            tvDao.deleteTv(id = id)
+        }
+    }
+
+    override suspend fun upsertTvs(tvs: List<Tv>) {
+        tvDao.upsertTvs(
+            entities = tvs.map { tv ->
+                TvEntity(
+                    id = tv.id ?: -1,
+                    posterPath = tv.posterPath ?: "",
+                    name = tv.title ?: "",
+                    firstAirDate = tv.firstAirDate ?: "",
+                    lastAirDate = tv.lastAirDate ?: "",
+                    timestamp = Instant.now().toEpochMilli()
+                )
+            }
+        )
+    }
+
+    override fun getNextWeekReleaseTvs(): Flow<List<Tv>> =
+        tvDao.getNextWeekReleaseTvs().map { tvEntity ->
+            tvEntity.map(transform = TvEntity::asExternalModel)
+        }
 }

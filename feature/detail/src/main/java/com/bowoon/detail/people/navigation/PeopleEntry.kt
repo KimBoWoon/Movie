@@ -16,12 +16,14 @@ data class PeopleNavKey(
 fun EntryProviderScope<NavKey>.peopleEntry(
     goToBack: () -> Unit,
     goToMovie: (Int) -> Unit,
+    goToTv: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean
 ) {
     entry<PeopleNavKey> { peopleRoute ->
         PeopleScreen(
             goToBack = goToBack,
             goToMovie = goToMovie,
+            goToTv = goToTv,
             onShowSnackbar = onShowSnackbar,
             viewModel = hiltViewModel<PeopleVM, PeopleVM.Factory>(
                 key = peopleRoute.id.toString(),

@@ -18,6 +18,7 @@ data class Image(
     val aspectRatio: Double? = null,
     val filePath: String? = null,
     val height: Int? = null,
+    val iso31661: String? = null,
     val iso6391: String? = null,
     val voteAverage: Double? = null,
     val voteCount: Int? = null,

@@ -10,6 +10,8 @@ import com.bowoon.data.util.SyncManager
 import com.bowoon.ui.image.imageUrl
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
@@ -78,26 +80,25 @@ class MainVM @Inject constructor(
             started = SharingStarted.Eagerly,
             initialValue = MovieAppDataState.Loading
         )
-    val nextWeekReleaseMovies = databaseRepository.getNextWeekReleaseMovies()
-        .map {
-            val showNextReleaseMoviesDate = userDataRepository.getShowNextReleaseMoviesDate().let { showNextReleaseMoviesDate ->
-                if (showNextReleaseMoviesDate.isEmpty()) {
-                    false
-                } else {
-                    !LocalDate.parse(showNextReleaseMoviesDate).isBefore(LocalDate.now())
-                }
-            }
-
-            if (it.isEmpty() || showNextReleaseMoviesDate) {
-                it to false
+    val nextWeekReleaseMedia = flow {
+        val nextWeekReleaseMovies = databaseRepository.getNextWeekReleaseMovies().firstOrNull() ?: emptyList()
+        val nextWeekReleaseTvs = databaseRepository.getNextWeekReleaseTvs().firstOrNull() ?: emptyList()
+        emit(value = nextWeekReleaseMovies + nextWeekReleaseTvs)
+    }.map {
+        val showNextReleaseMoviesDate = userDataRepository.getShowNextReleaseMoviesDate().let { showNextReleaseMoviesDate ->
+            if (showNextReleaseMoviesDate.isEmpty()) {
+                false
             } else {
-                it to true
+                !LocalDate.parse(showNextReleaseMoviesDate).isBefore(LocalDate.now())
             }
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.Lazily,
-            initialValue = Pair(first = emptyList(), second = false)
-        )
+        }
+
+        if (it.isEmpty() || showNextReleaseMoviesDate) {
+            it to false
+        } else {
+            it to true
+        }
+    }
 
     fun updateShowNextReleaseMoviesDate() {
         viewModelScope.launch {

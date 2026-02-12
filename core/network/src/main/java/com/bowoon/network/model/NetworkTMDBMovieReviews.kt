@@ -1,8 +1,8 @@
 package com.bowoon.network.model
 
-import com.bowoon.model.MovieReview
-import com.bowoon.model.MovieReviewAuthorDetails
-import com.bowoon.model.MovieReviews
+import com.bowoon.model.Review
+import com.bowoon.model.ReviewAuthorDetails
+import com.bowoon.model.Reviews
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -50,7 +50,7 @@ data class NetworkTMDBMovieAuthorDetails(
     val username: String? = null
 )
 
-fun NetworkTMDBMovieReviews.asExternalModel(): MovieReviews = MovieReviews(
+fun NetworkTMDBMovieReviews.asExternalModel(): Reviews = Reviews(
     id = id,
     page = page,
     results = results?.asExternalModel(),
@@ -58,8 +58,8 @@ fun NetworkTMDBMovieReviews.asExternalModel(): MovieReviews = MovieReviews(
     totalResults = totalResults
 )
 
-fun List<NetworkTMDBMovieResult>.asExternalModel(): List<MovieReview> = map { movieReview ->
-    MovieReview(
+fun List<NetworkTMDBMovieResult>.asExternalModel(): List<Review> = map { movieReview ->
+    Review(
         author = movieReview.author,
         authorDetails = movieReview.authorDetails?.asExternalModel(),
         content = movieReview.content,
@@ -70,7 +70,7 @@ fun List<NetworkTMDBMovieResult>.asExternalModel(): List<MovieReview> = map { mo
     )
 }
 
-fun NetworkTMDBMovieAuthorDetails.asExternalModel(): MovieReviewAuthorDetails = MovieReviewAuthorDetails(
+fun NetworkTMDBMovieAuthorDetails.asExternalModel(): ReviewAuthorDetails = ReviewAuthorDetails(
     avatarPath = avatarPath,
     name = name,
     rating = rating,

@@ -3,6 +3,7 @@ package com.bowoon.data.repository
 import androidx.paging.PagingSource
 import com.bowoon.data.paging.SearchPagingSource
 import com.bowoon.data.paging.SimilarMoviePagingSource
+import com.bowoon.model.Media
 import com.bowoon.model.Movie
 import com.bowoon.model.SearchType
 import com.bowoon.testing.TestMovieDataSource
@@ -31,7 +32,7 @@ class PagingRepositoryTest {
             userDataRepository = testUserDataRepository
         )
 
-        val a: PagingSource.LoadResult<Int, Movie> = PagingSource.LoadResult.Page(
+        val a: PagingSource.LoadResult<Int, Media> = PagingSource.LoadResult.Page(
             data = movieSearchTestData.results ?: emptyList(),
             prevKey = null,
             nextKey = 2
@@ -59,7 +60,7 @@ class PagingRepositoryTest {
             userDataRepository = testUserDataRepository
         )
 
-        val a: PagingSource.LoadResult<Int, Movie> = PagingSource.LoadResult.Page(
+        val a: PagingSource.LoadResult<Int, Media> = PagingSource.LoadResult.Page(
             data = peopleSearchTestData.results ?: emptyList(),
             prevKey = null,
             nextKey = null

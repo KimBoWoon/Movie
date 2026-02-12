@@ -12,6 +12,7 @@ import com.bowoon.network.MovieNetworkDataSource
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.first
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -34,11 +35,10 @@ class MainMenuRepositoryImpl @Inject constructor(
                     targetDt.isAfter(updateDate) || getSyncInputData().firstOrNull { it.first == "IS_FORCE" }?.second as Boolean
                 },
                 getList = {
-                    val language = datastore.getLanguage()
-                    val region = datastore.getRegion()
+                    val internalData = datastore.userData.first()
 
                     runCatching {
-                        apis.getNowPlaying(language = language, region = region, page = 1)
+                        apis.getNowPlaying(language = internalData.language, region = internalData.region, page = 1)
                     }.getOrElse { e ->
                         Log.e(e.message ?: "sync error!")
                         emptyList()
@@ -64,11 +64,10 @@ class MainMenuRepositoryImpl @Inject constructor(
                     targetDt.isAfter(updateDate) || getSyncInputData().firstOrNull { it.first == "IS_FORCE" }?.second as Boolean
                 },
                 getList = {
-                    val language = datastore.getLanguage()
-                    val region = datastore.getRegion()
+                    val internalData = datastore.userData.first()
 
                     runCatching {
-                        apis.getUpcomingMovie(language = language, region = region, page = 1)
+                        apis.getUpcomingMovie(language = internalData.language, region = internalData.region, page = 1)
                     }.getOrElse { e ->
                         Log.e(e.message ?: "sync error!")
                         emptyList()

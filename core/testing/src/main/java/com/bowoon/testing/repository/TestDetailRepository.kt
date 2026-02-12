@@ -7,6 +7,9 @@ import com.bowoon.model.Movie
 import com.bowoon.model.People
 import com.bowoon.model.SearchData
 import com.bowoon.model.Series
+import com.bowoon.model.Tv
+import com.bowoon.model.TvEpisode
+import com.bowoon.model.TvSeasons
 import kotlinx.coroutines.channels.BufferOverflow.DROP_OLDEST
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -19,6 +22,9 @@ class TestDetailRepository : DetailRepository {
     private val combineCredits = MutableSharedFlow<CombineCredits>(replay = 1, onBufferOverflow = DROP_OLDEST)
     private val externalIds = MutableSharedFlow<ExternalIds>(replay = 1, onBufferOverflow = DROP_OLDEST)
     private val movieSeries = MutableSharedFlow<Series>(replay = 1, onBufferOverflow = DROP_OLDEST)
+    private val tv = MutableSharedFlow<Tv>(replay = 1, onBufferOverflow = DROP_OLDEST)
+    private val tvSeasons = MutableSharedFlow<TvSeasons>(replay = 1, onBufferOverflow = DROP_OLDEST)
+    private val tvEpisode = MutableSharedFlow<TvEpisode>(replay = 1, onBufferOverflow = DROP_OLDEST)
 
     override fun getMovie(id: Int): Flow<Movie> = movie
 
@@ -35,33 +41,61 @@ class TestDetailRepository : DetailRepository {
 
     override fun getMovieSeries(collectionId: Int): Flow<Series> = movieSeries
 
+    override fun getTv(id: Int): Flow<Tv> = tv
+
+    override fun getTvSeasons(
+        seriesId: Int,
+        seasonNumber: Int
+    ): Flow<TvSeasons> = tvSeasons
+
+    override fun getTvEpisode(
+        seriesId: Int,
+        seasonNumber: Int,
+        episodeNumber: Int
+    ): Flow<TvEpisode> = tvEpisode
+
     @VisibleForTesting
     fun setMovie(detail: Movie) {
-        movie.tryEmit(detail)
+        movie.tryEmit(value = detail)
     }
 
     @VisibleForTesting
     fun setDiscoverMovie(movie: SearchData) {
-        movieSearchData.tryEmit(movie)
+        movieSearchData.tryEmit(value = movie)
     }
 
     @VisibleForTesting
     fun setPeopleDetail(people: People) {
-        peopleDetail.tryEmit(people)
+        peopleDetail.tryEmit(value = people)
     }
 
     @VisibleForTesting
     fun setCombineCredits(credits: CombineCredits) {
-        combineCredits.tryEmit(credits)
+        combineCredits.tryEmit(value = credits)
     }
 
     @VisibleForTesting
     fun setExternalIds(ids: ExternalIds) {
-        externalIds.tryEmit(ids)
+        externalIds.tryEmit(value = ids)
     }
 
     @VisibleForTesting
     fun setMovieSeries(movieSeries: Series) {
-        this@TestDetailRepository.movieSeries.tryEmit(movieSeries)
+        this@TestDetailRepository.movieSeries.tryEmit(value = movieSeries)
+    }
+
+    @VisibleForTesting
+    fun setTv(tv: Tv) {
+        this@TestDetailRepository.tv.tryEmit(value = tv)
+    }
+
+    @VisibleForTesting
+    fun setTvSeries(tvSeasons: TvSeasons) {
+        this@TestDetailRepository.tvSeasons.tryEmit(value = tvSeasons)
+    }
+
+    @VisibleForTesting
+    fun setTvEpisode(tvEpisode: TvEpisode) {
+        this@TestDetailRepository.tvEpisode.tryEmit(value = tvEpisode)
     }
 }

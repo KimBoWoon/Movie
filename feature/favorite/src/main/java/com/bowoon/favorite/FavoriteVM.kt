@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.model.Movie
 import com.bowoon.model.People
+import com.bowoon.model.Tv
 import com.bowoon.movie.feature.favorite.R
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -39,6 +40,12 @@ class FavoriteVM @AssistedInject constructor(
             initialValue = emptyList(),
             started = SharingStarted.WhileSubscribed()
         )
+    val favoriteTvs = databaseRepository.getTv()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(),
+            initialValue = emptyList()
+        )
     val favoritePeoples = databaseRepository.getPeople()
         .stateIn(
             scope = viewModelScope,
@@ -56,6 +63,12 @@ class FavoriteVM @AssistedInject constructor(
         }
     }
 
+    fun deleteTv(tv: Tv) {
+        viewModelScope.launch {
+            databaseRepository.deleteTv(tv = tv)
+        }
+    }
+
     fun deletePeople(people: People) {
         viewModelScope.launch {
             databaseRepository.deletePeople(people = people)
@@ -65,5 +78,6 @@ class FavoriteVM @AssistedInject constructor(
 
 enum class FavoriteTab(val stringId: Int) {
     MOVIE(stringId = R.string.movie),
+    TV(stringId = R.string.tv),
     PEOPLE(stringId = R.string.people)
 }

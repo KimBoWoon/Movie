@@ -20,7 +20,9 @@ dependencies {
         libs.coil.okhttp,
         libs.coil.compose,
         libs.androidx.compose.constraintLayout,
-        libs.lottie.compose
+        libs.lottie.compose,
+        libs.youtube.player,
+        libs.androidx.compose.paging,
     ).forEach {
         implementation(it)
     }

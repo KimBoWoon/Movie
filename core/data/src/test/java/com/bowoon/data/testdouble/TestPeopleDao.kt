@@ -4,6 +4,8 @@ import com.bowoon.database.dao.PeopleDao
 import com.bowoon.database.model.PeopleEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 
 class TestPeopleDao : PeopleDao {
@@ -25,4 +27,8 @@ class TestPeopleDao : PeopleDao {
     override suspend fun deletePeople(id: Int) {
         entitiesStateFlow.update { entities -> entities.filterNot { it.id == id } }
     }
+
+    override fun isFavoritePeople(id: Int): Flow<Boolean> = entitiesStateFlow.map {
+        it.find { entity -> entity.id == id } != null
+    }.distinctUntilChanged()
 }

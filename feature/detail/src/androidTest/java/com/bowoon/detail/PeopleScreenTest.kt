@@ -86,6 +86,7 @@ class PeopleScreenTest {
                     goToBack = {},
                     insertFavoritePeople = viewModel::insertPeople,
                     deleteFavoritePeople = viewModel::deletePeople,
+                    goToTv = {},
                     goToMovie = {},
                     onShowSnackbar = { _, _ -> true },
                     restart = viewModel::restart
@@ -105,6 +106,7 @@ class PeopleScreenTest {
                     goToBack = {},
                     insertFavoritePeople = viewModel::insertPeople,
                     deleteFavoritePeople = viewModel::deletePeople,
+                    goToTv = {},
                     goToMovie = {},
                     onShowSnackbar = { _, _ -> true },
                     restart = viewModel::restart
@@ -128,6 +130,7 @@ class PeopleScreenTest {
                     goToBack = {},
                     insertFavoritePeople = viewModel::insertPeople,
                     deleteFavoritePeople = viewModel::deletePeople,
+                    goToTv = {},
                     goToMovie = {},
                     onShowSnackbar = { _, _ -> true },
                     restart = viewModel::restart
@@ -141,9 +144,9 @@ class PeopleScreenTest {
                 testDatabaseRepository.insertPeople(people = peopleDetailTestData)
             }
 
-            onNodeWithTag(testTag = "titleComponent").assertExists().assertTextEquals(peopleDetailTestData.name!!).assertIsDisplayed()
+            onNodeWithTag(testTag = "titleComponent").assertExists().assertTextEquals(peopleDetailTestData.title!!).assertIsDisplayed()
             onNodeWithContentDescription(label = "peopleImageHorizontalPager").assertExists().assertIsDisplayed()
-            onNodeWithContentDescription(label = "peopleName").assertExists().assertTextEquals(peopleDetailTestData.name!!).assertIsDisplayed()
+            onNodeWithContentDescription(label = "peopleName").assertExists().assertTextEquals(peopleDetailTestData.title!!).assertIsDisplayed()
             onNodeWithContentDescription(label = "peoplePlaceOfBirth").assertExists().assertTextEquals(peopleDetailTestData.placeOfBirth!!).assertIsDisplayed()
             onNodeWithContentDescription(label = "facebookId").assertExists().assertIsDisplayed()
             onNodeWithContentDescription(label = "instagramId").assertExists().assertIsDisplayed()
@@ -166,6 +169,7 @@ class PeopleScreenTest {
                     goToBack = {},
                     insertFavoritePeople = viewModel::insertPeople,
                     deleteFavoritePeople = viewModel::deletePeople,
+                    goToTv = {},
                     goToMovie = {},
                     onShowSnackbar = { _, _ -> true },
                     restart = viewModel::restart
@@ -173,15 +177,15 @@ class PeopleScreenTest {
             }
 
             runBlocking {
-                testDetailRepository.setPeopleDetail(people = peopleDetailTestData.copy(isFavorite = false))
+                testDetailRepository.setPeopleDetail(people = peopleDetailTestData)
                 testDetailRepository.setCombineCredits(credits = combineCreditsTestData)
                 testDetailRepository.setExternalIds(ids = externalIdsTestData)
                 testDatabaseRepository.insertPeople(people = People(id = 123))
             }
 
-            onNodeWithTag(testTag = "titleComponent").assertExists().assertTextEquals(peopleDetailTestData.name!!).assertIsDisplayed()
+            onNodeWithTag(testTag = "titleComponent").assertExists().assertTextEquals(peopleDetailTestData.title!!).assertIsDisplayed()
             onNodeWithContentDescription(label = "peopleImageHorizontalPager").assertExists().assertIsDisplayed()
-            onNodeWithContentDescription(label = "peopleName").assertExists().assertTextEquals(peopleDetailTestData.name!!).assertIsDisplayed()
+            onNodeWithContentDescription(label = "peopleName").assertExists().assertTextEquals(peopleDetailTestData.title!!).assertIsDisplayed()
             onNodeWithContentDescription(label = "peoplePlaceOfBirth").assertExists().assertTextEquals(peopleDetailTestData.placeOfBirth!!).assertIsDisplayed()
             onNodeWithContentDescription(label = "facebookId").assertExists().assertIsDisplayed()
             onNodeWithContentDescription(label = "instagramId").assertExists().assertIsDisplayed()
@@ -213,6 +217,7 @@ class PeopleScreenTest {
                     goToBack = {},
                     insertFavoritePeople = viewModel::insertPeople,
                     deleteFavoritePeople = viewModel::deletePeople,
+                    goToTv = {},
                     goToMovie = {},
                     onShowSnackbar = { _, _ -> true },
                     restart = viewModel::restart
@@ -226,9 +231,9 @@ class PeopleScreenTest {
                 testDatabaseRepository.insertPeople(people = peopleDetailTestData)
             }
 
-            onNodeWithTag(testTag = "titleComponent").assertExists().assertTextEquals(peopleDetailTestData.name!!).assertIsDisplayed()
+            onNodeWithTag(testTag = "titleComponent").assertExists().assertTextEquals(peopleDetailTestData.title!!).assertIsDisplayed()
             onNodeWithContentDescription(label = "peopleImageHorizontalPager").assertExists().assertIsDisplayed()
-            onNodeWithContentDescription(label = "peopleName").assertExists().assertTextEquals(peopleDetailTestData.name!!).assertIsDisplayed()
+            onNodeWithContentDescription(label = "peopleName").assertExists().assertTextEquals(peopleDetailTestData.title!!).assertIsDisplayed()
             onNodeWithContentDescription(label = "peoplePlaceOfBirth").assertExists().assertTextEquals(peopleDetailTestData.placeOfBirth!!).assertIsDisplayed()
             onNodeWithContentDescription(label = "facebookId").assertExists().assertIsDisplayed()
             onNodeWithContentDescription(label = "instagramId").assertExists().assertIsDisplayed()

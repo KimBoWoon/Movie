@@ -3,73 +3,48 @@ package com.bowoon.domain
 import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.data.repository.DetailRepository
 import com.bowoon.data.repository.UserDataRepository
-import com.bowoon.model.InternalData
-import com.bowoon.model.MovieDetailInfo
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import com.bowoon.model.Movie
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 class GetMovieDetailUseCase @Inject constructor(
-    userDataRepository: UserDataRepository,
+    private val userDataRepository: UserDataRepository,
     private val databaseRepository: DatabaseRepository,
     private val detailRepository: DetailRepository
 ) {
-    private val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
-        close(message = throwable.message ?: "something wrong...", cause = throwable)
-    }
-    private val backgroundScope = CoroutineScope(context = Dispatchers.IO + coroutineExceptionHandler)
-    private val seriesId = MutableStateFlow<Int?>(value = null)
-    private val internalData = userDataRepository.internalData
-        .stateIn(
-            scope = backgroundScope,
-            started = SharingStarted.Eagerly,
-            initialValue = InternalData()
-        )
+    @OptIn(ExperimentalCoroutinesApi::class)
+    operator fun invoke(id: Int): Flow<MovieWithFavorite> = combine(
+        detailRepository.getMovie(id = id),
+        userDataRepository.internalData,
+        databaseRepository.isFavoriteMovie(id = id)
+    ) { movie, internalData, isFavorite ->
+        val localizedRelease = movie.releases?.countries?.find { it.iso31661.equals(other = internalData.region, ignoreCase = true) }
 
-    operator fun invoke(id: Int): Flow<MovieDetailInfo> = combine(
-        detailRepository.getMovie(id)
-            .map { movie ->
-                movie.copy(
-                    releaseDate = movie.releases?.countries?.find { country ->
-                        country.iso31661.equals(other = internalData.value.region, ignoreCase = true)
-                    }?.releaseDate ?: movie.releaseDate,
-                    certification = movie.releases?.countries?.find { country ->
-                        country.iso31661.equals(other = internalData.value.region, ignoreCase = true)
-                    }?.certification ?: movie.certification
-                )
-            }.onEach { movie ->
-                movie.belongsToCollection?.id?.let { seriesId ->
-                    this@GetMovieDetailUseCase.seriesId.emit(value = seriesId)
-                }
-            },
-        @OptIn(ExperimentalCoroutinesApi::class)
-        seriesId.flatMapLatest { seriesId ->
-            seriesId?.let {
-                detailRepository.getMovieSeries(collectionId = it)
-            } ?: flowOf(null)
-        },
-        databaseRepository.getMovies()
-    ) { movie, series, favoriteMovies ->
-        MovieDetailInfo(
-            detail = movie.copy(isFavorite = favoriteMovies.find { it.id == movie.id } != null),
-            series = series,
-            autoPlayTrailer = internalData.value.isAutoPlayTrailer
+        MovieWithFavorite(
+            movie = movie.copy(
+                releaseDate = localizedRelease?.releaseDate ?: movie.releaseDate,
+                certification = localizedRelease?.certification ?: movie.certification
+            ),
+            isFavorite = isFavorite,
+            autoPlayTrailer = internalData.isAutoPlayTrailer
         )
-    }
-
-    fun close(message: String, cause: Throwable?) {
-        backgroundScope.cancel(message = message, cause = cause)
+    }.flatMapLatest { movieWithFavorite ->
+        movieWithFavorite.movie.belongsToCollection?.id?.let { seriesId ->
+            detailRepository.getMovieSeries(collectionId = seriesId)
+                .map { series -> movieWithFavorite.copy(movie = movieWithFavorite.movie.copy(series = series)) }
+                .catch { emit(value = movieWithFavorite) }
+        } ?: flowOf(value = movieWithFavorite)
     }
 }
+
+data class MovieWithFavorite(
+    val movie: Movie,
+    val isFavorite: Boolean,
+    val autoPlayTrailer: Boolean
+)
