@@ -50,10 +50,10 @@ jobs:
           git fetch origin develop
 
           BASE=$(git merge-base origin/develop HEAD)
-          NOTES=$(git log --pretty=format:"(#%h) %cn %s" $BASE..HEAD)
+          NOTES=$(git log --no-merges --pretty=format:'(#%h) %cn %s' $BASE..HEAD)
 
           echo "notes<<EOF" >> $GITHUB_OUTPUT
-          echo "$NOTES" >> $GITHUB_OUTPUT
+          printf "%s\n" "$NOTES" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 #      - name: create release note
 #        run: ./gradlew createReleaseNote
