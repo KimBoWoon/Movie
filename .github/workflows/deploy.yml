@@ -47,14 +47,12 @@ jobs:
       - name: Generate Release Notes
         id: release_notes
         run: |
-          git fetch origin develop --depth=0
-
-          BASE=$(git merge-base origin/develop HEAD)
-          echo "BASE=$BASE"
+          git fetch origin develop
       
-          git log "$BASE..HEAD" --no-merges --pretty=format:'(#%h) %cn %s'
+          NOTES=$(git log origin/develop..HEAD --no-merges --pretty=format:'(#%h) %cn %s')
       
-          NOTES=$(git log "$BASE..HEAD" --no-merges --pretty=format:'(#%h) %cn %s')
+          echo "==== GENERATED NOTES ===="
+          echo "$NOTES"
       
           echo "notes<<EOF" >> $GITHUB_OUTPUT
           printf "%s\n" "$NOTES" >> $GITHUB_OUTPUT
