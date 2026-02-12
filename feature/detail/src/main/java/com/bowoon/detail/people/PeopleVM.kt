@@ -83,7 +83,3 @@ sealed interface PeopleState {
     data class Success(val data: PeopleWithFavorite) : PeopleState
     data class Error(val throwable: Throwable) : PeopleState
 }
-
-enum class MediaType(val label: String) {
-    MOVIE(label = "movie"), TV(label = "tv")
-}

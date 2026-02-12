@@ -74,7 +74,11 @@ fun CombineCredits.getRelatedMovie(): List<RelatedMovie> =
             firstAirDate = it.firstAirDate,
             genreIds = it.genreIds,
             id = it.id,
-            mediaType = it.mediaType,
+            mediaType = when {
+                it.mediaType?.equals(other = "tv", ignoreCase = true) == true -> MediaType.TV
+                it.mediaType?.equals(other = "movie", ignoreCase = true) == true -> MediaType.MOVIE
+                else -> MediaType.NONE
+            },
             name = it.name,
             order = it.order,
             originCountry = it.originCountry,
@@ -102,7 +106,11 @@ fun CombineCredits.getRelatedMovie(): List<RelatedMovie> =
                 firstAirDate = it.firstAirDate,
                 genreIds = it.genreIds,
                 id = it.id,
-                mediaType = it.mediaType,
+                mediaType = when {
+                    it.mediaType?.equals(other = "tv", ignoreCase = true) == true -> MediaType.TV
+                    it.mediaType?.equals(other = "movie", ignoreCase = true) == true -> MediaType.MOVIE
+                    else -> MediaType.NONE
+                },
                 name = it.name,
                 originCountry = it.originCountry,
                 originalLanguage = it.originalLanguage,

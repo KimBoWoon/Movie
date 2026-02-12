@@ -50,6 +50,7 @@ import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.domain.PeopleWithFavorite
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.Image
+import com.bowoon.model.MediaType
 import com.bowoon.model.People
 import com.bowoon.model.getRelatedMovie
 import com.bowoon.movie.feature.detail.R
@@ -59,7 +60,6 @@ import com.bowoon.ui.components.TitleComponent
 import com.bowoon.ui.dialog.ConfirmDialog
 import com.bowoon.ui.dialog.Indexer
 import com.bowoon.ui.image.DynamicAsyncImageLoader
-import com.bowoon.ui.utils.roundedCornerClickable
 import com.bowoon.ui.utils.dp0
 import com.bowoon.ui.utils.dp10
 import com.bowoon.ui.utils.dp100
@@ -67,6 +67,7 @@ import com.bowoon.ui.utils.dp20
 import com.bowoon.ui.utils.dp30
 import com.bowoon.ui.utils.dp5
 import com.bowoon.ui.utils.dp70
+import com.bowoon.ui.utils.roundedCornerClickable
 import kotlinx.coroutines.launch
 
 @Composable
@@ -256,9 +257,15 @@ fun PeopleDetailComponent(
                                 .aspectRatio(ratio = POSTER_IMAGE_RATIO)
                                 .roundedCornerClickable(
                                     onClick = {
-                                        when (movie.mediaType?.lowercase()) {
-                                            MediaType.MOVIE.label -> goToMovie(movie.id ?: -1)
-                                            MediaType.TV.label -> goToTv(movie.id ?: -1)
+                                        when (movie.mediaType) {
+                                            MediaType.NONE -> {
+                                                scope.launch {
+                                                    onShowSnackbar("MediaType not found...", null)
+                                                }
+                                                return@roundedCornerClickable
+                                            }
+                                            MediaType.MOVIE -> goToMovie(movie.id ?: -1)
+                                            MediaType.TV -> goToTv(movie.id ?: -1)
                                         }
                                     }, cornerRadius = dp10
                                 ),

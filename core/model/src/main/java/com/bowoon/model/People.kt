@@ -32,7 +32,7 @@ data class RelatedMovie(
     val firstAirDate: String? = null,
     val genreIds: List<Int>? = null,
     val id: Int? = null,
-    val mediaType: String? = null,
+    val mediaType: MediaType,
     val name: String? = null,
     val order: Int? = null,
     val originCountry: List<String>? = null,
