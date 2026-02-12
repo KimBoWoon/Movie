@@ -50,9 +50,11 @@ jobs:
           git fetch origin develop
 
           BASE=$(git merge-base origin/develop HEAD)
-          NOTES=$(git log --no-merges --pretty=format:'(#%h) %cn %s' $BASE..HEAD)
-
           echo "BASE=$BASE"
+          NOTES=$(git log "$BASE..HEAD" --no-merges --pretty=format:'(#%h) %cn %s')
+
+          echo "==== GENERATED NOTES ===="
+          echo "$NOTES"
           echo "notes<<EOF" >> $GITHUB_OUTPUT
           printf "%s\n" "$NOTES" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
