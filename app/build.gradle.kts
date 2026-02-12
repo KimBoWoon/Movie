@@ -6,17 +6,6 @@ plugins {
     alias(libs.plugins.bowoon.android.application.flavors)
 }
 
-tasks.register("createReleaseNote") {
-    val releaseNote = File("releaseNote.txt")
-    val logs = project.providers.exec {
-        commandLine("git", "log", "--oneline", "--pretty=format:* (#%h) %cn %s", "remotes/origin/release/${android.defaultConfig.versionName}..remotes/origin/develop")
-    }.standardOutput.asText.map { it.trim() }.get()
-    releaseNote.delete()
-    releaseNote.writeText(
-        text = logs.takeIf { it.isNotEmpty() }?.trimIndent() ?: "empty logs..."
-    )
-}
-
 dependencies {
     arrayOf(
         projects.core.common,
@@ -34,8 +23,6 @@ dependencies {
         projects.feature.favorite,
         projects.feature.my,
         libs.coil.compose,
-//        libs.androidx.navigation3.runtime,
-//        libs.androidx.navigation3.ui,
         libs.androidx.compose.material3.navigationSuite,
         libs.androidx.compose.material3.adaptive.navigation3,
         libs.androidx.work.ktx,
