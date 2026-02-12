@@ -47,9 +47,10 @@ jobs:
       - name: Generate Release Notes
         id: release_notes
         run: |
-          git fetch origin develop
+          echo "BEFORE SHA: ${{ github.event.before }}"
+          echo "AFTER SHA: ${{ github.sha }}"
       
-          NOTES=$(git log origin/develop..HEAD --no-merges --pretty=format:'(#%h) %cn %s')
+          NOTES=$(git log ${{ github.event.before }}..${{ github.sha }} --no-merges --pretty=format:'(#%h) %cn %s')
       
           echo "==== GENERATED NOTES ===="
           echo "$NOTES"
