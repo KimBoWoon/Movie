@@ -19,7 +19,12 @@ class DetailBenchmark {
     @Test
     fun getMovieDetailSectionTest() = benchmarkRule.measureRepeated(
         packageName = PACKAGE_NAME,
-        metrics = listOf(TraceSectionMetric(sectionName = "GetMovieDetail")),
+        metrics = listOf(
+            TraceSectionMetric(sectionName = "GetMovieDetail"),
+            TraceSectionMetric(sectionName = "GetPeopleDetail"),
+            TraceSectionMetric(sectionName = "GetTvDetail"),
+            TraceSectionMetric(sectionName = "GetSeriesDetail"),
+        ),
         iterations = 5,
         startupMode = StartupMode.COLD
     ) {

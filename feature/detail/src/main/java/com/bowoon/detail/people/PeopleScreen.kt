@@ -1,47 +1,42 @@
 package com.bowoon.detail.people
 
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -49,24 +44,19 @@ import com.bowoon.common.Log
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.domain.PeopleWithFavorite
 import com.bowoon.firebase.LocalFirebaseLogHelper
-import com.bowoon.model.Image
 import com.bowoon.model.MediaType
 import com.bowoon.model.People
 import com.bowoon.model.getRelatedMovie
 import com.bowoon.movie.feature.detail.R
 import com.bowoon.ui.components.CircularProgressComponent
 import com.bowoon.ui.components.ExternalIdLinkComponent
-import com.bowoon.ui.components.TitleComponent
+import com.bowoon.ui.components.FavoriteButtonComponent
 import com.bowoon.ui.dialog.ConfirmDialog
 import com.bowoon.ui.dialog.Indexer
 import com.bowoon.ui.image.DynamicAsyncImageLoader
-import com.bowoon.ui.utils.dp0
 import com.bowoon.ui.utils.dp10
-import com.bowoon.ui.utils.dp100
+import com.bowoon.ui.utils.dp16
 import com.bowoon.ui.utils.dp20
-import com.bowoon.ui.utils.dp30
-import com.bowoon.ui.utils.dp5
-import com.bowoon.ui.utils.dp70
 import com.bowoon.ui.utils.roundedCornerClickable
 import kotlinx.coroutines.launch
 
@@ -156,122 +146,81 @@ fun PeopleDetailComponent(
     val scope = rememberCoroutineScope()
     val relatedMovie = people.people.combineCredits?.getRelatedMovie() ?: emptyList()
     val snackbarMessage = if (people.isFavorite) stringResource(id = R.string.remove_favorite_people) else stringResource(id = R.string.add_favorite_people)
-    val scrollState = rememberLazyGridState()
-    var toggle by remember { mutableStateOf(value = false) }
-    var peopleImagesHeight by remember { mutableStateOf(value = dp0) }
-    val peopleInfoHeight by animateDpAsState(
-        targetValue = if (toggle) peopleImagesHeight / 4 else peopleImagesHeight
-    )
-    val density = LocalDensity.current
+    val scrollState = rememberLazyListState()
 
-    Column(
-        modifier = Modifier.fillMaxSize()
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        state = scrollState
     ) {
-        TitleComponent(
-            title = people.people.title ?: stringResource(id = R.string.title_people),
-            goToBack = goToBack,
-            onFavoriteClick = {
-                if (people.isFavorite) {
-                    deleteFavoritePeople(people.people)
-                } else {
-                    insertFavoritePeople(people.people)
+        item {
+            ProfileHeader(
+                people = people,
+                images = people.people.images?.mapNotNull { it.filePath } ?: emptyList(),
+                onBack = goToBack,
+                onFavorite = {
+                    if (people.isFavorite) {
+                        deleteFavoritePeople(people.people)
+                    } else {
+                        insertFavoritePeople(people.people)
+                    }
+                    scope.launch {
+                        onShowSnackbar(snackbarMessage, null)
+                    }
                 }
-                scope.launch {
-                    onShowSnackbar(snackbarMessage, null)
-                }
-            },
-            isFavorite = people.isFavorite
-        )
+            )
+        }
 
-        Box {
-            people.people.images.takeIf { !it.isNullOrEmpty() }?.let { images ->
-                PeopleImageComponent(
+        item {
+            ExternalIdLinkComponent(people = people.people)
+        }
+
+        item {
+            people.people.biography?.takeIf { it.isNotEmpty() }?.let {
+                Text(
                     modifier = Modifier
-                        .semantics { contentDescription = "peopleImageHorizontalPager" }
-                        .fillMaxSize()
-                        .aspectRatio(ratio = POSTER_IMAGE_RATIO, matchHeightConstraintsFirst = true)
-                        .onSizeChanged { size ->
-                            peopleImagesHeight = if (images.isEmpty()) {
-                                size.height.dp
-                            } else {
-                                with(receiver = density) {
-                                    (size.height.toFloat() / 1.2f).toInt().toDp()
-                                }
-                            }
-                        }
-                        .clickable(interactionSource = null, indication = null) { toggle = !toggle },
-                    images = images
+                        .semantics { contentDescription = "peopleBiography" }
+                        .padding(horizontal = dp10),
+                    text = it
                 )
             }
+        }
+        item {
+            val rows = remember(key1 = relatedMovie) { relatedMovie.chunked(size = 3) }
 
             Column(
-                modifier = Modifier
-                    .height(height = if (people.people.images.isNullOrEmpty()) Int.MAX_VALUE.dp else peopleInfoHeight)
-                    .align(alignment = Alignment.BottomCenter)
-                    .background(
-                        color = MaterialTheme.colorScheme.surfaceContainer,
-                        shape = RoundedCornerShape(topStart = dp30, topEnd = dp30)
-                    )
+                modifier = Modifier.padding(start = dp10, end = dp10, bottom = dp20),
+                verticalArrangement = Arrangement.spacedBy(space = dp10)
             ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(height = dp20),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Spacer(modifier = Modifier
-                        .width(width = dp70)
-                        .height(height = dp5)
-                        .background(color = Color.White, shape = RoundedCornerShape(size = dp100)))
-                }
-                LazyVerticalGrid(
-                    modifier = Modifier.fillMaxSize(),
-                    state = scrollState,
-                    columns = GridCells.Fixed(count = 3),
-                    contentPadding = PaddingValues(all = dp10),
-                    horizontalArrangement = Arrangement.spacedBy(space = dp10),
-                    verticalArrangement = Arrangement.spacedBy(space = dp10)
-                ) {
-                    item(span = { GridItemSpan(currentLineSpan = maxLineSpan) }) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Column {
-                                PeopleInfoComponent(people = people.people)
-                                ExternalIdLinkComponent(people = people.people)
-                            }
-                        }
-                    }
-                    item(span = { GridItemSpan(currentLineSpan = maxLineSpan) }) {
-                        people.people.biography?.takeIf { it.isNotEmpty() }?.let {
-                            Text(
-                                modifier = Modifier.semantics { contentDescription = "peopleBiography" },
-                                text = it
+                rows.forEach { rowItems ->
+                    Row(horizontalArrangement = Arrangement.spacedBy(space = dp10)) {
+                        rowItems.forEach { media ->
+                            DynamicAsyncImageLoader(
+                                modifier = Modifier
+                                    .weight(weight = 1f)
+                                    .aspectRatio(ratio = POSTER_IMAGE_RATIO)
+                                    .roundedCornerClickable(
+                                        onClick = {
+                                            when (media.mediaType) {
+                                                MediaType.NONE -> {
+                                                    scope.launch {
+                                                        onShowSnackbar("MediaType not found...", null)
+                                                    }
+                                                    return@roundedCornerClickable
+                                                }
+
+                                                MediaType.MOVIE -> goToMovie(media.id ?: -1)
+                                                MediaType.TV -> goToTv(media.id ?: -1)
+                                            }
+                                        }, cornerRadius = dp10
+                                    ),
+                                source = media.posterPath ?: "",
+                                contentDescription = "RelatedMovie"
                             )
                         }
-                    }
-                    items(items = relatedMovie) { movie ->
-                        DynamicAsyncImageLoader(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .aspectRatio(ratio = POSTER_IMAGE_RATIO)
-                                .roundedCornerClickable(
-                                    onClick = {
-                                        when (movie.mediaType) {
-                                            MediaType.NONE -> {
-                                                scope.launch {
-                                                    onShowSnackbar("MediaType not found...", null)
-                                                }
-                                                return@roundedCornerClickable
-                                            }
-                                            MediaType.MOVIE -> goToMovie(movie.id ?: -1)
-                                            MediaType.TV -> goToTv(movie.id ?: -1)
-                                        }
-                                    }, cornerRadius = dp10
-                                ),
-                            source = movie.posterPath ?: "",
-                            contentDescription = "RelatedMovie"
-                        )
+                        // 마지막 줄이 3개 미만일 때 빈칸 채우기
+                        repeat(times = 3 - rowItems.size) {
+                            Spacer(modifier = Modifier.weight(weight = 1f))
+                        }
                     }
                 }
             }
@@ -280,36 +229,118 @@ fun PeopleDetailComponent(
 }
 
 @Composable
-fun BoxScope.PeopleImageComponent(
-    modifier: Modifier = Modifier,
-    images: List<Image> = emptyList()
+fun ProfileHeader(
+    people: PeopleWithFavorite,
+    images: List<String>,
+    onBack: () -> Unit,
+    onFavorite: () -> Unit
 ) {
-    val pagerState = rememberPagerState(initialPage = 0, pageCount = { images.size })
+    val pagerState = rememberPagerState(pageCount = { images.size.coerceAtLeast(minimumValue = 1) })
 
-    HorizontalPager(
-        modifier = modifier,
-        state = pagerState,
-//        contentPadding = PaddingValues(horizontal = dp10),
-//        pageSpacing = dp5
-    ) { index ->
-        DynamicAsyncImageLoader(
-            modifier = Modifier.fillMaxSize(),
-            source = images[index].filePath ?: "",
-            contentDescription = images[index].filePath
-        )
-    }
-    Indexer(
-        modifier = Modifier
-            .padding(top = dp10, end = dp20)
-            .wrapContentSize()
-            .background(
-                color = Color(color = 0x33000000),
-                shape = RoundedCornerShape(size = dp20)
+    Box(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        // 배경 Pager
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.fillMaxWidth().aspectRatio(ratio = POSTER_IMAGE_RATIO)
+        ) { page ->
+            val url = images.getOrNull(index = page) ?: images.firstOrNull()
+
+            DynamicAsyncImageLoader(
+                modifier = Modifier.fillMaxSize(),
+                source = url ?: "",
+                contentDescription = null,
+                contentScale = ContentScale.FillWidth
             )
-            .align(Alignment.TopEnd),
-        current = pagerState.currentPage + 1,
-        size = images.size
-    )
+        }
+
+        // Dim + Gradient(텍스트/카드 가독성)
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .background(
+                    Brush.verticalGradient(
+                        colorStops = arrayOf(
+                            0.7f to Color.Black.copy(alpha = 0.05f),
+                            0.9f to Color.Black.copy(alpha = 0.10f),
+                            1.0f to MaterialTheme.colorScheme.background
+                        )
+                    )
+                )
+        )
+
+        // 상단 아이콘 Row
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = onBack) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Back",
+                    tint = Color.White
+                )
+            }
+
+            Spacer(Modifier.weight(weight = 1f))
+
+            FavoriteButtonComponent(
+                modifier = Modifier
+                    .padding(end = dp16)
+                    .wrapContentSize(),
+                isFavorite = people.isFavorite,
+                onClick = { onFavorite() }
+            )
+        }
+
+        Column(
+            modifier = Modifier.align(Alignment.BottomCenter),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Indexer(
+                modifier = Modifier
+                    .wrapContentSize()
+                    .background(
+                        color = Color(color = 0x33000000),
+                        shape = RoundedCornerShape(size = dp20)
+                    ),
+                current = pagerState.currentPage + 1,
+                size = images.size
+            )
+            // 중앙 타이틀 (목업 느낌: 이름을 헤더 중앙에)
+            Text(
+                text = people.people.title ?: "",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(horizontal = 20.dp),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            Text(
+                text = people.people.knownForDepartment ?: "",
+                style = MaterialTheme.typography.bodyMedium,
+                maxLines = 1
+            )
+
+            if (!people.people.birthday.isNullOrEmpty() && !people.people.deathday.isNullOrEmpty()) {
+                Text(
+                    text = "${people.people.birthday} ~ ${people.people.deathday}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1
+                )
+            } else {
+                Text(
+                    text = people.people.birthday ?: "",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1
+                )
+            }
+        }
+    }
 }
 
 @Composable
@@ -317,7 +348,8 @@ fun ExternalIdLinkComponent(people: People) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .wrapContentHeight()
+            .wrapContentHeight(),
+        horizontalArrangement = Arrangement.Center
     ) {
         people.externalIds?.wikidataId?.let {
             ExternalIdLinkComponent(
@@ -359,31 +391,6 @@ fun ExternalIdLinkComponent(people: People) {
                 link = "https://www.youtube.com/$it",
                 resourceId = com.bowoon.movie.core.ui.R.drawable.ic_youtube,
                 contentDescription = "youtubeId"
-            )
-        }
-    }
-}
-
-@Composable
-fun PeopleInfoComponent(
-    people: People
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-    ) {
-        people.title?.takeIf { it.isNotEmpty() }?.let {
-            Text(
-                modifier = Modifier.semantics { contentDescription = "peopleName" },
-                text = it
-            )
-        }
-        Text(text = "${people.birthday ?: ""}${if (!people.deathday.isNullOrEmpty()) " ~ ${people.deathday}" else ""}")
-        people.placeOfBirth?.takeIf { it.isNotEmpty() }?.let {
-            Text(
-                modifier = Modifier.semantics { contentDescription = "peoplePlaceOfBirth" },
-                text = it
             )
         }
     }
