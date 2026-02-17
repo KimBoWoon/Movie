@@ -35,7 +35,7 @@ fun Modifier.bounceClick(
     onClick: (() -> Unit)? = null
 ) = composed {
     var buttonState by remember { mutableStateOf(value = ButtonState.Idle) }
-    val scale by animateFloatAsState(targetValue = if (buttonState == ButtonState.Pressed) 0.95f else 1f)
+    val scale by animateFloatAsState(targetValue = if (buttonState == ButtonState.Pressed) 0.98f else 1f)
     var clicked by remember { mutableStateOf<Boolean>(value = false) }
 
     this
@@ -48,7 +48,7 @@ fun Modifier.bounceClick(
             indication = null,
             onClick = { onClick?.let { it() } }
         )
-        .pointerInput(buttonState) {
+        .pointerInput(key1 = buttonState) {
             awaitPointerEventScope {
                 buttonState = if (buttonState == ButtonState.Pressed) {
                     waitForUpOrCancellation()

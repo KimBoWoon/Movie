@@ -7,6 +7,8 @@ import com.bowoon.model.ExternalIds
 import com.bowoon.model.Genres
 import com.bowoon.model.Language
 import com.bowoon.model.Movie
+import com.bowoon.model.MovieWatchProvider
+import com.bowoon.model.MovieWatchProviderResult
 import com.bowoon.model.People
 import com.bowoon.model.Regions
 import com.bowoon.model.Reviews
@@ -253,4 +255,18 @@ class TestMovieDataSource : MovieNetworkDataSource {
         id = 0,
         name = "name_0"
     )
+
+    override suspend fun getMovieWatchProvider(movieId: Int): MovieWatchProvider {
+        return MovieWatchProvider(
+            id = 0,
+            results = mapOf(
+                "KR" to MovieWatchProviderResult(
+                    link = "link",
+                    flatrate = listOf(),
+                    buy = listOf(),
+                    rent = listOf()
+                )
+            )
+        )
+    }
 }

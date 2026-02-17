@@ -11,6 +11,7 @@ import com.bowoon.network.model.NetworkTMDBMovieGenres
 import com.bowoon.network.model.NetworkTMDBMovieList
 import com.bowoon.network.model.NetworkTMDBMovieReviews
 import com.bowoon.network.model.NetworkTMDBMovieSeries
+import com.bowoon.network.model.NetworkTMDBMovieWatchProvider
 import com.bowoon.network.model.NetworkTMDBPeopleDetail
 import com.bowoon.network.model.NetworkTMDBRegion
 import com.bowoon.network.model.NetworkTMDBSearchKeywordData
@@ -222,4 +223,9 @@ interface TMDBApis {
         @Query("language") language: String,
         @Query("page") page: Int = 1
     ): ApiResponse<NetworkTMDBTrendingTv>
+
+    @GET("/3/movie/{movie_id}/watch/providers")
+    suspend fun getMovieWatchProvider(
+        @Path("movie_id") movieId: Int
+    ): ApiResponse<NetworkTMDBMovieWatchProvider>
 }

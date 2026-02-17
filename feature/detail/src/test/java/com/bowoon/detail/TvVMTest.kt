@@ -52,7 +52,6 @@ class TvVMTest {
     fun setup() {
         viewModel = TvVM(
             id = 0,
-            initialTabIndex = 0,
             databaseRepository = testDataBaseRepository,
             pagingRepository = testPagingRepository,
             getTvDetailUseCase = getTvDetailUseCase
@@ -86,21 +85,6 @@ class TvVMTest {
             actual = TvState.Success(
                 TvWithFavorite(tv = tv, isFavorite = false, autoPlayTrailer = true)
             )
-        )
-    }
-
-    @Test
-    fun updateTabIndexTest() = runTest {
-        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.tabIndex.collect() }
-
-        assertEquals(
-            expected = viewModel.tabIndex.value,
-            actual = 0
-        )
-        viewModel.updateTabIndex(index = 1)
-        assertEquals(
-            expected = viewModel.tabIndex.value,
-            actual = 1
         )
     }
 

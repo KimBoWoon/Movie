@@ -58,7 +58,6 @@ class MovieVMTest {
     fun setup() {
         viewModel = MovieVM(
             id = 0,
-            initialTabIndex = 0,
             databaseRepository = testDataBaseRepository,
             getMovieDetail = getMovieDetailUseCase,
             pagingRepository = testPagingRepository
@@ -107,7 +106,6 @@ class MovieVMTest {
     fun getUnFavoriteMovieDetailFlowTest() = runTest {
         viewModel = MovieVM(
             id = 324,
-            initialTabIndex = 0,
             getMovieDetail = getMovieDetailUseCase,
             databaseRepository = testDataBaseRepository,
             pagingRepository = testPagingRepository
@@ -202,7 +200,6 @@ class MovieVMTest {
     fun insertFavoriteTest() = runTest {
         viewModel = MovieVM(
             id = 23,
-            initialTabIndex = 0,
             getMovieDetail = getMovieDetailUseCase,
             databaseRepository = testDataBaseRepository,
             pagingRepository = testPagingRepository
@@ -305,22 +302,5 @@ class MovieVMTest {
 //        getMovieDetailUseCase(0)
 
 //        assertEquals(viewModel.detail.value, DetailState.Success(favoriteMovieDetailTestData, movieSeriesTestData, emptyFlow()))
-    }
-
-    @Test
-    fun updateTabIndexTest() = runTest {
-        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.tabIndex.collect() }
-
-        assertEquals(
-            expected = viewModel.tabIndex.value,
-            actual = 0
-        )
-
-        viewModel.updateTabIndex(index = 1)
-
-        assertEquals(
-            expected = viewModel.tabIndex.value,
-            actual = 1
-        )
     }
 }

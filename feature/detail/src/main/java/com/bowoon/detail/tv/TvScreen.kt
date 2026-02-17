@@ -1,42 +1,53 @@
 package com.bowoon.detail.tv
 
-import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -50,39 +61,40 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.bowoon.common.Log
-import com.bowoon.data.util.PEOPLE_IMAGE_RATIO
+import com.bowoon.data.util.POSTER_IMAGE_RATIO
+import com.bowoon.detail.movie.AlternativeTitleSection
+import com.bowoon.detail.movie.CreditsSection
+import com.bowoon.detail.movie.ImagesSection
+import com.bowoon.detail.movie.OverviewSection
+import com.bowoon.detail.movie.ProductionSection
 import com.bowoon.domain.TvWithFavorite
 import com.bowoon.firebase.LocalFirebaseLogHelper
-import com.bowoon.model.ReviewDataModel
 import com.bowoon.model.Tv
 import com.bowoon.model.TvEpisode
 import com.bowoon.model.TvSeasons
 import com.bowoon.movie.feature.detail.R
-import com.bowoon.ui.components.ActorAndCrewComponent
 import com.bowoon.ui.components.CircularProgressComponent
-import com.bowoon.ui.components.ImageComponent
-import com.bowoon.ui.components.ReviewComponent
-import com.bowoon.ui.components.SimilarMediaComponent
-import com.bowoon.ui.components.TabComponent
 import com.bowoon.ui.components.TitleComponent
 import com.bowoon.ui.components.VideosComponent
 import com.bowoon.ui.dialog.ConfirmDialog
 import com.bowoon.ui.image.DynamicAsyncImageLoader
-import com.bowoon.ui.utils.roundedCornerClickable
-import com.bowoon.ui.utils.dp0
+import com.bowoon.ui.utils.bounceClick
 import com.bowoon.ui.utils.dp10
+import com.bowoon.ui.utils.dp12
+import com.bowoon.ui.utils.dp120
+import com.bowoon.ui.utils.dp14
 import com.bowoon.ui.utils.dp150
 import com.bowoon.ui.utils.dp16
+import com.bowoon.ui.utils.dp180
+import com.bowoon.ui.utils.dp2
 import com.bowoon.ui.utils.dp20
-import com.bowoon.ui.utils.dp250
-import com.bowoon.ui.utils.dp300
-import com.bowoon.ui.utils.dp32
 import com.bowoon.ui.utils.dp5
+import com.bowoon.ui.utils.dp72
 import com.bowoon.ui.utils.dp8
+import com.bowoon.ui.utils.roundedCornerClickable
 import com.bowoon.ui.utils.sp10
 import com.bowoon.ui.utils.sp12
 import com.bowoon.ui.utils.sp15
-import com.bowoon.ui.utils.sp20
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -97,24 +109,19 @@ fun TvScreen(
     LocalFirebaseLogHelper.current.sendLog("DetailScreen", "detail screen start!")
 
     val tvState by viewModel.tv.collectAsStateWithLifecycle()
-    val tabIndex by viewModel.tabIndex.collectAsStateWithLifecycle()
     val similarTvs = viewModel.similarTvs.collectAsLazyPagingItems()
-    val tvReviews = viewModel.tvReviews.collectAsLazyPagingItems()
     val selectedEpisode by viewModel.selectedEpisode.collectAsStateWithLifecycle()
 
     TvScreen(
         tvState = tvState,
         similarTvs = similarTvs,
-        tvReviews = tvReviews,
         selectedEpisode = selectedEpisode,
-        tabIndex = tabIndex,
         goToTv = goToTv,
         goToPeople = goToPeople,
         goToBack = goToBack,
         showEpisodeDetail = viewModel::showEpisodeDetail,
         hideEpisodeDetail = viewModel::hideEpisodeDetail,
         onShowSnackbar = onShowSnackbar,
-        updateTabIndex = viewModel::updateTabIndex,
         insertFavoriteTv = viewModel::insertTv,
         deleteFavoriteTv = viewModel::deleteTv,
         restart = viewModel::restart
@@ -126,16 +133,13 @@ fun TvScreen(
 fun TvScreen(
     tvState: TvState,
     similarTvs: LazyPagingItems<Tv>,
-    tvReviews: LazyPagingItems<ReviewDataModel>,
     selectedEpisode: TvEpisode?,
-    tabIndex: Int,
     goToTv: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     goToBack: () -> Unit,
     showEpisodeDetail: (TvEpisode) -> Unit,
     hideEpisodeDetail: () -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
-    updateTabIndex: (Int) -> Unit,
     insertFavoriteTv: (Tv) -> Unit,
     deleteFavoriteTv: (Tv) -> Unit,
     restart: () -> Unit
@@ -161,14 +165,11 @@ fun TvScreen(
                 TvDetailComponent(
                     tv = tvState.tv,
                     similarTvs = similarTvs,
-                    tvReviews = tvReviews,
-                    tabIndex = tabIndex,
                     goToTv = goToTv,
                     goToPeople = goToPeople,
                     goToBack = goToBack,
                     showEpisodeDetail = showEpisodeDetail,
                     onShowSnackbar = onShowSnackbar,
-                    updateTabIndex = updateTabIndex,
                     insertFavoriteTv = insertFavoriteTv,
                     deleteFavoriteTv = deleteFavoriteTv
                 )
@@ -209,39 +210,20 @@ fun TvScreen(
 fun TvDetailComponent(
     tv: TvWithFavorite,
     similarTvs: LazyPagingItems<Tv>,
-    tvReviews: LazyPagingItems<ReviewDataModel>,
-    tabIndex: Int,
     goToTv: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     goToBack: () -> Unit,
     showEpisodeDetail: (TvEpisode) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
-    updateTabIndex: (Int) -> Unit,
     insertFavoriteTv: (Tv) -> Unit,
     deleteFavoriteTv: (Tv) -> Unit,
 ) {
-    val scope = rememberCoroutineScope()
-    val tabList = TvTab.entries.map { stringResource(id = it.stringId) }.toMutableList()
-    if (tv.tv.seasons.isNullOrEmpty()) {
-        tabList.remove(element = stringResource(id = R.string.movie_series))
-    }
-    if (tvReviews.itemCount == 0) {
-        tabList.remove(element = stringResource(id = R.string.movie_reviews))
-    }
-    val pagerState = rememberPagerState(
-        initialPage = tabIndex,
-        pageCount = { tabList.size }
-    )
-    val tabClickEvent: (Int, Int) -> Unit = { current, index ->
-        scope.launch {
-            pagerState.animateScrollToPage(page = index)
-            updateTabIndex(index)
-        }
-    }
     val favoriteMessage = if (tv.isFavorite) stringResource(id = R.string.add_favorite_movie) else stringResource(id = R.string.remove_favorite_movie)
+    val scope = rememberCoroutineScope()
+    val scrollState = rememberScrollState()
 
-    Column(
-        modifier = Modifier.fillMaxSize()
+    Column (
+        modifier = Modifier.fillMaxSize(),
     ) {
         TitleComponent(
             title = tv.tv.title ?: "",
@@ -258,175 +240,358 @@ fun TvDetailComponent(
                 }
             }
         )
-
-        VideosComponent(
-            vodList = tv.tv.videos?.results?.mapNotNull { it.key } ?: emptyList(),
-            autoPlayTrailer = tv.autoPlayTrailer
-        )
-
-        TabComponent(
-            tabs = tabList,
-            pagerState = pagerState,
-            tabClickEvent = tabClickEvent
-        ) { tabs ->
-            HorizontalPager(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
-                state = pagerState,
-                userScrollEnabled = false
-            ) { index ->
-                when (tabs[index]) {
-                    stringResource(id = R.string.tv_detail) -> TvInfoComponent(tv = tv.tv)
-                    stringResource(id = R.string.tv_season) -> TvSeasonComponent(
-                        tvSeasons = tv.tv.seasonList,
-                        showEpisodeDetail = showEpisodeDetail,
-                    )
-                    stringResource(id = R.string.tv_episode) -> TvEpisodeComponent(
-                        tvSeasons = tv.tv.episode,
-                        showEpisodeDetail = showEpisodeDetail,
-                    )
-                    stringResource(id = R.string.tv_reviews) -> ReviewComponent(
-                        reviews = tvReviews,
-                    )
-                    stringResource(id = R.string.tv_actor_and_crew) -> ActorAndCrewComponent(
-                        credits = tv.tv.credits,
-                        goToPeople = goToPeople
-                    )
-                    stringResource(id = R.string.tv_images) -> {
-                        val posters = tv.tv.images?.posters ?: emptyList()
-                        val backdrops = tv.tv.images?.backdrops ?: emptyList()
-                        ImageComponent(images = posters + backdrops)
-                    }
-                    stringResource(id = R.string.tv_similar_tv) -> SimilarMediaComponent(
-                        similarMedia = similarTvs,
-                        goToDestination = goToTv
-                    )
+        Column(
+            modifier = Modifier.verticalScroll(state = scrollState)
+        ) {
+            tv.tv.videos?.results?.mapNotNull { it.key }?.let { vods ->
+                VideosComponent(scope = scope, vodList = vods, autoPlayTrailer = tv.autoPlayTrailer)
+            }
+            TvInfoSection(tv = tv.tv)
+            tv.tv.alternativeTitles?.let { alternativeTitles ->
+                if (!alternativeTitles.titles.isNullOrEmpty()) {
+                    AlternativeTitleSection(alternativeTitles = alternativeTitles)
                 }
             }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun TvSeasonComponent(
-    tvSeasons: Map<String, TvSeasons>?,
-    showEpisodeDetail: (TvEpisode) -> Unit
-) {
-    LazyColumn(
-        modifier = Modifier
-            .semantics { contentDescription = "tvSeasonList" }
-            .fillMaxSize(),
-        contentPadding = PaddingValues(vertical = dp10),
-        verticalArrangement = Arrangement.spacedBy(space = dp10)
-    ) {
-        tvSeasons?.forEach { (key, value) ->
-            stickyHeader {
-                Row(
-                    modifier = Modifier.fillMaxWidth().background(color = MaterialTheme.colorScheme.surface),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        modifier = Modifier.padding(start = dp16),
-                        text = "$key (${value.episodes?.count()}부작)"
-                    )
-                    Text(
-                        modifier = Modifier.padding(end = dp16),
-                        text = value.airDate ?: ""
-                    )
-                }
+            tv.tv.overview?.let { overview ->
+                OverviewSection(overview = overview)
             }
-            item {
-                LazyRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentPadding = PaddingValues(horizontal = dp16),
-                    horizontalArrangement = Arrangement.spacedBy(space = dp10)
-                ) {
-                    items(
-                        items = value.episodes ?: emptyList(),
-                        key = { it.id ?: -1 }
-                    ) { episode ->
-                        Column(
-                            modifier = Modifier
-                                .width(width = dp250)
-                                .wrapContentHeight()
-                                .roundedCornerClickable(onClick = { showEpisodeDetail(episode) })
-                        ) {
-                            EpisodeItem(episode = episode,)
+            tv.tv.credits?.let { credits ->
+                CreditsSection(credits = credits, goToPeople = goToPeople)
+            }
+            tv.tv.seasonList?.let {
+                SeasonEpisodesSection(
+                    seasons = it.values.toList(),
+                    episodesBySeason = buildMap {
+                        it.forEach { (key, value) ->
+                            put(key = key, value = value.episodes ?: emptyList())
                         }
-                    }
-                }
+                    },
+                    initialSeasonId = 1,
+                    onEpisodeClick = { episode -> showEpisodeDetail(episode) }
+                )
             }
-        }
-    }
-}
+            tv.tv.productionCompanies?.let { productionCompanies ->
+                ProductionSection(companies = productionCompanies)
+            }
+            tv.tv.images?.let {
+                val backdrops = it.backdrops ?: emptyList()
+                val posters = it.posters ?: emptyList()
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun TvEpisodeComponent(
-    tvSeasons: TvSeasons?,
-    showEpisodeDetail: (TvEpisode) -> Unit,
-) {
-    LazyColumn(
-        modifier = Modifier
-            .semantics { contentDescription = "tvEpisodeList" }
-            .fillMaxSize(),
-        contentPadding = PaddingValues(horizontal = dp16, vertical = dp10),
-        verticalArrangement = Arrangement.spacedBy(space = dp10)
-    ) {
-        items(
-            items = tvSeasons?.episodes ?: emptyList(),
-            key = { it.id ?: -1 }
-        ) { episode ->
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .roundedCornerClickable(onClick = { showEpisodeDetail(episode) })
-            ) {
-                EpisodeItem(episode = episode,)
+                ImagesSection(backdrops = backdrops, posters = posters)
+            }
+            if (similarTvs.itemCount > 0) {
+                SimilarSection(similar = similarTvs, goToTv = goToTv)
             }
         }
     }
 }
 
 @Composable
-fun EpisodeItem(
-    episode: TvEpisode
+fun TvInfoSection(
+    tv: Tv
 ) {
-    DynamicAsyncImageLoader(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .aspectRatio(ratio = 16f / 9f)
-            .clip(shape = RoundedCornerShape(size = dp10)),
-        source = episode.stillPath ?: "",
-        contentDescription = episode.stillPath
-    )
-    Text(
-        modifier = Modifier.semantics { contentDescription = episode.name ?: "" },
-        text = episode.name ?: "",
-        fontSize = sp15,
-        fontWeight = FontWeight.Bold,
-        overflow = TextOverflow.Ellipsis,
-        style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false)),
-        maxLines = 1
-    )
-    Text(
-        modifier = Modifier.semantics { contentDescription = episode.airDate ?: "" },
-        text = episode.airDate ?: "",
-        fontSize = sp10,
-        style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false)),
-        maxLines = 1
-    )
-    Text(
-        modifier = Modifier.semantics { contentDescription = "TvSeasonOverview" },
-        text = episode.overview ?: "",
-        overflow = TextOverflow.Ellipsis,
-        fontSize = sp12,
-        style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false)),
-        maxLines = 2,
-        minLines = 2
-    )
+            .padding(horizontal = dp16, vertical = dp10)
+    ) {
+        tv.tagline.takeIf { !it?.trim().isNullOrEmpty() }?.let { tagLine ->
+            Text(
+                modifier = Modifier
+                    .semantics {
+                        contentDescription = "movieTagline"
+                    }
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
+                text = tagLine,
+                fontSize = sp12,
+                textAlign = TextAlign.Center,
+                style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
+            )
+        }
+
+        tv.title.takeIf { !it?.trim().isNullOrEmpty() }?.let { title ->
+            Text(
+                text = title,
+                style = MaterialTheme.typography.headlineSmall.copy(
+                    platformStyle = PlatformTextStyle(includeFontPadding = false)
+                ),
+                fontWeight = FontWeight.Bold
+            )
+        }
+
+        tv.originalTitle.takeIf { !it?.trim().isNullOrEmpty() }?.let { originalTitle ->
+            Text(
+                text = originalTitle,
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    platformStyle = PlatformTextStyle(includeFontPadding = false)
+                ),
+                color = Color.Gray
+            )
+        }
+
+        Spacer(modifier = Modifier.height(height = dp5))
+
+        val meta = buildString {
+            tv.releaseDate?.let { append(it) }
+//            tv.certification?.let { if (isNotEmpty()) append(" · "); append(it) }
+//            tv.runtime?.let { if (isNotEmpty()) append(" · "); append("${it}분") }
+            if (!tv.genres.isNullOrEmpty()) {
+                if (isNotEmpty()) {
+                    append(" · ")
+                }
+                tv.genres?.forEachIndexed { index, genre ->
+                    if (index == tv.genres?.lastIndex) {
+                        append("${genre.name}")
+                    } else {
+                        append("${genre.name}, ")
+                    }
+                }
+            }
+            tv.voteAverage?.let { if (isNotEmpty()) append(" · "); append("★ ${"%.1f".format(it)}") }
+        }
+
+        Text(
+            text = meta,
+            style = MaterialTheme.typography.bodySmall.copy(
+                platformStyle = PlatformTextStyle(includeFontPadding = false)
+            ),
+//            color = Color.LightGray,
+            color = Color.Gray,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SeasonEpisodesSection(
+    seasons: List<TvSeasons>,
+    episodesBySeason: Map<String, List<TvEpisode>>,
+    initialSeasonId: Int? = seasons.firstOrNull()?.seasonNumber,
+    onEpisodeClick: (TvEpisode) -> Unit = {}
+) {
+    var expanded by remember { mutableStateOf(value = false) }
+    var selectedSeasonId by rememberSaveable { mutableStateOf(value = initialSeasonId) }
+
+    val selectedSeason = remember(key1 = selectedSeasonId, key2 = seasons) {
+        seasons.firstOrNull { it.id == selectedSeasonId } ?: seasons.firstOrNull()
+    }
+
+    val episodes = remember(key1 = selectedSeason?.id, key2 = episodesBySeason) {
+        selectedSeason?.name?.let { episodesBySeason[it].orEmpty() }.orEmpty()
+    }
+    val episodeListState = rememberLazyListState()
+    val scope = rememberCoroutineScope()
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+//            .padding(horizontal = dp16, vertical = dp12)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                modifier = Modifier.weight(weight = 1f).padding(start = dp16),
+                text = "Episodes",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+
+            // ✅ 스피너(드롭다운)
+            SeasonSpinner(
+                seasons = seasons,
+                selected = selectedSeason,
+                expanded = expanded,
+                onExpandedChange = { expanded = it },
+                onSelect = { season ->
+                    selectedSeasonId = season.id
+                    expanded = false
+                    scope.launch {
+                        episodeListState.scrollToItem(index = 0)
+                    }
+                }
+            )
+        }
+
+        Spacer(Modifier.height(height = dp12))
+
+        if (episodes.isEmpty()) {
+            Text(
+                text = "에피소드 정보가 없어요.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.Gray
+            )
+        } else {
+            EpisodeList(
+                episodes = episodes,
+                episodeListState = episodeListState,
+                onEpisodeClick = onEpisodeClick
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SeasonSpinner(
+    seasons: List<TvSeasons>,
+    selected: TvSeasons?,
+    expanded: Boolean,
+    onExpandedChange: (Boolean) -> Unit,
+    onSelect: (TvSeasons) -> Unit
+) {
+    ExposedDropdownMenuBox(
+        modifier = Modifier.padding(start = dp5, end = dp16),
+        expanded = expanded,
+        onExpandedChange = onExpandedChange
+    ) {
+        // readOnly TextField가 스피너처럼 보이게
+        OutlinedTextField(
+            value = selected?.name.orEmpty(),
+            onValueChange = {},
+            readOnly = true,
+            singleLine = true,
+            modifier = Modifier
+                .menuAnchor() // 중요!
+                .widthIn(min = dp180),
+            label = { Text(text = "Season") },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
+        )
+
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { onExpandedChange(false) }
+        ) {
+            seasons.forEach { season ->
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = season.name ?: "",
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
+                        )
+                    },
+                    onClick = { onSelect(season) }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun EpisodeList(
+    episodes: List<TvEpisode>,
+    episodeListState: LazyListState,
+    onEpisodeClick: (TvEpisode) -> Unit
+) {
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(space = dp10),
+        contentPadding = PaddingValues(start = dp16, end = dp16, bottom = dp8),
+        state = episodeListState
+    ) {
+        items(
+            items = episodes,
+            key = { it.id ?: -1 } // ✅ 끊김 방지
+        ) { e ->
+            EpisodeRow(
+                episode = e,
+                onClick = { onEpisodeClick(e) }
+            )
+        }
+    }
+}
+
+@Composable
+private fun EpisodeRow(
+    episode: TvEpisode,
+    onClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .width(width = dp150)
+            .clip(shape = RoundedCornerShape(size = dp14))
+            .clickable(onClick = onClick),
+    ) {
+        DynamicAsyncImageLoader(
+            source = episode.stillPath ?: "",
+            contentDescription = null,
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(ratio = 16f / 9f)
+                .clip(shape = RoundedCornerShape(size = dp12)),
+            contentScale = ContentScale.Crop
+        )
+
+        Text(
+            text = "E${episode.episodeNumber}",
+            style = MaterialTheme.typography.labelSmall.copy(
+                platformStyle = PlatformTextStyle(includeFontPadding = false)
+            ),
+            color = Color.Gray,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+        Spacer(Modifier.height(height = dp2))
+        Text(
+            text = episode.name ?: "",
+            style = MaterialTheme.typography.bodyMedium.copy(
+                platformStyle = PlatformTextStyle(includeFontPadding = false)
+            ),
+            minLines = 2,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+@Composable
+fun SimilarSection(
+    similar: LazyPagingItems<Tv>,
+    goToTv: (Int) -> Unit
+) {
+    Column(
+        modifier = Modifier.padding(bottom = dp20),
+        verticalArrangement = Arrangement.spacedBy(space = dp12)
+    ) {
+        Text(
+            modifier = Modifier.padding(horizontal = dp16),
+            text = "비슷한 영화",
+            style = MaterialTheme.typography.titleMedium
+        )
+        LazyRow(
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(horizontal = dp16),
+            horizontalArrangement = Arrangement.spacedBy(space = dp10)
+        ) {
+            items(
+                count = similar.itemCount,
+                key = { index -> similar.peek(index)?.id ?: -1 }
+            ) { index ->
+                Box(
+                    modifier = Modifier.width(width = dp120)
+                ) {
+                    DynamicAsyncImageLoader(
+                        source = similar[index]?.posterPath ?: "",
+                        contentDescription = null,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(ratio = POSTER_IMAGE_RATIO)
+                            .roundedCornerClickable(
+                                onClick = { goToTv(similar[index]?.id ?: -1) },
+                                cornerRadius = dp12
+                            ),
+                        contentScale = ContentScale.Crop
+                    )
+                }
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -467,7 +632,7 @@ fun EpisodeDetailBottomSheetDialog(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        modifier = Modifier.semantics { contentDescription = episode.name ?: "" },
+                        modifier = Modifier.semantics { contentDescription = episode.name ?: "" }.weight(weight = 1f),
                         text = episode.name ?: "",
                         fontSize = sp15,
                         fontWeight = FontWeight.Bold,
@@ -476,9 +641,11 @@ fun EpisodeDetailBottomSheetDialog(
                         maxLines = 1
                     )
                     Text(
+                        modifier = Modifier.padding(start = dp5),
                         text = "${episode.runtime}분",
                         fontSize = sp15,
-                        style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
+                        style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false)),
+                        maxLines = 1
                     )
                 }
                 Text(
@@ -503,36 +670,43 @@ fun EpisodeDetailBottomSheetDialog(
                         fontWeight = FontWeight.Bold,
                     )
                     LazyRow(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxWidth(),
                         state = guestStarScrollState,
                         contentPadding = PaddingValues(horizontal = dp16),
                         horizontalArrangement = Arrangement.spacedBy(space = dp10)
                     ) {
                         items(
                             items = episode.guestStars ?: emptyList(),
-                            key = { "GUEST_${it.id}_${it.name}" }
-                        ) {
+                            key = { "${it.id}_${it.creditId}_${it.creditId}" }
+                        ) { actor ->
                             Column(
-                                modifier = Modifier.roundedCornerClickable(onClick = { goToPeople(it.id ?: -1) })
+                                modifier = Modifier
+                                    .width(width = dp72)
+                                    .bounceClick(onClick = { goToPeople(actor.id ?: -1) }),
+                                horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 DynamicAsyncImageLoader(
-                                    modifier = Modifier.width(width = dp150).aspectRatio(ratio = PEOPLE_IMAGE_RATIO).clip(shape = RoundedCornerShape(size = dp10)),
-                                    source = it.profilePath ?: "",
-                                    contentDescription = it.name ?: ""
+                                    source = actor.profilePath ?: "",
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(size = dp72)
+                                        .clip(CircleShape),
+                                    contentScale = ContentScale.Crop
+                                )
+
+                                Text(
+                                    text = actor.character ?: "",
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    fontSize = sp10,
+                                    style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
                                 )
                                 Text(
-                                    text = it.name ?: "",
-                                    fontSize = sp12,
+                                    text = actor.name ?: "",
+                                    maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
-                                    style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false)),
-                                    maxLines = 1
-                                )
-                                Text(
-                                    text = it.originalName ?: "",
-                                    fontSize = sp12,
-                                    overflow = TextOverflow.Ellipsis,
-                                    style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false)),
-                                    maxLines = 1
+                                    fontSize = sp10,
+                                    style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
                                 )
                             }
                         }
@@ -548,232 +722,55 @@ fun EpisodeDetailBottomSheetDialog(
                         fontWeight = FontWeight.Bold,
                     )
                     LazyRow(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxWidth(),
                         state = crewScrollState,
                         contentPadding = PaddingValues(horizontal = dp16),
                         horizontalArrangement = Arrangement.spacedBy(space = dp10)
                     ) {
                         items(
                             items = episode.crew ?: emptyList(),
-                            key = { "CREW_${it.id}_${it.name}_${it.job}" }
-                        ) {
+                            key = { "${it.id}_${it.job}" }
+                        ) { crew ->
                             Column(
-                                modifier = Modifier.roundedCornerClickable(onClick = { goToPeople(it.id ?: -1) })
+                                modifier = Modifier
+                                    .width(width = dp72)
+                                    .bounceClick(onClick = { goToPeople(crew.id ?: -1) }),
+                                horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 DynamicAsyncImageLoader(
-                                    modifier = Modifier.width(width = dp150).aspectRatio(ratio = PEOPLE_IMAGE_RATIO).clip(shape = RoundedCornerShape(size = dp10)),
-                                    source = it.profilePath ?: "",
-                                    contentDescription = it.name ?: ""
+                                    source = crew.profilePath ?: "",
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(size = dp72)
+                                        .clip(CircleShape),
+                                    contentScale = ContentScale.Crop
+                                )
+
+                                Text(
+                                    text = crew.department ?: "",
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    fontSize = sp10,
+                                    style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
                                 )
                                 Text(
-                                    text = it.name ?: "",
-                                    fontSize = sp12,
+                                    text = crew.name ?: "",
+                                    maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
-                                    style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false)),
-                                    maxLines = 1
+                                    fontSize = sp10,
+                                    style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
                                 )
                                 Text(
-                                    text = it.originalName ?: "",
-                                    fontSize = sp12,
+                                    text = crew.job ?: "",
+                                    maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
-                                    style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false)),
-                                    maxLines = 1
-                                )
-                                Text(
-                                    text = it.job ?: "",
-                                    fontSize = sp12,
-                                    overflow = TextOverflow.Ellipsis,
-                                    style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false)),
-                                    maxLines = 1
+                                    fontSize = sp10,
+                                    style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
                                 )
                             }
                         }
                     }
                 }
-            }
-        }
-    }
-}
-
-@Composable
-fun TvInfoComponent(
-    tv: Tv
-) {
-    val titles = tv.alternativeTitles?.titles?.fold(initial = "") { acc, title -> if (acc.isEmpty()) "${title.title}" else "$acc\n${title.title}" } ?: ""
-
-    LazyColumn(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        item {
-            Row(
-                modifier = Modifier
-                    .padding(start = dp16, end = dp16, top = dp10)
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                if (!tv.firstAirDate.isNullOrEmpty() && !tv.lastAirDate.isNullOrEmpty()) {
-                    Text(
-                        text = "${tv.firstAirDate} ~ ${tv.lastAirDate}",
-                        fontSize = sp10,
-                        style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
-                    )
-                } else if (!tv.firstAirDate.isNullOrEmpty()) {
-                    Text(
-                        text = "${tv.firstAirDate} ~ ${tv.status}",
-                        fontSize = sp10,
-                        style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
-                    )
-                }
-            }
-        }
-        item {
-            tv.tagline?.takeIf { it.isNotEmpty() }?.let {
-                Text(
-                    modifier = Modifier
-                        .testTag(tag = "tvTagline")
-                        .padding(
-                            start = dp16,
-                            end = dp16,
-                            top = if (!tv.firstAirDate.isNullOrEmpty()) dp10 else dp20
-                        )
-                        .fillMaxWidth()
-                        .wrapContentHeight(),
-                    text = it,
-                    fontSize = sp15,
-                    textAlign = TextAlign.Center,
-                    style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
-                )
-            }
-            tv.title?.takeIf { it.isNotEmpty() }?.let {
-                Text(
-                    modifier = Modifier
-                        .testTag(tag = "movieTitle")
-                        .padding(
-                            start = dp16,
-                            end = dp16,
-                            top = if (!tv.tagline.isNullOrEmpty()) dp0 else dp20
-                        )
-                        .fillMaxWidth()
-                        .wrapContentHeight(),
-                    text = it,
-                    fontSize = sp20,
-                    textAlign = TextAlign.Center
-                )
-            }
-            tv.originalTitle?.takeIf { it.isNotEmpty() }?.let {
-                Text(
-                    modifier = Modifier
-                        .padding(top = dp5, bottom = dp5, start = dp16, end = dp16)
-                        .fillMaxWidth()
-                        .wrapContentHeight(),
-                    text = it,
-                    fontSize = sp10,
-                    textAlign = TextAlign.Center,
-                    style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
-                )
-            }
-            tv.genres?.takeIf { it.isNotEmpty() }?.let {
-                Text(
-                    modifier = Modifier
-                        .padding(horizontal = dp16)
-                        .fillMaxWidth()
-                        .wrapContentHeight(),
-                    text = it.fold("") { acc, genre -> if (acc.isEmpty()) "${genre.name}" else "$acc, ${genre.name}" },
-                    fontSize = sp10,
-                    textAlign = TextAlign.Center,
-                    style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
-                )
-            }
-            Row(
-                modifier = Modifier
-                    .padding(horizontal = dp16)
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                tv.voteAverage?.let {
-                    Text(
-                        text = stringResource(id = R.string.movie_vote_average, it),
-                        fontSize = sp10,
-                        textAlign = TextAlign.Center
-                    )
-                }
-            }
-            tv.overview?.takeIf { it.isNotEmpty() }?.let {
-                Text(
-                    modifier = Modifier
-                        .padding(horizontal = dp16)
-                        .fillMaxWidth()
-                        .wrapContentHeight(),
-                    text = it,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-        }
-        item {
-            tv.productionCompanies.takeIf { !it.isNullOrEmpty() }?.let { production ->
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = dp10, horizontal = dp16),
-                    text = stringResource(id = R.string.movie_production_companies),
-                    textAlign = TextAlign.Center,
-                    fontSize = sp20,
-                    fontWeight = FontWeight.Bold
-                )
-                HorizontalPager(
-                    modifier = Modifier.fillMaxWidth(),
-                    state = rememberPagerState { production.size },
-                    contentPadding = PaddingValues(horizontal = dp32),
-                    key = { index -> production[index].id ?: -1 }
-                ) { index ->
-                    Column(
-                        modifier = Modifier.padding(horizontal = dp8)
-                    ) {
-                        production[index].logoPath?.let {
-                            DynamicAsyncImageLoader(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(dp300)
-                                    .clip(shape = RoundedCornerShape(size = dp10)),
-                                contentScale = ContentScale.Fit,
-                                source = it,
-                                contentDescription = it
-                            )
-                        }
-                        Text(
-                            modifier = Modifier.fillMaxWidth(),
-                            text = production[index].name ?: "",
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                }
-            }
-        }
-        item {
-            if (titles.isNotEmpty()) {
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = dp16)
-                        .wrapContentHeight(),
-                    text = stringResource(id = R.string.movie_alternative_title),
-                    fontSize = sp15
-                )
-                Text(
-                    modifier = Modifier
-                        .padding(top = dp5, start = dp16, end = dp16)
-                        .animateContentSize()
-                        .fillMaxWidth(),
-                    text = titles,
-                    fontSize = sp10,
-                    textAlign = TextAlign.Center,
-                    overflow = TextOverflow.Ellipsis,
-                    style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
-                )
             }
         }
     }

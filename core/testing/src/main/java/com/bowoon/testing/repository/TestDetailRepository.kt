@@ -4,6 +4,7 @@ import com.bowoon.data.repository.DetailRepository
 import com.bowoon.model.CombineCredits
 import com.bowoon.model.ExternalIds
 import com.bowoon.model.Movie
+import com.bowoon.model.MovieWatchProvider
 import com.bowoon.model.People
 import com.bowoon.model.SearchData
 import com.bowoon.model.Series
@@ -25,6 +26,7 @@ class TestDetailRepository : DetailRepository {
     private val tv = MutableSharedFlow<Tv>(replay = 1, onBufferOverflow = DROP_OLDEST)
     private val tvSeasons = MutableSharedFlow<TvSeasons>(replay = 1, onBufferOverflow = DROP_OLDEST)
     private val tvEpisode = MutableSharedFlow<TvEpisode>(replay = 1, onBufferOverflow = DROP_OLDEST)
+    private val watchProvider = MutableSharedFlow<MovieWatchProvider>(replay = 1, onBufferOverflow = DROP_OLDEST)
 
     override fun getMovie(id: Int): Flow<Movie> = movie
 
@@ -53,6 +55,8 @@ class TestDetailRepository : DetailRepository {
         seasonNumber: Int,
         episodeNumber: Int
     ): Flow<TvEpisode> = tvEpisode
+
+    override fun getMovieWatchProviders(movieId: Int): Flow<MovieWatchProvider> = watchProvider
 
     @VisibleForTesting
     fun setMovie(detail: Movie) {

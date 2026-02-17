@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -27,6 +28,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -55,6 +57,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.EntryProviderScope
@@ -81,7 +84,6 @@ import com.bowoon.movie.MovieAppState
 import com.bowoon.movie.R
 import com.bowoon.movie.navigation.TOP_LEVEL_NAV_ITEMS
 import com.bowoon.movie.utils.VerticalRollingAnimation
-import com.bowoon.my.navigation.settingEntry
 import com.bowoon.navigation.Navigator
 import com.bowoon.navigation.toEntries
 import com.bowoon.search.navigation.SearchNavKey
@@ -92,14 +94,16 @@ import com.bowoon.ui.dialog.Indexer
 import com.bowoon.ui.image.DynamicAsyncImageLoader
 import com.bowoon.ui.utils.Line
 import com.bowoon.ui.utils.border
-import com.bowoon.ui.utils.roundedCornerClickable
+import com.bowoon.ui.utils.bounceClick
 import com.bowoon.ui.utils.dp1
 import com.bowoon.ui.utils.dp10
 import com.bowoon.ui.utils.dp16
 import com.bowoon.ui.utils.dp20
 import com.bowoon.ui.utils.dp300
 import com.bowoon.ui.utils.dp40
+import com.bowoon.ui.utils.dp5
 import com.bowoon.ui.utils.dp50
+import com.bowoon.ui.utils.roundedCornerClickable
 import com.bowoon.ui.utils.sp15
 import com.bowoon.ui.utils.sp20
 import kotlinx.serialization.Serializable
@@ -110,7 +114,8 @@ fun MovieApp(
     appState: MovieAppState,
     snackbarHostState: SnackbarHostState,
     nextWeekReleaseMovies: List<Media>,
-    updateShowNextReleaseMoviesDate: () -> Unit
+    updateShowNextReleaseMoviesDate: () -> Unit,
+    showSettingDialog: () -> Unit
 ) {
     val navigator = remember { Navigator(state = appState.navigationState) }
     val isTopLevelRoute = navigator.state.backStacks[navigator.state.topLevelRoute]?.last()?.javaClass in TOP_LEVEL_NAV_ITEMS.map { it.key.javaClass }
@@ -122,7 +127,8 @@ fun MovieApp(
             MovieSearchTopBar(
                 navigator = navigator,
                 isTopLevelRoute = isTopLevelRoute,
-                nextWeekReleaseMovies = nextWeekReleaseMovies
+                nextWeekReleaseMovies = nextWeekReleaseMovies,
+                showSettingDialog = showSettingDialog
             )
         },
         bottomBar = {
@@ -206,7 +212,6 @@ fun MovieApp(
                 goToPeople = navigator::navigateToPeople,
                 goToTv = navigator::navigateToTv
             )
-            settingEntry()
             searchEntry(
                 goToMovie = navigator::navigateToMovie,
                 goToTv = navigator::navigateToTv,
@@ -248,7 +253,8 @@ fun MovieApp(
 fun MovieSearchTopBar(
     navigator: Navigator,
     isTopLevelRoute: Boolean,
-    nextWeekReleaseMovies: List<Media>
+    nextWeekReleaseMovies: List<Media>,
+    showSettingDialog: () -> Unit
 ) {
     AnimatedVisibility(
         modifier = Modifier.statusBarsPadding(),
@@ -257,63 +263,77 @@ fun MovieSearchTopBar(
         enter = expandVertically(),
         exit = shrinkVertically(),
         content = {
-            Box(
-                modifier = Modifier
-                    .padding(top = dp10, bottom = dp10, start = dp16, end = dp16)
-                    .fillMaxWidth()
-                    .height(height = dp40)
-                    .clip(shape = RoundedCornerShape(percent = 50))
-                    .background(color = MaterialTheme.colorScheme.inverseOnSurface)
-                    .roundedCornerClickable(onClick = { navigator.navigate(route = SearchNavKey()) }),
-                contentAlignment = Alignment.Center
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalAlignment = Alignment.CenterVertically
+                Box(
+                    modifier = Modifier
+                        .padding(top = dp10, bottom = dp10, start = dp16)
+                        .weight(weight = 1f)
+                        .height(height = dp40)
+                        .clip(shape = RoundedCornerShape(percent = 50))
+                        .background(color = MaterialTheme.colorScheme.inverseOnSurface)
+                        .roundedCornerClickable(onClick = { navigator.navigate(route = SearchNavKey()) }),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        modifier = Modifier
-                            .wrapContentSize()
-                            .padding(start = dp20)
-                            .align(Alignment.CenterVertically)
-                            .clickable { navigator.navigate(route = SearchNavKey()) },
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "goToSearch",
-                        tint = MaterialTheme.colorScheme.onSurface
-                    )
-                    if (nextWeekReleaseMovies.isEmpty()) {
-                        Text(
+                    Row(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
                             modifier = Modifier
-                                .wrapContentWidth()
-                                .padding(start = dp10),
-                            text = stringResource(id = R.string.go_to_search),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
+                                .wrapContentSize()
+                                .padding(start = dp20)
+                                .align(Alignment.CenterVertically)
+                                .clickable { navigator.navigate(route = SearchNavKey()) },
+                            imageVector = Icons.Default.Search,
+                            contentDescription = "goToSearch",
+                            tint = MaterialTheme.colorScheme.onSurface
                         )
-                    } else if (nextWeekReleaseMovies.size == 1) {
-                        val nextWeekReleaseMovie = nextWeekReleaseMovies.first()
+                        if (nextWeekReleaseMovies.isEmpty()) {
+                            Text(
+                                modifier = Modifier
+                                    .wrapContentWidth()
+                                    .padding(start = dp10),
+                                text = stringResource(id = R.string.go_to_search),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        } else if (nextWeekReleaseMovies.size == 1) {
+                            val nextWeekReleaseMovie = nextWeekReleaseMovies.first()
 
-                        Text(
-                            modifier = Modifier
-                                .wrapContentWidth()
-                                .clickable {
-                                    nextWeekReleaseMovie.id?.let { id ->
-                                        navigator.navigate(route = MovieNavKey(id = id))
-                                    }
-                                },
-                            text = stringResource(id = R.string.next_week_release_movie, nextWeekReleaseMovie.title ?: ""),
-                            maxLines = 1
-                        )
-                    } else {
-                        VerticalRollingAnimation(
-                            modifier = Modifier.padding(start = dp10, end = dp20),
-                            nextWeekReleaseMovies = nextWeekReleaseMovies,
-                            goToMovie = { id ->
-                                navigator.navigate(route = MovieNavKey(id = id))
-                            }
-                        )
+                            Text(
+                                modifier = Modifier
+                                    .wrapContentWidth()
+                                    .clickable {
+                                        nextWeekReleaseMovie.id?.let { id ->
+                                            navigator.navigate(route = MovieNavKey(id = id))
+                                        }
+                                    },
+                                text = stringResource(id = R.string.next_week_release_movie, nextWeekReleaseMovie.title ?: ""),
+                                maxLines = 1
+                            )
+                        } else {
+                            VerticalRollingAnimation(
+                                modifier = Modifier.padding(start = dp10, end = dp20),
+                                nextWeekReleaseMovies = nextWeekReleaseMovies,
+                                goToMovie = { id ->
+                                    navigator.navigate(route = MovieNavKey(id = id))
+                                }
+                            )
+                        }
                     }
                 }
+
+                Icon(
+                    modifier = Modifier
+                        .size(size = 48.dp)
+                        .padding(start = dp5, end = dp16)
+                        .bounceClick(onClick = { showSettingDialog() }),
+                    imageVector = Icons.Rounded.Settings,
+                    contentDescription = "SettingIcon"
+                )
             }
         }
     )

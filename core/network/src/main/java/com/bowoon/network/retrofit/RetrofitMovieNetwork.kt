@@ -8,6 +8,7 @@ import com.bowoon.model.Genres
 import com.bowoon.model.Language
 import com.bowoon.model.Movie
 import com.bowoon.model.MovieResult
+import com.bowoon.model.MovieWatchProvider
 import com.bowoon.model.People
 import com.bowoon.model.Regions
 import com.bowoon.model.Reviews
@@ -376,6 +377,11 @@ class RetrofitMovieNetwork @Inject constructor(
         appendToResponse: String,
         language: String
     ): TvEpisode = when (val response = tmdbApis.getTvEpisode(seriesId = seriesId, seasonNumber = seasonNumber, episodeNumber = episodeNumber, appendToResponse = appendToResponse, language = language)) {
+        is ApiResponse.Failure -> throw response.throwable
+        is ApiResponse.Success -> response.data.asExternalModel()
+    }
+
+    override suspend fun getMovieWatchProvider(movieId: Int): MovieWatchProvider = when (val response = tmdbApis.getMovieWatchProvider(movieId = movieId)) {
         is ApiResponse.Failure -> throw response.throwable
         is ApiResponse.Success -> response.data.asExternalModel()
     }

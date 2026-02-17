@@ -6,4 +6,9 @@
     <string name="now_playing_movies">Now Playing Movies</string>
     <string name="upcoming_movies">Upcoming Movies</string>
     <string name="release_movie">%s Release</string>
+    <string name="time_window_day">D</string>
+    <string name="time_window_week">W</string>
+    <string name="trending_movie">Trending Movie</string>
+    <string name="trending_people">Trending People</string>
+    <string name="trending_tv">Trending TV</string>
 </resources>

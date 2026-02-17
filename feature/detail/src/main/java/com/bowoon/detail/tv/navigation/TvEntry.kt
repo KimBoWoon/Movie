@@ -29,7 +29,7 @@ fun EntryProviderScope<NavKey>.tvEntry(
             viewModel = hiltViewModel<TvVM, TvVM.Factory>(
                 key = detailRoute.id.toString(),
             ) { factory ->
-                factory.create(id = detailRoute.id, initialTabIndex = detailRoute.tab)
+                factory.create(id = detailRoute.id)
             }
         )
     }

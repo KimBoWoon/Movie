@@ -193,6 +193,9 @@ fun MainComponent(
     ) {
         val nowPlayingMoviesTitle = stringResource(id = R.string.now_playing_movies)
         val upcomingMoviesTitle = stringResource(id = R.string.upcoming_movies)
+        val trendingMovieTitle = stringResource(id = R.string.trending_movie)
+        val trendingPeopleTitle = stringResource(id = R.string.trending_people)
+        val trendingTvTitle = stringResource(id = R.string.trending_tv)
 
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
@@ -213,21 +216,21 @@ fun MainComponent(
                 )
             }
             trendingList(
-                title = "Trending Movie",
+                title = trendingMovieTitle,
                 timeWindow = trendingMovieTimeWindow,
                 onChangeTimeWindow = { updateTrendingMovieTimeWindow(it) },
                 goToDestination = goToMovie,
                 trending = trendingMovie
             )
             trendingList(
-                title = "Trending People",
+                title = trendingPeopleTitle,
                 timeWindow = trendingPeopleTimeWindow,
                 onChangeTimeWindow = { updateTrendingPeopleTimeWindow(it) },
                 goToDestination = goToPeople,
                 trending = trendingPeople
             )
             trendingList(
-                title = "Trending TV",
+                title = trendingTvTitle,
                 timeWindow = trendingTvTimeWindow,
                 onChangeTimeWindow = { updateTrendingTvTimeWindow(it) },
                 goToDestination = goToTv,
@@ -280,7 +283,7 @@ fun TimeWindowSwitch(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "일",
+                    text = stringResource(id = R.string.time_window_day),
                     fontSize = sp10,
                     style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false)),
                     textAlign = TextAlign.Center,
@@ -298,7 +301,7 @@ fun TimeWindowSwitch(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "주",
+                    text = stringResource(id = R.string.time_window_week),
                     fontSize = sp10,
                     style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false)),
                     textAlign = TextAlign.Center,

@@ -22,8 +22,9 @@ class GetMovieDetailUseCase @Inject constructor(
     operator fun invoke(id: Int): Flow<MovieWithFavorite> = combine(
         detailRepository.getMovie(id = id),
         userDataRepository.internalData,
-        databaseRepository.isFavoriteMovie(id = id)
-    ) { movie, internalData, isFavorite ->
+        databaseRepository.isFavoriteMovie(id = id),
+//        detailRepository.getMovieWatchProviders(movieId = id)
+    ) { movie, internalData, isFavorite/*, watchProviders*/ ->
         val localizedRelease = movie.releases?.countries?.find { it.iso31661.equals(other = internalData.region, ignoreCase = true) }
 
         MovieWithFavorite(
@@ -32,19 +33,25 @@ class GetMovieDetailUseCase @Inject constructor(
                 certification = localizedRelease?.certification ?: movie.certification
             ),
             isFavorite = isFavorite,
-            autoPlayTrailer = internalData.isAutoPlayTrailer
+            autoPlayTrailer = internalData.isAutoPlayTrailer,
+//            watchProviders = watchProviders.results?.get(key = internalData.region)
         )
     }.flatMapLatest { movieWithFavorite ->
-        movieWithFavorite.movie.belongsToCollection?.id?.let { seriesId ->
+        val seriesId = movieWithFavorite.movie.belongsToCollection?.id
+
+        if (seriesId != null) {
             detailRepository.getMovieSeries(collectionId = seriesId)
                 .map { series -> movieWithFavorite.copy(movie = movieWithFavorite.movie.copy(series = series)) }
                 .catch { emit(value = movieWithFavorite) }
-        } ?: flowOf(value = movieWithFavorite)
+        } else {
+            flowOf(value = movieWithFavorite)
+        }
     }
 }
 
 data class MovieWithFavorite(
     val movie: Movie,
     val isFavorite: Boolean,
-    val autoPlayTrailer: Boolean
+    val autoPlayTrailer: Boolean,
+//    val watchProviders: MovieWatchProviderResult?
 )

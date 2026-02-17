@@ -6,4 +6,9 @@
     <string name="now_playing_movies">상영중인 영화</string>
     <string name="upcoming_movies">개봉예정 영화</string>
     <string name="release_movie">%s 개봉</string>
+    <string name="time_window_day">일</string>
+    <string name="time_window_week">주</string>
+    <string name="trending_movie">인기 영화</string>
+    <string name="trending_people">인기 인물</string>
+    <string name="trending_tv">인기 드라마</string>
 </resources>

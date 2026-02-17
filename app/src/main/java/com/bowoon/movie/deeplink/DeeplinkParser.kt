@@ -19,7 +19,6 @@ import com.bowoon.movie.deeplink.DeeplinkCommand.OpenFavoritePeople
 import com.bowoon.movie.deeplink.DeeplinkCommand.SearchToMovie
 import com.bowoon.movie.deeplink.DeeplinkCommand.SearchToPeople
 import com.bowoon.movie.deeplink.DeeplinkCommand.SearchToSeries
-import com.bowoon.my.navigation.SettingNavKey
 import com.bowoon.search.navigation.SearchNavKey
 
 fun parseDeeplink(uri: Uri?): List<NavKey> = uri?.let { uri ->
@@ -47,7 +46,7 @@ fun parseDeeplink(uri: Uri?): List<NavKey> = uri?.let { uri ->
 private fun createDeeplinkStack(command: DeeplinkCommand): List<NavKey> = when (command) {
     is GoToHome -> listOf(HomeNavKey)
     is GoToFavorite -> listOf(FavoriteNavKey(tab = command.tabIndex))
-    is GoToSetting -> listOf(SettingNavKey)
+    is GoToSetting -> emptyList()// listOf(SettingNavKey)
     is OpenFavoritePeople -> listOf(FavoriteNavKey(tab = 0), PeopleNavKey(id = command.id))
     is OpenFavoriteMovie -> listOf(FavoriteNavKey(tab = 1), MovieNavKey(id = command.id))
     is GoToMovie -> listOf(MovieNavKey(id = command.id, tab = command.tabIndex))

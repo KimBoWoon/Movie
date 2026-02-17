@@ -12,11 +12,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Icon
@@ -146,81 +146,72 @@ fun PeopleDetailComponent(
     val scope = rememberCoroutineScope()
     val relatedMovie = people.people.combineCredits?.getRelatedMovie() ?: emptyList()
     val snackbarMessage = if (people.isFavorite) stringResource(id = R.string.remove_favorite_people) else stringResource(id = R.string.add_favorite_people)
-    val scrollState = rememberLazyListState()
+    val scrollState = rememberScrollState()
 
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        state = scrollState
+    Column(
+        modifier = Modifier.fillMaxSize().verticalScroll(state = scrollState),
     ) {
-        item {
-            ProfileHeader(
-                people = people,
-                images = people.people.images?.mapNotNull { it.filePath } ?: emptyList(),
-                onBack = goToBack,
-                onFavorite = {
-                    if (people.isFavorite) {
-                        deleteFavoritePeople(people.people)
-                    } else {
-                        insertFavoritePeople(people.people)
-                    }
-                    scope.launch {
-                        onShowSnackbar(snackbarMessage, null)
-                    }
+        ProfileHeader(
+            people = people,
+            images = people.people.images?.mapNotNull { it.filePath } ?: emptyList(),
+            onBack = goToBack,
+            onFavorite = {
+                if (people.isFavorite) {
+                    deleteFavoritePeople(people.people)
+                } else {
+                    insertFavoritePeople(people.people)
                 }
+                scope.launch {
+                    onShowSnackbar(snackbarMessage, null)
+                }
+            }
+        )
+        ExternalIdLinkComponent(people = people.people)
+        people.people.biography?.takeIf { it.isNotEmpty() }?.let {
+            Spacer(modifier = Modifier.padding(vertical = dp10))
+            Text(
+                modifier = Modifier
+                    .semantics { contentDescription = "peopleBiography" }
+                    .padding(horizontal = dp10),
+                text = it
             )
         }
+        Spacer(modifier = Modifier.padding(vertical = dp10))
+        val rows = remember(key1 = relatedMovie) { relatedMovie.chunked(size = 3) }
 
-        item {
-            ExternalIdLinkComponent(people = people.people)
-        }
-
-        item {
-            people.people.biography?.takeIf { it.isNotEmpty() }?.let {
-                Text(
-                    modifier = Modifier
-                        .semantics { contentDescription = "peopleBiography" }
-                        .padding(horizontal = dp10),
-                    text = it
-                )
-            }
-        }
-        item {
-            val rows = remember(key1 = relatedMovie) { relatedMovie.chunked(size = 3) }
-
-            Column(
-                modifier = Modifier.padding(start = dp10, end = dp10, bottom = dp20),
-                verticalArrangement = Arrangement.spacedBy(space = dp10)
-            ) {
-                rows.forEach { rowItems ->
-                    Row(horizontalArrangement = Arrangement.spacedBy(space = dp10)) {
-                        rowItems.forEach { media ->
-                            DynamicAsyncImageLoader(
-                                modifier = Modifier
-                                    .weight(weight = 1f)
-                                    .aspectRatio(ratio = POSTER_IMAGE_RATIO)
-                                    .roundedCornerClickable(
-                                        onClick = {
-                                            when (media.mediaType) {
-                                                MediaType.NONE -> {
-                                                    scope.launch {
-                                                        onShowSnackbar("MediaType not found...", null)
-                                                    }
-                                                    return@roundedCornerClickable
+        Column(
+            modifier = Modifier.padding(start = dp10, end = dp10, bottom = dp20),
+            verticalArrangement = Arrangement.spacedBy(space = dp10)
+        ) {
+            rows.forEach { rowItems ->
+                Row(horizontalArrangement = Arrangement.spacedBy(space = dp10)) {
+                    rowItems.forEach { media ->
+                        DynamicAsyncImageLoader(
+                            modifier = Modifier
+                                .weight(weight = 1f)
+                                .aspectRatio(ratio = POSTER_IMAGE_RATIO)
+                                .roundedCornerClickable(
+                                    onClick = {
+                                        when (media.mediaType) {
+                                            MediaType.NONE -> {
+                                                scope.launch {
+                                                    onShowSnackbar("MediaType not found...", null)
                                                 }
-
-                                                MediaType.MOVIE -> goToMovie(media.id ?: -1)
-                                                MediaType.TV -> goToTv(media.id ?: -1)
+                                                return@roundedCornerClickable
                                             }
-                                        }, cornerRadius = dp10
-                                    ),
-                                source = media.posterPath ?: "",
-                                contentDescription = "RelatedMovie"
-                            )
-                        }
-                        // 마지막 줄이 3개 미만일 때 빈칸 채우기
-                        repeat(times = 3 - rowItems.size) {
-                            Spacer(modifier = Modifier.weight(weight = 1f))
-                        }
+
+                                            MediaType.MOVIE -> goToMovie(media.id ?: -1)
+                                            MediaType.TV -> goToTv(media.id ?: -1)
+                                        }
+                                    }, cornerRadius = dp10
+                                ),
+                            source = media.posterPath ?: "",
+                            contentDescription = "RelatedMovie"
+                        )
+                    }
+                    // 마지막 줄이 3개 미만일 때 빈칸 채우기
+                    repeat(times = 3 - rowItems.size) {
+                        Spacer(modifier = Modifier.weight(weight = 1f))
                     }
                 }
             }
@@ -240,35 +231,37 @@ fun ProfileHeader(
     Box(
         modifier = Modifier.fillMaxWidth()
     ) {
-        // 배경 Pager
-        HorizontalPager(
-            state = pagerState,
-            modifier = Modifier.fillMaxWidth().aspectRatio(ratio = POSTER_IMAGE_RATIO)
-        ) { page ->
-            val url = images.getOrNull(index = page) ?: images.firstOrNull()
+        if (images.isNotEmpty()) {
+            // 배경 Pager
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.fillMaxWidth().aspectRatio(ratio = POSTER_IMAGE_RATIO)
+            ) { page ->
+                val url = images.getOrNull(index = page) ?: images.firstOrNull()
 
-            DynamicAsyncImageLoader(
-                modifier = Modifier.fillMaxSize(),
-                source = url ?: "",
-                contentDescription = null,
-                contentScale = ContentScale.FillWidth
-            )
-        }
+                DynamicAsyncImageLoader(
+                    modifier = Modifier.fillMaxSize(),
+                    source = url ?: "",
+                    contentDescription = null,
+                    contentScale = ContentScale.FillWidth
+                )
+            }
 
-        // Dim + Gradient(텍스트/카드 가독성)
-        Box(
-            modifier = Modifier
-                .matchParentSize()
-                .background(
-                    Brush.verticalGradient(
-                        colorStops = arrayOf(
-                            0.7f to Color.Black.copy(alpha = 0.05f),
-                            0.9f to Color.Black.copy(alpha = 0.10f),
-                            1.0f to MaterialTheme.colorScheme.background
+            // Dim + Gradient(텍스트/카드 가독성)
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .background(
+                        Brush.verticalGradient(
+                            colorStops = arrayOf(
+                                0.6f to Color.Black.copy(alpha = 0.05f),
+                                0.8f to Color.Black.copy(alpha = 0.10f),
+                                1.0f to MaterialTheme.colorScheme.background
+                            )
                         )
                     )
-                )
-        )
+            )
+        }
 
         // 상단 아이콘 Row
         Row(
@@ -278,12 +271,11 @@ fun ProfileHeader(
             IconButton(onClick = onBack) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
-                    tint = Color.White
+                    contentDescription = "Back"
                 )
             }
 
-            Spacer(Modifier.weight(weight = 1f))
+            Spacer(modifier = Modifier.weight(weight = 1f))
 
             FavoriteButtonComponent(
                 modifier = Modifier
@@ -298,16 +290,18 @@ fun ProfileHeader(
             modifier = Modifier.align(Alignment.BottomCenter),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Indexer(
-                modifier = Modifier
-                    .wrapContentSize()
-                    .background(
-                        color = Color(color = 0x33000000),
-                        shape = RoundedCornerShape(size = dp20)
-                    ),
-                current = pagerState.currentPage + 1,
-                size = images.size
-            )
+            if (images.isNotEmpty()) {
+                Indexer(
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .background(
+                            color = Color(color = 0x33000000),
+                            shape = RoundedCornerShape(size = dp20)
+                        ),
+                    current = pagerState.currentPage + 1,
+                    size = images.size
+                )
+            }
             // 중앙 타이틀 (목업 느낌: 이름을 헤더 중앙에)
             Text(
                 text = people.people.title ?: "",

@@ -12,7 +12,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation3.runtime.NavKey
 import com.bowoon.favorite.navigation.FavoriteNavKey
 import com.bowoon.home.navigation.HomeNavKey
-import com.bowoon.my.navigation.SettingNavKey
 
 /**
  * 앱 최상단 내비게이션 바
@@ -38,15 +37,15 @@ val FAVORITE = TopLevelDestination(
     type = FavoriteNavKey::class.java
 )
 
-val MY = TopLevelDestination(
-    selectedIcon = Icons.Rounded.Settings,
-    unselectedIcon = Icons.Outlined.Settings,
-    titleTextId = com.bowoon.movie.feature.my.R.string.feature_my_name,
-    type = SettingNavKey::class.java
-)
+//val MY = TopLevelDestination(
+//    selectedIcon = Icons.Rounded.Settings,
+//    unselectedIcon = Icons.Outlined.Settings,
+//    titleTextId = com.bowoon.movie.feature.my.R.string.feature_my_name,
+//    type = SettingNavKey::class.java
+//)
 
 val TOP_LEVEL_NAV_ITEMS = mapOf(
     HomeNavKey to HOME,
     FavoriteNavKey(tab = 0) to FAVORITE,
-    SettingNavKey to MY
+//    SettingNavKey to MY
 )

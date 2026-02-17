@@ -1,11 +1,10 @@
 package com.bowoon.my
 
 import com.bowoon.model.DarkThemeConfig
-import com.bowoon.model.InternalData
+import com.bowoon.model.LocaleOption
 import com.bowoon.testing.repository.TestUserDataRepository
 import com.bowoon.testing.utils.MainDispatcherRule
 import com.bowoon.testing.utils.TestMovieAppDataManager
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -21,6 +20,20 @@ class MyVMTest {
     private lateinit var viewModel: SettingVM
     private lateinit var testUserDataRepository: TestUserDataRepository
     private lateinit var testMovieAppDataManager: TestMovieAppDataManager
+    private val settingUiState = SettingsUiState(
+        sheet = SettingsSheet.Hidden,
+        mainUpdateDate = "",
+        versionName = "",
+        darkMode = DarkThemeConfig.FOLLOW_SYSTEM,
+        adultEnabled = true,
+        trailerAutoplay = true,
+        language = LocaleOption(),
+        region = LocaleOption(),
+        imageQuality = "original",
+        imageQualityList = emptyList(),
+        allLanguages = emptyList(),
+        allRegions = emptyList()
+    )
 
     @Before
     fun setup() {
@@ -33,10 +46,10 @@ class MyVMTest {
     }
 
     @Test
-    fun myDataTest() = runTest {
-        backgroundScope.launch(context = UnconfinedTestDispatcher()) { viewModel.myData.collect() }
+    fun settingUiStateTest() = runTest {
+        backgroundScope.launch(context = UnconfinedTestDispatcher()) { viewModel.uiState.collect { println(it) } }
 
-        assertEquals(expected = viewModel.myData.value, actual = InternalData())
+        assertEquals(expected = viewModel.uiState.value, actual = settingUiState)
     }
 
     @Test

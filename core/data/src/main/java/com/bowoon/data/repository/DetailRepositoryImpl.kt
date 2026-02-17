@@ -4,6 +4,7 @@ import com.bowoon.datastore.InternalDataSource
 import com.bowoon.model.CombineCredits
 import com.bowoon.model.ExternalIds
 import com.bowoon.model.Movie
+import com.bowoon.model.MovieWatchProvider
 import com.bowoon.model.People
 import com.bowoon.model.SearchData
 import com.bowoon.model.Series
@@ -17,7 +18,6 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
-import java.time.LocalDate
 import javax.inject.Inject
 
 class DetailRepositoryImpl @Inject constructor(
@@ -66,18 +66,7 @@ class DetailRepositoryImpl @Inject constructor(
     override fun getMovieSeries(collectionId: Int): Flow<Series> = flow {
         val internalData = datastore.userData.first()
 
-        apis.getMovieSeries(collectionId = collectionId, language = "${internalData.language}-${internalData.region}").let { movieSeries ->
-            movieSeries.copy(
-                parts = movieSeries.parts
-                    ?.sortedBy { movie ->
-                        movie.releaseDate
-                            .takeIf { !it.isNullOrEmpty() }
-                            .let { releaseDate ->
-                                LocalDate.parse(releaseDate ?: "9999-12-31")
-                            }
-                }
-            )
-        }
+        emit(value = apis.getMovieSeries(collectionId = collectionId, language = "${internalData.language}-${internalData.region}"))
     }
 
     override fun getTv(id: Int): Flow<Tv> = flow {
@@ -124,5 +113,9 @@ class DetailRepositoryImpl @Inject constructor(
         val internalData = datastore.userData.first()
 
         emit(value = apis.getTvEpisode(seriesId = seriesId, seasonNumber = seasonNumber, episodeNumber = episodeNumber, language = "${internalData.language}-${internalData.region}"))
+    }
+
+    override fun getMovieWatchProviders(movieId: Int): Flow<MovieWatchProvider> = flow {
+        emit(value = apis.getMovieWatchProvider(movieId = movieId))
     }
 }

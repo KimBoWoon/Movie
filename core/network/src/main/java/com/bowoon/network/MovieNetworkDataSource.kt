@@ -7,6 +7,7 @@ import com.bowoon.model.ExternalIds
 import com.bowoon.model.Genres
 import com.bowoon.model.Language
 import com.bowoon.model.Movie
+import com.bowoon.model.MovieWatchProvider
 import com.bowoon.model.People
 import com.bowoon.model.Regions
 import com.bowoon.model.Reviews
@@ -177,4 +178,8 @@ interface MovieNetworkDataSource {
         appendToResponse: String = "images,videos,credits,releases,keywords,alternative_titles",
         language: String = "ko-KR"
     ): TvEpisode
+
+    suspend fun getMovieWatchProvider(
+        movieId: Int
+    ): MovieWatchProvider
 }

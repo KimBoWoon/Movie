@@ -3,6 +3,7 @@ package com.bowoon.data.repository
 import com.bowoon.model.CombineCredits
 import com.bowoon.model.ExternalIds
 import com.bowoon.model.Movie
+import com.bowoon.model.MovieWatchProvider
 import com.bowoon.model.People
 import com.bowoon.model.SearchData
 import com.bowoon.model.Series
@@ -24,4 +25,5 @@ interface DetailRepository {
     fun getTv(id: Int): Flow<Tv>
     fun getTvSeasons(seriesId: Int, seasonNumber: Int): Flow<TvSeasons>
     fun getTvEpisode(seriesId: Int, seasonNumber: Int, episodeNumber: Int): Flow<TvEpisode>
+    fun getMovieWatchProviders(movieId: Int): Flow<MovieWatchProvider>
 }

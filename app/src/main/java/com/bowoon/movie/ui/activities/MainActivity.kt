@@ -8,6 +8,7 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -35,6 +36,9 @@ import com.bowoon.movie.rememberMovieAppState
 import com.bowoon.movie.ui.MovieApp
 import com.bowoon.movie.ui.NextWeekReleaseMoviesNavKey
 import com.bowoon.movie.utils.isSystemInDarkTheme
+import com.bowoon.my.SettingScreen
+import com.bowoon.my.SettingVM
+import com.bowoon.my.SettingsAction
 import com.bowoon.ui.theme.MovieTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.combine
@@ -46,6 +50,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val viewModel: MainVM by viewModels()
+    private val settingVM: SettingVM by viewModels()
     @Inject
     lateinit var networkMonitor: NetworkMonitor
     @Inject
@@ -133,8 +138,11 @@ class MainActivity : ComponentActivity() {
                         appState = appState,
                         snackbarHostState = snackbarHostState,
                         nextWeekReleaseMovies = nextWeekReleaseMedia.first,
-                        updateShowNextReleaseMoviesDate = viewModel::updateShowNextReleaseMoviesDate
+                        updateShowNextReleaseMoviesDate = viewModel::updateShowNextReleaseMoviesDate,
+                        showSettingDialog = { settingVM.onAction(action = SettingsAction.OpenMain) }
                     )
+
+                    SettingScreen(viewModel = settingVM)
                 }
             }
         }

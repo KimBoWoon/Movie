@@ -1,64 +1,65 @@
 package com.bowoon.my
 
-import androidx.compose.foundation.LocalIndication
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.PrimaryTabRow
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
+import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
-import androidx.compose.material3.VerticalDivider
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.bowoon.common.Log
 import com.bowoon.common.getVersionName
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.DarkThemeConfig
-import com.bowoon.model.InternalData
-import com.bowoon.model.MovieAppData
-import com.bowoon.model.PosterSize
 import com.bowoon.movie.feature.my.R
+import com.bowoon.ui.utils.dp10
+import com.bowoon.ui.utils.dp12
+import com.bowoon.ui.utils.dp14
 import com.bowoon.ui.utils.dp16
-import com.bowoon.ui.utils.dp50
-import com.bowoon.ui.utils.dp500
-import com.bowoon.ui.utils.dp56
+import com.bowoon.ui.utils.dp18
+import com.bowoon.ui.utils.dp2
+import com.bowoon.ui.utils.dp28
+import com.bowoon.ui.utils.dp420
+import com.bowoon.ui.utils.dp48
+import com.bowoon.ui.utils.dp520
+import com.bowoon.ui.utils.dp560
+import com.bowoon.ui.utils.dp8
+import com.bowoon.ui.utils.dp84
+import com.bowoon.ui.utils.dp999
 
 @Composable
 fun SettingScreen(
@@ -66,405 +67,379 @@ fun SettingScreen(
 ) {
     LocalFirebaseLogHelper.current.sendLog("MyScreen", "my screen init")
 
-    val internalData by viewModel.myData.collectAsStateWithLifecycle()
-    val movieAppData by viewModel.movieAppData.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     SettingScreen(
-        internalData = internalData,
-        movieAppData = movieAppData,
-        updateIsAdult = viewModel::updateIsAdult,
-        updateAutoPlayTrailer = viewModel::updateIsAutoPlayTrailer,
-        updateIsDarkMode = viewModel::updateDarkMode,
-        updateRegion = viewModel::updateRegion,
-        updateLanguage = viewModel::updateLanguage,
-        updateImageQuality = viewModel::updateImageQuality
+        state = uiState,
+        onAction = viewModel::onAction
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingScreen(
-    internalData: InternalData,
-    movieAppData: MovieAppData,
-    updateIsAdult: (Boolean) -> Unit,
-    updateAutoPlayTrailer: (Boolean) -> Unit,
-    updateIsDarkMode: (DarkThemeConfig) -> Unit,
-    updateRegion: (String) -> Unit,
-    updateLanguage: (String) -> Unit,
-    updateImageQuality: (String) -> Unit
+    state: SettingsUiState,
+    onAction: (SettingsAction) -> Unit
+) {
+    if (state.sheet == SettingsSheet.Hidden) return
+
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    ModalBottomSheet(
+        onDismissRequest = { onAction(SettingsAction.CloseSheet) },
+        sheetState = sheetState,
+        shape = RoundedCornerShape(topStart = dp28, topEnd = dp28),
+        dragHandle = { BottomSheetDefaults.DragHandle() }
+    ) {
+        when (state.sheet) {
+            SettingsSheet.Main -> {
+                SettingMainSheet(
+                    state = state,
+                    onAction = onAction
+                )
+            }
+            SettingsSheet.LanguageRegion -> {
+                LanguageRegionSubSheet(
+                    state = state,
+                    onAction = onAction
+                )
+            }
+            SettingsSheet.ImageQuality -> {
+                ImageQualitySubSheet(
+                    state = state,
+                    onAction = onAction
+                )
+            }
+            SettingsSheet.Hidden -> Unit
+        }
+
+        Spacer(modifier = Modifier.height(height = dp12))
+    }
+}
+
+@Composable
+fun SettingMainSheet(
+    state: SettingsUiState,
+    onAction: (SettingsAction) -> Unit
 ) {
     val context = LocalContext.current
-    var isShowChooseDialog by remember { mutableStateOf(value = false) }
-    var isShowLanguageChangeDialog by remember { mutableStateOf(value = false) }
-    var chooseDialogItem by remember { mutableStateOf(value = listOf<Any>()) }
-    var selectedOption by remember { mutableStateOf<Any?>(value = null) }
-    var updateUserDataLambda by remember { mutableStateOf<(Any?) -> Unit>(value = {}) }
-    val menuList = mutableListOf<MyMenu>(
-        MyMenu.Display(
-            label = stringResource(id = R.string.main_update_data_setting),
-            content = internalData.updateDate
-        ),
-        MyMenu.Dialog(
-            label = stringResource(id = R.string.dark_mode_setting),
-            selected = internalData.isDarkMode,
-            list = DarkThemeConfig.entries,
-            content = when (internalData.isDarkMode) {
-                DarkThemeConfig.FOLLOW_SYSTEM -> stringResource(id = R.string.dark_mode_setting_system_follow)
-                DarkThemeConfig.LIGHT -> stringResource(id = R.string.dark_mode_setting_light)
-                DarkThemeConfig.DARK -> stringResource(id = R.string.dark_mode_setting_dark)
-            },
-            updateLambda = { updateIsDarkMode(it as DarkThemeConfig) }
-        ),
-        MyMenu.Switch(
-            label = stringResource(id = R.string.is_adult_setting),
-            selected = internalData.isAdult,
-            onClick = { updateIsAdult(it) }
-        ),
-        MyMenu.Switch(
-            label = stringResource(id = R.string.auto_playing_trailer_setting),
-            selected = internalData.isAutoPlayTrailer,
-            onClick = { updateAutoPlayTrailer(it) }
-        ),
-        MyMenu.Dialog(
-            label = stringResource(id = R.string.language_setting),
-            selected = movieAppData.language.find { it.isSelected } ?: "",
-            list = movieAppData.language,
-            content = "${internalData.language}-${internalData.region}",
-            updateLambda = {}
-        ),
-        MyMenu.Dialog(
-            label = stringResource(id = R.string.image_quality_setting),
-            selected = internalData.imageQuality,
-            list = movieAppData.posterSize,
-            content = internalData.imageQuality,
-            updateLambda = { updateImageQuality((it as PosterSize).size ?: "") }
-        ),
-        MyMenu.Display(
-            label = stringResource(id = R.string.version_info),
-            content = getVersionName(context = context)
-        )
-    )
 
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxWidth()
     ) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            item {
-                menuList.forEach { menu ->
-                    when (menu) {
-                        is MyMenu.Dialog -> {
-                            val languageLabel = stringResource(id = R.string.language_setting)
-
-                            DisplayMenuComponent(
-                                title = menu.label,
-                                content = menu.content,
-                                onClick = {
-                                    when (menu.label) {
-                                        languageLabel -> isShowLanguageChangeDialog = true
-                                        else -> isShowChooseDialog = true
-                                    }
-                                    selectedOption = menu.selected
-                                    chooseDialogItem = menu.list
-                                    updateUserDataLambda = menu.updateLambda
-                                }
-                            )
-                        }
-                        is MyMenu.Display -> {
-                            DisplayMenuComponent(
-                                title = menu.label,
-                                content = menu.content
-                            )
-                        }
-                        is MyMenu.Switch -> {
-                            SwitchMenuComponent(
-                                title = menu.label,
-                                checked = menu.selected,
-                                onClick = menu.onClick
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    when {
-        isShowLanguageChangeDialog -> {
-            LanguageChooseMenuComponent(
-                internalData = internalData,
-                movieAppData = movieAppData,
-                updateRegion = updateRegion,
-                updateLanguage = updateLanguage,
-                onDismiss = { isShowLanguageChangeDialog = false }
-            )
-        }
-        isShowChooseDialog -> {
-            ChooseDialog(
-                list = chooseDialogItem,
-                selectedOption = selectedOption,
-                dismiss = { isShowChooseDialog = false },
-                updateUserData = updateUserDataLambda
-            )
-        }
-    }
-}
-
-@Composable
-fun <T> ChooseDialog(
-    list: List<T>,
-    selectedOption: T,
-    dismiss: () -> Unit,
-    updateUserData: (T) -> Unit
-) {
-    Dialog(
-        onDismissRequest = { dismiss() },
-        properties = DialogProperties(
-            usePlatformDefaultWidth = false,
-            dismissOnBackPress = true,
-            dismissOnClickOutside = false
+        SheetHeader(title = stringResource(id = R.string.feature_my_name))
+        HorizontalDivider()
+        SettingRowText(
+            title = stringResource(id = R.string.main_update_data_setting),
+            value = state.mainUpdateDate ?: ""
         )
-    ) {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth(fraction = 0.8f)
-                .heightIn(max = dp500)
-                .background(color = Color.White)
-        ) {
-            items(
-                items = list,
-                key = {
-                    when (it) {
-                        is DarkThemeConfig -> it.label
-                        is PosterSize -> it.size ?: ""
-                        else -> it ?: ""
-                    }
+        SettingRowChevron(
+            title = stringResource(id = R.string.dark_mode_setting),
+            value = state.darkMode.label,
+            onClick = {
+                val next = when (state.darkMode) {
+                    DarkThemeConfig.FOLLOW_SYSTEM -> DarkThemeConfig.DARK
+                    DarkThemeConfig.DARK -> DarkThemeConfig.LIGHT
+                    DarkThemeConfig.LIGHT -> DarkThemeConfig.FOLLOW_SYSTEM
                 }
-            ) { item ->
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .height(height = dp56)
-                        .selectable(
-                            selected = when (item) {
-                                is DarkThemeConfig -> item == selectedOption
-                                is PosterSize -> item.isSelected
-                                else -> false
-                            },
-                            onClick = {
-                                updateUserData(item)
-                                dismiss()
-                            },
-                            role = Role.RadioButton
-                        )
-                        .padding(horizontal = dp16),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    RadioButton(
-                        selected = when (item) {
-                            is DarkThemeConfig -> item == selectedOption
-                            is PosterSize -> item.isSelected
-                            else -> false
-                        },
-                        onClick = null
-                    )
-                    Text(
-                        modifier = Modifier.padding(start = dp16),
-                        text = when (item) {
-                            is DarkThemeConfig -> item.label
-                            is PosterSize -> item.size ?: ""
-                            else -> ""
-                        },
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = Color.Black
-                    )
-                }
+                onAction(SettingsAction.SetDarkMode(mode = next))
             }
-        }
+        )
+        SettingRowSwitch(
+            title = stringResource(id = R.string.is_adult_setting),
+            checked = state.adultEnabled,
+            onCheckedChange = { onAction(SettingsAction.SetAdult(enabled = it)) }
+        )
+        SettingRowSwitch(
+            title = stringResource(id = R.string.auto_playing_trailer_setting),
+            checked = state.trailerAutoplay,
+            onCheckedChange = { onAction(SettingsAction.SetTrailerAutoplay(enabled = it)) }
+        )
+        SettingRowChevron(
+            title = stringResource(id = R.string.language_setting),
+            value = "${state.language?.code}-${state.region?.code}",
+            onClick = { onAction(SettingsAction.OpenLanguageRegion) }
+        )
+        SettingRowChevron(
+            title = stringResource(id = R.string.image_quality_setting),
+            value = state.imageQuality,
+            onClick = { onAction(SettingsAction.OpenImageQuality) }
+        )
+
+        SettingRowText(
+            title = stringResource(id = R.string.version_info),
+            value = getVersionName(context = context)
+        )
+
+        Spacer(Modifier.height(height = dp8))
+
+        BottomCloseButton(
+            onClick = { onAction(SettingsAction.CloseSheet) }
+        )
     }
 }
 
 @Composable
-fun DisplayMenuComponent(
-    title: String,
-    content: String,
-    onClick: (() -> Unit)? = null
-) {
+private fun SheetHeader(title: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(height = dp50)
-            .clickable(
-                interactionSource = if (onClick == null) null else remember { MutableInteractionSource() },
-                indication = if (onClick == null) null else LocalIndication.current
-            ) { onClick?.let { it() } },
-        verticalAlignment = Alignment.CenterVertically,
+            .padding(horizontal = dp18, vertical = dp10),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Spacer(Modifier.weight(weight = 1f))
+        Text(text = title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+        Spacer(Modifier.weight(weight = 1f))
+    }
+}
+
+@Composable
+private fun SettingRowText(title: String, value: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = dp18, vertical = dp18),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(
-            modifier = Modifier.padding(start = dp16),
-            text = title
-        )
+        Text(text = title, style = MaterialTheme.typography.bodyLarge)
+        Text(text = value, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+    HorizontalDivider()
+}
+
+@Composable
+private fun SettingRowChevron(title: String, value: String, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .padding(horizontal = dp18, vertical = dp18),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(text = title, style = MaterialTheme.typography.bodyLarge)
+        Text(text = "$value  >", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+    HorizontalDivider()
+}
+
+@Composable
+private fun SettingRowSwitch(title: String, checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = dp18),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(text = title, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(weight = 1f))
+        Switch(checked = checked, onCheckedChange = onCheckedChange)
+    }
+    HorizontalDivider()
+}
+
+@Composable
+private fun BottomCloseButton(onClick: () -> Unit) {
+    Box(Modifier.fillMaxWidth().padding(horizontal = dp18, vertical = dp10)) {
+        Button(
+            onClick = onClick,
+            modifier = Modifier.fillMaxWidth().height(height = dp48),
+            shape = RoundedCornerShape(size = dp999)
+        ) { Text("닫기") }
+    }
+}
+
+@Composable
+fun ImageQualitySubSheet(
+    state: SettingsUiState,
+    onAction: (SettingsAction) -> Unit
+) {
+    val current = state.selectedImageQuality ?: state.imageQuality
+    var pending = state.imageQuality
+    val options = state.imageQualityList
+
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
         Row(
-            modifier = Modifier.padding(end = dp16),
-            horizontalArrangement = Arrangement.SpaceEvenly
+            modifier = Modifier.fillMaxWidth().padding(horizontal = dp18, vertical = dp10),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = content)
-            if (onClick != null) {
-                Icon(
-                    modifier = Modifier.rotate(degrees = 90f),
-                    imageVector = Icons.Filled.KeyboardArrowUp,
-                    contentDescription = "moreIcon"
-                )
-            }
+            TextButton(onClick = { onAction(SettingsAction.BackToMainFromImageQuality) }) { Text(text = "뒤로") }
+            Spacer(modifier = Modifier.weight(weight = 1f))
+            Text(text = stringResource(id = R.string.image_quality_setting), style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.weight(weight = 1f))
+            TextButton(onClick = { onAction(SettingsAction.CloseSheet) }) { Text(text = "닫기") }
         }
-    }
-}
 
-@Composable
-fun SwitchMenuComponent(
-    title: String,
-    checked: Boolean,
-    onClick: ((Boolean) -> Unit)
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(height = dp50),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(
-            modifier = Modifier.padding(start = dp16),
-            text = title
-        )
-        Switch(
-            modifier = Modifier.padding(end = dp16),
-            checked = checked,
-            onCheckedChange = { onClick(it) }
-        )
-    }
-}
+        HorizontalDivider()
 
-@Composable
-fun LanguageChooseMenuComponent(
-    internalData: InternalData,
-    movieAppData: MovieAppData,
-    updateRegion: (String) -> Unit,
-    updateLanguage: (String) -> Unit,
-    onDismiss: () -> Unit
-) {
-    var language by remember { mutableStateOf(value = internalData.language) }
-    var region by remember { mutableStateOf(value = internalData.region) }
-    val isChooseLanguageExpand = remember { mutableStateOf(value = false) }
-    val isChooseRegionExpand = remember { mutableStateOf(value = false) }
-
-    Dialog(
-        onDismissRequest = { onDismiss() },
-        properties = DialogProperties(
-            usePlatformDefaultWidth = false,
-            dismissOnBackPress = true,
-            dismissOnClickOutside = false
-        )
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth(fraction = 0.8f)
-                .background(color = MaterialTheme.colorScheme.inverseOnSurface),
-            verticalArrangement = Arrangement.Center
+        Box(
+            modifier = Modifier.fillMaxWidth().heightIn(min = dp420, max = dp520)
         ) {
-            DropdownItemComponent(
-                list = movieAppData.language.sortedBy { it.iso6391 }.map { "${it.iso6391} (${it.englishName})" },
-                selectedOption = language,
-                updateUserData = { selectedLanguage ->
-                    movieAppData.language.find { language -> "${language.iso6391} (${language.englishName})" == selectedLanguage }?.let {
-                        language = it.iso6391 ?: ""
-                    }
-                },
-                isExpand = isChooseLanguageExpand
-            )
-            HorizontalDivider()
-            DropdownItemComponent(
-                list = movieAppData.region.sortedBy { it.iso31661 }.map { "${it.iso31661} (${it.englishName})" },
-                selectedOption = region,
-                updateUserData = { selectedRegion ->
-                    movieAppData.region.find { language -> "${language.iso31661} (${language.englishName})" == selectedRegion }?.let {
-                        region = it.iso31661 ?: ""
-                    }
-                },
-                isExpand = isChooseRegionExpand
-            )
-            HorizontalDivider()
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(height = dp50)
+            LazyColumn(
+                modifier = Modifier.fillMaxSize().padding(bottom = dp84),
+                contentPadding = PaddingValues(horizontal = dp16, vertical = dp12),
+                verticalArrangement = Arrangement.spacedBy(space = dp10)
             ) {
-                Box(
-                    modifier = Modifier
-                        .weight(weight = 1.0f)
-                        .fillMaxHeight()
-                        .clickable {
-                            updateRegion(region)
-                            updateLanguage(language)
-                            onDismiss()
-                        },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(text = stringResource(id = R.string.confirm))
-                }
-                VerticalDivider(modifier = Modifier.height(height = dp50))
-                Box(
-                    modifier = Modifier
-                        .weight(weight = 1.0f)
-                        .fillMaxHeight()
-                        .clickable { onDismiss() },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(text = stringResource(id = R.string.cancel))
+                items(items = options, key = { it }) { opt ->
+                    SelectRowSimple(
+                        label = opt,
+                        selected = opt == current,
+                        onClick = {
+                            onAction(SettingsAction.PickImageQuality(option = opt))
+                            pending = opt
+                        }
+                    )
                 }
             }
+
+            BottomConfirmBar(
+                enabled = pending != current,
+                text = "확인",
+                onClick = { onAction(SettingsAction.ConfirmImageQuality) },
+                modifier = Modifier.align(Alignment.BottomCenter)
+            )
+        }
+    }
+}
+
+enum class LocaleTab { LANGUAGE, REGION }
+
+@Composable
+fun LanguageRegionSubSheet(
+    state: SettingsUiState,
+    onAction: (SettingsAction) -> Unit
+) {
+    var tab by remember { mutableStateOf(value = LocaleTab.LANGUAGE) }
+    var query by remember { mutableStateOf(value = TextFieldValue(text = "")) }
+
+    val selectedLang = state.selectedLanguage ?: state.language
+    val selectedRegion = state.selectedRegion ?: state.region
+
+    val all = if (tab == LocaleTab.LANGUAGE) state.allLanguages else state.allRegions
+    val selectedCode = if (tab == LocaleTab.LANGUAGE) selectedLang?.code else selectedRegion?.code
+
+    val filtered = remember(key1 = all, key2 = query.text) {
+        if (query.text.isBlank()) {
+            all
+        } else {
+            all.filter { it.label.contains(other = query.text, ignoreCase = true) || it.code.contains(other = query.text, ignoreCase = true) }
+        }
+    }
+
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = dp18, vertical = dp10),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            TextButton(onClick = { onAction(SettingsAction.BackToMainFromLanguageRegion) }) { Text(text = "뒤로") }
+            Spacer(Modifier.weight(weight = 1f))
+            Text(text = "언어 / 지역", style = MaterialTheme.typography.titleMedium)
+            Spacer(Modifier.weight(weight = 1f))
+            TextButton(onClick = { onAction(SettingsAction.CloseSheet) }) { Text(text = "닫기") }
+        }
+
+        PrimaryTabRow(selectedTabIndex = if (tab == LocaleTab.LANGUAGE) 0 else 1, divider = {}) {
+            Tab(selected = tab == LocaleTab.LANGUAGE, onClick = { tab = LocaleTab.LANGUAGE; query = TextFieldValue(text = "") }, text = { Text(text = "언어") })
+            Tab(selected = tab == LocaleTab.REGION, onClick = { tab = LocaleTab.REGION; query = TextFieldValue(text = "") }, text = { Text(text = "지역") })
+        }
+
+        Spacer(modifier = Modifier.height(height = dp12))
+
+        OutlinedTextField(
+            value = query,
+            onValueChange = { query = it },
+            modifier = Modifier.fillMaxWidth().padding(horizontal = dp16),
+            placeholder = { Text(text = "검색...") },
+            singleLine = true,
+            shape = RoundedCornerShape(size = dp16),
+            trailingIcon = {
+                if (query.text.isNotBlank()) {
+                    Text(
+                        text = "지우기",
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(end = dp12).clickable { query = TextFieldValue(text = "") }
+                    )
+                }
+            }
+        )
+
+        Spacer(modifier = Modifier.height(height = dp12))
+
+        Box(
+            modifier = Modifier.fillMaxWidth().heightIn(min = dp420, max = dp560)
+        ) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize().padding(bottom = dp84),
+                contentPadding = PaddingValues(horizontal = dp16, vertical = dp8),
+                verticalArrangement = Arrangement.spacedBy(space = dp10)
+            ) {
+                items(items = filtered, key = { it.code }) { opt ->
+                    SelectRowSimple(
+                        label = opt.label,
+                        selected = opt.code == selectedCode
+                    ) {
+                        if (tab == LocaleTab.LANGUAGE) {
+                            onAction(SettingsAction.PickLanguage(option = opt))
+                        } else {
+                            onAction(SettingsAction.PickRegion(option = opt))
+                        }
+                    }
+                }
+            }
+
+            // Confirm bar
+            BottomConfirmBar(
+                enabled = (selectedLang?.code != state.language?.code) || (selectedRegion?.code != state.region?.code),
+                text = "확인",
+                onClick = { onAction(SettingsAction.ConfirmLanguageRegion) },
+                modifier = Modifier.align(Alignment.BottomCenter)
+            )
         }
     }
 }
 
 @Composable
-fun DropdownItemComponent(
-    list: List<String>,
-    selectedOption: String,
-    updateUserData: (String) -> Unit,
-    isExpand: MutableState<Boolean>
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(height = dp50)
-            .clickable { isExpand.value = true },
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+private fun SelectRowSimple(label: String, selected: Boolean, onClick: () -> Unit) {
+    Surface(
+        modifier = Modifier.fillMaxWidth().clickable { onClick() },
+        shape = RoundedCornerShape(size = dp16),
+        color = if (selected) {
+            MaterialTheme.colorScheme.primary.copy(alpha = 0.10f)
+        } else {
+            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.25f)
+        }
     ) {
-        Text(
-            modifier = Modifier.testTag(tag = "language"),
-            text = selectedOption,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-        DropdownMenu(
-            modifier = Modifier.wrapContentSize(),
-            expanded = isExpand.value,
-            onDismissRequest = { isExpand.value = false }
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = dp14, vertical = dp12)
         ) {
-            list.forEach {
-                DropdownMenuItem(
-                    modifier = Modifier.testTag(tag = it),
-                    onClick = {
-                        Log.d(it)
-                        updateUserData(it)
-                        isExpand.value = false
-                    },
-                    text = { Text(text = it) }
-                )
-                HorizontalDivider()
-            }
+            Text(text = label, modifier = Modifier.weight(weight = 1f))
+            if (selected) Text(text = "✓", color = MaterialTheme.colorScheme.primary)
+        }
+    }
+}
+
+@Composable
+private fun BottomConfirmBar(
+    enabled: Boolean,
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier.fillMaxWidth(),
+        shadowElevation = dp10, tonalElevation = dp2
+    ) {
+        Box(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = dp16, vertical = dp14)
+        ) {
+            Button(
+                enabled = enabled,
+                onClick = onClick,
+                modifier = Modifier.fillMaxWidth().height(height = dp48),
+                shape = RoundedCornerShape(size = dp999)
+            ) { Text(text) }
         }
     }
 }
