@@ -1,5 +1,7 @@
 package com.bowoon.detail.tv
 
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -64,11 +66,13 @@ import com.bowoon.common.Log
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.detail.movie.AlternativeTitleSection
 import com.bowoon.detail.movie.CreditsSection
+import com.bowoon.detail.movie.FullscreenImageOverlay
 import com.bowoon.detail.movie.ImagesSection
 import com.bowoon.detail.movie.OverviewSection
 import com.bowoon.detail.movie.ProductionSection
 import com.bowoon.domain.TvWithFavorite
 import com.bowoon.firebase.LocalFirebaseLogHelper
+import com.bowoon.model.Image
 import com.bowoon.model.Tv
 import com.bowoon.model.TvEpisode
 import com.bowoon.model.TvSeasons
@@ -162,17 +166,37 @@ fun TvScreen(
                 Log.d("${tvState.tv}")
                 LocalFirebaseLogHelper.current.sendLog(name = "TvScreen", message = "$tvState")
 
-                TvDetailComponent(
-                    tv = tvState.tv,
-                    similarTvs = similarTvs,
-                    goToTv = goToTv,
-                    goToPeople = goToPeople,
-                    goToBack = goToBack,
-                    showEpisodeDetail = showEpisodeDetail,
-                    onShowSnackbar = onShowSnackbar,
-                    insertFavoriteTv = insertFavoriteTv,
-                    deleteFavoriteTv = deleteFavoriteTv
-                )
+                var selectedImage by remember { mutableStateOf<Image?>(value = null) }
+                var selectedIndex by remember { mutableStateOf<Int?>(value = null) }
+                val onSelect: (Image, Int) -> Unit = { image, index ->
+                    selectedImage = image
+                    selectedIndex = index
+                }
+
+                SharedTransitionLayout {
+                    TvDetailComponent(
+                        tv = tvState.tv,
+                        similarTvs = similarTvs,
+                        goToTv = goToTv,
+                        goToPeople = goToPeople,
+                        goToBack = goToBack,
+                        showEpisodeDetail = showEpisodeDetail,
+                        onShowSnackbar = onShowSnackbar,
+                        insertFavoriteTv = insertFavoriteTv,
+                        deleteFavoriteTv = deleteFavoriteTv,
+                        selectedImage = selectedImage,
+                        onSelect = onSelect,
+                        sharedTransitionScope = this@SharedTransitionLayout
+                    )
+
+                    with(receiver = this) {
+                        FullscreenImageOverlay(
+                            selectedImage = selectedImage,
+                            selectedIndex = selectedIndex,
+                            onDismiss = { selectedImage = null }
+                        )
+                    }
+                }
 
                 if (selectedEpisode != null) {
                     val columnScrollState = rememberLazyListState()
@@ -217,6 +241,9 @@ fun TvDetailComponent(
     onShowSnackbar: suspend (String, String?) -> Boolean,
     insertFavoriteTv: (Tv) -> Unit,
     deleteFavoriteTv: (Tv) -> Unit,
+    selectedImage: Image?,
+    onSelect: (Image, Int) -> Unit,
+    sharedTransitionScope: SharedTransitionScope
 ) {
     val favoriteMessage = if (tv.isFavorite) stringResource(id = R.string.add_favorite_movie) else stringResource(id = R.string.remove_favorite_movie)
     val scope = rememberCoroutineScope()
@@ -277,7 +304,7 @@ fun TvDetailComponent(
                 val backdrops = it.backdrops ?: emptyList()
                 val posters = it.posters ?: emptyList()
 
-                ImagesSection(backdrops = backdrops, posters = posters)
+                ImagesSection(backdrops = backdrops, posters = posters, sharedTransitionScope = sharedTransitionScope, selectedImage = selectedImage, onSelect = onSelect)
             }
             if (similarTvs.itemCount > 0) {
                 SimilarSection(similar = similarTvs, goToTv = goToTv)

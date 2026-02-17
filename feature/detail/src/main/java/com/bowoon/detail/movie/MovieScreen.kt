@@ -1,5 +1,12 @@
 package com.bowoon.detail.movie
 
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -16,20 +23,23 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -50,6 +60,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.LazyPagingItems
@@ -69,8 +80,6 @@ import com.bowoon.ui.components.CircularProgressComponent
 import com.bowoon.ui.components.TitleComponent
 import com.bowoon.ui.components.VideosComponent
 import com.bowoon.ui.dialog.ConfirmDialog
-import com.bowoon.ui.dialog.Indexer
-import com.bowoon.ui.dialog.ModalBottomSheetDialog
 import com.bowoon.ui.image.DynamicAsyncImageLoader
 import com.bowoon.ui.utils.bounceClick
 import com.bowoon.ui.utils.dp10
@@ -150,16 +159,36 @@ fun MovieScreen(
                 Log.d("$movieState")
                 LocalFirebaseLogHelper.current.sendLog(name = "DetailScreen", message = "$movieState")
 
-                MovieDetailComponent(
-                    movieState = movieState.movie,
-                    similarMovies = similarMovies,
-                    goToMovie = goToMovie,
-                    goToPeople = goToPeople,
-                    goToBack = goToBack,
-                    onShowSnackbar = onShowSnackbar,
-                    insertFavoriteMovie = insertFavoriteMovie,
-                    deleteFavoriteMovie = deleteFavoriteMovie
-                )
+                var selectedImage by remember { mutableStateOf<Image?>(value = null) }
+                var selectedIndex by remember { mutableStateOf<Int?>(value = null) }
+                val onSelect: (Image, Int) -> Unit = { image, index ->
+                    selectedImage = image
+                    selectedIndex = index
+                }
+
+                SharedTransitionLayout {
+                    MovieDetailComponent(
+                        movieState = movieState.movie,
+                        similarMovies = similarMovies,
+                        goToMovie = goToMovie,
+                        goToPeople = goToPeople,
+                        goToBack = goToBack,
+                        onShowSnackbar = onShowSnackbar,
+                        insertFavoriteMovie = insertFavoriteMovie,
+                        deleteFavoriteMovie = deleteFavoriteMovie,
+                        selectedImage = selectedImage,
+                        onSelect = onSelect,
+                        sharedTransitionScope = this@SharedTransitionLayout
+                    )
+
+                    with(receiver = this) {
+                        FullscreenImageOverlay(
+                            selectedImage = selectedImage,
+                            selectedIndex = selectedIndex,
+                            onDismiss = { selectedImage = null }
+                        )
+                    }
+                }
             }
             is MovieState.Error -> {
                 Log.e("${movieState.throwable.message}")
@@ -186,6 +215,9 @@ fun MovieDetailComponent(
     onShowSnackbar: suspend (String, String?) -> Boolean,
     insertFavoriteMovie: (Movie) -> Unit,
     deleteFavoriteMovie: (Movie) -> Unit,
+    selectedImage: Image?,
+    onSelect: (Image, Int) -> Unit,
+    sharedTransitionScope: SharedTransitionScope
 ) {
     val favoriteMessage = if (movieState.isFavorite) stringResource(id = R.string.add_favorite_movie) else stringResource(id = R.string.remove_favorite_movie)
     val scope = rememberCoroutineScope()
@@ -252,11 +284,13 @@ fun MovieDetailComponent(
             movieState.movie.images?.let { images ->
                 val posters = images.posters ?: emptyList()
                 val backdrops = images.backdrops ?: emptyList()
-                var showDetails by remember { mutableStateOf(false) }
 
                 ImagesSection(
                     backdrops = backdrops,
-                    posters = posters
+                    posters = posters,
+                    sharedTransitionScope = sharedTransitionScope,
+                    selectedImage = selectedImage,
+                    onSelect = onSelect
                 )
             }
             if (similarMovies.itemCount > 0) {
@@ -354,7 +388,9 @@ fun AlternativeTitleSection(alternativeTitles: AlternativeTitles?) {
         SectionHeader(title = "Alternative Titles")
 
         Text(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = dp16),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = dp16),
             text = titles,
             fontSize = sp10,
             maxLines = if (expanded) Int.MAX_VALUE else 1,
@@ -406,27 +442,30 @@ fun OverviewSection(overview: String) {
 @Composable
 fun ImagesSection(
     backdrops: List<Image>,
-    posters: List<Image>
+    posters: List<Image>,
+    sharedTransitionScope: SharedTransitionScope,
+    selectedImage: Image?,
+    onSelect: (Image, Int) -> Unit
 ) {
     if (backdrops.isEmpty() && posters.isEmpty()) return
 
     Column(
         modifier = Modifier.padding(vertical = dp14)
     ) {
-        SectionHeader(title = "Images", /*actionText = "See all", onActionClick = onSeeAll*/)
+        SectionHeader(title = "Images"/*, actionText = "See all", onActionClick = onSeeAll*/)
 
         if (backdrops.isNotEmpty()) {
             Spacer(modifier = Modifier.height(height = dp12))
             SubSectionTitle(text = "Backdrops")
             Spacer(modifier = Modifier.height(height = dp10))
-            ImageRow(images = backdrops, width = dp260/*, itemHeight = dp146*/)
+            ImageRow(images = backdrops, width = dp260, sharedTransitionScope = sharedTransitionScope, selectedImage = selectedImage, onSelect = onSelect)
         }
 
         if (posters.isNotEmpty()) {
             Spacer(modifier = Modifier.height(height = dp16))
             SubSectionTitle(text = "Posters")
             Spacer(modifier = Modifier.height(height = dp10))
-            ImageRow(images = posters, width = dp120/*, itemHeight = dp180*/)
+            ImageRow(images = posters, width = dp120, sharedTransitionScope = sharedTransitionScope, selectedImage = selectedImage, onSelect = onSelect)
         }
     }
 }
@@ -476,83 +515,118 @@ private fun SubSectionTitle(text: String) {
 private fun ImageRow(
     images: List<Image>,
     width: Dp,
-//    itemHeight: Dp
+    sharedTransitionScope: SharedTransitionScope,
+    selectedImage: Image?,
+    onSelect: (Image, Int) -> Unit
 ) {
-    var isShowing by remember { mutableStateOf(value = false) }
-    var index by remember { mutableIntStateOf(value = 0) }
-    val modalBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val scope = rememberCoroutineScope()
+    val rowState = rememberLazyListState()
+    var snapIndex by remember { mutableIntStateOf(value = 0) }
+    var snapOffset by remember { mutableIntStateOf(value = 0) }
+
+    // 오버레이 열림/닫힘 때 스크롤 복구
+    LaunchedEffect(key1 = selectedImage) {
+        // selected가 바뀌면(열기/닫기) 스냅샷 위치로 강제 복구
+        rowState.scrollToItem(index = snapIndex, scrollOffset = snapOffset)
+    }
 
     LazyRow(
+        state = rowState,
         contentPadding = PaddingValues(horizontal = dp10),
         horizontalArrangement = Arrangement.spacedBy(space = dp10)
     ) {
-        items(items = images) { image ->
-            DynamicAsyncImageLoader(
-                source = image.filePath ?: "",
-                contentDescription = null,
-                modifier = Modifier
-                    .width(width = width)
-                    .aspectRatio(ratio = image.aspectRatio?.toFloat() ?: 1f)
-                    .roundedCornerClickable(
-                        onClick = {
-                            index = images.indexOf(image)
-                            isShowing = true
-                        }, cornerRadius = dp10
-                    ),
-                contentScale = ContentScale.Crop
-            )
-        }
-    }
+        itemsIndexed(
+            items = images,
+            key = { index, image -> image.filePath ?: "image-$index" }
+        ) { index, image ->
+            val isSelected = selectedImage?.filePath == image.filePath
+            val key = remember(key1 = image.filePath) { image.filePath ?: "image-$index" }
 
-    if (isShowing) {
-        ModalBottomSheetDialog(
-            state = modalBottomSheetState,
-            scope = scope,
-            onClickCancel = {
-                scope.launch {
-                    isShowing = false
-                    modalBottomSheetState.hide()
-                }
-            },
-            content = {
-                val pagerState = rememberPagerState(initialPage = index) { images.size }
-                var currentIndex by remember { mutableIntStateOf(value = index + 1) }
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(ratio = images.minOf { it.aspectRatio?.toFloat() ?: 1f }),
-                    contentAlignment = Alignment.Center
+            with(receiver = sharedTransitionScope) {
+                AnimatedVisibility(
+                    visible = selectedImage == null || !isSelected,
+                    enter = EnterTransition.None,
+                    exit = ExitTransition.None
                 ) {
-                    HorizontalPager(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .aspectRatio(POSTER_IMAGE_RATIO),
-                        state = pagerState
-                    ) { index ->
-                        currentIndex = pagerState.currentPage + 1
-
-                        DynamicAsyncImageLoader(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .aspectRatio(ratio = images[index].aspectRatio?.toFloat() ?: 1f),
-                            source = images[index].filePath ?: "",
-                            contentDescription = "PosterView"
+                    val base = Modifier
+                        .width(width = width)
+                        .aspectRatio(ratio = image.aspectRatio?.toFloat() ?: 1f)
+                    val modifier = (if (selectedImage == null || isSelected) {
+                        base.sharedElement(
+                            sharedContentState = rememberSharedContentState(key = key),
+                            animatedVisibilityScope = this@AnimatedVisibility
                         )
-                    }
-
-                    Indexer(
-                        modifier = Modifier
-                            .padding(top = dp10, end = dp20)
-                            .wrapContentSize()
-                            .background(color = Color(0x33000000), shape = RoundedCornerShape(dp20))
-                            .align(Alignment.TopEnd),
-                        current = currentIndex,
-                        size = images.size
+                    } else {
+                        base
+                    }).roundedCornerClickable(
+                        onClick = {
+                            snapIndex = rowState.firstVisibleItemIndex
+                            snapOffset = rowState.firstVisibleItemScrollOffset
+                            onSelect(image, index)
+                        },
+                        cornerRadius = dp10
+                    )
+                    DynamicAsyncImageLoader(
+                        source = image.filePath.orEmpty(),
+                        contentDescription = null,
+                        modifier = modifier,
+                        contentScale = ContentScale.Crop
                     )
                 }
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalSharedTransitionApi::class)
+@Composable
+fun SharedTransitionScope.FullscreenImageOverlay(
+    selectedImage: Image?,
+    selectedIndex: Int?,
+    onDismiss: () -> Unit,
+) {
+    // 백버튼으로 닫기
+    BackHandler(enabled = selectedImage != null) { onDismiss() }
+
+    if (selectedImage != null) {
+        Box(
+            Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.92f))
+                .clickable {}
+        ) {
+            IconButton(
+                onClick = onDismiss,
+                modifier = Modifier
+                    .align(alignment = Alignment.TopEnd)
+                    .padding(all = 16.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = null,
+                    tint = Color.White
+                )
+            }
+        }
+    }
+
+    AnimatedVisibility(
+        visible = selectedImage != null,
+        enter = EnterTransition.None,
+        exit = ExitTransition.None
+    ) {
+        val img = selectedImage ?: return@AnimatedVisibility
+        val key = remember(key1 = img.filePath) { img.filePath ?: "image-$selectedIndex" }
+
+        DynamicAsyncImageLoader(
+            source = img.filePath.orEmpty(),
+            contentDescription = null,
+            modifier = Modifier
+                .fillMaxSize()
+                .sharedElement(
+                    sharedContentState = rememberSharedContentState(key = key),
+                    animatedVisibilityScope = this@AnimatedVisibility
+                ),
+            contentScale = ContentScale.Fit
         )
     }
 }
@@ -771,41 +845,52 @@ fun SeriesSection(
 
         Spacer(modifier = Modifier.height(height = dp12))
 
-        // Collection summary card
-        Row(
+        Column(
             modifier = Modifier
                 .padding(horizontal = dp16)
                 .clip(shape = RoundedCornerShape(size = dp16))
                 .background(Color.DarkGray.copy(alpha = 0.25f))
                 .fillMaxWidth()
                 .padding(all = dp14),
-            verticalAlignment = Alignment.CenterVertically
         ) {
-            DynamicAsyncImageLoader(
-                source = collection?.posterPath ?: "",
-                contentDescription = null,
-                modifier = Modifier
-                    .size(width = dp62, height = dp92)
-                    .clip(RoundedCornerShape(size = dp12))
-                    .background(Color.DarkGray),
-                contentScale = ContentScale.Crop
-            )
-
-            Spacer(modifier = Modifier.width(width = dp12))
-
-            Column(modifier = Modifier.weight(weight = 1f)) {
-                Text(
-                    text = collection?.title ?: "",
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
+            // Collection summary card
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                DynamicAsyncImageLoader(
+                    source = collection?.posterPath ?: "",
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(width = dp62, height = dp92)
+                        .clip(RoundedCornerShape(size = dp12))
+                        .background(Color.DarkGray),
+                    contentScale = ContentScale.Crop
                 )
-                Spacer(Modifier.height(height = dp4))
+
+                Spacer(modifier = Modifier.width(width = dp12))
+
+                Column(modifier = Modifier.weight(weight = 1f)) {
+                    Text(
+                        text = collection?.title ?: "",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Spacer(modifier = Modifier.height(height = dp4))
+                    Text(
+                        text = "${collection?.parts?.size} movies",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.Gray
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(height = dp10))
+            collection?.overview?.takeIf { it.isNotEmpty() }?.let { overview ->
                 Text(
-                    text = "${collection?.parts?.size} movies",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = Color.Gray
+                    text = overview,
+                    style = MaterialTheme.typography.labelSmall
                 )
             }
         }
