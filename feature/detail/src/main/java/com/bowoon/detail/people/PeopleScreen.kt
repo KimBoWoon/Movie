@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
@@ -57,6 +58,8 @@ import com.bowoon.ui.image.DynamicAsyncImageLoader
 import com.bowoon.ui.utils.dp10
 import com.bowoon.ui.utils.dp16
 import com.bowoon.ui.utils.dp20
+import com.bowoon.ui.utils.dp200
+import com.bowoon.ui.utils.dp80
 import com.bowoon.ui.utils.roundedCornerClickable
 import kotlinx.coroutines.launch
 
@@ -261,6 +264,8 @@ fun ProfileHeader(
                         )
                     )
             )
+        } else {
+            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp200))
         }
 
         // 상단 아이콘 Row

@@ -31,16 +31,16 @@ data class Movie(
     val releases: Releases? = null,
     val revenue: Long? = null,
     val reviews: Reviews? = null,
-    val runtime: Int? = null,
+    override val runtime: Int? = null,
     val spokenLanguages: List<SpokenLanguage>? = null,
     val status: String? = null,
-    val tagline: String? = null,
+    override val tagline: String? = null,
     override val title: String? = null,
     val video: Boolean? = null,
     val videos: Videos? = null,
-    val voteAverage: Double? = null,
+    override val voteAverage: Float? = null,
     val voteCount: Int? = null,
-    val certification: String? = null,
+    override val certification: String? = null,
     val series: Series? = null
 ) : Parcelable, Media
 

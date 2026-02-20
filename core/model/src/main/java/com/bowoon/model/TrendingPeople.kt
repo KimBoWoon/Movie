@@ -20,6 +20,10 @@ data class TrendingPeopleResult(
     override val posterPath: String? = null,
     override val genres: List<Genre>? = null,
     override val releaseDate: String? = null,
+    override val certification: String? = null,
+    override val runtime: Int? = null,
+    override val tagline: String? = null,
+    override val voteAverage: Float? = null
 ) : Media
 
 data class TrendingPeopleKnownFor(
@@ -40,6 +44,6 @@ data class TrendingPeopleKnownFor(
     val releaseDate: String? = null,
     val title: String? = null,
     val video: Boolean? = null,
-    val voteAverage: Double? = null,
+    val voteAverage: Float? = null,
     val voteCount: Int? = null
 )

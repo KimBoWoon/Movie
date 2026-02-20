@@ -33,7 +33,7 @@ data class NetworkTMDBTvSeasons(
     @SerialName("videos")
     val videos: NetworkTMDBVideos? = null,
     @SerialName("vote_average")
-    val voteAverage: Double? = null
+    val voteAverage: Float? = null
 )
 
 //@Serializable

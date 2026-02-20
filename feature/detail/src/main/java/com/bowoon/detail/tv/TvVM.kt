@@ -94,11 +94,15 @@ class TvVM @AssistedInject constructor(
     }
 
     fun showEpisodeDetail(episode: TvEpisode) {
-        _selectedEpisode.tryEmit(value = episode)
+        viewModelScope.launch {
+            _selectedEpisode.emit(value = episode)
+        }
     }
 
     fun hideEpisodeDetail() {
-        _selectedEpisode.tryEmit(value = null)
+        viewModelScope.launch {
+            _selectedEpisode.emit(value = null)
+        }
     }
 }
 

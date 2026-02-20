@@ -39,7 +39,7 @@ data class NetworkTMDBTvEpisode(
     @SerialName("videos")
     val videos: NetworkTMDBVideos? = null,
     @SerialName("vote_average")
-    val voteAverage: Double? = null,
+    val voteAverage: Float? = null,
     @SerialName("vote_count")
     val voteCount: Int? = null
 )

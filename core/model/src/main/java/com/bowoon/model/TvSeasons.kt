@@ -13,7 +13,7 @@ data class TvSeasons(
     val posterPath: String? = null,
     val seasonNumber: Int? = null,
     val videos: Videos? = null,
-    val voteAverage: Double? = null
+    val voteAverage: Float? = null
 )
 
 data class TvEpisode(
@@ -30,7 +30,7 @@ data class TvEpisode(
     val seasonNumber: Int? = null,
     val showId: Int? = null,
     val stillPath: String? = null,
-    val voteAverage: Double? = null,
+    val voteAverage: Float? = null,
     val voteCount: Int? = null
 )
 

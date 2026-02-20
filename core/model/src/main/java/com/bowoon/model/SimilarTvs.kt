@@ -20,6 +20,6 @@ data class SimilarTv(
     val overview: String? = null,
     val popularity: Double? = null,
     val posterPath: String? = null,
-    val voteAverage: Double? = null,
+    val voteAverage: Float? = null,
     val voteCount: Int? = null
 )

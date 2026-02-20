@@ -68,7 +68,7 @@ data class NetworkTMDBSearchPeopleKnownFor(
     @SerialName("video")
     val video: Boolean? = null,
     @SerialName("vote_average")
-    val voteAverage: Double? = null,
+    val voteAverage: Float? = null,
     @SerialName("vote_count")
     val voteCount: Int? = null
 )

@@ -26,7 +26,7 @@ data class MovieResult(
     val releaseDate: String? = null,
     val title: String? = null,
     val video: Boolean? = null,
-    val voteAverage: Double? = null,
+    val voteAverage: Float? = null,
     val voteCount: Int? = null
 )
 

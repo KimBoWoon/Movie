@@ -20,7 +20,11 @@ data class People(
     val popularity: Double? = null,
     override val posterPath: String? = null,
     override val genres: List<Genre>? = null,
-    override val releaseDate: String? = null
+    override val releaseDate: String? = null,
+    override val certification: String? = null,
+    override val runtime: Int? = null,
+    override val tagline: String? = null,
+    override val voteAverage: Float? = null
 ) : Media
 
 data class RelatedMovie(
@@ -45,7 +49,7 @@ data class RelatedMovie(
     val releaseDate: String? = null,
     val title: String? = null,
     val video: Boolean? = null,
-    val voteAverage: Double? = null,
+    val voteAverage: Float? = null,
     val voteCount: Int? = null,
     val department: String? = null,
     val job: String? = null,

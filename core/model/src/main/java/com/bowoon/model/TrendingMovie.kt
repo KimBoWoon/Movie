@@ -21,7 +21,10 @@ data class TrendingMovieResult(
     override val releaseDate: String? = null,
     override val title: String? = null,
     val video: Boolean? = null,
-    val voteAverage: Double? = null,
+    override val voteAverage: Float? = null,
     val voteCount: Int? = null,
-    override val genres: List<Genre>? = null
+    override val genres: List<Genre>? = null,
+    override val certification: String? = null,
+    override val runtime: Int? = null,
+    override val tagline: String? = null
 ) : Media

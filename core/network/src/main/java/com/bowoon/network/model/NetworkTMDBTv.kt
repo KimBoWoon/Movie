@@ -85,7 +85,7 @@ data class NetworkTMDBTv(
     @SerialName("videos")
     val videos: NetworkTMDBVideos? = null,
     @SerialName("vote_average")
-    val voteAverage: Double? = null,
+    val voteAverage: Float? = null,
     @SerialName("vote_count")
     val voteCount: Int? = null
 )
@@ -143,7 +143,7 @@ data class NetworkTMDBTvLastEpisodeToAir(
     @SerialName("still_path")
     val stillPath: String? = null,
     @SerialName("vote_average")
-    val voteAverage: Double? = null,
+    val voteAverage: Float? = null,
     @SerialName("vote_count")
     val voteCount: Int? = null
 )
@@ -169,7 +169,7 @@ data class NetworkTMDBTvNextEpisodeToAir(
     @SerialName("overview")
     val overview: String? = null,
     @SerialName("vote_average")
-    val voteAverage: Double? = null,
+    val voteAverage: Float? = null,
     @SerialName("vote_count")
     val voteCount: Int? = null,
     @SerialName("air_date")
@@ -207,7 +207,7 @@ data class NetworkTMDBTvSeason(
     @SerialName("season_number")
     val seasonNumber: Int? = null,
     @SerialName("vote_average")
-    val voteAverage: Double? = null
+    val voteAverage: Float? = null
 )
 
 fun NetworkTMDBTv.asExternalModel(): Tv = Tv(

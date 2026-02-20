@@ -11,4 +11,5 @@
     <string name="movie_actor">배우</string>
     <string name="movie_staff">스태프</string>
     <string name="similar_movie_not_found">비슷한 영화가 없습니다.</string>
+    <string name="similar_media">비슷한 작품</string>
 </resources>

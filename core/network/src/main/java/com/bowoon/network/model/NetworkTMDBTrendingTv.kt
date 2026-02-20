@@ -47,7 +47,7 @@ data class NetworkTMDBTrendingTvResult(
     @SerialName("poster_path")
     val posterPath: String? = null,
     @SerialName("vote_average")
-    val voteAverage: Double? = null,
+    val voteAverage: Float? = null,
     @SerialName("vote_count")
     val voteCount: Int? = null
 )

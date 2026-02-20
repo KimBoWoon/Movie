@@ -56,7 +56,7 @@ data class NetworkTMDBPeopleProfile(
     @SerialName("iso_639_1")
     val iso6391: String? = null,
     @SerialName("vote_average")
-    val voteAverage: Double? = null,
+    val voteAverage: Float? = null,
     @SerialName("vote_count")
     val voteCount: Int? = null,
     @SerialName("width")

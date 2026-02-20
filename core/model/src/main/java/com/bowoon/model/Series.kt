@@ -15,7 +15,11 @@ data class Series(
     override val originalTitle: String? = null,
     override val posterPath: String? = null,
     override val genres: List<Genre>? = null,
-    override val releaseDate: String? = null
+    override val releaseDate: String? = null,
+    override val certification: String? = null,
+    override val runtime: Int? = null,
+    override val tagline: String? = null,
+    override val voteAverage: Float? = null
 ) : Parcelable, Media
 
 @Serializable
@@ -34,6 +38,6 @@ data class SeriesPart(
     val releaseDate: String? = null,
     val title: String? = null,
     val video: Boolean? = null,
-    val voteAverage: Double? = null,
+    val voteAverage: Float? = null,
     val voteCount: Int? = null
 ) : Parcelable

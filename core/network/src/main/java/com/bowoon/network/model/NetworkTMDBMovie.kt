@@ -91,7 +91,7 @@ data class NetworkTMDBMovie(
     @SerialName("videos")
     val videos: NetworkTMDBVideos? = null,
     @SerialName("vote_average")
-    val voteAverage: Double? = null,
+    val voteAverage: Float? = null,
     @SerialName("vote_count")
     val voteCount: Int? = null
 )
@@ -217,7 +217,7 @@ data class NetworkTMDBImage(
     @SerialName("iso_639_1")
     val iso6391: String? = null,
     @SerialName("vote_average")
-    val voteAverage: Double? = null,
+    val voteAverage: Float? = null,
     @SerialName("vote_count")
     val voteCount: Int? = null,
     @SerialName("width")
@@ -391,7 +391,7 @@ data class NetworkTMDBMovieDetailSimilarResult(
     @SerialName("video")
     val video: Boolean? = null,
     @SerialName("vote_average")
-    val voteAverage: Double? = null,
+    val voteAverage: Float? = null,
     @SerialName("vote_count")
     val voteCount: Int? = null
 )

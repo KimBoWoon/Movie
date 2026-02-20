@@ -20,7 +20,7 @@ data class Image(
     val height: Int? = null,
     val iso31661: String? = null,
     val iso6391: String? = null,
-    val voteAverage: Double? = null,
+    val voteAverage: Float? = null,
     val voteCount: Int? = null,
     val width: Int? = null
 ) : Parcelable
