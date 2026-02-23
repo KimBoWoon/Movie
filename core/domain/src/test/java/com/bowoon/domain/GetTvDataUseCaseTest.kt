@@ -47,7 +47,7 @@ class GetTvDataUseCaseTest {
     @Test
     fun getTvDetailTest() = runTest {
         detailRepository.setTv(tv)
-        detailRepository.setTvSeries(tvSeasons)
+        detailRepository.setTvSeason(tvSeasons)
         detailRepository.setTvEpisode(tvEpisode)
         databaseRepository.insertTv(tv = tv)
 
@@ -62,7 +62,7 @@ class GetTvDataUseCaseTest {
     @Test
     fun getFavoriteTvTest() = runTest {
         detailRepository.setTv(tv)
-        detailRepository.setTvSeries(tvSeasons)
+        detailRepository.setTvSeason(tvSeasons)
         detailRepository.setTvEpisode(tvEpisode)
         databaseRepository.insertTv(tv = Tv(id = 123))
 

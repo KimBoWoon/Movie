@@ -111,6 +111,7 @@ private fun ImageRow(
             key = { index, image -> image.filePath ?: "image-$index" }
         ) { index, image ->
             val key = remember(key1 = image.filePath) { image.filePath ?: "image-$index" }
+            val isSelected = selectedImage == null
 
             with(receiver = sharedTransitionScope) {
                 AnimatedVisibility(
@@ -138,7 +139,7 @@ private fun ImageRow(
                     DynamicAsyncImageLoader(
                         source = image.filePath.orEmpty(),
                         contentDescription = null,
-                        modifier = if (selectedImage == null) modifierWithSharedElement else modifierWithOutSharedElement,
+                        modifier = if (isSelected) modifierWithSharedElement else modifierWithOutSharedElement,
                         contentScale = ContentScale.Crop
                     )
                 }

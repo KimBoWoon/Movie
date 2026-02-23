@@ -94,7 +94,7 @@ class TestDetailRepository : DetailRepository {
     }
 
     @VisibleForTesting
-    fun setTvSeries(tvSeasons: TvSeasons) {
+    fun setTvSeason(tvSeasons: TvSeasons) {
         this@TestDetailRepository.tvSeasons.tryEmit(value = tvSeasons)
     }
 

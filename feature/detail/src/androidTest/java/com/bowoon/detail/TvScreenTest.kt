@@ -121,7 +121,7 @@ class TvScreenTest {
             onNodeWithContentDescription(label = "tvDetailLoading").assertExists().assertIsDisplayed()
 
             databaseRepository.insertTv(tv = Tv(id = 0, title = "tv_1", posterPath = "/tvImagePath.png"))
-            detailRepository.setTvSeries(tvSeasons = TvSeasons())
+            detailRepository.setTvSeason(tvSeasons = TvSeasons())
             detailRepository.setTvEpisode(tvEpisode = TvEpisode())
             detailRepository.setTv(tv = tvTestData)
 

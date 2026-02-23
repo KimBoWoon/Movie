@@ -12,9 +12,6 @@ import com.bowoon.model.Tv
 import com.bowoon.model.TvEpisode
 import com.bowoon.model.TvSeasons
 import com.bowoon.network.MovieNetworkDataSource
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
@@ -72,28 +69,7 @@ class DetailRepositoryImpl @Inject constructor(
     override fun getTv(id: Int): Flow<Tv> = flow {
         val internalData = datastore.userData.first()
         val tv = apis.getTv(id = id, language = "${internalData.language}-${internalData.region}", includeImageLanguage = "${internalData.language},null")
-        val seasonNumbers = tv.seasons?.mapNotNull { it.seasonNumber } ?: emptyList()
-        val seasons = coroutineScope {
-            seasonNumbers.map { seasonNumber ->
-                async {
-                    getTvSeasons(seriesId = id, seasonNumber = seasonNumber).first()
-                }
-            }.awaitAll()
-        }
-        val seasonMap = buildMap {
-            seasons.forEach {
-                it.name?.let { name ->
-                    put(key = name, value = it)
-                }
-            }
-        }
-
-        emit(
-            value = tv.copy(
-                episode = seasons.find { it.seasonNumber == tv.numberOfSeasons },
-                seasonList = seasonMap
-            )
-        )
+        emit(value = tv)
     }
 
     override fun getTvSeasons(

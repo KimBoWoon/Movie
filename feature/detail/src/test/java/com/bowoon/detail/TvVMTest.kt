@@ -1,11 +1,13 @@
 package com.bowoon.detail
 
+import com.bowoon.detail.tv.EpisodesLoadState
 import com.bowoon.detail.tv.TvState
+import com.bowoon.detail.tv.TvUiState
 import com.bowoon.detail.tv.TvVM
 import com.bowoon.domain.GetTvDetailUseCase
-import com.bowoon.domain.TvWithFavorite
 import com.bowoon.model.Tv
 import com.bowoon.model.TvEpisode
+import com.bowoon.model.TvSeason
 import com.bowoon.model.TvSeasons
 import com.bowoon.testing.repository.TestDatabaseRepository
 import com.bowoon.testing.repository.TestDetailRepository
@@ -38,14 +40,21 @@ class TvVMTest {
     )
     private lateinit var viewModel: TvVM
     private val tv = Tv(id = 0)
-    private val tvSeasons = TvSeasons(
-        id = 0,
-        seasonNumber = 0,
-        episodes = emptyList()
-    )
     private val tvEpisode = TvEpisode(
         id = 0,
         episodeNumber = 0
+    )
+    private val tvSeason = TvSeason(
+        id = 0,
+        seasonNumber = 1,
+        name = "Season1",
+        posterPath = "/tvSeason.png"
+    )
+    private val tvSeasons = TvSeasons(
+        id = 0,
+        seasonNumber = 0,
+        name = "Season1",
+        episodes = listOf(tvEpisode)
     )
 
     @Before
@@ -54,83 +63,127 @@ class TvVMTest {
             id = 0,
             databaseRepository = testDataBaseRepository,
             pagingRepository = testPagingRepository,
-            getTvDetailUseCase = getTvDetailUseCase
+            getTvDetailUseCase = getTvDetailUseCase,
+            detailRepository = testDetailRepository
         )
     }
 
     @Test
     fun loadingTest() = runTest {
-        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.tv.collect() }
+        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.uiState.collect() }
 
         assertEquals(
-            expected = viewModel.tv.value,
+            expected = viewModel.uiState.value,
             actual = TvState.Loading
         )
     }
 
     @Test
     fun successTest() = runTest {
-        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.tv.collect() }
+        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.uiState.collect() }
 
         assertEquals(
-            expected = viewModel.tv.value,
+            expected = viewModel.uiState.value,
             actual = TvState.Loading
         )
         testDetailRepository.setTv(tv)
-        testDetailRepository.setTvSeries(tvSeasons)
+        testDetailRepository.setTvSeason(tvSeasons)
         testDetailRepository.setTvEpisode(tvEpisode)
         testDataBaseRepository.insertTv(tv = Tv(id = 124))
         assertEquals(
-            expected = viewModel.tv.value,
+            expected = viewModel.uiState.value,
             actual = TvState.Success(
-                TvWithFavorite(tv = tv, isFavorite = false, autoPlayTrailer = true)
+                TvUiState(
+                    tv = tv,
+                    isFavorite = false,
+                    autoPlayTrailer = true,
+                    seasons = tv.seasons.orEmpty(),
+                    episodeState = EpisodesLoadState.Idle,
+                    episodesBySeason = emptyMap()
+                )
             )
         )
     }
 
     @Test
     fun insertTvTest() = runTest {
-        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.tv.collect() }
+        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.uiState.collect() }
 
         assertEquals(
-            expected = viewModel.tv.value,
+            expected = viewModel.uiState.value,
             actual = TvState.Loading
         )
         testDetailRepository.setTv(tv)
-        testDetailRepository.setTvSeries(tvSeasons)
+        testDetailRepository.setTvSeason(tvSeasons)
         testDetailRepository.setTvEpisode(tvEpisode)
         testDataBaseRepository.insertTv(tv = Tv(id = 124))
         assertEquals(
-            expected = viewModel.tv.value,
-            actual = TvState.Success(TvWithFavorite(tv = tv, isFavorite = false, autoPlayTrailer = true))
+            expected = viewModel.uiState.value,
+            actual = TvState.Success(
+                TvUiState(
+                    tv = tv,
+                    isFavorite = false,
+                    autoPlayTrailer = true,
+                    seasons = tv.seasons.orEmpty(),
+                    episodeState = EpisodesLoadState.Idle,
+                    episodesBySeason = emptyMap()
+                )
+            )
         )
         viewModel.insertTv(tv)
         assertEquals(
-            expected = viewModel.tv.value,
-            actual = TvState.Success(TvWithFavorite(tv = tv, isFavorite = true, autoPlayTrailer = true))
+            expected = viewModel.uiState.value,
+            actual = TvState.Success(
+                TvUiState(
+                    tv = tv,
+                    isFavorite = true,
+                    autoPlayTrailer = true,
+                    seasons = tv.seasons.orEmpty(),
+                    episodeState = EpisodesLoadState.Idle,
+                    episodesBySeason = emptyMap()
+                )
+            )
         )
     }
 
     @Test
     fun deleteTvTest() = runTest {
-        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.tv.collect() }
+        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.uiState.collect() }
 
         assertEquals(
-            expected = viewModel.tv.value,
+            expected = viewModel.uiState.value,
             actual = TvState.Loading
         )
         testDetailRepository.setTv(tv)
-        testDetailRepository.setTvSeries(tvSeasons)
+        testDetailRepository.setTvSeason(tvSeasons)
         testDetailRepository.setTvEpisode(tvEpisode)
         testDataBaseRepository.insertTv(tv = tv)
         assertEquals(
-            expected = viewModel.tv.value,
-            actual = TvState.Success(TvWithFavorite(tv = tv, isFavorite = true, autoPlayTrailer = true))
+            expected = viewModel.uiState.value,
+            actual = TvState.Success(
+                TvUiState(
+                    tv = tv,
+                    isFavorite = true,
+                    autoPlayTrailer = true,
+                    seasons = tv.seasons.orEmpty(),
+                    episodeState = EpisodesLoadState.Idle,
+                    episodesBySeason = emptyMap()
+                )
+            )
         )
         viewModel.deleteTv(tv)
         assertEquals(
-            expected = viewModel.tv.value,
-            actual = TvState.Success(TvWithFavorite(tv = tv, isFavorite = false, autoPlayTrailer = true))
+            expected = viewModel.uiState.value,
+            actual = TvState.Success(
+                TvUiState(
+                    tv = tv,
+                    isFavorite = false,
+                    autoPlayTrailer = true,
+                    seasons = tv.seasons.orEmpty(),
+                    episodeState = EpisodesLoadState.Idle,
+                    episodesBySeason = emptyMap()
+                )
+            )
         )
     }
 
@@ -166,6 +219,34 @@ class TvVMTest {
         assertEquals(
             expected = viewModel.selectedEpisode.value,
             actual = null
+        )
+    }
+
+    @Test
+    fun selectedSeasonTest() = runTest {
+        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.uiState.collect() }
+
+        assertEquals(
+            expected = viewModel.uiState.value,
+            actual = TvState.Loading
+        )
+        testDetailRepository.setTv(tv)
+        testDetailRepository.setTvSeason(tvSeasons)
+        testDetailRepository.setTvEpisode(tvEpisode)
+        testDataBaseRepository.insertTv(tv = Tv(id = 124))
+        viewModel.onSelectSeason(season = tvSeason)
+        assertEquals(
+            expected = viewModel.uiState.value,
+            actual = TvState.Success(
+                TvUiState(
+                    tv = tv,
+                    isFavorite = false,
+                    autoPlayTrailer = true,
+                    seasons = tv.seasons.orEmpty(),
+                    episodeState = EpisodesLoadState.Idle,
+                    episodesBySeason = mapOf("Season1" to listOf(tvEpisode))
+                )
+            )
         )
     }
 }

@@ -60,14 +60,13 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.bowoon.common.Log
 import com.bowoon.detail.movie.AlternativeTitleComponent
-import com.bowoon.domain.TvWithFavorite
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.Cast
 import com.bowoon.model.Credits
 import com.bowoon.model.Image
 import com.bowoon.model.Tv
 import com.bowoon.model.TvEpisode
-import com.bowoon.model.TvSeasons
+import com.bowoon.model.TvSeason
 import com.bowoon.movie.feature.detail.R
 import com.bowoon.ui.components.CircularProgressComponent
 import com.bowoon.ui.components.CreditsComponent
@@ -89,6 +88,7 @@ import com.bowoon.ui.utils.dp16
 import com.bowoon.ui.utils.dp180
 import com.bowoon.ui.utils.dp2
 import com.bowoon.ui.utils.dp20
+import com.bowoon.ui.utils.dp227
 import com.bowoon.ui.utils.dp5
 import com.bowoon.ui.utils.dp8
 import com.bowoon.ui.utils.sp10
@@ -106,12 +106,12 @@ fun TvScreen(
 ) {
     LocalFirebaseLogHelper.current.sendLog("DetailScreen", "detail screen start!")
 
-    val tvState by viewModel.tv.collectAsStateWithLifecycle()
     val similarTvs = viewModel.similarTvs.collectAsLazyPagingItems()
     val selectedEpisode by viewModel.selectedEpisode.collectAsStateWithLifecycle()
+    val tvUiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     TvScreen(
-        tvState = tvState,
+        tvUiState = tvUiState,
         similarTvs = similarTvs,
         selectedEpisode = selectedEpisode,
         goToTv = goToTv,
@@ -122,14 +122,15 @@ fun TvScreen(
         onShowSnackbar = onShowSnackbar,
         insertFavoriteTv = viewModel::insertTv,
         deleteFavoriteTv = viewModel::deleteTv,
-        restart = viewModel::restart
+        restart = viewModel::restart,
+        onSelectSeason = viewModel::onSelectSeason
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TvScreen(
-    tvState: TvState,
+    tvUiState: TvState,
     similarTvs: LazyPagingItems<Tv>,
     selectedEpisode: TvEpisode?,
     goToTv: (Int) -> Unit,
@@ -140,12 +141,13 @@ fun TvScreen(
     onShowSnackbar: suspend (String, String?) -> Boolean,
     insertFavoriteTv: (Tv) -> Unit,
     deleteFavoriteTv: (Tv) -> Unit,
-    restart: () -> Unit
+    restart: () -> Unit,
+    onSelectSeason: (TvSeason) -> Unit
 ) {
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        when (tvState) {
+        when (tvUiState) {
             is TvState.Loading -> {
                 Log.d("loading...")
                 LocalFirebaseLogHelper.current.sendLog(name = "TvScreen", message = "loading...")
@@ -157,8 +159,8 @@ fun TvScreen(
                 )
             }
             is TvState.Success -> {
-                Log.d("${tvState.tv}")
-                LocalFirebaseLogHelper.current.sendLog(name = "TvScreen", message = "$tvState")
+                Log.d("${tvUiState.tvUiState.tv}")
+                LocalFirebaseLogHelper.current.sendLog(name = "TvScreen", message = "$tvUiState")
 
                 var selectedImage by remember { mutableStateOf<Image?>(value = null) }
                 var selectedIndex by remember { mutableStateOf<Int?>(value = null) }
@@ -169,7 +171,7 @@ fun TvScreen(
 
                 SharedTransitionLayout {
                     TvDetailComponent(
-                        tv = tvState.tv,
+                        tv = tvUiState.tvUiState,
                         similarTvs = similarTvs,
                         goToTv = goToTv,
                         goToPeople = goToPeople,
@@ -180,7 +182,8 @@ fun TvScreen(
                         deleteFavoriteTv = deleteFavoriteTv,
                         selectedImage = selectedImage,
                         onSelect = onSelect,
-                        sharedTransitionScope = this@SharedTransitionLayout
+                        sharedTransitionScope = this@SharedTransitionLayout,
+                        onSelectSeason = onSelectSeason
                     )
 
                     ImageOverlay(
@@ -201,12 +204,12 @@ fun TvScreen(
                 }
             }
             is TvState.Error -> {
-                Log.e("${tvState.throwable.message}")
-                LocalFirebaseLogHelper.current.sendLog(name = "TvScreen", message = "${tvState.throwable.message}")
+                Log.e(tvUiState.message)
+                LocalFirebaseLogHelper.current.sendLog(name = "TvScreen", message = tvUiState.message)
 
                 ConfirmDialog(
                     title = stringResource(id = com.bowoon.movie.core.network.R.string.network_failed),
-                    message = "${tvState.throwable.message}",
+                    message = tvUiState.message,
                     confirmPair = stringResource(id = com.bowoon.movie.core.ui.R.string.retry_message) to { restart() },
                     dismissPair = stringResource(id = com.bowoon.movie.core.ui.R.string.back_message) to goToBack
                 )
@@ -217,7 +220,7 @@ fun TvScreen(
 
 @Composable
 fun TvDetailComponent(
-    tv: TvWithFavorite,
+    tv: TvUiState,
     similarTvs: LazyPagingItems<Tv>,
     goToTv: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
@@ -228,7 +231,8 @@ fun TvDetailComponent(
     deleteFavoriteTv: (Tv) -> Unit,
     selectedImage: Image?,
     onSelect: (Image, Int) -> Unit,
-    sharedTransitionScope: SharedTransitionScope
+    sharedTransitionScope: SharedTransitionScope,
+    onSelectSeason: (TvSeason) -> Unit
 ) {
     val favoriteMessage = if (tv.isFavorite) stringResource(id = R.string.add_favorite_movie) else stringResource(id = R.string.remove_favorite_movie)
     val scope = rememberCoroutineScope()
@@ -271,16 +275,14 @@ fun TvDetailComponent(
             tv.tv.credits?.let { credits ->
                 CreditsComponent(credits = credits, goToPeople = goToPeople)
             }
-            tv.tv.seasonList?.let {
-                SeasonEpisodesSection(
-                    seasons = it.values.toList(),
-                    episodesBySeason = buildMap {
-                        it.forEach { (key, value) ->
-                            put(key = key, value = value.episodes ?: emptyList())
-                        }
-                    },
-                    initialSeasonId = 1,
-                    onEpisodeClick = { episode -> showEpisodeDetail(episode) }
+            tv.seasons.takeIf { it.isNotEmpty() }?.let { seasons ->
+                SeasonComponent(
+                    seasons = seasons,
+                    episodeState = tv.episodeState,
+                    episodesBySeason = tv.episodesBySeason,
+                    initialSeasonId = seasons.firstOrNull()?.seasonNumber,
+                    onEpisodeClick = { episode -> showEpisodeDetail(episode) },
+                    onSelectSeason = onSelectSeason
                 )
             }
             tv.tv.productionCompanies?.let { productionCompanies ->
@@ -308,19 +310,19 @@ fun TvDetailComponent(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SeasonEpisodesSection(
-    seasons: List<TvSeasons>,
+fun SeasonComponent(
+    seasons: List<TvSeason>,
     episodesBySeason: Map<String, List<TvEpisode>>,
     initialSeasonId: Int? = seasons.firstOrNull()?.seasonNumber,
-    onEpisodeClick: (TvEpisode) -> Unit = {}
+    onEpisodeClick: (TvEpisode) -> Unit = {},
+    onSelectSeason: (TvSeason) -> Unit,
+    episodeState: EpisodesLoadState
 ) {
     var expanded by remember { mutableStateOf(value = false) }
     var selectedSeasonId by rememberSaveable { mutableStateOf(value = initialSeasonId) }
-
     val selectedSeason = remember(key1 = selectedSeasonId, key2 = seasons) {
         seasons.firstOrNull { it.id == selectedSeasonId } ?: seasons.firstOrNull()
     }
-
     val episodes = remember(key1 = selectedSeason?.id, key2 = episodesBySeason) {
         selectedSeason?.name?.let { episodesBySeason[it].orEmpty() }.orEmpty()
     }
@@ -328,7 +330,7 @@ fun SeasonEpisodesSection(
     val scope = rememberCoroutineScope()
 
     Column(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth().height(height = dp227)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -340,16 +342,19 @@ fun SeasonEpisodesSection(
                     .padding(start = dp16),
                 text = "Episodes",
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                minLines = 1
             )
 
-            // ✅ 스피너(드롭다운)
             SeasonSpinner(
+                modifier = Modifier.padding(start = dp5, end = dp16),
                 seasons = seasons,
                 selected = selectedSeason,
                 expanded = expanded,
                 onExpandedChange = { expanded = it },
                 onSelect = { season ->
+                    onSelectSeason(season)
                     selectedSeasonId = season.id
                     expanded = false
                     scope.launch {
@@ -361,18 +366,22 @@ fun SeasonEpisodesSection(
 
         Spacer(Modifier.height(height = dp12))
 
-        if (episodes.isEmpty()) {
-            Text(
-                text = "에피소드 정보가 없어요.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.Gray
-            )
-        } else {
-            EpisodeList(
-                episodes = episodes,
-                episodeListState = episodeListState,
-                onEpisodeClick = onEpisodeClick
-            )
+        when (episodeState) {
+            is EpisodesLoadState.Loading -> CircularProgressComponent(modifier = Modifier.fillMaxWidth().align(alignment = Alignment.CenterHorizontally))
+            is EpisodesLoadState.Idle -> {
+                EpisodeList(
+                    episodes = episodes,
+                    episodeListState = episodeListState,
+                    onEpisodeClick = onEpisodeClick
+                )
+            }
+            is EpisodesLoadState.Error -> {
+                Text(
+                    text = episodeState.message,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Gray
+                )
+            }
         }
     }
 }
@@ -380,18 +389,18 @@ fun SeasonEpisodesSection(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SeasonSpinner(
-    seasons: List<TvSeasons>,
-    selected: TvSeasons?,
+    modifier: Modifier,
+    seasons: List<TvSeason>,
+    selected: TvSeason?,
     expanded: Boolean,
     onExpandedChange: (Boolean) -> Unit,
-    onSelect: (TvSeasons) -> Unit
+    onSelect: (TvSeason) -> Unit
 ) {
     ExposedDropdownMenuBox(
-        modifier = Modifier.padding(start = dp5, end = dp16),
+        modifier = modifier,
         expanded = expanded,
         onExpandedChange = onExpandedChange
     ) {
-        // readOnly TextField가 스피너처럼 보이게
         OutlinedTextField(
             value = selected?.name.orEmpty(),
             onValueChange = {},
@@ -399,7 +408,7 @@ private fun SeasonSpinner(
             singleLine = true,
             modifier = Modifier
                 .menuAnchor(type = ExposedDropdownMenuAnchorType.PrimaryEditable)
-                .widthIn(min = dp180),
+                .widthIn(min = dp180, max = dp180),
             label = { Text(text = "Season") },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
@@ -439,7 +448,7 @@ private fun EpisodeList(
     ) {
         items(
             items = episodes,
-            key = { it.id ?: -1 } // ✅ 끊김 방지
+            key = { it.id ?: -1 }
         ) { e ->
             EpisodeRow(
                 episode = e,
@@ -582,5 +591,6 @@ fun EpisodeDetailBottomSheetDialog(
                 goToPeople = goToPeople
             )
         }
+        Spacer(modifier = Modifier.fillMaxWidth().height(height = dp20))
     }
 }

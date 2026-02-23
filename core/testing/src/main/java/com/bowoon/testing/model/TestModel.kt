@@ -344,7 +344,7 @@ val favoriteMovieDetailTestData = Movie(
     title = "title",
     video = true,
     videos = Videos(listOf(VideoInfo(id = "", iso31661 = "", iso6391 = "", key = "", name = "", official = true, publishedAt = "", site = "", size = 19, type = ""))),
-    voteAverage = 3.5,
+    voteAverage = 3.5f,
     voteCount = 203,
     certification = "15",
     series = movieSeriesTestData
@@ -381,7 +381,7 @@ val unFavoriteMovieDetailTestData = Movie(
     title = "title",
     video = true,
     videos = Videos(listOf(VideoInfo(id = "", iso31661 = "", iso6391 = "", key = "", name = "", official = true, publishedAt = "", site = "", size = 19, type = ""))),
-    voteAverage = 3.5,
+    voteAverage = 3.5f,
     voteCount = 203,
     certification = "15",
     series = movieSeriesTestData
@@ -420,7 +420,7 @@ val tvTestData = Tv(
     tagline = "tagline",
     title = "title",
     type = "type",
-    voteAverage = 3.5,
+    voteAverage = 3.5f,
     voteCount = 203,
     credits = Credits(cast = listOf(), crew = listOf()),
     videos = null,
@@ -440,7 +440,7 @@ val tvTestData = Tv(
             posterPath = "/tvSeasonPosterPath.png",
             seasonNumber = 1,
             videos = null,
-            voteAverage = 3.8
+            voteAverage = 3.8f
         )
     )
 )
