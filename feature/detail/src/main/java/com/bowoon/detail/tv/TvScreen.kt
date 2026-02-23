@@ -211,6 +211,7 @@ fun TvScreen(
                             selectedIndex = null
                             selectedImage = null
                             overlayVisible = false
+                            overlayImageVisible = false
                         }
                     )
                 }
