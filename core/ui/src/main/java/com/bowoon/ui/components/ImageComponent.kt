@@ -1,11 +1,12 @@
 package com.bowoon.ui.components
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -24,11 +25,9 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,13 +47,20 @@ import com.bowoon.ui.utils.dp260
 import com.bowoon.ui.utils.dp433
 import com.bowoon.ui.utils.roundedCornerClickable
 
+enum class ImageType {
+    BACKDROP,
+    POSTER
+}
+
 @Composable
 fun ImagesComponent(
     backdrops: List<Image>,
     posters: List<Image>,
     sharedTransitionScope: SharedTransitionScope,
     selectedImage: Image?,
-    onSelect: (Image, Int) -> Unit
+    selectedIndex: Int?,
+    overlayVisible: Boolean,
+    onSelect: (ImageType, Image, Int) -> Unit
 ) {
     if (backdrops.isEmpty() && posters.isEmpty()) return
 
@@ -70,10 +76,14 @@ fun ImagesComponent(
             SubSectionTitleComponent(text = "Backdrops")
             Spacer(modifier = Modifier.height(height = dp10))
             ImageRow(
+                type = ImageType.BACKDROP,
                 images = backdrops,
                 width = dp260,
                 sharedTransitionScope = sharedTransitionScope,
                 selectedImage = selectedImage,
+                selectedIndex = selectedIndex,
+                selectedType = ImageType.BACKDROP,
+                overlayVisible = overlayVisible,
                 onSelect = onSelect
             )
         }
@@ -83,24 +93,31 @@ fun ImagesComponent(
             SubSectionTitleComponent(text = "Posters")
             Spacer(modifier = Modifier.height(height = dp10))
             ImageRow(
+                type = ImageType.POSTER,
                 images = posters,
                 width = dp120,
                 sharedTransitionScope = sharedTransitionScope,
                 selectedImage = selectedImage,
+                selectedIndex = selectedIndex,
+                selectedType = ImageType.POSTER,
+                overlayVisible = overlayVisible,
                 onSelect = onSelect
             )
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ImageRow(
+    type: ImageType,
     images: List<Image>,
     width: Dp,
     sharedTransitionScope: SharedTransitionScope,
     selectedImage: Image?,
-    onSelect: (Image, Int) -> Unit
+    selectedIndex: Int?,
+    selectedType: ImageType?,
+    overlayVisible: Boolean,
+    onSelect: (ImageType, Image, Int) -> Unit
 ) {
     LazyRow(
         contentPadding = PaddingValues(horizontal = dp10),
@@ -108,10 +125,11 @@ private fun ImageRow(
     ) {
         itemsIndexed(
             items = images,
-            key = { index, image -> image.filePath ?: "image-$index" }
+            key = { index, image -> image.filePath ?: "image-$type-$index" }
         ) { index, image ->
-            val key = remember(key1 = image.filePath) { image.filePath ?: "image-$index" }
-            val isSelected = selectedImage == null
+            val key = "image-$type-$index"
+            val isSelected = (selectedType == type && selectedIndex == index)
+            val hideOriginal = overlayVisible && isSelected
 
             with(receiver = sharedTransitionScope) {
                 AnimatedVisibility(
@@ -119,48 +137,62 @@ private fun ImageRow(
                     enter = EnterTransition.None,
                     exit = ExitTransition.None
                 ) {
-                    val modifierWithSharedElement = Modifier
+                    val cell = Modifier
                         .width(width = width)
                         .aspectRatio(ratio = image.aspectRatio?.toFloat() ?: 1f)
-                        .sharedElement(
-                            sharedContentState = rememberSharedContentState(key = key),
-                            animatedVisibilityScope = this@AnimatedVisibility
-                        ).roundedCornerClickable(
-                            onClick = { onSelect(image, index) },
-                            cornerRadius = dp10
-                        )
-                    val modifierWithOutSharedElement = Modifier
-                        .width(width = width)
-                        .aspectRatio(ratio = image.aspectRatio?.toFloat() ?: 1f)
-                        .roundedCornerClickable(
-                            onClick = { onSelect(image, index) },
-                            cornerRadius = dp10
-                        )
-                    DynamicAsyncImageLoader(
-                        source = image.filePath.orEmpty(),
-                        contentDescription = null,
-                        modifier = if (isSelected) modifierWithSharedElement else modifierWithOutSharedElement,
-                        contentScale = ContentScale.Crop
-                    )
+
+                    AnimatedContent(
+                        targetState = hideOriginal,
+                        label = "thumbSwap",
+                        transitionSpec = {
+                            EnterTransition.None togetherWith ExitTransition.None
+                        }
+                    ) { hidden ->
+                        if (hidden) {
+                            Spacer(modifier = cell)
+                        } else {
+                            DynamicAsyncImageLoader(
+                                source = image.filePath.orEmpty(),
+                                contentDescription = null,
+                                modifier = cell
+                                    .then(
+                                        other = if (isSelected) {
+                                            Modifier.sharedElement(
+                                                sharedContentState = rememberSharedContentState(key = key),
+                                                animatedVisibilityScope = this@AnimatedVisibility
+                                            )
+                                        } else {
+                                            Modifier
+                                        }
+                                    ).roundedCornerClickable(
+                                        onClick = { onSelect(type, image, index) },
+                                        cornerRadius = dp10
+                                    ),
+                                contentScale = ContentScale.Crop
+                            )
+                        }
+                    }
                 }
             }
         }
     }
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun SharedTransitionScope.ImageOverlay(
+    selectedType: ImageType?,
     selectedImage: Image?,
     selectedIndex: Int?,
+    overlayVisible: Boolean,
+    overlayImageVisible: Boolean,
     onDismiss: () -> Unit,
 ) {
     // 백버튼으로 닫기
-    BackHandler(enabled = selectedImage != null) {
+    BackHandler(enabled = overlayVisible) {
         onDismiss()
     }
 
-    if (selectedImage != null) {
+    if (overlayVisible) {
         Box(
             Modifier
                 .fillMaxSize()
@@ -191,12 +223,12 @@ fun SharedTransitionScope.ImageOverlay(
     ) {
         AnimatedVisibility(
             modifier = Modifier.align(alignment = Alignment.Center),
-            visible = selectedImage != null,
+            visible = overlayImageVisible,
             enter = EnterTransition.None,
             exit = ExitTransition.None
         ) {
             val img = selectedImage ?: return@AnimatedVisibility
-            val key = remember(key1 = img.filePath) { img.filePath ?: "image-$selectedIndex" }
+            val key = "image-$selectedType-$selectedIndex"
 
             DynamicAsyncImageLoader(
                 source = img.filePath.orEmpty(),

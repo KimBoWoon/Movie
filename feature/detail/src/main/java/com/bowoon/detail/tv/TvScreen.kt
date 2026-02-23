@@ -42,6 +42,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -71,6 +72,7 @@ import com.bowoon.movie.feature.detail.R
 import com.bowoon.ui.components.CircularProgressComponent
 import com.bowoon.ui.components.CreditsComponent
 import com.bowoon.ui.components.ImageOverlay
+import com.bowoon.ui.components.ImageType
 import com.bowoon.ui.components.ImagesComponent
 import com.bowoon.ui.components.MediaTitleComponent
 import com.bowoon.ui.components.OverviewComponent
@@ -164,9 +166,19 @@ fun TvScreen(
 
                 var selectedImage by remember { mutableStateOf<Image?>(value = null) }
                 var selectedIndex by remember { mutableStateOf<Int?>(value = null) }
-                val onSelect: (Image, Int) -> Unit = { image, index ->
+                var selectedType by remember { mutableStateOf<ImageType?>(value = null) }
+                var overlayVisible by remember { mutableStateOf(value = false) }
+                var overlayImageVisible by remember { mutableStateOf(value = false) }
+                val scope = rememberCoroutineScope()
+                val onSelect: (ImageType, Image, Int) -> Unit = { type, image, index ->
+                    selectedType = type
                     selectedImage = image
                     selectedIndex = index
+                    overlayVisible = true
+                    scope.launch {
+                        withFrameNanos {  }
+                        overlayImageVisible = true
+                    }
                 }
 
                 SharedTransitionLayout {
@@ -181,15 +193,25 @@ fun TvScreen(
                         insertFavoriteTv = insertFavoriteTv,
                         deleteFavoriteTv = deleteFavoriteTv,
                         selectedImage = selectedImage,
+                        selectedIndex = selectedIndex,
                         onSelect = onSelect,
+                        overlayVisible = overlayVisible,
                         sharedTransitionScope = this@SharedTransitionLayout,
                         onSelectSeason = onSelectSeason
                     )
 
                     ImageOverlay(
+                        selectedType = selectedType,
                         selectedImage = selectedImage,
                         selectedIndex = selectedIndex,
-                        onDismiss = { selectedImage = null }
+                        overlayVisible = overlayVisible,
+                        overlayImageVisible = overlayImageVisible,
+                        onDismiss = {
+                            selectedType = null
+                            selectedIndex = null
+                            selectedImage = null
+                            overlayVisible = false
+                        }
                     )
                 }
 
@@ -230,7 +252,9 @@ fun TvDetailComponent(
     insertFavoriteTv: (Tv) -> Unit,
     deleteFavoriteTv: (Tv) -> Unit,
     selectedImage: Image?,
-    onSelect: (Image, Int) -> Unit,
+    selectedIndex: Int?,
+    overlayVisible: Boolean,
+    onSelect: (ImageType, Image, Int) -> Unit,
     sharedTransitionScope: SharedTransitionScope,
     onSelectSeason: (TvSeason) -> Unit
 ) {
@@ -297,6 +321,8 @@ fun TvDetailComponent(
                     posters = posters,
                     sharedTransitionScope = sharedTransitionScope,
                     selectedImage = selectedImage,
+                    selectedIndex = selectedIndex,
+                    overlayVisible = overlayVisible,
                     onSelect = onSelect
                 )
             }
