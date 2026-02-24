@@ -33,8 +33,8 @@ class SettingVM @Inject constructor(
         flow3 = _uiState
     ) { internalData, movieAppDataState, settingsUiState ->
         val movieAppData = movieAppDataState.getMovieAppData()
-        val selectedLanguage = movieAppData.language.find { it.isSelected }?.let { LocaleOption(code = it.iso6391.orEmpty(), label = it.englishName.orEmpty()) }
-        val selectedRegion = movieAppData.region.find { it.isSelected }?.let { LocaleOption(code = it.iso31661.orEmpty(), label = it.nativeName.orEmpty()) }
+        val selectedLanguage = movieAppData.language.find { it.isSelected }
+        val selectedRegion = movieAppData.region.find { it.isSelected }
 
         SettingsUiState(
             sheet = settingsUiState.sheet,
@@ -48,15 +48,15 @@ class SettingVM @Inject constructor(
             selectedRegion = selectedRegion ?: settingsUiState.selectedRegion,
             imageQuality = internalData.imageQuality,
             imageQualityList = movieAppData.posterSize.map { it.size.orEmpty() },
-            allLanguages = movieAppData.language.map { LocaleOption(code = it.iso6391.orEmpty(), label = it.englishName.orEmpty()) },
-            allRegions = movieAppData.region.map { LocaleOption(code = it.iso31661.orEmpty(), label = it.nativeName.orEmpty()) },
+            allLanguages = movieAppData.language,
+            allRegions = movieAppData.region,
             selectedTheme = settingsUiState.selectedTheme,
             themeList = DarkThemeConfig.entries,
             selectedImageQuality = settingsUiState.selectedImageQuality
         )
     }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
+        started = SharingStarted.WhileSubscribed(),
         initialValue = SettingsUiState()
     )
 

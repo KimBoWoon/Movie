@@ -16,12 +16,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.ZoneOffset
-import java.time.ZonedDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -33,31 +28,12 @@ class MainVM @Inject constructor(
 ) : ViewModel() {
     init {
         viewModelScope.launch {
-            launch {
-                val isFirstInstall = userDataRepository.getFirstInstall()
+            val isFirstInstall = userDataRepository.getFirstInstall()
 
-                if (!isFirstInstall) {
-                    syncManager.requestSync()
-                    syncManager.syncMain()
-                    userDataRepository.updateFirstInstall(value = true)
-                }
-            }
-            launch {
-                val isAfter = LocalDateTime.ofInstant(Instant.ofEpochMilli(userDataRepository.getWorkScheduleTime()), ZoneId.systemDefault())
-                    .isAfter(LocalDateTime.now().withHour(1).withMinute(0).withSecond(0).withNano(0))
-
-                if (isAfter) {
-                    syncManager.updateWorker()
-                    userDataRepository.updateWorkScheduleTime(
-                        value = LocalDateTime.now()
-                            .withHour(0)
-                            .withMinute(0)
-                            .withSecond(0)
-                            .withNano(0)
-                            .toInstant(ZoneOffset.from(ZonedDateTime.now()))
-                            .toEpochMilli()
-                    )
-                }
+            if (!isFirstInstall) {
+                syncManager.requestSync()
+                syncManager.syncMain()
+                userDataRepository.updateFirstInstall(value = true)
             }
         }
     }
@@ -68,12 +44,6 @@ class MainVM @Inject constructor(
 
             if (url.startsWith(prefix = "http://") || url.startsWith(prefix = "https://")) {
                 imageUrl = url
-            }
-        }.map { result ->
-            when (result) {
-                is MovieAppDataState.Loading -> MovieAppDataState.Loading
-                is MovieAppDataState.Success -> MovieAppDataState.Success(data = result.data)
-                is MovieAppDataState.Error -> MovieAppDataState.Error(throwable = result.throwable)
             }
         }.stateIn(
             scope = viewModelScope,

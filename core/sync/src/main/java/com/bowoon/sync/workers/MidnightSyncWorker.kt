@@ -19,7 +19,7 @@ import com.bowoon.data.util.Synchronizer
 import com.bowoon.notifications.Notifier
 import com.bowoon.sync.initializers.SyncConstraints
 import com.bowoon.sync.initializers.syncForegroundInfo
-import com.bowoon.sync.utils.calculateInitialDelay
+import com.bowoon.sync.utils.millisUntilNextMidnight
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineDispatcher
@@ -34,7 +34,7 @@ import java.time.ZonedDateTime
 import java.util.concurrent.TimeUnit
 
 @HiltWorker
-class MainSyncWorker @AssistedInject constructor(
+class MidnightSyncWorker @AssistedInject constructor(
     @Assisted private val appContext: Context,
     @Assisted private val workerParams: WorkerParameters,
     @param:Dispatcher(Dispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
@@ -45,7 +45,7 @@ class MainSyncWorker @AssistedInject constructor(
 ) : CoroutineWorker(appContext, workerParams), Synchronizer {
     companion object {
         const val WORKER_NAME = "MainSyncWorker"
-        const val WORKER_TAG = "MAIN_MOVIE_SYNC_WORKER"
+        const val WORKER_TAG = "MID_NIGHT_SYNC_WORKER"
         const val PERIODIC_WORKER_TAG = "PERIODIC_WORKER_TAG"
         const val EXPEDITED_SYNC_WORK_NAME = "EXPEDITED_SYNC_WORK_NAME"
         const val IS_FORCE = "IS_FORCE"
@@ -55,15 +55,15 @@ class MainSyncWorker @AssistedInject constructor(
                 .addTag(tag = EXPEDITED_SYNC_WORK_NAME)
                 .setExpedited(policy = OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                 .setConstraints(constraints = SyncConstraints)
-                .setInputData(inputData = MainSyncWorker::class.delegatedData(isForce))
+                .setInputData(inputData = MidnightSyncWorker::class.delegatedData(isForce))
                 .build()
 
         fun startUpSyncWork(): OneTimeWorkRequest =
             OneTimeWorkRequestBuilder<DelegatingWorker>()
                 .addTag(tag = WORKER_TAG)
-                .setInitialDelay(duration = calculateInitialDelay(), timeUnit = TimeUnit.MILLISECONDS)
+                .setInitialDelay(duration = millisUntilNextMidnight(), timeUnit = TimeUnit.MILLISECONDS)
                 .setConstraints(SyncConstraints)
-                .setInputData(MainSyncWorker::class.delegatedData(isForce = false))
+                .setInputData(MidnightSyncWorker::class.delegatedData(isForce = false))
                 .build()
 
         fun startPeriodicSyncWork(): PeriodicWorkRequest =
@@ -79,7 +79,7 @@ class MainSyncWorker @AssistedInject constructor(
                         .toInstant(ZoneOffset.from(ZonedDateTime.now()))
                         .toEpochMilli()
                 )
-                .setInputData(inputData = MainSyncWorker::class.delegatedData(isForce = false))
+                .setInputData(inputData = MidnightSyncWorker::class.delegatedData(isForce = false))
                 .setConstraints(constraints = SyncConstraints)
                 .build()
     }

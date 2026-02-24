@@ -11,9 +11,9 @@ import com.bowoon.datastore.InternalDataSource
 import com.bowoon.model.Configuration
 import com.bowoon.model.Genres
 import com.bowoon.model.Language
+import com.bowoon.model.LocaleOption
 import com.bowoon.model.MovieAppData
 import com.bowoon.model.PosterSize
-import com.bowoon.model.Region
 import com.bowoon.model.Regions
 import com.bowoon.network.MovieNetworkDataSource
 import jakarta.inject.Inject
@@ -89,20 +89,10 @@ class MovieDataManager @Inject constructor(
             secureBaseUrl = configuration.images?.secureBaseUrl ?: "",
             genres = genres.genres ?: emptyList(),
             region = region.results?.map {
-                Region(
-                    englishName = it.englishName,
-                    iso31661 = it.iso31661,
-                    nativeName = it.nativeName,
-                    isSelected = internalData.region == it.iso31661
-                )
+                LocaleOption(code = it.iso31661 ?: "", label = it.nativeName ?: "", isSelected = internalData.region == it.iso31661)
             } ?: emptyList(),
             language = language.map {
-                Language(
-                    englishName = it.englishName,
-                    iso6391 = it.iso6391,
-                    name = it.name,
-                    isSelected = internalData.language == it.iso6391
-                )
+                LocaleOption(code = it.iso6391 ?: "", label = it.englishName ?: "", isSelected = internalData.language == it.iso6391)
             },
             posterSize = configuration.images?.posterSizes?.map {
                 PosterSize(
