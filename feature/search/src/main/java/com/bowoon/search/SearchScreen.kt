@@ -51,6 +51,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -61,6 +62,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -87,7 +89,6 @@ import com.bowoon.ui.dialog.ConfirmDialog
 import com.bowoon.ui.image.DynamicAsyncImageLoader
 import com.bowoon.ui.utils.animateRotation
 import com.bowoon.ui.utils.bounceClick
-import com.bowoon.ui.utils.roundedCornerClickable
 import com.bowoon.ui.utils.dp0
 import com.bowoon.ui.utils.dp1
 import com.bowoon.ui.utils.dp10
@@ -100,6 +101,7 @@ import com.bowoon.ui.utils.dp5
 import com.bowoon.ui.utils.dp60
 import com.bowoon.ui.utils.dp8
 import com.bowoon.ui.utils.matchedColorString
+import com.bowoon.ui.utils.roundedCornerClickable
 import com.bowoon.ui.utils.sp12
 import com.bowoon.ui.utils.sp20
 import com.bowoon.ui.utils.sp30
@@ -123,6 +125,7 @@ fun SearchScreen(
     val inputKeyword = stringResource(id = R.string.input_keyword)
     val movieAppData by viewModel.movieAppData.collectAsStateWithLifecycle()
     val lifecycle = LocalLifecycleOwner.current.lifecycle
+    val query by viewModel.query.collectAsStateWithLifecycle()
 
     LaunchedEffect(key1 = Unit) {
         viewModel.showSnackbar
@@ -133,7 +136,7 @@ fun SearchScreen(
     SearchScreen(
         searchUiState = searchUiState,
         recommendKeyword = recommendKeyword,
-        keyword = viewModel.searchQuery,
+        query = query,
         searchType = searchType,
         movieAppData = movieAppData,
         selectedGenre = selectedGenre,
@@ -152,7 +155,7 @@ fun SearchScreen(
 fun SearchScreen(
     searchUiState: SearchUiState,
     recommendKeyword: LazyPagingItems<SearchKeyword>,
-    keyword: String,
+    query: TextFieldValue,
     searchType: SearchType,
     movieAppData: MovieAppData,
     selectedGenre: Genre?,
@@ -161,7 +164,7 @@ fun SearchScreen(
     goToPeople: (Int) -> Unit,
     goToSeries: (Int) -> Unit,
     onSearchClick: () -> Unit,
-    updateKeyword: (String) -> Unit,
+    updateKeyword: (TextFieldValue) -> Unit,
     updateSearchType: (SearchType) -> Unit,
     updateGenre: (Genre?) -> Unit
 ) {
@@ -173,7 +176,7 @@ fun SearchScreen(
         modifier = Modifier.fillMaxSize()
     ) {
         SearchBarComponent(
-            keyword = keyword,
+            query = query,
             searchType = searchType,
             scrollState = scrollState,
             updateKeyword = updateKeyword,
@@ -186,7 +189,7 @@ fun SearchScreen(
         if (isVisible) {
             RecommendKeywordComponent(
                 recommendKeyword = recommendKeyword,
-                keyword = keyword,
+                query = query,
                 updateKeyword = updateKeyword,
                 onSearchClick = onSearchClick,
                 recommendKeywordVisible = { isVisible = it }
@@ -211,11 +214,11 @@ fun SearchScreen(
 
 @Composable
 fun SearchBarComponent(
-    keyword: String,
+    query: TextFieldValue,
     searchType: SearchType,
     scrollState: LazyGridState,
     onSearchClick: () -> Unit,
-    updateKeyword: (String) -> Unit,
+    updateKeyword: (TextFieldValue) -> Unit,
     updateSearchType: (SearchType) -> Unit,
     updateGenre: (Genre?) -> Unit,
     recommendKeywordVisible: (Boolean) -> Unit
@@ -249,14 +252,17 @@ fun SearchBarComponent(
             .height(height = dp40)
             .clip(shape = RoundedCornerShape(percent = 50))
             .background(color = MaterialTheme.colorScheme.inverseOnSurface),
-        value = keyword,
+        value = query,
         onValueChange = {
-            Log.d(it)
+            Log.d(it.text)
             updateKeyword(it)
-            if (it.isNotEmpty()) {
+            if (it.text.isNotEmpty()) {
                 recommendKeywordVisible(true)
             }
         },
+        cursorBrush = SolidColor(
+            value = MaterialTheme.colorScheme.onSurface
+        ),
         textStyle = TextStyle(
             fontSize = sp12,
             color = MaterialTheme.colorScheme.onSurface
@@ -274,14 +280,15 @@ fun SearchBarComponent(
 
                 SearchTypeComponent(
                     searchType = searchType,
-                    updateSearchType = updateSearchType
+                    updateSearchType = updateSearchType,
+                    recommendKeywordVisible = recommendKeywordVisible
                 )
 
                 Spacer(
                     modifier = Modifier
                         .padding(horizontal = dp5)
-                        .width(dp1)
-                        .height(dp10)
+                        .width(width = dp1)
+                        .height(height = dp10)
                         .background(color = MaterialTheme.colorScheme.onSurface)
                 )
 
@@ -291,7 +298,7 @@ fun SearchBarComponent(
                         .align(Alignment.CenterVertically)
                 ) {
                     innerTextField()
-                    if (keyword.isEmpty()) {
+                    if (query.text.isEmpty()) {
                         Text(
                             text = stringResource(R.string.input_search_hint),
                             fontSize = sp12,
@@ -303,7 +310,7 @@ fun SearchBarComponent(
                 }
 
                 AnimatedVisibility(
-                    visible = keyword.isNotEmpty(),
+                    visible = query.text.isNotEmpty(),
                     enter = fadeIn(),
                     exit = fadeOut(),
                 ) {
@@ -315,7 +322,7 @@ fun SearchBarComponent(
                             modifier = Modifier
                                 .padding(start = dp8, end = dp8)
                                 .clickable {
-                                    updateKeyword("")
+                                    updateKeyword(TextFieldValue(text = ""))
                                     recommendKeywordVisible(false)
                                 },
                             imageVector = Icons.Filled.Clear,
@@ -347,17 +354,19 @@ fun SearchBarComponent(
 @Composable
 fun SearchTypeComponent(
     searchType: SearchType,
-    updateSearchType: (SearchType) -> Unit
+    updateSearchType: (SearchType) -> Unit,
+    recommendKeywordVisible: (Boolean) -> Unit
 ) {
     var isExpand by remember { mutableStateOf(value = false) }
-    val types = SearchType.entries.map {
-        when (it) {
-            SearchType.MOVIE -> stringResource(id = R.string.search_type_movie)
-            SearchType.TV -> stringResource(id = R.string.search_type_tv)
-            SearchType.PEOPLE -> stringResource(id = R.string.search_type_people)
-            SearchType.SERIES -> stringResource(id = R.string.search_type_series)
-        }
-    }
+//    val types = SearchType.entries.map {
+//        when (it) {
+//            SearchType.MOVIE -> stringResource(id = R.string.search_type_movie)
+//            SearchType.TV -> stringResource(id = R.string.search_type_tv)
+//            SearchType.PEOPLE -> stringResource(id = R.string.search_type_people)
+//            SearchType.SERIES -> stringResource(id = R.string.search_type_series)
+//        }
+//    }
+    val types = SearchType.entries
 
     Column {
         Row(
@@ -391,21 +400,14 @@ fun SearchTypeComponent(
         ) {
             types.forEach { type ->
                 DropdownMenuItem(
-                    modifier = Modifier.testTag(tag = type),
+                    modifier = Modifier.testTag(tag = type.label),
                     onClick = {
-                        Log.d(type)
-                        updateSearchType(
-                            when (type) {
-                                types[0] -> SearchType.MOVIE
-                                types[1] -> SearchType.TV
-                                types[2] -> SearchType.PEOPLE
-                                types[3] -> SearchType.SERIES
-                                else -> SearchType.MOVIE
-                            }
-                        )
+                        Log.d(type.label)
+                        updateSearchType(type)
+                        recommendKeywordVisible(false)
                         isExpand = false
                     },
-                    text = { Text(text = type) }
+                    text = { Text(text = type.label) }
                 )
             }
         }
@@ -566,8 +568,8 @@ fun SearchPagingComponent(
 @Composable
 fun RecommendKeywordComponent(
     recommendKeyword: LazyPagingItems<SearchKeyword>,
-    keyword: String,
-    updateKeyword: (String) -> Unit,
+    query: TextFieldValue,
+    updateKeyword: (TextFieldValue) -> Unit,
     onSearchClick: () -> Unit,
     recommendKeywordVisible: (Boolean) -> Unit
 ) {
@@ -612,7 +614,7 @@ fun RecommendKeywordComponent(
                 key = { index -> recommendKeyword.peek(index)?.id ?: -1 }
             ) { index ->
                 recommendKeyword[index]?.let { recommendKeyword ->
-                    val annotatedString = recommendKeyword.name.matchedColorString(keyword = keyword, color = MaterialTheme.colorScheme.primary)
+                    val annotatedString = recommendKeyword.name.matchedColorString(keyword = query.text, color = MaterialTheme.colorScheme.primary)
                     Text(
                         modifier = Modifier
                             .semantics { contentDescription = annotatedString.toString() }
@@ -620,7 +622,7 @@ fun RecommendKeywordComponent(
                             .fillMaxWidth()
                             .height(height = dp35)
                             .bounceClick {
-                                updateKeyword(recommendKeyword.name ?: "")
+                                updateKeyword(TextFieldValue(text = recommendKeyword.name ?: ""))
                                 onSearchClick()
                                 focusManager.clearFocus()
                                 recommendKeywordVisible(false)

@@ -68,7 +68,7 @@ class SearchScreenTest {
                 SearchScreen(
                     searchUiState = searchState,
                     recommendKeyword = viewModel.recommendKeywordPaging.collectAsLazyPagingItems(),
-                    keyword = viewModel.searchQuery,
+                    query = viewModel.searchQuery,
                     searchType = searchType,
                     movieAppData = movieAppData.getMovieAppData(),
                     selectedGenre = selectedGenre,
@@ -105,7 +105,7 @@ class SearchScreenTest {
                 SearchScreen(
                     searchUiState = searchState,
                     recommendKeyword = viewModel.recommendKeywordPaging.collectAsLazyPagingItems(),
-                    keyword = viewModel.searchQuery,
+                    query = viewModel.searchQuery,
                     searchType = searchType,
                     movieAppData = movieAppData.getMovieAppData(),
                     selectedGenre = selectedGenre,
@@ -134,7 +134,7 @@ class SearchScreenTest {
             setContent {
                 RecommendKeywordComponent(
                     recommendKeyword = flowOf(value = PagingData.from(data = testRecommendedKeyword)).collectAsLazyPagingItems(),
-                    keyword = viewModel.searchQuery,
+                    query = viewModel.searchQuery,
                     updateKeyword = viewModel::updateQuery,
                     onSearchClick = viewModel::searchMovies,
                     recommendKeywordVisible = {}
@@ -164,7 +164,7 @@ class SearchScreenTest {
                 SearchScreen(
                     searchUiState = searchState,
                     recommendKeyword = viewModel.recommendKeywordPaging.collectAsLazyPagingItems(),
-                    keyword = viewModel.searchQuery,
+                    query = viewModel.searchQuery,
                     searchType = searchType,
                     movieAppData = movieAppData.getMovieAppData(),
                     selectedGenre = selectedGenre,
@@ -204,7 +204,7 @@ class SearchScreenTest {
                 SearchScreen(
                     searchUiState = searchState,
                     recommendKeyword = viewModel.recommendKeywordPaging.collectAsLazyPagingItems(),
-                    keyword = viewModel.searchQuery,
+                    query = viewModel.searchQuery,
                     searchType = searchType,
                     movieAppData = movieAppData.getMovieAppData(),
                     selectedGenre = selectedGenre,
@@ -283,7 +283,7 @@ class SearchScreenTest {
                 SearchScreen(
                     searchUiState = searchState,
                     recommendKeyword = viewModel.recommendKeywordPaging.collectAsLazyPagingItems(),
-                    keyword = viewModel.searchQuery,
+                    query = viewModel.searchQuery,
                     searchType = searchType,
                     movieAppData = movieAppData.getMovieAppData(),
                     selectedGenre = selectedGenre,
