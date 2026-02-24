@@ -15,4 +15,5 @@
     <string name="version_info">Version</string>
     <string name="confirm">Confirm</string>
     <string name="cancel">Cancel</string>
+    <string name="theme_setting">Theme Setting</string>
 </resources>

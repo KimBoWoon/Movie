@@ -5,6 +5,7 @@ import com.bowoon.model.LocaleOption
 import com.bowoon.testing.repository.TestUserDataRepository
 import com.bowoon.testing.utils.MainDispatcherRule
 import com.bowoon.testing.utils.TestMovieAppDataManager
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -14,7 +15,7 @@ import org.junit.Rule
 import org.junit.Test
 import kotlin.test.assertEquals
 
-class MyVMTest {
+class SettingVMTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
     private lateinit var viewModel: SettingVM
@@ -23,16 +24,20 @@ class MyVMTest {
     private val settingUiState = SettingsUiState(
         sheet = SettingsSheet.Hidden,
         mainUpdateDate = "",
-        versionName = "",
-        darkMode = DarkThemeConfig.FOLLOW_SYSTEM,
-        adultEnabled = true,
-        trailerAutoplay = true,
-        language = LocaleOption(),
-        region = LocaleOption(),
+        theme = DarkThemeConfig.DARK,
+        isAdult = true,
+        isTrailerAutoplay = false,
+        language = null,
+        region = null,
         imageQuality = "original",
         imageQualityList = emptyList(),
         allLanguages = emptyList(),
-        allRegions = emptyList()
+        allRegions = emptyList(),
+        selectedTheme = null,
+        themeList = DarkThemeConfig.entries,
+        selectedLanguage = null,
+        selectedRegion = null,
+        selectedImageQuality = null
     )
 
     @Before
@@ -47,7 +52,7 @@ class MyVMTest {
 
     @Test
     fun settingUiStateTest() = runTest {
-        backgroundScope.launch(context = UnconfinedTestDispatcher()) { viewModel.uiState.collect { println(it) } }
+        backgroundScope.launch(context = UnconfinedTestDispatcher()) { viewModel.uiState.collect() }
 
         assertEquals(expected = viewModel.uiState.value, actual = settingUiState)
     }

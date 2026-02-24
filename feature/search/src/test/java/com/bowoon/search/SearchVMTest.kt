@@ -1,5 +1,6 @@
 package com.bowoon.search
 
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.paging.PagingSource
 import com.bowoon.data.paging.RecommendKeywordPagingSource
@@ -52,11 +53,11 @@ class SearchVMTest {
 
     @Test
     fun updateKeywordTest() {
-        assertEquals(viewModel.searchQuery, "")
-        viewModel.updateQuery("mission")
-        assertEquals(viewModel.searchQuery, "mission")
-        viewModel.updateQuery("미션")
-        assertEquals(viewModel.searchQuery, "미션")
+        assertEquals(expected = viewModel.query.value, actual = TextFieldValue(text = ""))
+        viewModel.updateQuery(value = TextFieldValue(text = "mission"))
+        assertEquals(expected = viewModel.query.value,  actual = TextFieldValue(text = "mission"))
+        viewModel.updateQuery(value = TextFieldValue(text = "미션"))
+        assertEquals(expected = viewModel.query.value,  actual = TextFieldValue(text = "미션"))
     }
 
     @Test
@@ -71,7 +72,7 @@ class SearchVMTest {
     @Test
     fun searchMovieStateTest() = runTest {
         backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.searchResult.collect() }
-        viewModel.updateQuery("미션")
+        viewModel.updateQuery(value = TextFieldValue(text = "미션"))
         viewModel.searchMovies()
 
 //        assertEquals(viewModel.searchMovieState.value, PagingData.empty<Movie>())
@@ -106,7 +107,7 @@ class SearchVMTest {
     fun recommendedKeywordTest() = runTest {
         backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.recommendKeywordPaging.collect() }
 
-        viewModel.updateQuery("mission")
+        viewModel.updateQuery(value = TextFieldValue(text = "mission"))
 
         val pagingSource = RecommendKeywordPagingSource(
             apis = TestMovieDataSource(),

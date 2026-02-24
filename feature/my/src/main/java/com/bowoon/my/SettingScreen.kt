@@ -44,7 +44,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bowoon.common.getVersionName
 import com.bowoon.firebase.LocalFirebaseLogHelper
-import com.bowoon.model.DarkThemeConfig
 import com.bowoon.movie.feature.my.R
 import com.bowoon.ui.utils.dp10
 import com.bowoon.ui.utils.dp12
@@ -98,6 +97,12 @@ fun SettingScreen(
                     onAction = onAction
                 )
             }
+            SettingsSheet.ThemeSetting -> {
+                ThemeSettingSubSheet(
+                    state = state,
+                    onAction = onAction
+                )
+            }
             SettingsSheet.LanguageRegion -> {
                 LanguageRegionSubSheet(
                     state = state,
@@ -131,28 +136,21 @@ fun SettingMainSheet(
         HorizontalDivider()
         SettingRowText(
             title = stringResource(id = R.string.main_update_data_setting),
-            value = state.mainUpdateDate ?: ""
+            value = state.mainUpdateDate
         )
         SettingRowChevron(
             title = stringResource(id = R.string.dark_mode_setting),
-            value = state.darkMode.label,
-            onClick = {
-                val next = when (state.darkMode) {
-                    DarkThemeConfig.FOLLOW_SYSTEM -> DarkThemeConfig.DARK
-                    DarkThemeConfig.DARK -> DarkThemeConfig.LIGHT
-                    DarkThemeConfig.LIGHT -> DarkThemeConfig.FOLLOW_SYSTEM
-                }
-                onAction(SettingsAction.SetDarkMode(mode = next))
-            }
+            value = state.theme.label,
+            onClick = { onAction(SettingsAction.OpenThemeSetting) }
         )
         SettingRowSwitch(
             title = stringResource(id = R.string.is_adult_setting),
-            checked = state.adultEnabled,
+            checked = state.isAdult,
             onCheckedChange = { onAction(SettingsAction.SetAdult(enabled = it)) }
         )
         SettingRowSwitch(
             title = stringResource(id = R.string.auto_playing_trailer_setting),
-            checked = state.trailerAutoplay,
+            checked = state.isTrailerAutoplay,
             onCheckedChange = { onAction(SettingsAction.SetTrailerAutoplay(enabled = it)) }
         )
         SettingRowChevron(
@@ -171,7 +169,7 @@ fun SettingMainSheet(
             value = getVersionName(context = context)
         )
 
-        Spacer(Modifier.height(height = dp8))
+        Spacer(modifier = Modifier.height(height = dp8))
 
         BottomCloseButton(
             onClick = { onAction(SettingsAction.CloseSheet) }
@@ -244,6 +242,61 @@ private fun BottomCloseButton(onClick: () -> Unit) {
             modifier = Modifier.fillMaxWidth().height(height = dp48),
             shape = RoundedCornerShape(size = dp999)
         ) { Text("닫기") }
+    }
+}
+
+@Composable
+fun ThemeSettingSubSheet(
+    state: SettingsUiState,
+    onAction: (SettingsAction) -> Unit
+) {
+    val current = state.selectedTheme ?: state.theme
+    var pending = state.theme
+    val options = state.themeList
+
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = dp18, vertical = dp10),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            TextButton(onClick = { onAction(SettingsAction.BackToMainFromImageQuality) }) { Text(text = "뒤로") }
+            Spacer(modifier = Modifier.weight(weight = 1f))
+            Text(text = stringResource(id = R.string.theme_setting), style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.weight(weight = 1f))
+            TextButton(onClick = { onAction(SettingsAction.CloseSheet) }) { Text(text = "닫기") }
+        }
+
+        HorizontalDivider()
+
+        Box(
+            modifier = Modifier.fillMaxWidth().heightIn(min = dp420, max = dp520)
+        ) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize().padding(bottom = dp84),
+                contentPadding = PaddingValues(horizontal = dp16, vertical = dp12),
+                verticalArrangement = Arrangement.spacedBy(space = dp10)
+            ) {
+                items(items = options, key = { it }) { opt ->
+                    SelectRowSimple(
+                        label = opt.label,
+                        selected = opt == current,
+                        onClick = {
+                            onAction(SettingsAction.PickTheme(option = opt))
+                            pending = opt
+                        }
+                    )
+                }
+            }
+
+            BottomConfirmBar(
+                enabled = pending != current,
+                text = "확인",
+                onClick = { onAction(SettingsAction.ConfirmTheme) },
+                modifier = Modifier.align(Alignment.BottomCenter)
+            )
+        }
     }
 }
 
