@@ -8,7 +8,6 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -116,7 +115,8 @@ class MainActivity : ComponentActivity() {
             CompositionLocalProvider(value = LocalFirebaseLogHelper provides movieFirebase) {
                 LocalFirebaseLogHelper.current.sendLog(name = javaClass.simpleName, message = "compose start!")
 
-                val nextWeekReleaseMedia by viewModel.nextWeekReleaseMedia.collectAsStateWithLifecycle(initialValue = Pair(first = emptyList(), second = false))
+                val shouldShowNextWeekReleaseDialog by viewModel.shouldShowNextWeekReleaseDialog.collectAsStateWithLifecycle()
+                val nextWeekReleaseDialogItems by viewModel.nextWeekReleaseDialogItems.collectAsStateWithLifecycle()
 
                 MovieTheme(darkTheme = darkTheme) {
                     val appState = rememberMovieAppState(networkMonitor = networkMonitor)
@@ -128,8 +128,8 @@ class MainActivity : ComponentActivity() {
                         }
                     }
 
-                    LaunchedEffect(key1 = nextWeekReleaseMedia) {
-                        if (nextWeekReleaseMedia.second) {
+                    LaunchedEffect(key1 = shouldShowNextWeekReleaseDialog) {
+                        if (shouldShowNextWeekReleaseDialog) {
                             appState.navigationState.backStacks[appState.navigationState.startRoute]?.add(element = NextWeekReleaseMoviesNavKey)
                         }
                     }
@@ -137,8 +137,9 @@ class MainActivity : ComponentActivity() {
                     MovieApp(
                         appState = appState,
                         snackbarHostState = snackbarHostState,
-                        nextWeekReleaseMovies = nextWeekReleaseMedia.first,
-                        updateShowNextReleaseMoviesDate = viewModel::updateShowNextReleaseMoviesDate,
+                        nextWeekReleaseMovies = nextWeekReleaseDialogItems,
+                        dismissNextWeekReleaseDialog = viewModel::dismissNextWeekReleaseDialog,
+                        dontShowNextWeekReleaseDialogToday = viewModel::dontShowNextWeekReleaseDialogToday,
                         showSettingDialog = { settingVM.onAction(action = SettingsAction.OpenMain) }
                     )
 

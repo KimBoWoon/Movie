@@ -1,27 +1,26 @@
 package com.bowoon.movie.utils
 
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.offset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.IntOffset
 import com.bowoon.model.Media
 import com.bowoon.movie.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
 
 @Composable
 fun VerticalRollingAnimation(
@@ -29,72 +28,37 @@ fun VerticalRollingAnimation(
     nextWeekReleaseMovies: List<Media>,
     goToMovie: (Int) -> Unit
 ) {
-    var hideIndex by remember { mutableIntStateOf(value = 0) }
-    var hideTitle by remember { mutableStateOf(value = nextWeekReleaseMovies[hideIndex].title ?: "") }
-    var showIndex by remember { mutableIntStateOf(value = 1) }
-    var showTitle by remember { mutableStateOf(value = nextWeekReleaseMovies[showIndex].title ?: "") }
-    val hideAnimation = remember { Animatable(initialValue = 0f) }
-    val showAnimation = remember { Animatable(initialValue = 100f) }
+    if (nextWeekReleaseMovies.isEmpty()) return
 
-    Box {
-        Text(
-            modifier = modifier
-                .offset { IntOffset(x = 0, y = hideAnimation.value.toInt()) }
-                .clickable {
-                    nextWeekReleaseMovies[hideIndex].id?.let { id ->
-                        goToMovie(id)
-                    }
-                },
-            text = stringResource(id = R.string.next_week_release_movie, hideTitle),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
-        Text(
-            modifier = modifier
-                .offset { IntOffset(x = 0, y = showAnimation.value.toInt()) }
-                .clickable {
-                    nextWeekReleaseMovies[showIndex].id?.let { id ->
-                        goToMovie(id)
-                    }
-                },
-            text = stringResource(id = R.string.next_week_release_movie, showTitle),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
+    var index by remember { mutableIntStateOf(value = 0) }
+
+    LaunchedEffect(key1 = nextWeekReleaseMovies) {
+        index = 0
+        if (nextWeekReleaseMovies.size <= 1) return@LaunchedEffect
+
+        while (isActive) {
+            delay(timeMillis = 2_000)
+            index = (index + 1) % nextWeekReleaseMovies.size
+        }
     }
 
-    LaunchedEffect(key1 = Unit) {
-        launch {
-            while (isActive) {
-                hideAnimation.animateTo(
-                    targetValue = -100f,
-                    animationSpec = tween(durationMillis = 1000)
-                )
-                delay(timeMillis = 2000)
-                hideIndex = if (hideIndex > nextWeekReleaseMovies.size) {
-                    0
-                } else {
-                    ++hideIndex % nextWeekReleaseMovies.size
-                }
-                hideAnimation.snapTo(targetValue = 0f)
-                hideTitle = nextWeekReleaseMovies[hideIndex].title ?: ""
-            }
-        }
-        launch {
-            while (isActive) {
-                showAnimation.animateTo(
-                    targetValue = 0f,
-                    animationSpec = tween(durationMillis = 1000)
-                )
-                delay(timeMillis = 2000)
-                showAnimation.snapTo(targetValue = 100f)
-                showIndex = if (showIndex > nextWeekReleaseMovies.size) {
-                    0
-                } else {
-                    ++showIndex % nextWeekReleaseMovies.size
-                }
-                showTitle = nextWeekReleaseMovies[showIndex].title ?: ""
-            }
-        }
+    val current: Media = nextWeekReleaseMovies[index]
+    val title: String = current.title.orEmpty()
+
+    AnimatedContent(
+        targetState = title,
+        transitionSpec = {
+            (slideInVertically { it } + fadeIn()) togetherWith (slideOutVertically { -it } + fadeOut())
+        },
+        label = "NextWeekReleaseRolling"
+    ) { animatedTitle ->
+        Text(
+            modifier = modifier.clickable {
+                current.id?.let { id -> goToMovie(id) }
+            },
+            text = stringResource(id = R.string.next_week_release_movie, animatedTitle),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
     }
 }

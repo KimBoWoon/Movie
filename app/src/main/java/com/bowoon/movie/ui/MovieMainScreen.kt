@@ -30,7 +30,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -41,7 +40,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
-import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -108,13 +106,13 @@ import com.bowoon.ui.utils.sp15
 import com.bowoon.ui.utils.sp20
 import kotlinx.serialization.Serializable
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 fun MovieApp(
     appState: MovieAppState,
     snackbarHostState: SnackbarHostState,
     nextWeekReleaseMovies: List<Media>,
-    updateShowNextReleaseMoviesDate: () -> Unit,
+    dismissNextWeekReleaseDialog: () -> Unit,
+    dontShowNextWeekReleaseDialogToday: () -> Unit,
     showSettingDialog: () -> Unit
 ) {
     val navigator = remember { Navigator(state = appState.navigationState) }
@@ -236,7 +234,8 @@ fun MovieApp(
                 releaseMovies = nextWeekReleaseMovies,
                 onDismiss = { navigator.goBack() },
                 goToMovie = navigator::navigateToMovie,
-                updateShowNextReleaseMoviesDate = updateShowNextReleaseMoviesDate
+                dismissNextWeekReleaseDialog = dismissNextWeekReleaseDialog,
+                updateShowNextReleaseMoviesDate = dontShowNextWeekReleaseDialogToday
             )
         }
 
@@ -398,12 +397,14 @@ fun EntryProviderScope<NavKey>.nextWeekReleaseMoviesEntry(
     releaseMovies: List<Media>,
     onDismiss: () -> Unit,
     goToMovie: (Int) -> Unit,
-    updateShowNextReleaseMoviesDate: () -> Unit
+    updateShowNextReleaseMoviesDate: () -> Unit,
+    dismissNextWeekReleaseDialog: () -> Unit
 ) {
     entry<NextWeekReleaseMoviesNavKey>(
         metadata = metadata
     ) {
         ReleaseMoviesDialog(
+            dismissNextWeekReleaseDialog = dismissNextWeekReleaseDialog,
             updateShowNextReleaseMoviesDate = updateShowNextReleaseMoviesDate,
             onDismiss = onDismiss,
             releaseMovies = releaseMovies,
@@ -417,7 +418,8 @@ fun ReleaseMoviesDialog(
     updateShowNextReleaseMoviesDate: () -> Unit,
     onDismiss: () -> Unit,
     releaseMovies: List<Media>,
-    goToMovie: (Int) -> Unit
+    goToMovie: (Int) -> Unit,
+    dismissNextWeekReleaseDialog: () -> Unit
 ) {
     val pagerState = rememberPagerState(initialPage = 0) { releaseMovies.size }
 
@@ -434,6 +436,7 @@ fun ReleaseMoviesDialog(
                 .fillMaxWidth()
                 .clickable {
                     goToMovie(releaseMovies[pagerState.currentPage].id ?: -1)
+                    dismissNextWeekReleaseDialog()
                     onDismiss()
                 },
             state = pagerState,

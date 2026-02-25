@@ -13,11 +13,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Icon
@@ -59,7 +61,6 @@ import com.bowoon.ui.utils.dp10
 import com.bowoon.ui.utils.dp16
 import com.bowoon.ui.utils.dp20
 import com.bowoon.ui.utils.dp200
-import com.bowoon.ui.utils.dp80
 import com.bowoon.ui.utils.roundedCornerClickable
 import kotlinx.coroutines.launch
 
@@ -149,72 +150,80 @@ fun PeopleDetailComponent(
     val scope = rememberCoroutineScope()
     val relatedMovie = people.people.combineCredits?.getRelatedMovie() ?: emptyList()
     val snackbarMessage = if (people.isFavorite) stringResource(id = R.string.remove_favorite_people) else stringResource(id = R.string.add_favorite_people)
-    val scrollState = rememberScrollState()
+    val lazyGridScrollState = rememberLazyGridState()
 
-    Column(
-        modifier = Modifier.fillMaxSize().verticalScroll(state = scrollState),
+    LazyVerticalGrid(
+        modifier = Modifier.fillMaxSize(),
+        columns = GridCells.Fixed(count = 3),
+        state = lazyGridScrollState,
+        verticalArrangement = Arrangement.spacedBy(space = dp10)
     ) {
-        ProfileHeader(
-            people = people,
-            images = people.people.images?.mapNotNull { it.filePath } ?: emptyList(),
-            onBack = goToBack,
-            onFavorite = {
-                if (people.isFavorite) {
-                    deleteFavoritePeople(people.people)
-                } else {
-                    insertFavoritePeople(people.people)
+        item(span = { GridItemSpan(currentLineSpan = maxLineSpan) }) {
+            ProfileHeader(
+                people = people,
+                images = people.people.images?.mapNotNull { it.filePath } ?: emptyList(),
+                onBack = goToBack,
+                onFavorite = {
+                    if (people.isFavorite) {
+                        deleteFavoritePeople(people.people)
+                    } else {
+                        insertFavoritePeople(people.people)
+                    }
+                    scope.launch {
+                        onShowSnackbar(snackbarMessage, null)
+                    }
                 }
-                scope.launch {
-                    onShowSnackbar(snackbarMessage, null)
-                }
-            }
-        )
-        ExternalIdLinkComponent(people = people.people)
-        people.people.biography?.takeIf { it.isNotEmpty() }?.let {
-            Spacer(modifier = Modifier.padding(vertical = dp10))
-            Text(
-                modifier = Modifier
-                    .semantics { contentDescription = "peopleBiography" }
-                    .padding(horizontal = dp10),
-                text = it
             )
         }
-        Spacer(modifier = Modifier.padding(vertical = dp10))
-        val rows = remember(key1 = relatedMovie) { relatedMovie.chunked(size = 3) }
+        item(span = { GridItemSpan(currentLineSpan = maxLineSpan) }) {
+            ExternalIdLinkComponent(people = people.people)
+        }
+        item(span = { GridItemSpan(currentLineSpan = maxLineSpan) }) {
+            people.people.biography?.takeIf { it.isNotEmpty() }?.let {
+                Text(
+                    modifier = Modifier
+                        .semantics { contentDescription = "peopleBiography" }
+                        .padding(horizontal = dp10),
+                    text = it
+                )
+            }
+        }
+        item(span = { GridItemSpan(currentLineSpan = maxLineSpan) }) {
+            val rows = remember(key1 = relatedMovie) { relatedMovie.chunked(size = 3) }
 
-        Column(
-            modifier = Modifier.padding(start = dp10, end = dp10, bottom = dp20),
-            verticalArrangement = Arrangement.spacedBy(space = dp10)
-        ) {
-            rows.forEach { rowItems ->
-                Row(horizontalArrangement = Arrangement.spacedBy(space = dp10)) {
-                    rowItems.forEach { media ->
-                        DynamicAsyncImageLoader(
-                            modifier = Modifier
-                                .weight(weight = 1f)
-                                .aspectRatio(ratio = POSTER_IMAGE_RATIO)
-                                .roundedCornerClickable(
-                                    onClick = {
-                                        when (media.mediaType) {
-                                            MediaType.NONE -> {
-                                                scope.launch {
-                                                    onShowSnackbar("MediaType not found...", null)
+            Column(
+                modifier = Modifier.padding(start = dp10, end = dp10, bottom = dp20),
+                verticalArrangement = Arrangement.spacedBy(space = dp10)
+            ) {
+                rows.forEach { rowItems ->
+                    Row(horizontalArrangement = Arrangement.spacedBy(space = dp10)) {
+                        rowItems.forEach { media ->
+                            DynamicAsyncImageLoader(
+                                modifier = Modifier
+                                    .weight(weight = 1f)
+                                    .aspectRatio(ratio = POSTER_IMAGE_RATIO)
+                                    .roundedCornerClickable(
+                                        onClick = {
+                                            when (media.mediaType) {
+                                                MediaType.NONE -> {
+                                                    scope.launch {
+                                                        onShowSnackbar("MediaType not found...", null)
+                                                    }
+                                                    return@roundedCornerClickable
                                                 }
-                                                return@roundedCornerClickable
+                                                MediaType.MOVIE -> goToMovie(media.id ?: -1)
+                                                MediaType.TV -> goToTv(media.id ?: -1)
                                             }
-
-                                            MediaType.MOVIE -> goToMovie(media.id ?: -1)
-                                            MediaType.TV -> goToTv(media.id ?: -1)
-                                        }
-                                    }, cornerRadius = dp10
-                                ),
-                            source = media.posterPath ?: "",
-                            contentDescription = "RelatedMovie"
-                        )
-                    }
-                    // 마지막 줄이 3개 미만일 때 빈칸 채우기
-                    repeat(times = 3 - rowItems.size) {
-                        Spacer(modifier = Modifier.weight(weight = 1f))
+                                        }, cornerRadius = dp10
+                                    ),
+                                source = media.posterPath ?: "",
+                                contentDescription = "RelatedMovie"
+                            )
+                        }
+                        // 마지막 줄이 3개 미만일 때 빈칸 채우기
+                        repeat(times = 3 - rowItems.size) {
+                            Spacer(modifier = Modifier.weight(weight = 1f))
+                        }
                     }
                 }
             }
