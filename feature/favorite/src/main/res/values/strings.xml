@@ -2,7 +2,7 @@
 <resources>
     <string name="feature_favorite_name">Favorite</string>
     <string name="empty_favorite_movie">Empty favorite movie</string>
-    <string name="empty_tv_movie">Empty favorite tv</string>
+    <string name="empty_favorite_tv">Empty favorite tv</string>
     <string name="empty_favorite_people">Empty favorite people</string>
     <string name="remove_favorite">Remove favorite</string>
     <string name="movie">Movie</string>

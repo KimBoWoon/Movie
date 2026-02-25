@@ -171,7 +171,7 @@ fun FavoriteScreen(
                     ) {
                         Text(
                             modifier = Modifier.testTag(tag = "favoriteTvEmpty"),
-                            text = stringResource(id = R.string.empty_favorite_movie),
+                            text = stringResource(id = R.string.empty_favorite_tv),
                             style = MaterialTheme.typography.titleLarge
                         )
                     }
