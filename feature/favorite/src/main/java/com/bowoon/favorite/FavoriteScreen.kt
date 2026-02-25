@@ -126,7 +126,8 @@ fun FavoriteScreen(
                     ) {
                         Text(
                             modifier = Modifier.testTag(tag = "favoriteMovieEmpty"),
-                            text = stringResource(id = R.string.empty_favorite_movie)
+                            text = stringResource(id = R.string.empty_favorite_movie),
+                            style = MaterialTheme.typography.titleLarge
                         )
                     }
                 } else {
@@ -163,14 +164,15 @@ fun FavoriteScreen(
                 }
             }
             FavoriteTab.TV -> {
-                if (favoriteMovies.isEmpty()) {
+                if (favoriteTvs.isEmpty()) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            modifier = Modifier.testTag(tag = "favoriteMovieEmpty"),
-                            text = stringResource(id = R.string.empty_favorite_movie)
+                            modifier = Modifier.testTag(tag = "favoriteTvEmpty"),
+                            text = stringResource(id = R.string.empty_favorite_movie),
+                            style = MaterialTheme.typography.titleLarge
                         )
                     }
                 } else {
@@ -213,8 +215,9 @@ fun FavoriteScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            modifier = Modifier.testTag(tag = "favoriteMovieEmpty"),
-                            text = stringResource(id = R.string.empty_favorite_people)
+                            modifier = Modifier.testTag(tag = "favoritePeopleEmpty"),
+                            text = stringResource(id = R.string.empty_favorite_people),
+                            style = MaterialTheme.typography.titleLarge
                         )
                     }
                 } else {
