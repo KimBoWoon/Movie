@@ -11,4 +11,5 @@ interface Media {
     val genres: List<Genre>?
     val releaseDate: String?
     val voteAverage: Float?
+    val mediaType: MediaType
 }

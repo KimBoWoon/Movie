@@ -4,6 +4,7 @@ package com.bowoon.network.model
 import com.bowoon.model.CombineCredits
 import com.bowoon.model.CombineCreditsCast
 import com.bowoon.model.CombineCreditsCrew
+import com.bowoon.model.MediaType
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -137,7 +138,11 @@ fun List<NetworkTMDBCombineCreditsCast>.asExternalModel(): List<CombineCreditsCa
             firstAirDate = it.firstAirDate,
             genreIds = it.genreIds,
             id = it.id,
-            mediaType = it.mediaType,
+            mediaType = when {
+                it.mediaType?.equals(other = "tv", ignoreCase = true) == true -> MediaType.TV
+                it.mediaType?.equals(other = "movie", ignoreCase = true) == true -> MediaType.MOVIE
+                else -> MediaType.NONE
+            },
             name = it.name,
             order = it.order,
             originCountry = it.originCountry,
@@ -166,7 +171,11 @@ fun List<NetworkTMDBCombineCreditsCrew>.asExternalModel(): List<CombineCreditsCr
             firstAirDate = it.firstAirDate,
             genreIds = it.genreIds,
             id = it.id,
-            mediaType = it.mediaType,
+            mediaType = when {
+                it.mediaType?.equals(other = "tv", ignoreCase = true) == true -> MediaType.TV
+                it.mediaType?.equals(other = "movie", ignoreCase = true) == true -> MediaType.MOVIE
+                else -> MediaType.NONE
+            },
             name = it.name,
             originCountry = it.originCountry,
             originalLanguage = it.originalLanguage,

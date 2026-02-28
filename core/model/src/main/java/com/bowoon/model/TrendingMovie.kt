@@ -12,7 +12,7 @@ data class TrendingMovieResult(
     val backdropPath: String? = null,
     val genreIds: List<Int>? = null,
     override val id: Int? = null,
-    val mediaType: String? = null,
+    override val mediaType: MediaType = MediaType.NONE,
     val originalLanguage: String? = null,
     override val originalTitle: String? = null,
     val overview: String? = null,
@@ -26,5 +26,5 @@ data class TrendingMovieResult(
     override val genres: List<Genre>? = null,
     override val certification: String? = null,
     override val runtime: Int? = null,
-    override val tagline: String? = null
+    override val tagline: String? = null,
 ) : Media

@@ -412,16 +412,18 @@ fun SeriesComponent(
         }
 
         if (!collection?.parts.isNullOrEmpty()) {
-            Spacer(Modifier.height(height = dp14))
+            Spacer(modifier = Modifier.height(height = dp14))
             SubSectionTitleComponent(text = "Parts")
-            Spacer(Modifier.height(height = dp10))
+            Spacer(modifier = Modifier.height(height = dp10))
 
-            LazyRow(contentPadding = PaddingValues(horizontal = dp16)) {
+            LazyRow(
+                contentPadding = PaddingValues(horizontal = dp16),
+                horizontalArrangement = Arrangement.spacedBy(space = dp12)
+            ) {
                 items(items = collection.parts ?: emptyList()) { m ->
                     Column(
                         modifier = Modifier
                             .width(width = dp120)
-                            .padding(end = dp12)
                             .clickable { goToMovie(m.id ?: -1) }
                     ) {
                         DynamicAsyncImageLoader(
@@ -438,6 +440,7 @@ fun SeriesComponent(
                         Text(
                             text = m.title ?: "",
                             style = MaterialTheme.typography.bodySmall,
+                            minLines = 2,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis
                         )

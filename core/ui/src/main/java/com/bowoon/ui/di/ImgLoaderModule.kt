@@ -5,6 +5,8 @@ import coil3.ImageLoader
 import coil3.disk.DiskCache
 import coil3.disk.directory
 import coil3.memory.MemoryCache
+import coil3.request.CachePolicy
+import coil3.request.allowHardware
 import coil3.request.crossfade
 import dagger.Module
 import dagger.Provides
@@ -26,19 +28,19 @@ object ImgLoaderModule {
     @Singleton
     fun imageLoader(
         @ApplicationContext context: Context,
-    ): ImageLoader = ImageLoader.Builder(context)
+    ): ImageLoader = ImageLoader.Builder(context = context)
         .memoryCache {
             MemoryCache.Builder()
-                .maxSizePercent(context, MEMORY_CACHE_PERCENT)
+                .maxSizePercent(context = context, percent = MEMORY_CACHE_PERCENT)
                 .build()
         }
         .diskCache {
             DiskCache.Builder()
-                .directory(File(context.externalCacheDir, CACHE_FOLDER_NAME))
-                .maxSizeBytes(CACHE_BYTES_SIZE)
+                .directory(directory = File(context.externalCacheDir, CACHE_FOLDER_NAME))
+                .maxSizeBytes(size = CACHE_BYTES_SIZE)
                 .build()
         }
-        .crossfade(true)
-//        .respectCacheHeaders(false)
+        .crossfade(enable = true)
+        .allowHardware(enable = true)
         .build()
 }

@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 
@@ -206,3 +207,22 @@ fun Modifier.roundedCornerClickable(
 ): Modifier = this.bounceClick {
     onClick()
 }.clip(shape = RoundedCornerShape(size = cornerRadius))
+
+fun Modifier.fullBleed(horizontalPadding: Dp): Modifier =
+    this.then(
+        Modifier.layout { measurable, constraints ->
+            val padPx = horizontalPadding.roundToPx()
+
+            // 부모가 좌우 패딩을 줬다고 가정하고, 그만큼 폭을 늘려서 측정
+            val expandedConstraints = constraints.copy(
+                maxWidth = constraints.maxWidth + padPx * 2
+            )
+
+            val placeable = measurable.measure(expandedConstraints)
+
+            layout(width = constraints.maxWidth, height = placeable.height) {
+                // 왼쪽으로 패딩만큼 당겨서 "풀블리드"처럼 보이게
+                placeable.placeRelative(x = -padPx, y = 0)
+            }
+        }
+    )

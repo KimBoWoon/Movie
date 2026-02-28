@@ -24,7 +24,8 @@ data class People(
     override val certification: String? = null,
     override val runtime: Int? = null,
     override val tagline: String? = null,
-    override val voteAverage: Float? = null
+    override val voteAverage: Float? = null,
+    override val mediaType: MediaType = MediaType.NONE
 ) : Media
 
 data class RelatedMovie(
@@ -52,5 +53,5 @@ data class RelatedMovie(
     val voteAverage: Float? = null,
     val voteCount: Int? = null,
     val department: String? = null,
-    val job: String? = null,
+    val job: String? = null
 )

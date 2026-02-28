@@ -41,7 +41,8 @@ data class Movie(
     override val voteAverage: Float? = null,
     val voteCount: Int? = null,
     override val certification: String? = null,
-    val series: Series? = null
+    val series: Series? = null,
+    override val mediaType: MediaType = MediaType.MOVIE
 ) : Parcelable, Media
 
 @Serializable

@@ -35,9 +35,9 @@ import com.bowoon.movie.rememberMovieAppState
 import com.bowoon.movie.ui.MovieApp
 import com.bowoon.movie.ui.NextWeekReleaseMoviesNavKey
 import com.bowoon.movie.utils.isSystemInDarkTheme
-import com.bowoon.my.SettingScreen
-import com.bowoon.my.SettingVM
-import com.bowoon.my.SettingsAction
+import com.bowoon.setting.SettingScreen
+import com.bowoon.setting.SettingVM
+import com.bowoon.setting.SettingsAction
 import com.bowoon.ui.theme.MovieTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.combine

@@ -42,7 +42,8 @@ data class Tv(
     val seasonList: Map<String, TvSeasons>? = null,
     override val releaseDate: String? = null,
     override val certification: String? = null,
-    override val runtime: Int? = null
+    override val runtime: Int? = null,
+    override val mediaType: MediaType = MediaType.TV
 ) : Media
 
 data class TvAlternativeTitles(

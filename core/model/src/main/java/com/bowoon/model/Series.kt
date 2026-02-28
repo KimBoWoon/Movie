@@ -19,7 +19,8 @@ data class Series(
     override val certification: String? = null,
     override val runtime: Int? = null,
     override val tagline: String? = null,
-    override val voteAverage: Float? = null
+    override val voteAverage: Float? = null,
+    override val mediaType: MediaType = MediaType.NONE
 ) : Parcelable, Media
 
 @Serializable

@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import java.time.LocalDate
 import javax.inject.Inject
 
 class GetMovieDetailUseCase @Inject constructor(
@@ -49,7 +50,13 @@ class GetMovieDetailUseCase @Inject constructor(
                     flowOf(value = null)
                 } else {
                     detailRepository.getMovieSeries(collectionId = seriesId)
-                        .catch { e ->
+                        .map { series ->
+                            series.copy(
+                                parts = series.parts?.sortedBy { item ->
+                                    (item.releaseDate ?: "").ifEmpty { LocalDate.MAX.toString() }
+                                }
+                            )
+                        }.catch { e ->
                             Log.printStackTrace(tr = e)
                             emit(value = Series())
                         }

@@ -42,6 +42,7 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -116,7 +117,13 @@ fun MovieApp(
     showSettingDialog: () -> Unit
 ) {
     val navigator = remember { Navigator(state = appState.navigationState) }
-    val isTopLevelRoute = navigator.state.backStacks[navigator.state.topLevelRoute]?.last()?.javaClass in TOP_LEVEL_NAV_ITEMS.map { it.key.javaClass }
+    val isTopLevelRoute by remember {
+        derivedStateOf {
+            navigator.state.backStacks[navigator.state.topLevelRoute]
+                ?.lastOrNull()
+                ?.javaClass in TOP_LEVEL_NAV_ITEMS.map { it.key.javaClass }
+        }
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),

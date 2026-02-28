@@ -13,7 +13,7 @@ data class TrendingTvResult(
     val firstAirDate: String? = null,
     val genreIds: List<Int?>? = null,
     override val id: Int? = null,
-    val mediaType: String? = null,
+    override val mediaType: MediaType = MediaType.NONE,
     override val title: String? = null,
     val originCountry: List<String?>? = null,
     val originalLanguage: String? = null,

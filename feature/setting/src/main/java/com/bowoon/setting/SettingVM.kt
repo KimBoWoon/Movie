@@ -1,4 +1,4 @@
-package com.bowoon.my
+package com.bowoon.setting
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -39,13 +39,13 @@ class SettingVM @Inject constructor(
         SettingsUiState(
             sheet = settingsUiState.sheet,
             mainUpdateDate = internalData.updateDate,
-            theme = settingsUiState.theme,
+            theme = internalData.isDarkMode,
             isAdult = settingsUiState.isAdult,
             isTrailerAutoplay = settingsUiState.isTrailerAutoplay,
             language = selectedLanguage,
             region = selectedRegion,
-            selectedLanguage = selectedLanguage ?: settingsUiState.selectedLanguage,
-            selectedRegion = selectedRegion ?: settingsUiState.selectedRegion,
+            selectedLanguage = settingsUiState.selectedLanguage ?: selectedLanguage,
+            selectedRegion = settingsUiState.selectedRegion ?: selectedRegion,
             imageQuality = internalData.imageQuality,
             imageQualityList = movieAppData.posterSize.map { it.size.orEmpty() },
             allLanguages = movieAppData.language,

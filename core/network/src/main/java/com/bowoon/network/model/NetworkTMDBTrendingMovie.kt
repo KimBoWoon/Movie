@@ -1,5 +1,6 @@
 package com.bowoon.network.model
 
+import com.bowoon.model.MediaType
 import com.bowoon.model.TrendingMovie
 import com.bowoon.model.TrendingMovieResult
 import kotlinx.serialization.SerialName
@@ -64,7 +65,11 @@ fun List<NetworkTMDBTrendingMovieResult>.asExternalModel(): List<TrendingMovieRe
         backdropPath = it.backdropPath,
         genreIds = it.genreIds,
         id = it.id,
-        mediaType = it.mediaType,
+        mediaType = when {
+            it.mediaType?.equals(other = "tv", ignoreCase = true) == true -> MediaType.TV
+            it.mediaType?.equals(other = "movie", ignoreCase = true) == true -> MediaType.MOVIE
+            else -> MediaType.NONE
+        },
         originalLanguage = it.originalLanguage,
         originalTitle = it.originalTitle,
         overview = it.overview,

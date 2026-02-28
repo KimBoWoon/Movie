@@ -1,7 +1,6 @@
-package com.bowoon.my
+package com.bowoon.setting
 
 import com.bowoon.model.DarkThemeConfig
-import com.bowoon.model.LocaleOption
 import com.bowoon.testing.repository.TestUserDataRepository
 import com.bowoon.testing.utils.MainDispatcherRule
 import com.bowoon.testing.utils.TestMovieAppDataManager

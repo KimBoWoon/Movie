@@ -13,7 +13,7 @@ data class TrendingPeopleResult(
     override val id: Int? = null,
     val knownFor: List<TrendingPeopleKnownFor>? = null,
     val knownForDepartment: String? = null,
-    val mediaType: String? = null,
+    override val mediaType: MediaType = MediaType.NONE,
     override val title: String? = null,
     override val originalTitle: String? = null,
     val popularity: Double? = null,

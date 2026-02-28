@@ -1,4 +1,4 @@
-package com.bowoon.my
+package com.bowoon.setting
 
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.getValue
@@ -6,6 +6,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.bowoon.model.LocaleOption
 import com.bowoon.model.MovieAppData
 import com.bowoon.model.PosterSize
 import com.bowoon.testing.model.configurationTestData
@@ -18,7 +19,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-class MyScreenTest {
+class SettingScreenTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<ComponentActivity>()
     private lateinit var viewModel: SettingVM
@@ -27,8 +28,8 @@ class MyScreenTest {
     private val movieAppData = MovieAppData(
         secureBaseUrl = configurationTestData.images?.secureBaseUrl ?: "",
         genres = genreListTestData.genres ?: emptyList(),
-        region = regionTestData.results ?: emptyList(),
-        language = languageListTestData.map { it.copy(isSelected = it.name == "en") },
+        region = regionTestData.results?.map { LocaleOption(code = it.iso31661 ?: "", label = it.englishName ?: "", isSelected = false) }.orEmpty(),
+        language = languageListTestData.map { LocaleOption(code = it.iso6391 ?: "", label = it.englishName ?: "", isSelected = false) },
         posterSize = configurationTestData.images?.posterSizes?.map {
             PosterSize(size = it, isSelected = it == "original")
         } ?: emptyList()
@@ -50,18 +51,11 @@ class MyScreenTest {
     fun myScreenTest() {
         composeTestRule.apply {
             setContent {
-                val internalData by viewModel.myData.collectAsStateWithLifecycle()
-                val movieAppData by viewModel.movieAppData.movieAppData.collectAsStateWithLifecycle()
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
                 SettingScreen(
-                    internalData = internalData,
-                    movieAppData = movieAppData,
-                    updateIsAdult = {},
-                    updateAutoPlayTrailer = {},
-                    updateIsDarkMode = {},
-                    updateRegion = {},
-                    updateLanguage = {},
-                    updateImageQuality = {},
+                    state = uiState,
+                    onAction = {}
                 )
             }
 

@@ -1,4 +1,4 @@
-package com.bowoon.my
+package com.bowoon.setting
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -44,7 +44,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bowoon.common.getVersionName
 import com.bowoon.firebase.LocalFirebaseLogHelper
-import com.bowoon.movie.feature.my.R
+import com.bowoon.movie.feature.setting.R
 import com.bowoon.ui.utils.dp10
 import com.bowoon.ui.utils.dp12
 import com.bowoon.ui.utils.dp14
@@ -364,13 +364,10 @@ fun LanguageRegionSubSheet(
 ) {
     var tab by remember { mutableStateOf(value = LocaleTab.LANGUAGE) }
     var query by remember { mutableStateOf(value = TextFieldValue(text = "")) }
-
     val selectedLang = state.selectedLanguage ?: state.language
     val selectedRegion = state.selectedRegion ?: state.region
-
     val all = if (tab == LocaleTab.LANGUAGE) state.allLanguages else state.allRegions
     val selectedCode = if (tab == LocaleTab.LANGUAGE) selectedLang?.code else selectedRegion?.code
-
     val filtered = remember(key1 = all, key2 = query.text) {
         if (query.text.isBlank()) {
             all
@@ -387,9 +384,9 @@ fun LanguageRegionSubSheet(
             verticalAlignment = Alignment.CenterVertically
         ) {
             TextButton(onClick = { onAction(SettingsAction.BackToMainFromLanguageRegion) }) { Text(text = "뒤로") }
-            Spacer(Modifier.weight(weight = 1f))
+            Spacer(modifier = Modifier.weight(weight = 1f))
             Text(text = "언어 / 지역", style = MaterialTheme.typography.titleMedium)
-            Spacer(Modifier.weight(weight = 1f))
+            Spacer(modifier = Modifier.weight(weight = 1f))
             TextButton(onClick = { onAction(SettingsAction.CloseSheet) }) { Text(text = "닫기") }
         }
 

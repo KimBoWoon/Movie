@@ -19,7 +19,7 @@ data class CombineCreditsCast(
     val firstAirDate: String? = null,
     val genreIds: List<Int>? = null,
     val id: Int? = null,
-    val mediaType: String? = null,
+    val mediaType: MediaType = MediaType.NONE,
     val name: String? = null,
     val order: Int? = null,
     val originCountry: List<String>? = null,
@@ -47,7 +47,7 @@ data class CombineCreditsCrew(
     val genreIds: List<Int>? = null,
     val id: Int? = null,
     val job: String? = null,
-    val mediaType: String? = null,
+    val mediaType: MediaType = MediaType.NONE,
     val name: String? = null,
     val originCountry: List<String>? = null,
     val originalLanguage: String? = null,
@@ -63,69 +63,91 @@ data class CombineCreditsCrew(
     val voteCount: Int? = null
 )
 
-fun CombineCredits.getRelatedMovie(): List<RelatedMovie> =
-    (cast?.map {
-        RelatedMovie(
-            adult = it.adult,
-            backdropPath = it.backdropPath,
-            character = it.character,
-            creditId = it.creditId,
-            episodeCount = it.episodeCount,
-            firstAirDate = it.firstAirDate,
-            genreIds = it.genreIds,
-            id = it.id,
-            mediaType = when {
-                it.mediaType?.equals(other = "tv", ignoreCase = true) == true -> MediaType.TV
-                it.mediaType?.equals(other = "movie", ignoreCase = true) == true -> MediaType.MOVIE
-                else -> MediaType.NONE
-            },
-            name = it.name,
-            order = it.order,
-            originCountry = it.originCountry,
-            originalLanguage = it.originalLanguage,
-            originalName = it.originalName,
-            originalTitle = it.originalTitle,
-            overview = it.overview,
-            popularity = it.popularity,
-            posterPath = it.posterPath,
-            releaseDate = it.releaseDate,
-            title = it.title,
-            video = it.video,
-            voteAverage = it.voteAverage,
-            voteCount = it.voteCount,
-            department = "",
-            job = ""
-        )
-    } ?: emptyList()).plus(
-        crew?.map {
-            RelatedMovie(
-                adult = it.adult,
-                backdropPath = it.backdropPath,
-                creditId = it.creditId,
-                episodeCount = it.episodeCount,
-                firstAirDate = it.firstAirDate,
-                genreIds = it.genreIds,
+fun CombineCredits.getRelatedMovie(): List<Media> =
+    cast?.map {
+        when (it.mediaType) {
+            MediaType.MOVIE -> Movie(
                 id = it.id,
-                mediaType = when {
-                    it.mediaType?.equals(other = "tv", ignoreCase = true) == true -> MediaType.TV
-                    it.mediaType?.equals(other = "movie", ignoreCase = true) == true -> MediaType.MOVIE
-                    else -> MediaType.NONE
-                },
-                name = it.name,
-                originCountry = it.originCountry,
-                originalLanguage = it.originalLanguage,
-                originalName = it.originalName,
-                originalTitle = it.originalTitle,
-                overview = it.overview,
-                popularity = it.popularity,
+//                certification = it.certification,
                 posterPath = it.posterPath,
-                releaseDate = it.releaseDate,
+//                tagline = it.tagline,
                 title = it.title,
-                video = it.video,
+//                runtime = it.runtime,
+                originalTitle = it.originalTitle,
+//                genres = it.genreIds,
+                releaseDate = it.firstAirDate,
                 voteAverage = it.voteAverage,
-                voteCount = it.voteCount,
-                department = it.department,
-                job = it.job
+                mediaType = MediaType.MOVIE
             )
-        } ?: emptyList()
-    )/*.filter { it.mediaType == "movie" }*/.sortedByDescending { it.releaseDate }
+            MediaType.TV -> Tv(
+                id = it.id,
+//                certification = it.certification,
+                posterPath = it.posterPath,
+//                tagline = it.tagline,
+                title = it.title,
+//                runtime = it.runtime,
+                originalTitle = it.originalTitle,
+//                genres = it.genreIds,
+                releaseDate = it.firstAirDate,
+                voteAverage = it.voteAverage,
+                mediaType = MediaType.TV
+            )
+            MediaType.NONE -> Movie(
+                id = it.id,
+//                certification = it.certification,
+                posterPath = it.posterPath,
+//                tagline = it.tagline,
+                title = it.title,
+//                runtime = it.runtime,
+                originalTitle = it.originalTitle,
+//                genres = it.genreIds,
+                releaseDate = it.firstAirDate,
+                voteAverage = it.voteAverage,
+                mediaType = MediaType.MOVIE
+            )
+        }
+    }?.plus(
+        elements = crew.orEmpty().map {
+            when (it.mediaType) {
+                MediaType.MOVIE -> Movie(
+                    id = it.id,
+//                certification = it.certification,
+                    posterPath = it.posterPath,
+//                tagline = it.tagline,
+                    title = it.title,
+//                runtime = it.runtime,
+                    originalTitle = it.originalTitle,
+//                genres = it.genreIds,
+                    releaseDate = it.firstAirDate,
+                    voteAverage = it.voteAverage,
+                    mediaType = MediaType.MOVIE
+                )
+                MediaType.TV -> Tv(
+                    id = it.id,
+//                certification = it.certification,
+                    posterPath = it.posterPath,
+//                tagline = it.tagline,
+                    title = it.title,
+//                runtime = it.runtime,
+                    originalTitle = it.originalTitle,
+//                genres = it.genreIds,
+                    releaseDate = it.firstAirDate,
+                    voteAverage = it.voteAverage,
+                    mediaType = MediaType.TV
+                )
+                MediaType.NONE -> Movie(
+                    id = it.id,
+//                certification = it.certification,
+                    posterPath = it.posterPath,
+//                tagline = it.tagline,
+                    title = it.title,
+//                runtime = it.runtime,
+                    originalTitle = it.originalTitle,
+//                genres = it.genreIds,
+                    releaseDate = it.firstAirDate,
+                    voteAverage = it.voteAverage,
+                    mediaType = MediaType.MOVIE
+                )
+            }
+        }
+    )?.sortedByDescending { it.releaseDate }?.distinct().orEmpty()

@@ -1,6 +1,7 @@
 package com.bowoon.network.model
 
 
+import com.bowoon.model.MediaType
 import com.bowoon.model.TrendingPeople
 import com.bowoon.model.TrendingPeopleKnownFor
 import com.bowoon.model.TrendingPeopleResult
@@ -100,7 +101,11 @@ fun List<NetworkTMDBTrendingPeopleResult>.asExternalModel(): List<TrendingPeople
         id = it.id,
         knownFor = it.knownFor?.asExternalModel(),
         knownForDepartment = it.knownForDepartment,
-        mediaType = it.mediaType,
+        mediaType = when {
+            it.mediaType?.equals(other = "tv", ignoreCase = true) == true -> MediaType.TV
+            it.mediaType?.equals(other = "movie", ignoreCase = true) == true -> MediaType.MOVIE
+            else -> MediaType.NONE
+        },
         title = it.name,
         originalTitle = it.originalName,
         popularity = it.popularity,

@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.bowoon.movie.feature.my"
+    namespace = "com.bowoon.movie.feature.setting"
 }
 
 dependencies {
