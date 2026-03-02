@@ -1,11 +1,13 @@
 package com.bowoon.domain
 
 import com.bowoon.common.Log
+import com.bowoon.common.toEpochDayOrMax
 import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.data.repository.DetailRepository
 import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.model.Movie
 import com.bowoon.model.Series
+import com.bowoon.model.SeriesPart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -14,7 +16,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import java.time.LocalDate
 import javax.inject.Inject
 
 class GetMovieDetailUseCase @Inject constructor(
@@ -52,9 +53,10 @@ class GetMovieDetailUseCase @Inject constructor(
                     detailRepository.getMovieSeries(collectionId = seriesId)
                         .map { series ->
                             series.copy(
-                                parts = series.parts?.sortedBy { item ->
-                                    (item.releaseDate ?: "").ifEmpty { LocalDate.MAX.toString() }
-                                }
+                                parts = series.parts?.sortedWith(
+                                    comparator = compareBy<SeriesPart> { it.releaseDate.toEpochDayOrMax() }
+                                        .thenBy { it.title.orEmpty() }
+                                )
                             )
                         }.catch { e ->
                             Log.printStackTrace(tr = e)

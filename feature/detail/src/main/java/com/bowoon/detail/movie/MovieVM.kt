@@ -47,7 +47,7 @@ class MovieVM @AssistedInject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     val movie = reload
         .flatMapLatest {
-            trace("GetMovieDetail") { getMovieDetail(id = id).asResult() }
+            trace(sectionName = "GetMovieDetail") { getMovieDetail(id = id) }.asResult()
         }.map { result ->
             when (result) {
                 is Result.Loading -> MovieState.Loading

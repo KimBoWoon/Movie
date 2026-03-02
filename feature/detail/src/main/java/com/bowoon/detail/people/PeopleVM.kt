@@ -40,7 +40,7 @@ class PeopleVM @AssistedInject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     val people = reload
         .flatMapLatest {
-            trace("GetPeopleDetail") { getPeopleDetail(personId = id).asResult() }
+            trace(sectionName = "GetPeopleDetail") { getPeopleDetail(personId = id) }.asResult()
         }.map {
             when (it) {
                 is Result.Loading -> PeopleState.Loading

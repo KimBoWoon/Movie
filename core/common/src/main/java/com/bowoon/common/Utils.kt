@@ -7,6 +7,7 @@ import android.content.res.Configuration
 import android.content.res.Resources
 import android.os.Build
 import android.os.Bundle
+import java.time.LocalDate
 import kotlin.math.roundToInt
 
 val Configuration.isSystemInDarkTheme
@@ -40,3 +41,12 @@ fun getVersionName(context: Context): String = runCatching {
     Log.printStackTrace(tr = e)
     ""
 }
+
+fun String?.toLocalDateOrNull(): LocalDate? =
+    if (this.isNullOrBlank()) {
+        null
+    } else {
+        runCatching { LocalDate.parse(this) }.getOrNull()
+    }
+
+fun String?.toEpochDayOrMax(): Long = this.toLocalDateOrNull()?.toEpochDay() ?: Long.MAX_VALUE

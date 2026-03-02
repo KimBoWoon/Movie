@@ -34,7 +34,7 @@ fun DynamicAsyncImageLoader(
     val isLocalInspection = LocalInspectionMode.current
     var isLoading by remember { mutableStateOf(value = true) }
     var isError by remember { mutableStateOf(value = false) }
-    val imageLoader = trace("CoilImageLoad") {
+    val imageLoader = trace(sectionName = "CoilImageLoad") {
         rememberAsyncImagePainter(
             model = "$imageUrl$source",
             onState = { state ->

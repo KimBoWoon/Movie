@@ -5,8 +5,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bowoon.common.Result
 import com.bowoon.common.asResult
+import com.bowoon.common.toEpochDayOrMax
 import com.bowoon.data.repository.DetailRepository
 import com.bowoon.model.Series
+import com.bowoon.model.SeriesPart
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -37,12 +39,22 @@ class SeriesVM @AssistedInject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     val series = reload
         .flatMapLatest {
-            trace("GetSeriesDetail") { detailRepository.getMovieSeries(collectionId = id).asResult() }
+            trace(sectionName = "GetSeriesDetail") {
+                detailRepository.getMovieSeries(collectionId = id)
+                    .map { series ->
+                        series.copy(
+                            parts = series.parts?.sortedWith(
+                                comparator = compareBy<SeriesPart> { it.releaseDate.toEpochDayOrMax() }
+                                    .thenBy { it.title.orEmpty() }
+                            )
+                        )
+                    }
+            }.asResult()
         }.map {
             when (it) {
                 is Result.Loading -> SeriesState.Loading
-                is Result.Success -> SeriesState.Success(it.data)
-                is Result.Error -> SeriesState.Error(it.throwable)
+                is Result.Success -> SeriesState.Success(series = it.data)
+                is Result.Error -> SeriesState.Error(throwable = it.throwable)
             }
         }.stateIn(
             scope = viewModelScope,
