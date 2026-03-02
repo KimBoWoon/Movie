@@ -11,6 +11,7 @@ dependencies {
     api(projects.core.common)
     api(projects.core.data)
     api(projects.core.model)
+    api(projects.core.analytics)
     api(libs.kotlinx.coroutines.test)
     implementation(libs.hilt.android.testing)
     implementation(libs.androidx.test.rules)

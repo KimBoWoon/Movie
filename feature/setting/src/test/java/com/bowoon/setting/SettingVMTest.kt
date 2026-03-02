@@ -23,7 +23,7 @@ class SettingVMTest {
     private val settingUiState = SettingsUiState(
         sheet = SettingsSheet.Hidden,
         mainUpdateDate = "",
-        theme = DarkThemeConfig.DARK,
+        theme = DarkThemeConfig.FOLLOW_SYSTEM,
         isAdult = true,
         isTrailerAutoplay = false,
         language = null,

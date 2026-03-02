@@ -59,6 +59,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.bowoon.analytics.TrackScreenViewEvent
 import com.bowoon.common.Log
 import com.bowoon.detail.movie.AlternativeTitleComponent
 import com.bowoon.firebase.LocalFirebaseLogHelper
@@ -107,6 +108,7 @@ fun TvScreen(
     viewModel: TvVM = hiltViewModel()
 ) {
     LocalFirebaseLogHelper.current.sendLog("DetailScreen", "detail screen start!")
+    TrackScreenViewEvent(screenName = "TvScreen")
 
     val similarTvs = viewModel.similarTvs.collectAsLazyPagingItems()
     val selectedEpisode by viewModel.selectedEpisode.collectAsStateWithLifecycle()

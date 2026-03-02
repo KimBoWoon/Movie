@@ -44,6 +44,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.bowoon.analytics.LocalAnalyticsHelper
+import com.bowoon.analytics.TrackScreenViewEvent
+import com.bowoon.analytics.logFavorite
 import com.bowoon.common.Log
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.domain.PeopleWithFavorite
@@ -76,6 +79,7 @@ fun PeopleScreen(
     viewModel: PeopleVM = hiltViewModel()
 ) {
     LocalFirebaseLogHelper.current.sendLog("PeopleScreen", "people screen start!")
+    TrackScreenViewEvent(screenName = "PeopleScreen")
 
     val peopleState by viewModel.people.collectAsStateWithLifecycle()
 
@@ -229,6 +233,7 @@ fun ProfileComponent(
     onFavorite: () -> Unit
 ) {
     val pagerState = rememberPagerState(pageCount = { images.size.coerceAtLeast(minimumValue = 1) })
+    val analyticsHelper = LocalAnalyticsHelper.current
 
     Box(
         modifier = Modifier.fillMaxWidth().fullBleed(horizontalPadding = dp10)
@@ -287,7 +292,14 @@ fun ProfileComponent(
                     .padding(end = dp16)
                     .wrapContentSize(),
                 isFavorite = people.isFavorite,
-                onClick = { onFavorite() }
+                onClick = {
+                    onFavorite()
+                    if (people.isFavorite) {
+                        analyticsHelper.logFavorite(isFavorite = false, contentType = "movie", media = people.people)
+                    } else {
+                        analyticsHelper.logFavorite(isFavorite = true, contentType = "movie", media = people.people)
+                    }
+                }
             )
         }
 

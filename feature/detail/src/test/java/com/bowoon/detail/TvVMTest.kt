@@ -14,6 +14,7 @@ import com.bowoon.testing.repository.TestDetailRepository
 import com.bowoon.testing.repository.TestPagingRepository
 import com.bowoon.testing.repository.TestUserDataRepository
 import com.bowoon.testing.utils.MainDispatcherRule
+import com.bowoon.testing.utils.TestAnalyticsHelper
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -33,6 +34,7 @@ class TvVMTest {
     private val testPagingRepository = TestPagingRepository()
     private val testDetailRepository = TestDetailRepository()
     private val testUserDataRepository = TestUserDataRepository()
+    private val testAnalyticsHelper = TestAnalyticsHelper()
     private val getTvDetailUseCase = GetTvDetailUseCase(
         detailRepository = testDetailRepository,
         databaseRepository = testDataBaseRepository,
@@ -64,7 +66,8 @@ class TvVMTest {
             databaseRepository = testDataBaseRepository,
             pagingRepository = testPagingRepository,
             getTvDetailUseCase = getTvDetailUseCase,
-            detailRepository = testDetailRepository
+            detailRepository = testDetailRepository,
+            analyticsHelper = testAnalyticsHelper
         )
     }
 

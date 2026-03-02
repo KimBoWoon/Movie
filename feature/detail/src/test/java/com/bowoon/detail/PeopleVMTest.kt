@@ -12,6 +12,7 @@ import com.bowoon.testing.model.peopleDetailTestData
 import com.bowoon.testing.repository.TestDatabaseRepository
 import com.bowoon.testing.repository.TestDetailRepository
 import com.bowoon.testing.utils.MainDispatcherRule
+import com.bowoon.testing.utils.TestAnalyticsHelper
 import com.bowoon.testing.utils.TestMovieAppDataManager
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
@@ -35,12 +36,14 @@ class PeopleVMTest {
     private lateinit var testDetailRepository: TestDetailRepository
     private lateinit var getPeopleDetailUseCase: GetPeopleDetailUseCase
     private lateinit var testMovieAppDataManager: TestMovieAppDataManager
+    private lateinit var testAnalyticsHelper: TestAnalyticsHelper
 
     @Before
     fun setup() {
         testDatabaseRepository = TestDatabaseRepository()
         testDetailRepository = TestDetailRepository()
         testMovieAppDataManager = TestMovieAppDataManager()
+        testAnalyticsHelper = TestAnalyticsHelper()
         getPeopleDetailUseCase = GetPeopleDetailUseCase(
             detailRepository = testDetailRepository,
             databaseRepository = testDatabaseRepository
@@ -48,7 +51,8 @@ class PeopleVMTest {
         viewModel = PeopleVM(
             id = 0,
             getPeopleDetail = getPeopleDetailUseCase,
-            databaseRepository = testDatabaseRepository
+            databaseRepository = testDatabaseRepository,
+            analyticsHelper = testAnalyticsHelper
         )
         runBlocking {
             testDatabaseRepository.insertPeople(people = People(id = 0, title = "people_1", posterPath = "/peopleImagePath.png"))
@@ -88,7 +92,8 @@ class PeopleVMTest {
         viewModel = PeopleVM(
             id = 124,
             getPeopleDetail = getPeopleDetailUseCase,
-            databaseRepository = testDatabaseRepository
+            databaseRepository = testDatabaseRepository,
+            analyticsHelper = testAnalyticsHelper
         )
         backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.people.collect() }
 
@@ -115,7 +120,8 @@ class PeopleVMTest {
         viewModel = PeopleVM(
             id = 124,
             getPeopleDetail = getPeopleDetailUseCase,
-            databaseRepository = testDatabaseRepository
+            databaseRepository = testDatabaseRepository,
+            analyticsHelper = testAnalyticsHelper
         )
         backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.people.collect() }
 

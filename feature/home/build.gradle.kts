@@ -18,6 +18,7 @@ dependencies {
         projects.core.notifications,
         projects.core.firebase,
         projects.core.navigation,
+        projects.core.analytics,
         libs.coil.compose,
         libs.androidx.navigation3.runtime,
         libs.androidx.compose.hilt.navigation,

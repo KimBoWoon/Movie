@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
+import com.bowoon.analytics.AnalyticsHelper
+import com.bowoon.analytics.logSelectContent
 import com.bowoon.common.Result
 import com.bowoon.common.asResult
 import com.bowoon.data.repository.DatabaseRepository
@@ -30,7 +32,8 @@ class MovieVM @AssistedInject constructor(
     @Assisted(value = "id") val id: Int,
     private val getMovieDetail: GetMovieDetailUseCase,
     private val databaseRepository: DatabaseRepository,
-    private val pagingRepository: PagingRepository
+    private val pagingRepository: PagingRepository,
+    private val analyticsHelper: AnalyticsHelper
 ) : ViewModel() {
     companion object {
         private const val TAG = "MovieVM"
@@ -51,7 +54,10 @@ class MovieVM @AssistedInject constructor(
         }.map { result ->
             when (result) {
                 is Result.Loading -> MovieState.Loading
-                is Result.Success -> MovieState.Success(movie = result.data)
+                is Result.Success -> {
+                    analyticsHelper.logSelectContent(contentType = "movie", media = result.data.movie)
+                    MovieState.Success(movie = result.data)
+                }
                 is Result.Error -> MovieState.Error(throwable = result.throwable)
             }
         }.stateIn(

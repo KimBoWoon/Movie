@@ -6,6 +6,8 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.viewinterop.AndroidView
+import com.bowoon.analytics.LocalAnalyticsHelper
+import com.bowoon.analytics.logPlayTrailer
 import com.bowoon.common.Log
 import com.bowoon.data.util.VIDEO_RATIO
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants
@@ -39,6 +41,7 @@ fun VideosComponent(
 //        }
     } else {
         val pagerState = rememberPagerState { vodList.size }
+        val analyticsHelper = LocalAnalyticsHelper.current
 
         HorizontalPager(
             state = pagerState
@@ -112,7 +115,10 @@ fun VideosComponent(
                                     pagerState.scrollToPage(index + 1)
                                 }
                             }
-                            PlayerConstants.PlayerState.PLAYING -> Log.d("PLAYING")
+                            PlayerConstants.PlayerState.PLAYING -> {
+                                Log.d("PLAYING")
+                                analyticsHelper.logPlayTrailer(videoId = vodList[index])
+                            }
                             PlayerConstants.PlayerState.PAUSED -> Log.d("PAUSED")
                             PlayerConstants.PlayerState.BUFFERING -> Log.d("BUFFERING")
                             PlayerConstants.PlayerState.VIDEO_CUED -> Log.d("VIDEO_CUED")

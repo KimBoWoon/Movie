@@ -3,6 +3,8 @@ package com.bowoon.detail.series
 import androidx.compose.ui.util.trace
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bowoon.analytics.AnalyticsHelper
+import com.bowoon.analytics.logSelectContent
 import com.bowoon.common.Result
 import com.bowoon.common.asResult
 import com.bowoon.common.toEpochDayOrMax
@@ -24,7 +26,8 @@ import kotlinx.coroutines.launch
 @HiltViewModel(assistedFactory = SeriesVM.Factory::class)
 class SeriesVM @AssistedInject constructor(
     @Assisted val id: Int,
-    detailRepository: DetailRepository
+    detailRepository: DetailRepository,
+    private val analyticsHelper: AnalyticsHelper
 ) : ViewModel() {
     companion object {
         internal const val TAG = "SeriesVM"
@@ -50,11 +53,14 @@ class SeriesVM @AssistedInject constructor(
                         )
                     }
             }.asResult()
-        }.map {
-            when (it) {
+        }.map { result ->
+            when (result) {
                 is Result.Loading -> SeriesState.Loading
-                is Result.Success -> SeriesState.Success(series = it.data)
-                is Result.Error -> SeriesState.Error(throwable = it.throwable)
+                is Result.Success -> {
+                    analyticsHelper.logSelectContent(contentType = "series", media = result.data)
+                    SeriesState.Success(series = result.data)
+                }
+                is Result.Error -> SeriesState.Error(throwable = result.throwable)
             }
         }.stateIn(
             scope = viewModelScope,

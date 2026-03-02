@@ -13,6 +13,7 @@ dependencies {
         projects.core.common,
         projects.core.model,
         projects.core.data,
+        projects.core.analytics,
         libs.androidx.compose.material3,
         libs.androidx.compose.material3.adaptive,
         libs.androidx.compose.material3.navigationSuite,

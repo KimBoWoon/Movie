@@ -3,6 +3,8 @@ package com.bowoon.detail.people
 import androidx.compose.ui.util.trace
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bowoon.analytics.AnalyticsHelper
+import com.bowoon.analytics.logSelectContent
 import com.bowoon.common.Result
 import com.bowoon.common.asResult
 import com.bowoon.data.repository.DatabaseRepository
@@ -25,7 +27,8 @@ import kotlinx.coroutines.launch
 class PeopleVM @AssistedInject constructor(
     @Assisted val id: Int,
     getPeopleDetail: GetPeopleDetailUseCase,
-    private val databaseRepository: DatabaseRepository
+    private val databaseRepository: DatabaseRepository,
+    private val analyticsHelper: AnalyticsHelper
 ) : ViewModel() {
     companion object {
         private const val TAG = "PeopleVM"
@@ -41,11 +44,14 @@ class PeopleVM @AssistedInject constructor(
     val people = reload
         .flatMapLatest {
             trace(sectionName = "GetPeopleDetail") { getPeopleDetail(personId = id) }.asResult()
-        }.map {
-            when (it) {
+        }.map { result ->
+            when (result) {
                 is Result.Loading -> PeopleState.Loading
-                is Result.Success -> PeopleState.Success(data = it.data)
-                is Result.Error -> PeopleState.Error(it.throwable)
+                is Result.Success -> {
+                    analyticsHelper.logSelectContent(contentType = "people", media = result.data.people)
+                    PeopleState.Success(data = result.data)
+                }
+                is Result.Error -> PeopleState.Error(result.throwable)
             }
         }.stateIn(
             scope = viewModelScope,

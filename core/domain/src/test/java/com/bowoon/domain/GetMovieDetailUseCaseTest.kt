@@ -1,5 +1,6 @@
 package com.bowoon.domain
 
+import com.bowoon.model.LocaleOption
 import com.bowoon.model.Movie
 import com.bowoon.model.MovieAppData
 import com.bowoon.model.PosterSize
@@ -53,8 +54,8 @@ class GetMovieDetailUseCaseTest {
                 MovieAppData(
                     secureBaseUrl = configurationTestData.images?.secureBaseUrl ?: "",
                     genres = genreListTestData.genres ?: emptyList(),
-                    region = regionTestData.results ?: emptyList(),
-                    language = languageListTestData,
+                    region = regionTestData.results?.map { LocaleOption(code = it.iso31661.orEmpty(), label = it.englishName.orEmpty(), isSelected = it.isSelected) } ?: emptyList(),
+                    language = languageListTestData.map { LocaleOption(code = it.iso6391.orEmpty(), label = it.englishName.orEmpty(), isSelected = it.isSelected) },
                     posterSize = configurationTestData.images?.posterSizes?.map {
                         PosterSize(size = it, isSelected = it == "original")
                     } ?: emptyList()

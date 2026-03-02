@@ -23,6 +23,7 @@ import com.bowoon.testing.repository.TestDetailRepository
 import com.bowoon.testing.repository.TestPagingRepository
 import com.bowoon.testing.repository.TestUserDataRepository
 import com.bowoon.testing.utils.MainDispatcherRule
+import com.bowoon.testing.utils.TestAnalyticsHelper
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -47,6 +48,7 @@ class MovieVMTest {
     private val testPagingRepository = TestPagingRepository()
     private val testDetailRepository = TestDetailRepository()
     private val testUserDataRepository = TestUserDataRepository()
+    private val testAnalyticsHelper = TestAnalyticsHelper()
     private val getMovieDetailUseCase = GetMovieDetailUseCase(
         detailRepository = testDetailRepository,
         userDataRepository = testUserDataRepository,
@@ -60,7 +62,8 @@ class MovieVMTest {
             id = 0,
             databaseRepository = testDataBaseRepository,
             getMovieDetail = getMovieDetailUseCase,
-            pagingRepository = testPagingRepository
+            pagingRepository = testPagingRepository,
+            analyticsHelper = testAnalyticsHelper
         )
         runBlocking {
             testDataBaseRepository.insertMovie(movie = Movie(id = 0, title = "movie_1", posterPath = "/movieImagePath.png"))
@@ -108,7 +111,8 @@ class MovieVMTest {
             id = 324,
             getMovieDetail = getMovieDetailUseCase,
             databaseRepository = testDataBaseRepository,
-            pagingRepository = testPagingRepository
+            pagingRepository = testPagingRepository,
+            analyticsHelper = testAnalyticsHelper
         )
         backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.movie.collect() }
 
@@ -202,7 +206,8 @@ class MovieVMTest {
             id = 23,
             getMovieDetail = getMovieDetailUseCase,
             databaseRepository = testDataBaseRepository,
-            pagingRepository = testPagingRepository
+            pagingRepository = testPagingRepository,
+            analyticsHelper = testAnalyticsHelper
         )
 
         backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.movie.collect() }

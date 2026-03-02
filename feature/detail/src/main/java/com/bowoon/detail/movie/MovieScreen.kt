@@ -44,6 +44,9 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.bowoon.analytics.LocalAnalyticsHelper
+import com.bowoon.analytics.TrackScreenViewEvent
+import com.bowoon.analytics.logFavorite
 import com.bowoon.common.Log
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.domain.MovieWithFavorite
@@ -92,6 +95,7 @@ fun MovieScreen(
     viewModel: MovieVM = hiltViewModel()
 ) {
     LocalFirebaseLogHelper.current.sendLog("DetailScreen", "detail screen start!")
+    TrackScreenViewEvent(screenName = "DetailScreen")
 
     val movieState by viewModel.movie.collectAsStateWithLifecycle()
     val similarMovies = viewModel.similarMovies.collectAsLazyPagingItems()
@@ -223,6 +227,7 @@ fun MovieDetailComponent(
     val favoriteMessage = if (movieState.isFavorite) stringResource(id = R.string.add_favorite_movie) else stringResource(id = R.string.remove_favorite_movie)
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
+    val analyticsHelper = LocalAnalyticsHelper.current
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -234,8 +239,10 @@ fun MovieDetailComponent(
             onFavoriteClick = {
                 if (movieState.isFavorite) {
                     deleteFavoriteMovie(movieState.movie)
+                    analyticsHelper.logFavorite(isFavorite = false, contentType = "movie", media = movieState.movie)
                 } else {
                     insertFavoriteMovie(movieState.movie)
+                    analyticsHelper.logFavorite(isFavorite = true, contentType = "movie", media = movieState.movie)
                 }
                 scope.launch {
                     onShowSnackbar(favoriteMessage, null)

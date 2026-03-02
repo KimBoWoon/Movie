@@ -37,6 +37,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.bowoon.analytics.LocalAnalyticsHelper
+import com.bowoon.analytics.TrackScreenViewEvent
+import com.bowoon.analytics.logFavorite
 import com.bowoon.data.util.PEOPLE_IMAGE_RATIO
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.firebase.LocalFirebaseLogHelper
@@ -65,6 +68,7 @@ fun FavoriteScreen(
     viewModel: FavoriteVM = hiltViewModel()
 ) {
     LocalFirebaseLogHelper.current.sendLog("FavoriteScreen", "favorite screen init")
+    TrackScreenViewEvent(screenName = "FavoriteScreen")
 
     val favoriteMovies by viewModel.favoriteMovies.collectAsStateWithLifecycle()
     val favoriteTvs by viewModel.favoriteTvs.collectAsStateWithLifecycle()
@@ -104,6 +108,7 @@ fun FavoriteScreen(
 ) {
     val scope = rememberCoroutineScope()
     val removeFavoriteText = stringResource(id = R.string.remove_favorite)
+    val analyticsHelper = LocalAnalyticsHelper.current
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -156,6 +161,7 @@ fun FavoriteScreen(
                                         scope.launch {
                                             onShowSnackbar(removeFavoriteText, null)
                                         }
+                                        analyticsHelper.logFavorite(isFavorite = false, contentType = "movie", media = movieDetail)
                                     }
                                 )
                             }
@@ -201,6 +207,7 @@ fun FavoriteScreen(
                                         scope.launch {
                                             onShowSnackbar(removeFavoriteText, null)
                                         }
+                                        analyticsHelper.logFavorite(isFavorite = false, contentType = "tv", media = tv)
                                     }
                                 )
                             }
@@ -249,6 +256,7 @@ fun FavoriteScreen(
                                             scope.launch {
                                                 onShowSnackbar(removeFavoriteText, null)
                                             }
+                                            analyticsHelper.logFavorite(isFavorite = false, contentType = "people", media = peopleDetail)
                                         }
                                     )
                                 }

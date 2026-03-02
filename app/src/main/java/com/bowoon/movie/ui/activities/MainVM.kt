@@ -32,22 +32,34 @@ class MainVM @Inject constructor(
 ) : ViewModel() {
     init {
         viewModelScope.launch {
-            val isFirstInstall = userDataRepository.getFirstInstall()
+            launch {
+                val isFirstInstall = userDataRepository.getFirstInstall()
 
-            if (!isFirstInstall) {
-                syncManager.requestSync()
-                syncManager.syncMain()
-                userDataRepository.updateFirstInstall(value = true)
+                if (!isFirstInstall) {
+                    syncManager.requestSync()
+                    syncManager.syncMain()
+                    userDataRepository.updateFirstInstall(value = true)
+                }
             }
 
-            sessionNextWeekReleaseSnapshot.emit(
-                value = combine(
-                    flow = databaseRepository.getNextWeekReleaseMovies(),
-                    flow2 = databaseRepository.getNextWeekReleaseTvs()
-                ) { movies: List<Media>, tvs: List<Media> ->
-                    movies + tvs
-                }.first()
-            )
+            launch {
+                val lastUpdateMainDate = userDataRepository.getMainDate()
+
+                if (LocalDate.parse(lastUpdateMainDate).plusDays(1) < LocalDate.now()) {
+                    syncManager.requestSync()
+                }
+            }
+
+            launch {
+                sessionNextWeekReleaseSnapshot.emit(
+                    value = combine(
+                        flow = databaseRepository.getNextWeekReleaseMovies(),
+                        flow2 = databaseRepository.getNextWeekReleaseTvs()
+                    ) { movies: List<Media>, tvs: List<Media> ->
+                        movies + tvs
+                    }.first()
+                )
+            }
         }
     }
 

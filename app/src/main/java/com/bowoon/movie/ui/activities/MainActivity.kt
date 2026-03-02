@@ -21,6 +21,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation3.runtime.NavKey
+import com.bowoon.analytics.AnalyticsEvent
+import com.bowoon.analytics.AnalyticsHelper
+import com.bowoon.analytics.LocalAnalyticsHelper
 import com.bowoon.common.AppDoubleBackToExit
 import com.bowoon.common.Log
 import com.bowoon.common.isSystemInDarkTheme
@@ -39,6 +42,7 @@ import com.bowoon.setting.SettingScreen
 import com.bowoon.setting.SettingVM
 import com.bowoon.setting.SettingsAction
 import com.bowoon.ui.theme.MovieTheme
+import com.google.firebase.analytics.FirebaseAnalytics
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -54,6 +58,8 @@ class MainActivity : ComponentActivity() {
     lateinit var networkMonitor: NetworkMonitor
     @Inject
     lateinit var movieFirebase: MovieFirebase
+    @Inject
+    lateinit var analyticsHelper: AnalyticsHelper
     @Inject
     lateinit var appDoubleBackToExitFactory: AppDoubleBackToExit.AppDoubleBackToExitFactory
     private val appDoubleBackToExit: AppDoubleBackToExit by lazy {
@@ -112,8 +118,20 @@ class MainActivity : ComponentActivity() {
         splashScreen.setKeepOnScreenCondition { viewModel.movieAppData.value.shouldKeepSplashScreen() }
 
         setContent {
-            CompositionLocalProvider(value = LocalFirebaseLogHelper provides movieFirebase) {
+            CompositionLocalProvider(
+                LocalFirebaseLogHelper provides movieFirebase,
+                LocalAnalyticsHelper provides analyticsHelper
+            ) {
                 LocalFirebaseLogHelper.current.sendLog(name = javaClass.simpleName, message = "compose start!")
+                LocalAnalyticsHelper.current.logEvent(
+                    event = AnalyticsEvent(
+                        type = "compose_set_content",
+                        extras = listOf(
+                            AnalyticsEvent.Param(key = FirebaseAnalytics.Param.SCREEN_NAME, value = "MovieAppScreen"),
+                            AnalyticsEvent.Param(key = FirebaseAnalytics.Param.SCREEN_CLASS, value = javaClass.simpleName)
+                        )
+                    )
+                )
 
                 val shouldShowNextWeekReleaseDialog by viewModel.shouldShowNextWeekReleaseDialog.collectAsStateWithLifecycle()
                 val nextWeekReleaseDialogItems by viewModel.nextWeekReleaseDialogItems.collectAsStateWithLifecycle()

@@ -25,6 +25,7 @@ import com.bowoon.model.Images
 import com.bowoon.model.Keyword
 import com.bowoon.model.Keywords
 import com.bowoon.model.Language
+import com.bowoon.model.LocaleOption
 import com.bowoon.model.Media
 import com.bowoon.model.Movie
 import com.bowoon.model.People

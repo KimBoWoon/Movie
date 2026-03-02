@@ -16,6 +16,7 @@ dependencies {
         projects.core.notifications,
         projects.core.firebase,
         projects.core.domain,
+        projects.core.analytics,
         projects.core.navigation,
         projects.feature.home,
         projects.feature.detail,

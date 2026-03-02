@@ -5,6 +5,7 @@ import com.bowoon.detail.series.SeriesVM
 import com.bowoon.testing.model.movieSeriesTestData
 import com.bowoon.testing.repository.TestDetailRepository
 import com.bowoon.testing.utils.MainDispatcherRule
+import com.bowoon.testing.utils.TestAnalyticsHelper
 import com.bowoon.testing.utils.TestMovieAppDataManager
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -23,16 +24,19 @@ class SeriesVMTest {
     val mainDispatcherRule = MainDispatcherRule()
     private lateinit var testDetailRepository: TestDetailRepository
     private lateinit var testMovieAppDataManager: TestMovieAppDataManager
+    private lateinit var testAnalyticsHelper: TestAnalyticsHelper
     private lateinit var seriesVM: SeriesVM
 
     @Before
     fun setup() {
         testDetailRepository = TestDetailRepository()
         testMovieAppDataManager = TestMovieAppDataManager()
+        testAnalyticsHelper = TestAnalyticsHelper()
 
         seriesVM = SeriesVM(
             id = 0,
-            detailRepository = testDetailRepository
+            detailRepository = testDetailRepository,
+            analyticsHelper = testAnalyticsHelper
         )
     }
 

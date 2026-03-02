@@ -15,6 +15,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.bowoon.analytics.TrackScreenViewEvent
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.Series
 import com.bowoon.movie.feature.detail.R
@@ -33,6 +34,7 @@ fun SeriesScreen(
     viewModel: SeriesVM = hiltViewModel()
 ) {
     LocalFirebaseLogHelper.current.sendLog("SeriesScreen", "series screen init")
+    TrackScreenViewEvent(screenName = "SeriesScreen")
 
     val seriesState by viewModel.series.collectAsStateWithLifecycle()
 

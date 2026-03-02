@@ -52,6 +52,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.bowoon.analytics.TrackScreenViewEvent
 import com.bowoon.common.Log
 import com.bowoon.common.isSystemInDarkTheme
 import com.bowoon.data.util.PEOPLE_IMAGE_RATIO
@@ -85,6 +86,7 @@ fun HomeScreen(
     viewModel: HomeVM = hiltViewModel()
 ) {
     LocalFirebaseLogHelper.current.sendLog("HomeScreen", "init screen")
+    TrackScreenViewEvent(screenName = "HomeScreen")
 
     val mainMenuState by viewModel.mainMenu.collectAsStateWithLifecycle()
     val trendingMovieTimeWindow by viewModel.trendingMovieTimeWindow.collectAsStateWithLifecycle()

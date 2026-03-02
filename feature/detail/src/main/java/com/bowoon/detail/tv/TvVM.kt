@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
+import com.bowoon.analytics.AnalyticsHelper
+import com.bowoon.analytics.logSelectContent
 import com.bowoon.common.Result
 import com.bowoon.common.asResult
 import com.bowoon.data.repository.DatabaseRepository
@@ -40,7 +42,8 @@ class TvVM @AssistedInject constructor(
     private val getTvDetailUseCase: GetTvDetailUseCase,
     private val databaseRepository: DatabaseRepository,
     private val pagingRepository: PagingRepository,
-    private val detailRepository: DetailRepository
+    private val detailRepository: DetailRepository,
+    private val analyticsHelper: AnalyticsHelper
 ) : ViewModel() {
     companion object {
         private const val TAG = "TvVM"
@@ -124,7 +127,10 @@ class TvVM @AssistedInject constructor(
             .map { result ->
                 when (result) {
                     is Result.Loading -> TvState.Loading
-                    is Result.Success -> TvState.Success(tvUiState = result.data)
+                    is Result.Success -> {
+                        analyticsHelper.logSelectContent(contentType = "tv", media = result.data.tv)
+                        TvState.Success(tvUiState = result.data)
+                    }
                     is Result.Error -> TvState.Error(message = result.throwable.message ?: "something wrong...")
                 }
             }.stateIn(

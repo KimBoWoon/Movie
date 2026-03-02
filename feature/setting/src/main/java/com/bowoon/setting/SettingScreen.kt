@@ -42,6 +42,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.bowoon.analytics.TrackScreenViewEvent
 import com.bowoon.common.getVersionName
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.movie.feature.setting.R
@@ -65,6 +66,7 @@ fun SettingScreen(
     viewModel: SettingVM = hiltViewModel()
 ) {
     LocalFirebaseLogHelper.current.sendLog("MyScreen", "my screen init")
+    TrackScreenViewEvent(screenName = "SettingScreen")
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 

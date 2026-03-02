@@ -14,6 +14,7 @@ import com.bowoon.testing.model.testRecommendedKeyword
 import com.bowoon.testing.repository.TestPagingRepository
 import com.bowoon.testing.repository.TestUserDataRepository
 import com.bowoon.testing.utils.MainDispatcherRule
+import com.bowoon.testing.utils.TestAnalyticsHelper
 import com.bowoon.testing.utils.TestMovieAppDataManager
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -33,6 +34,7 @@ class SearchVMTest {
     private lateinit var testPagingRepository: TestPagingRepository
     private lateinit var testUserDataRepository: TestUserDataRepository
     private lateinit var testMovieAppDataManager: TestMovieAppDataManager
+    private lateinit var testAnalyticsHelper: TestAnalyticsHelper
     private lateinit var apis: TestMovieDataSource
 
     @Before
@@ -41,13 +43,15 @@ class SearchVMTest {
         testPagingRepository = TestPagingRepository()
         testUserDataRepository = TestUserDataRepository()
         testMovieAppDataManager = TestMovieAppDataManager()
+        testAnalyticsHelper = TestAnalyticsHelper()
         apis = TestMovieDataSource()
         viewModel = SearchVM(
             initialQuery = "",
             initialSearchType = SearchType.MOVIE,
             savedStateHandle = savedStateHandle,
             dataManager = testMovieAppDataManager,
-            pagingRepository = testPagingRepository
+            pagingRepository = testPagingRepository,
+            analyticsHelper = testAnalyticsHelper
         )
     }
 

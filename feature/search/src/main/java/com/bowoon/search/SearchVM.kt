@@ -9,6 +9,8 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.filter
+import com.bowoon.analytics.AnalyticsHelper
+import com.bowoon.analytics.logSearch
 import com.bowoon.data.repository.PagingRepository
 import com.bowoon.data.util.DataManager
 import com.bowoon.model.Genre
@@ -48,7 +50,8 @@ class SearchVM @AssistedInject constructor(
     @Assisted initialSearchType: SearchType,
     dataManager: DataManager,
     private val savedStateHandle: SavedStateHandle,
-    private val pagingRepository: PagingRepository
+    private val pagingRepository: PagingRepository,
+    private val analyticsHelper: AnalyticsHelper
 ) : ViewModel() {
     companion object {
         internal const val TAG = "SearchVM"
@@ -156,6 +159,7 @@ class SearchVM @AssistedInject constructor(
     }
 
     fun searchMovies() {
+        analyticsHelper.logSearch(query = query.value.text)
         viewModelScope.launch { searchTrigger.emit(value = Unit) }
     }
 }
