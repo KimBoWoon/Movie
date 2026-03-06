@@ -2,10 +2,12 @@ package com.bowoon.data.util
 
 import com.bowoon.model.DarkThemeConfig
 import com.bowoon.model.MovieAppData
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
 interface DataManager {
     val movieAppData: StateFlow<MovieAppDataState>
+    val localeFlow: Flow<Locale>
 }
 
 sealed interface MovieAppDataState {

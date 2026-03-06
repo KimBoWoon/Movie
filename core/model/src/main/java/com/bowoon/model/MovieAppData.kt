@@ -10,7 +10,8 @@ data class MovieAppData(
     val updateDate: String = "",
     val imageQuality: String = "original",
     val secureBaseUrl: String = "",
-    val genres: List<Genre> = emptyList(),
+    val movieGenres: List<Genre> = emptyList(),
+    val tvGenres: List<Genre> = emptyList(),
     val region: List<LocaleOption> = emptyList(),
     val language: List<LocaleOption> = emptyList(),
     val posterSize: List<PosterSize> = emptyList()

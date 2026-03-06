@@ -256,7 +256,7 @@ fun MovieDetailComponent(
         ) {
             VideosComponent(
                 scope = scope,
-                vodList = movieState.movie.videos?.results?.mapNotNull { it.key } ?: emptyList(),
+                vodList = movieState.movie.videos?.results?.filter { it.site == "YouTube" } ?: emptyList(),
                 autoPlayTrailer = movieState.autoPlayTrailer
             )
 

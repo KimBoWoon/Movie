@@ -28,7 +28,9 @@ interface MovieNetworkDataSource {
 
     suspend fun getCertification(): CertificationData
 
-    suspend fun getGenres(language: String = "ko-KR"): Genres
+    suspend fun getMovieGenres(language: String = "ko-KR"): Genres
+
+    suspend fun getTvGenres(language: String): Genres
 
     suspend fun getNowPlaying(
         language: String = "ko-KR",

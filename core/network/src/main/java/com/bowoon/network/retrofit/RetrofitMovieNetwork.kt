@@ -70,11 +70,16 @@ class RetrofitMovieNetwork @Inject constructor(
             is ApiResponse.Success -> response.data.asExternalModel()
         }
 
-    override suspend fun getGenres(language: String): Genres =
-        when (val response = tmdbApis.getGenres(language = language)) {
+    override suspend fun getMovieGenres(language: String): Genres =
+        when (val response = tmdbApis.getMovieGenres(language = language)) {
             is ApiResponse.Failure -> throw response.throwable
             is ApiResponse.Success -> response.data.asExternalModel()
         }
+
+    override suspend fun getTvGenres(language: String): Genres = when (val response = tmdbApis.getTvGenres(language = language)) {
+        is ApiResponse.Failure -> throw response.throwable
+        is ApiResponse.Success -> response.data.asExternalModel()
+    }
 
     override suspend fun getNowPlaying(
         language: String,

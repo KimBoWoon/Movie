@@ -27,7 +27,7 @@ class SettingScreenTest {
     private lateinit var testMovieAppDataManager: TestMovieAppDataManager
     private val movieAppData = MovieAppData(
         secureBaseUrl = configurationTestData.images?.secureBaseUrl ?: "",
-        genres = genreListTestData.genres ?: emptyList(),
+        movieGenres = genreListTestData.genres ?: emptyList(),
         region = regionTestData.results?.map { LocaleOption(code = it.iso31661 ?: "", label = it.englishName ?: "", isSelected = false) }.orEmpty(),
         language = languageListTestData.map { LocaleOption(code = it.iso6391 ?: "", label = it.englishName ?: "", isSelected = false) },
         posterSize = configurationTestData.images?.posterSizes?.map {

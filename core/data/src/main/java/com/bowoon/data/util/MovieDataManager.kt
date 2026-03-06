@@ -9,7 +9,7 @@ import com.bowoon.common.di.ApplicationScope
 import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.datastore.InternalDataSource
 import com.bowoon.model.Configuration
-import com.bowoon.model.Genres
+import com.bowoon.model.Genre
 import com.bowoon.model.Language
 import com.bowoon.model.LocaleOption
 import com.bowoon.model.MovieAppData
@@ -30,6 +30,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
@@ -42,9 +43,6 @@ class MovieDataManager @Inject constructor(
     private val datastore: InternalDataSource,
     networkMonitor: NetworkMonitor
 ) : DataManager {
-    var language = ""
-    var genres = Genres()
-
     private val cached = MutableStateFlow<MovieAppDataState?>(value = null)
     @OptIn(ExperimentalCoroutinesApi::class)
     override val movieAppData = networkMonitor.isOnline
@@ -61,24 +59,67 @@ class MovieDataManager @Inject constructor(
             started = SharingStarted.Lazily,
             initialValue = MovieAppDataState.Success(data = MovieAppData())
         )
+    private val userDataFlow = datastore.userData.distinctUntilChanged()
+    override val localeFlow: Flow<Locale> =
+        userDataFlow
+            .map { Locale(it.language, it.region) }
+            .distinctUntilChanged()
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val genresFlow: Flow<GenreData> =
+        localeFlow
+            .flatMapLatest { key ->
+                flow {
+                    val language = "${key.language}-${key.region}"
+                    val movie = apis.getMovieGenres(language = language)
+                    val tv = apis.getTvGenres(language = language)
+                    emit(value = GenreData(movie = movie.genres.orEmpty(), tv = tv.genres.orEmpty()))
+                }
+            }.distinctUntilChanged()
+    private val configurationFlow: Flow<Configuration> =
+        flow { emit(value = apis.getConfiguration()) }
+            .stateIn(
+                scope = appScope,
+                started = SharingStarted.WhileSubscribed(),
+                initialValue = Configuration()
+            )
+    private val availableLanguageFlow: Flow<List<Language>> =
+        flow { emit(value = apis.getAvailableLanguage()) }
+            .stateIn(
+                scope = appScope,
+                started = SharingStarted.WhileSubscribed(),
+                initialValue = emptyList()
+            )
+    private val availableRegionFlow: Flow<Regions> =
+        flow { emit(value = apis.getAvailableRegion()) }
+            .stateIn(
+                scope = appScope,
+                started = SharingStarted.WhileSubscribed(),
+                initialValue = Regions()
+            )
+    private val secureBaseUrlFlow: Flow<String> =
+        combine(
+            userDataFlow.map { it.imageQuality }.distinctUntilChanged(),
+            configurationFlow.map { it.images?.secureBaseUrl.orEmpty() }.distinctUntilChanged()
+        ) { quality, base ->
+            "$base$quality"
+        }.distinctUntilChanged()
+
+    init {
+        secureBaseUrlFlow
+            .onEach { userDataRepository.updateSecureBaseUrl(value = it) }
+            .flowOn(context = ioDispatcher)
+            .launchIn(scope = appScope)
+    }
 
     fun loadData(): Flow<MovieAppDataState> = combine(
-        datastore.userData,
-        getConfiguration(),
-        getAvailableLanguage(),
-        getAvailableRegion(),
-        datastore.userData.map { internalData ->
-            if (language != internalData.language) {
-                language = internalData.language
-                genres = apis.getGenres(language = "${internalData.language}-${internalData.region}")
-            }
-            genres
-        }
-    ) { internalData, configuration, language, region, genres ->
+        userDataFlow,
+        configurationFlow,
+        availableLanguageFlow,
+        availableRegionFlow,
+        genresFlow
+    ) { internalData, configuration, language, region, genresPair ->
         Log.d("${configuration.images?.secureBaseUrl}${internalData.imageQuality}")
-        Log.d("movieAppDataGenres -> $genres")
-
-        userDataRepository.updateSecureBaseUrl(value = "${configuration.images?.secureBaseUrl}${internalData.imageQuality}")
+        Log.d("movieAppDataGenres -> $genresPair")
 
         MovieAppData(
             isAdult = internalData.isAdult,
@@ -87,7 +128,8 @@ class MovieDataManager @Inject constructor(
             updateDate = internalData.updateDate,
             imageQuality = internalData.imageQuality,
             secureBaseUrl = configuration.images?.secureBaseUrl ?: "",
-            genres = genres.genres ?: emptyList(),
+            movieGenres = genresPair.movie,
+            tvGenres = genresPair.tv,
             region = region.results?.map {
                 LocaleOption(code = it.iso31661 ?: "", label = it.nativeName ?: "", isSelected = internalData.region == it.iso31661)
             } ?: emptyList(),
@@ -109,14 +151,7 @@ class MovieDataManager @Inject constructor(
                 is Result.Error -> MovieAppDataState.Error(throwable = result.throwable)
             }
         }.flowOn(context = ioDispatcher)
-
-    private fun getConfiguration(): Flow<Configuration> = flow {
-        emit(value = apis.getConfiguration())
-    }
-    private fun getAvailableLanguage(): Flow<List<Language>> = flow {
-        emit(value = apis.getAvailableLanguage())
-    }
-    private fun getAvailableRegion(): Flow<Regions> = flow {
-        emit(value = apis.getAvailableRegion())
-    }
 }
+
+data class Locale(val language: String, val region: String)
+data class GenreData(val movie: List<Genre>, val tv: List<Genre>)

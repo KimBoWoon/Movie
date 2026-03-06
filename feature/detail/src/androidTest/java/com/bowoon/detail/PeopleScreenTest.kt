@@ -49,7 +49,7 @@ class PeopleScreenTest {
     private lateinit var testMovieAppDataManager: TestMovieAppDataManager
     private val movieAppData = MovieAppData(
         secureBaseUrl = configurationTestData.images?.secureBaseUrl ?: "",
-        genres = genreListTestData.genres ?: emptyList(),
+        movieGenres = genreListTestData.genres ?: emptyList(),
         region = regionTestData.results ?: emptyList(),
         language = languageListTestData,
         posterSize = configurationTestData.images?.posterSizes?.map {

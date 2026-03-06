@@ -12,7 +12,7 @@ import com.bowoon.common.asResult
 import com.bowoon.data.model.asExternalModel
 import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.data.repository.PagingRepository
-import com.bowoon.data.repository.UserDataRepository
+import com.bowoon.data.util.DataManager
 import com.bowoon.data.util.NetworkMonitor
 import com.bowoon.database.model.NowPlayingMovieEntity
 import com.bowoon.database.model.UpComingMovieEntity
@@ -34,9 +34,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeVM @Inject constructor(
+    dataManager: DataManager,
     databaseRepository: DatabaseRepository,
     pagingRepository: PagingRepository,
-    userDataRepository: UserDataRepository,
     networkMonitor: NetworkMonitor
 ) : ViewModel() {
     companion object {
@@ -67,12 +67,12 @@ class HomeVM @Inject constructor(
 
     private val trendingMovie = combine(
         _trendingMovieTimeWindow,
-        userDataRepository.internalData.map { "${it.language}-${it.region}" },
+        dataManager.localeFlow,
         networkMonitor.isOnline.distinctUntilChanged().filter { it }
     ) { timeWindow, language, isOnline ->
         Pager(
             config = PagingConfig(pageSize = 20, prefetchDistance = 5),
-            pagingSourceFactory = { pagingRepository.getTrendingMovie(timeWindow = timeWindow.label, language = language) }
+            pagingSourceFactory = { pagingRepository.getTrendingMovie(timeWindow = timeWindow.label, language = "${language.language}-${language.region}") }
         ).flow.cachedIn(scope = viewModelScope)
     }.stateIn(
         scope = viewModelScope,
@@ -81,12 +81,12 @@ class HomeVM @Inject constructor(
     )
     private val trendingPeople = combine(
         _trendingPeopleTimeWindow,
-        userDataRepository.internalData.map { "${it.language}-${it.region}" },
+        dataManager.localeFlow,
         networkMonitor.isOnline.distinctUntilChanged().filter { it }
     ) { timeWindow, language, isOnline ->
         Pager(
             config = PagingConfig(pageSize = 20, prefetchDistance = 5),
-            pagingSourceFactory = { pagingRepository.getTrendingPeople(timeWindow = timeWindow.label, language = language) }
+            pagingSourceFactory = { pagingRepository.getTrendingPeople(timeWindow = timeWindow.label, language = "${language.language}-${language.region}") }
         ).flow.cachedIn(scope = viewModelScope)
     }.stateIn(
         scope = viewModelScope,
@@ -95,12 +95,12 @@ class HomeVM @Inject constructor(
     )
     private val trendingTv = combine(
         _trendingTvTimeWindow,
-        userDataRepository.internalData.map { "${it.language}-${it.region}" },
+        dataManager.localeFlow,
         networkMonitor.isOnline.distinctUntilChanged().filter { it }
     ) { timeWindow, language, isOnline ->
         Pager(
             config = PagingConfig(pageSize = 20, prefetchDistance = 5),
-            pagingSourceFactory = { pagingRepository.getTrendingTv(timeWindow = timeWindow.label, language = language) }
+            pagingSourceFactory = { pagingRepository.getTrendingTv(timeWindow = timeWindow.label, language = "${language.language}-${language.region}") }
         ).flow.cachedIn(scope = viewModelScope)
     }.stateIn(
         scope = viewModelScope,

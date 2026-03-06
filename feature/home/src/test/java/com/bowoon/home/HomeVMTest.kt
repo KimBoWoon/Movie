@@ -7,6 +7,7 @@ import com.bowoon.testing.repository.TestDatabaseRepository
 import com.bowoon.testing.repository.TestPagingRepository
 import com.bowoon.testing.repository.TestUserDataRepository
 import com.bowoon.testing.utils.MainDispatcherRule
+import com.bowoon.testing.utils.TestMovieAppDataManager
 import com.bowoon.testing.utils.TestNetworkMonitor
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -25,6 +26,7 @@ class HomeVMTest {
     private lateinit var testPagingRepository: TestPagingRepository
     private lateinit var testNetworkMonitor: TestNetworkMonitor
     private lateinit var testUserRepository: TestUserDataRepository
+    private lateinit var testMovieAppDataManager: TestMovieAppDataManager
 
     @Before
     fun setup() {
@@ -32,11 +34,12 @@ class HomeVMTest {
         testPagingRepository = TestPagingRepository()
         testNetworkMonitor = TestNetworkMonitor()
         testUserRepository = TestUserDataRepository()
+        testMovieAppDataManager = TestMovieAppDataManager()
         viewModel = HomeVM(
             databaseRepository = testDatabaseRepository,
             pagingRepository = testPagingRepository,
-            userDataRepository = testUserRepository,
-            networkMonitor = testNetworkMonitor
+            networkMonitor = testNetworkMonitor,
+            dataManager = testMovieAppDataManager
         )
     }
 

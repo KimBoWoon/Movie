@@ -53,7 +53,7 @@ class GetMovieDetailUseCaseTest {
             movieAppDataRepository.setMovieAppData(
                 MovieAppData(
                     secureBaseUrl = configurationTestData.images?.secureBaseUrl ?: "",
-                    genres = genreListTestData.genres ?: emptyList(),
+                    movieGenres = genreListTestData.genres ?: emptyList(),
                     region = regionTestData.results?.map { LocaleOption(code = it.iso31661.orEmpty(), label = it.englishName.orEmpty(), isSelected = it.isSelected) } ?: emptyList(),
                     language = languageListTestData.map { LocaleOption(code = it.iso6391.orEmpty(), label = it.englishName.orEmpty(), isSelected = it.isSelected) },
                     posterSize = configurationTestData.images?.posterSizes?.map {

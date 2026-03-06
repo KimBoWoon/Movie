@@ -105,7 +105,6 @@ import com.bowoon.ui.utils.matchedColorString
 import com.bowoon.ui.utils.roundedCornerClickable
 import com.bowoon.ui.utils.sp12
 import com.bowoon.ui.utils.sp20
-import com.bowoon.ui.utils.sp30
 import kotlinx.coroutines.launch
 
 @Composable
@@ -246,7 +245,7 @@ fun SearchBarComponent(
         modifier = Modifier
             .padding(
                 top = dp10,
-                bottom = if (searchType == SearchType.MOVIE) dp0 else dp10,
+                bottom = if (searchType == SearchType.MOVIE || searchType == SearchType.TV) dp0 else dp10,
                 start = dp16,
                 end = dp16
             )
@@ -360,14 +359,6 @@ fun SearchTypeComponent(
     recommendKeywordVisible: (Boolean) -> Unit
 ) {
     var isExpand by remember { mutableStateOf(value = false) }
-//    val types = SearchType.entries.map {
-//        when (it) {
-//            SearchType.MOVIE -> stringResource(id = R.string.search_type_movie)
-//            SearchType.TV -> stringResource(id = R.string.search_type_tv)
-//            SearchType.PEOPLE -> stringResource(id = R.string.search_type_people)
-//            SearchType.SERIES -> stringResource(id = R.string.search_type_series)
-//        }
-//    }
     val types = SearchType.entries
 
     Column {
@@ -430,21 +421,22 @@ fun SearchResultComponent(
     updateGenre: (Genre) -> Unit,
 ) {
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
     ) {
         when (searchUiState) {
             is SearchUiState.SearchHint -> {
                 Text(
                     modifier = Modifier.align(Alignment.Center),
                     text = stringResource(id = R.string.do_search),
-                    fontSize = sp20
+                    style = MaterialTheme.typography.headlineMedium
                 )
             }
             is SearchUiState.Success -> {
                 val pagingData = searchUiState.pagingData.collectAsLazyPagingItems()
 
                 if (pagingData.loadState.refresh is LoadState.Loading) {
-                    CircularProgressComponent(modifier = Modifier.align(Alignment.Center))
+                    CircularProgressComponent()
                 } else if (pagingData.loadState.refresh is LoadState.Error) {
                     ConfirmDialog(
                         title = stringResource(id = com.bowoon.movie.core.network.R.string.network_failed),
@@ -452,20 +444,28 @@ fun SearchResultComponent(
                         confirmPair = stringResource(id = com.bowoon.movie.core.ui.R.string.retry_message) to { pagingData.retry() },
                         dismissPair = stringResource(id = com.bowoon.movie.core.ui.R.string.confirm_message) to {}
                     )
+                } else if (pagingData.loadState.refresh is LoadState.NotLoading) {
+                    if (pagingData.itemCount == 0) {
+                        Text(
+                            text = stringResource(id = R.string.search_result_empty),
+                            style = MaterialTheme.typography.headlineLarge,
+                            textAlign = TextAlign.Center
+                        )
+                    } else {
+                        SearchPagingComponent(
+                            pagingData = pagingData,
+                            scrollState = scrollState,
+                            searchType = searchType,
+                            movieAppData = movieAppData,
+                            selectedGenre = selectedGenre,
+                            updateGenre = updateGenre,
+                            goToMovie = goToMovie,
+                            goToTv = goToTv,
+                            goToPeople = goToPeople,
+                            goToSeries = goToSeries
+                        )
+                    }
                 }
-
-                SearchPagingComponent(
-                    pagingData = pagingData,
-                    scrollState = scrollState,
-                    searchType = searchType,
-                    movieAppData = movieAppData,
-                    selectedGenre = selectedGenre,
-                    updateGenre = updateGenre,
-                    goToMovie = goToMovie,
-                    goToTv = goToTv,
-                    goToPeople = goToPeople,
-                    goToSeries = goToSeries
-                )
             }
             is SearchUiState.Error -> {
                 LocalFirebaseLogHelper.current.sendLog("SearchResultPaging", searchUiState.throwable.message ?: stringResource(com.bowoon.movie.core.network.R.string.something_wrong))
@@ -498,69 +498,55 @@ fun SearchPagingComponent(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        if (SearchType.MOVIE == searchType) {
-            MovieFilterRowComponent(
-                movieAppData = movieAppData,
-                selectedGenre = selectedGenre,
-                updateGenre = updateGenre
-            )
-        }
+        MovieFilterRowComponent(
+            searchType = searchType,
+            movieAppData = movieAppData,
+            selectedGenre = selectedGenre,
+            updateGenre = updateGenre
+        )
 
-        if (pagingData.itemCount == 0) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = stringResource(id = R.string.search_result_empty),
-                    fontSize = sp30,
-                    textAlign = TextAlign.Center
-                )
+        LazyVerticalGrid(
+            modifier = Modifier
+                .semantics { contentDescription = "searchResultList" }
+                .fillMaxSize(),
+            state = scrollState,
+            columns = GridCells.Adaptive(minSize = dp100),
+            contentPadding = PaddingValues(horizontal = dp10),
+            horizontalArrangement = Arrangement.spacedBy(space = dp10),
+            verticalArrangement = Arrangement.spacedBy(space = dp10)
+        ) {
+            items(
+                count = pagingData.itemCount,
+                key = { index -> "${pagingData.peek(index)?.id}_${index}_${pagingData.peek(index)?.title}" }
+            ) { index ->
+                pagingData[index]?.let { item ->
+                    DynamicAsyncImageLoader(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(POSTER_IMAGE_RATIO)
+                            .roundedCornerClickable(
+                                onClick = {
+                                    when (searchType) {
+                                        SearchType.MOVIE -> goToMovie(item.id ?: -1)
+                                        SearchType.TV -> goToTv(item.id ?: -1)
+                                        SearchType.PEOPLE -> goToPeople(item.id ?: -1)
+                                        SearchType.SERIES -> goToSeries(item.id ?: -1)
+                                    }
+                                }, cornerRadius = dp10
+                            ),
+                        source = item.posterPath ?: "",
+                        contentDescription = "${item.id}_${item.title}"
+                    )
+                }
             }
-        } else {
-            LazyVerticalGrid(
-                modifier = Modifier
-                    .semantics { contentDescription = "searchResultList" }
-                    .fillMaxSize(),
-                state = scrollState,
-                columns = GridCells.Adaptive(minSize = dp100),
-                contentPadding = PaddingValues(top = if (movieAppData.genres.all { it.name == null } || searchType != SearchType.MOVIE) dp10 else dp0, start = dp10, bottom = dp10, end = dp10),
-                horizontalArrangement = Arrangement.spacedBy(space = dp10),
-                verticalArrangement = Arrangement.spacedBy(space = dp10)
-            ) {
-                items(
-                    count = pagingData.itemCount,
-                    key = { index -> "${pagingData.peek(index)?.id}_${index}_${pagingData.peek(index)?.title}" }
-                ) { index ->
-                    pagingData[index]?.let { item ->
-                        DynamicAsyncImageLoader(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .aspectRatio(POSTER_IMAGE_RATIO)
-                                .roundedCornerClickable(
-                                    onClick = {
-                                        when (searchType) {
-                                            SearchType.MOVIE -> goToMovie(item.id ?: -1)
-                                            SearchType.TV -> goToTv(item.id ?: -1)
-                                            SearchType.PEOPLE -> goToPeople(item.id ?: -1)
-                                            SearchType.SERIES -> goToSeries(item.id ?: -1)
-                                        }
-                                    }, cornerRadius = dp10
-                                ),
-                            source = item.posterPath ?: "",
-                            contentDescription = "${item.id}_${item.title}"
-                        )
-                    }
+            if (pagingData.loadState.append is LoadState.Loading) {
+                item(span = { GridItemSpan(currentLineSpan = maxLineSpan) }) {
+                    CircularProgressComponent(modifier = Modifier.wrapContentSize())
                 }
-                if (pagingData.loadState.append is LoadState.Loading) {
-                    item(span = { GridItemSpan(currentLineSpan = maxLineSpan) }) {
-                        CircularProgressComponent(modifier = Modifier.wrapContentSize())
-                    }
-                }
-                if (pagingData.loadState.append is LoadState.Error) {
-                    item(span = { GridItemSpan(currentLineSpan = maxLineSpan) }) {
-                        PagingAppendErrorComponent(retry = { pagingData.retry() })
-                    }
+            }
+            if (pagingData.loadState.append is LoadState.Error) {
+                item(span = { GridItemSpan(currentLineSpan = maxLineSpan) }) {
+                    PagingAppendErrorComponent(retry = { pagingData.retry() })
                 }
             }
         }
@@ -647,27 +633,30 @@ fun RecommendKeywordComponent(
 
 @Composable
 fun MovieFilterRowComponent(
+    searchType: SearchType,
     movieAppData: MovieAppData,
     selectedGenre: Genre?,
     updateGenre: (Genre) -> Unit
 ) {
-    LazyRow(
-        modifier = Modifier
-            .testTag(tag = "FilterRow")
-            .fillMaxWidth(),
-        contentPadding = PaddingValues(horizontal = dp16),
-        horizontalArrangement = Arrangement.spacedBy(space = dp10)
-    ) {
-        items(
-            items = movieAppData.genres,
-            key = { it.id ?: -1 }
-        ) { genre ->
-            genre.name?.let { name ->
-                FilterChipComponent(
-                    title = name,
-                    selectedFilter = selectedGenre?.id == genre.id,
-                    updateFilter = { updateGenre(genre) }
-                )
+    if (searchType == SearchType.MOVIE || searchType == SearchType.TV) {
+        LazyRow(
+            modifier = Modifier
+                .testTag(tag = "FilterRow")
+                .fillMaxWidth(),
+            contentPadding = PaddingValues(horizontal = dp16, vertical = dp5),
+            horizontalArrangement = Arrangement.spacedBy(space = dp10)
+        ) {
+            items(
+                items = if (searchType == SearchType.MOVIE) movieAppData.movieGenres else if (searchType == SearchType.TV) movieAppData.tvGenres else emptyList(),
+                key = { it.id ?: -1 }
+            ) { genre ->
+                genre.name?.let { name ->
+                    FilterChipComponent(
+                        title = name,
+                        selectedFilter = selectedGenre?.id == genre.id,
+                        updateFilter = { updateGenre(genre) }
+                    )
+                }
             }
         }
     }

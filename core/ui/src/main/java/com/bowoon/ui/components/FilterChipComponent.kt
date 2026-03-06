@@ -28,7 +28,7 @@ fun FilterChipComponent(
                 Icon(
                     imageVector = Icons.Filled.Done,
                     contentDescription = "Done icon",
-                    modifier = Modifier.size(FilterChipDefaults.IconSize)
+                    modifier = Modifier.size(size = FilterChipDefaults.IconSize)
                 )
             }
         } else {

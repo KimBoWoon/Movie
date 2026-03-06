@@ -1,5 +1,6 @@
 package com.bowoon.setting
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,6 +18,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -46,6 +48,7 @@ import com.bowoon.analytics.TrackScreenViewEvent
 import com.bowoon.common.getVersionName
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.movie.feature.setting.R
+import com.bowoon.ui.utils.dp1
 import com.bowoon.ui.utils.dp10
 import com.bowoon.ui.utils.dp12
 import com.bowoon.ui.utils.dp14
@@ -55,6 +58,7 @@ import com.bowoon.ui.utils.dp2
 import com.bowoon.ui.utils.dp28
 import com.bowoon.ui.utils.dp420
 import com.bowoon.ui.utils.dp48
+import com.bowoon.ui.utils.dp5
 import com.bowoon.ui.utils.dp520
 import com.bowoon.ui.utils.dp560
 import com.bowoon.ui.utils.dp8
@@ -136,42 +140,57 @@ fun SettingMainSheet(
     ) {
         SheetHeader(title = stringResource(id = R.string.feature_my_name))
         HorizontalDivider()
-        SettingRowText(
-            title = stringResource(id = R.string.main_update_data_setting),
-            value = state.mainUpdateDate
-        )
-        SettingRowChevron(
-            title = stringResource(id = R.string.dark_mode_setting),
-            value = state.theme.label,
-            onClick = { onAction(SettingsAction.OpenThemeSetting) }
-        )
-        SettingRowSwitch(
-            title = stringResource(id = R.string.is_adult_setting),
-            checked = state.isAdult,
-            onCheckedChange = { onAction(SettingsAction.SetAdult(enabled = it)) }
-        )
-        SettingRowSwitch(
-            title = stringResource(id = R.string.auto_playing_trailer_setting),
-            checked = state.isTrailerAutoplay,
-            onCheckedChange = { onAction(SettingsAction.SetTrailerAutoplay(enabled = it)) }
-        )
-        SettingRowChevron(
-            title = stringResource(id = R.string.language_setting),
-            value = "${state.language?.code}-${state.region?.code}",
-            onClick = { onAction(SettingsAction.OpenLanguageRegion) }
-        )
-        SettingRowChevron(
-            title = stringResource(id = R.string.image_quality_setting),
-            value = state.imageQuality,
-            onClick = { onAction(SettingsAction.OpenImageQuality) }
-        )
-
-        SettingRowText(
-            title = stringResource(id = R.string.version_info),
-            value = getVersionName(context = context)
-        )
-
-        Spacer(modifier = Modifier.height(height = dp8))
+        Card(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = dp10, vertical = dp5),
+            shape = RoundedCornerShape(size = dp16),
+            border = BorderStroke(width = dp1, color = MaterialTheme.colorScheme.inverseSurface)
+        ) {
+            SettingRowSwitch(
+                title = stringResource(id = R.string.is_adult_setting),
+                checked = state.isAdult,
+                onCheckedChange = { onAction(SettingsAction.SetAdult(enabled = it)) }
+            )
+            SettingRowSwitch(
+                title = stringResource(id = R.string.auto_playing_trailer_setting),
+                checked = state.isTrailerAutoplay,
+                onCheckedChange = { onAction(SettingsAction.SetTrailerAutoplay(enabled = it)) }
+            )
+        }
+        Card(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = dp10, vertical = dp5),
+            shape = RoundedCornerShape(size = dp16),
+            border = BorderStroke(width = dp1, color = MaterialTheme.colorScheme.inverseSurface)
+        ) {
+            SettingRowChevron(
+                title = stringResource(id = R.string.dark_mode_setting),
+                value = state.theme.label,
+                onClick = { onAction(SettingsAction.OpenThemeSetting) }
+            )
+            SettingRowChevron(
+                title = stringResource(id = R.string.language_setting),
+                value = "${state.language?.code}-${state.region?.code}",
+                onClick = { onAction(SettingsAction.OpenLanguageRegion) }
+            )
+            SettingRowChevron(
+                title = stringResource(id = R.string.image_quality_setting),
+                value = state.imageQuality,
+                onClick = { onAction(SettingsAction.OpenImageQuality) }
+            )
+        }
+        Card(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = dp10, vertical = dp5),
+            shape = RoundedCornerShape(size = dp16),
+            border = BorderStroke(width = dp1, color = MaterialTheme.colorScheme.inverseSurface)
+        ) {
+            SettingRowText(
+                title = stringResource(id = R.string.main_update_data_setting),
+                value = state.mainUpdateDate
+            )
+            SettingRowText(
+                title = stringResource(id = R.string.version_info),
+                value = getVersionName(context = context)
+            )
+        }
 
         BottomCloseButton(
             onClick = { onAction(SettingsAction.CloseSheet) }

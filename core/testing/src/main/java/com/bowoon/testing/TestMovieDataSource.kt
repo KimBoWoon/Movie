@@ -53,7 +53,9 @@ class TestMovieDataSource : MovieNetworkDataSource {
 
     override suspend fun getCertification(): CertificationData = certificationTestData
 
-    override suspend fun getGenres(language: String): Genres = genreListTestData
+    override suspend fun getMovieGenres(language: String): Genres = genreListTestData
+
+    override suspend fun getTvGenres(language: String): Genres = genreListTestData
 
     override suspend fun getNowPlaying(language: String, region: String, page: Int): List<Movie> = nowPlayingMoviesTestData
 

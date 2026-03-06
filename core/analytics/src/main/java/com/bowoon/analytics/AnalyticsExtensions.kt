@@ -73,12 +73,43 @@ fun AnalyticsHelper.logFavorite(
     }
 }
 
-fun AnalyticsHelper.logPlayTrailer(videoId: String) {
+fun AnalyticsHelper.logPlayTrailer(contentType: String, videoId: String) {
     logEvent(
         event = AnalyticsEvent(
             type = "play_trailer",
             extras = listOf(
+                AnalyticsEvent.Param(key = FirebaseAnalytics.Param.CONTENT_TYPE, value = contentType),
                 AnalyticsEvent.Param(key = FirebaseAnalytics.Param.ITEM_ID, value = videoId)
+            )
+        )
+    )
+}
+
+fun AnalyticsHelper.logSelectSeason(tvId: String, tvTitle: String, seasonName: String, seasonNumber: String) {
+    logEvent(
+        event = AnalyticsEvent(
+            type = "select_tv_season",
+            extras = listOf(
+                AnalyticsEvent.Param(key = FirebaseAnalytics.Param.ITEM_ID, value = tvId),
+                AnalyticsEvent.Param(key = "title", value = tvTitle),
+                AnalyticsEvent.Param(key = "season_name", value = seasonName),
+                AnalyticsEvent.Param(key = "season_number", value = seasonNumber)
+            )
+        )
+    )
+}
+
+fun AnalyticsHelper.logSelectEpisode(tvId: String, tvTitle: String, seasonName: String, seasonNumber: String, episodeName: String, episodeNumber: String) {
+    logEvent(
+        event = AnalyticsEvent(
+            type = "select_tv_episode",
+            extras = listOf(
+                AnalyticsEvent.Param(key = FirebaseAnalytics.Param.ITEM_ID, value = tvId),
+                AnalyticsEvent.Param(key = "title", value = tvTitle),
+                AnalyticsEvent.Param(key = "season_name", value = seasonName),
+                AnalyticsEvent.Param(key = "season_number", value = seasonNumber),
+                AnalyticsEvent.Param(key = "episode_name", value = episodeName),
+                AnalyticsEvent.Param(key = "episode_number", value = episodeNumber)
             )
         )
     )

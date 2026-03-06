@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import java.time.LocalDate
 import javax.inject.Inject
 
 class GetMovieDetailUseCase @Inject constructor(
@@ -31,12 +32,14 @@ class GetMovieDetailUseCase @Inject constructor(
             databaseRepository.isFavoriteMovie(id = id),
 //        detailRepository.getMovieWatchProviders(movieId = id)
         ) { movie, internalData, isFavorite/*, watchProviders*/ ->
-            val localizedRelease = movie.releases?.countries?.find { it.iso31661.equals(other = internalData.region, ignoreCase = true) }
+            val country = movie.releases?.countries?.filter { country ->
+                country.iso31661.equals(other = internalData.region, ignoreCase = true)
+            }?.maxByOrNull { LocalDate.parse(it.releaseDate) }
 
             MovieWithFavorite(
                 movie = movie.copy(
-                    releaseDate = localizedRelease?.releaseDate ?: movie.releaseDate,
-                    certification = localizedRelease?.certification ?: movie.certification
+                    releaseDate = country?.releaseDate ?: movie.releaseDate,
+                    certification = country?.certification ?: movie.certification
                 ),
                 isFavorite = isFavorite,
                 autoPlayTrailer = internalData.isAutoPlayTrailer,

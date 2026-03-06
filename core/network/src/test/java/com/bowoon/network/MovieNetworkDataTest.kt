@@ -55,8 +55,15 @@ class MovieNetworkDataTest {
     }
 
     @Test
-    fun getGenresTest() = runTest {
-        val result = datasource.getGenres()
+    fun getMovieGenresTest() = runTest {
+        val result = datasource.getMovieGenres()
+
+        assertEquals(result, genreListTestData)
+    }
+
+    @Test
+    fun getTvGenresTest() = runTest {
+        val result = datasource.getTvGenres(language = "ko-KR")
 
         assertEquals(result, genreListTestData)
     }

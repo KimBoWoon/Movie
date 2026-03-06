@@ -46,7 +46,7 @@ class SearchScreenTest {
         testPagingRepository = TestPagingRepository()
         testUserDataRepository = TestUserDataRepository()
         movieAppDataRepository = TestMovieAppDataManager()
-        movieAppDataRepository.setMovieAppData(movieAppData = MovieAppData(genres = genres))
+        movieAppDataRepository.setMovieAppData(movieAppData = MovieAppData(movieGenres = genres))
         viewModel = SearchVM(
             initialQuery = "",
             initialSearchType = SearchType.MOVIE,

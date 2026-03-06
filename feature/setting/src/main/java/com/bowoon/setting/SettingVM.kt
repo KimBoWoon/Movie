@@ -48,8 +48,8 @@ class SettingVM @Inject constructor(
             selectedRegion = settingsUiState.selectedRegion ?: selectedRegion,
             imageQuality = internalData.imageQuality,
             imageQualityList = movieAppData.posterSize.map { it.size.orEmpty() },
-            allLanguages = movieAppData.language,
-            allRegions = movieAppData.region,
+            allLanguages = movieAppData.language.sortedBy { it.label },
+            allRegions = movieAppData.region.sortedBy { it.label },
             selectedTheme = settingsUiState.selectedTheme,
             themeList = DarkThemeConfig.entries,
             selectedImageQuality = settingsUiState.selectedImageQuality
@@ -98,13 +98,6 @@ class SettingVM @Inject constructor(
             is SettingsAction.PickLanguage -> _uiState.update { it.copy(selectedLanguage = action.option) }
             is SettingsAction.PickRegion -> _uiState.update { it.copy(selectedRegion = action.option) }
             SettingsAction.ConfirmLanguageRegion -> {
-                _uiState.update {
-                    it.copy(
-                        language = _uiState.value.selectedLanguage,
-                        region = _uiState.value.selectedRegion,
-                        sheet = SettingsSheet.Main
-                    )
-                }
                 viewModelScope.launch {
                     _uiState.value.selectedLanguage?.let {
                         if (it.code != _uiState.value.language?.code) {
@@ -116,6 +109,13 @@ class SettingVM @Inject constructor(
                             userDataRepository.updateRegion(value = it.code)
                         }
                     }
+                }
+                _uiState.update {
+                    it.copy(
+                        language = _uiState.value.selectedLanguage,
+                        region = _uiState.value.selectedRegion,
+                        sheet = SettingsSheet.Main
+                    )
                 }
             }
             SettingsAction.BackToMainFromLanguageRegion -> {

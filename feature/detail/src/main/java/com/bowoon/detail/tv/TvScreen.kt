@@ -59,7 +59,10 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.bowoon.analytics.LocalAnalyticsHelper
 import com.bowoon.analytics.TrackScreenViewEvent
+import com.bowoon.analytics.logSelectEpisode
+import com.bowoon.analytics.logSelectSeason
 import com.bowoon.common.Log
 import com.bowoon.detail.movie.AlternativeTitleComponent
 import com.bowoon.firebase.LocalFirebaseLogHelper
@@ -264,6 +267,7 @@ fun TvDetailComponent(
     val favoriteMessage = if (tv.isFavorite) stringResource(id = R.string.add_favorite_movie) else stringResource(id = R.string.remove_favorite_movie)
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
+    val analyticsHelper = LocalAnalyticsHelper.current
 
     Column (
         modifier = Modifier.fillMaxSize(),
@@ -287,7 +291,7 @@ fun TvDetailComponent(
             modifier = Modifier.verticalScroll(state = scrollState),
             verticalArrangement = Arrangement.spacedBy(space = dp15)
         ) {
-            tv.tv.videos?.results?.mapNotNull { it.key }?.let { vods ->
+            tv.tv.videos?.results?.filter { it.site == "YouTube" }?.let { vods ->
                 VideosComponent(scope = scope, vodList = vods, autoPlayTrailer = tv.autoPlayTrailer)
             }
             MediaTitleComponent(media = tv.tv)
@@ -304,11 +308,22 @@ fun TvDetailComponent(
             }
             tv.seasons.takeIf { it.isNotEmpty() }?.let { seasons ->
                 SeasonComponent(
+                    tv = tv.tv,
                     seasons = seasons,
                     episodeState = tv.episodeState,
                     episodesBySeason = tv.episodesBySeason,
-                    initialSeasonId = seasons.firstOrNull()?.seasonNumber,
-                    onEpisodeClick = { episode -> showEpisodeDetail(episode) },
+                    initialSeasonId = seasons.firstOrNull()?.id,
+                    onEpisodeClick = { episode ->
+                        showEpisodeDetail(episode)
+                        analyticsHelper.logSelectEpisode(
+                            tvId = tv.tv.id.toString(),
+                            tvTitle = tv.tv.title.toString(),
+                            seasonName = seasons.find { it.seasonNumber == episode.seasonNumber }?.name.toString(),
+                            seasonNumber = episode.seasonNumber.toString(),
+                            episodeName = episode.name.toString(),
+                            episodeNumber = episode.episodeNumber.toString()
+                        )
+                    },
                     onSelectSeason = onSelectSeason
                 )
             }
@@ -337,12 +352,12 @@ fun TvDetailComponent(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SeasonComponent(
+    tv: Tv,
     seasons: List<TvSeason>,
     episodesBySeason: Map<String, List<TvEpisode>>,
-    initialSeasonId: Int? = seasons.firstOrNull()?.seasonNumber,
+    initialSeasonId: Int? = seasons.firstOrNull()?.id,
     onEpisodeClick: (TvEpisode) -> Unit = {},
     onSelectSeason: (TvSeason) -> Unit,
     episodeState: EpisodesLoadState
@@ -357,6 +372,7 @@ fun SeasonComponent(
     }
     val episodeListState = rememberLazyListState()
     val scope = rememberCoroutineScope()
+    val analyticsHelper = LocalAnalyticsHelper.current
 
     Column(
         modifier = Modifier.fillMaxWidth().height(height = dp227)
@@ -389,20 +405,55 @@ fun SeasonComponent(
                     scope.launch {
                         episodeListState.scrollToItem(index = 0)
                     }
+                    analyticsHelper.logSelectSeason(
+                        tvId = tv.id.toString(),
+                        tvTitle = tv.title ?: "",
+                        seasonName = season.name ?: "",
+                        seasonNumber = season.seasonNumber.toString()
+                    )
                 }
             )
         }
 
-        Spacer(Modifier.height(height = dp12))
+        Spacer(modifier = Modifier.height(height = dp12))
 
+        EpisodeContents(
+            modifier = Modifier.fillMaxWidth().weight(weight = 1f),
+            episodeState = episodeState,
+            episodes = episodes,
+            episodeListState = episodeListState,
+            onEpisodeClick = onEpisodeClick
+        )
+    }
+}
+
+@Composable
+fun EpisodeContents(
+    modifier: Modifier,
+    episodeState: EpisodesLoadState,
+    episodes: List<TvEpisode>,
+    episodeListState: LazyListState,
+    onEpisodeClick: (TvEpisode) -> Unit
+) {
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center
+    ) {
         when (episodeState) {
-            is EpisodesLoadState.Loading -> CircularProgressComponent(modifier = Modifier.fillMaxWidth().align(alignment = Alignment.CenterHorizontally))
+            is EpisodesLoadState.Loading -> CircularProgressComponent()
             is EpisodesLoadState.Idle -> {
-                EpisodeList(
-                    episodes = episodes,
-                    episodeListState = episodeListState,
-                    onEpisodeClick = onEpisodeClick
-                )
+                if (episodes.isEmpty()) {
+                    Text(
+                        text = "등록된 에피소드가 없습니다.",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                } else {
+                    EpisodeList(
+                        episodes = episodes,
+                        episodeListState = episodeListState,
+                        onEpisodeClick = onEpisodeClick
+                    )
+                }
             }
             is EpisodesLoadState.Error -> {
                 Text(
@@ -471,6 +522,7 @@ private fun EpisodeList(
     onEpisodeClick: (TvEpisode) -> Unit
 ) {
     LazyRow(
+        modifier = Modifier.fillMaxSize(),
         horizontalArrangement = Arrangement.spacedBy(space = dp10),
         contentPadding = PaddingValues(start = dp16, end = dp16, bottom = dp8),
         state = episodeListState

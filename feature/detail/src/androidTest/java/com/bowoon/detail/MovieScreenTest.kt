@@ -62,7 +62,7 @@ class MovieScreenTest {
     private lateinit var testMovieAppDataManager: TestMovieAppDataManager
     private val movieAppData = MovieAppData(
         secureBaseUrl = configurationTestData.images?.secureBaseUrl ?: "",
-        genres = genreListTestData.genres ?: emptyList(),
+        movieGenres = genreListTestData.genres ?: emptyList(),
         region = regionTestData.results ?: emptyList(),
         language = languageListTestData.map { it.copy(isSelected = it.name == "en") },
         posterSize = configurationTestData.images?.posterSizes?.map {
