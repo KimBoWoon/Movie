@@ -12,6 +12,7 @@ import com.bowoon.common.Result
 import com.bowoon.common.asResult
 import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.data.repository.PagingRepository
+import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.domain.GetMovieDetailUseCase
 import com.bowoon.domain.MovieWithFavorite
 import com.bowoon.model.Movie
@@ -33,6 +34,7 @@ class MovieVM @AssistedInject constructor(
     private val getMovieDetail: GetMovieDetailUseCase,
     private val databaseRepository: DatabaseRepository,
     private val pagingRepository: PagingRepository,
+    private val userDataRepository: UserDataRepository,
     private val analyticsHelper: AnalyticsHelper
 ) : ViewModel() {
     companion object {
@@ -65,12 +67,18 @@ class MovieVM @AssistedInject constructor(
             initialValue = MovieState.Loading,
             started = SharingStarted.Lazily
         )
-
     val similarMovies = Pager(
         config = PagingConfig(pageSize = 1, initialLoadSize = 1, prefetchDistance = 5),
         initialKey = 1,
         pagingSourceFactory = { pagingRepository.getSimilarMoviePagingSource(id = id) }
     ).flow.cachedIn(scope = viewModelScope)
+    val isCheatActive = userDataRepository.internalData
+        .map { it.isCheatActive }
+        .stateIn(
+            scope = viewModelScope,
+            initialValue = false,
+            started = SharingStarted.Lazily
+        )
 //    val movieReviews = Pager(
 //        config = PagingConfig(pageSize = 1, initialLoadSize = 1, prefetchDistance = 5),
 //        initialKey = 1,

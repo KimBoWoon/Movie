@@ -19,6 +19,7 @@ import com.bowoon.ui.utils.dp5
 @Composable
 fun OverviewComponent(overview: String) {
     var expanded by remember { mutableStateOf(value = false) }
+    var showMore by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -30,16 +31,23 @@ fun OverviewComponent(overview: String) {
             text = overview,
             maxLines = if (expanded) Int.MAX_VALUE else 4,
             overflow = TextOverflow.Ellipsis,
-            style = MaterialTheme.typography.bodyMedium
+            style = MaterialTheme.typography.bodyMedium,
+            onTextLayout = { textLayoutResult ->
+                if (!expanded) {
+                    showMore = textLayoutResult.hasVisualOverflow
+                }
+            }
         )
 
-        Text(
-            modifier = Modifier
-                .padding(start = dp16, end = dp16, top = dp5)
-                .clickable { expanded = !expanded },
-            text = if (expanded) "접기" else "더보기",
-            color = MaterialTheme.colorScheme.primary,
-            style = MaterialTheme.typography.bodySmall
-        )
+        if (showMore) {
+            Text(
+                modifier = Modifier
+                    .padding(start = dp16, end = dp16, top = dp5)
+                    .clickable { expanded = !expanded },
+                text = if (expanded) "접기" else "더보기",
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
     }
 }

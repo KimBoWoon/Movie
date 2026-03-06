@@ -30,4 +30,6 @@ interface UserDataRepository {
     suspend fun getShowNextReleaseMoviesDate(): String
     suspend fun getSecureBaseUrl(): String
     suspend fun getWorkScheduleTime(): Long
+    suspend fun updateIsCheatActive(value: Boolean)
+    suspend fun getIsCheatActive(): Boolean
 }

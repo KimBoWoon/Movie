@@ -55,6 +55,10 @@ class UserDataRepositoryImpl @Inject constructor(
         datastore.updateFirstInstall(value = value)
     }
 
+    override suspend fun updateIsCheatActive(value: Boolean) {
+        datastore.updateIsCheatActive(value = value)
+    }
+
     override suspend fun getSecureBaseUrl(): String =
         datastore.getSecureBaseUrl()
 
@@ -87,4 +91,6 @@ class UserDataRepositoryImpl @Inject constructor(
     override suspend fun getFirstInstall(): Boolean = datastore.getFirstInstall()
 
     override suspend fun getWorkScheduleTime(): Long = datastore.getWorkScheduleTime()
+
+    override suspend fun getIsCheatActive(): Boolean = datastore.getIsCheatActive()
 }

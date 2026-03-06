@@ -99,6 +99,7 @@ fun MovieScreen(
 
     val movieState by viewModel.movie.collectAsStateWithLifecycle()
     val similarMovies = viewModel.similarMovies.collectAsLazyPagingItems()
+    val isCheatActive by viewModel.isCheatActive.collectAsStateWithLifecycle()
 
     MovieScreen(
         movieState = movieState,
@@ -106,6 +107,7 @@ fun MovieScreen(
         goToMovie = goToMovie,
         goToPeople = goToPeople,
         goToBack = goToBack,
+        isCheatActive = isCheatActive,
         onShowSnackbar = onShowSnackbar,
         insertFavoriteMovie = viewModel::insertMovie,
         deleteFavoriteMovie = viewModel::deleteMovie,
@@ -120,6 +122,7 @@ fun MovieScreen(
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     goToBack: () -> Unit,
+    isCheatActive: Boolean,
     onShowSnackbar: suspend (String, String?) -> Boolean,
     insertFavoriteMovie: (Movie) -> Unit,
     deleteFavoriteMovie: (Movie) -> Unit,
@@ -167,6 +170,7 @@ fun MovieScreen(
                         goToMovie = goToMovie,
                         goToPeople = goToPeople,
                         goToBack = goToBack,
+                        isCheatActive = isCheatActive,
                         onShowSnackbar = onShowSnackbar,
                         insertFavoriteMovie = insertFavoriteMovie,
                         deleteFavoriteMovie = deleteFavoriteMovie,
@@ -215,6 +219,7 @@ fun MovieDetailComponent(
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     goToBack: () -> Unit,
+    isCheatActive: Boolean,
     onShowSnackbar: suspend (String, String?) -> Boolean,
     insertFavoriteMovie: (Movie) -> Unit,
     deleteFavoriteMovie: (Movie) -> Unit,
@@ -267,9 +272,11 @@ fun MovieDetailComponent(
 //                    WatchProvidersSection(providers = watchProvider)
 //                }
 //            }
-            movieState.movie.alternativeTitles?.let { alternativeTitles ->
-                if (!alternativeTitles.titles.isNullOrEmpty()) {
-                    AlternativeTitleComponent(alternativeTitles = alternativeTitles)
+            if (isCheatActive) {
+                movieState.movie.alternativeTitles?.let { alternativeTitles ->
+                    if (!alternativeTitles.titles.isNullOrEmpty()) {
+                        AlternativeTitleComponent(alternativeTitles = alternativeTitles)
+                    }
                 }
             }
             movieState.movie.overview?.takeIf { it.trim().isNotEmpty() }?.let { overview ->

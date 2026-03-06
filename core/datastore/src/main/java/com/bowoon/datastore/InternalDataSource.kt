@@ -36,7 +36,8 @@ class InternalDataSource @Inject constructor(
             language = preferences.language,
             imageQuality = preferences.imageQuality,
             showNextReleaseMoviesDate = preferences.showNextReleaseMoviesDate,
-            secureBaseUrl = preferences.secureBaseUrl
+            secureBaseUrl = preferences.secureBaseUrl,
+            isCheatActive = preferences.isCheatActive,
         )
     }
 
@@ -132,6 +133,13 @@ class InternalDataSource @Inject constructor(
         }
     }
 
+    suspend fun updateIsCheatActive(value: Boolean) {
+        datastore.updateData { preferences ->
+            preferences.copy {
+                isCheatActive = value
+            }
+        }
+    }
 
     suspend fun getIsAdult(): Boolean =
         datastore.data.map { preferences ->
@@ -193,6 +201,11 @@ class InternalDataSource @Inject constructor(
         datastore.data.map { preferences ->
             preferences.workScheduleTime
         }.firstOrNull() ?: 0
+
+    suspend fun getIsCheatActive(): Boolean =
+        datastore.data.map { preferences ->
+            preferences.isCheatActive
+        }.firstOrNull() ?: false
 
     suspend fun updateFCMToken(token: String) {
         datastore.updateData { preferences ->

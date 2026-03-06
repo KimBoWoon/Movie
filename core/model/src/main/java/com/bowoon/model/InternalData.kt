@@ -13,5 +13,6 @@ data class InternalData(
     val imageQuality: String = "original",
     val showNextReleaseMoviesDate: String = "",
     val secureBaseUrl: String = "",
-    val isFirstInstall: Boolean = false
+    val isFirstInstall: Boolean = false,
+    val isCheatActive: Boolean = false
 )

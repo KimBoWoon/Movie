@@ -11,6 +11,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -52,13 +53,24 @@ class SettingVM @Inject constructor(
             allRegions = movieAppData.region.sortedBy { it.label },
             selectedTheme = settingsUiState.selectedTheme,
             themeList = DarkThemeConfig.entries,
-            selectedImageQuality = settingsUiState.selectedImageQuality
+            selectedImageQuality = settingsUiState.selectedImageQuality,
+            isCheatActive = settingsUiState.isCheatActive ?: internalData.isCheatActive
         )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(),
         initialValue = SettingsUiState()
     )
+    var titleClickCount = 0
+    val _isCheatActive = MutableStateFlow(value = false)
+    val isCheatActive = _isCheatActive.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            _isCheatActive.emit(value = userDataRepository.getIsCheatActive())
+            _uiState.update { it.copy(isCheatActive = userDataRepository.getIsCheatActive()) }
+        }
+    }
 
     fun onAction(action: SettingsAction) {
         Log.d("onAction", "$action")
@@ -184,6 +196,25 @@ class SettingVM @Inject constructor(
                 }
             }
             is SettingsAction.PickTheme -> _uiState.update { it.copy(selectedTheme = action.option) }
+            is SettingsAction.SetCheatActive -> {
+                viewModelScope.launch {
+                    _uiState.value.isCheatActive?.let { isCheatActive ->
+                        userDataRepository.updateIsCheatActive(value = !isCheatActive)
+                    }
+                }
+                _uiState.update { it.copy(isCheatActive = it.isCheatActive?.not()) }
+            }
+        }
+    }
+
+    fun onClickTitle() {
+        viewModelScope.launch {
+            titleClickCount++
+
+            if (titleClickCount >= 10) {
+                _isCheatActive.emit(value = !isCheatActive.value)
+                titleClickCount = 0
+            }
         }
     }
 }
@@ -212,7 +243,8 @@ data class SettingsUiState(
     val imageQualityList: List<String> = emptyList(),
     val selectedImageQuality: String? = null,
     val allLanguages: List<LocaleOption> = emptyList(),
-    val allRegions: List<LocaleOption> = emptyList()
+    val allRegions: List<LocaleOption> = emptyList(),
+    val isCheatActive: Boolean? = null
 )
 
 sealed interface SettingsAction {
@@ -243,4 +275,7 @@ sealed interface SettingsAction {
     data object BackToMainFromThemeSetting : SettingsAction
     data class PickTheme(val option: DarkThemeConfig) : SettingsAction
     data object ConfirmTheme : SettingsAction
+
+    // Cheat sub sheet events
+    data class SetCheatActive(val enabled: Boolean) : SettingsAction
 }

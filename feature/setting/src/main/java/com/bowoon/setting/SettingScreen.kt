@@ -73,10 +73,13 @@ fun SettingScreen(
     TrackScreenViewEvent(screenName = "SettingScreen")
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val isCheatActive by viewModel.isCheatActive.collectAsStateWithLifecycle()
 
     SettingScreen(
         state = uiState,
-        onAction = viewModel::onAction
+        isCheatActive = isCheatActive,
+        onAction = viewModel::onAction,
+        onClickTitle = viewModel::onClickTitle
     )
 }
 
@@ -84,7 +87,9 @@ fun SettingScreen(
 @Composable
 fun SettingScreen(
     state: SettingsUiState,
-    onAction: (SettingsAction) -> Unit
+    isCheatActive: Boolean,
+    onAction: (SettingsAction) -> Unit,
+    onClickTitle: () -> Unit
 ) {
     if (state.sheet == SettingsSheet.Hidden) return
 
@@ -100,7 +105,9 @@ fun SettingScreen(
             SettingsSheet.Main -> {
                 SettingMainSheet(
                     state = state,
-                    onAction = onAction
+                    isCheatActive = isCheatActive,
+                    onAction = onAction,
+                    onClickTitle = onClickTitle
                 )
             }
             SettingsSheet.ThemeSetting -> {
@@ -131,14 +138,19 @@ fun SettingScreen(
 @Composable
 fun SettingMainSheet(
     state: SettingsUiState,
-    onAction: (SettingsAction) -> Unit
+    isCheatActive: Boolean,
+    onAction: (SettingsAction) -> Unit,
+    onClickTitle: () -> Unit
 ) {
     val context = LocalContext.current
 
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
-        SheetHeader(title = stringResource(id = R.string.feature_my_name))
+        SheetHeader(
+            title = stringResource(id = R.string.feature_my_name),
+            onClickTitle = onClickTitle
+        )
         HorizontalDivider()
         Card(
             modifier = Modifier.fillMaxWidth().padding(horizontal = dp10, vertical = dp5),
@@ -190,6 +202,13 @@ fun SettingMainSheet(
                 title = stringResource(id = R.string.version_info),
                 value = getVersionName(context = context)
             )
+            if (isCheatActive) {
+                SettingRowSwitch(
+                    title = "Developer Mode",
+                    checked = state.isCheatActive ?: false,
+                    onCheckedChange = { onAction(SettingsAction.SetCheatActive(enabled = it)) }
+                )
+            }
         }
 
         BottomCloseButton(
@@ -199,16 +218,21 @@ fun SettingMainSheet(
 }
 
 @Composable
-private fun SheetHeader(title: String) {
+private fun SheetHeader(title: String, onClickTitle: () -> Unit = {}) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = dp18, vertical = dp10),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Spacer(Modifier.weight(weight = 1f))
-        Text(text = title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-        Spacer(Modifier.weight(weight = 1f))
+        Spacer(modifier = Modifier.weight(weight = 1f))
+        Text(
+            modifier = Modifier.clickable(interactionSource = null, indication = null) { onClickTitle() },
+            text = title,
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.weight(weight = 1f))
     }
 }
 

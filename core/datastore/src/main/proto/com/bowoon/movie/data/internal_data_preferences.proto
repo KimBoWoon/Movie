@@ -18,4 +18,5 @@ message InternalDataPreferences {
   string secureBaseUrl = 10;
   bool isFirstInstall = 11;
   uint64 workScheduleTime = 12;
+  bool isCheatActive = 13;
 }
