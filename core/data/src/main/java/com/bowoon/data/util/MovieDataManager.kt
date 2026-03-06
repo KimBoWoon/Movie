@@ -23,6 +23,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
@@ -73,10 +74,11 @@ class MovieDataManager @Inject constructor(
                     val movie = apis.getMovieGenres(language = language)
                     val tv = apis.getTvGenres(language = language)
                     emit(value = GenreData(movie = movie.genres.orEmpty(), tv = tv.genres.orEmpty()))
-                }
+                }.catch { e -> Log.printStackTrace(tr = e) }
             }.distinctUntilChanged()
     private val configurationFlow: Flow<Configuration> =
         flow { emit(value = apis.getConfiguration()) }
+            .catch { e -> Log.printStackTrace(tr = e) }
             .stateIn(
                 scope = appScope,
                 started = SharingStarted.WhileSubscribed(),
@@ -84,6 +86,7 @@ class MovieDataManager @Inject constructor(
             )
     private val availableLanguageFlow: Flow<List<Language>> =
         flow { emit(value = apis.getAvailableLanguage()) }
+            .catch { e -> Log.printStackTrace(tr = e) }
             .stateIn(
                 scope = appScope,
                 started = SharingStarted.WhileSubscribed(),
@@ -91,6 +94,7 @@ class MovieDataManager @Inject constructor(
             )
     private val availableRegionFlow: Flow<Regions> =
         flow { emit(value = apis.getAvailableRegion()) }
+            .catch { e -> Log.printStackTrace(tr = e) }
             .stateIn(
                 scope = appScope,
                 started = SharingStarted.WhileSubscribed(),
