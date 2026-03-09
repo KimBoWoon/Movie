@@ -36,7 +36,8 @@ class SettingVMTest {
         themeList = DarkThemeConfig.entries,
         selectedLanguage = null,
         selectedRegion = null,
-        selectedImageQuality = null
+        selectedImageQuality = null,
+        isCheatActive = false
     )
 
     @Before

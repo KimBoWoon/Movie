@@ -20,7 +20,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Surfy"
+rootProject.name = "Movie"
 include(":surfy")
 include(":core:data")
 include(":core:domain")

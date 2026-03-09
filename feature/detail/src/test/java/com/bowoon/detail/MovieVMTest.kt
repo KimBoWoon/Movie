@@ -63,7 +63,8 @@ class MovieVMTest {
             databaseRepository = testDataBaseRepository,
             getMovieDetail = getMovieDetailUseCase,
             pagingRepository = testPagingRepository,
-            analyticsHelper = testAnalyticsHelper
+            analyticsHelper = testAnalyticsHelper,
+            userDataRepository = testUserDataRepository
         )
         runBlocking {
             testDataBaseRepository.insertMovie(movie = Movie(id = 0, title = "movie_1", posterPath = "/movieImagePath.png"))
@@ -112,7 +113,8 @@ class MovieVMTest {
             getMovieDetail = getMovieDetailUseCase,
             databaseRepository = testDataBaseRepository,
             pagingRepository = testPagingRepository,
-            analyticsHelper = testAnalyticsHelper
+            analyticsHelper = testAnalyticsHelper,
+            userDataRepository = testUserDataRepository
         )
         backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.movie.collect() }
 
@@ -207,7 +209,8 @@ class MovieVMTest {
             getMovieDetail = getMovieDetailUseCase,
             databaseRepository = testDataBaseRepository,
             pagingRepository = testPagingRepository,
-            analyticsHelper = testAnalyticsHelper
+            analyticsHelper = testAnalyticsHelper,
+            userDataRepository = testUserDataRepository
         )
 
         backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.movie.collect() }

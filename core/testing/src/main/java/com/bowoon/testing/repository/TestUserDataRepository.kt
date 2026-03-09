@@ -70,6 +70,10 @@ class TestUserDataRepository : UserDataRepository {
         workedTime = value
     }
 
+    override suspend fun updateIsCheatActive(value: Boolean) {
+        _userData.tryEmit(value = currentUserData.copy(isCheatActive = value))
+    }
+
     override suspend fun getIsAdult(): Boolean =
         currentUserData.isAdult
 
@@ -100,4 +104,6 @@ class TestUserDataRepository : UserDataRepository {
         currentUserData.isFirstInstall
 
     override suspend fun getWorkScheduleTime(): Long = workedTime
+
+    override suspend fun getIsCheatActive(): Boolean = currentUserData.isCheatActive
 }
