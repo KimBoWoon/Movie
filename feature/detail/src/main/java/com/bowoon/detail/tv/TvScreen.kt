@@ -72,7 +72,7 @@ import com.bowoon.model.Image
 import com.bowoon.model.Tv
 import com.bowoon.model.TvEpisode
 import com.bowoon.model.TvSeason
-import com.bowoon.movie.feature.detail.R
+import com.bowoon.surfy.feature.detail.R
 import com.bowoon.ui.components.CircularProgressComponent
 import com.bowoon.ui.components.CreditsComponent
 import com.bowoon.ui.components.ImageOverlay
@@ -236,10 +236,10 @@ fun TvScreen(
                 LocalFirebaseLogHelper.current.sendLog(name = "TvScreen", message = tvUiState.message)
 
                 ConfirmDialog(
-                    title = stringResource(id = com.bowoon.movie.core.network.R.string.network_failed),
+                    title = stringResource(id = com.bowoon.surfy.core.network.R.string.network_failed),
                     message = tvUiState.message,
-                    confirmPair = stringResource(id = com.bowoon.movie.core.ui.R.string.retry_message) to { restart() },
-                    dismissPair = stringResource(id = com.bowoon.movie.core.ui.R.string.back_message) to goToBack
+                    confirmPair = stringResource(id = com.bowoon.surfy.core.ui.R.string.retry_message) to { restart() },
+                    dismissPair = stringResource(id = com.bowoon.surfy.core.ui.R.string.back_message) to goToBack
                 )
             }
         }

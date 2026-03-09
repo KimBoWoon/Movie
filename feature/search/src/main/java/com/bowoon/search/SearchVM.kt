@@ -15,7 +15,7 @@ import com.bowoon.data.repository.PagingRepository
 import com.bowoon.data.util.DataManager
 import com.bowoon.model.Genre
 import com.bowoon.model.Media
-import com.bowoon.model.MovieAppData
+import com.bowoon.model.SurfyAppData
 import com.bowoon.model.SearchType
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -73,12 +73,12 @@ class SearchVM @AssistedInject constructor(
     val searchType = savedStateHandle.getStateFlow<SearchType>(key = SEARCH_TYPE, initialValue = initialSearchType)
     val showSnackbar = MutableSharedFlow<Unit>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
     private val recommendKeywordFlow = MutableStateFlow<String>(value = "")
-    val movieAppData = dataManager.movieAppData
+    val surfyAppData = dataManager.surfyAppData
         .map { it.getMovieAppData() }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),
-            initialValue = MovieAppData()
+            initialValue = SurfyAppData()
         )
     val recommendKeywordPaging = recommendKeywordFlow
         .debounce(timeoutMillis = 300)

@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.bowoon.datastore_test"
+    namespace = "com.bowoon.surfy.core.datastore_test"
 }
 
 dependencies {

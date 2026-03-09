@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.zIndex
-import com.bowoon.ui.theme.MovieTheme
+import com.bowoon.ui.theme.SurfyTheme
 import com.bowoon.ui.utils.Line
 import com.bowoon.ui.utils.border
 import com.bowoon.ui.utils.bounceClick
@@ -178,8 +178,8 @@ fun RowScope.DialogButton(
     backgroundColor = 0xFFFFFFFF, showBackground = true
 )
 @Composable
-fun MovieOneButtonDialogPreview() {
-    MovieTheme() {
+fun SurfyOneButtonDialogPreview() {
+    SurfyTheme() {
         MovieDialog(
             onDismiss = {},
             title = "Title",
@@ -194,8 +194,8 @@ fun MovieOneButtonDialogPreview() {
     backgroundColor = 0xFFFFFFFF, showBackground = true
 )
 @Composable
-fun MovieTwoButtonDialogPreview() {
-    MovieTheme {
+fun SurfyTwoButtonDialogPreview() {
+    SurfyTheme {
         MovieDialog(
             onDismiss = {},
             title = "Title",

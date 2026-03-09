@@ -18,7 +18,7 @@ object Config {
         const val COMPILE_SDK_VERSION = 36
         const val MIN_SDK_VERSION = 26
         const val TEST_INSTRUMENTATION_RUNNER = "androidx.test.runner.AndroidJUnitRunner"
-        const val MOVIE_TEST_INSTRUMENTATION_RUNNER = "androidx.test.runner.AndroidJUnitRunner"
+        const val SURFY_TEST_INSTRUMENTATION_RUNNER = "androidx.test.runner.AndroidJUnitRunner"
         const val DEFAULT_PROGUARD_FILE = "proguard-android-optimize.txt"
         const val PROGUARD_FILE = "proguard-rules.pro"
         const val DATE_FORMAT = "HHmmss"
@@ -38,9 +38,9 @@ object Config {
         val versionCode: Int,
         val versionName: String,
     ) {
-        object Movie : Application(
-            appName = "movie",
-            applicationId = "com.bowoon.movie",
+        object Surfy : Application(
+            appName = "surfy",
+            applicationId = "com.bowoon.surfy",
             compileSdkVersion = ApplicationSetting.COMPILE_SDK_VERSION,
             minSdkVersion = ApplicationSetting.MIN_SDK_VERSION,
             targetSdkVersion = ApplicationSetting.COMPILE_SDK_VERSION,
@@ -49,19 +49,19 @@ object Config {
         ) {
             object Sign {
                 object Release {
-                    const val name = "Release"
-                    const val storeFile = "store_file_path"
-                    const val storePassword = "store_password"
-                    const val keyAlias = "key_alias"
-                    const val keyPassword = "key_password"
+                    const val NAME = "Release"
+                    const val STORE_FILE = "store_file_path"
+                    const val STORE_PASSWORD = "store_password"
+                    const val KEY_ALIAS = "key_alias"
+                    const val KEY_PASSWORD = "key_password"
                 }
 
                 object Debug {
-                    const val name = "Debug"
-                    const val storeFile = "store_file_path"
-                    const val storePassword = "store_password"
-                    const val keyAlias = "key_alias"
-                    const val keyPassword = "key_password"
+                    const val NAME = "Debug"
+                    const val STORE_FILE = "store_file_path"
+                    const val STORE_PASSWORD = "store_password"
+                    const val KEY_ALIAS = "key_alias"
+                    const val KEY_PASSWORD = "key_password"
                 }
             }
         }

@@ -1,18 +1,18 @@
 package com.bowoon.data.util
 
 import com.bowoon.model.DarkThemeConfig
-import com.bowoon.model.MovieAppData
+import com.bowoon.model.SurfyAppData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
 interface DataManager {
-    val movieAppData: StateFlow<MovieAppDataState>
+    val surfyAppData: StateFlow<SurfyAppDataState>
     val localeFlow: Flow<Locale>
 }
 
-sealed interface MovieAppDataState {
-    data object Loading : MovieAppDataState
-    data class Success(val data: MovieAppData) : MovieAppDataState {
+sealed interface SurfyAppDataState {
+    data object Loading : SurfyAppDataState
+    data class Success(val data: SurfyAppData) : SurfyAppDataState {
         override fun shouldUseDarkTheme(isSystemDarkTheme: Boolean) =
             when (data.isDarkMode) {
                 DarkThemeConfig.FOLLOW_SYSTEM -> isSystemDarkTheme
@@ -20,11 +20,11 @@ sealed interface MovieAppDataState {
                 DarkThemeConfig.DARK -> true
             }
 
-        override fun getMovieAppData(): MovieAppData = this.data
+        override fun getMovieAppData(): SurfyAppData = this.data
     }
-    data class Error(val throwable: Throwable) : MovieAppDataState
+    data class Error(val throwable: Throwable) : SurfyAppDataState
 
     fun shouldKeepSplashScreen(): Boolean = this is Loading
     fun shouldUseDarkTheme(isSystemDarkTheme: Boolean): Boolean = isSystemDarkTheme
-    fun getMovieAppData(): MovieAppData = MovieAppData()
+    fun getMovieAppData(): SurfyAppData = SurfyAppData()
 }

@@ -229,10 +229,10 @@ class MovieVMTest {
 //            testDataBaseRepository.getMovies().first(),
 //            emptyList()
 //        )
-//        viewModel.insertMovie(movie)
+//        viewModel.insertMovie(surfy)
 //        assertEquals(
 //            testDataBaseRepository.getMovies().first(),
-//            listOf(movie)
+//            listOf(surfy)
 //        )
     }
 
@@ -247,7 +247,7 @@ class MovieVMTest {
 //            assertIs<DetailState.Success>(viewModel.detail.value).detail?.isFavorite,
 //            true
 //        )
-//        viewModel.deleteMovie(movie)
+//        viewModel.deleteMovie(surfy)
 //        assertEquals(
 //            assertIs<DetailState.Success>(viewModel.detail.value).detail?.isFavorite,
 //            false

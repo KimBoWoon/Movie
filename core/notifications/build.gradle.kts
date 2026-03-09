@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.bowoon.movie.core.notifications"
+    namespace = "com.bowoon.surfy.core.notifications"
 }
 
 dependencies {

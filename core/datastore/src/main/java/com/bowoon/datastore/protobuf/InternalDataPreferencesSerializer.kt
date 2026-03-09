@@ -2,8 +2,8 @@ package com.bowoon.datastore.protobuf
 
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.Serializer
-import com.bowoon.movie.core.datastore.InternalDataPreferences
-import com.bowoon.movie.core.datastore.copy
+import com.bowoon.surfy.core.datastore.InternalDataPreferences
+import com.bowoon.surfy.core.datastore.copy
 import com.google.protobuf.InvalidProtocolBufferException
 import java.io.InputStream
 import java.io.OutputStream

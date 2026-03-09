@@ -15,7 +15,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.bowoon.model.Genre
-import com.bowoon.model.MovieAppData
+import com.bowoon.model.SurfyAppData
 import com.bowoon.model.SearchType
 import com.bowoon.testing.model.genreListTestData
 import com.bowoon.testing.model.testRecommendedKeyword
@@ -46,7 +46,7 @@ class SearchScreenTest {
         testPagingRepository = TestPagingRepository()
         testUserDataRepository = TestUserDataRepository()
         movieAppDataRepository = TestMovieAppDataManager()
-        movieAppDataRepository.setMovieAppData(movieAppData = MovieAppData(movieGenres = genres))
+        movieAppDataRepository.setMovieAppData(surfyAppData = SurfyAppData(movieGenres = genres))
         viewModel = SearchVM(
             initialQuery = "",
             initialSearchType = SearchType.MOVIE,
@@ -63,14 +63,14 @@ class SearchScreenTest {
                 val searchState by viewModel.searchResult.collectAsStateWithLifecycle()
                 val searchType by viewModel.searchType.collectAsStateWithLifecycle()
                 val selectedGenre by viewModel.selectedGenre.collectAsStateWithLifecycle()
-                val movieAppData by movieAppDataRepository.movieAppData.collectAsStateWithLifecycle()
+                val movieAppData by movieAppDataRepository.surfyAppData.collectAsStateWithLifecycle()
 
                 SearchScreen(
                     searchUiState = searchState,
                     recommendKeyword = viewModel.recommendKeywordPaging.collectAsLazyPagingItems(),
                     query = viewModel.searchQuery,
                     searchType = searchType,
-                    movieAppData = movieAppData.getMovieAppData(),
+                    surfyAppData = movieAppData.getMovieAppData(),
                     selectedGenre = selectedGenre,
                     goToMovie = {},
                     goToTv = {},
@@ -100,14 +100,14 @@ class SearchScreenTest {
 
                 viewModel.updateQuery("mission")
 
-                val movieAppData by movieAppDataRepository.movieAppData.collectAsStateWithLifecycle()
+                val movieAppData by movieAppDataRepository.surfyAppData.collectAsStateWithLifecycle()
 
                 SearchScreen(
                     searchUiState = searchState,
                     recommendKeyword = viewModel.recommendKeywordPaging.collectAsLazyPagingItems(),
                     query = viewModel.searchQuery,
                     searchType = searchType,
-                    movieAppData = movieAppData.getMovieAppData(),
+                    surfyAppData = movieAppData.getMovieAppData(),
                     selectedGenre = selectedGenre,
                     goToMovie = {},
                     goToTv = {},
@@ -157,7 +157,7 @@ class SearchScreenTest {
                 val searchState by viewModel.searchResult.collectAsStateWithLifecycle()
                 val searchType by viewModel.searchType.collectAsStateWithLifecycle()
                 val selectedGenre by viewModel.selectedGenre.collectAsStateWithLifecycle()
-                val movieAppData by movieAppDataRepository.movieAppData.collectAsStateWithLifecycle()
+                val movieAppData by movieAppDataRepository.surfyAppData.collectAsStateWithLifecycle()
 
                 viewModel.updateQuery("mission")
 
@@ -166,7 +166,7 @@ class SearchScreenTest {
                     recommendKeyword = viewModel.recommendKeywordPaging.collectAsLazyPagingItems(),
                     query = viewModel.searchQuery,
                     searchType = searchType,
-                    movieAppData = movieAppData.getMovieAppData(),
+                    surfyAppData = movieAppData.getMovieAppData(),
                     selectedGenre = selectedGenre,
                     goToMovie = {},
                     goToTv = {},
@@ -199,14 +199,14 @@ class SearchScreenTest {
 
                 viewModel.updateQuery("name")
 
-                val movieAppData by movieAppDataRepository.movieAppData.collectAsStateWithLifecycle()
+                val movieAppData by movieAppDataRepository.surfyAppData.collectAsStateWithLifecycle()
 
                 SearchScreen(
                     searchUiState = searchState,
                     recommendKeyword = viewModel.recommendKeywordPaging.collectAsLazyPagingItems(),
                     query = viewModel.searchQuery,
                     searchType = searchType,
-                    movieAppData = movieAppData.getMovieAppData(),
+                    surfyAppData = movieAppData.getMovieAppData(),
                     selectedGenre = selectedGenre,
                     goToMovie = {},
                     goToTv = {},
@@ -276,7 +276,7 @@ class SearchScreenTest {
                 val searchState by viewModel.searchResult.collectAsStateWithLifecycle()
                 val searchType by viewModel.searchType.collectAsStateWithLifecycle()
                 val selectedGenre by viewModel.selectedGenre.collectAsStateWithLifecycle()
-                val movieAppData by movieAppDataRepository.movieAppData.collectAsStateWithLifecycle()
+                val movieAppData by movieAppDataRepository.surfyAppData.collectAsStateWithLifecycle()
 
                 viewModel.updateQuery("mission")
 
@@ -285,7 +285,7 @@ class SearchScreenTest {
                     recommendKeyword = viewModel.recommendKeywordPaging.collectAsLazyPagingItems(),
                     query = viewModel.searchQuery,
                     searchType = searchType,
-                    movieAppData = movieAppData.getMovieAppData(),
+                    surfyAppData = movieAppData.getMovieAppData(),
                     selectedGenre = selectedGenre,
                     goToMovie = {},
                     goToTv = {},

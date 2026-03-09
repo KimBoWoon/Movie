@@ -4,7 +4,7 @@ plugins {
     `kotlin-dsl`
 }
 
-group = "com.bowoon.movie.buildlogic"
+group = "com.bowoon.surfy.buildlogic"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17

@@ -23,7 +23,7 @@ import com.bowoon.common.Dispatchers.IO
 import com.bowoon.common.Log
 import com.bowoon.data.repository.UserDataRepository
 import com.bowoon.model.Movie
-import com.bowoon.movie.core.notifications.R
+import com.bowoon.surfy.core.notifications.R
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -38,9 +38,9 @@ private const val MOVIE_NOTIFICATION_CHANNEL_ID = "MOVIE_NOTIFICATION_CHANNEL"
 private const val MOVIE_NOTIFICATION_GROUP = "MOVIE_NOTIFICATIONS"
 val SUMMARY_ID = 0
 private const val MOVIE_NOTIFICATION_REQUEST_CODE = 0
-private const val TARGET_ACTIVITY_NAME = "com.bowoon.movie.ui.activities.MainActivity"
+private const val TARGET_ACTIVITY_NAME = "com.bowoon.surfy.ui.activities.MainActivity"
 private const val DEEP_LINK_SCHEME_AND_HOST = "https://www.bowoon.movie.com"
-private const val DEEP_LINK_MOVIE_ID_PATH = "movie"
+private const val DEEP_LINK_MOVIE_ID_PATH = "surfy"
 private const val DEEP_LINK_BASE_PATH = "$DEEP_LINK_SCHEME_AND_HOST/$DEEP_LINK_MOVIE_ID_PATH"
 const val DEEP_LINK_URI_PATTERN = "$DEEP_LINK_BASE_PATH/{id}"
 

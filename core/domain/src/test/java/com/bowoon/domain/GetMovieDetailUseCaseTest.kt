@@ -2,7 +2,7 @@ package com.bowoon.domain
 
 import com.bowoon.model.LocaleOption
 import com.bowoon.model.Movie
-import com.bowoon.model.MovieAppData
+import com.bowoon.model.SurfyAppData
 import com.bowoon.model.PosterSize
 import com.bowoon.testing.model.configurationTestData
 import com.bowoon.testing.model.favoriteMovieDetailTestData
@@ -51,7 +51,7 @@ class GetMovieDetailUseCaseTest {
         runBlocking {
             databaseRepository.insertMovie(movie = Movie(id = 23))
             movieAppDataRepository.setMovieAppData(
-                MovieAppData(
+                SurfyAppData(
                     secureBaseUrl = configurationTestData.images?.secureBaseUrl ?: "",
                     movieGenres = genreListTestData.genres ?: emptyList(),
                     region = regionTestData.results?.map { LocaleOption(code = it.iso31661.orEmpty(), label = it.englishName.orEmpty(), isSelected = it.isSelected) } ?: emptyList(),

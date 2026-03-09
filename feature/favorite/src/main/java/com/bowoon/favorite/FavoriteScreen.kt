@@ -46,7 +46,7 @@ import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.Movie
 import com.bowoon.model.People
 import com.bowoon.model.Tv
-import com.bowoon.movie.feature.favorite.R
+import com.bowoon.surfy.feature.favorite.R
 import com.bowoon.ui.components.FavoriteButtonComponent
 import com.bowoon.ui.components.ScrollToTopComponent
 import com.bowoon.ui.image.DynamicAsyncImageLoader
@@ -161,7 +161,7 @@ fun FavoriteScreen(
                                         scope.launch {
                                             onShowSnackbar(removeFavoriteText, null)
                                         }
-                                        analyticsHelper.logFavorite(isFavorite = false, contentType = "movie", media = movieDetail)
+                                        analyticsHelper.logFavorite(isFavorite = false, contentType = "surfy", media = movieDetail)
                                     }
                                 )
                             }

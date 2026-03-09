@@ -47,7 +47,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bowoon.analytics.TrackScreenViewEvent
 import com.bowoon.common.getVersionName
 import com.bowoon.firebase.LocalFirebaseLogHelper
-import com.bowoon.movie.feature.setting.R
+import com.bowoon.surfy.feature.setting.R
 import com.bowoon.ui.utils.dp1
 import com.bowoon.ui.utils.dp10
 import com.bowoon.ui.utils.dp12

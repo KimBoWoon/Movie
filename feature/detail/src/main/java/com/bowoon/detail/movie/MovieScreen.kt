@@ -55,7 +55,7 @@ import com.bowoon.model.AlternativeTitles
 import com.bowoon.model.Image
 import com.bowoon.model.Movie
 import com.bowoon.model.Series
-import com.bowoon.movie.feature.detail.R
+import com.bowoon.surfy.feature.detail.R
 import com.bowoon.ui.components.CircularProgressComponent
 import com.bowoon.ui.components.CreditsComponent
 import com.bowoon.ui.components.ImageOverlay
@@ -202,10 +202,10 @@ fun MovieScreen(
                 LocalFirebaseLogHelper.current.sendLog(name = "DetailScreen", message = "${movieState.throwable.message}")
 
                 ConfirmDialog(
-                    title = stringResource(id = com.bowoon.movie.core.network.R.string.network_failed),
+                    title = stringResource(id = com.bowoon.surfy.core.network.R.string.network_failed),
                     message = "${movieState.throwable.message}",
-                    confirmPair = stringResource(id = com.bowoon.movie.core.ui.R.string.retry_message) to { restart() },
-                    dismissPair = stringResource(id = com.bowoon.movie.core.ui.R.string.back_message) to goToBack
+                    confirmPair = stringResource(id = com.bowoon.surfy.core.ui.R.string.retry_message) to { restart() },
+                    dismissPair = stringResource(id = com.bowoon.surfy.core.ui.R.string.back_message) to goToBack
                 )
             }
         }
@@ -244,10 +244,10 @@ fun MovieDetailComponent(
             onFavoriteClick = {
                 if (movieState.isFavorite) {
                     deleteFavoriteMovie(movieState.movie)
-                    analyticsHelper.logFavorite(isFavorite = false, contentType = "movie", media = movieState.movie)
+                    analyticsHelper.logFavorite(isFavorite = false, contentType = "surfy", media = movieState.movie)
                 } else {
                     insertFavoriteMovie(movieState.movie)
-                    analyticsHelper.logFavorite(isFavorite = true, contentType = "movie", media = movieState.movie)
+                    analyticsHelper.logFavorite(isFavorite = true, contentType = "surfy", media = movieState.movie)
                 }
                 scope.launch {
                     onShowSnackbar(favoriteMessage, null)

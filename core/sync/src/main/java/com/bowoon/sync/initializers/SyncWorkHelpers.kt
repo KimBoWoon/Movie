@@ -4,7 +4,6 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.work.Constraints
 import androidx.work.ForegroundInfo
@@ -31,7 +30,7 @@ private fun Context.syncWorkNotification(): Notification {
         "sync",
         NotificationManager.IMPORTANCE_DEFAULT,
     ).apply {
-        description = "movie data loading..."
+        description = "surfy data loading..."
     }
 
     val notificationManager: NotificationManager? =
@@ -43,7 +42,7 @@ private fun Context.syncWorkNotification(): Notification {
         this,
         SYNC_NOTIFICATION_CHANNEL_ID,
     )
-        .setSmallIcon(com.bowoon.movie.core.notifications.R.drawable.ic_launcher_round)
+        .setSmallIcon(com.bowoon.surfy.core.notifications.R.drawable.ic_launcher_round)
         .setContentTitle("MovieInfo")
         .setPriority(NotificationCompat.PRIORITY_DEFAULT)
         .build()

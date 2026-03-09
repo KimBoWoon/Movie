@@ -11,7 +11,7 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
-import com.bowoon.movie.core.ui.R
+import com.bowoon.surfy.core.ui.R
 import com.bowoon.ui.utils.dp70
 
 @Composable

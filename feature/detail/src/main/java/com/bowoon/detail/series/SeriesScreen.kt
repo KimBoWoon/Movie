@@ -18,7 +18,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bowoon.analytics.TrackScreenViewEvent
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.Series
-import com.bowoon.movie.feature.detail.R
+import com.bowoon.surfy.feature.detail.R
 import com.bowoon.ui.components.CircularProgressComponent
 import com.bowoon.ui.components.TitleComponent
 import com.bowoon.ui.components.movieSeriesListComponent
@@ -78,10 +78,10 @@ fun SeriesScreen(
                 LocalFirebaseLogHelper.current.sendLog("SeriesScreen", "Series state Error")
 
                 ConfirmDialog(
-                    title = stringResource(id = com.bowoon.movie.core.network.R.string.network_failed),
-                    message = seriesState.throwable.message ?: stringResource(id = com.bowoon.movie.core.network.R.string.something_wrong),
-                    confirmPair = stringResource(id = com.bowoon.movie.core.ui.R.string.retry_message) to { restart() },
-                    dismissPair = stringResource(id = com.bowoon.movie.core.ui.R.string.back_message) to goToBack
+                    title = stringResource(id = com.bowoon.surfy.core.network.R.string.network_failed),
+                    message = seriesState.throwable.message ?: stringResource(id = com.bowoon.surfy.core.network.R.string.something_wrong),
+                    confirmPair = stringResource(id = com.bowoon.surfy.core.ui.R.string.retry_message) to { restart() },
+                    dismissPair = stringResource(id = com.bowoon.surfy.core.ui.R.string.back_message) to goToBack
                 )
             }
         }

@@ -7,7 +7,7 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bowoon.model.LocaleOption
-import com.bowoon.model.MovieAppData
+import com.bowoon.model.SurfyAppData
 import com.bowoon.model.PosterSize
 import com.bowoon.testing.model.configurationTestData
 import com.bowoon.testing.model.genreListTestData
@@ -25,7 +25,7 @@ class SettingScreenTest {
     private lateinit var viewModel: SettingVM
     private lateinit var testUserDataRepository: TestUserDataRepository
     private lateinit var testMovieAppDataManager: TestMovieAppDataManager
-    private val movieAppData = MovieAppData(
+    private val surfyAppData = SurfyAppData(
         secureBaseUrl = configurationTestData.images?.secureBaseUrl ?: "",
         movieGenres = genreListTestData.genres ?: emptyList(),
         region = regionTestData.results?.map { LocaleOption(code = it.iso31661 ?: "", label = it.englishName ?: "", isSelected = false) }.orEmpty(),
@@ -44,7 +44,7 @@ class SettingScreenTest {
             dataManager = testMovieAppDataManager
         )
 
-        testMovieAppDataManager.setMovieAppData(movieAppData)
+        testMovieAppDataManager.setMovieAppData(surfyAppData)
     }
 
     @Test

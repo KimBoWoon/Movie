@@ -30,7 +30,7 @@ class SettingVM @Inject constructor(
     private val _uiState = MutableStateFlow(value = SettingsUiState())
     val uiState: StateFlow<SettingsUiState> = combine(
         flow = userDataRepository.internalData,
-        flow2 = dataManager.movieAppData,
+        flow2 = dataManager.surfyAppData,
         flow3 = _uiState
     ) { internalData, movieAppDataState, settingsUiState ->
         val movieAppData = movieAppDataState.getMovieAppData()

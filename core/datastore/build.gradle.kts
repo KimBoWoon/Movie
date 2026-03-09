@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.bowoon.movie.core.datastore"
+    namespace = "com.bowoon.surfy.core.datastore"
 }
 
 protobuf {

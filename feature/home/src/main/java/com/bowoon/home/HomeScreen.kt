@@ -63,7 +63,7 @@ import com.bowoon.model.Movie
 import com.bowoon.model.TrendingMovieResult
 import com.bowoon.model.TrendingPeopleResult
 import com.bowoon.model.TrendingTvResult
-import com.bowoon.movie.feature.home.R
+import com.bowoon.surfy.feature.home.R
 import com.bowoon.ui.components.CircularProgressComponent
 import com.bowoon.ui.image.DynamicAsyncImageLoader
 import com.bowoon.ui.utils.bounceClick
@@ -165,7 +165,7 @@ fun HomeScreen(
                 Log.e("${mainMenuState.throwable.message}")
                 Text(
                     modifier = Modifier.fillMaxSize(),
-                    text = mainMenuState.throwable.message ?: stringResource(id = com.bowoon.movie.core.network.R.string.something_wrong)
+                    text = mainMenuState.throwable.message ?: stringResource(id = com.bowoon.surfy.core.network.R.string.something_wrong)
                 )
             }
         }

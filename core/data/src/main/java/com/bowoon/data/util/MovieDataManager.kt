@@ -12,7 +12,7 @@ import com.bowoon.model.Configuration
 import com.bowoon.model.Genre
 import com.bowoon.model.Language
 import com.bowoon.model.LocaleOption
-import com.bowoon.model.MovieAppData
+import com.bowoon.model.SurfyAppData
 import com.bowoon.model.PosterSize
 import com.bowoon.model.Regions
 import com.bowoon.network.MovieNetworkDataSource
@@ -44,21 +44,21 @@ class MovieDataManager @Inject constructor(
     private val datastore: InternalDataSource,
     networkMonitor: NetworkMonitor
 ) : DataManager {
-    private val cached = MutableStateFlow<MovieAppDataState?>(value = null)
+    private val cached = MutableStateFlow<SurfyAppDataState?>(value = null)
     @OptIn(ExperimentalCoroutinesApi::class)
-    override val movieAppData = networkMonitor.isOnline
+    override val surfyAppData = networkMonitor.isOnline
         .distinctUntilChanged()
         .filter { it }
         .flatMapLatest { _ ->
             cached.value?.let { flowOf(value = it) } ?: loadData()
         }.onEach {
-            if (it is MovieAppDataState.Success) {
+            if (it is SurfyAppDataState.Success) {
                 cached.value = it
             }
         }.stateIn(
             scope = appScope,
             started = SharingStarted.Lazily,
-            initialValue = MovieAppDataState.Success(data = MovieAppData())
+            initialValue = SurfyAppDataState.Success(data = SurfyAppData())
         )
     private val userDataFlow = datastore.userData.distinctUntilChanged()
     override val localeFlow: Flow<Locale> =
@@ -115,7 +115,7 @@ class MovieDataManager @Inject constructor(
             .launchIn(scope = appScope)
     }
 
-    fun loadData(): Flow<MovieAppDataState> = combine(
+    fun loadData(): Flow<SurfyAppDataState> = combine(
         userDataFlow,
         configurationFlow,
         availableLanguageFlow,
@@ -125,7 +125,7 @@ class MovieDataManager @Inject constructor(
         Log.d("${configuration.images?.secureBaseUrl}${internalData.imageQuality}")
         Log.d("movieAppDataGenres -> $genresPair")
 
-        MovieAppData(
+        SurfyAppData(
             isAdult = internalData.isAdult,
             autoPlayTrailer = internalData.isAutoPlayTrailer,
             isDarkMode = internalData.isDarkMode,
@@ -150,9 +150,9 @@ class MovieDataManager @Inject constructor(
     }.asResult()
         .map { result ->
             when (result) {
-                is Result.Loading -> MovieAppDataState.Loading
-                is Result.Success -> MovieAppDataState.Success(data = result.data)
-                is Result.Error -> MovieAppDataState.Error(throwable = result.throwable)
+                is Result.Loading -> SurfyAppDataState.Loading
+                is Result.Success -> SurfyAppDataState.Success(data = result.data)
+                is Result.Error -> SurfyAppDataState.Error(throwable = result.throwable)
             }
         }.flowOn(context = ioDispatcher)
 }

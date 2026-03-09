@@ -17,27 +17,26 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
 
             extensions.configure<ApplicationExtension> {
                 defaultConfig {
-                    compileSdk = Config.Application.Movie.compileSdkVersion
-                    minSdk = Config.Application.Movie.minSdkVersion
-
-                    applicationId = Config.Application.Movie.applicationId
-                    targetSdk = Config.Application.Movie.targetSdkVersion
-                    versionName = Config.Application.Movie.versionName
-                    versionCode = Config.Application.Movie.versionCode
-                    testInstrumentationRunner = Config.ApplicationSetting.MOVIE_TEST_INSTRUMENTATION_RUNNER
+                    compileSdk = Config.Application.Surfy.compileSdkVersion
+                    minSdk = Config.Application.Surfy.minSdkVersion
+                    applicationId = Config.Application.Surfy.applicationId
+                    targetSdk = Config.Application.Surfy.targetSdkVersion
+                    versionName = Config.Application.Surfy.versionName
+                    versionCode = Config.Application.Surfy.versionCode
+                    testInstrumentationRunner = Config.ApplicationSetting.SURFY_TEST_INSTRUMENTATION_RUNNER
 
                     signingConfigs {
-                        register(Config.Application.Movie.Sign.Release.name) {
-                            storeFile = file(getProp(propertyKey = Config.Application.Movie.Sign.Release.storeFile))
-                            storePassword = getProp(propertyKey = Config.Application.Movie.Sign.Release.storePassword)
-                            keyAlias = getProp(propertyKey = Config.Application.Movie.Sign.Release.keyAlias)
-                            keyPassword = getProp(propertyKey = Config.Application.Movie.Sign.Release.keyPassword)
+                        register(Config.Application.Surfy.Sign.Release.NAME) {
+                            storeFile = file(getProp(propertyKey = Config.Application.Surfy.Sign.Release.STORE_FILE))
+                            storePassword = getProp(propertyKey = Config.Application.Surfy.Sign.Release.STORE_PASSWORD)
+                            keyAlias = getProp(propertyKey = Config.Application.Surfy.Sign.Release.KEY_ALIAS)
+                            keyPassword = getProp(propertyKey = Config.Application.Surfy.Sign.Release.KEY_PASSWORD)
                         }
-                        register(Config.Application.Movie.Sign.Debug.name) {
-                            storeFile = file(getProp(propertyKey = Config.Application.Movie.Sign.Debug.storeFile))
-                            storePassword = getProp(propertyKey = Config.Application.Movie.Sign.Debug.storePassword)
-                            keyAlias = getProp(propertyKey = Config.Application.Movie.Sign.Debug.keyAlias)
-                            keyPassword = getProp(propertyKey = Config.Application.Movie.Sign.Debug.keyPassword)
+                        register(Config.Application.Surfy.Sign.Debug.NAME) {
+                            storeFile = file(getProp(propertyKey = Config.Application.Surfy.Sign.Debug.STORE_FILE))
+                            storePassword = getProp(propertyKey = Config.Application.Surfy.Sign.Debug.STORE_PASSWORD)
+                            keyAlias = getProp(propertyKey = Config.Application.Surfy.Sign.Debug.KEY_ALIAS)
+                            keyPassword = getProp(propertyKey = Config.Application.Surfy.Sign.Debug.KEY_PASSWORD)
                         }
                     }
 
@@ -47,7 +46,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
 //                    )
                 }
 
-                namespace = Config.Application.Movie.applicationId
+                namespace = Config.Application.Surfy.applicationId
 
                 val gitHash = project.providers.exec {
                     commandLine("git", "rev-parse", "--short", "HEAD")
@@ -61,8 +60,8 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                         isJniDebuggable = true
                         buildConfigField(type = "Boolean", name = "IS_DEBUGGING_LOGGING", value = "true")
                         buildConfigField(type = "String", name = "GIT_HASH", value = "\"$gitHash\"")
-                        manifestPlaceholders["appName"] = "Movie-debug"
-                        signingConfig = signingConfigs.getByName(Config.Application.Movie.Sign.Debug.name)
+                        manifestPlaceholders["appName"] = "${Config.Application.Surfy.appName}-debug"
+                        signingConfig = signingConfigs.getByName(Config.Application.Surfy.Sign.Debug.NAME)
                     }
                     release {
                         applicationIdSuffix = AppBuildType.RELEASE.applicationIdSuffix
@@ -76,15 +75,15 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                         )
                         buildConfigField(type = "Boolean", name = "IS_DEBUGGING_LOGGING", value = "false")
                         buildConfigField(type = "String", name = "GIT_HASH", value = "\"$gitHash\"")
-                        manifestPlaceholders["appName"] = "Movie"
-                        signingConfig = signingConfigs.getByName(Config.Application.Movie.Sign.Release.name)
+                        manifestPlaceholders["appName"] = Config.Application.Surfy.appName
+                        signingConfig = signingConfigs.getByName(Config.Application.Surfy.Sign.Release.NAME)
                     }
                     create("benchmark") {
                         initWith(buildTypes.getByName("release"))
                         signingConfig = signingConfigs.getByName("debug")
                         matchingFallbacks += listOf("release")
                         isDebuggable = false
-                        manifestPlaceholders["appName"] = "Movie-Benchmark"
+                        manifestPlaceholders["appName"] = "${Config.Application.Surfy.appName}-Benchmark"
                     }
                 }
 

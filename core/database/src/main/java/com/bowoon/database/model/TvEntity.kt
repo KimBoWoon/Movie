@@ -2,6 +2,7 @@ package com.bowoon.database.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.bowoon.model.MediaType
 import com.bowoon.model.Tv
 
 @Entity(tableName = "tvs")
@@ -20,5 +21,6 @@ fun TvEntity.asExternalModel(): Tv = Tv(
     posterPath = posterPath,
     title = name,
     firstAirDate = firstAirDate,
-    lastAirDate = lastAirDate
+    lastAirDate = lastAirDate,
+    mediaType = MediaType.TV
 )

@@ -2,7 +2,7 @@ package com.bowoon.datastore
 
 import com.bowoon.datastore_test.InMemoryDataStore
 import com.bowoon.model.DarkThemeConfig
-import com.bowoon.movie.core.datastore.InternalDataPreferences
+import com.bowoon.surfy.core.datastore.InternalDataPreferences
 import com.bowoon.testing.utils.MainDispatcherRule
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest

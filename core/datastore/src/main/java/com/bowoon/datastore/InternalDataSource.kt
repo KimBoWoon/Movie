@@ -3,9 +3,9 @@ package com.bowoon.datastore
 import androidx.datastore.core.DataStore
 import com.bowoon.model.DarkThemeConfig
 import com.bowoon.model.InternalData
-import com.bowoon.movie.core.datastore.DarkThemeConfigProto
-import com.bowoon.movie.core.datastore.InternalDataPreferences
-import com.bowoon.movie.core.datastore.copy
+import com.bowoon.surfy.core.datastore.DarkThemeConfigProto
+import com.bowoon.surfy.core.datastore.InternalDataPreferences
+import com.bowoon.surfy.core.datastore.copy
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject

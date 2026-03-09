@@ -18,7 +18,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.paging.compose.LazyPagingItems
 import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.model.Media
-import com.bowoon.movie.core.ui.R
+import com.bowoon.surfy.core.ui.R
 import com.bowoon.ui.image.DynamicAsyncImageLoader
 import com.bowoon.ui.utils.dp10
 import com.bowoon.ui.utils.dp12

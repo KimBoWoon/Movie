@@ -15,9 +15,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bowoon.detail.series.SeriesScreen
 import com.bowoon.detail.series.SeriesState
 import com.bowoon.detail.series.SeriesVM
-import com.bowoon.model.MovieAppData
+import com.bowoon.model.SurfyAppData
 import com.bowoon.model.PosterSize
-import com.bowoon.movie.core.network.R
+import com.bowoon.surfy.core.network.R
 import com.bowoon.testing.model.configurationTestData
 import com.bowoon.testing.model.genreListTestData
 import com.bowoon.testing.model.languageListTestData
@@ -41,7 +41,7 @@ class SeriesScreenTest {
     private lateinit var message: String
     private lateinit var confirmString: String
     private lateinit var dismissString: String
-    private val movieAppData = MovieAppData(
+    private val surfyAppData = SurfyAppData(
         secureBaseUrl = configurationTestData.images?.secureBaseUrl ?: "",
         movieGenres = genreListTestData.genres ?: emptyList(),
         region = regionTestData.results ?: emptyList(),
@@ -62,11 +62,11 @@ class SeriesScreenTest {
         composeTestRule.activity.apply {
             this@SeriesScreenTest.title = getString(R.string.network_failed)
             this@SeriesScreenTest.message = "error test!!"
-            this@SeriesScreenTest.confirmString = getString(com.bowoon.movie.core.ui.R.string.retry_message)
-            this@SeriesScreenTest.dismissString = getString(com.bowoon.movie.core.ui.R.string.back_message)
+            this@SeriesScreenTest.confirmString = getString(com.bowoon.surfy.core.ui.R.string.retry_message)
+            this@SeriesScreenTest.dismissString = getString(com.bowoon.surfy.core.ui.R.string.back_message)
         }
         testMovieAppDataManager = TestMovieAppDataManager()
-        testMovieAppDataManager.setMovieAppData(movieAppData)
+        testMovieAppDataManager.setMovieAppData(surfyAppData)
     }
 
     @Test

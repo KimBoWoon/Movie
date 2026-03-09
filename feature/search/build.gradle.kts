@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.bowoon.movie.feature.search"
+    namespace = "com.bowoon.surfy.feature.search"
 }
 
 dependencies {

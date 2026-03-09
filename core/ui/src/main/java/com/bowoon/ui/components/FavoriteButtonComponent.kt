@@ -9,7 +9,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.util.trace
-import com.bowoon.movie.core.ui.R
+import com.bowoon.surfy.core.ui.R
 import com.bowoon.ui.utils.dp5
 
 @Composable

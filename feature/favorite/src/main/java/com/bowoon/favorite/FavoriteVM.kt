@@ -6,7 +6,7 @@ import com.bowoon.data.repository.DatabaseRepository
 import com.bowoon.model.Movie
 import com.bowoon.model.People
 import com.bowoon.model.Tv
-import com.bowoon.movie.feature.favorite.R
+import com.bowoon.surfy.feature.favorite.R
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject

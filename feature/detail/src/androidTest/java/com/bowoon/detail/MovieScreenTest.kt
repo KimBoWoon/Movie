@@ -25,7 +25,7 @@ import com.bowoon.detail.movie.MovieState
 import com.bowoon.domain.GetMovieDetailUseCase
 import com.bowoon.model.Genre
 import com.bowoon.model.Movie
-import com.bowoon.model.MovieAppData
+import com.bowoon.model.SurfyAppData
 import com.bowoon.model.PosterSize
 import com.bowoon.testing.TestMovieDataSource
 import com.bowoon.testing.model.configurationTestData
@@ -60,7 +60,7 @@ class MovieScreenTest {
     private lateinit var testDetailRepository: TestDetailRepository
     private lateinit var testPagingRepository: TestPagingRepository
     private lateinit var testMovieAppDataManager: TestMovieAppDataManager
-    private val movieAppData = MovieAppData(
+    private val surfyAppData = SurfyAppData(
         secureBaseUrl = configurationTestData.images?.secureBaseUrl ?: "",
         movieGenres = genreListTestData.genres ?: emptyList(),
         region = regionTestData.results ?: emptyList(),
@@ -95,7 +95,7 @@ class MovieScreenTest {
         )
 
         runBlocking {
-            testMovieAppDataManager.setMovieAppData(movieAppData)
+            testMovieAppDataManager.setMovieAppData(surfyAppData)
         }
     }
 

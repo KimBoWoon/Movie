@@ -3,7 +3,7 @@ package com.bowoon.datastore_test
 import androidx.datastore.core.DataStore
 import com.bowoon.datastore.di.DataStoreModule
 import com.bowoon.datastore.protobuf.InternalDataPreferencesSerializer
-import com.bowoon.movie.core.datastore.InternalDataPreferences
+import com.bowoon.surfy.core.datastore.InternalDataPreferences
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.components.SingletonComponent

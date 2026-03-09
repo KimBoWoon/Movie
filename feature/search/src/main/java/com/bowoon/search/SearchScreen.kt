@@ -79,10 +79,10 @@ import com.bowoon.data.util.POSTER_IMAGE_RATIO
 import com.bowoon.firebase.LocalFirebaseLogHelper
 import com.bowoon.model.Genre
 import com.bowoon.model.Media
-import com.bowoon.model.MovieAppData
+import com.bowoon.model.SurfyAppData
 import com.bowoon.model.SearchKeyword
 import com.bowoon.model.SearchType
-import com.bowoon.movie.feature.search.R
+import com.bowoon.surfy.feature.search.R
 import com.bowoon.ui.components.CircularProgressComponent
 import com.bowoon.ui.components.FilterChipComponent
 import com.bowoon.ui.components.PagingAppendErrorComponent
@@ -124,7 +124,7 @@ fun SearchScreen(
     val searchType by viewModel.searchType.collectAsStateWithLifecycle()
     val recommendKeyword = viewModel.recommendKeywordPaging.collectAsLazyPagingItems()
     val inputKeyword = stringResource(id = R.string.input_keyword)
-    val movieAppData by viewModel.movieAppData.collectAsStateWithLifecycle()
+    val movieAppData by viewModel.surfyAppData.collectAsStateWithLifecycle()
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val query by viewModel.query.collectAsStateWithLifecycle()
 
@@ -139,7 +139,7 @@ fun SearchScreen(
         recommendKeyword = recommendKeyword,
         query = query,
         searchType = searchType,
-        movieAppData = movieAppData,
+        surfyAppData = movieAppData,
         selectedGenre = selectedGenre,
         goToMovie = goToMovie,
         goToTv = goToTv,
@@ -158,7 +158,7 @@ fun SearchScreen(
     recommendKeyword: LazyPagingItems<SearchKeyword>,
     query: TextFieldValue,
     searchType: SearchType,
-    movieAppData: MovieAppData,
+    surfyAppData: SurfyAppData,
     selectedGenre: Genre?,
     goToMovie: (Int) -> Unit,
     goToTv: (Int) -> Unit,
@@ -205,7 +205,7 @@ fun SearchScreen(
                 goToTv = goToTv,
                 goToPeople = goToPeople,
                 goToSeries = goToSeries,
-                movieAppData = movieAppData,
+                surfyAppData = surfyAppData,
                 selectedGenre = selectedGenre,
                 updateGenre = updateGenre
             )
@@ -416,7 +416,7 @@ fun SearchResultComponent(
     goToTv: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     goToSeries: (Int) -> Unit,
-    movieAppData: MovieAppData,
+    surfyAppData: SurfyAppData,
     selectedGenre: Genre?,
     updateGenre: (Genre) -> Unit,
 ) {
@@ -439,10 +439,10 @@ fun SearchResultComponent(
                     CircularProgressComponent()
                 } else if (pagingData.loadState.refresh is LoadState.Error) {
                     ConfirmDialog(
-                        title = stringResource(id = com.bowoon.movie.core.network.R.string.network_failed),
-                        message = (pagingData.loadState.refresh as? LoadState.Error)?.error?.message ?: stringResource(id = com.bowoon.movie.core.network.R.string.something_wrong),
-                        confirmPair = stringResource(id = com.bowoon.movie.core.ui.R.string.retry_message) to { pagingData.retry() },
-                        dismissPair = stringResource(id = com.bowoon.movie.core.ui.R.string.confirm_message) to {}
+                        title = stringResource(id = com.bowoon.surfy.core.network.R.string.network_failed),
+                        message = (pagingData.loadState.refresh as? LoadState.Error)?.error?.message ?: stringResource(id = com.bowoon.surfy.core.network.R.string.something_wrong),
+                        confirmPair = stringResource(id = com.bowoon.surfy.core.ui.R.string.retry_message) to { pagingData.retry() },
+                        dismissPair = stringResource(id = com.bowoon.surfy.core.ui.R.string.confirm_message) to {}
                     )
                 } else if (pagingData.loadState.refresh is LoadState.NotLoading) {
                     if (pagingData.itemCount == 0) {
@@ -456,7 +456,7 @@ fun SearchResultComponent(
                             pagingData = pagingData,
                             scrollState = scrollState,
                             searchType = searchType,
-                            movieAppData = movieAppData,
+                            surfyAppData = surfyAppData,
                             selectedGenre = selectedGenre,
                             updateGenre = updateGenre,
                             goToMovie = goToMovie,
@@ -468,12 +468,12 @@ fun SearchResultComponent(
                 }
             }
             is SearchUiState.Error -> {
-                LocalFirebaseLogHelper.current.sendLog("SearchResultPaging", searchUiState.throwable.message ?: stringResource(com.bowoon.movie.core.network.R.string.something_wrong))
+                LocalFirebaseLogHelper.current.sendLog("SearchResultPaging", searchUiState.throwable.message ?: stringResource(com.bowoon.surfy.core.network.R.string.something_wrong))
 
                 ConfirmDialog(
-                    title = stringResource(id = com.bowoon.movie.core.network.R.string.network_failed),
-                    message = searchUiState.throwable.message ?: stringResource(id = com.bowoon.movie.core.network.R.string.something_wrong),
-                    confirmPair = stringResource(id = com.bowoon.movie.core.ui.R.string.confirm_message) to {}
+                    title = stringResource(id = com.bowoon.surfy.core.network.R.string.network_failed),
+                    message = searchUiState.throwable.message ?: stringResource(id = com.bowoon.surfy.core.network.R.string.something_wrong),
+                    confirmPair = stringResource(id = com.bowoon.surfy.core.ui.R.string.confirm_message) to {}
                 )
             }
         }
@@ -485,7 +485,7 @@ fun SearchPagingComponent(
     pagingData: LazyPagingItems<Media>,
     scrollState: LazyGridState,
     searchType: SearchType,
-    movieAppData: MovieAppData,
+    surfyAppData: SurfyAppData,
     selectedGenre: Genre?,
     updateGenre: (Genre) -> Unit,
     goToMovie: (Int) -> Unit,
@@ -500,7 +500,7 @@ fun SearchPagingComponent(
     ) {
         MovieFilterRowComponent(
             searchType = searchType,
-            movieAppData = movieAppData,
+            surfyAppData = surfyAppData,
             selectedGenre = selectedGenre,
             updateGenre = updateGenre
         )
@@ -634,7 +634,7 @@ fun RecommendKeywordComponent(
 @Composable
 fun MovieFilterRowComponent(
     searchType: SearchType,
-    movieAppData: MovieAppData,
+    surfyAppData: SurfyAppData,
     selectedGenre: Genre?,
     updateGenre: (Genre) -> Unit
 ) {
@@ -647,7 +647,7 @@ fun MovieFilterRowComponent(
             horizontalArrangement = Arrangement.spacedBy(space = dp10)
         ) {
             items(
-                items = if (searchType == SearchType.MOVIE) movieAppData.movieGenres else if (searchType == SearchType.TV) movieAppData.tvGenres else emptyList(),
+                items = if (searchType == SearchType.MOVIE) surfyAppData.movieGenres else if (searchType == SearchType.TV) surfyAppData.tvGenres else emptyList(),
                 key = { it.id ?: -1 }
             ) { genre ->
                 genre.name?.let { name ->

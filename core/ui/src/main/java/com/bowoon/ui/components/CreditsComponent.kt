@@ -23,7 +23,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.bowoon.model.Credits
-import com.bowoon.movie.core.ui.R
+import com.bowoon.surfy.core.ui.R
 import com.bowoon.ui.image.DynamicAsyncImageLoader
 import com.bowoon.ui.utils.bounceClick
 import com.bowoon.ui.utils.dp12

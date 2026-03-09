@@ -297,7 +297,7 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 @Composable
-fun MovieTheme(
+fun SurfyTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
@@ -315,7 +315,7 @@ fun MovieTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = MovieAppTypography,
+        typography = SurfyAppTypography,
         content = content
     )
 }

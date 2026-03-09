@@ -50,7 +50,7 @@ android {
 //        create("prod") { dimension = "contentType" }
 //    }
 
-    targetProjectPath = ":app"
+    targetProjectPath = ":surfy"
     experimentalProperties["android.experimental.self-instrumenting"] = true
 }
 

@@ -8,7 +8,7 @@ import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
-import com.bowoon.movie.core.ui.R
+import com.bowoon.surfy.core.ui.R
 import com.bowoon.ui.components.ExternalIdLinkComponent
 import org.junit.Rule
 import org.junit.Test

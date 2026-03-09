@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.bowoon.movie.core.network"
+    namespace = "com.bowoon.surfy.core.network"
 
     defaultConfig {
         buildConfigField("String", "TMDB_OPEN_API_KEY", "\"${Config.getProp("tmdb_open_api_key")}\"")

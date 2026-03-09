@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.bowoon.movie.core.data"
+    namespace = "com.bowoon.surfy.core.data"
 
     testOptions {
         unitTests {

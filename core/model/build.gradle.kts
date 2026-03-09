@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "com.bowoon.movie.core.model"
+    namespace = "com.bowoon.surfy.core.model"
 }
 
 dependencies {

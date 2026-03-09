@@ -8,7 +8,7 @@ import com.bowoon.common.Dispatcher
 import com.bowoon.common.Dispatchers
 import com.bowoon.common.di.ApplicationScope
 import com.bowoon.datastore.protobuf.InternalDataPreferencesSerializer
-import com.bowoon.movie.core.datastore.InternalDataPreferences
+import com.bowoon.surfy.core.datastore.InternalDataPreferences
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -32,6 +32,6 @@ object DataStoreModule {
         serializer = serializer,
         scope = CoroutineScope(context = scope.coroutineContext + ioDispatcher),
         migrations = listOf(),
-        produceFile = { context.preferencesDataStoreFile(name = "movie") }
+        produceFile = { context.preferencesDataStoreFile(name = "surfy") }
     )
 }

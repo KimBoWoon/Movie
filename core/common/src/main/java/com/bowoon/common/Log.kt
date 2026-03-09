@@ -1,10 +1,10 @@
 package com.bowoon.common
 
-import com.bowoon.movie.core.common.BuildConfig
+import com.bowoon.surfy.core.common.BuildConfig
 
 object Log {
     private val IS_SHOWING = BuildConfig.IS_DEBUGGING_LOGGING
-    private const val PREFIX = "movie_"
+    private const val PREFIX = "surfy_"
 
     fun i(tag: String, msg: String) {
         if (IS_SHOWING) android.util.Log.i("$PREFIX$tag", getMessageWithLineNumber(msg))

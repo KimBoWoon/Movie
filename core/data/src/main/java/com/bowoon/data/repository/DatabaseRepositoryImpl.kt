@@ -13,7 +13,7 @@ import com.bowoon.database.model.asExternalModel
 import com.bowoon.model.Movie
 import com.bowoon.model.People
 import com.bowoon.model.Tv
-import com.bowoon.movie.core.data.BuildConfig
+import com.bowoon.surfy.core.data.BuildConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow

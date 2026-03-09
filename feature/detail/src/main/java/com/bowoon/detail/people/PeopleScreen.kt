@@ -55,7 +55,7 @@ import com.bowoon.model.Image
 import com.bowoon.model.MediaType
 import com.bowoon.model.People
 import com.bowoon.model.getRelatedMovie
-import com.bowoon.movie.feature.detail.R
+import com.bowoon.surfy.feature.detail.R
 import com.bowoon.ui.components.CircularProgressComponent
 import com.bowoon.ui.components.ExternalIdLinkComponent
 import com.bowoon.ui.components.FavoriteButtonComponent
@@ -134,10 +134,10 @@ fun PeopleScreen(
             is PeopleState.Error -> {
                 Log.e("${peopleState.throwable.message}")
                 ConfirmDialog(
-                    title = stringResource(id = com.bowoon.movie.core.network.R.string.network_failed),
+                    title = stringResource(id = com.bowoon.surfy.core.network.R.string.network_failed),
                     message = "${peopleState.throwable.message}",
-                    confirmPair = stringResource(id = com.bowoon.movie.core.ui.R.string.retry_message) to { restart() },
-                    dismissPair = stringResource(id = com.bowoon.movie.core.ui.R.string.back_message) to goToBack
+                    confirmPair = stringResource(id = com.bowoon.surfy.core.ui.R.string.retry_message) to { restart() },
+                    dismissPair = stringResource(id = com.bowoon.surfy.core.ui.R.string.back_message) to goToBack
                 )
             }
         }
@@ -295,9 +295,9 @@ fun ProfileComponent(
                 onClick = {
                     onFavorite()
                     if (people.isFavorite) {
-                        analyticsHelper.logFavorite(isFavorite = false, contentType = "movie", media = people.people)
+                        analyticsHelper.logFavorite(isFavorite = false, contentType = "surfy", media = people.people)
                     } else {
-                        analyticsHelper.logFavorite(isFavorite = true, contentType = "movie", media = people.people)
+                        analyticsHelper.logFavorite(isFavorite = true, contentType = "surfy", media = people.people)
                     }
                 }
             )
@@ -365,42 +365,42 @@ fun ExternalIdLinkComponent(people: People) {
         people.externalIds?.wikidataId?.let {
             ExternalIdLinkComponent(
                 link = "https://www.wikidata.org/wiki/$it",
-                resourceId = com.bowoon.movie.core.ui.R.drawable.ic_wiki,
+                resourceId = com.bowoon.surfy.core.ui.R.drawable.ic_wiki,
                 contentDescription = "wikidataId"
             )
         }
         people.externalIds?.facebookId?.takeIf { it.isNotEmpty() }?.let {
             ExternalIdLinkComponent(
                 link = "https://www.facebook.com/$it",
-                resourceId = com.bowoon.movie.core.ui.R.drawable.ic_facebook,
+                resourceId = com.bowoon.surfy.core.ui.R.drawable.ic_facebook,
                 contentDescription = "facebookId"
             )
         }
         people.externalIds?.twitterId?.takeIf { it.isNotEmpty() }?.let {
             ExternalIdLinkComponent(
                 link = "https://x.com/$it",
-                resourceId = com.bowoon.movie.core.ui.R.drawable.ic_twitter,
+                resourceId = com.bowoon.surfy.core.ui.R.drawable.ic_twitter,
                 contentDescription = "twitterId"
             )
         }
         people.externalIds?.tiktokId?.takeIf { it.isNotEmpty() }?.let {
             ExternalIdLinkComponent(
                 link = "https://www.tiktok.com/@$it",
-                resourceId = com.bowoon.movie.core.ui.R.drawable.ic_tiktok,
+                resourceId = com.bowoon.surfy.core.ui.R.drawable.ic_tiktok,
                 contentDescription = "tiktokId"
             )
         }
         people.externalIds?.instagramId?.takeIf { it.isNotEmpty() }?.let {
             ExternalIdLinkComponent(
                 link = "https://www.instagram.com/$it/",
-                resourceId = com.bowoon.movie.core.ui.R.drawable.ic_instagram,
+                resourceId = com.bowoon.surfy.core.ui.R.drawable.ic_instagram,
                 contentDescription = "instagramId"
             )
         }
         people.externalIds?.youtubeId?.takeIf { it.isNotEmpty() }?.let {
             ExternalIdLinkComponent(
                 link = "https://www.youtube.com/$it",
-                resourceId = com.bowoon.movie.core.ui.R.drawable.ic_youtube,
+                resourceId = com.bowoon.surfy.core.ui.R.drawable.ic_youtube,
                 contentDescription = "youtubeId"
             )
         }

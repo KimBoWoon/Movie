@@ -2,6 +2,7 @@ package com.bowoon.database.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.bowoon.model.MediaType
 import com.bowoon.model.Movie
 
 @Entity(tableName = "movies")
@@ -18,5 +19,6 @@ fun MovieEntity.asExternalModel(): Movie = Movie(
     id = id,
     posterPath = posterPath,
     title = title,
-    releaseDate = releaseDate
+    releaseDate = releaseDate,
+    mediaType = MediaType.MOVIE
 )
