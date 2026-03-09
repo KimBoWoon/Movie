@@ -41,7 +41,7 @@ jobs:
           echo "${{ secrets.LOCAL_PROPERTIES }}" > ./sign/local.properties
       - name: Create google-services.json
         run: |
-          echo "$GOOGLE_SERVICES_JSON" > ./app/google-services.json
+          echo "$GOOGLE_SERVICES_JSON" > ./surfy/google-services.json
       - name: build release
         run: ./gradlew assembleProdRelease
       - name: Generate Release Notes
@@ -65,4 +65,4 @@ jobs:
           serviceCredentialsFileContent: ${{ secrets.CREDENTIAL_FILE_CONTENT }}
           releaseNotes: ${{ steps.release_notes.outputs.notes }}
           groups: SurfyTester
-          file: ./app/build/outputs/apk/prod/release/app-prod-release.apk
+          file: ./surfy/build/outputs/apk/prod/release/app-prod-release.apk
