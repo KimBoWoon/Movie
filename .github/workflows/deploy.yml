@@ -65,4 +65,4 @@ jobs:
           serviceCredentialsFileContent: ${{ secrets.CREDENTIAL_FILE_CONTENT }}
           releaseNotes: ${{ steps.release_notes.outputs.notes }}
           groups: SurfyTester
-          file: ./surfy/build/outputs/apk/prod/release/app-prod-release.apk
+          file: ./surfy/build/outputs/apk/prod/release/surfy-prod-release.apk
