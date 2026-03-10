@@ -1,9 +1,9 @@
 import com.android.build.api.dsl.ApplicationExtension
-import com.bowoon.convention.AppBuildType
-import com.bowoon.convention.Config
-import com.bowoon.convention.Config.getProp
-import com.bowoon.convention.configureKotlinAndroid
-import com.bowoon.convention.libs
+import com.cheeke.convention.AppBuildType
+import com.cheeke.convention.Config
+import com.cheeke.convention.Config.getProp
+import com.cheeke.convention.configureKotlinAndroid
+import com.cheeke.convention.libs
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.apply

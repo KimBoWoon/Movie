@@ -1,0 +1,109 @@
+package com.cheeke.surfy.network.model
+
+import com.cheeke.surfy.model.Image
+import com.cheeke.surfy.model.People
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class NetworkTMDBPeopleDetail(
+    @SerialName("adult")
+    val adult: Boolean? = null,
+    @SerialName("also_known_as")
+    val alsoKnownAs: List<String>? = null,
+    @SerialName("biography")
+    val biography: String? = null,
+    @SerialName("birthday")
+    val birthday: String? = null,
+    @SerialName("deathday")
+    val deathday: String? = null,
+    @SerialName("gender")
+    val gender: Int? = null,
+    @SerialName("homepage")
+    val homepage: String? = null,
+    @SerialName("id")
+    val id: Int? = null,
+    @SerialName("images")
+    val images: NetworkTMDBPeopleImages? = null,
+    @SerialName("imdb_id")
+    val imdbId: String? = null,
+    @SerialName("known_for_department")
+    val knownForDepartment: String? = null,
+    @SerialName("name")
+    val name: String? = null,
+    @SerialName("place_of_birth")
+    val placeOfBirth: String? = null,
+    @SerialName("popularity")
+    val popularity: Double? = null,
+    @SerialName("profile_path")
+    val profilePath: String? = null
+)
+
+@Serializable
+data class NetworkTMDBPeopleImages(
+    @SerialName("profiles")
+    val profiles: List<NetworkTMDBPeopleProfile>? = null
+)
+
+@Serializable
+data class NetworkTMDBPeopleProfile(
+    @SerialName("aspect_ratio")
+    val aspectRatio: Double? = null,
+    @SerialName("file_path")
+    val filePath: String? = null,
+    @SerialName("height")
+    val height: Int? = null,
+    @SerialName("iso_639_1")
+    val iso6391: String? = null,
+    @SerialName("vote_average")
+    val voteAverage: Float? = null,
+    @SerialName("vote_count")
+    val voteCount: Int? = null,
+    @SerialName("width")
+    val width: Int? = null
+)
+
+fun NetworkTMDBPeopleDetail.asExternalModel(): People =
+    People(
+        adult = adult,
+        alsoKnownAs = alsoKnownAs,
+        biography = biography,
+        birthday = birthday,
+        deathday = deathday,
+        gender = gender,
+        homepage = homepage,
+        id = id,
+        images = images?.asExternalModel(),
+        imdbId = imdbId,
+        knownForDepartment = knownForDepartment,
+        title = name,
+        placeOfBirth = placeOfBirth,
+        popularity = popularity,
+        posterPath = profilePath
+    )
+
+fun NetworkTMDBPeopleImages.asExternalModel(): List<Image> =
+    profiles?.map {
+        Image(
+            aspectRatio = it.aspectRatio,
+            filePath = it.filePath,
+            height = it.height,
+            iso6391 = it.iso6391,
+            voteAverage = it.voteAverage,
+            voteCount = it.voteCount,
+            width = it.width
+        )
+    } ?: emptyList()
+
+fun List<NetworkTMDBPeopleProfile>.asExternalModel(): List<Image> =
+    map {
+        Image(
+            aspectRatio = it.aspectRatio,
+            filePath = it.filePath,
+            height = it.height,
+            iso6391 = it.iso6391,
+            voteAverage = it.voteAverage,
+            voteCount = it.voteCount,
+            width = it.width
+        )
+    }

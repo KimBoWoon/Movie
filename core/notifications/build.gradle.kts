@@ -1,10 +1,10 @@
 plugins {
-    alias(libs.plugins.bowoon.android.library)
-    alias(libs.plugins.bowoon.hilt)
+    alias(libs.plugins.cheeke.android.library)
+    alias(libs.plugins.cheeke.hilt)
 }
 
 android {
-    namespace = "com.bowoon.surfy.core.notifications"
+    namespace = "com.cheeke.surfy.core.notifications"
 }
 
 dependencies {

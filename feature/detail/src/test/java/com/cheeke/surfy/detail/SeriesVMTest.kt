@@ -1,0 +1,56 @@
+package com.cheeke.surfy.detail
+
+import com.cheeke.surfy.detail.series.SeriesState
+import com.cheeke.surfy.detail.series.SeriesVM
+import com.cheeke.surfy.testing.model.movieSeriesTestData
+import com.cheeke.surfy.testing.repository.TestDetailRepository
+import com.cheeke.surfy.testing.utils.MainDispatcherRule
+import com.cheeke.surfy.testing.utils.TestAnalyticsHelper
+import com.cheeke.surfy.testing.utils.TestMovieAppDataManager
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertEquals
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+
+@RunWith(RobolectricTestRunner::class)
+class SeriesVMTest {
+    @get:Rule
+    val mainDispatcherRule = MainDispatcherRule()
+    private lateinit var testDetailRepository: TestDetailRepository
+    private lateinit var testMovieAppDataManager: TestMovieAppDataManager
+    private lateinit var testAnalyticsHelper: TestAnalyticsHelper
+    private lateinit var seriesVM: SeriesVM
+
+    @Before
+    fun setup() {
+        testDetailRepository = TestDetailRepository()
+        testMovieAppDataManager = TestMovieAppDataManager()
+        testAnalyticsHelper = TestAnalyticsHelper()
+
+        seriesVM = SeriesVM(
+            id = 0,
+            detailRepository = testDetailRepository,
+            analyticsHelper = testAnalyticsHelper
+        )
+    }
+
+    @Test
+    fun getSeriesTest() = runTest {
+        backgroundScope.launch(UnconfinedTestDispatcher()) { seriesVM.series.collect() }
+
+        assertEquals(SeriesState.Loading, seriesVM.series.value)
+
+        testDetailRepository.setMovieSeries(movieSeriesTestData)
+
+        assertEquals(
+            SeriesState.Success(movieSeriesTestData),
+            seriesVM.series.value
+        )
+    }
+}

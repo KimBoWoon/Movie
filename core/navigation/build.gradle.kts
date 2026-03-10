@@ -1,11 +1,11 @@
 plugins {
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.bowoon.android.library)
-    alias(libs.plugins.bowoon.android.library.compose)
+    alias(libs.plugins.cheeke.android.library)
+    alias(libs.plugins.cheeke.android.library.compose)
 }
 
 android {
-    namespace = "com.bowoon.surfy.core.navigation"
+    namespace = "com.cheeke.surfy.core.navigation"
 }
 
 dependencies {

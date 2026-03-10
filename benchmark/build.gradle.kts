@@ -1,12 +1,12 @@
-import com.bowoon.convention.configureFlavors
+import com.cheeke.convention.configureFlavors
 
 plugins {
     alias(libs.plugins.android.test)
-    alias(libs.plugins.bowoon.android.test)
+    alias(libs.plugins.cheeke.android.test)
 }
 
 android {
-    namespace = "com.bowoon.benchmark"
+    namespace = "com.cheeke.benchmark"
     compileSdk {
         version = release(36)
     }

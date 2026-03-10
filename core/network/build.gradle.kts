@@ -1,12 +1,12 @@
-import com.bowoon.convention.Config
+import com.cheeke.convention.Config
 
 plugins {
-    alias(libs.plugins.bowoon.android.library)
-    alias(libs.plugins.bowoon.hilt)
+    alias(libs.plugins.cheeke.android.library)
+    alias(libs.plugins.cheeke.hilt)
 }
 
 android {
-    namespace = "com.bowoon.surfy.core.network"
+    namespace = "com.cheeke.surfy.core.network"
 
     defaultConfig {
         buildConfigField("String", "TMDB_OPEN_API_KEY", "\"${Config.getProp("tmdb_open_api_key")}\"")

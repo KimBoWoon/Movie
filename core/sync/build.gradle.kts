@@ -1,10 +1,10 @@
 plugins {
-    alias(libs.plugins.bowoon.android.library)
-    alias(libs.plugins.bowoon.hilt)
+    alias(libs.plugins.cheeke.android.library)
+    alias(libs.plugins.cheeke.hilt)
 }
 
 android {
-    namespace = "com.bowoon.surfy.core.sync"
+    namespace = "com.cheeke.surfy.core.sync"
 }
 
 dependencies {

@@ -259,15 +259,15 @@ room = { id = "androidx.room", version.ref = "room" }
 protobuf = { id = "com.google.protobuf", version.ref = "protobufPlugin" }
 
 # Plugins defined by this project
-bowoon-android-application = { id = "bowoon.android.application" }
-bowoon-android-application-compose = { id = "bowoon.android.application.compose" }
-bowoon-android-application-firebase = { id = "bowoon.android.application.firebase" }
-bowoon-android-application-flavors = { id = "bowoon.android.application.flavors" }
-bowoon-android-feature = { id = "bowoon.android.feature" }
-bowoon-android-library = { id = "bowoon.android.library" }
-bowoon-android-library-compose = { id = "bowoon.android.library.compose" }
-bowoon-android-room = { id = "bowoon.android.room" }
-bowoon-hilt = { id = "bowoon.hilt" }
-bowoon-jvm-library = { id = "bowoon.jvm.library" }
-bowoon-android-test = { id = "nowinandroid.android.test" }
+cheeke-android-application = { id = "cheeke.android.application" }
+cheeke-android-application-compose = { id = "cheeke.android.application.compose" }
+cheeke-android-application-firebase = { id = "cheeke.android.application.firebase" }
+cheeke-android-application-flavors = { id = "cheeke.android.application.flavors" }
+cheeke-android-feature = { id = "cheeke.android.feature" }
+cheeke-android-library = { id = "cheeke.android.library" }
+cheeke-android-library-compose = { id = "cheeke.android.library.compose" }
+cheeke-android-room = { id = "cheeke.android.room" }
+cheeke-hilt = { id = "cheeke.hilt" }
+cheeke-jvm-library = { id = "cheeke.jvm.library" }
+cheeke-android-test = { id = "nowinandroid.android.test" }
 android-test = { id = "com.android.test", version.ref = "agp" }

@@ -1,11 +1,11 @@
 plugins {
-    alias(libs.plugins.bowoon.android.library)
-    alias(libs.plugins.bowoon.android.library.compose)
-    alias(libs.plugins.bowoon.android.feature)
+    alias(libs.plugins.cheeke.android.library)
+    alias(libs.plugins.cheeke.android.library.compose)
+    alias(libs.plugins.cheeke.android.feature)
 }
 
 android {
-    namespace = "com.bowoon.surfy.feature.search"
+    namespace = "com.cheeke.surfy.feature.search"
 }
 
 dependencies {

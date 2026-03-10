@@ -1,11 +1,11 @@
 plugins {
-    alias(libs.plugins.bowoon.android.library)
-    alias(libs.plugins.bowoon.hilt)
+    alias(libs.plugins.cheeke.android.library)
+    alias(libs.plugins.cheeke.hilt)
     alias(libs.plugins.protobuf)
 }
 
 android {
-    namespace = "com.bowoon.surfy.core.datastore"
+    namespace = "com.cheeke.surfy.core.datastore"
 }
 
 protobuf {

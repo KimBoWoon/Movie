@@ -1,6 +1,6 @@
 import com.android.build.api.dsl.LibraryExtension
-import com.bowoon.convention.configureGradleManagedDevices
-import com.bowoon.convention.libs
+import com.cheeke.convention.configureGradleManagedDevices
+import com.cheeke.convention.libs
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.apply
@@ -10,8 +10,8 @@ import org.gradle.kotlin.dsl.dependencies
 class AndroidFeatureConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(receiver = target) {
-            apply(plugin = "bowoon.android.library")
-            apply(plugin = "bowoon.hilt")
+            apply(plugin = "cheeke.android.library")
+            apply(plugin = "cheeke.hilt")
             apply(plugin = "org.jetbrains.kotlin.plugin.serialization")
 
             extensions.configure<LibraryExtension> {

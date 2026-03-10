@@ -1,0 +1,34 @@
+package com.cheeke.surfy.data.paging
+
+import androidx.paging.PagingSource
+import androidx.paging.PagingState
+import com.cheeke.surfy.common.Log
+import com.cheeke.surfy.model.TrendingMovieResult
+import com.cheeke.surfy.network.MovieNetworkDataSource
+import javax.inject.Inject
+
+class TrendingMoviePagingSource @Inject constructor(
+    private val apis: MovieNetworkDataSource,
+    private val timeWindow: String,
+    private val language: String
+) : PagingSource<Int, TrendingMovieResult>() {
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, TrendingMovieResult> =
+        runCatching {
+            val response = apis.getTrendingMovie(timeWindow = timeWindow, language = language, page = params.key ?: 1)
+
+            LoadResult.Page(
+                data = response.results ?: emptyList(),
+                prevKey = null,
+                nextKey = if ((response.totalPages ?: 1) > (params.key ?: 1)) (params.key ?: 1) + 1 else null
+            )
+        }.getOrElse { e ->
+            Log.printStackTrace(e)
+            LoadResult.Error(e)
+        }
+
+    override fun getRefreshKey(state: PagingState<Int, TrendingMovieResult>): Int? =
+        state.anchorPosition?.let { anchorPosition ->
+            val anchorPage = state.closestPageToPosition(anchorPosition)
+            anchorPage?.prevKey ?: anchorPage?.nextKey
+        }
+}

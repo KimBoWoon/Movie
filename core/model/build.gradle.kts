@@ -1,9 +1,9 @@
 plugins {
-    alias(libs.plugins.bowoon.android.library)
+    alias(libs.plugins.cheeke.android.library)
 }
 
 android {
-    namespace = "com.bowoon.surfy.core.model"
+    namespace = "com.cheeke.surfy.core.model"
 }
 
 dependencies {

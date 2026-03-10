@@ -1,9 +1,9 @@
 plugins {
-    alias(libs.plugins.bowoon.android.application)
-    alias(libs.plugins.bowoon.android.application.compose)
-    alias(libs.plugins.bowoon.hilt)
-    alias(libs.plugins.bowoon.android.application.firebase)
-    alias(libs.plugins.bowoon.android.application.flavors)
+    alias(libs.plugins.cheeke.android.application)
+    alias(libs.plugins.cheeke.android.application.compose)
+    alias(libs.plugins.cheeke.hilt)
+    alias(libs.plugins.cheeke.android.application.firebase)
+    alias(libs.plugins.cheeke.android.application.flavors)
 }
 
 dependencies {

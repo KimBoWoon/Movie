@@ -5,7 +5,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:name=".SurfyApplication"
+        android:name="com.cheeke.surfy.SurfyApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -20,7 +20,7 @@
             tools:targetApi="29" />
 
         <activity
-            android:name=".ui.activities.MainActivity"
+            android:name="com.cheeke.surfy.ui.activities.MainActivity"
             android:exported="true"
             android:label="${appName}"
             android:launchMode="singleTask"
@@ -46,7 +46,7 @@
         </activity>
 
         <service
-            android:name=".service.MovieFCMService"
+            android:name="com.cheeke.surfy.service.MovieFCMService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
@@ -59,7 +59,7 @@
             android:exported="false"
             tools:node="merge">
             <meta-data
-                android:name="com.bowoon.surfy.startup.AppInitializer"
+                android:name="com.cheeke.surfy.startup.AppInitializer"
                 android:value="androidx.startup" />
             <meta-data
                 android:name="androidx.work.WorkManagerInitializer"
