@@ -1,7 +1,7 @@
 package com.cheeke.surfy.testing.utils
 
-import com.bowoon.analytics.AnalyticsEvent
-import com.bowoon.analytics.AnalyticsHelper
+import com.cheeke.surfy.analytics.AnalyticsEvent
+import com.cheeke.surfy.analytics.AnalyticsHelper
 
 class TestAnalyticsHelper : AnalyticsHelper {
     private val events = mutableListOf<AnalyticsEvent>()
