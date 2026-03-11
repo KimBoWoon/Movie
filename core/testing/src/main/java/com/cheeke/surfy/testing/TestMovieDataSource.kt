@@ -66,6 +66,13 @@ class TestMovieDataSource : MovieNetworkDataSource {
         page: Int
     ): List<Movie> = upcomingMoviesTestData
 
+    override suspend fun searchMulti(
+        query: String,
+        includeAdult: Boolean,
+        language: String,
+        page: Int
+    ): SearchData = movieSearchTestData
+
     override suspend fun searchMovies(
         query: String,
         includeAdult: Boolean,

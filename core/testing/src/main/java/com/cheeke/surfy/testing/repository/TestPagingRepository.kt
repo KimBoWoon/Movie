@@ -34,7 +34,10 @@ class TestPagingRepository : PagingRepository {
     @SuppressLint("VisibleForTests")
     override fun getSearchPagingSource(
         type: SearchType,
-        query: String
+        query: String,
+        language: String,
+        region: String,
+        isAdult: Boolean
     ): PagingSource<Int, Media> {
         return (0..100).map {
             Movie(

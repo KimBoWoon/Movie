@@ -29,7 +29,9 @@ class PagingRepositoryTest {
             apis = movieApis,
             type = SearchType.MOVIE,
             query = "미션",
-            userDataRepository = testUserDataRepository
+            language = "ko-KR",
+            region = "KR",
+            isAdult = true,
         )
 
         val a: PagingSource.LoadResult<Int, Media> = PagingSource.LoadResult.Page(
@@ -57,7 +59,9 @@ class PagingRepositoryTest {
             apis = movieApis,
             type = SearchType.PEOPLE,
             query = "톰 크루즈",
-            userDataRepository = testUserDataRepository
+            language = "ko-KR",
+            region = "KR",
+            isAdult = true
         )
 
         val a: PagingSource.LoadResult<Int, Media> = PagingSource.LoadResult.Page(

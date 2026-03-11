@@ -8,7 +8,6 @@ import com.cheeke.surfy.data.paging.SearchPagingSource
 import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.model.SearchKeyword
 import com.cheeke.surfy.model.SearchType
-import com.cheeke.surfy.search.SearchVM
 import com.cheeke.surfy.testing.TestMovieDataSource
 import com.cheeke.surfy.testing.model.movieSearchTestData
 import com.cheeke.surfy.testing.model.testRecommendedKeyword
@@ -86,7 +85,9 @@ class SearchVMTest {
             apis = TestMovieDataSource(),
             type = SearchType.MOVIE,
             query = "미션",
-            userDataRepository = testUserDataRepository
+            language = "ko-KR",
+            region = "KR",
+            isAdult = true
         )
 
         val a: PagingSource.LoadResult<Int, Media> = PagingSource.LoadResult.Page(
