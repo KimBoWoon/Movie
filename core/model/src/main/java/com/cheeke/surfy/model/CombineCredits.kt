@@ -75,7 +75,7 @@ fun CombineCredits.getRelatedMovie(): List<Media> =
 //                runtime = it.runtime,
                 originalTitle = it.originalTitle,
 //                genres = it.genreIds,
-                releaseDate = it.firstAirDate,
+                releaseDate = it.releaseDate,
                 voteAverage = it.voteAverage,
                 mediaType = MediaType.MOVIE
             )
@@ -92,19 +92,7 @@ fun CombineCredits.getRelatedMovie(): List<Media> =
                 voteAverage = it.voteAverage,
                 mediaType = MediaType.TV
             )
-            MediaType.NONE -> Movie(
-                id = it.id,
-//                certification = it.certification,
-                posterPath = it.posterPath,
-//                tagline = it.tagline,
-                title = it.title,
-//                runtime = it.runtime,
-                originalTitle = it.originalTitle,
-//                genres = it.genreIds,
-                releaseDate = it.firstAirDate,
-                voteAverage = it.voteAverage,
-                mediaType = MediaType.MOVIE
-            )
+            else -> throw RuntimeException("media type not found...")
         }
     }?.plus(
         elements = crew.orEmpty().map {
@@ -118,7 +106,7 @@ fun CombineCredits.getRelatedMovie(): List<Media> =
 //                runtime = it.runtime,
                     originalTitle = it.originalTitle,
 //                genres = it.genreIds,
-                    releaseDate = it.firstAirDate,
+                    releaseDate = it.releaseDate,
                     voteAverage = it.voteAverage,
                     mediaType = MediaType.MOVIE
                 )
@@ -144,10 +132,11 @@ fun CombineCredits.getRelatedMovie(): List<Media> =
 //                runtime = it.runtime,
                     originalTitle = it.originalTitle,
 //                genres = it.genreIds,
-                    releaseDate = it.firstAirDate,
+                    releaseDate = it.releaseDate,
                     voteAverage = it.voteAverage,
                     mediaType = MediaType.MOVIE
                 )
+                else -> throw RuntimeException("media type not found...")
             }
         }
     )?.sortedByDescending { it.releaseDate }?.distinct().orEmpty()

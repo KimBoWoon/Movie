@@ -44,6 +44,13 @@ interface MovieNetworkDataSource {
         page: Int = 1
     ): List<Movie>
 
+    suspend fun searchMulti(
+        query: String,
+        includeAdult: Boolean = true,
+        language: String = "ko-KR",
+        page: Int = 1
+    ): SearchData
+
     suspend fun searchMovies(
         query: String,
         includeAdult: Boolean = true,

@@ -35,12 +35,13 @@ fun AnalyticsHelper.logSelectContent(contentType: String, media: Media) {
     )
 }
 
-fun AnalyticsHelper.logSearch(query: String) {
+fun AnalyticsHelper.logSearch(searchType: String, query: String) {
     logEvent(
         event = AnalyticsEvent(
             type = FirebaseAnalytics.Event.SEARCH,
             extras = listOf(
-                AnalyticsEvent.Param(key = FirebaseAnalytics.Param.SEARCH_TERM, value = query)
+                AnalyticsEvent.Param(key = FirebaseAnalytics.Param.SEARCH_TERM, value = query),
+                AnalyticsEvent.Param(key = "search_type", value = searchType)
             )
         )
     )

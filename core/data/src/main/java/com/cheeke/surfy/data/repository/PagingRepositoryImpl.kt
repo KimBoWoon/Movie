@@ -28,12 +28,17 @@ class PagingRepositoryImpl @Inject constructor(
 ) : PagingRepository {
     override fun getSearchPagingSource(
         type: SearchType,
-        query: String
+        query: String,
+        language: String,
+        region: String,
+        isAdult: Boolean
     ): PagingSource<Int, Media> = SearchPagingSource(
         apis = apis,
         type = type,
         query = query,
-        userDataRepository = userDataRepository
+        language = language,
+        region = region,
+        isAdult = isAdult,
     )
 
     override fun getSimilarMoviePagingSource(

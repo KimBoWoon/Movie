@@ -76,13 +76,14 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.cheeke.surfy.analytics.TrackScreenViewEvent
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.data.util.POSTER_IMAGE_RATIO
+import com.cheeke.surfy.feature.search.R
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
 import com.cheeke.surfy.model.Genre
 import com.cheeke.surfy.model.Media
-import com.cheeke.surfy.model.SurfyAppData
+import com.cheeke.surfy.model.MediaType
 import com.cheeke.surfy.model.SearchKeyword
 import com.cheeke.surfy.model.SearchType
-import com.cheeke.surfy.feature.search.R
+import com.cheeke.surfy.model.SurfyAppData
 import com.cheeke.surfy.ui.components.CircularProgressComponent
 import com.cheeke.surfy.ui.components.FilterChipComponent
 import com.cheeke.surfy.ui.components.PagingAppendErrorComponent
@@ -526,11 +527,17 @@ fun SearchPagingComponent(
                             .aspectRatio(POSTER_IMAGE_RATIO)
                             .roundedCornerClickable(
                                 onClick = {
-                                    when (searchType) {
-                                        SearchType.MOVIE -> goToMovie(item.id ?: -1)
-                                        SearchType.TV -> goToTv(item.id ?: -1)
-                                        SearchType.PEOPLE -> goToPeople(item.id ?: -1)
-                                        SearchType.SERIES -> goToSeries(item.id ?: -1)
+                                    when (item.mediaType) {
+                                        MediaType.NONE -> {}
+                                        MediaType.MOVIE -> goToMovie(item.id ?: -1)
+                                        MediaType.TV -> goToTv(item.id ?: -1)
+                                        MediaType.PEOPLE -> goToPeople(item.id ?: -1)
+                                        MediaType.SERIES -> goToSeries(item.id ?: -1)
+//                                        SearchType.MULTI -> {}
+//                                        SearchType.MOVIE -> goToMovie(item.id ?: -1)
+//                                        SearchType.TV -> goToTv(item.id ?: -1)
+//                                        SearchType.PEOPLE -> goToPeople(item.id ?: -1)
+//                                        SearchType.SERIES -> goToSeries(item.id ?: -1)
                                     }
                                 }, cornerRadius = dp10
                             ),

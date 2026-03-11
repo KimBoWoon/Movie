@@ -69,6 +69,7 @@ import com.cheeke.surfy.ui.utils.dp200
 import com.cheeke.surfy.ui.utils.fullBleed
 import com.cheeke.surfy.ui.utils.roundedCornerClickable
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 @Composable
 fun PeopleScreen(
@@ -155,7 +156,13 @@ fun PeopleDetailComponent(
     onShowSnackbar: suspend (String, String?) -> Boolean
 ) {
     val scope = rememberCoroutineScope()
-    val relatedMovie = people.people.combineCredits?.getRelatedMovie().orEmpty()
+    val relatedMovie = people.people.combineCredits?.getRelatedMovie()?.sortedByDescending {
+        if (it.releaseDate.isNullOrEmpty()) {
+            LocalDate.MAX
+        } else {
+            LocalDate.parse(it.releaseDate)
+        }
+    }.orEmpty()
     val snackbarMessage = if (people.isFavorite) stringResource(id = R.string.remove_favorite_people) else stringResource(id = R.string.add_favorite_people)
     val lazyGridScrollState = rememberLazyGridState()
 
@@ -208,12 +215,12 @@ fun PeopleDetailComponent(
                     .roundedCornerClickable(
                         onClick = {
                             when (media.mediaType) {
-                                MediaType.NONE -> {
+                                MediaType.MOVIE -> goToMovie(media.id ?: -1)
+                                MediaType.TV -> goToTv(media.id ?: -1)
+                                else -> {
                                     scope.launch { onShowSnackbar("MediaType not found...", null) }
                                     return@roundedCornerClickable
                                 }
-                                MediaType.MOVIE -> goToMovie(media.id ?: -1)
-                                MediaType.TV -> goToTv(media.id ?: -1)
                             }
                         },
                         cornerRadius = dp10

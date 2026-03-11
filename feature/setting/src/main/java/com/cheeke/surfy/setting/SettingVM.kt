@@ -41,7 +41,7 @@ class SettingVM @Inject constructor(
             sheet = settingsUiState.sheet,
             mainUpdateDate = internalData.updateDate,
             theme = internalData.isDarkMode,
-            isAdult = settingsUiState.isAdult,
+            isAdult = internalData.isAdult,
             isTrailerAutoplay = settingsUiState.isTrailerAutoplay,
             language = selectedLanguage,
             region = selectedRegion,

@@ -12,7 +12,7 @@ import com.cheeke.surfy.model.TrendingTvResult
 import com.cheeke.surfy.model.Tv
 
 interface PagingRepository {
-    fun getSearchPagingSource(type: SearchType, query: String): PagingSource<Int, Media>
+    fun getSearchPagingSource(type: SearchType, query: String, language: String, region: String, isAdult: Boolean): PagingSource<Int, Media>
     fun getSimilarMoviePagingSource(id: Int): PagingSource<Int, Movie>
     fun getSimilarTvPagingSource(id: Int): PagingSource<Int, Tv>
     fun getRecommendKeywordPagingSource(query: String): PagingSource<Int, SearchKeyword>

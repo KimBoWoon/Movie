@@ -106,16 +106,26 @@ class SearchVM @AssistedInject constructor(
                 }
 
                 currentQuery
-            }.filter { currentQuery: String -> currentQuery.isNotEmpty() }
+            }.filter { currentQuery: String ->
+                currentQuery.isNotEmpty()
+            }
             .flatMapLatest { currentQuery: String ->
                 flow<SearchUiState> {
-                    emit(value =
-                        SearchUiState.Success(
+                    emit(
+                        value = SearchUiState.Success(
                             pagingData = combine(
                                 Pager(
                                     config = PagingConfig(pageSize = 20, initialLoadSize = 20, prefetchDistance = 5),
                                     initialKey = 1,
-                                    pagingSourceFactory = { pagingRepository.getSearchPagingSource(type = searchType.value, query = currentQuery) }
+                                    pagingSourceFactory = {
+                                        pagingRepository.getSearchPagingSource(
+                                            type = searchType.value,
+                                            query = currentQuery,
+                                            language = surfyAppData.value.language.find { it.isSelected }?.code.orEmpty(),
+                                            region = surfyAppData.value.region.find { it.isSelected }?.code.orEmpty(),
+                                            isAdult = surfyAppData.value.isAdult
+                                        )
+                                    }
                                 ).flow.cachedIn(scope = viewModelScope),
                                 selectedGenre
                             ) { pagingData: PagingData<Media>, genre: Genre? ->
@@ -159,7 +169,7 @@ class SearchVM @AssistedInject constructor(
     }
 
     fun searchMovies() {
-        analyticsHelper.logSearch(query = query.value.text)
+        analyticsHelper.logSearch(searchType = searchType.value.label, query = query.value.text)
         viewModelScope.launch { searchTrigger.emit(value = Unit) }
     }
 }

@@ -3,28 +3,23 @@ package com.cheeke.surfy.data.paging
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.cheeke.surfy.common.Log
-import com.cheeke.surfy.data.repository.UserDataRepository
-import com.cheeke.surfy.model.InternalData
 import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.model.SearchType
 import com.cheeke.surfy.network.MovieNetworkDataSource
-import kotlinx.coroutines.flow.firstOrNull
 import javax.inject.Inject
 
 class SearchPagingSource @Inject constructor(
-    private val userDataRepository: UserDataRepository,
     private val apis: MovieNetworkDataSource,
     private val type: SearchType,
-    private val query: String
+    private val query: String,
+    private val language: String,
+    private val region: String,
+    private val isAdult: Boolean
 ) : PagingSource<Int, Media>() {
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Media> =
         runCatching {
-            val internalData = userDataRepository.internalData.firstOrNull() ?: InternalData()
-            val language = "${internalData.language}-${internalData.region}"
-            val region = internalData.region
-            val isAdult = internalData.isAdult
-
             val response = when (type) {
+                SearchType.MULTI -> apis.searchMulti(query = query, includeAdult = isAdult, language = language, page = params.key ?: 1)
                 SearchType.MOVIE -> apis.searchMovies(query = query, includeAdult = isAdult, language = language, region = region, page = params.key ?: 1)
                 SearchType.TV -> apis.searchTv(query = query, includeAdult = isAdult, language = language, region = region, page = params.key ?: 1)
                 SearchType.PEOPLE -> apis.searchPeople(query = query, includeAdult = isAdult, language = language, region = region, page = params.key ?: 1)

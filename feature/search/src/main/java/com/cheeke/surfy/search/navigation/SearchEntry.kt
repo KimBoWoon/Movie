@@ -12,7 +12,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class SearchNavKey(
     val query: String = "",
-    val searchType: String = "surfy"
+    val searchType: String = "multi"
 ) : NavKey
 
 fun EntryProviderScope<NavKey>.searchEntry(
@@ -26,10 +26,12 @@ fun EntryProviderScope<NavKey>.searchEntry(
         Log.d("deeplink query -> ${searchNavKey.query}, deeplink searchType -> ${searchNavKey.searchType}")
 
         val searchType = when (searchNavKey.searchType) {
-            "surfy" -> SearchType.MOVIE
+            "multi" -> SearchType.MULTI
+            "movie" -> SearchType.MOVIE
             "people" -> SearchType.PEOPLE
             "series" -> SearchType.SERIES
-            else -> SearchType.MOVIE
+            "tv" -> SearchType.TV
+            else -> SearchType.MULTI
         }
 
         SearchScreen(

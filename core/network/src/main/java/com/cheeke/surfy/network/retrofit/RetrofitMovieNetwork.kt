@@ -131,6 +131,23 @@ class RetrofitMovieNetwork @Inject constructor(
         return result.filter { (it.releaseDate ?: "") > LocalDate.now().toString() }.distinctBy { it.id }.sortedBy { it.releaseDate }
     }
 
+    override suspend fun searchMulti(
+        query: String,
+        includeAdult: Boolean,
+        language: String,
+        page: Int
+    ): SearchData = when (
+        val response = tmdbApis.searchMulti(
+            query = query,
+            includeAdult = includeAdult,
+            language = language,
+            page = page
+        )
+    ) {
+        is ApiResponse.Failure -> throw response.throwable
+        is ApiResponse.Success -> response.data.asExternalModel()
+    }
+
     override suspend fun searchMovies(
         query: String,
         includeAdult: Boolean,

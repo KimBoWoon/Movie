@@ -238,7 +238,7 @@ fun SurfyApp(
                     )
                 ),
                 releaseMovies = nextWeekReleaseMovies,
-                onDismiss = { navigator.goBack() },
+                onDismiss = navigator::goBack,
                 goToMovie = navigator::navigateToMovie,
                 goToTv = navigator::navigateToTv,
                 dismissNextWeekReleaseDialog = dismissNextWeekReleaseDialog,
@@ -442,29 +442,23 @@ fun ReleaseMoviesDialog(
         verticalArrangement = Arrangement.Center
     ) {
         HorizontalPager(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable {
-                    goToMovie(releaseMovies[pagerState.currentPage].id ?: -1)
-                    dismissNextWeekReleaseDialog()
-                    onDismiss()
-                },
+            modifier = Modifier.fillMaxWidth(),
             state = pagerState,
         ) { index ->
             Log.d("NextWeekReleaseMovies Index -> $index")
-            Box(
-                modifier = Modifier.clickable {
-                    when (releaseMovies[index].mediaType) {
-                        MediaType.MOVIE -> goToMovie(releaseMovies[index].id ?: -1)
-                        MediaType.TV -> goToTv(releaseMovies[index].id ?: -1)
-                        MediaType.NONE -> Log.d("mediatype not found...")
-                    }
-                    onDismiss()
-                }
-            ) {
+            Box {
                 DynamicAsyncImageLoader(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .clickable {
+                            onDismiss()
+                            when (releaseMovies[index].mediaType) {
+                                MediaType.MOVIE -> goToMovie(releaseMovies[index].id ?: -1)
+                                MediaType.TV -> goToTv(releaseMovies[index].id ?: -1)
+                                else -> Log.d("mediatype not found...")
+                            }
+                            dismissNextWeekReleaseDialog()
+                        }
                         .aspectRatio(ratio = POSTER_IMAGE_RATIO)
                         .clip(shape = RoundedCornerShape(topStart = dp10, topEnd = dp10)),
                     source = "${releaseMovies[index].posterPath}",

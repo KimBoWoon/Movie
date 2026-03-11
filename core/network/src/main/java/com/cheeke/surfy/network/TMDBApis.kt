@@ -61,6 +61,14 @@ interface TMDBApis {
         @Query("page") page: Int = 1
     ): ApiResponse<NetworkTMDBMovieList>
 
+    @GET("/3/search/multi")
+    suspend fun searchMulti(
+        @Query("query") query: String,
+        @Query("include_adult") includeAdult: Boolean = true,
+        @Query("language") language: String = "ko-KR",
+        @Query("page") page: Int = 1
+    ): ApiResponse<NetworkTMDBSearchMovie>
+
     @GET("/3/search/movie")
     suspend fun searchMovies(
         @Query("query") query: String,
