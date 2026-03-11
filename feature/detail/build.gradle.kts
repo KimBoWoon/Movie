@@ -10,15 +10,15 @@ android {
 
 dependencies {
     arrayOf(
-        projects.core.common,
-        projects.core.data,
-        projects.core.domain,
-        projects.core.datastore,
-        projects.core.model,
-        projects.core.notifications,
-        projects.core.firebase,
-        projects.core.navigation,
-        projects.core.analytics,
+        project(":core:common"),
+        project(":core:data"),
+        project(":core:domain"),
+        project(":core:datastore"),
+        project(":core:model"),
+        project(":core:notifications"),
+        project(":core:firebase"),
+        project(":core:navigation"),
+        project(":core:analytics"),
         libs.androidx.navigation3.runtime,
         libs.androidx.compose.hilt.navigation,
         libs.androidx.media3.exoplayer,
@@ -32,5 +32,5 @@ dependencies {
     testImplementation(libs.androidx.paging.common)
     testImplementation(libs.turbine)
 
-    androidTestImplementation(projects.core.testing)
+    androidTestImplementation(project(":core:testing"))
 }

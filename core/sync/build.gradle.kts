@@ -9,11 +9,11 @@ android {
 
 dependencies {
     arrayOf(
-        projects.core.common,
-        projects.core.model,
-        projects.core.network,
-        projects.core.data,
-        projects.core.notifications,
+        project(":core:common"),
+        project(":core:model"),
+        project(":core:network"),
+        project(":core:data"),
+        project(":core:notifications"),
         libs.androidx.work.ktx,
         libs.hilt.ext.work
     ).forEach {

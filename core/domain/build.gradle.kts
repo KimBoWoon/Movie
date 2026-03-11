@@ -9,13 +9,17 @@ android {
 
 dependencies {
     arrayOf(
-        projects.core.common
+        project(":core:common")
     ).forEach {
         implementation(it)
     }
 
-    api(projects.core.data)
-    api(projects.core.model)
+    arrayOf(
+        project(":core:data"),
+        project(":core:model")
+    ).forEach {
+        api(it)
+    }
 
     testImplementation(libs.androidx.paging.testing)
 }

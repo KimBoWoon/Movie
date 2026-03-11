@@ -1,5 +1,7 @@
 package com.cheeke.surfy.network.model
 
+import com.cheeke.surfy.model.Media
+import com.cheeke.surfy.model.MediaType
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.SearchData
 import kotlinx.serialization.SerialName
@@ -45,12 +47,13 @@ fun NetworkTMDBSearchSeries.asExternalModel(): SearchData =
         totalResults = totalResults
     )
 
-fun List<NetworkTMDBSearchSeriesResult>.asExternalModel(): List<Movie> =
+fun List<NetworkTMDBSearchSeriesResult>.asExternalModel(): List<Media> =
     map {
         Movie(
             adult = it.adult,
             id = it.id,
             title = it.name,
-            posterPath = it.posterPath
+            posterPath = it.posterPath,
+            mediaType = MediaType.SERIES
         )
     }

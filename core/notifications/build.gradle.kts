@@ -8,11 +8,15 @@ android {
 }
 
 dependencies {
-    api(projects.core.model)
+    api(project(":core:model"))
 
-    implementation(projects.core.common)
-    implementation(projects.core.domain)
-    implementation(libs.coil.compose)
+    arrayOf(
+        project(":core:common"),
+        project(":core:domain"),
+        libs.coil.compose
+    ).forEach {
+        implementation(it)
+    }
 
     compileOnly(platform(libs.androidx.compose.bom))
 }

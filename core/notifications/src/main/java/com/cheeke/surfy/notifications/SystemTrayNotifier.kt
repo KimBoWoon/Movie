@@ -22,9 +22,9 @@ import coil3.transform.RoundedCornersTransformation
 import com.cheeke.surfy.common.Dispatcher
 import com.cheeke.surfy.common.Dispatchers.IO
 import com.cheeke.surfy.common.Log
+import com.cheeke.surfy.core.notifications.R
 import com.cheeke.surfy.data.repository.UserDataRepository
 import com.cheeke.surfy.model.Movie
-import com.cheeke.surfy.core.notifications.R
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -40,7 +40,7 @@ private const val MOVIE_NOTIFICATION_GROUP = "MOVIE_NOTIFICATIONS"
 val SUMMARY_ID = 0
 private const val MOVIE_NOTIFICATION_REQUEST_CODE = 0
 private const val TARGET_ACTIVITY_NAME = "com.cheeke.surfy.ui.activities.MainActivity"
-private const val DEEP_LINK_SCHEME_AND_HOST = "https://www.cheeke.movie.com"
+private const val DEEP_LINK_SCHEME_AND_HOST = "https://www.cheeke.surfy.com"
 private const val DEEP_LINK_MOVIE_ID_PATH = "surfy"
 private const val DEEP_LINK_BASE_PATH = "$DEEP_LINK_SCHEME_AND_HOST/$DEEP_LINK_MOVIE_ID_PATH"
 const val DEEP_LINK_URI_PATTERN = "$DEEP_LINK_BASE_PATH/{id}"

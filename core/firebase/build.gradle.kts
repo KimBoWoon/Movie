@@ -10,8 +10,8 @@ android {
 
 dependencies {
     arrayOf(
-        projects.core.common,
-        projects.core.data
+        project(":core:common"),
+        project(":core:data")
     ).forEach {
         implementation(it)
     }

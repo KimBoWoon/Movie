@@ -40,6 +40,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -98,6 +99,9 @@ class SearchVM @AssistedInject constructor(
     val searchResult: StateFlow<SearchUiState> = merge(
         searchType.map { SearchUiState.SearchHint },
         searchTrigger
+            .onStart {
+                if (initialQuery.trim().isNotEmpty()) emit(Unit)
+            }
             .map { _: Unit ->
                 val currentQuery: String = query.value.text.trim()
 
@@ -148,12 +152,6 @@ class SearchVM @AssistedInject constructor(
             started = SharingStarted.Lazily,
             initialValue = SearchUiState.SearchHint
         )
-
-    init {
-        if (initialQuery.trim().isNotEmpty()) {
-            searchMovies()
-        }
-    }
 
     fun updateGenre(genre: Genre?) {
         savedStateHandle[GENRE] = if (genre == selectedGenre.value) null else genre

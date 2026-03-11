@@ -1,8 +1,10 @@
 package com.cheeke.surfy.network.model
 
 import com.cheeke.surfy.model.Genre
-import com.cheeke.surfy.model.Movie
+import com.cheeke.surfy.model.Media
+import com.cheeke.surfy.model.MediaType
 import com.cheeke.surfy.model.SearchData
+import com.cheeke.surfy.model.Tv
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -58,13 +60,14 @@ fun NetworkTMDBSearchTv.asExternalModel(): SearchData =
         totalResults = totalResults
     )
 
-fun List<NetworkTMDBSearchTvResult>.asExternalModel(): List<Movie> =
+fun List<NetworkTMDBSearchTvResult>.asExternalModel(): List<Media> =
     map {
-        Movie(
+        Tv(
             genres = it.genreIds?.map { id -> Genre(id = id) },
             adult = it.adult,
             id = it.id,
             title = it.name,
-            posterPath = it.posterPath
+            posterPath = it.posterPath,
+            mediaType = MediaType.TV
         )
     }

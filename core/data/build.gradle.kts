@@ -21,19 +21,23 @@ dependencies {
         implementation(it)
     }
 
-    api(projects.core.common)
-    api(projects.core.database)
-    api(projects.core.datastore)
-    api(projects.core.network)
+    arrayOf(
+        project(":core:common"),
+        project(":core:database"),
+        project(":core:datastore"),
+        project(":core:network")
+    ).forEach {
+        api(it)
+    }
 
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.kotlinx.serialization.json)
     testImplementation(libs.androidx.paging.testing)
-    testImplementation(projects.core.datastoreTest)
+    testImplementation(project(":core:datastore-test"))
 
     androidTestImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.kotlinx.serialization.json)
-    androidTestImplementation(projects.core.testing)
+    androidTestImplementation(project(":core:testing"))
 
     testImplementation(libs.retrofit2)
     testImplementation(libs.kotlinx.serialization.converter)

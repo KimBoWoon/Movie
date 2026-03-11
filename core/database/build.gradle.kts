@@ -10,7 +10,7 @@ android {
 
 dependencies {
     arrayOf(
-        projects.core.common,
+        project(":core:common"),
         libs.kotlinx.serialization.json,
         libs.androidx.junit,
         libs.androidx.datastore,
@@ -21,7 +21,7 @@ dependencies {
         implementation(it)
     }
 
-    api(projects.core.model)
+    api(project(":core:model"))
 
     arrayOf(
         libs.androidx.room.compiler

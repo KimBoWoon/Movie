@@ -15,7 +15,7 @@ android {
 
 dependencies {
     arrayOf(
-        projects.core.common,
+        project(":core:common"),
         libs.kotlinx.serialization.converter,
         libs.kotlinx.serialization.json,
         libs.retrofit2,
@@ -28,14 +28,19 @@ dependencies {
     }
 
     arrayOf(
-        projects.core.model
+        project(":core:model")
     ).forEach {
         api(it)
     }
 
-    testImplementation(projects.core.testing)
-    testImplementation(libs.retrofit2)
-    testImplementation(libs.kotlinx.serialization.converter)
-    testImplementation(libs.mockwebserver)
+    arrayOf(
+        project(":core:testing"),
+        libs.retrofit2,
+        libs.kotlinx.serialization.converter,
+        libs.mockwebserver
+    ).forEach {
+        testImplementation(it)
+    }
+
     androidTestImplementation(libs.mockwebserver)
 }

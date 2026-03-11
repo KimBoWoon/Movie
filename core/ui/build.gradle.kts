@@ -10,10 +10,10 @@ android {
 
 dependencies {
     arrayOf(
-        projects.core.common,
-        projects.core.model,
-        projects.core.data,
-        projects.core.analytics,
+        project(":core:common"),
+        project(":core:model"),
+        project(":core:data"),
+        project(":core:analytics"),
         libs.androidx.compose.material3,
         libs.androidx.compose.material3.adaptive,
         libs.androidx.compose.material3.navigationSuite,

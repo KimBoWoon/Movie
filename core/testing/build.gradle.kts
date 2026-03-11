@@ -8,11 +8,16 @@ android {
 }
 
 dependencies {
-    api(projects.core.common)
-    api(projects.core.data)
-    api(projects.core.model)
-    api(projects.core.analytics)
-    api(libs.kotlinx.coroutines.test)
+    arrayOf(
+        project(":core:common"),
+        project(":core:data"),
+        project(":core:model"),
+        project(":core:analytics"),
+        libs.kotlinx.coroutines.test
+    ).forEach {
+        api(it)
+    }
+
     implementation(libs.hilt.android.testing)
     implementation(libs.androidx.test.rules)
     implementation(libs.androidx.compose.paging)

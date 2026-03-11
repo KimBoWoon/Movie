@@ -25,7 +25,6 @@ import androidx.navigation3.runtime.NavKey
 import com.cheeke.surfy.R
 import com.cheeke.surfy.SurfyAppState
 import com.cheeke.surfy.SurfyFirebase
-import com.cheeke.surfy.analytics.AnalyticsEvent
 import com.cheeke.surfy.analytics.AnalyticsHelper
 import com.cheeke.surfy.analytics.LocalAnalyticsHelper
 import com.cheeke.surfy.common.AppDoubleBackToExit
@@ -43,7 +42,6 @@ import com.cheeke.surfy.ui.NextWeekReleaseMoviesNavKey
 import com.cheeke.surfy.ui.SurfyApp
 import com.cheeke.surfy.ui.theme.SurfyTheme
 import com.cheeke.surfy.utils.isSystemInDarkTheme
-import com.google.firebase.analytics.FirebaseAnalytics
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -124,15 +122,6 @@ class MainActivity : ComponentActivity() {
                 LocalAnalyticsHelper provides analyticsHelper
             ) {
                 LocalFirebaseLogHelper.current.sendLog(name = javaClass.simpleName, message = "compose start!")
-                LocalAnalyticsHelper.current.logEvent(
-                    event = AnalyticsEvent(
-                        type = "compose_set_content",
-                        extras = listOf(
-                            AnalyticsEvent.Param(key = FirebaseAnalytics.Param.SCREEN_NAME, value = "SurfyAppScreen"),
-                            AnalyticsEvent.Param(key = FirebaseAnalytics.Param.SCREEN_CLASS, value = javaClass.simpleName)
-                        )
-                    )
-                )
 
                 val shouldShowNextWeekReleaseDialog by viewModel.shouldShowNextWeekReleaseDialog.collectAsStateWithLifecycle()
                 val nextWeekReleaseDialogItems by viewModel.nextWeekReleaseDialogItems.collectAsStateWithLifecycle()

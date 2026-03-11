@@ -18,6 +18,7 @@ import com.cheeke.surfy.network.model.NetworkTMDBSearchKeywordData
 import com.cheeke.surfy.network.model.NetworkTMDBSearchMovie
 import com.cheeke.surfy.network.model.NetworkTMDBSearchPeople
 import com.cheeke.surfy.network.model.NetworkTMDBSearchSeries
+import com.cheeke.surfy.network.model.NetworkTMDBSearchTv
 import com.cheeke.surfy.network.model.NetworkTMDBSimilarTv
 import com.cheeke.surfy.network.model.NetworkTMDBTrendingMovie
 import com.cheeke.surfy.network.model.NetworkTMDBTrendingPeople
@@ -85,7 +86,7 @@ interface TMDBApis {
         @Query("language") language: String = "ko-KR",
         @Query("region") region: String = "KR",
         @Query("page") page: Int = 1
-    ): ApiResponse<NetworkTMDBSearchMovie>
+    ): ApiResponse<NetworkTMDBSearchTv>
 
     @GET("/3/search/person")
     suspend fun searchPeople(

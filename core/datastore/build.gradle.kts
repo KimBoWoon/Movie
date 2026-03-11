@@ -40,7 +40,7 @@ androidComponents.beforeVariants {
 
 dependencies {
     arrayOf(
-        projects.core.common,
+        project(":core:common"),
         libs.kotlinx.serialization.json,
         libs.androidx.junit,
     ).forEach {
@@ -50,13 +50,13 @@ dependencies {
     arrayOf(
         libs.protobuf.kotlin.lite,
         libs.androidx.datastore,
-        projects.core.model
+        project(":core:model")
     ).forEach {
         api(it)
     }
 
     arrayOf(
-        projects.core.datastoreTest
+        project(":core:datastore-test")
     ).forEach {
         testImplementation(it)
     }

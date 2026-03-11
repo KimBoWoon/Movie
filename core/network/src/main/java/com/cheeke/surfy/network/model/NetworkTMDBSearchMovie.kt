@@ -36,7 +36,7 @@ data class NetworkTMDBSearchMovieResult(
     @SerialName("id")
     val id: Int? = null,
     @SerialName("media_type")
-    val mediaType: String? = null,
+    val mediaType: String = MediaType.MOVIE.label,
     @SerialName("name")
     val name: String? = null,
     @SerialName("origin_country")
