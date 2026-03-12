@@ -145,24 +145,25 @@ fun SeriesScreen(
                                 ExpandableOverviewCard(
                                     overview = overview
                                 )
+                                Spacer(modifier = Modifier.height(height = dp28))
                             }
 
-                            Spacer(modifier = Modifier.height(height = dp28))
+                            if (!seriesState.series.parts.isNullOrEmpty()) {
+                                Text(
+                                    text = "시리즈 타임라인",
+                                    style = MaterialTheme.typography.titleLarge,
+                                    fontWeight = FontWeight.Bold
+                                )
 
-                            Text(
-                                text = "시리즈 타임라인",
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold
-                            )
+                                Spacer(modifier = Modifier.height(height = dp6))
 
-                            Spacer(modifier = Modifier.height(height = dp6))
+                                Text(
+                                    text = "개봉 순서대로 흐름을 한 번에 볼 수 있어요",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                )
 
-                            Text(
-                                text = "개봉 순서대로 흐름을 한 번에 볼 수 있어요",
-                                style = MaterialTheme.typography.bodyMedium,
-                            )
-
-                            Spacer(modifier = Modifier.height(height = dp20))
+                                Spacer(modifier = Modifier.height(height = dp20))
+                            }
                         }
                     }
                     seriesState.series.parts?.groupBy { LocalDate.parse(it.releaseDate).year.toString() }?.forEach { (year, movies) ->
