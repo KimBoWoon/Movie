@@ -5,6 +5,7 @@ import com.cheeke.surfy.model.CombineCredits
 import com.cheeke.surfy.model.Configuration
 import com.cheeke.surfy.model.ExternalIds
 import com.cheeke.surfy.model.Genres
+import com.cheeke.surfy.model.ImageList
 import com.cheeke.surfy.model.Language
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.MovieResult
@@ -229,6 +230,15 @@ class RetrofitMovieNetwork @Inject constructor(
             is ApiResponse.Failure -> throw response.throwable
             is ApiResponse.Success -> response.data.asExternalModel()
         }
+
+    override suspend fun getSeriesImages(
+        collectionId: Int,
+        includeImageLanguage: String,
+        language: String
+    ): ImageList = when (val response = tmdbApis.getSeriesImages(collectionId = collectionId, includeImageLanguage = includeImageLanguage, language = language)) {
+        is ApiResponse.Failure -> throw response.throwable
+        is ApiResponse.Success -> response.data.asExternalModel()
+    }
 
     override suspend fun getMovie(
         id: Int,

@@ -5,6 +5,7 @@ import com.cheeke.surfy.model.CombineCredits
 import com.cheeke.surfy.model.Configuration
 import com.cheeke.surfy.model.ExternalIds
 import com.cheeke.surfy.model.Genres
+import com.cheeke.surfy.model.ImageList
 import com.cheeke.surfy.model.Language
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.MovieWatchProvider
@@ -191,4 +192,10 @@ interface MovieNetworkDataSource {
     suspend fun getMovieWatchProvider(
         movieId: Int
     ): MovieWatchProvider
+
+    suspend fun getSeriesImages(
+        collectionId: Int,
+        includeImageLanguage: String,
+        language: String
+    ): ImageList
 }

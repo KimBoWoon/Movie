@@ -4,6 +4,7 @@ import com.cheeke.surfy.network.model.NetworkTMDBCertificationData
 import com.cheeke.surfy.network.model.NetworkTMDBCombineCredits
 import com.cheeke.surfy.network.model.NetworkTMDBConfiguration
 import com.cheeke.surfy.network.model.NetworkTMDBExternalIds
+import com.cheeke.surfy.network.model.NetworkTMDBImageList
 import com.cheeke.surfy.network.model.NetworkTMDBLanguageItem
 import com.cheeke.surfy.network.model.NetworkTMDBMovie
 import com.cheeke.surfy.network.model.NetworkTMDBMovieDetailSimilar
@@ -102,6 +103,13 @@ interface TMDBApis {
         @Path("collection_id") collectionId: Int,
         @Query("language") language: String = "ko-KR",
     ): ApiResponse<NetworkTMDBMovieSeries>
+
+    @GET("/3/collection/{collection_id}/images")
+    suspend fun getSeriesImages(
+        @Path("collection_id") collectionId: Int,
+        @Query("include_image_language") includeImageLanguage: String = "ko-KR,null",
+        @Query("language") language: String = "ko-KR"
+    ): ApiResponse<NetworkTMDBImageList>
 
     @GET("/3/search/collection")
     suspend fun searchMovieSeries(

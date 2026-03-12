@@ -2,6 +2,7 @@ package com.cheeke.surfy.data.repository
 
 import com.cheeke.surfy.model.CombineCredits
 import com.cheeke.surfy.model.ExternalIds
+import com.cheeke.surfy.model.ImageList
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.MovieWatchProvider
 import com.cheeke.surfy.model.People
@@ -22,6 +23,7 @@ interface DetailRepository {
     fun getCombineCredits(personId: Int): Flow<CombineCredits>
     fun getExternalIds(personId: Int): Flow<ExternalIds>
     fun getMovieSeries(collectionId: Int): Flow<Series>
+    fun getMovieSeriesImageList(collectionId: Int): Flow<ImageList>
     fun getTv(id: Int): Flow<Tv>
     fun getTvSeasons(seriesId: Int, seasonNumber: Int): Flow<TvSeasons>
     fun getTvEpisode(seriesId: Int, seasonNumber: Int, episodeNumber: Int): Flow<TvEpisode>

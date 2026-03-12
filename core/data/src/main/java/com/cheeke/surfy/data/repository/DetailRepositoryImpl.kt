@@ -3,6 +3,7 @@ package com.cheeke.surfy.data.repository
 import com.cheeke.surfy.datastore.InternalDataSource
 import com.cheeke.surfy.model.CombineCredits
 import com.cheeke.surfy.model.ExternalIds
+import com.cheeke.surfy.model.ImageList
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.MovieWatchProvider
 import com.cheeke.surfy.model.People
@@ -64,6 +65,13 @@ class DetailRepositoryImpl @Inject constructor(
         val internalData = datastore.userData.first()
 
         emit(value = apis.getMovieSeries(collectionId = collectionId, language = "${internalData.language}-${internalData.region}"))
+    }
+
+    override fun getMovieSeriesImageList(collectionId: Int): Flow<ImageList> = flow {
+        val internalData = datastore.userData.first()
+        val language = "${internalData.language}-${internalData.region}"
+
+        emit(value = apis.getSeriesImages(collectionId = collectionId, includeImageLanguage = "$language,null", language = language))
     }
 
     override fun getTv(id: Int): Flow<Tv> = flow {

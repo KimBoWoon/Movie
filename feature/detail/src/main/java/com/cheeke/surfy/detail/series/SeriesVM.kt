@@ -9,6 +9,7 @@ import com.cheeke.surfy.common.Result
 import com.cheeke.surfy.common.asResult
 import com.cheeke.surfy.common.toEpochDayOrMax
 import com.cheeke.surfy.data.repository.DetailRepository
+import com.cheeke.surfy.model.ImageList
 import com.cheeke.surfy.model.Series
 import com.cheeke.surfy.model.SeriesPart
 import dagger.assisted.Assisted
@@ -18,6 +19,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -42,23 +44,28 @@ class SeriesVM @AssistedInject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     val series = reload
         .flatMapLatest {
-            trace(sectionName = "GetSeriesDetail") {
-                detailRepository.getMovieSeries(collectionId = id)
-                    .map { series ->
-                        series.copy(
-                            parts = series.parts?.sortedWith(
-                                comparator = compareBy<SeriesPart> { it.releaseDate.toEpochDayOrMax() }
-                                    .thenBy { it.title.orEmpty() }
+            combine(
+                trace(sectionName = "GetSeriesDetail") {
+                    detailRepository.getMovieSeries(collectionId = id)
+                        .map { series ->
+                            series.copy(
+                                parts = series.parts?.sortedWith(
+                                    comparator = compareBy<SeriesPart> { it.releaseDate.toEpochDayOrMax() }
+                                        .thenBy { it.title.orEmpty() }
+                                )
                             )
-                        )
-                    }
+                        }
+                },
+                detailRepository.getMovieSeriesImageList(collectionId = id)
+            ) { series, imageList ->
+                series to imageList
             }.asResult()
         }.map { result ->
             when (result) {
                 is Result.Loading -> SeriesState.Loading
                 is Result.Success -> {
-                    analyticsHelper.logSelectContent(contentType = "series", media = result.data)
-                    SeriesState.Success(series = result.data)
+                    analyticsHelper.logSelectContent(contentType = "series", media = result.data.first)
+                    SeriesState.Success(series = result.data.first, imageList = result.data.second)
                 }
                 is Result.Error -> SeriesState.Error(throwable = result.throwable)
             }
@@ -83,6 +90,6 @@ class SeriesVM @AssistedInject constructor(
 
 sealed interface SeriesState {
     data object Loading : SeriesState
-    data class Success(val series: Series) : SeriesState
+    data class Success(val series: Series, val imageList: ImageList) : SeriesState
     data class Error(val throwable: Throwable) : SeriesState
 }
