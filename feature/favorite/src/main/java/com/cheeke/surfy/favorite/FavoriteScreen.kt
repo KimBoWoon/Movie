@@ -161,7 +161,7 @@ fun FavoriteScreen(
                                         scope.launch {
                                             onShowSnackbar(removeFavoriteText, null)
                                         }
-                                        analyticsHelper.logFavorite(isFavorite = false, contentType = "surfy", media = movieDetail)
+                                        analyticsHelper.logFavorite(isFavorite = false, contentType = "movie", media = movieDetail)
                                     }
                                 )
                             }

@@ -57,7 +57,7 @@ class MovieVM @AssistedInject constructor(
             when (result) {
                 is Result.Loading -> MovieState.Loading
                 is Result.Success -> {
-                    analyticsHelper.logSelectContent(contentType = "surfy", media = result.data.movie)
+                    analyticsHelper.logSelectContent(contentType = "movie", media = result.data.movie)
                     MovieState.Success(movie = result.data)
                 }
                 is Result.Error -> MovieState.Error(throwable = result.throwable)

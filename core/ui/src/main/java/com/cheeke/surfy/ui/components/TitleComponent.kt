@@ -64,7 +64,7 @@ fun TitleComponent(
                     contentDescription = "goToBackClick"
                 )
             }
-        } ?: Spacer(modifier = Modifier.Companion.size(dp24).padding(start = dp16).background(color = Color.Transparent))
+        } ?: Spacer(modifier = Modifier.size(size = dp24).padding(start = dp16).background(color = Color.Transparent))
 
         Text(
             modifier = Modifier.testTag(tag = "titleComponent").weight(1f),
