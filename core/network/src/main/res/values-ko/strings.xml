@@ -2,4 +2,13 @@
 <resources>
     <string name="something_wrong">알 수 없는 문제가 있습니다.</string>
     <string name="network_failed">통신 실패</string>
+    <string name="series_timeline">시리즈 타임라인</string>
+    <string name="sort_by_release_time">개봉 순서대로 흐름을 한 번에 볼 수 있어요</string>
+    <string name="movie_count">%d 편</string>
+    <string name="rating">★ %.1f</string>
+    <string name="series_overview">시리즈 소개</string>
+    <string name="more">더보기</string>
+    <string name="folding">접기</string>
+    <string name="release_year_count">• %d 편</string>
+    <string name="no_image">이미지 없음</string>
 </resources>

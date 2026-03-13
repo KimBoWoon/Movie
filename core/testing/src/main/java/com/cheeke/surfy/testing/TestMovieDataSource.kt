@@ -5,6 +5,7 @@ import com.cheeke.surfy.model.CombineCredits
 import com.cheeke.surfy.model.Configuration
 import com.cheeke.surfy.model.ExternalIds
 import com.cheeke.surfy.model.Genres
+import com.cheeke.surfy.model.ImageList
 import com.cheeke.surfy.model.Language
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.MovieWatchProvider
@@ -44,6 +45,7 @@ import com.cheeke.surfy.testing.model.regionTestData
 import com.cheeke.surfy.testing.model.seriesSearchTestData
 import com.cheeke.surfy.testing.model.similarMoviesTestData
 import com.cheeke.surfy.testing.model.similarTvTestData
+import com.cheeke.surfy.testing.model.testImageList
 import com.cheeke.surfy.testing.model.testMovieReviews
 import com.cheeke.surfy.testing.model.tvSearchTestData
 import com.cheeke.surfy.testing.model.upcomingMoviesTestData
@@ -96,6 +98,12 @@ class TestMovieDataSource : MovieNetworkDataSource {
         region: String,
         page: Int
     ): SearchData = seriesSearchTestData
+
+    override suspend fun getSeriesImages(
+        collectionId: Int,
+        includeImageLanguage: String,
+        language: String
+    ): ImageList = testImageList
 
     override suspend fun getMovieSeries(collectionId: Int, language: String): Series =
         movieSeriesTestData

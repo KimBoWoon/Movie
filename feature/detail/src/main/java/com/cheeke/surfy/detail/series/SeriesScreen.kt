@@ -116,85 +116,20 @@ fun SeriesScreen(
                 LocalFirebaseLogHelper.current.sendLog("SeriesScreen", "Series state Loading...")
 
                 CircularProgressComponent(
-                    modifier = Modifier.semantics { contentDescription = "seriesLoading" }
+                    modifier = Modifier
+                        .semantics { contentDescription = "seriesLoading" }
                         .align(Alignment.Center)
                 )
             }
             is SeriesState.Success -> {
                 LocalFirebaseLogHelper.current.sendLog("SeriesScreen", "Series state Success")
 
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(bottom = dp10)
-                ) {
-                    item {
-                        SeriesHeroSection(
-                            series = seriesState.series,
-                            imageList = seriesState.imageList,
-                            onBackClick = goToBack
-                        )
-                    }
-                    item {
-                        Column(
-                            modifier = Modifier.padding(horizontal = dp20)
-                        ) {
-                            seriesState.series.overview?.takeIf { it.isNotEmpty() }?.let { overview ->
-                                ExpandableOverviewCard(
-                                    overview = overview
-                                )
-                                Spacer(modifier = Modifier.height(height = dp28))
-                            }
-
-                            if (!seriesState.series.parts.isNullOrEmpty()) {
-                                Text(
-                                    text = "시리즈 타임라인",
-                                    style = MaterialTheme.typography.titleLarge,
-                                    fontWeight = FontWeight.Bold
-                                )
-
-                                Spacer(modifier = Modifier.height(height = dp6))
-
-                                Text(
-                                    text = "개봉 순서대로 흐름을 한 번에 볼 수 있어요",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                )
-
-                                Spacer(modifier = Modifier.height(height = dp20))
-                            }
-                        }
-                    }
-                    seriesState.series.parts?.groupBy { LocalDate.parse(it.releaseDate).year.toString() }?.forEach { (year, movies) ->
-                        stickyHeader(key = "header_$year") {
-                            Column(
-                                modifier = Modifier.background(color = MaterialTheme.colorScheme.background).padding(horizontal = dp20)
-                            ) {
-                                YearSectionHeader(
-                                    year = year,
-                                    count = movies.size
-                                )
-                                Spacer(modifier = Modifier.height(height = dp8))
-                            }
-                        }
-
-                        items(
-                            items = movies,
-                            key = { movie -> movie.id ?: -1 }
-                        ) { movie ->
-                            Column(
-                                modifier = Modifier.padding(horizontal = dp10)
-                            ) {
-                                MovieCard(
-                                    movie = movie,
-                                    goToMovie = goToMovie
-                                )
-                                Spacer(modifier = Modifier.height(height = dp10))
-                            }
-                        }
-                    }
-                    item {
-                        Spacer(modifier = Modifier.height(height = dp12))
-                    }
-                }
+                SeriesComponent(
+                    series = seriesState.series,
+                    imageList = seriesState.imageList,
+                    goToBack = goToBack,
+                    goToMovie = goToMovie
+                )
             }
             is SeriesState.Error -> {
                 LocalFirebaseLogHelper.current.sendLog("SeriesScreen", "Series state Error")
@@ -206,6 +141,89 @@ fun SeriesScreen(
                     dismissPair = stringResource(id = com.cheeke.surfy.core.ui.R.string.back_message) to goToBack
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun SeriesComponent(
+    series: Series,
+    imageList: ImageList,
+    goToBack: () -> Unit,
+    goToMovie: (Int) -> Unit
+) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(bottom = dp10)
+    ) {
+        item {
+            SeriesHeroSection(
+                series = series,
+                imageList = imageList,
+                onBackClick = goToBack
+            )
+        }
+        item {
+            Column(
+                modifier = Modifier.padding(horizontal = dp20)
+            ) {
+                series.overview?.takeIf { it.isNotEmpty() }?.let { overview ->
+                    ExpandableOverviewCard(
+                        overview = overview
+                    )
+                    Spacer(modifier = Modifier.height(height = dp28))
+                }
+
+                if (!series.parts.isNullOrEmpty()) {
+                    Text(
+                        text = stringResource(id = R.string.series_timeline),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    Spacer(modifier = Modifier.height(height = dp6))
+
+                    Text(
+                        text = stringResource(id = R.string.sort_by_release_time),
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+
+                    Spacer(modifier = Modifier.height(height = dp20))
+                }
+            }
+        }
+        series.parts?.groupBy { LocalDate.parse(it.releaseDate).year.toString() }?.forEach { (year, movies) ->
+            stickyHeader(key = "header_$year") {
+                Column(
+                    modifier = Modifier
+                        .background(color = MaterialTheme.colorScheme.background)
+                        .padding(horizontal = dp20)
+                ) {
+                    YearSectionHeader(
+                        year = year,
+                        count = movies.size
+                    )
+                    Spacer(modifier = Modifier.height(height = dp8))
+                }
+            }
+
+            items(
+                items = movies,
+                key = { movie -> movie.id ?: -1 }
+            ) { movie ->
+                Column(
+                    modifier = Modifier.padding(horizontal = dp10)
+                ) {
+                    MovieCard(
+                        movie = movie,
+                        goToMovie = goToMovie
+                    )
+                    Spacer(modifier = Modifier.height(height = dp10))
+                }
+            }
+        }
+        item {
+            Spacer(modifier = Modifier.height(height = dp12))
         }
     }
 }
@@ -232,7 +250,10 @@ private fun SeriesHeroSection(
         )
 
         CircleActionButton(
-            modifier = Modifier.size(size = dp50).padding(start = dp10, top = dp10).align(alignment = Alignment.TopStart),
+            modifier = Modifier
+                .size(size = dp50)
+                .padding(start = dp10, top = dp10)
+                .align(alignment = Alignment.TopStart),
             icon = Icons.AutoMirrored.Rounded.ArrowBack,
             onClick = onBackClick
         )
@@ -271,7 +292,7 @@ private fun SeriesHeroSection(
                 Spacer(modifier = Modifier.width(width = dp10))
                 if (!series.parts.isNullOrEmpty()) {
                     Text(
-                        text = "${series.parts?.size}편",
+                        text = stringResource(id = R.string.movie_count, series.parts?.size ?: 0),
                         style = MaterialTheme.typography.titleMedium,
                     )
                 }
@@ -379,15 +400,17 @@ private fun GradientHero(
     modifier: Modifier = Modifier
 ) {
     Box(
-        modifier = modifier.height(height = dp340).background(
-            Brush.verticalGradient(
-                colorStops = arrayOf(
-                    0.6f to Color.Black.copy(alpha = 0.05f),
-                    0.8f to Color.Black.copy(alpha = 0.10f),
-                    1.0f to MaterialTheme.colorScheme.background
+        modifier = modifier
+            .height(height = dp340)
+            .background(
+                Brush.verticalGradient(
+                    colorStops = arrayOf(
+                        0.6f to Color.Black.copy(alpha = 0.05f),
+                        0.8f to Color.Black.copy(alpha = 0.10f),
+                        1.0f to MaterialTheme.colorScheme.background
+                    )
                 )
             )
-        )
     )
 }
 
@@ -423,7 +446,7 @@ private fun RatingChip(
         contentColor = Color(color = 0xFFF4C15D)
     ) {
         Text(
-            text = "★ ${"%.1f".format(rating)}",
+            text = stringResource(id = R.string.rating, rating),
             modifier = Modifier.padding(horizontal = dp12, vertical = dp7),
             style = MaterialTheme.typography.labelLarge,
             fontWeight = FontWeight.Bold
@@ -445,7 +468,7 @@ private fun ExpandableOverviewCard(
             modifier = Modifier.padding(all = dp18)
         ) {
             Text(
-                text = "시리즈 소개",
+                text = stringResource(id = R.string.series_overview),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -472,7 +495,7 @@ private fun ExpandableOverviewCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = if (expanded) "접기" else "더보기",
+                        text = if (expanded) stringResource(id = R.string.folding) else stringResource(id = R.string.more),
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.Bold
                     )
@@ -509,7 +532,7 @@ private fun YearSectionHeader(
         Spacer(modifier = Modifier.width(width = dp8))
 
         Text(
-            text = "• ${count}편",
+            text = stringResource(id = R.string.release_year_count, count),
             style = MaterialTheme.typography.bodyMedium,
         )
 
@@ -529,7 +552,9 @@ private fun MovieCard(
     goToMovie: (Int) -> Unit,
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth().bounceClick { goToMovie(movie.id ?: -1) },
+        modifier = Modifier
+            .fillMaxWidth()
+            .bounceClick { goToMovie(movie.id ?: -1) },
         shape = RoundedCornerShape(size = dp22),
         border = BorderStroke(width = dp1, color = Color.White.copy(alpha = 0.05f))
     ) {
@@ -560,7 +585,7 @@ private fun MovieCard(
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = "★ ${"%.1f".format(movie.voteAverage ?: 0f)}",
+                        text = stringResource(id = R.string.rating, movie.voteAverage ?: 0f),
                         style = MaterialTheme.typography.labelMedium,
                         color = Color(color = 0xFFF4C15D),
                         fontWeight = FontWeight.Bold
@@ -596,7 +621,7 @@ private fun MoviePoster(
     ) {
         if (posterUrl.isNullOrBlank()) {
             Text(
-                text = "No Image",
+                text = stringResource(id = R.string.no_image),
                 style = MaterialTheme.typography.labelMedium,
             )
         } else {

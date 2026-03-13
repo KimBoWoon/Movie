@@ -3,6 +3,7 @@ package com.cheeke.surfy.detail
 import com.cheeke.surfy.detail.series.SeriesState
 import com.cheeke.surfy.detail.series.SeriesVM
 import com.cheeke.surfy.testing.model.movieSeriesTestData
+import com.cheeke.surfy.testing.model.testImageList
 import com.cheeke.surfy.testing.repository.TestDetailRepository
 import com.cheeke.surfy.testing.utils.MainDispatcherRule
 import com.cheeke.surfy.testing.utils.TestAnalyticsHelper
@@ -47,9 +48,10 @@ class SeriesVMTest {
         assertEquals(SeriesState.Loading, seriesVM.series.value)
 
         testDetailRepository.setMovieSeries(movieSeriesTestData)
+        testDetailRepository.setImageList(imageList = testImageList)
 
         assertEquals(
-            SeriesState.Success(movieSeriesTestData),
+            SeriesState.Success(series = movieSeriesTestData, imageList = testImageList),
             seriesVM.series.value
         )
     }

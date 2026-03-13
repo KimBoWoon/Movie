@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="something_wrong">Something Wrong...</string>
+    <string name="something_wrong">Something Wrong…</string>
     <string name="network_failed">Network Failed</string>
+    <string name="series_timeline">Series timeline</string>
+    <string name="sort_by_release_time">You can see the flow at once in the order of opening</string>
+    <string name="movie_count">%d movie</string>
+    <string name="rating">★ %.1f</string>
+    <string name="series_overview">Overview</string>
+    <string name="more">More</string>
+    <string name="folding">Folding</string>
+    <string name="release_year_count">• %d movie</string>
+    <string name="no_image">No Image</string>
 </resources>

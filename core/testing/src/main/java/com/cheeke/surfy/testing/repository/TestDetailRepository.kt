@@ -3,6 +3,7 @@ package com.cheeke.surfy.testing.repository
 import com.cheeke.surfy.data.repository.DetailRepository
 import com.cheeke.surfy.model.CombineCredits
 import com.cheeke.surfy.model.ExternalIds
+import com.cheeke.surfy.model.ImageList
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.MovieWatchProvider
 import com.cheeke.surfy.model.People
@@ -27,6 +28,7 @@ class TestDetailRepository : DetailRepository {
     private val tvSeasons = MutableSharedFlow<TvSeasons>(replay = 1, onBufferOverflow = DROP_OLDEST)
     private val tvEpisode = MutableSharedFlow<TvEpisode>(replay = 1, onBufferOverflow = DROP_OLDEST)
     private val watchProvider = MutableSharedFlow<MovieWatchProvider>(replay = 1, onBufferOverflow = DROP_OLDEST)
+    private val imageList = MutableSharedFlow<ImageList>(replay = 1, onBufferOverflow = DROP_OLDEST)
 
     override fun getMovie(id: Int): Flow<Movie> = movie
 
@@ -55,6 +57,8 @@ class TestDetailRepository : DetailRepository {
         seasonNumber: Int,
         episodeNumber: Int
     ): Flow<TvEpisode> = tvEpisode
+
+    override fun getMovieSeriesImageList(collectionId: Int): Flow<ImageList> = imageList
 
     override fun getMovieWatchProviders(movieId: Int): Flow<MovieWatchProvider> = watchProvider
 
@@ -101,5 +105,10 @@ class TestDetailRepository : DetailRepository {
     @VisibleForTesting
     fun setTvEpisode(tvEpisode: TvEpisode) {
         this@TestDetailRepository.tvEpisode.tryEmit(value = tvEpisode)
+    }
+
+    @VisibleForTesting
+    fun setImageList(imageList: ImageList) {
+        this@TestDetailRepository.imageList.tryEmit(value = imageList)
     }
 }

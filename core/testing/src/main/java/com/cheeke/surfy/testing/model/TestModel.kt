@@ -21,6 +21,7 @@ import com.cheeke.surfy.model.Genre
 import com.cheeke.surfy.model.Genres
 import com.cheeke.surfy.model.Image
 import com.cheeke.surfy.model.ImageInfo
+import com.cheeke.surfy.model.ImageList
 import com.cheeke.surfy.model.Images
 import com.cheeke.surfy.model.Keyword
 import com.cheeke.surfy.model.Keywords
@@ -96,6 +97,12 @@ val configurationTestData = Configuration(
         secureBaseUrl = "https://",
         posterSizes = listOf("w92", "w182", "w342", "w540", "w720", "original")
     )
+)
+
+val testImageList = ImageList(
+    backdrops = emptyList(),
+    posters = emptyList(),
+    id = 0
 )
 
 val movieSearchTestData = SearchData(
