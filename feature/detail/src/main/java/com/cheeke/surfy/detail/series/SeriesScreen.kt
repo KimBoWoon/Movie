@@ -2,7 +2,6 @@ package com.cheeke.surfy.detail.series
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,7 +9,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,6 +17,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -37,7 +37,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
@@ -68,15 +67,12 @@ import com.cheeke.surfy.ui.utils.dp12
 import com.cheeke.surfy.ui.utils.dp14
 import com.cheeke.surfy.ui.utils.dp16
 import com.cheeke.surfy.ui.utils.dp18
-import com.cheeke.surfy.ui.utils.dp185
 import com.cheeke.surfy.ui.utils.dp20
 import com.cheeke.surfy.ui.utils.dp22
-import com.cheeke.surfy.ui.utils.dp24
 import com.cheeke.surfy.ui.utils.dp28
-import com.cheeke.surfy.ui.utils.dp340
 import com.cheeke.surfy.ui.utils.dp4
-import com.cheeke.surfy.ui.utils.dp42
 import com.cheeke.surfy.ui.utils.dp5
+import com.cheeke.surfy.ui.utils.dp50
 import com.cheeke.surfy.ui.utils.dp6
 import com.cheeke.surfy.ui.utils.dp7
 import com.cheeke.surfy.ui.utils.dp8
@@ -188,7 +184,7 @@ fun SeriesScreen(
                             ) {
                                 MovieCard(
                                     movie = movie,
-                                    goToMovie = { goToMovie(movie.id ?: -1) }
+                                    goToMovie = goToMovie
                                 )
                                 Spacer(modifier = Modifier.height(height = dp10))
                             }
@@ -221,8 +217,7 @@ private fun SeriesHeroSection(
 ) {
     Box(
         modifier = Modifier
-            .fillMaxWidth()
-            .height(height = dp340)
+            .fillMaxSize()
             .clip(shape = RoundedCornerShape(bottomStart = dp28, bottomEnd = dp28))
     ) {
         HeroBackground(
@@ -233,6 +228,12 @@ private fun SeriesHeroSection(
                 imageList.posters?.mapNotNull { it.filePath } ?: emptyList()
             },
             modifier = Modifier.fillMaxSize()
+        )
+
+        CircleActionButton(
+            modifier = Modifier.size(size = dp50).padding(start = dp10, top = dp10).align(alignment = Alignment.TopStart),
+            icon = Icons.AutoMirrored.Rounded.ArrowBack,
+            onClick = onBackClick
         )
 
         Box(
@@ -250,41 +251,32 @@ private fun SeriesHeroSection(
         )
 
         Column(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .padding(horizontal = dp20, vertical = dp20)
+                .align(alignment = Alignment.BottomStart)
         ) {
-            CircleActionButton(
-                icon = Icons.AutoMirrored.Rounded.ArrowBack,
-                onClick = onBackClick
+            Text(
+                text = series.title ?: "",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.ExtraBold,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
             )
 
-            Spacer(modifier = Modifier.weight(weight = 1f))
+            Spacer(modifier = Modifier.height(height = dp10))
 
-            Column(
-                modifier = Modifier.padding(horizontal = dp20, vertical = dp20)
-            ) {
-                Text(
-                    text = series.title ?: "",
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.ExtraBold,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-
-                Spacer(modifier = Modifier.height(height = dp10))
-
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    RatingChip(rating = series.voteAverage?.toDouble() ?: 0.toDouble())
-                    Spacer(modifier = Modifier.width(width = dp10))
-                    if (!series.parts.isNullOrEmpty()) {
-                        Text(
-                            text = "${series.parts?.size}편",
-                            style = MaterialTheme.typography.titleMedium,
-                        )
-                    }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                RatingChip(rating = series.voteAverage?.toDouble() ?: 0.toDouble())
+                Spacer(modifier = Modifier.width(width = dp10))
+                if (!series.parts.isNullOrEmpty()) {
+                    Text(
+                        text = "${series.parts?.size}편",
+                        style = MaterialTheme.typography.titleMedium,
+                    )
                 }
-
-                Spacer(modifier = Modifier.height(height = dp16))
             }
+
+            Spacer(modifier = Modifier.height(height = dp16))
         }
     }
 }
@@ -330,7 +322,7 @@ private fun PosterBlurHero(
             source = posterUrl,
             contentDescription = null,
             modifier = Modifier
-                .matchParentSize()
+                .fillMaxSize()
                 .blur(radius = dp16),
             contentScale = ContentScale.Crop
         )
@@ -348,23 +340,6 @@ private fun PosterBlurHero(
                     )
                 )
         )
-
-        DynamicAsyncImageLoader(
-            source = posterUrl,
-            contentDescription = null,
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .padding(end = dp24, top = dp28)
-                .height(height = dp185)
-                .aspectRatio(ratio = POSTER_IMAGE_RATIO)
-                .clip(RoundedCornerShape(size = dp22))
-                .border(
-                    width = dp1,
-                    color = Color.White.copy(alpha = 0.12f),
-                    shape = RoundedCornerShape(size = dp22)
-                ),
-            contentScale = ContentScale.Crop
-        )
     }
 }
 
@@ -373,7 +348,19 @@ private fun PosterCollageHero(
     posterUrls: List<String>,
     modifier: Modifier = Modifier
 ) {
-    Row(
+    HorizontalPager(
+        modifier = Modifier.fillMaxSize(),
+        state = rememberPagerState() { posterUrls.size }
+    ) { index ->
+        DynamicAsyncImageLoader(
+            source = posterUrls[index],
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
+    }
+
+    Box(
         modifier = modifier.background(
             Brush.verticalGradient(
                 colorStops = arrayOf(
@@ -383,19 +370,7 @@ private fun PosterCollageHero(
                 )
             )
         )
-    ) {
-        posterUrls.forEachIndexed { index, url ->
-            DynamicAsyncImageLoader(
-                source = url,
-                contentDescription = null,
-                modifier = Modifier
-                    .weight(weight = 1f)
-                    .fillMaxHeight()
-                    .alpha(alpha = if (index % 2 == 0) 0.55f else 0.38f),
-                contentScale = ContentScale.Crop
-            )
-        }
-    }
+    )
 }
 
 @Composable
@@ -417,16 +392,16 @@ private fun GradientHero(
 
 @Composable
 private fun CircleActionButton(
+    modifier: Modifier,
     icon: ImageVector,
-    onClick: () -> Unit,
-    highlighted: Boolean = false
+    onClick: () -> Unit
 ) {
     Surface(
+        modifier = modifier,
         onClick = onClick,
         shape = CircleShape
     ) {
         Box(
-            modifier = Modifier.size(size = dp42),
             contentAlignment = Alignment.Center
         ) {
             Icon(
@@ -550,10 +525,10 @@ private fun YearSectionHeader(
 @Composable
 private fun MovieCard(
     movie: SeriesPart,
-    goToMovie: () -> Unit,
+    goToMovie: (Int) -> Unit,
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth().bounceClick { goToMovie() },
+        modifier = Modifier.fillMaxWidth().bounceClick { goToMovie(movie.id ?: -1) },
         shape = RoundedCornerShape(size = dp22),
         border = BorderStroke(width = dp1, color = Color.White.copy(alpha = 0.05f))
     ) {
@@ -592,7 +567,7 @@ private fun MovieCard(
                     Spacer(modifier = Modifier.width(width = dp8))
                     Text(
                         text = movie.releaseDate ?: "",
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.labelSmall
                     )
                 }
 

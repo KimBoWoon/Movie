@@ -18,6 +18,7 @@ fun EntryProviderScope<NavKey>.movieEntry(
     goToBack: () -> Unit,
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
+    goToSeries: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean
 ) {
     entry<MovieNavKey> { detailRoute ->
@@ -25,6 +26,7 @@ fun EntryProviderScope<NavKey>.movieEntry(
             goToBack = goToBack,
             goToMovie = goToMovie,
             goToPeople = goToPeople,
+            goToSeries = goToSeries,
             onShowSnackbar = onShowSnackbar,
             viewModel = hiltViewModel<MovieVM, MovieVM.Factory>(
                 key = detailRoute.id.toString(),

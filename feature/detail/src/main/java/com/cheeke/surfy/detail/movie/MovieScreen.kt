@@ -71,6 +71,7 @@ import com.cheeke.surfy.ui.components.TitleComponent
 import com.cheeke.surfy.ui.components.VideosComponent
 import com.cheeke.surfy.ui.dialog.ConfirmDialog
 import com.cheeke.surfy.ui.image.DynamicAsyncImageLoader
+import com.cheeke.surfy.ui.utils.bounceClick
 import com.cheeke.surfy.ui.utils.dp10
 import com.cheeke.surfy.ui.utils.dp12
 import com.cheeke.surfy.ui.utils.dp120
@@ -91,6 +92,7 @@ fun MovieScreen(
     goToBack: () -> Unit,
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
+    goToSeries: (Int) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
     viewModel: MovieVM = hiltViewModel()
 ) {
@@ -106,6 +108,7 @@ fun MovieScreen(
         similarMovies = similarMovies,
         goToMovie = goToMovie,
         goToPeople = goToPeople,
+        goToSeries = goToSeries,
         goToBack = goToBack,
         isCheatActive = isCheatActive,
         onShowSnackbar = onShowSnackbar,
@@ -121,6 +124,7 @@ fun MovieScreen(
     similarMovies: LazyPagingItems<Movie>,
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
+    goToSeries: (Int) -> Unit,
     goToBack: () -> Unit,
     isCheatActive: Boolean,
     onShowSnackbar: suspend (String, String?) -> Boolean,
@@ -169,6 +173,7 @@ fun MovieScreen(
                         similarMovies = similarMovies,
                         goToMovie = goToMovie,
                         goToPeople = goToPeople,
+                        goToSeries = goToSeries,
                         goToBack = goToBack,
                         isCheatActive = isCheatActive,
                         onShowSnackbar = onShowSnackbar,
@@ -218,6 +223,7 @@ fun MovieDetailComponent(
     similarMovies: LazyPagingItems<Movie>,
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
+    goToSeries: (Int) -> Unit,
     goToBack: () -> Unit,
     isCheatActive: Boolean,
     onShowSnackbar: suspend (String, String?) -> Boolean,
@@ -294,7 +300,8 @@ fun MovieDetailComponent(
             movieState.movie.series?.let { series ->
                 SeriesComponent(
                     collection = series,
-                    goToMovie = goToMovie
+                    goToMovie = goToMovie,
+                    goToSeries = goToSeries
                 )
             }
             movieState.movie.images?.let { images ->
@@ -364,6 +371,7 @@ fun AlternativeTitleComponent(alternativeTitles: AlternativeTitles?) {
 fun SeriesComponent(
     collection: Series?,
     goToMovie: (Int) -> Unit,
+    goToSeries: (Int) -> Unit
 //    onSeeAll: () -> Unit
 ) {
     Column {
@@ -381,9 +389,9 @@ fun SeriesComponent(
                 .clip(shape = RoundedCornerShape(size = dp16))
                 .background(Color.DarkGray.copy(alpha = 0.25f))
                 .fillMaxWidth()
-                .padding(all = dp14),
+                .padding(all = dp14)
+                .bounceClick { goToSeries(collection?.id ?: -1) },
         ) {
-            // Collection summary card
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {

@@ -163,6 +163,7 @@ fun SurfyApp(
                 goToBack = { navigator.goBack() },
                 goToMovie = navigator::navigateToMovie,
                 goToPeople = navigator::navigateToPeople,
+                goToSeries = navigator::navigateToSeries,
                 onShowSnackbar = { message, action ->
                     snackbarHostState.showSnackbar(
                         message = message,
