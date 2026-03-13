@@ -20,13 +20,13 @@ fun FavoriteButtonComponent(
 ) {
     if (isFavorite) {
         Icon(
-            modifier = modifier.padding(all = dp5).clickable(indication = null, interactionSource = remember { MutableInteractionSource() }) { trace("UnFavoriteClicked") { onClick() } },
+            modifier = modifier.padding(all = dp5).clickable(indication = null, interactionSource = remember { MutableInteractionSource() }) { trace(sectionName = "UnFavoriteClicked") { onClick() } },
             painter = painterResource(id = R.drawable.ic_like_on),
             contentDescription = "favorite"
         )
     } else {
         Icon(
-            modifier = modifier.padding(all = dp5).clickable(indication = null, interactionSource = remember { MutableInteractionSource() }) { trace("FavoriteClicked") { onClick() } },
+            modifier = modifier.padding(all = dp5).clickable(indication = null, interactionSource = remember { MutableInteractionSource() }) { trace(sectionName = "FavoriteClicked") { onClick() } },
             painter = painterResource(id = R.drawable.ic_like_off),
             contentDescription = "unFavorite"
         )

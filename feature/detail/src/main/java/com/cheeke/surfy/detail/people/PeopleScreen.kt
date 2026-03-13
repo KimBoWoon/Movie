@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -21,12 +22,13 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -63,9 +65,9 @@ import com.cheeke.surfy.ui.dialog.ConfirmDialog
 import com.cheeke.surfy.ui.dialog.Indexer
 import com.cheeke.surfy.ui.image.DynamicAsyncImageLoader
 import com.cheeke.surfy.ui.utils.dp10
-import com.cheeke.surfy.ui.utils.dp16
 import com.cheeke.surfy.ui.utils.dp20
 import com.cheeke.surfy.ui.utils.dp200
+import com.cheeke.surfy.ui.utils.dp50
 import com.cheeke.surfy.ui.utils.fullBleed
 import com.cheeke.surfy.ui.utils.roundedCornerClickable
 import kotlinx.coroutines.launch
@@ -165,6 +167,7 @@ fun PeopleDetailComponent(
     }.orEmpty()
     val snackbarMessage = if (people.isFavorite) stringResource(id = R.string.remove_favorite_people) else stringResource(id = R.string.add_favorite_people)
     val lazyGridScrollState = rememberLazyGridState()
+    val analyticsHelper = LocalAnalyticsHelper.current
 
     LazyVerticalGrid(
         modifier = Modifier.fillMaxSize(),
@@ -182,8 +185,10 @@ fun PeopleDetailComponent(
                 onFavorite = {
                     if (people.isFavorite) {
                         deleteFavoritePeople(people.people)
+                        analyticsHelper.logFavorite(isFavorite = false, contentType = "people", media = people.people)
                     } else {
                         insertFavoritePeople(people.people)
+                        analyticsHelper.logFavorite(isFavorite = true, contentType = "people", media = people.people)
                     }
                     scope.launch { onShowSnackbar(snackbarMessage, null) }
                 }
@@ -240,7 +245,6 @@ fun ProfileComponent(
     onFavorite: () -> Unit
 ) {
     val pagerState = rememberPagerState(pageCount = { images.size.coerceAtLeast(minimumValue = 1) })
-    val analyticsHelper = LocalAnalyticsHelper.current
 
     Box(
         modifier = Modifier.fillMaxWidth().fullBleed(horizontalPadding = dp10)
@@ -285,29 +289,39 @@ fun ProfileComponent(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = onBack) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back"
-                )
+            Surface(
+                modifier = Modifier.size(size = dp50).padding(start = dp10, top = dp10),
+                color = Color(color = 0x1A000000),
+                onClick = onBack,
+                shape = CircleShape
+            ) {
+                Box(
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = null
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.weight(weight = 1f))
 
-            FavoriteButtonComponent(
-                modifier = Modifier
-                    .padding(end = dp16)
-                    .wrapContentSize(),
-                isFavorite = people.isFavorite,
-                onClick = {
-                    onFavorite()
-                    if (people.isFavorite) {
-                        analyticsHelper.logFavorite(isFavorite = false, contentType = "surfy", media = people.people)
-                    } else {
-                        analyticsHelper.logFavorite(isFavorite = true, contentType = "surfy", media = people.people)
-                    }
+            Box(
+                contentAlignment = Alignment.Center
+            ) {
+                Surface(
+                    modifier = Modifier.size(size = dp50).padding(end = dp10, top = dp10),
+                    color = Color(color = 0x1A000000),
+                    shape = CircleShape
+                ) {
+                    FavoriteButtonComponent(
+                        modifier = Modifier.wrapContentSize(),
+                        isFavorite = people.isFavorite,
+                        onClick = { onFavorite() }
+                    )
                 }
-            )
+            }
         }
 
         Column(

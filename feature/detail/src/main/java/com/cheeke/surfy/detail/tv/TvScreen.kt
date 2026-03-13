@@ -61,6 +61,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.cheeke.surfy.analytics.LocalAnalyticsHelper
 import com.cheeke.surfy.analytics.TrackScreenViewEvent
+import com.cheeke.surfy.analytics.logFavorite
 import com.cheeke.surfy.analytics.logSelectEpisode
 import com.cheeke.surfy.analytics.logSelectSeason
 import com.cheeke.surfy.common.Log
@@ -279,8 +280,10 @@ fun TvDetailComponent(
             onFavoriteClick = {
                 if (tv.isFavorite) {
                     deleteFavoriteTv(tv.tv)
+                    analyticsHelper.logFavorite(isFavorite = false, contentType = "tv", media = tv.tv)
                 } else {
                     insertFavoriteTv(tv.tv)
+                    analyticsHelper.logFavorite(isFavorite = true, contentType = "tv", media = tv.tv)
                 }
                 scope.launch {
                     onShowSnackbar(favoriteMessage, null)

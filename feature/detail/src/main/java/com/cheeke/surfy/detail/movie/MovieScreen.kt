@@ -250,10 +250,10 @@ fun MovieDetailComponent(
             onFavoriteClick = {
                 if (movieState.isFavorite) {
                     deleteFavoriteMovie(movieState.movie)
-                    analyticsHelper.logFavorite(isFavorite = false, contentType = "surfy", media = movieState.movie)
+                    analyticsHelper.logFavorite(isFavorite = false, contentType = "movie", media = movieState.movie)
                 } else {
                     insertFavoriteMovie(movieState.movie)
-                    analyticsHelper.logFavorite(isFavorite = true, contentType = "surfy", media = movieState.movie)
+                    analyticsHelper.logFavorite(isFavorite = true, contentType = "movie", media = movieState.movie)
                 }
                 scope.launch {
                     onShowSnackbar(favoriteMessage, null)
@@ -400,7 +400,7 @@ fun SeriesComponent(
                     contentDescription = null,
                     modifier = Modifier
                         .size(width = dp62, height = dp92)
-                        .clip(RoundedCornerShape(size = dp12))
+                        .clip(shape = RoundedCornerShape(size = dp12))
                         .background(Color.DarkGray),
                     contentScale = ContentScale.Crop
                 )
