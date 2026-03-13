@@ -70,6 +70,7 @@ import com.cheeke.surfy.ui.utils.dp18
 import com.cheeke.surfy.ui.utils.dp20
 import com.cheeke.surfy.ui.utils.dp22
 import com.cheeke.surfy.ui.utils.dp28
+import com.cheeke.surfy.ui.utils.dp340
 import com.cheeke.surfy.ui.utils.dp4
 import com.cheeke.surfy.ui.utils.dp5
 import com.cheeke.surfy.ui.utils.dp50
@@ -378,7 +379,7 @@ private fun GradientHero(
     modifier: Modifier = Modifier
 ) {
     Box(
-        modifier = modifier.background(
+        modifier = modifier.height(height = dp340).background(
             Brush.verticalGradient(
                 colorStops = arrayOf(
                     0.6f to Color.Black.copy(alpha = 0.05f),
