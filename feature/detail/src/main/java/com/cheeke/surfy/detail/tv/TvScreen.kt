@@ -89,7 +89,6 @@ import com.cheeke.surfy.ui.dialog.ConfirmDialog
 import com.cheeke.surfy.ui.image.DynamicAsyncImageLoader
 import com.cheeke.surfy.ui.utils.dp10
 import com.cheeke.surfy.ui.utils.dp12
-import com.cheeke.surfy.ui.utils.dp15
 import com.cheeke.surfy.ui.utils.dp150
 import com.cheeke.surfy.ui.utils.dp16
 import com.cheeke.surfy.ui.utils.dp180
@@ -270,14 +269,13 @@ fun TvDetailComponent(
     val scrollState = rememberScrollState()
     val analyticsHelper = LocalAnalyticsHelper.current
 
-    Column (
-        modifier = Modifier.fillMaxSize(),
+    Column(
+        modifier = Modifier.fillMaxSize().verticalScroll(state = scrollState)
     ) {
         TitleComponent(
-            title = tv.tv.title ?: "",
             isFavorite = tv.isFavorite,
             goToBack = goToBack,
-            onFavoriteClick = {
+            onFavorite = {
                 if (tv.isFavorite) {
                     deleteFavoriteTv(tv.tv)
                     analyticsHelper.logFavorite(isFavorite = false, contentType = "tv", media = tv.tv)
@@ -290,68 +288,69 @@ fun TvDetailComponent(
                 }
             }
         )
-        Column(
-            modifier = Modifier.verticalScroll(state = scrollState),
-            verticalArrangement = Arrangement.spacedBy(space = dp15)
-        ) {
-            tv.tv.videos?.results?.filter { it.site == "YouTube" }?.let { vods ->
-                VideosComponent(scope = scope, vodList = vods, autoPlayTrailer = tv.autoPlayTrailer)
-            }
-            MediaTitleComponent(media = tv.tv)
-            tv.tv.alternativeTitles?.let { alternativeTitles ->
-                if (!alternativeTitles.titles.isNullOrEmpty()) {
-                    AlternativeTitleComponent(alternativeTitles = alternativeTitles)
-                }
-            }
-            tv.tv.overview?.takeIf { it.trim().isNotEmpty() }?.let { overview ->
-                OverviewComponent(overview = overview)
-            }
-            tv.tv.credits?.let { credits ->
-                CreditsComponent(credits = credits, goToPeople = goToPeople)
-            }
-            tv.seasons.takeIf { it.isNotEmpty() }?.let { seasons ->
-                SeasonComponent(
-                    tv = tv.tv,
-                    seasons = seasons,
-                    episodeState = tv.episodeState,
-                    episodesBySeason = tv.episodesBySeason,
-                    initialSeasonId = seasons.firstOrNull()?.id,
-                    onEpisodeClick = { episode ->
-                        showEpisodeDetail(episode)
-                        analyticsHelper.logSelectEpisode(
-                            tvId = tv.tv.id.toString(),
-                            tvTitle = tv.tv.title.toString(),
-                            seasonName = seasons.find { it.seasonNumber == episode.seasonNumber }?.name.toString(),
-                            seasonNumber = episode.seasonNumber.toString(),
-                            episodeName = episode.name.toString(),
-                            episodeNumber = episode.episodeNumber.toString()
-                        )
-                    },
-                    onSelectSeason = onSelectSeason
-                )
-            }
-            tv.tv.productionCompanies?.let { productionCompanies ->
-                ProductionComponent(companies = productionCompanies)
-            }
-            tv.tv.images?.let {
-                val backdrops = it.backdrops ?: emptyList()
-                val posters = it.posters ?: emptyList()
-
-                ImagesComponent(
-                    backdrops = backdrops,
-                    posters = posters,
-                    sharedTransitionScope = sharedTransitionScope,
-                    selectedImage = selectedImage,
-                    selectedIndex = selectedIndex,
-                    overlayVisible = overlayVisible,
-                    onSelect = onSelect
-                )
-            }
-            if (similarTvs.itemCount > 0) {
-                SimilarComponent(similar = similarTvs, goToDestination = goToTv)
-            }
-            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp20))
+        tv.tv.videos?.results?.filter { it.site == "YouTube" }?.takeIf { it.isNotEmpty() }?.let { vods ->
+            VideosComponent(scope = scope, vodList = vods, autoPlayTrailer = tv.autoPlayTrailer)
+            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
         }
+        MediaTitleComponent(media = tv.tv)
+        tv.tv.alternativeTitles?.titles?.takeIf { it.isNotEmpty() }?.let { alternativeTitles ->
+            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
+            AlternativeTitleComponent(alternativeTitles = alternativeTitles)
+        }
+        tv.tv.overview?.takeIf { it.trim().isNotEmpty() }?.let { overview ->
+            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
+            OverviewComponent(overview = overview)
+        }
+        tv.tv.credits?.let { credits ->
+            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
+            CreditsComponent(credits = credits, goToPeople = goToPeople)
+        }
+        tv.seasons.takeIf { it.isNotEmpty() }?.let { seasons ->
+            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
+            SeasonComponent(
+                tv = tv.tv,
+                seasons = seasons,
+                episodeState = tv.episodeState,
+                episodesBySeason = tv.episodesBySeason,
+                initialSeasonId = seasons.firstOrNull()?.id,
+                onEpisodeClick = { episode ->
+                    showEpisodeDetail(episode)
+                    analyticsHelper.logSelectEpisode(
+                        tvId = tv.tv.id.toString(),
+                        tvTitle = tv.tv.title.toString(),
+                        seasonName = seasons.find { it.seasonNumber == episode.seasonNumber }?.name.toString(),
+                        seasonNumber = episode.seasonNumber.toString(),
+                        episodeName = episode.name.toString(),
+                        episodeNumber = episode.episodeNumber.toString()
+                    )
+                },
+                onSelectSeason = onSelectSeason
+            )
+        }
+        tv.tv.productionCompanies?.let { productionCompanies ->
+            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
+            ProductionComponent(companies = productionCompanies)
+        }
+        tv.tv.images?.let {
+            val backdrops = it.backdrops ?: emptyList()
+            val posters = it.posters ?: emptyList()
+
+            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
+            ImagesComponent(
+                backdrops = backdrops,
+                posters = posters,
+                sharedTransitionScope = sharedTransitionScope,
+                selectedImage = selectedImage,
+                selectedIndex = selectedIndex,
+                overlayVisible = overlayVisible,
+                onSelect = onSelect
+            )
+        }
+        if (similarTvs.itemCount > 0) {
+            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
+            SimilarComponent(similar = similarTvs, goToDestination = goToTv)
+        }
+        Spacer(modifier = Modifier.fillMaxWidth().height(height = dp20))
     }
 }
 

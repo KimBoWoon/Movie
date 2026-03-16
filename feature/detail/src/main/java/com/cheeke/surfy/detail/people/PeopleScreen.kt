@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -22,13 +21,8 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -55,19 +49,19 @@ import com.cheeke.surfy.domain.PeopleWithFavorite
 import com.cheeke.surfy.feature.detail.R
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
 import com.cheeke.surfy.model.Image
+import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.model.MediaType
 import com.cheeke.surfy.model.People
 import com.cheeke.surfy.model.getRelatedMovie
 import com.cheeke.surfy.ui.components.CircularProgressComponent
 import com.cheeke.surfy.ui.components.ExternalIdLinkComponent
-import com.cheeke.surfy.ui.components.FavoriteButtonComponent
+import com.cheeke.surfy.ui.components.TitleComponent
 import com.cheeke.surfy.ui.dialog.ConfirmDialog
 import com.cheeke.surfy.ui.dialog.Indexer
 import com.cheeke.surfy.ui.image.DynamicAsyncImageLoader
 import com.cheeke.surfy.ui.utils.dp10
 import com.cheeke.surfy.ui.utils.dp20
 import com.cheeke.surfy.ui.utils.dp200
-import com.cheeke.surfy.ui.utils.dp50
 import com.cheeke.surfy.ui.utils.fullBleed
 import com.cheeke.surfy.ui.utils.roundedCornerClickable
 import kotlinx.coroutines.launch
@@ -158,13 +152,16 @@ fun PeopleDetailComponent(
     onShowSnackbar: suspend (String, String?) -> Boolean
 ) {
     val scope = rememberCoroutineScope()
-    val relatedMovie = people.people.combineCredits?.getRelatedMovie()?.sortedByDescending {
-        if (it.releaseDate.isNullOrEmpty()) {
-            LocalDate.MAX
-        } else {
-            LocalDate.parse(it.releaseDate)
-        }
-    }.orEmpty()
+
+    val relatedMovie = people.people.combineCredits?.getRelatedMovie()?.sortedWith(
+        compareByDescending<Media> {
+            if (it.releaseDate.isNullOrEmpty()) {
+                LocalDate.MAX
+            } else {
+                LocalDate.parse(it.releaseDate)
+            }
+        }.thenByDescending { it.title }
+    ).orEmpty()
     val snackbarMessage = if (people.isFavorite) stringResource(id = R.string.remove_favorite_people) else stringResource(id = R.string.add_favorite_people)
     val lazyGridScrollState = rememberLazyGridState()
     val analyticsHelper = LocalAnalyticsHelper.current
@@ -181,7 +178,7 @@ fun PeopleDetailComponent(
             ProfileComponent(
                 people = people,
                 images = people.people.images.orEmpty(),
-                onBack = goToBack,
+                goToBack = goToBack,
                 onFavorite = {
                     if (people.isFavorite) {
                         deleteFavoritePeople(people.people)
@@ -241,7 +238,7 @@ fun PeopleDetailComponent(
 fun ProfileComponent(
     people: PeopleWithFavorite,
     images: List<Image>,
-    onBack: () -> Unit,
+    goToBack: () -> Unit,
     onFavorite: () -> Unit
 ) {
     val pagerState = rememberPagerState(pageCount = { images.size.coerceAtLeast(minimumValue = 1) })
@@ -285,44 +282,11 @@ fun ProfileComponent(
                 .height(height = dp200))
         }
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Surface(
-                modifier = Modifier.size(size = dp50).padding(start = dp10, top = dp10),
-                color = Color(color = 0x1A000000),
-                onClick = onBack,
-                shape = CircleShape
-            ) {
-                Box(
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = null
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.weight(weight = 1f))
-
-            Box(
-                contentAlignment = Alignment.Center
-            ) {
-                Surface(
-                    modifier = Modifier.size(size = dp50).padding(end = dp10, top = dp10),
-                    color = Color(color = 0x1A000000),
-                    shape = CircleShape
-                ) {
-                    FavoriteButtonComponent(
-                        modifier = Modifier.wrapContentSize(),
-                        isFavorite = people.isFavorite,
-                        onClick = { onFavorite() }
-                    )
-                }
-            }
-        }
+        TitleComponent(
+            isFavorite = people.isFavorite,
+            goToBack = goToBack,
+            onFavorite = onFavorite
+        )
 
         Column(
             modifier = Modifier.align(Alignment.BottomCenter),

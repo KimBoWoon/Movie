@@ -52,7 +52,7 @@ import com.cheeke.surfy.data.util.POSTER_IMAGE_RATIO
 import com.cheeke.surfy.domain.MovieWithFavorite
 import com.cheeke.surfy.feature.detail.R
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
-import com.cheeke.surfy.model.AlternativeTitles
+import com.cheeke.surfy.model.AlternativeTitle
 import com.cheeke.surfy.model.Image
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.Series
@@ -76,7 +76,6 @@ import com.cheeke.surfy.ui.utils.dp10
 import com.cheeke.surfy.ui.utils.dp12
 import com.cheeke.surfy.ui.utils.dp120
 import com.cheeke.surfy.ui.utils.dp14
-import com.cheeke.surfy.ui.utils.dp15
 import com.cheeke.surfy.ui.utils.dp16
 import com.cheeke.surfy.ui.utils.dp20
 import com.cheeke.surfy.ui.utils.dp4
@@ -241,13 +240,12 @@ fun MovieDetailComponent(
     val analyticsHelper = LocalAnalyticsHelper.current
 
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize().verticalScroll(state = scrollState)
     ) {
         TitleComponent(
-            title = movieState.movie.title ?: "",
             isFavorite = movieState.isFavorite,
             goToBack = goToBack,
-            onFavoriteClick = {
+            onFavorite = {
                 if (movieState.isFavorite) {
                     deleteFavoriteMovie(movieState.movie)
                     analyticsHelper.logFavorite(isFavorite = false, contentType = "movie", media = movieState.movie)
@@ -260,71 +258,74 @@ fun MovieDetailComponent(
                 }
             }
         )
-
-        Column(
-            modifier = Modifier.verticalScroll(state = scrollState),
-            verticalArrangement = Arrangement.spacedBy(space = dp15)
-        ) {
+        movieState.movie.videos?.results?.filter { it.site == "YouTube" }?.takeIf { it.isNotEmpty() }?.let { vodList ->
             VideosComponent(
                 scope = scope,
-                vodList = movieState.movie.videos?.results?.filter { it.site == "YouTube" } ?: emptyList(),
+                vodList = vodList,
                 autoPlayTrailer = movieState.autoPlayTrailer
             )
+            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
+        }
 
-            MediaTitleComponent(media = movieState.movie)
-            // 12) (옵션) Watch Providers / Where to watch
+        MediaTitleComponent(media = movieState.movie)
+        // 12) (옵션) Watch Providers / Where to watch
 //            movieState.watchProviders?.let { watchProvider ->
 //                item {
 //                    WatchProvidersSection(providers = watchProvider)
 //                }
 //            }
-            if (isCheatActive) {
-                movieState.movie.alternativeTitles?.let { alternativeTitles ->
-                    if (!alternativeTitles.titles.isNullOrEmpty()) {
-                        AlternativeTitleComponent(alternativeTitles = alternativeTitles)
-                    }
-                }
+        if (isCheatActive) {
+            movieState.movie.alternativeTitles?.titles?.takeIf { it.isNotEmpty() }?.let { alternativeTitles ->
+                Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
+                AlternativeTitleComponent(alternativeTitles = alternativeTitles)
             }
-            movieState.movie.overview?.takeIf { it.trim().isNotEmpty() }?.let { overview ->
-                OverviewComponent(overview = overview)
-            }
-            movieState.movie.credits?.let { credits ->
-                CreditsComponent(
-                    credits = credits,
-                    goToPeople = goToPeople
-                )
-            }
-            movieState.movie.productionCompanies?.let { productionCompanies ->
-                ProductionComponent(companies = productionCompanies)
-            }
-            movieState.movie.series?.let { series ->
-                SeriesComponent(
-                    collection = series,
-                    goToMovie = goToMovie,
-                    goToSeries = goToSeries
-                )
-            }
-            movieState.movie.images?.let { images ->
-                val posters = images.posters ?: emptyList()
-                val backdrops = images.backdrops ?: emptyList()
+        }
+        movieState.movie.overview?.takeIf { it.trim().isNotEmpty() }?.let { overview ->
+            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
+            OverviewComponent(overview = overview)
+        }
+        movieState.movie.credits?.let { credits ->
+            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
+            CreditsComponent(
+                credits = credits,
+                goToPeople = goToPeople
+            )
+        }
+        movieState.movie.productionCompanies?.let { productionCompanies ->
+            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
+            ProductionComponent(companies = productionCompanies)
+        }
+        movieState.movie.series?.let { series ->
+            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
+            SeriesComponent(
+                collection = series,
+                goToMovie = goToMovie,
+                goToSeries = goToSeries
+            )
+        }
+        movieState.movie.images?.let { images ->
+            val posters = images.posters ?: emptyList()
+            val backdrops = images.backdrops ?: emptyList()
 
-                ImagesComponent(
-                    backdrops = backdrops,
-                    posters = posters,
-                    sharedTransitionScope = sharedTransitionScope,
-                    selectedImage = selectedImage,
-                    selectedIndex = selectedIndex,
-                    overlayVisible = overlayVisible,
-                    onSelect = onSelect
-                )
-            }
-            if (similarMovies.itemCount > 0) {
-                SimilarComponent(
-                    similar = similarMovies,
-                    goToDestination = goToMovie
-                )
-            }
-            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp20))
+            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
+            ImagesComponent(
+                backdrops = backdrops,
+                posters = posters,
+                sharedTransitionScope = sharedTransitionScope,
+                selectedImage = selectedImage,
+                selectedIndex = selectedIndex,
+                overlayVisible = overlayVisible,
+                onSelect = onSelect
+            )
+        }
+        if (similarMovies.itemCount > 0) {
+            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
+            SimilarComponent(
+                similar = similarMovies,
+                goToDestination = goToMovie
+            )
+        }
+        Spacer(modifier = Modifier.fillMaxWidth().height(height = dp20))
 //            // 11) (옵션) Reviews Preview (2~3개) + See all
 //            if (uiState.reviews.isNotEmpty()) {
 //                item {
@@ -334,14 +335,13 @@ fun MovieDetailComponent(
 //                    )
 //                }
 //            }
-        }
     }
 }
 
 @Composable
-fun AlternativeTitleComponent(alternativeTitles: AlternativeTitles?) {
+fun AlternativeTitleComponent(alternativeTitles: List<AlternativeTitle>) {
     var expanded by remember { mutableStateOf(value = false) }
-    val titles = alternativeTitles?.titles?.fold(initial = "") { acc, title -> if (acc.isEmpty()) "${title.title}" else "$acc\n${title.title}" } ?: ""
+    val titles = alternativeTitles.fold(initial = "") { acc, title -> if (acc.isEmpty()) "${title.title}" else "$acc\n${title.title}" }
 
     Column {
         SectionHeader(title = "Alternative Titles")

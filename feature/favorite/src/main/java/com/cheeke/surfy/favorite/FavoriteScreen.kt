@@ -154,6 +154,7 @@ fun FavoriteScreen(
                                 FavoriteButtonComponent(
                                     modifier = Modifier
                                         .wrapContentSize()
+                                        .padding(end = dp5, top = dp5)
                                         .align(Alignment.TopEnd),
                                     isFavorite = true,
                                     onClick = {
@@ -200,6 +201,7 @@ fun FavoriteScreen(
                                 FavoriteButtonComponent(
                                     modifier = Modifier
                                         .wrapContentSize()
+                                        .padding(end = dp5, top = dp5)
                                         .align(Alignment.TopEnd),
                                     isFavorite = true,
                                     onClick = {
@@ -249,6 +251,7 @@ fun FavoriteScreen(
                                     FavoriteButtonComponent(
                                         modifier = Modifier
                                             .wrapContentSize()
+                                            .padding(end = dp5, top = dp5)
                                             .align(Alignment.TopEnd),
                                         isFavorite = true,
                                         onClick = {

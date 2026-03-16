@@ -18,7 +18,7 @@ private fun surfyAppTypography(
     fontFamily = BaseFontFamily,
     fontWeight = fontWeight,
     fontSize = fontSize.sp,
-    lineHeight = lineHeight.sp,
+//    lineHeight = lineHeight.sp,
     lineHeightStyle = LineHeightStyle(
         alignment = LineHeightStyle.Alignment.Center,
         trim = LineHeightStyle.Trim.Both

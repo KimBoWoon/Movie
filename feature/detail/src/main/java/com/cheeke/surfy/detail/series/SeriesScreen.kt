@@ -551,6 +551,8 @@ private fun MovieCard(
     movie: SeriesPart,
     goToMovie: (Int) -> Unit,
 ) {
+    val posterWidth = dp88
+    val descriptionHeight = posterWidth / POSTER_IMAGE_RATIO
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -572,8 +574,8 @@ private fun MovieCard(
             Spacer(modifier = Modifier.width(width = dp5))
 
             Column(
-                modifier = Modifier.weight(weight = 1f),
-                verticalArrangement = Arrangement.Center
+                modifier = Modifier.height(height = descriptionHeight),
+                verticalArrangement = Arrangement.Top
             ) {
                 Text(
                     text = movie.title ?: "",
@@ -600,7 +602,6 @@ private fun MovieCard(
                 Text(
                     text = movie.overview ?: "",
                     style = MaterialTheme.typography.bodySmall,
-                    maxLines = 4,
                     overflow = TextOverflow.Ellipsis
                 )
             }

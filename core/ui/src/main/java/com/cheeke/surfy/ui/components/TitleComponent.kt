@@ -1,89 +1,74 @@
 package com.cheeke.surfy.ui.components
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
-import com.cheeke.surfy.ui.utils.Line
-import com.cheeke.surfy.ui.utils.border
-import com.cheeke.surfy.ui.utils.dp16
+import com.cheeke.surfy.ui.utils.dp10
 import com.cheeke.surfy.ui.utils.dp24
+import com.cheeke.surfy.ui.utils.dp40
 import com.cheeke.surfy.ui.utils.dp5
-import com.cheeke.surfy.ui.utils.dp53
-import com.cheeke.surfy.ui.utils.sp20
 
 @Composable
 fun TitleComponent(
-    title: String,
-    isFavorite: Boolean? = null,
+    isFavorite: Boolean,
     goToBack: (() -> Unit)? = null,
-    onFavoriteClick: (() -> Unit)? = null
+    onFavorite: (() -> Unit)? = null
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(height = dp53)
-            .border(line = Line.BOTTOM, strokeWidth = (0.5).dp, color = Color.LightGray),
-        horizontalArrangement = Arrangement.Center,
+        modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        goToBack?.let { goToBack ->
-            FilledIconButton(
-                modifier = Modifier.testTag(tag = "backButton").padding(all = dp5),
-                onClick = { goToBack() },
-                colors = IconButtonDefaults.iconButtonColors(
-                    containerColor = Color.Transparent,
-                    contentColor = MaterialTheme.colorScheme.onSurface,
-                    disabledContainerColor = Color.Transparent,
-                    disabledContentColor = Color.Transparent
-                )
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "goToBackClick"
-                )
-            }
-        } ?: Spacer(modifier = Modifier.size(size = dp24).padding(start = dp16).background(color = Color.Transparent))
-
-        Text(
-            modifier = Modifier.testTag(tag = "titleComponent").weight(1f),
-            text = title,
-            fontSize = sp20,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
-
-        onFavoriteClick?.let { onFavorite ->
-            FavoriteButtonComponent(
+        goToBack?.let {
+            Surface(
                 modifier = Modifier
-                    .padding(end = dp16)
-                    .wrapContentSize(),
-                isFavorite = isFavorite ?: false,
-                onClick = { onFavorite() }
-            )
-        } ?: Spacer(modifier = Modifier.padding(end = dp16).size(dp24).background(color = Color.Transparent))
+                    .padding(start = dp10, top = dp10, bottom = dp5)
+                    .size(size = dp40),
+                onClick = it,
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.3f)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "goToBack",
+                        tint = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.size(size = dp24)
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.weight(weight = 1f))
+
+        onFavorite?.let {
+            Surface(
+                modifier = Modifier
+                    .padding(end = dp10, top = dp10, bottom = dp5)
+                    .size(size = dp40),
+                onClick = it,
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.3f)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    FavoriteButtonComponent(
+                        modifier = Modifier.size(size = dp24),
+                        isFavorite = isFavorite,
+                        onClick = it
+                    )
+                }
+            }
+        }
     }
 }
