@@ -22,9 +22,9 @@ import androidx.constraintlayout.compose.layoutId
 import com.cheeke.surfy.data.util.POSTER_IMAGE_RATIO
 import com.cheeke.surfy.model.SeriesPart
 import com.cheeke.surfy.ui.image.DynamicAsyncImageLoader
-import com.cheeke.surfy.ui.utils.roundedCornerClickable
 import com.cheeke.surfy.ui.utils.dp10
 import com.cheeke.surfy.ui.utils.dp150
+import com.cheeke.surfy.ui.utils.roundedCornerClickable
 import com.cheeke.surfy.ui.utils.sp12
 import com.cheeke.surfy.ui.utils.sp13
 import com.cheeke.surfy.ui.utils.sp20
@@ -50,7 +50,7 @@ fun SeriesMovieInfoComponent(
     goToMovie: (Int) -> Unit
 ) {
     Layout(
-        modifier = Modifier.Companion.roundedCornerClickable(onClick = { goToMovie(seriesPart.id ?: -1) }),
+        modifier = Modifier.roundedCornerClickable(onClick = { goToMovie(seriesPart.id ?: -1) }),
         content = {
             DynamicAsyncImageLoader(
                 modifier = Modifier

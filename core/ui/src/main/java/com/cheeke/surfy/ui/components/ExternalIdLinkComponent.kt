@@ -22,7 +22,7 @@ fun ExternalIdLinkComponent(
 
     link.takeIf { it.isNotEmpty() }?.let {
         Icon(
-            modifier = Modifier.Companion
+            modifier = Modifier
                 .size(size = dp20)
                 .clickable {
                     context.startActivity(Intent(Intent.ACTION_VIEW, link.toUri()))

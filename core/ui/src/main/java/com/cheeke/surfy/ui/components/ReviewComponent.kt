@@ -80,7 +80,7 @@ fun ReviewComponent(
                                 DynamicAsyncImageLoader(
                                     source = review.authorDetails?.avatarPath ?: "",
                                     contentDescription = "reviewAuthorAvatarPath",
-                                    modifier = Modifier.Companion
+                                    modifier = Modifier
                                         .size(size = dp60)
                                         .clip(shape = CircleShape)
                                 )

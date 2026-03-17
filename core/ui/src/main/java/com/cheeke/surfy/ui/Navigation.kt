@@ -20,9 +20,9 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
-import com.cheeke.surfy.ui.utils.roundedCornerClickable
 import com.cheeke.surfy.ui.utils.dp24
 import com.cheeke.surfy.ui.utils.dp5
+import com.cheeke.surfy.ui.utils.roundedCornerClickable
 import com.cheeke.surfy.ui.utils.sp12
 
 @Composable
@@ -93,8 +93,8 @@ fun ColumnScope.BottomNavigationRailItem(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Icon(
-            modifier = Modifier.Companion
-                .size(dp24)
+            modifier = Modifier
+                .size(size = dp24)
                 .padding(top = dp5),
             imageVector = when (selected) {
                 true -> selectedIcon

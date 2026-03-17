@@ -22,8 +22,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import com.cheeke.surfy.model.Credits
 import com.cheeke.surfy.core.ui.R
+import com.cheeke.surfy.model.Credits
 import com.cheeke.surfy.ui.image.DynamicAsyncImageLoader
 import com.cheeke.surfy.ui.utils.bounceClick
 import com.cheeke.surfy.ui.utils.dp12
@@ -67,7 +67,7 @@ fun CreditsComponent(
                         DynamicAsyncImageLoader(
                             source = actor.profilePath ?: "",
                             contentDescription = null,
-                            modifier = Modifier.Companion
+                            modifier = Modifier
                                 .size(size = dp72)
                                 .clip(shape = CircleShape),
                             contentScale = ContentScale.Crop
@@ -117,7 +117,7 @@ fun CreditsComponent(
                         DynamicAsyncImageLoader(
                             source = crew.profilePath ?: "",
                             contentDescription = null,
-                            modifier = Modifier.Companion
+                            modifier = Modifier
                                 .size(size = dp72)
                                 .clip(shape = CircleShape),
                             contentScale = ContentScale.Crop

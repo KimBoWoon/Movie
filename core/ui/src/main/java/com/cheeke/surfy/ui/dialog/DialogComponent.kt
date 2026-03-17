@@ -103,7 +103,7 @@ private fun MovieDialog(
                         color = Color.Black
                     )
                 }
-                Spacer(modifier = Modifier.Companion.height(dp20))
+                Spacer(modifier = Modifier.height(height = dp20))
                 Text(
                     modifier = Modifier
                         .fillMaxWidth()

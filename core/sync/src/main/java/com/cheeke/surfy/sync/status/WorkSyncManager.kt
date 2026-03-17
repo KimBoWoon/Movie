@@ -38,7 +38,7 @@ internal class WorkSyncManager @Inject constructor(
             .enqueueUniqueWork(
                 uniqueWorkName = ONE_TIME_UNIQUE_WORKER,
                 existingWorkPolicy = ExistingWorkPolicy.KEEP,
-                request = MidnightSyncWorker.Companion.startUpSyncWork()
+                request = MidnightSyncWorker.startUpSyncWork()
             )
 //        WorkManager.getInstance(context = appContext)
 //            .enqueueUniquePeriodicWork(
@@ -53,16 +53,16 @@ internal class WorkSyncManager @Inject constructor(
             .enqueueUniquePeriodicWork(
                 uniqueWorkName = PERIODIC_UNIQUE_WORKER,
                 existingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.UPDATE,
-                request = MidnightSyncWorker.Companion.startPeriodicSyncWork()
+                request = MidnightSyncWorker.startPeriodicSyncWork()
             )
     }
 
     override fun requestSync() {
         WorkManager.getInstance(context = appContext)
             .enqueueUniqueWork(
-                uniqueWorkName = MidnightSyncWorker.Companion.EXPEDITED_SYNC_WORK_NAME,
+                uniqueWorkName = MidnightSyncWorker.EXPEDITED_SYNC_WORK_NAME,
                 existingWorkPolicy = ExistingWorkPolicy.KEEP,
-                request = MidnightSyncWorker.Companion.startUpExpeditedSyncWork(isForce = true)
+                request = MidnightSyncWorker.startUpExpeditedSyncWork(isForce = true)
             )
     }
 

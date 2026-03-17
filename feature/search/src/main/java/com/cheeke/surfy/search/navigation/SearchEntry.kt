@@ -41,7 +41,7 @@ fun EntryProviderScope<NavKey>.searchEntry(
             goToSeries = goToSeries,
             onShowSnackbar = onShowSnackbar,
             viewModel = hiltViewModel<SearchVM, SearchVM.Factory>(
-                key = SearchVM.Companion.TAG
+                key = SearchVM.TAG
             ) { factory ->
                 factory.create(initialQuery = searchNavKey.query, initialSearchType = searchType)
             }
