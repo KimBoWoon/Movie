@@ -1,5 +1,5 @@
 import com.android.build.api.dsl.ApplicationExtension
-import com.cheeke.convention.libs
+import com.cheeke.surfy.convention.libs
 import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project

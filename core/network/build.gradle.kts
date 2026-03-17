@@ -1,4 +1,4 @@
-import com.cheeke.convention.Config
+import com.cheeke.surfy.convention.Config
 
 plugins {
     alias(libs.plugins.cheeke.android.library)

@@ -1,8 +1,8 @@
 import com.android.build.api.dsl.LibraryExtension
-import com.cheeke.convention.Config
-import com.cheeke.convention.configureFlavors
-import com.cheeke.convention.configureKotlinAndroid
-import com.cheeke.convention.libs
+import com.cheeke.surfy.convention.Config
+import com.cheeke.surfy.convention.configureFlavors
+import com.cheeke.surfy.convention.configureKotlinAndroid
+import com.cheeke.surfy.convention.libs
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.apply

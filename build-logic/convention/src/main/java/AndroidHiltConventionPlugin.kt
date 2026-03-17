@@ -1,4 +1,4 @@
-import com.cheeke.convention.libs
+import com.cheeke.surfy.convention.libs
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.apply

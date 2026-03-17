@@ -1,4 +1,4 @@
-package com.cheeke.convention
+package com.cheeke.surfy.convention
 
 import java.io.File
 import java.io.FileInputStream

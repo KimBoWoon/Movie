@@ -1,4 +1,4 @@
-package com.cheeke.convention
+package com.cheeke.surfy.convention
 
 import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.dsl.ApplicationProductFlavor

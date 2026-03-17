@@ -20,14 +20,56 @@ internal object DatabaseModule {
     ): SurfyDatabase = Room.databaseBuilder(
         context = context,
         klass = SurfyDatabase::class.java,
-        name = "surfy-database"
+        name = "surfy-database.db"
     )/*.addCallback(
         callback = object : RoomDatabase.Callback() {
             override fun onCreate(db: SupportSQLiteDatabase) {
                 super.onCreate(db)
-                initMovies(db = db)
-                initPeoples(db = db)
-                initTvs(db = db)
+
+                context.assets.open("surfy-database_db-movies.sql").use { inputStream ->
+                    val sql = inputStream.bufferedReader().use { it.readText() }
+
+                    sql.split(";")
+                        .map { it.trim() }
+                        .filter { it.isNotEmpty() && it.startsWith(prefix = "INSERT") }
+                        .forEach { statement ->
+                            runCatching {
+                                db.execSQL(sql = statement)
+                            }.onFailure {
+                                Log.e(statement)
+                            }
+                        }
+                }
+
+                context.assets.open("surfy-database_db-peoples.sql").use { inputStream ->
+                    val sql = inputStream.bufferedReader().use { it.readText() }
+
+                    sql.split(";")
+                        .map { it.trim() }
+                        .filter { it.isNotEmpty() && it.startsWith(prefix = "INSERT") }
+                        .forEach { statement ->
+                            runCatching {
+                                db.execSQL(sql = statement)
+                            }.onFailure {
+                                Log.e(statement)
+                            }
+                        }
+                }
+
+                context.assets.open("surfy-database_db-tvs.sql").use { inputStream ->
+                    val sql = inputStream.bufferedReader().use { it.readText() }
+
+                    sql.split(";")
+                        .map { it.trim() }
+                        .filter { it.isNotEmpty() && it.startsWith(prefix = "INSERT") }
+                        .forEach { statement ->
+                            runCatching {
+                                db.execSQL(sql = statement)
+                            }.onFailure {
+                                Log.e(statement)
+                            }
+                        }
+                }
             }
         }
     )*/.build()

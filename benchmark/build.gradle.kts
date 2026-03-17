@@ -1,4 +1,4 @@
-import com.cheeke.convention.configureFlavors
+import com.cheeke.surfy.convention.configureFlavors
 
 plugins {
     alias(libs.plugins.android.test)

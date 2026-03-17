@@ -1,6 +1,6 @@
 import com.android.build.api.dsl.TestExtension
-import com.cheeke.convention.configureGradleManagedDevices
-import com.cheeke.convention.configureKotlinAndroid
+import com.cheeke.surfy.convention.configureGradleManagedDevices
+import com.cheeke.surfy.convention.configureKotlinAndroid
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.apply
