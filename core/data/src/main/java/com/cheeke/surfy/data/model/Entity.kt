@@ -8,26 +8,34 @@ fun Movie.asNowPlayingMovieEntity(): NowPlayingMovieEntity = NowPlayingMovieEnti
     id = id ?: -1,
     posterPath = posterPath ?: "",
     title = title,
-    releaseDate = releaseDate
+    releaseDate = releaseDate,
+    voteAverage = voteAverage,
+    voteCount = voteCount
 )
 
 fun Movie.asUpComingMovieEntity(): UpComingMovieEntity = UpComingMovieEntity(
     id = id ?: -1,
     posterPath = posterPath ?: "",
     title = title,
-    releaseDate = releaseDate
+    releaseDate = releaseDate,
+    voteAverage = voteAverage,
+    voteCount = voteCount
 )
 
 fun NowPlayingMovieEntity.asExternalModel(): Movie = Movie(
     id = id,
     posterPath = posterPath,
     title = title,
-    releaseDate = releaseDate
+    releaseDate = releaseDate,
+    voteAverage = voteAverage,
+    voteCount = voteCount
 )
 
 fun UpComingMovieEntity.asExternalModel(): Movie = Movie(
     id = id,
     posterPath = posterPath,
     title = title,
-    releaseDate = releaseDate
+    releaseDate = releaseDate,
+    voteAverage = voteAverage,
+    voteCount = voteCount
 )

@@ -1,6 +1,7 @@
 package com.cheeke.surfy.data.repository
 
 import androidx.paging.PagingSource
+import com.cheeke.surfy.core.data.BuildConfig
 import com.cheeke.surfy.database.dao.MovieDao
 import com.cheeke.surfy.database.dao.PeopleDao
 import com.cheeke.surfy.database.dao.TvDao
@@ -13,7 +14,6 @@ import com.cheeke.surfy.database.model.asExternalModel
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.People
 import com.cheeke.surfy.model.Tv
-import com.cheeke.surfy.core.data.BuildConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -83,6 +83,11 @@ class DatabaseRepositoryImpl @Inject constructor(
             }
         )
     }
+
+    override fun getPopularMovies(): Flow<List<Movie>> =
+        movieDao.getPopularMovies().map { nowPlayingMovieEntities ->
+            nowPlayingMovieEntities.map(transform = NowPlayingMovieEntity::asExternalModel)
+        }
 
     override fun getNextWeekReleaseMovies(): Flow<List<Movie>> =
         movieDao.getNextWeekReleaseMovies().map { movieEntity ->

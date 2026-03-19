@@ -492,7 +492,9 @@ val nowPlayingMovieTest = (0..100).map {
         releaseDate = "nowPlaying_releaseDate_$it",
         title = "nowPlaying_$it",
         id = it,
-        posterPath = "/imagePath_$it.png"
+        posterPath = "/imagePath_$it.png",
+        voteAverage = 3.5f,
+        voteCount = 395
     )
 }
 
@@ -501,6 +503,8 @@ val upComingMovieTest = (0..100).map {
         releaseDate = "upcomingMovie_releaseDate_$it",
         title = "upcomingMovie_$it",
         id = it,
-        posterPath = "/imagePath_$it.png"
+        posterPath = "/imagePath_$it.png",
+        voteAverage = 3.5f,
+        voteCount = 395
     )
 }

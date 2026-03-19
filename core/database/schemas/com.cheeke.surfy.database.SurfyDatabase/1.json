@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "7e85dcc79f0d33105862da368bf46f94",
+    "identityHash": "820fd9c41d0b9f7dfe616bfdb088d934",
     "entities": [
       {
         "tableName": "movies",
@@ -125,7 +125,7 @@
       },
       {
         "tableName": "nowPlayingMovie",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `posterPath` TEXT NOT NULL, `title` TEXT, `releaseDate` TEXT, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `posterPath` TEXT NOT NULL, `title` TEXT, `releaseDate` TEXT, `voteAverage` REAL, `voteCount` INTEGER, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -148,6 +148,16 @@
             "fieldPath": "releaseDate",
             "columnName": "releaseDate",
             "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "voteAverage",
+            "columnName": "voteAverage",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "voteCount",
+            "columnName": "voteCount",
+            "affinity": "INTEGER"
           }
         ],
         "primaryKey": {
@@ -159,7 +169,7 @@
       },
       {
         "tableName": "upComingMovie",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `posterPath` TEXT NOT NULL, `title` TEXT, `releaseDate` TEXT, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `posterPath` TEXT NOT NULL, `title` TEXT, `releaseDate` TEXT, `voteAverage` REAL, `voteCount` INTEGER, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -182,6 +192,16 @@
             "fieldPath": "releaseDate",
             "columnName": "releaseDate",
             "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "voteAverage",
+            "columnName": "voteAverage",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "voteCount",
+            "columnName": "voteCount",
+            "affinity": "INTEGER"
           }
         ],
         "primaryKey": {
@@ -194,7 +214,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7e85dcc79f0d33105862da368bf46f94')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '820fd9c41d0b9f7dfe616bfdb088d934')"
     ]
   }
 }

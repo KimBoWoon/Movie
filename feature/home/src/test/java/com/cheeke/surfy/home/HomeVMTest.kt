@@ -3,8 +3,7 @@ package com.cheeke.surfy.home
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.paging.testing.TestPager
-import com.cheeke.surfy.home.HomeUiState
-import com.cheeke.surfy.home.HomeVM
+import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.testing.repository.TestDatabaseRepository
 import com.cheeke.surfy.testing.repository.TestPagingRepository
 import com.cheeke.surfy.testing.repository.TestUserDataRepository
@@ -47,14 +46,14 @@ class HomeVMTest {
 
     @Test
     fun userDataLoadingTest() = runTest {
-        assertEquals(expected = viewModel.mainMenu.value, actual = HomeUiState.Loading)
-        backgroundScope.launch(context = UnconfinedTestDispatcher()) { viewModel.mainMenu.collect() }
+        assertEquals(expected = viewModel.homeUiState.value, actual = HomeState.Loading)
+        backgroundScope.launch(context = UnconfinedTestDispatcher()) { viewModel.homeUiState.collect() }
     }
 
     @Test
     fun userDataSuccessTest() = runTest {
-        assertEquals(expected = viewModel.mainMenu.value, actual = HomeUiState.Loading)
-        backgroundScope.launch(context = UnconfinedTestDispatcher()) { viewModel.mainMenu.collect() }
+        assertEquals(expected = viewModel.homeUiState.value, actual = HomeState.Loading)
+        backgroundScope.launch(context = UnconfinedTestDispatcher()) { viewModel.homeUiState.collect() }
 
         val nowPlayingMovieResult = testDatabaseRepository.getNowPlayingMovies()
         val nowPlayingTestPager = TestPager(
@@ -89,5 +88,18 @@ class HomeVMTest {
                 )
             )
         )
+    }
+
+    @Test
+    fun getHomeUiStateTest() = runTest {
+        backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.homeUiState.collect() }
+
+        val movie = Movie(voteCount = 687, voteAverage = 8.7f)
+
+        assertEquals(expected = viewModel.homeUiState.value, actual = HomeState.Loading)
+
+        testDatabaseRepository.setMovies(listOf(movie))
+
+        assertEquals(expected = viewModel.homeUiState.value, actual = HomeState.Success(homeUiState = HomeUiState(popularMovies = listOf(movie))))
     }
 }

@@ -68,6 +68,7 @@ val dp185 = 185.dp
 val dp190 = 190.dp
 val dp200 = 200.dp
 val dp209 = 209.dp
+val dp220 = 220.dp
 val dp227 = 227.dp
 val dp246 = 246.dp
 val dp230 = 230.dp

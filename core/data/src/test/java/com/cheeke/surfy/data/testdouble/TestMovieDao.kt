@@ -47,7 +47,9 @@ class TestMovieDao : MovieDao {
                 releaseDate = "releaseDate_$it",
                 title = "nowPlaying_$it",
                 id = it,
-                posterPath = "/imagePath_$it.png"
+                posterPath = "/imagePath_$it.png",
+                voteCount = 687,
+                voteAverage = 7.8f
             )
         }.asPagingSourceFactory().invoke()
 
@@ -57,7 +59,9 @@ class TestMovieDao : MovieDao {
                 releaseDate = "releaseDate_$it",
                 title = "nowPlaying_$it",
                 id = it,
-                posterPath = "/imagePath_$it.png"
+                posterPath = "/imagePath_$it.png",
+                voteCount = 687,
+                voteAverage = 7.8f
             )
         }.asPagingSourceFactory().invoke()
 
@@ -84,4 +88,6 @@ class TestMovieDao : MovieDao {
     override fun deleteAllFavoriteMovies() {
         entitiesStateFlow.tryEmit(value = emptyList())
     }
+
+    override fun getPopularMovies(): Flow<List<NowPlayingMovieEntity>> = nowPlayingMovieFlow
 }

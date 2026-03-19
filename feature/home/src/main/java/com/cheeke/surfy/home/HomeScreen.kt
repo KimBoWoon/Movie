@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,12 +22,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,6 +41,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -70,11 +77,20 @@ import com.cheeke.surfy.ui.utils.bounceClick
 import com.cheeke.surfy.ui.utils.dp0
 import com.cheeke.surfy.ui.utils.dp1
 import com.cheeke.surfy.ui.utils.dp10
+import com.cheeke.surfy.ui.utils.dp110
+import com.cheeke.surfy.ui.utils.dp12
+import com.cheeke.surfy.ui.utils.dp14
 import com.cheeke.surfy.ui.utils.dp150
 import com.cheeke.surfy.ui.utils.dp16
+import com.cheeke.surfy.ui.utils.dp18
+import com.cheeke.surfy.ui.utils.dp20
+import com.cheeke.surfy.ui.utils.dp220
 import com.cheeke.surfy.ui.utils.dp230
+import com.cheeke.surfy.ui.utils.dp28
 import com.cheeke.surfy.ui.utils.dp30
+import com.cheeke.surfy.ui.utils.dp6
 import com.cheeke.surfy.ui.utils.dp60
+import com.cheeke.surfy.ui.utils.dp8
 import com.cheeke.surfy.ui.utils.sp10
 import com.cheeke.surfy.ui.utils.sp8
 
@@ -88,13 +104,23 @@ fun HomeScreen(
     LocalFirebaseLogHelper.current.sendLog("HomeScreen", "init screen")
     TrackScreenViewEvent(screenName = "HomeScreen")
 
-    val homeUiState by viewModel.mainMenu.collectAsStateWithLifecycle()
+    val homeState by viewModel.homeUiState.collectAsStateWithLifecycle()
+    val nowPlayingMovies = viewModel.nowPlayingMoviePaging.collectAsLazyPagingItems()
+    val upComingMovies = viewModel.upComingMoviePaging.collectAsLazyPagingItems()
+    val trendingMovies = viewModel.trendingMoviePaging.collectAsLazyPagingItems()
+    val trendingPeoples = viewModel.trendingPeoplePaging.collectAsLazyPagingItems()
+    val trendingTvs = viewModel.trendingTvPaging.collectAsLazyPagingItems()
     val trendingMovieTimeWindow by viewModel.trendingMovieTimeWindow.collectAsStateWithLifecycle()
     val trendingPeopleTimeWindow by viewModel.trendingPeopleTimeWindow.collectAsStateWithLifecycle()
     val trendingTvTimeWindow by viewModel.trendingTvTimeWindow.collectAsStateWithLifecycle()
 
     HomeScreen(
-        homeUiState = homeUiState,
+        homeUiState = homeState,
+        nowPlayingMovies = nowPlayingMovies,
+        upComingMovies = upComingMovies,
+        trendingMovies = trendingMovies,
+        trendingPeoples = trendingPeoples,
+        trendingTvs = trendingTvs,
         trendingMovieTimeWindow = trendingMovieTimeWindow,
         updateTrendingMovieTimeWindow = viewModel::updateTrendingMovieTimeWindow,
         trendingPeopleTimeWindow = trendingPeopleTimeWindow,
@@ -109,7 +135,12 @@ fun HomeScreen(
 
 @Composable
 fun HomeScreen(
-    homeUiState: HomeUiState,
+    homeUiState: HomeState,
+    nowPlayingMovies: LazyPagingItems<Movie>,
+    upComingMovies: LazyPagingItems<Movie>,
+    trendingMovies: LazyPagingItems<TrendingMovieResult>,
+    trendingPeoples: LazyPagingItems<TrendingPeopleResult>,
+    trendingTvs: LazyPagingItems<TrendingTvResult>,
     trendingMovieTimeWindow: TimeWindow,
     updateTrendingMovieTimeWindow: (TimeWindow) -> Unit,
     trendingPeopleTimeWindow: TimeWindow,
@@ -126,7 +157,7 @@ fun HomeScreen(
         modifier = Modifier.fillMaxSize()
     ) {
         when (homeUiState) {
-            is HomeUiState.Loading -> {
+            is HomeState.Loading -> {
                 Log.d("loading...")
                 LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data loading...")
 
@@ -136,23 +167,24 @@ fun HomeScreen(
                         .align(Alignment.Center)
                 )
             }
-            is HomeUiState.Success -> {
+            is HomeState.Success -> {
                 LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data load success")
-                Log.d("${homeUiState.nowPlayingMoviePager}, ${homeUiState.upComingMoviePager}")
+                Log.d("$nowPlayingMovies, $upComingMovies, $trendingMovies, $trendingPeoples, $trendingTvs")
 
                 val lazyListState = rememberLazyListState()
 
-                MainComponent(
+                HomeComponent(
                     lazyListState = lazyListState,
-                    nowPlayingMovies = homeUiState.nowPlayingMoviePager.collectAsLazyPagingItems(),
-                    upComingMovies = homeUiState.upComingMoviePager.collectAsLazyPagingItems(),
-                    trendingMovie = homeUiState.trendingMoviePager.collectAsLazyPagingItems(),
+                    popularMovies = homeUiState.homeUiState.popularMovies,
+                    nowPlayingMovies = nowPlayingMovies,
+                    upComingMovies = upComingMovies,
+                    trendingMovie = trendingMovies,
                     trendingMovieTimeWindow = trendingMovieTimeWindow,
                     updateTrendingMovieTimeWindow = updateTrendingMovieTimeWindow,
-                    trendingPeople = homeUiState.trendingPeoplePager.collectAsLazyPagingItems(),
+                    trendingPeople = trendingPeoples,
                     trendingPeopleTimeWindow = trendingPeopleTimeWindow,
                     updateTrendingPeopleTimeWindow = updateTrendingPeopleTimeWindow,
-                    trendingTv = homeUiState.trendingTvPager.collectAsLazyPagingItems(),
+                    trendingTv = trendingTvs,
                     trendingTvTimeWindow = trendingTvTimeWindow,
                     updateTrendingTvTimeWindow = updateTrendingTvTimeWindow,
                     goToMovie = goToMovie,
@@ -160,7 +192,7 @@ fun HomeScreen(
                     goToTv = goToTv
                 )
             }
-            is HomeUiState.Error -> {
+            is HomeState.Error -> {
                 LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data load Error > ${homeUiState.throwable.message}")
                 Log.e("${homeUiState.throwable.message}")
                 Text(
@@ -173,8 +205,9 @@ fun HomeScreen(
 }
 
 @Composable
-fun MainComponent(
+fun HomeComponent(
     lazyListState: LazyListState,
+    popularMovies: List<Movie>,
     nowPlayingMovies: LazyPagingItems<Movie>,
     upComingMovies: LazyPagingItems<Movie>,
     trendingMovie: LazyPagingItems<TrendingMovieResult>,
@@ -190,55 +223,59 @@ fun MainComponent(
     goToPeople: (Int) -> Unit,
     goToTv: (Int) -> Unit,
 ) {
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        val nowPlayingMoviesTitle = stringResource(id = R.string.now_playing_movies)
-        val upcomingMoviesTitle = stringResource(id = R.string.upcoming_movies)
-        val trendingMovieTitle = stringResource(id = R.string.trending_movie)
-        val trendingPeopleTitle = stringResource(id = R.string.trending_people)
-        val trendingTvTitle = stringResource(id = R.string.trending_tv)
+    val scrollState = rememberScrollState()
+    val pagerState = rememberPagerState(pageCount = { popularMovies.size })
+    val nowPlayingMoviesTitle = stringResource(id = R.string.now_playing_movies)
+    val upcomingMoviesTitle = stringResource(id = R.string.upcoming_movies)
+    val trendingMovieTitle = stringResource(id = R.string.trending_movie)
+    val trendingPeopleTitle = stringResource(id = R.string.trending_people)
+    val trendingTvTitle = stringResource(id = R.string.trending_tv)
 
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            state = lazyListState
-        ) {
-            if (nowPlayingMovies.itemCount != 0) {
-                horizontalMovieListComponent(
-                    title = nowPlayingMoviesTitle,
-                    pager = nowPlayingMovies,
-                    goToMovie = goToMovie
-                )
-            }
-            if (upComingMovies.itemCount != 0) {
-                horizontalMovieListComponent(
-                    title = upcomingMoviesTitle,
-                    pager = upComingMovies,
-                    goToMovie = goToMovie
-                )
-            }
-            trendingList(
-                title = trendingMovieTitle,
-                timeWindow = trendingMovieTimeWindow,
-                onChangeTimeWindow = { updateTrendingMovieTimeWindow(it) },
-                goToDestination = goToMovie,
-                trending = trendingMovie
-            )
-            trendingList(
-                title = trendingPeopleTitle,
-                timeWindow = trendingPeopleTimeWindow,
-                onChangeTimeWindow = { updateTrendingPeopleTimeWindow(it) },
-                goToDestination = goToPeople,
-                trending = trendingPeople
-            )
-            trendingList(
-                title = trendingTvTitle,
-                timeWindow = trendingTvTimeWindow,
-                onChangeTimeWindow = { updateTrendingTvTimeWindow(it) },
-                goToDestination = goToTv,
-                trending = trendingTv
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(state = scrollState)
+    ) {
+        TodayRecommendMovieComponent(
+            movies = popularMovies,
+            goToMovie = goToMovie
+        )
+
+        if (nowPlayingMovies.itemCount != 0) {
+            HorizontalMovieListComponent(
+                title = nowPlayingMoviesTitle,
+                pager = nowPlayingMovies,
+                goToMovie = goToMovie
             )
         }
+        if (upComingMovies.itemCount != 0) {
+            HorizontalMovieListComponent(
+                title = upcomingMoviesTitle,
+                pager = upComingMovies,
+                goToMovie = goToMovie
+            )
+        }
+        TrendingList(
+            title = trendingMovieTitle,
+            timeWindow = trendingMovieTimeWindow,
+            onChangeTimeWindow = { updateTrendingMovieTimeWindow(it) },
+            goToDestination = goToMovie,
+            trending = trendingMovie
+        )
+        TrendingList(
+            title = trendingPeopleTitle,
+            timeWindow = trendingPeopleTimeWindow,
+            onChangeTimeWindow = { updateTrendingPeopleTimeWindow(it) },
+            goToDestination = goToPeople,
+            trending = trendingPeople
+        )
+        TrendingList(
+            title = trendingTvTitle,
+            timeWindow = trendingTvTimeWindow,
+            onChangeTimeWindow = { updateTrendingTvTimeWindow(it) },
+            goToDestination = goToTv,
+            trending = trendingTv
+        )
     }
 }
 
@@ -317,126 +354,125 @@ fun TimeWindowSwitch(
     }
 }
 
-fun LazyListScope.trendingList(
+@Composable
+fun TrendingList(
     title: String,
     timeWindow: TimeWindow,
     onChangeTimeWindow: (TimeWindow) -> Unit,
     goToDestination: (Int) -> Unit,
     trending: LazyPagingItems<out Media>
 ) {
-    item {
-        Column(
-            modifier = Modifier.wrapContentSize()
+    Column(
+        modifier = Modifier.wrapContentSize()
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = dp16),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = dp16),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            Text(
+                modifier = Modifier.padding(vertical = dp16),
+                text = title
+            )
+            TimeWindowSwitch(
+                timeWindow = timeWindow,
+                onChangeTimeWindow = { onChangeTimeWindow(it) }
+            )
+        }
+        if (trending.itemCount != 0) {
+            LazyRow(
+                modifier = Modifier.wrapContentSize(),
+                contentPadding = PaddingValues(horizontal = dp16),
+                horizontalArrangement = Arrangement.spacedBy(space = dp16)
             ) {
-                Text(
-                    modifier = Modifier.padding(vertical = dp16),
-                    text = title
-                )
-                TimeWindowSwitch(
-                    timeWindow = timeWindow,
-                    onChangeTimeWindow = { onChangeTimeWindow(it) }
-                )
-            }
-            if (trending.itemCount != 0) {
-                LazyRow(
-                    modifier = Modifier.wrapContentSize(),
-                    contentPadding = PaddingValues(horizontal = dp16),
-                    horizontalArrangement = Arrangement.spacedBy(space = dp16)
-                ) {
-                    items(
-                        count = trending.itemCount,
-                        key = { index -> "${trending.peek(index)?.id}_${index}_${trending.peek(index)?.title}" }
-                    ) { index ->
-                        trending[index]?.let { trendingTv ->
-                            Column(
-                                modifier = Modifier
-                                    .width(width = dp150)
-                                    .height(height = dp230)
-                                    .bounceClick { goToDestination(trendingTv.id ?: -1) }
+                items(
+                    count = trending.itemCount,
+                    key = { index -> "${trending.peek(index)?.id}_${index}_${trending.peek(index)?.title}" }
+                ) { index ->
+                    trending[index]?.let { trendingTv ->
+                        Column(
+                            modifier = Modifier
+                                .width(width = dp150)
+                                .height(height = dp230)
+                                .bounceClick { goToDestination(trendingTv.id ?: -1) }
+                        ) {
+                            Box(
+                                modifier = Modifier.wrapContentSize()
                             ) {
-                                Box(
-                                    modifier = Modifier.wrapContentSize()
-                                ) {
-                                    DynamicAsyncImageLoader(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .aspectRatio(PEOPLE_IMAGE_RATIO)
-                                            .clip(shape = RoundedCornerShape(size = dp10)),
-                                        source = trendingTv.posterPath ?: "",
-                                        contentDescription = "BoxOfficePoster"
-                                    )
-                                }
-                                Text(
-                                    text = trendingTv.title ?: "",
-                                    fontSize = sp10,
-                                    style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false)),
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                                Text(
-                                    text = trendingTv.originalTitle ?: "",
-                                    fontSize = sp8,
-                                    style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false)),
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
+                                DynamicAsyncImageLoader(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .aspectRatio(PEOPLE_IMAGE_RATIO)
+                                        .clip(shape = RoundedCornerShape(size = dp10)),
+                                    source = trendingTv.posterPath ?: "",
+                                    contentDescription = "BoxOfficePoster"
                                 )
                             }
+                            Text(
+                                text = trendingTv.title ?: "",
+                                fontSize = sp10,
+                                style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false)),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            Text(
+                                text = trendingTv.originalTitle ?: "",
+                                fontSize = sp8,
+                                style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false)),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
                         }
                     }
                 }
-            } else {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(height = dp230),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressComponent()
-                }
+            }
+        } else {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(height = dp230),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressComponent()
             }
         }
     }
 }
 
-fun LazyListScope.horizontalMovieListComponent(
+@Composable
+fun HorizontalMovieListComponent(
     title: String,
     pager: LazyPagingItems<Movie>,
     goToMovie: (Int) -> Unit
 ) {
-    item {
-        Text(
-            modifier = Modifier
-                .padding(all = dp16)
-                .fillMaxWidth(),
-            text = title
-        )
-        LazyRow(
-            modifier = Modifier
-                .semantics {
-                    contentDescription =
-                        if (title == "상영중인 영화") "nowPlayingMovies" else "upComingMovies"
-                }
-                .wrapContentSize(),
-            contentPadding = PaddingValues(horizontal = dp16),
-            horizontalArrangement = Arrangement.spacedBy(space = dp16)
-        ) {
-            items(
-                count = pager.itemCount,
-                key = { index -> "${pager.peek(index)?.id}_${index}_${pager.peek(index)?.title}" }
-            ) { index ->
-                pager[index]?.let {
-                    MediaItem(
-                        movie = it,
-                        goToMovie = goToMovie
-                    )
-                }
+    Text(
+        modifier = Modifier
+            .padding(all = dp16)
+            .fillMaxWidth(),
+        text = title
+    )
+    LazyRow(
+        modifier = Modifier
+            .semantics {
+                contentDescription =
+                    if (title == "상영중인 영화") "nowPlayingMovies" else "upComingMovies"
+            }
+            .wrapContentSize(),
+        contentPadding = PaddingValues(horizontal = dp16),
+        horizontalArrangement = Arrangement.spacedBy(space = dp16)
+    ) {
+        items(
+            count = pager.itemCount,
+            key = { index -> "${pager.peek(index)?.id}_${index}_${pager.peek(index)?.title}" }
+        ) { index ->
+            pager[index]?.let {
+                MediaItem(
+                    movie = it,
+                    goToMovie = goToMovie,
+                    type = if (title == "상영중인 영화") "nowPlayingMovies" else "upComingMovies"
+                )
             }
         }
     }
@@ -445,7 +481,8 @@ fun LazyListScope.horizontalMovieListComponent(
 @Composable
 fun MediaItem(
     movie: Movie,
-    goToMovie: (Int) -> Unit
+    goToMovie: (Int) -> Unit,
+    type: String
 ) {
     Column(
         modifier = Modifier
@@ -465,19 +502,192 @@ fun MediaItem(
                 contentDescription = "BoxOfficePoster"
             )
         }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = movie.title ?: "",
+                fontSize = sp10,
+                style = MaterialTheme.typography.labelSmall,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                text = "%.2f".format(movie.voteAverage),
+                fontSize = sp8,
+                style = MaterialTheme.typography.labelSmall,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+        if (type == "upComingMovies") {
+            Text(
+                text = movie.releaseDate ?: "",
+                fontSize = sp8,
+                style = MaterialTheme.typography.labelSmall,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+@Composable
+private fun TodayRecommendMovieComponent(
+    movies: List<Movie>,
+    goToMovie: (Int) -> Unit
+) {
+    val pagerState = rememberPagerState(
+        initialPage = 0,
+        pageCount = { movies.size }
+    )
+
+    Column {
         Text(
-            text = movie.title ?: "",
-            fontSize = sp10,
-            style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false)),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(all = dp16),
+            text = "오늘의 추천 영화"
         )
-        Text(
-            text = movie.releaseDate ?: "",
-            fontSize = sp8,
-            style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false)),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+        HorizontalPager(
+            state = pagerState,
+            contentPadding = PaddingValues(horizontal = dp20),
+            pageSpacing = dp12,
+            modifier = Modifier.fillMaxWidth()
+        ) { page ->
+            val movie = movies[page]
+
+            RecommendMovie(
+                movie = movie,
+                goToMovie = goToMovie,
+            )
+        }
+
+        Spacer(modifier = Modifier.height(height = dp14))
+
+        PagerIndicator(
+            pageCount = movies.size,
+            currentPage = pagerState.currentPage,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
         )
+    }
+}
+
+@Composable
+private fun RecommendMovie(
+    movie: Movie,
+    goToMovie: (Int) -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(shape = RoundedCornerShape(size = dp28))
+            .aspectRatio(ratio = 0.82f)
+            .clickable(onClick = { goToMovie(movie.id ?: -1) })
+    ) {
+        DynamicAsyncImageLoader(
+            source = movie.posterPath ?: "",
+            contentDescription = movie.title,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
+        )
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(height = dp110)
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            Color.Black.copy(alpha = 0.32f),
+                            Color.Transparent
+                        )
+                    )
+                )
+        )
+
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .height(height = dp220)
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            Color.Transparent,
+                            Color.Black.copy(alpha = 0.2f),
+                            Color.Black.copy(alpha = 0.9f)
+                        )
+                    )
+                )
+        )
+
+        Column(
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .fillMaxWidth()
+                .padding(all = dp20)
+        ) {
+            if (movie.voteCount != null && movie.voteAverage != null) {
+                Text(
+                    text = "추천수 ${movie.voteCount} · 평점 ${"%.2f".format(movie.voteAverage)}",
+                    color = Color(color = 0xFFD7D2DF),
+                    style = MaterialTheme.typography.labelLarge
+                )
+                Spacer(modifier = Modifier.height(height = dp8))
+            }
+
+            movie.title?.takeIf { it.isNotEmpty() }?.let {
+                Text(
+                    text = it,
+                    color = Color.White,
+                    style = MaterialTheme.typography.headlineMedium,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(modifier = Modifier.height(height = dp8))
+            }
+
+            movie.releaseDate?.takeIf { it.isNotEmpty() }?.let {
+                Text(
+                    text = it,
+                    color = Color(color = 0xFFD0CED6),
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(modifier = Modifier.height(height = dp16))
+            }
+        }
+    }
+}
+
+@Composable
+private fun PagerIndicator(
+    pageCount: Int,
+    currentPage: Int,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(space = dp6),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        repeat(times = pageCount) { index ->
+            val isSelected = index == currentPage
+
+            Box(
+                modifier = Modifier
+                    .clip(shape = CircleShape)
+                    .background(
+                        color = if (isSelected) Color.White else Color.White.copy(alpha = 0.28f)
+                    )
+                    .size(
+                        width = if (isSelected) dp18 else dp6,
+                        height = dp6
+                    )
+            )
+        }
     }
 }

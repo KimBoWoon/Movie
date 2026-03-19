@@ -1,6 +1,7 @@
 package com.cheeke.surfy.testing.repository
 
 import android.annotation.SuppressLint
+import androidx.annotation.VisibleForTesting
 import androidx.paging.PagingSource
 import androidx.paging.testing.asPagingSourceFactory
 import com.cheeke.surfy.data.repository.DatabaseRepository
@@ -52,6 +53,10 @@ class TestDatabaseRepository : DatabaseRepository {
         }
         movieDatabase.tryEmit(nextWeekReleaseMovies)
         return movieDatabase
+    }
+
+    override fun getPopularMovies(): Flow<List<Movie>> = movieDatabase.map { movies ->
+        movies.filter { movie -> (movie.voteCount ?: 0) > 500 && (movie.voteAverage ?: 0f) > 7.0f }
     }
 
     override fun getPeople(): Flow<List<People>> = peopleDatabase
@@ -122,5 +127,10 @@ class TestDatabaseRepository : DatabaseRepository {
         }
         tvDatabase.tryEmit(nextWeekReleaseMovies)
         return tvDatabase
+    }
+
+    @VisibleForTesting
+    fun setMovies(list: List<Movie>) {
+        movieDatabase.tryEmit(value = list)
     }
 }

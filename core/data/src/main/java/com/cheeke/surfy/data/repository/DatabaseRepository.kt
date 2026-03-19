@@ -16,6 +16,8 @@ interface DatabaseRepository {
     suspend fun upsertMovies(movies: List<Movie>)
     fun getNextWeekReleaseMovies(): Flow<List<Movie>>
 
+    fun getPopularMovies(): Flow<List<Movie>>
+
     fun getPeople(): Flow<List<People>>
     fun isFavoritePeople(id: Int): Flow<Boolean>
     suspend fun insertPeople(people: People): Long

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import androidx.paging.PagingSource
 import androidx.paging.cachedIn
 import androidx.paging.map
 import com.cheeke.surfy.common.Result
@@ -24,10 +25,12 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
@@ -41,119 +44,69 @@ class HomeVM @Inject constructor(
 ) : ViewModel() {
     companion object {
         private const val TAG = "HomeVM"
+        private const val PAGE_SIZE = 20
+        private const val PREFETCH_DISTANCE = 5
     }
 
+    private val pagingConfig = PagingConfig(
+        pageSize = PAGE_SIZE,
+        prefetchDistance = PREFETCH_DISTANCE
+    )
     private val _trendingMovieTimeWindow = MutableStateFlow(value = TimeWindow.DAY)
-    val trendingMovieTimeWindow = _trendingMovieTimeWindow
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.Lazily,
-            initialValue = TimeWindow.DAY
-        )
+    val trendingMovieTimeWindow = _trendingMovieTimeWindow.asStateFlow()
     private val _trendingPeopleTimeWindow = MutableStateFlow(value = TimeWindow.DAY)
-    val trendingPeopleTimeWindow = _trendingPeopleTimeWindow
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.Lazily,
-            initialValue = TimeWindow.DAY
-        )
+    val trendingPeopleTimeWindow = _trendingPeopleTimeWindow.asStateFlow()
     private val _trendingTvTimeWindow = MutableStateFlow(value = TimeWindow.DAY)
-    val trendingTvTimeWindow = _trendingTvTimeWindow
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.Lazily,
-            initialValue = TimeWindow.DAY
+    val trendingTvTimeWindow = _trendingTvTimeWindow.asStateFlow()
+    private val onlineState = networkMonitor.isOnline
+        .distinctUntilChanged()
+        .filter { it }
+    private val localeState = dataManager.localeFlow
+        .map { locale -> "${locale.language}-${locale.region}" }
+        .distinctUntilChanged()
+    val nowPlayingMoviePaging = Pager(
+        config = PagingConfig(pageSize = 20, prefetchDistance = 5),
+        pagingSourceFactory = { databaseRepository.getNowPlayingMovies() }
+    ).flow.map { pagingData ->
+        pagingData.map(transform = NowPlayingMovieEntity::asExternalModel)
+    }.cachedIn(scope = viewModelScope)
+    val upComingMoviePaging = Pager(
+        config = PagingConfig(pageSize = 20, prefetchDistance = 5),
+        pagingSourceFactory = { databaseRepository.getUpComingMovies() }
+    ).flow.map { pagingData ->
+        pagingData.map(transform = UpComingMovieEntity::asExternalModel)
+    }.cachedIn(scope = viewModelScope)
+    val trendingMoviePaging: Flow<PagingData<TrendingMovieResult>> =
+        createTrendingPaging(
+            timeWindowFlow = trendingMovieTimeWindow,
+            pagingSourceFactory = pagingRepository::getTrendingMovie
         )
-
-    private val trendingMovie = combine(
-        _trendingMovieTimeWindow,
-        dataManager.localeFlow,
-        networkMonitor.isOnline.distinctUntilChanged().filter { it }
-    ) { timeWindow, language, isOnline ->
-        Pager(
-            config = PagingConfig(pageSize = 20, prefetchDistance = 5),
-            pagingSourceFactory = { pagingRepository.getTrendingMovie(timeWindow = timeWindow.label, language = "${language.language}-${language.region}") }
-        ).flow.cachedIn(scope = viewModelScope)
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = flowOf(value = PagingData.empty())
-    )
-    private val trendingPeople = combine(
-        _trendingPeopleTimeWindow,
-        dataManager.localeFlow,
-        networkMonitor.isOnline.distinctUntilChanged().filter { it }
-    ) { timeWindow, language, isOnline ->
-        Pager(
-            config = PagingConfig(pageSize = 20, prefetchDistance = 5),
-            pagingSourceFactory = { pagingRepository.getTrendingPeople(timeWindow = timeWindow.label, language = "${language.language}-${language.region}") }
-        ).flow.cachedIn(scope = viewModelScope)
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = flowOf(value = PagingData.empty())
-    )
-    private val trendingTv = combine(
-        _trendingTvTimeWindow,
-        dataManager.localeFlow,
-        networkMonitor.isOnline.distinctUntilChanged().filter { it }
-    ) { timeWindow, language, isOnline ->
-        Pager(
-            config = PagingConfig(pageSize = 20, prefetchDistance = 5),
-            pagingSourceFactory = { pagingRepository.getTrendingTv(timeWindow = timeWindow.label, language = "${language.language}-${language.region}") }
-        ).flow.cachedIn(scope = viewModelScope)
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = flowOf(value = PagingData.empty())
-    )
-
-    val mainMenu = combine(
-        flowOf(
-            value = Pager(
-                config = PagingConfig(pageSize = 20, prefetchDistance = 5),
-                pagingSourceFactory = { databaseRepository.getNowPlayingMovies() }
-            ).flow.map { pagingData ->
-                pagingData.map(transform = NowPlayingMovieEntity::asExternalModel)
-            }.cachedIn(scope = viewModelScope)
-        ),
-        flowOf(
-            value = Pager(
-                config = PagingConfig(pageSize = 20, prefetchDistance = 5),
-                pagingSourceFactory = { databaseRepository.getUpComingMovies() }
-            ).flow.map { pagingData ->
-                pagingData.map(transform = UpComingMovieEntity::asExternalModel)
-            }.cachedIn(scope = viewModelScope)
-        ),
-        trendingMovie,
-        trendingPeople,
-        trendingTv
-    ) { nowPlayingMovies, upComingMovies, trendingMovie, trendingPeople, trendingTv ->
-        MainData(
-            nowPlayingMoviePager = nowPlayingMovies,
-            upComingMoviePager = upComingMovies,
-            trendingMoviePager = trendingMovie,
-            trendingPeoplePager = trendingPeople,
-            trendingTvPager = trendingTv
+    val trendingPeoplePaging: Flow<PagingData<TrendingPeopleResult>> =
+        createTrendingPaging(
+            timeWindowFlow = trendingPeopleTimeWindow,
+            pagingSourceFactory = pagingRepository::getTrendingPeople
         )
-    }.asResult()
-        .map { result ->
-            when (result) {
-                is Result.Loading -> HomeUiState.Loading
-                is Result.Success -> HomeUiState.Success(
-                    nowPlayingMoviePager = result.data.nowPlayingMoviePager,
-                    upComingMoviePager = result.data.upComingMoviePager,
-                    trendingMoviePager = result.data.trendingMoviePager,
-                    trendingPeoplePager = result.data.trendingPeoplePager,
-                    trendingTvPager = result.data.trendingTvPager
-                )
-                is Result.Error -> HomeUiState.Error(throwable = result.throwable)
+    val trendingTvPaging: Flow<PagingData<TrendingTvResult>> =
+        createTrendingPaging(
+            timeWindowFlow = trendingTvTimeWindow,
+            pagingSourceFactory = pagingRepository::getTrendingTv
+        )
+    val homeUiState: StateFlow<HomeState> =
+        databaseRepository.getPopularMovies()
+            .map { movies -> HomeUiState(popularMovies = movies) }
+            .asResult()
+            .map { result ->
+                when (result) {
+                    is Result.Loading -> HomeState.Loading
+                    is Result.Success -> HomeState.Success(homeUiState = result.data)
+                    is Result.Error -> HomeState.Error(result.throwable)
+                }
             }
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.Lazily,
-            initialValue = HomeUiState.Loading
-        )
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.Lazily,
+                initialValue = HomeState.Loading
+            )
 
     fun updateTrendingMovieTimeWindow(timeWindow: TimeWindow) {
         when (timeWindow) {
@@ -175,28 +128,44 @@ class HomeVM @Inject constructor(
             TimeWindow.WEEK -> _trendingTvTimeWindow.value = TimeWindow.WEEK
         }
     }
+
+    private fun <T : Any> createTrendingPaging(
+        timeWindowFlow: StateFlow<TimeWindow>,
+        pagingSourceFactory: (timeWindow: String, language: String) -> PagingSource<Int, T>
+    ): Flow<PagingData<T>> {
+        return combine(
+            timeWindowFlow,
+            localeState,
+            onlineState
+        ) { timeWindow, language, _ ->
+            TrendingRequest(timeWindow = timeWindow.label, language = language)
+        }.distinctUntilChanged()
+            .flatMapLatest { request ->
+                Pager(
+                    config = pagingConfig,
+                    pagingSourceFactory = {
+                        pagingSourceFactory(request.timeWindow, request.language)
+                    }
+                ).flow
+            }.cachedIn(viewModelScope)
+    }
 }
 
-sealed interface HomeUiState {
-    data object Loading : HomeUiState
-    data class Success(
-        val nowPlayingMoviePager: Flow<PagingData<Movie>>,
-        val upComingMoviePager: Flow<PagingData<Movie>>,
-        val trendingMoviePager: Flow<PagingData<TrendingMovieResult>>,
-        val trendingPeoplePager: Flow<PagingData<TrendingPeopleResult>>,
-        val trendingTvPager: Flow<PagingData<TrendingTvResult>>
-    ) : HomeUiState
-    data class Error(val throwable: Throwable) : HomeUiState
+sealed interface HomeState {
+    data object Loading : HomeState
+    data class Success(val homeUiState: HomeUiState) : HomeState
+    data class Error(val throwable: Throwable) : HomeState
 }
 
-data class MainData(
-    val nowPlayingMoviePager: Flow<PagingData<Movie>>,
-    val upComingMoviePager: Flow<PagingData<Movie>>,
-    val trendingMoviePager: Flow<PagingData<TrendingMovieResult>>,
-    val trendingPeoplePager: Flow<PagingData<TrendingPeopleResult>>,
-    val trendingTvPager: Flow<PagingData<TrendingTvResult>>
+data class HomeUiState(
+    val popularMovies: List<Movie> = emptyList()
 )
 
 enum class TimeWindow(val label: String) {
     DAY(label = "day"), WEEK(label = "week")
 }
+
+private data class TrendingRequest(
+    val timeWindow: String,
+    val language: String
+)

@@ -35,5 +35,7 @@ fun MovieResult.asExternalMovie(): Movie = Movie(
     id = id,
     posterPath = posterPath,
     title = title,
-    releaseDate = releaseDate
+    releaseDate = releaseDate,
+    voteAverage = voteAverage,
+    voteCount = voteCount
 )

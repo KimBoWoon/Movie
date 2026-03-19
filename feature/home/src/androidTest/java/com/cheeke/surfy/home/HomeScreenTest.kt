@@ -44,7 +44,7 @@ class HomeScreenTest {
         composeTestRule.apply {
             setContent {
                 HomeScreen(
-                    homeUiState = HomeUiState.Loading,
+                    homeState = HomeState.Loading,
                     trendingTvTimeWindow = viewModel.trendingTvTimeWindow.collectAsStateWithLifecycle().value,
                     updateTrendingTvTimeWindow = viewModel::updateTrendingTvTimeWindow,
                     trendingPeopleTimeWindow = viewModel.trendingPeopleTimeWindow.collectAsStateWithLifecycle().value,
@@ -65,10 +65,10 @@ class HomeScreenTest {
     fun homeScreenSuccessTest() {
         composeTestRule.apply {
             setContent {
-                val mainMenuState by viewModel.mainMenu.collectAsStateWithLifecycle()
+                val mainMenuState by viewModel.homeUiState.collectAsStateWithLifecycle()
 
                 HomeScreen(
-                    homeUiState = HomeUiState.Loading,
+                    homeState = HomeState.Loading,
                     trendingTvTimeWindow = viewModel.trendingTvTimeWindow.collectAsStateWithLifecycle().value,
                     updateTrendingTvTimeWindow = viewModel::updateTrendingTvTimeWindow,
                     trendingPeopleTimeWindow = viewModel.trendingPeopleTimeWindow.collectAsStateWithLifecycle().value,
@@ -107,7 +107,7 @@ class HomeScreenTest {
         composeTestRule.apply {
             setContent {
                 HomeScreen(
-                    homeUiState = HomeUiState.Error(throwable = RuntimeException("something wrong...")),
+                    homeState = HomeState.Error(throwable = RuntimeException("something wrong...")),
                     trendingTvTimeWindow = viewModel.trendingTvTimeWindow.collectAsStateWithLifecycle().value,
                     updateTrendingTvTimeWindow = viewModel::updateTrendingTvTimeWindow,
                     trendingPeopleTimeWindow = viewModel.trendingPeopleTimeWindow.collectAsStateWithLifecycle().value,

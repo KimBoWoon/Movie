@@ -1,6 +1,7 @@
 package com.cheeke.surfy.database
 
 import com.cheeke.surfy.database.model.MovieEntity
+import com.cheeke.surfy.database.model.NowPlayingMovieEntity
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
@@ -144,5 +145,20 @@ internal class MovieDaoTest : DatabaseTest() {
             movieDao.getMovieEntities().first(),
             favoriteMovies + movie
         )
+    }
+
+    @Test
+    fun getPopularMoviesTest() = runTest {
+        val movie = NowPlayingMovieEntity(
+            id = 3,
+            posterPath = "/Movie_4.png",
+            title = "movie_4",
+            releaseDate = "2025-01-04",
+            voteAverage = 8.0f,
+            voteCount = 864
+        )
+        assertEquals(expected = movieDao.getPopularMovies().first(), actual = emptyList())
+        movieDao.upsertNowPlayingMovie(entities = listOf(movie))
+        assertEquals(expected = movieDao.getPopularMovies().first(), actual = listOf(movie))
     }
 }

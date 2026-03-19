@@ -31,6 +31,9 @@ interface MovieDao {
     @Query(value = "SELECT * FROM movies WHERE releaseDate BETWEEN DATE('now', 'localtime') AND DATE('now', '+7 day', 'localtime') ORDER BY releaseDate ASC, title ASC")
     fun getNextWeekReleaseMovies(): Flow<List<MovieEntity>>
 
+    @Query(value = "SELECT * FROM nowplayingmovie WHERE voteCount > 500 AND voteAverage > 7.0")
+    fun getPopularMovies(): Flow<List<NowPlayingMovieEntity>>
+
     @Query(value = "SELECT * FROM nowplayingmovie")
     fun getNowPlayingMovie(): PagingSource<Int, NowPlayingMovieEntity>
 
