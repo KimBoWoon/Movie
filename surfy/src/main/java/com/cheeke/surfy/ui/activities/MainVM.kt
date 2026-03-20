@@ -12,11 +12,9 @@ import com.cheeke.surfy.ui.image.imageUrl
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -56,7 +54,7 @@ class MainVM @Inject constructor(
             }
 
             supervisorScope {
-                sessionNextWeekReleaseSnapshot.emit(
+                _nextWeekReleaseDialogItems.emit(
                     value = combine(
                         flow = databaseRepository.getNextWeekReleaseMovies(),
                         flow2 = databaseRepository.getNextWeekReleaseTvs()
@@ -80,45 +78,6 @@ class MainVM @Inject constructor(
             started = SharingStarted.Eagerly,
             initialValue = SurfyAppDataState.Loading
         )
-    private val sessionNextWeekReleaseSnapshot: MutableStateFlow<List<Media>> = MutableStateFlow(value = emptyList())
-    private val dismissedThisSession: MutableStateFlow<Boolean> = MutableStateFlow(value = false)
-    private val hiddenToday: StateFlow<Boolean> = flow {
-        emit(value = userDataRepository.getShowNextReleaseMoviesDate())
-    }.map { stored ->
-        stored == LocalDate.now().toString()
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = false
-    )
-    val shouldShowNextWeekReleaseDialog: StateFlow<Boolean> =
-        combine(
-            flow = sessionNextWeekReleaseSnapshot,
-            flow2 = hiddenToday,
-            flow3 = dismissedThisSession
-        ) { snapshot: List<Media>?, hidden: Boolean, dismissed: Boolean ->
-            !snapshot.isNullOrEmpty() && !hidden && !dismissed
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(),
-            initialValue = false
-        )
-    val nextWeekReleaseDialogItems: StateFlow<List<Media>> =
-        sessionNextWeekReleaseSnapshot
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(),
-                initialValue = emptyList()
-            )
-
-    fun dismissNextWeekReleaseDialog() {
-        dismissedThisSession.value = true
-    }
-
-    fun dontShowNextWeekReleaseDialogToday() {
-        dismissedThisSession.value = true
-        viewModelScope.launch {
-            userDataRepository.updateShowNextReleaseMoviesDate(value = LocalDate.now().toString())
-        }
-    }
+    private val _nextWeekReleaseDialogItems: MutableStateFlow<List<Media>> = MutableStateFlow(value = emptyList())
+    val nextWeekReleaseDialogItems = _nextWeekReleaseDialogItems.asStateFlow()
 }

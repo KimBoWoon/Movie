@@ -38,7 +38,6 @@ import com.cheeke.surfy.rememberSurfyAppState
 import com.cheeke.surfy.setting.SettingScreen
 import com.cheeke.surfy.setting.SettingVM
 import com.cheeke.surfy.setting.SettingsAction
-import com.cheeke.surfy.ui.NextWeekReleaseMoviesNavKey
 import com.cheeke.surfy.ui.SurfyApp
 import com.cheeke.surfy.ui.theme.SurfyTheme
 import com.cheeke.surfy.utils.isSystemInDarkTheme
@@ -123,7 +122,6 @@ class MainActivity : ComponentActivity() {
             ) {
                 LocalFirebaseLogHelper.current.sendLog(name = javaClass.simpleName, message = "compose start!")
 
-                val shouldShowNextWeekReleaseDialog by viewModel.shouldShowNextWeekReleaseDialog.collectAsStateWithLifecycle()
                 val nextWeekReleaseDialogItems by viewModel.nextWeekReleaseDialogItems.collectAsStateWithLifecycle()
 
                 SurfyTheme(darkTheme = darkTheme) {
@@ -136,18 +134,10 @@ class MainActivity : ComponentActivity() {
                         }
                     }
 
-                    LaunchedEffect(key1 = shouldShowNextWeekReleaseDialog) {
-                        if (shouldShowNextWeekReleaseDialog) {
-                            appState.navigationState.backStacks[appState.navigationState.startRoute]?.add(element = NextWeekReleaseMoviesNavKey)
-                        }
-                    }
-
                     SurfyApp(
                         appState = appState,
                         snackbarHostState = snackbarHostState,
                         nextWeekReleaseMovies = nextWeekReleaseDialogItems,
-                        dismissNextWeekReleaseDialog = viewModel::dismissNextWeekReleaseDialog,
-                        dontShowNextWeekReleaseDialogToday = viewModel::dontShowNextWeekReleaseDialogToday,
                         showSettingDialog = { settingVM.onAction(action = SettingsAction.OpenMain) }
                     )
 

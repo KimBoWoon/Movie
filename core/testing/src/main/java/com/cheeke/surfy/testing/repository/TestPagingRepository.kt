@@ -8,15 +8,22 @@ import com.cheeke.surfy.model.Genre
 import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.Review
-import com.cheeke.surfy.model.ReviewAuthorDetails
 import com.cheeke.surfy.model.SearchKeyword
 import com.cheeke.surfy.model.SearchType
 import com.cheeke.surfy.model.TrendingMovieResult
 import com.cheeke.surfy.model.TrendingPeopleResult
 import com.cheeke.surfy.model.TrendingTvResult
 import com.cheeke.surfy.model.Tv
+import com.cheeke.surfy.testing.model.movieSearchTestData
+import com.cheeke.surfy.testing.model.peopleSearchTestData
+import com.cheeke.surfy.testing.model.seriesSearchTestData
 import com.cheeke.surfy.testing.model.testMovieReviews
 import com.cheeke.surfy.testing.model.testRecommendedKeyword
+import com.cheeke.surfy.testing.model.testTrendingMovie
+import com.cheeke.surfy.testing.model.testTrendingPeople
+import com.cheeke.surfy.testing.model.testTrendingTv
+import com.cheeke.surfy.testing.model.testTvReviews
+import com.cheeke.surfy.testing.model.tvSearchTestData
 
 class TestPagingRepository : PagingRepository {
     @SuppressLint("VisibleForTests")
@@ -39,16 +46,13 @@ class TestPagingRepository : PagingRepository {
         region: String,
         isAdult: Boolean
     ): PagingSource<Int, Media> {
-        return (0..100).map {
-            Movie(
-                genres = listOf(Genre(id = it)),
-                releaseDate = "releaseDate_$it",
-                title = "title_$it",
-                adult = true,
-                id = it,
-                posterPath = "/imagePath_$it.png"
-            ) as Media
-        }.asPagingSourceFactory().invoke()
+        return (when (type) {
+            SearchType.MOVIE -> movieSearchTestData.results
+            SearchType.MULTI -> movieSearchTestData.results
+            SearchType.TV -> tvSearchTestData.results
+            SearchType.PEOPLE -> peopleSearchTestData.results
+            SearchType.SERIES -> seriesSearchTestData.results
+        } ?: emptyList()).asPagingSourceFactory().invoke()
     }
 
     override fun getSimilarMoviePagingSource(id: Int): PagingSource<Int, Movie> = testPagingSource
@@ -74,63 +78,23 @@ class TestPagingRepository : PagingRepository {
     }.asPagingSourceFactory().invoke()
 
     @SuppressLint("VisibleForTests")
-    override fun getTvReviews(seriesId: Int): PagingSource<Int, Review> = (0..100).map {
-        Review(
-            author = "author_$it",
-            content = "content_$it",
-            id = "id_$it",
-            url = "url_$it",
-            authorDetails = ReviewAuthorDetails(
-                name = "name_$it",
-                username = "username_$it",
-                avatarPath = "avatarPath_$it",
-                rating = it.toFloat()
-            ),
-            createdAt = "createdAt_$it",
-            updatedAt = "updatedAt_$it",
-        )
-    }.asPagingSourceFactory().invoke()
+    override fun getTvReviews(seriesId: Int): PagingSource<Int, Review> = testTvReviews.asPagingSourceFactory().invoke()
 
     @SuppressLint("VisibleForTests")
     override fun getTrendingMovie(
         timeWindow: String,
         language: String
-    ): PagingSource<Int, TrendingMovieResult> = (0..100).map {
-        TrendingMovieResult(
-            adult = true,
-            backdropPath = "backdropPath_$it",
-            genreIds = emptyList(),
-            id = it,
-            originalLanguage = "originalLanguage_$it",
-            originalTitle = "originalTitle_$it"
-        )
-    }.asPagingSourceFactory().invoke()
+    ): PagingSource<Int, TrendingMovieResult> = testTrendingMovie.asPagingSourceFactory().invoke()
 
     @SuppressLint("VisibleForTests")
     override fun getTrendingPeople(
         timeWindow: String,
         language: String
-    ): PagingSource<Int, TrendingPeopleResult> = (0..100).map {
-        TrendingPeopleResult(
-            adult = true,
-            posterPath = "posterPath_$it",
-            id = it,
-            originalTitle = "originalTitle_$it"
-        )
-    }.asPagingSourceFactory().invoke()
+    ): PagingSource<Int, TrendingPeopleResult> = testTrendingPeople.asPagingSourceFactory().invoke()
 
     @SuppressLint("VisibleForTests")
     override fun getTrendingTv(
         timeWindow: String,
         language: String
-    ): PagingSource<Int, TrendingTvResult> = (0..100).map {
-        TrendingTvResult(
-            adult = true,
-            backdropPath = "backdropPath_$it",
-            genreIds = emptyList(),
-            id = it,
-            originalLanguage = "originalLanguage_$it",
-            originalTitle = "originalTitle_$it"
-        )
-    }.asPagingSourceFactory().invoke()
+    ): PagingSource<Int, TrendingTvResult> = testTrendingTv.asPagingSourceFactory().invoke()
 }

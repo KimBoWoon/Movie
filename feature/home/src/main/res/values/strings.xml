@@ -11,4 +11,7 @@
     <string name="trending_movie">Trending Movie</string>
     <string name="trending_people">Trending People</string>
     <string name="trending_tv">Trending TV</string>
+    <string name="close">Close</string>
+    <string name="coming_soon_movie">Next week Release Movie</string>
+    <string name="no_show_today">No show today</string>
 </resources>

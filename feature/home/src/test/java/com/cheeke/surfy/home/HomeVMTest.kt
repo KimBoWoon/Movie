@@ -100,6 +100,8 @@ class HomeVMTest {
 
         testDatabaseRepository.setMovies(listOf(movie))
 
-        assertEquals(expected = viewModel.homeUiState.value, actual = HomeState.Success(homeUiState = HomeUiState(popularMovies = listOf(movie))))
+        assertEquals(expected = viewModel.homeUiState.value, actual = HomeState.Success(homeUiState = HomeUiState(
+            popularMovies = listOf(movie),
+        )))
     }
 }

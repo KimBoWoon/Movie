@@ -35,6 +35,7 @@ import com.cheeke.surfy.model.Region
 import com.cheeke.surfy.model.Regions
 import com.cheeke.surfy.model.Releases
 import com.cheeke.surfy.model.Review
+import com.cheeke.surfy.model.ReviewAuthorDetails
 import com.cheeke.surfy.model.SearchData
 import com.cheeke.surfy.model.SearchKeyword
 import com.cheeke.surfy.model.Series
@@ -44,13 +45,14 @@ import com.cheeke.surfy.model.SimilarMovies
 import com.cheeke.surfy.model.SimilarTv
 import com.cheeke.surfy.model.SimilarTvs
 import com.cheeke.surfy.model.SpokenLanguage
+import com.cheeke.surfy.model.TrendingMovieResult
+import com.cheeke.surfy.model.TrendingPeopleResult
+import com.cheeke.surfy.model.TrendingTvResult
 import com.cheeke.surfy.model.Tv
 import com.cheeke.surfy.model.TvEpisode
 import com.cheeke.surfy.model.TvSeasons
 import com.cheeke.surfy.model.VideoInfo
 import com.cheeke.surfy.model.Videos
-import java.util.concurrent.atomic.AtomicInteger
-import kotlin.random.Random
 
 val certificationTestData = CertificationData(
     certifications = CertificationMap(
@@ -107,125 +109,93 @@ val testImageList = ImageList(
 
 val movieSearchTestData = SearchData(
     page = 1,
-    results = listOf(
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-        MovieFactory.createMovieItem(),
-    ),
-    totalPages = 3,
-    totalResults = 50
+    results = (1..100).map {
+        Movie(
+            genres = listOf(Genre(id = it)),
+            releaseDate = "releaseDate_$it",
+            title = "title_$it",
+            adult = true,
+            id = it,
+            posterPath = "/imagePath_$it.png"
+        ) as Media
+    },
+    totalPages = 1,
+    totalResults = 100
 )
 
 val peopleSearchTestData = SearchData(
     page = 1,
-    results = listOf(
-        MovieFactory.createPeopleItem(),
-        MovieFactory.createPeopleItem(),
-        MovieFactory.createPeopleItem(),
-        MovieFactory.createPeopleItem(),
-        MovieFactory.createPeopleItem()
-    ),
+    results = (1..100).map {
+        Movie(
+            genres = listOf(Genre(id = it)),
+            releaseDate = "releaseDate_$it",
+            title = "title_$it",
+            adult = true,
+            id = it,
+            posterPath = "/imagePath_$it.png"
+        ) as Media
+    },
     totalPages = 1,
-    totalResults = 5
+    totalResults = 100
 )
 
 val seriesSearchTestData = SearchData(
     page = 1,
-    results = listOf(
-        MovieFactory.createSeriesItem(),
-        MovieFactory.createSeriesItem(),
-        MovieFactory.createSeriesItem(),
-        MovieFactory.createSeriesItem(),
-        MovieFactory.createSeriesItem()
-    ),
+    results = (0 .. 5).map {
+        Series(
+            id = it,
+            title = "name_$it",
+            posterPath = "/imagePath_$it.png"
+        )
+    },
     totalPages = 1,
     totalResults = 5
 )
 
 val tvSearchTestData = SearchData(
     page = 1,
-    results = listOf(
-        MovieFactory.createTvItem(),
-        MovieFactory.createTvItem(),
-        MovieFactory.createTvItem(),
-        MovieFactory.createTvItem(),
-        MovieFactory.createTvItem()
-    ),
+    results = (0 .. 5).map {
+        Tv(
+            id = it,
+            title = "name_$it",
+            posterPath = "/imagePath_$it.png",
+            adult = true
+        )
+    },
     totalPages = 1,
     totalResults = 5
 )
 
 val similarMoviesTestData = SimilarMovies(
     page = 1,
-    results = listOf(
-        MovieFactory.createSimilarMovie(),
-        MovieFactory.createSimilarMovie(),
-        MovieFactory.createSimilarMovie(),
-        MovieFactory.createSimilarMovie(),
-        MovieFactory.createSimilarMovie()
-    ),
+    results = (1..100).map {
+        SimilarMovie(
+//            genres = listOf(Genre(id = it)),
+            releaseDate = "releaseDate_$it",
+            title = "title_$it",
+            adult = true,
+            id = it,
+            posterPath = "/imagePath_$it.png"
+        )
+    },
     totalPages = 1,
-    totalResults = 5
+    totalResults = 100
 )
 
 val similarTvTestData = SimilarTvs(
     page = 1,
-    results = listOf(
-        MovieFactory.createSimilarTv(),
-        MovieFactory.createSimilarTv(),
-        MovieFactory.createSimilarTv(),
-        MovieFactory.createSimilarTv(),
-        MovieFactory.createSimilarTv()
-    ),
+    results = (0..100).map {
+        SimilarTv(
+//            genres = listOf(Genre(id = it)),
+            firstAirDate = "firstAirDate_$it",
+            name = "title_$it",
+            adult = true,
+            id = it,
+            posterPath = "/imagePath_$it.png"
+        )
+    },
     totalPages = 1,
-    totalResults = 5
+    totalResults = 101
 )
 
 val nowPlayingMoviesTestData =
@@ -245,7 +215,7 @@ val movieSeriesTestData = Series(
     ),
     posterPath = "/movieSeriesPosterPath.png"
 )
-val testRecommendedKeyword = (0..5).map {
+val testRecommendedKeyword = (0 until 5).map {
     SearchKeyword(id = it, name = "mission$it")
 }
 val testMovieReviews = (0..5).map {
@@ -260,64 +230,52 @@ val testMovieReviews = (0..5).map {
     )
 }
 
-object MovieFactory {
-    private val counter = AtomicInteger(0)
+val testTvReviews = (0..100).map {
+    Review(
+        author = "author_$it",
+        content = "content_$it",
+        id = "id_$it",
+        url = "url_$it",
+        authorDetails = ReviewAuthorDetails(
+            name = "name_$it",
+            username = "username_$it",
+            avatarPath = "avatarPath_$it",
+            rating = it.toFloat()
+        ),
+        createdAt = "createdAt_$it",
+        updatedAt = "updatedAt_$it",
+    )
+}
 
-    fun createMovieItem(): Media {
-        val id = counter.incrementAndGet()
-        return Movie(
-            id = id,
-            title = "title_$id",
-            posterPath = "/imagePath_$id.png",
-            genres = listOf(Genre(id = Random(seed = System.currentTimeMillis()).nextInt(from = 0, until = 5)))
-        )
-    }
+val testTrendingMovie = (0..100).map {
+    TrendingMovieResult(
+        adult = true,
+        backdropPath = "backdropPath_$it",
+        genreIds = emptyList(),
+        id = it,
+        originalLanguage = "originalLanguage_$it",
+        originalTitle = "originalTitle_$it"
+    )
+}
 
-    fun createPeopleItem(): Media {
-        val id = counter.incrementAndGet()
-        return People(
-            id = id,
-            title = "name_$id",
-            posterPath = "/imagePath_$id.png",
-        )
-    }
+val testTrendingPeople = (0..100).map {
+    TrendingPeopleResult(
+        adult = true,
+        posterPath = "posterPath_$it",
+        id = it,
+        originalTitle = "originalTitle_$it"
+    )
+}
 
-    fun createSeriesItem(): Media {
-        val id = counter.incrementAndGet()
-        return Series(
-            id = id,
-            title = "name_$id",
-            posterPath = "/imagePath_$id.png"
-        )
-    }
-
-    fun createTvItem(): Media {
-        val id = counter.incrementAndGet()
-        return Tv(
-            id = id,
-            title = "name_$id",
-            posterPath = "/imagePath_$id.png",
-            adult = true
-        )
-    }
-
-    fun createSimilarMovie(): SimilarMovie {
-        val id = counter.incrementAndGet()
-        return SimilarMovie(
-            id = id,
-            title = "title_$id",
-            posterPath = "/imagePath_$id.png",
-        )
-    }
-
-    fun createSimilarTv(): SimilarTv {
-        val id = counter.incrementAndGet()
-        return SimilarTv(
-            id = id,
-            name = "title_$id",
-            posterPath = "/imagePath_$id.png",
-        )
-    }
+val testTrendingTv = (0..100).map {
+    TrendingTvResult(
+        adult = true,
+        backdropPath = "backdropPath_$it",
+        genreIds = emptyList(),
+        id = it,
+        originalLanguage = "originalLanguage_$it",
+        originalTitle = "originalTitle_$it"
+    )
 }
 
 val favoriteMovieDetailTestData = Movie(

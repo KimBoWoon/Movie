@@ -134,4 +134,26 @@ internal class PeopleDaoTest : DatabaseTest() {
             favoritePeoples + people
         )
     }
+
+    @Test
+    fun isFavoriteTest() = runTest {
+        val people = PeopleEntity(
+            id = 3,
+            timestamp = Instant.now().epochSecond,
+            profilePath = "/Movie_4.png",
+            name = "movie_4"
+        )
+
+        assertEquals(
+            expected = peopleDao.isFavoritePeople(id = 3).first(),
+            actual = false
+        )
+
+        peopleDao.insertOrIgnorePeoples(people = people)
+
+        assertEquals(
+            expected = peopleDao.isFavoritePeople(id = 3).first(),
+            actual = true
+        )
+    }
 }
