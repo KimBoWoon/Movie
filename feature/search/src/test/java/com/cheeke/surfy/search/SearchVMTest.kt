@@ -93,7 +93,7 @@ class SearchVMTest {
         val a: PagingSource.LoadResult<Int, Media> = PagingSource.LoadResult.Page(
             data = movieSearchTestData.results ?: emptyList(),
             prevKey = null,
-            nextKey = 2
+            nextKey = null
         )
         val b = pagingSource.load(
             PagingSource.LoadParams.Refresh(
@@ -127,7 +127,7 @@ class SearchVMTest {
         val b = pagingSource.load(
             PagingSource.LoadParams.Refresh(
                 key = null,
-                loadSize = 2,
+                loadSize = 6,
                 placeholdersEnabled = false
             )
         )

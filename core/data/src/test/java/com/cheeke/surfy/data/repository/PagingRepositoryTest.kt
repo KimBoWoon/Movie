@@ -224,7 +224,7 @@ class PagingRepositoryTest {
         val actual = pagingSource.load(
             params = PagingSource.LoadParams.Refresh(
                 key = null,
-                loadSize = 5,
+                loadSize = 6,
                 placeholdersEnabled = false
             )
         )

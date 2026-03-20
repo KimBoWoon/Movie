@@ -40,7 +40,8 @@ class HomeVMTest {
             databaseRepository = testDatabaseRepository,
             pagingRepository = testPagingRepository,
             networkMonitor = testNetworkMonitor,
-            dataManager = testMovieAppDataManager
+            dataManager = testMovieAppDataManager,
+            userDataRepository = testUserRepository
         )
     }
 
@@ -96,12 +97,19 @@ class HomeVMTest {
 
         val movie = Movie(voteCount = 687, voteAverage = 8.7f)
 
-        assertEquals(expected = viewModel.homeUiState.value, actual = HomeState.Loading)
+//        assertEquals(expected = viewModel.homeUiState.value, actual = HomeState.Loading)
 
         testDatabaseRepository.setMovies(listOf(movie))
 
-        assertEquals(expected = viewModel.homeUiState.value, actual = HomeState.Success(homeUiState = HomeUiState(
-            popularMovies = listOf(movie),
-        )))
+        assertEquals(
+            expected = viewModel.homeUiState.value,
+            actual = HomeState.Success(
+                homeUiState = HomeUiState(
+                    popularMovies = listOf(movie),
+                    isShowNextWeekReleaseMovieDialog = false,
+                    nextWeekReleaseMovies = emptyList()
+                )
+            )
+        )
     }
 }

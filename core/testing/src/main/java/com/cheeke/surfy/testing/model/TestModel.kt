@@ -215,7 +215,7 @@ val movieSeriesTestData = Series(
     ),
     posterPath = "/movieSeriesPosterPath.png"
 )
-val testRecommendedKeyword = (0 until 5).map {
+val testRecommendedKeyword = (0 .. 5).map {
     SearchKeyword(id = it, name = "mission$it")
 }
 val testMovieReviews = (0..5).map {
