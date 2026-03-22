@@ -1,5 +1,6 @@
 package com.cheeke.surfy.home
 
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -35,10 +36,13 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -102,6 +106,8 @@ import com.cheeke.surfy.ui.utils.sp10
 import com.cheeke.surfy.ui.utils.sp15
 import com.cheeke.surfy.ui.utils.sp20
 import com.cheeke.surfy.ui.utils.sp8
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun HomeScreen(
@@ -162,7 +168,7 @@ fun HomeScreen(
     goToPeople: (Int) -> Unit,
     goToTv: (Int) -> Unit,
     dismissNextWeekReleaseDialog: () -> Unit,
-    dontShowNextWeekReleaseDialogToday: () -> Unit
+    dontShowNextWeekReleaseDialogToday: () -> Unit,
 ) {
     LocalFirebaseLogHelper.current.sendLog("HomeScreen", "init screen")
 
@@ -247,7 +253,6 @@ fun HomeComponent(
     goToTv: (Int) -> Unit,
 ) {
     val scrollState = rememberScrollState()
-    val pagerState = rememberPagerState(pageCount = { popularMovies.size })
     val nowPlayingMoviesTitle = stringResource(id = R.string.now_playing_movies)
     val upcomingMoviesTitle = stringResource(id = R.string.upcoming_movies)
     val trendingMovieTitle = stringResource(id = R.string.trending_movie)
@@ -561,10 +566,31 @@ private fun TodayRecommendMovieComponent(
     movies: List<Movie>,
     goToMovie: (Int) -> Unit
 ) {
+    var index by remember { mutableIntStateOf(value = 0) }
+    var useScroll by remember { mutableStateOf(value = true) }
     val pagerState = rememberPagerState(
-        initialPage = 0,
+        initialPage = index,
         pageCount = { movies.size }
     )
+
+    LaunchedEffect(pagerState, movies.size) {
+        if (movies.size <= 1) return@LaunchedEffect
+
+        snapshotFlow { pagerState.settledPage }
+            .collectLatest {
+                delay(timeMillis = 2000)
+                val nextPage = (pagerState.settledPage + 1) % movies.size
+                useScroll = false
+                pagerState.animateScrollToPage(
+                    page = nextPage,
+                    animationSpec = tween(
+                        durationMillis = 500,
+                        easing = FastOutSlowInEasing
+                    )
+                )
+                useScroll = true
+            }
+    }
 
     Column {
         Text(
@@ -577,7 +603,8 @@ private fun TodayRecommendMovieComponent(
             state = pagerState,
             contentPadding = PaddingValues(horizontal = dp20),
             pageSpacing = dp12,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            userScrollEnabled = useScroll
         ) { page ->
             val movie = movies[page]
 
@@ -724,9 +751,7 @@ fun ReleaseMoviesDialog(
     dismissNextWeekReleaseDialog: () -> Unit
 ) {
     Dialog(
-        onDismissRequest = {
-            dismissNextWeekReleaseDialog()
-        },
+        onDismissRequest = { dismissNextWeekReleaseDialog() },
         properties = DialogProperties(
             windowTitle = "NextWeekReleaseMoviesNavKey",
             dismissOnBackPress = true,

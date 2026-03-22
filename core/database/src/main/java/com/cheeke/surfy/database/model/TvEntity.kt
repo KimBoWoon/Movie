@@ -20,6 +20,7 @@ fun TvEntity.asExternalModel(): Tv = Tv(
     id = id,
     posterPath = posterPath,
     title = name,
+    releaseDate = firstAirDate,
     firstAirDate = firstAirDate,
     lastAirDate = lastAirDate,
     mediaType = MediaType.TV

@@ -10,8 +10,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class TvNavKey(
-    val id: Int,
-    val tab: Int = 0
+    val id: Int
 ) : NavKey
 
 fun EntryProviderScope<NavKey>.tvEntry(

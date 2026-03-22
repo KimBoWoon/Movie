@@ -6,6 +6,7 @@ import com.cheeke.surfy.detail.movie.navigation.MovieNavKey
 import com.cheeke.surfy.detail.people.navigation.PeopleNavKey
 import com.cheeke.surfy.detail.series.navigation.SeriesNavKey
 import com.cheeke.surfy.detail.tv.navigation.TvNavKey
+import com.cheeke.surfy.favorite.FavoriteTab
 import com.cheeke.surfy.favorite.navigation.FavoriteNavKey
 import com.cheeke.surfy.home.navigation.HomeNavKey
 import com.cheeke.surfy.search.navigation.SearchNavKey
@@ -32,6 +33,9 @@ fun parseDeeplink(uri: Uri?): List<NavKey> = uri?.let { uri ->
             )
             DeeplinkAction.GO_TO_MOVIE -> createDeeplinkStack(
                 command = DeeplinkCommand.GoToMovie(id = query["id"]?.toIntOrNull() ?: -1)
+            )
+            DeeplinkAction.GO_TO_TV -> createDeeplinkStack(
+                command = DeeplinkCommand.GoToTv(id = query["id"]?.toIntOrNull() ?: -1)
             )
             DeeplinkAction.GO_TO_PEOPLE -> createDeeplinkStack(
                 command = DeeplinkCommand.GoToPeople(id = query["id"]?.toIntOrNull() ?: -1)
@@ -81,10 +85,11 @@ private fun createDeeplinkStack(command: DeeplinkCommand): List<NavKey> = when (
     is DeeplinkCommand.GoToHome -> listOf(HomeNavKey)
     is DeeplinkCommand.GoToFavorite -> listOf(FavoriteNavKey(tab = command.tabIndex))
     is DeeplinkCommand.GoToSetting -> emptyList()
-    is DeeplinkCommand.OpenFavoritePeople -> listOf(FavoriteNavKey(tab = 2), PeopleNavKey(id = command.id))
-    is DeeplinkCommand.OpenFavoriteMovie -> listOf(FavoriteNavKey(tab = 0), MovieNavKey(id = command.id))
-    is DeeplinkCommand.OpenFavoriteTv -> listOf(FavoriteNavKey(tab = 1), TvNavKey(id = command.id))
+    is DeeplinkCommand.OpenFavoritePeople -> listOf(FavoriteNavKey(tab = FavoriteTab.PEOPLE.ordinal), PeopleNavKey(id = command.id))
+    is DeeplinkCommand.OpenFavoriteMovie -> listOf(FavoriteNavKey(tab = FavoriteTab.MOVIE.ordinal), MovieNavKey(id = command.id))
+    is DeeplinkCommand.OpenFavoriteTv -> listOf(FavoriteNavKey(tab = FavoriteTab.TV.ordinal), TvNavKey(id = command.id))
     is DeeplinkCommand.GoToMovie -> listOf(MovieNavKey(id = command.id))
+    is DeeplinkCommand.GoToTv -> listOf(TvNavKey(id = command.id))
     is DeeplinkCommand.GoToPeople -> listOf(PeopleNavKey(id = command.id))
     is DeeplinkCommand.GoToSeries -> listOf(SeriesNavKey(id = command.id))
     is DeeplinkCommand.GoToSearch -> listOf(SearchNavKey(query = command.query, searchType = command.searchType))

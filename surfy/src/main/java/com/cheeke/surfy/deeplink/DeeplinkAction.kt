@@ -8,6 +8,7 @@ enum class DeeplinkAction(val value: String) {
     OPEN_FAVORITE_MOVIE(value = "open_favorite_movie"),
     OPEN_FAVORITE_TV(value = "open_favorite_tv"),
     GO_TO_MOVIE(value = "go_to_movie"),
+    GO_TO_TV(value = "go_to_tv"),
     GO_TO_PEOPLE(value = "go_to_people"),
     GO_TO_SERIES(value = "go_to_series"),
     GO_TO_SEARCH(value = "go_to_search"),

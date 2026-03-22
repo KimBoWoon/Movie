@@ -10,6 +10,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.net.Uri
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -24,7 +25,11 @@ import com.cheeke.surfy.common.Dispatchers.IO
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.core.notifications.R
 import com.cheeke.surfy.data.repository.UserDataRepository
+import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.model.Movie
+import com.cheeke.surfy.model.People
+import com.cheeke.surfy.model.Series
+import com.cheeke.surfy.model.Tv
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -80,7 +85,7 @@ class SystemTrayNotifier @Inject constructor(
         }
     }
 
-    override fun postMovieNotifications(movies: List<Movie>) {
+    override fun postMovieNotifications(movies: List<Media>) {
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_DENIED) return
         if (movies.isEmpty()) return
 
@@ -173,7 +178,7 @@ fun Context.ensureNotificationChannelExists() {
 }
 
 fun Context.moviePendingIntent(
-    movie: Movie,
+    movie: Media,
 ): PendingIntent? = PendingIntent.getActivity(
     this,
     MOVIE_NOTIFICATION_REQUEST_CODE,
@@ -188,4 +193,16 @@ fun Context.moviePendingIntent(
     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
 )
 
-private fun Movie.movieDeepLinkUri() = "$DEEP_LINK_BASE_PATH?id=$id".toUri()
+private fun Media.movieDeepLinkUri(): Uri {
+    val path = when (this) {
+        is Movie -> "go_to_movie"
+        is Tv -> "go_to_tv"
+        is People -> "go_to_people"
+        is Series -> "go_to_series"
+        else -> {
+            Log.d("unknow path -> $this")
+            ""
+        }
+    }
+    return "$DEEP_LINK_SCHEME_AND_HOST/$path?id=$id".toUri()
+}

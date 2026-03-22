@@ -1,8 +1,8 @@
 package com.cheeke.surfy.notifications
 
-import com.cheeke.surfy.model.Movie
+import com.cheeke.surfy.model.Media
 
 interface Notifier {
     fun postNotification(id: Int, message: String)
-    fun postMovieNotifications(movies: List<Movie>)
+    fun postMovieNotifications(movies: List<Media>)
 }

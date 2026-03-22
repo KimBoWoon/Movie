@@ -8,6 +8,7 @@ sealed interface DeeplinkCommand {
     data class OpenFavoriteMovie(val id: Int) : DeeplinkCommand
     data class OpenFavoriteTv(val id: Int) : DeeplinkCommand
     data class GoToMovie(val id: Int) : DeeplinkCommand
+    data class GoToTv(val id: Int) : DeeplinkCommand
     data class GoToPeople(val id: Int) : DeeplinkCommand
     data class GoToSeries(val id: Int) : DeeplinkCommand
     data class GoToSearch(val query: String, val searchType: String) : DeeplinkCommand
