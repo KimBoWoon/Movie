@@ -99,6 +99,7 @@ import com.cheeke.surfy.ui.utils.dp230
 import com.cheeke.surfy.ui.utils.dp28
 import com.cheeke.surfy.ui.utils.dp30
 import com.cheeke.surfy.ui.utils.dp300
+import com.cheeke.surfy.ui.utils.dp5
 import com.cheeke.surfy.ui.utils.dp6
 import com.cheeke.surfy.ui.utils.dp60
 import com.cheeke.surfy.ui.utils.dp8
@@ -535,6 +536,7 @@ fun MediaItem(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
+                modifier = Modifier.wrapContentHeight().weight(weight = 1f).padding(end = dp5),
                 text = movie.title ?: "",
                 fontSize = sp10,
                 style = MaterialTheme.typography.labelSmall,
@@ -543,7 +545,7 @@ fun MediaItem(
             )
             Text(
                 text = "%.2f".format(movie.voteAverage),
-                fontSize = sp8,
+                fontSize = sp10,
                 style = MaterialTheme.typography.labelSmall,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -573,11 +575,12 @@ private fun TodayRecommendMovieComponent(
         pageCount = { movies.size }
     )
 
-    LaunchedEffect(pagerState, movies.size) {
+    LaunchedEffect(key1 = pagerState, key2 = movies.size) {
         if (movies.size <= 1) return@LaunchedEffect
 
         snapshotFlow { pagerState.settledPage }
             .collectLatest {
+                Log.d("today recommend movie index -> $it")
                 delay(timeMillis = 2000)
                 val nextPage = (pagerState.settledPage + 1) % movies.size
                 useScroll = false

@@ -9,6 +9,7 @@ import com.cheeke.surfy.database.dao.MovieDao
 import com.cheeke.surfy.datastore.InternalDataSource
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.network.MovieNetworkDataSource
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -16,13 +17,22 @@ import kotlinx.coroutines.flow.first
 import java.time.LocalDate
 import javax.inject.Inject
 
-class MainMenuRepositoryImpl @Inject constructor(
+class SyncRepositoryImpl @Inject constructor(
     private val apis: MovieNetworkDataSource,
     private val datastore: InternalDataSource,
     private val movieDao: MovieDao
-) : MainMenuRepository {
+) : SyncRepository {
     override suspend fun syncWith(synchronizer: Synchronizer): Boolean = coroutineScope {
-        val nowPlayingMovieDeferred = async {
+        val result = awaitAll(
+            getNowPlayingMovies(synchronizer),
+            getUpComingMovies(synchronizer)
+        )
+        datastore.updateMainDate(value = LocalDate.now().minusDays(1).toString())
+        result
+    }.all { it }
+
+    private suspend fun getNowPlayingMovies(synchronizer: Synchronizer): Deferred<Boolean> = coroutineScope {
+        async {
             synchronizer.updateMovieSync(
                 updateChecker = {
                     val date = getVersion()
@@ -51,7 +61,10 @@ class MainMenuRepositoryImpl @Inject constructor(
                 }
             )
         }
-        val upComingMovieDeferred = async {
+    }
+
+    private suspend fun getUpComingMovies(synchronizer: Synchronizer): Deferred<Boolean> = coroutineScope {
+        async {
             synchronizer.updateMovieSync(
                 updateChecker = {
                     val date = getVersion()
@@ -80,8 +93,5 @@ class MainMenuRepositoryImpl @Inject constructor(
                 }
             )
         }
-        val result = awaitAll(nowPlayingMovieDeferred, upComingMovieDeferred)
-        datastore.updateMainDate(value = LocalDate.now().minusDays(1).toString())
-        result
-    }.all { it }
+    }
 }

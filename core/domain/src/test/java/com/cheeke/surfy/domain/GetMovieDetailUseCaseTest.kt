@@ -2,8 +2,8 @@ package com.cheeke.surfy.domain
 
 import com.cheeke.surfy.model.LocaleOption
 import com.cheeke.surfy.model.Movie
-import com.cheeke.surfy.model.SurfyAppData
 import com.cheeke.surfy.model.PosterSize
+import com.cheeke.surfy.model.SurfyAppData
 import com.cheeke.surfy.testing.model.configurationTestData
 import com.cheeke.surfy.testing.model.favoriteMovieDetailTestData
 import com.cheeke.surfy.testing.model.genreListTestData
@@ -12,7 +12,7 @@ import com.cheeke.surfy.testing.model.movieSeriesTestData
 import com.cheeke.surfy.testing.model.regionTestData
 import com.cheeke.surfy.testing.model.unFavoriteMovieDetailTestData
 import com.cheeke.surfy.testing.repository.TestDatabaseRepository
-import com.cheeke.surfy.testing.repository.TestDetailRepository
+import com.cheeke.surfy.testing.repository.TestMovieDetailRepository
 import com.cheeke.surfy.testing.repository.TestPagingRepository
 import com.cheeke.surfy.testing.repository.TestUserDataRepository
 import com.cheeke.surfy.testing.utils.MainDispatcherRule
@@ -29,7 +29,7 @@ import kotlin.test.assertEquals
 class GetMovieDetailUseCaseTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
-    private lateinit var detailRepository: TestDetailRepository
+    private lateinit var detailRepository: TestMovieDetailRepository
     private lateinit var databaseRepository: TestDatabaseRepository
     private lateinit var userDataRepository: TestUserDataRepository
     private lateinit var getMovieDetailUseCase: GetMovieDetailUseCase
@@ -38,7 +38,7 @@ class GetMovieDetailUseCaseTest {
 
     @Before
     fun setup() {
-        detailRepository = TestDetailRepository()
+        detailRepository = TestMovieDetailRepository()
         databaseRepository = TestDatabaseRepository()
         userDataRepository = TestUserDataRepository()
         movieAppDataRepository = TestMovieAppDataManager()

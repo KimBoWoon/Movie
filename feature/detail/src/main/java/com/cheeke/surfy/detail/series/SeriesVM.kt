@@ -8,7 +8,7 @@ import com.cheeke.surfy.analytics.logSelectContent
 import com.cheeke.surfy.common.Result
 import com.cheeke.surfy.common.asResult
 import com.cheeke.surfy.common.toEpochDayOrMax
-import com.cheeke.surfy.data.repository.DetailRepository
+import com.cheeke.surfy.data.repository.SeriesDetailRepository
 import com.cheeke.surfy.model.ImageList
 import com.cheeke.surfy.model.Series
 import com.cheeke.surfy.model.SeriesPart
@@ -28,7 +28,7 @@ import kotlinx.coroutines.launch
 @HiltViewModel(assistedFactory = SeriesVM.Factory::class)
 class SeriesVM @AssistedInject constructor(
     @Assisted val id: Int,
-    detailRepository: DetailRepository,
+    detailRepository: SeriesDetailRepository,
     private val analyticsHelper: AnalyticsHelper
 ) : ViewModel() {
     companion object {
@@ -46,7 +46,7 @@ class SeriesVM @AssistedInject constructor(
         .flatMapLatest {
             combine(
                 trace(sectionName = "GetSeriesDetail") {
-                    detailRepository.getMovieSeries(collectionId = id)
+                    detailRepository.getData(id = id)
                         .map { series ->
                             series.copy(
                                 parts = series.parts?.sortedWith(

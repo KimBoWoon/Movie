@@ -16,9 +16,9 @@ import com.cheeke.surfy.detail.people.PeopleScreen
 import com.cheeke.surfy.detail.people.PeopleState
 import com.cheeke.surfy.detail.people.PeopleVM
 import com.cheeke.surfy.domain.GetPeopleDetailUseCase
-import com.cheeke.surfy.model.SurfyAppData
 import com.cheeke.surfy.model.People
 import com.cheeke.surfy.model.PosterSize
+import com.cheeke.surfy.model.SurfyAppData
 import com.cheeke.surfy.model.getRelatedMovie
 import com.cheeke.surfy.testing.model.combineCreditsTestData
 import com.cheeke.surfy.testing.model.configurationTestData
@@ -28,7 +28,6 @@ import com.cheeke.surfy.testing.model.languageListTestData
 import com.cheeke.surfy.testing.model.peopleDetailTestData
 import com.cheeke.surfy.testing.model.regionTestData
 import com.cheeke.surfy.testing.repository.TestDatabaseRepository
-import com.cheeke.surfy.testing.repository.TestDetailRepository
 import com.cheeke.surfy.testing.utils.TestMovieAppDataManager
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking

@@ -55,18 +55,27 @@ class TestPagingRepository : PagingRepository {
         } ?: emptyList()).asPagingSourceFactory().invoke()
     }
 
-    override fun getSimilarMoviePagingSource(id: Int): PagingSource<Int, Movie> = testPagingSource
+    override fun getSimilarMoviePagingSource(
+        id: Int,
+        language: String,
+        region: String
+    ): PagingSource<Int, Movie> = testPagingSource
 
     @SuppressLint("VisibleForTests")
-    override fun getRecommendKeywordPagingSource(query: String): PagingSource<Int, SearchKeyword> = testRecommendedKeyword.asPagingSourceFactory().invoke()
+    override fun getRecommendKeywordPagingSource(query: String): PagingSource<Int, SearchKeyword> =
+        testRecommendedKeyword.asPagingSourceFactory().invoke()
 
     @SuppressLint("VisibleForTests")
     override fun getMovieReviews(
-        movieId: Int
+        movieId: Int, language: String, region: String
     ): PagingSource<Int, Review> = testMovieReviews.asPagingSourceFactory().invoke()
 
     @SuppressLint("VisibleForTests")
-    override fun getSimilarTvPagingSource(id: Int): PagingSource<Int, Tv> = (0..100).map {
+    override fun getSimilarTvPagingSource(
+        id: Int,
+        language: String,
+        region: String
+    ): PagingSource<Int, Tv> = (0..100).map {
         Tv(
             genres = listOf(Genre(id = it)),
             firstAirDate = "firstAirDate_$it",
@@ -78,7 +87,11 @@ class TestPagingRepository : PagingRepository {
     }.asPagingSourceFactory().invoke()
 
     @SuppressLint("VisibleForTests")
-    override fun getTvReviews(seriesId: Int): PagingSource<Int, Review> = testTvReviews.asPagingSourceFactory().invoke()
+    override fun getTvReviews(
+        seriesId: Int,
+        language: String,
+        region: String
+    ): PagingSource<Int, Review> = testTvReviews.asPagingSourceFactory().invoke()
 
     @SuppressLint("VisibleForTests")
     override fun getTrendingMovie(

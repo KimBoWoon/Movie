@@ -21,7 +21,6 @@ import com.cheeke.surfy.model.TvEpisode
 import com.cheeke.surfy.model.TvSeasons
 import com.cheeke.surfy.testing.model.tvTestData
 import com.cheeke.surfy.testing.repository.TestDatabaseRepository
-import com.cheeke.surfy.testing.repository.TestDetailRepository
 import com.cheeke.surfy.testing.repository.TestPagingRepository
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest

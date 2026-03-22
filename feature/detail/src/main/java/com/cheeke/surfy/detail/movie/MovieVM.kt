@@ -67,11 +67,21 @@ class MovieVM @AssistedInject constructor(
             initialValue = MovieState.Loading,
             started = SharingStarted.Lazily
         )
-    val similarMovies = Pager(
-        config = PagingConfig(pageSize = 1, initialLoadSize = 1, prefetchDistance = 5),
-        initialKey = 1,
-        pagingSourceFactory = { pagingRepository.getSimilarMoviePagingSource(id = id) }
-    ).flow.cachedIn(scope = viewModelScope)
+    val similarMovies = userDataRepository.internalData
+        .map { it.language to it.region }
+        .flatMapLatest {
+            Pager(
+                config = PagingConfig(pageSize = 1, initialLoadSize = 1, prefetchDistance = 5),
+                initialKey = 1,
+                pagingSourceFactory = {
+                    pagingRepository.getSimilarMoviePagingSource(
+                        id = id,
+                        language = it.first,
+                        region = it.second
+                    )
+                }
+            ).flow.cachedIn(scope = viewModelScope)
+        }
     val isCheatActive = userDataRepository.internalData
         .map { it.isCheatActive }
         .stateIn(

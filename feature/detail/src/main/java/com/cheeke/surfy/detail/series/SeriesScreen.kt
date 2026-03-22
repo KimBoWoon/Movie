@@ -192,7 +192,7 @@ fun SeriesComponent(
                 }
             }
         }
-        series.parts?.groupBy { LocalDate.parse(it.releaseDate).year.toString() }?.forEach { (year, movies) ->
+        series.parts?.groupBy { LocalDate.parse(it.releaseDate?.ifEmpty { LocalDate.MAX.toString() }).year.toString() }?.forEach { (year, movies) ->
             stickyHeader(key = "header_$year") {
                 Column(
                     modifier = Modifier
@@ -200,7 +200,11 @@ fun SeriesComponent(
                         .padding(horizontal = dp20)
                 ) {
                     YearSectionHeader(
-                        year = year,
+                        year = if (year == LocalDate.MAX.year.toString()) {
+                            stringResource(id = R.string.release_tbd)
+                        } else {
+                            year
+                        },
                         count = movies.size
                     )
                     Spacer(modifier = Modifier.height(height = dp8))

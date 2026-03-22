@@ -19,7 +19,7 @@ import com.cheeke.surfy.testing.model.similarMoviesTestData
 import com.cheeke.surfy.testing.model.testMovieReviews
 import com.cheeke.surfy.testing.model.unFavoriteMovieDetailTestData
 import com.cheeke.surfy.testing.repository.TestDatabaseRepository
-import com.cheeke.surfy.testing.repository.TestDetailRepository
+import com.cheeke.surfy.testing.repository.TestMovieDetailRepository
 import com.cheeke.surfy.testing.repository.TestPagingRepository
 import com.cheeke.surfy.testing.repository.TestUserDataRepository
 import com.cheeke.surfy.testing.utils.MainDispatcherRule
@@ -46,7 +46,7 @@ class MovieVMTest {
     val mainDispatcherRule = MainDispatcherRule()
     private val testDataBaseRepository = TestDatabaseRepository()
     private val testPagingRepository = TestPagingRepository()
-    private val testDetailRepository = TestDetailRepository()
+    private val testDetailRepository = TestMovieDetailRepository()
     private val testUserDataRepository = TestUserDataRepository()
     private val testAnalyticsHelper = TestAnalyticsHelper()
     private val getMovieDetailUseCase = GetMovieDetailUseCase(
@@ -78,7 +78,7 @@ class MovieVMTest {
 
         val testPager = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 7, prefetchDistance = 5),
-            pagingSource = testPagingRepository.getSimilarMoviePagingSource(id = 0)
+            pagingSource = testPagingRepository.getSimilarMoviePagingSource(id = 0, language = "ko", region = "KR")
         )
 
         assertEquals(viewModel.movie.value, MovieState.Loading)
@@ -120,7 +120,7 @@ class MovieVMTest {
 
         val testPager = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 7, prefetchDistance = 5),
-            pagingSource = testPagingRepository.getSimilarMoviePagingSource(id = 324)
+            pagingSource = testPagingRepository.getSimilarMoviePagingSource(id = 324, language = "ko", region = "KR")
         )
 
         assertEquals(viewModel.movie.value, MovieState.Loading)
@@ -153,7 +153,8 @@ class MovieVMTest {
         val source = SimilarMoviePagingSource(
             apis = TestMovieDataSource(),
             id = 0,
-            userDataRepository = testUserDataRepository
+            language = "ko",
+            region = "KR"
         )
 
         assertEquals(
@@ -183,7 +184,8 @@ class MovieVMTest {
         val source = MovieReviewPagingSource(
             apis = TestMovieDataSource(),
             id = 0,
-            userDataRepository = testUserDataRepository
+            language = "ko",
+            region = "KR"
         )
 
         assertEquals(
@@ -273,7 +275,7 @@ class MovieVMTest {
 
         val testPager = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 7, prefetchDistance = 5),
-            pagingSource = testPagingRepository.getSimilarMoviePagingSource(id = 0)
+            pagingSource = testPagingRepository.getSimilarMoviePagingSource(id = 0, language = "ko", region = "KR")
         )
 
         assertEquals(viewModel.movie.value, MovieState.Loading)

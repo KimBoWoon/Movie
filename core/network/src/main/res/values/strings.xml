@@ -11,4 +11,5 @@
     <string name="folding">Folding</string>
     <string name="release_year_count">• %d movie</string>
     <string name="no_image">No Image</string>
+    <string name="release_tbd">TBD</string>
 </resources>

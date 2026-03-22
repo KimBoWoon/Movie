@@ -10,8 +10,8 @@ import com.cheeke.surfy.model.TvEpisode
 import com.cheeke.surfy.model.TvSeason
 import com.cheeke.surfy.model.TvSeasons
 import com.cheeke.surfy.testing.repository.TestDatabaseRepository
-import com.cheeke.surfy.testing.repository.TestDetailRepository
 import com.cheeke.surfy.testing.repository.TestPagingRepository
+import com.cheeke.surfy.testing.repository.TestTvDetailRepository
 import com.cheeke.surfy.testing.repository.TestUserDataRepository
 import com.cheeke.surfy.testing.utils.MainDispatcherRule
 import com.cheeke.surfy.testing.utils.TestAnalyticsHelper
@@ -32,7 +32,7 @@ class TvVMTest {
     val mainDispatcherRule = MainDispatcherRule()
     private val testDataBaseRepository = TestDatabaseRepository()
     private val testPagingRepository = TestPagingRepository()
-    private val testDetailRepository = TestDetailRepository()
+    private val testDetailRepository = TestTvDetailRepository()
     private val testUserDataRepository = TestUserDataRepository()
     private val testAnalyticsHelper = TestAnalyticsHelper()
     private val getTvDetailUseCase = GetTvDetailUseCase(
@@ -67,7 +67,8 @@ class TvVMTest {
             pagingRepository = testPagingRepository,
             getTvDetailUseCase = getTvDetailUseCase,
             detailRepository = testDetailRepository,
-            analyticsHelper = testAnalyticsHelper
+            analyticsHelper = testAnalyticsHelper,
+            userDataRepository = testUserDataRepository
         )
     }
 

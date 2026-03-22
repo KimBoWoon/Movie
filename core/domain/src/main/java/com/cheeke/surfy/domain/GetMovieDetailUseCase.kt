@@ -3,7 +3,7 @@ package com.cheeke.surfy.domain
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.common.toEpochDayOrMax
 import com.cheeke.surfy.data.repository.DatabaseRepository
-import com.cheeke.surfy.data.repository.DetailRepository
+import com.cheeke.surfy.data.repository.MovieDetailRepository
 import com.cheeke.surfy.data.repository.UserDataRepository
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.Series
@@ -22,12 +22,12 @@ import javax.inject.Inject
 class GetMovieDetailUseCase @Inject constructor(
     private val userDataRepository: UserDataRepository,
     private val databaseRepository: DatabaseRepository,
-    private val detailRepository: DetailRepository
+    private val detailRepository: MovieDetailRepository
 ) {
     @OptIn(ExperimentalCoroutinesApi::class)
     operator fun invoke(id: Int): Flow<MovieWithFavorite> {
         val base = combine(
-            detailRepository.getMovie(id = id),
+            detailRepository.getData(id = id),
             userDataRepository.internalData,
             databaseRepository.isFavoriteMovie(id = id),
 //        detailRepository.getMovieWatchProviders(movieId = id)

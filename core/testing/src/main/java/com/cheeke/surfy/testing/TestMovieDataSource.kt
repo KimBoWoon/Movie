@@ -9,7 +9,6 @@ import com.cheeke.surfy.model.ImageList
 import com.cheeke.surfy.model.Language
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.MovieWatchProvider
-import com.cheeke.surfy.model.MovieWatchProviderResult
 import com.cheeke.surfy.model.People
 import com.cheeke.surfy.model.Regions
 import com.cheeke.surfy.model.Reviews
@@ -47,8 +46,11 @@ import com.cheeke.surfy.testing.model.similarMoviesTestData
 import com.cheeke.surfy.testing.model.similarTvTestData
 import com.cheeke.surfy.testing.model.testImageList
 import com.cheeke.surfy.testing.model.testMovieReviews
+import com.cheeke.surfy.testing.model.tvEpisodeTestData
 import com.cheeke.surfy.testing.model.tvSearchTestData
+import com.cheeke.surfy.testing.model.tvSeasonTestData
 import com.cheeke.surfy.testing.model.upcomingMoviesTestData
+import com.cheeke.surfy.testing.model.watchProvidersTestData
 
 class TestMovieDataSource : MovieNetworkDataSource {
     override suspend fun getConfiguration(): Configuration = configurationTestData
@@ -261,10 +263,7 @@ class TestMovieDataSource : MovieNetworkDataSource {
         seasonNumber: Int,
         appendToResponse: String,
         language: String
-    ): TvSeasons = TvSeasons(
-        id = 0,
-        name = "name_0"
-    )
+    ): TvSeasons = tvSeasonTestData
 
     override suspend fun getTvEpisode(
         seriesId: Int,
@@ -272,22 +271,7 @@ class TestMovieDataSource : MovieNetworkDataSource {
         episodeNumber: Int,
         appendToResponse: String,
         language: String
-    ): TvEpisode = TvEpisode(
-        id = 0,
-        name = "name_0"
-    )
+    ): TvEpisode = tvEpisodeTestData
 
-    override suspend fun getMovieWatchProvider(movieId: Int): MovieWatchProvider {
-        return MovieWatchProvider(
-            id = 0,
-            results = mapOf(
-                "KR" to MovieWatchProviderResult(
-                    link = "link",
-                    flatrate = listOf(),
-                    buy = listOf(),
-                    rent = listOf()
-                )
-            )
-        )
-    }
+    override suspend fun getMovieWatchProvider(movieId: Int): MovieWatchProvider = watchProvidersTestData
 }

@@ -3,24 +3,20 @@ package com.cheeke.surfy.data.paging
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.cheeke.surfy.common.Log
-import com.cheeke.surfy.data.repository.UserDataRepository
-import com.cheeke.surfy.model.InternalData
 import com.cheeke.surfy.model.SimilarTv
 import com.cheeke.surfy.model.Tv
 import com.cheeke.surfy.network.MovieNetworkDataSource
-import kotlinx.coroutines.flow.firstOrNull
 import javax.inject.Inject
 
 class SimilarTvPagingSource @Inject constructor(
     private val apis: MovieNetworkDataSource,
     private val id: Int,
-    private val userDataRepository: UserDataRepository
+    private val language: String,
+    private val region: String
 ) : PagingSource<Int, Tv>() {
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Tv> =
         runCatching {
-            val internalData = userDataRepository.internalData.firstOrNull() ?: InternalData()
-            val language = "${internalData.language}-${internalData.region}"
-            val response = apis.getSimilarTv(id = id, language = language, page = params.key ?: 1)
+            val response = apis.getSimilarTv(id = id, language = "$language-$region", page = params.key ?: 1)
 
             LoadResult.Page(
                 data = getSearchItem(response.results),

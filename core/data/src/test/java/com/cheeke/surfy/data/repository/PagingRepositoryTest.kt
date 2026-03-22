@@ -17,7 +17,7 @@ import com.cheeke.surfy.testing.model.testTvReviews
 import com.cheeke.surfy.testing.model.tvSearchTestData
 import com.cheeke.surfy.testing.repository.TestPagingRepository
 import com.cheeke.surfy.testing.utils.MainDispatcherRule
-import junit.framework.Assert.assertTrue
+import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
@@ -165,7 +165,7 @@ class PagingRepositoryTest {
 
     @Test
     fun similarMoviePagingTest() = runTest {
-        val pagingSource = repository.getSimilarMoviePagingSource(id = 0)
+        val pagingSource = repository.getSimilarMoviePagingSource(id = 0, language = "ko", region = "KR")
 
         val actual = pagingSource.load(
             params = PagingSource.LoadParams.Refresh(
@@ -186,7 +186,7 @@ class PagingRepositoryTest {
 
     @Test
     fun similarTvPagingTest() = runTest {
-        val pagingSource = repository.getSimilarTvPagingSource(id = 0)
+        val pagingSource = repository.getSimilarTvPagingSource(id = 0, language = "ko", region = "KR")
 
         val actual = pagingSource.load(
             params = PagingSource.LoadParams.Refresh(
@@ -240,7 +240,7 @@ class PagingRepositoryTest {
 
     @Test
     fun movieReviewPagingTest() = runTest {
-        val pagingSource = repository.getMovieReviews(movieId = 0)
+        val pagingSource = repository.getMovieReviews(movieId = 0, language = "ko", region = "KR")
 
         val actual = pagingSource.load(
             params = PagingSource.LoadParams.Refresh(
@@ -261,7 +261,7 @@ class PagingRepositoryTest {
 
     @Test
     fun tvReviewPagingTest() = runTest {
-        val pagingSource = repository.getTvReviews(seriesId = 0)
+        val pagingSource = repository.getTvReviews(seriesId = 0, language = "ko", region = "KR")
 
         val actual = pagingSource.load(
             params = PagingSource.LoadParams.Refresh(

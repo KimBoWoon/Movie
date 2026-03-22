@@ -162,7 +162,7 @@ class HomeVM @Inject constructor(
                         flow2 = databaseRepository.getNextWeekReleaseTvs()
                     ) { movies: List<Media>, tvs: List<Media> ->
                         movies + tvs
-                    }.first()
+                    }.first().sortedBy { it.releaseDate }
                 )
             }
         }

@@ -11,8 +11,9 @@ import com.cheeke.surfy.analytics.logSelectContent
 import com.cheeke.surfy.common.Result
 import com.cheeke.surfy.common.asResult
 import com.cheeke.surfy.data.repository.DatabaseRepository
-import com.cheeke.surfy.data.repository.DetailRepository
 import com.cheeke.surfy.data.repository.PagingRepository
+import com.cheeke.surfy.data.repository.TvDetailRepository
+import com.cheeke.surfy.data.repository.UserDataRepository
 import com.cheeke.surfy.domain.GetTvDetailUseCase
 import com.cheeke.surfy.model.Tv
 import com.cheeke.surfy.model.TvEpisode
@@ -42,8 +43,9 @@ class TvVM @AssistedInject constructor(
     private val getTvDetailUseCase: GetTvDetailUseCase,
     private val databaseRepository: DatabaseRepository,
     private val pagingRepository: PagingRepository,
-    private val detailRepository: DetailRepository,
-    private val analyticsHelper: AnalyticsHelper
+    private val detailRepository: TvDetailRepository,
+    private val analyticsHelper: AnalyticsHelper,
+    private val userDataRepository: UserDataRepository
 ) : ViewModel() {
     companion object {
         private const val TAG = "TvVM"
@@ -57,11 +59,21 @@ class TvVM @AssistedInject constructor(
     }
 
     private val reload = MutableSharedFlow<Unit>(replay = 1)
-    val similarTvs = Pager(
-        config = PagingConfig(pageSize = 1, initialLoadSize = 1, prefetchDistance = 5),
-        initialKey = 1,
-        pagingSourceFactory = { pagingRepository.getSimilarTvPagingSource(id = id) }
-    ).flow.cachedIn(scope = viewModelScope)
+    val similarTvs = userDataRepository.internalData
+        .map { it.language to it.region }
+        .flatMapLatest {
+            Pager(
+                config = PagingConfig(pageSize = 1, initialLoadSize = 1, prefetchDistance = 5),
+                initialKey = 1,
+                pagingSourceFactory = {
+                    pagingRepository.getSimilarTvPagingSource(
+                        id = id,
+                        language = it.first,
+                        region = it.second
+                    )
+                }
+            ).flow.cachedIn(scope = viewModelScope)
+        }
     private val _selectedEpisode = MutableStateFlow<TvEpisode?>(value = null)
     val selectedEpisode = _selectedEpisode.asStateFlow()
     private val selectedSeason = MutableStateFlow<TvSeason?>(value = null)

@@ -38,9 +38,4 @@ dependencies {
     androidTestImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.kotlinx.serialization.json)
     androidTestImplementation(project(":core:testing"))
-
-    testImplementation(libs.retrofit2)
-    testImplementation(libs.kotlinx.serialization.converter)
-    testImplementation(libs.mockwebserver)
-    androidTestImplementation(libs.mockwebserver)
 }

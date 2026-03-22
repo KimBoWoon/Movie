@@ -13,7 +13,6 @@ import androidx.compose.ui.test.performScrollToNode
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cheeke.surfy.core.network.R
-import com.cheeke.surfy.core.network.R
 import com.cheeke.surfy.detail.series.SeriesScreen
 import com.cheeke.surfy.detail.series.SeriesState
 import com.cheeke.surfy.detail.series.SeriesVM
@@ -24,7 +23,6 @@ import com.cheeke.surfy.testing.model.genreListTestData
 import com.cheeke.surfy.testing.model.languageListTestData
 import com.cheeke.surfy.testing.model.movieSeriesTestData
 import com.cheeke.surfy.testing.model.regionTestData
-import com.cheeke.surfy.testing.repository.TestDetailRepository
 import com.cheeke.surfy.testing.utils.TestMovieAppDataManager
 import kotlinx.coroutines.runBlocking
 import org.junit.Before

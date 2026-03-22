@@ -10,7 +10,7 @@ import com.cheeke.surfy.testing.model.combineCreditsTestData
 import com.cheeke.surfy.testing.model.externalIdsTestData
 import com.cheeke.surfy.testing.model.peopleDetailTestData
 import com.cheeke.surfy.testing.repository.TestDatabaseRepository
-import com.cheeke.surfy.testing.repository.TestDetailRepository
+import com.cheeke.surfy.testing.repository.TestPeopleDetailRepository
 import com.cheeke.surfy.testing.utils.MainDispatcherRule
 import com.cheeke.surfy.testing.utils.TestAnalyticsHelper
 import com.cheeke.surfy.testing.utils.TestMovieAppDataManager
@@ -33,7 +33,7 @@ class PeopleVMTest {
     val mainDispatcherRule = MainDispatcherRule()
     private lateinit var viewModel: PeopleVM
     private lateinit var testDatabaseRepository: TestDatabaseRepository
-    private lateinit var testDetailRepository: TestDetailRepository
+    private lateinit var testDetailRepository: TestPeopleDetailRepository
     private lateinit var getPeopleDetailUseCase: GetPeopleDetailUseCase
     private lateinit var testMovieAppDataManager: TestMovieAppDataManager
     private lateinit var testAnalyticsHelper: TestAnalyticsHelper
@@ -41,7 +41,7 @@ class PeopleVMTest {
     @Before
     fun setup() {
         testDatabaseRepository = TestDatabaseRepository()
-        testDetailRepository = TestDetailRepository()
+        testDetailRepository = TestPeopleDetailRepository()
         testMovieAppDataManager = TestMovieAppDataManager()
         testAnalyticsHelper = TestAnalyticsHelper()
         getPeopleDetailUseCase = GetPeopleDetailUseCase(

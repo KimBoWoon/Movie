@@ -1,11 +1,11 @@
 package com.cheeke.surfy.testing.repository
 
 import androidx.annotation.VisibleForTesting
-import com.cheeke.surfy.data.repository.MainMenuRepository
+import com.cheeke.surfy.data.repository.SyncRepository
 import com.cheeke.surfy.data.util.Synchronizer
 import java.time.LocalDate
 
-class TestMainMenuRepository : MainMenuRepository {
+class TestSyncRepository : SyncRepository {
     private var date = LocalDate.now()
     private var isForce = false
 
@@ -19,6 +19,6 @@ class TestMainMenuRepository : MainMenuRepository {
 
     @VisibleForTesting
     fun setIsForce(value: Boolean) {
-        this@TestMainMenuRepository.isForce = value
+        this@TestSyncRepository.isForce = value
     }
 }

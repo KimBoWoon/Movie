@@ -5,7 +5,7 @@ import com.cheeke.surfy.testing.model.combineCreditsTestData
 import com.cheeke.surfy.testing.model.externalIdsTestData
 import com.cheeke.surfy.testing.model.peopleDetailTestData
 import com.cheeke.surfy.testing.repository.TestDatabaseRepository
-import com.cheeke.surfy.testing.repository.TestDetailRepository
+import com.cheeke.surfy.testing.repository.TestPeopleDetailRepository
 import com.cheeke.surfy.testing.utils.MainDispatcherRule
 import com.cheeke.surfy.testing.utils.TestMovieAppDataManager
 import kotlinx.coroutines.flow.first
@@ -19,14 +19,14 @@ import kotlin.test.assertEquals
 class GetPeopleDetailUseCaseTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
-    private lateinit var detailRepository: TestDetailRepository
+    private lateinit var detailRepository: TestPeopleDetailRepository
     private lateinit var databaseRepository: TestDatabaseRepository
     private lateinit var movieAppDataRepository: TestMovieAppDataManager
     private lateinit var getPeopleDetailUseCase: GetPeopleDetailUseCase
 
     @Before
     fun setup() {
-        detailRepository = TestDetailRepository()
+        detailRepository = TestPeopleDetailRepository()
         databaseRepository = TestDatabaseRepository()
         movieAppDataRepository = TestMovieAppDataManager()
         getPeopleDetailUseCase = GetPeopleDetailUseCase(

@@ -4,7 +4,7 @@ import com.cheeke.surfy.model.Tv
 import com.cheeke.surfy.model.TvEpisode
 import com.cheeke.surfy.model.TvSeasons
 import com.cheeke.surfy.testing.repository.TestDatabaseRepository
-import com.cheeke.surfy.testing.repository.TestDetailRepository
+import com.cheeke.surfy.testing.repository.TestTvDetailRepository
 import com.cheeke.surfy.testing.repository.TestUserDataRepository
 import com.cheeke.surfy.testing.utils.MainDispatcherRule
 import kotlinx.coroutines.flow.first
@@ -17,7 +17,7 @@ import kotlin.test.assertEquals
 class GetTvDataUseCaseTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
-    private lateinit var detailRepository: TestDetailRepository
+    private lateinit var detailRepository: TestTvDetailRepository
     private lateinit var databaseRepository: TestDatabaseRepository
     private lateinit var getTvDetailUseCase: GetTvDetailUseCase
     private lateinit var userDataRepository: TestUserDataRepository
@@ -34,7 +34,7 @@ class GetTvDataUseCaseTest {
 
     @Before
     fun setup() {
-        detailRepository = TestDetailRepository()
+        detailRepository = TestTvDetailRepository()
         databaseRepository = TestDatabaseRepository()
         userDataRepository = TestUserDataRepository()
         getTvDetailUseCase = GetTvDetailUseCase(

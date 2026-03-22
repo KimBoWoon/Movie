@@ -28,6 +28,8 @@ import com.cheeke.surfy.model.Keywords
 import com.cheeke.surfy.model.Language
 import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.model.Movie
+import com.cheeke.surfy.model.MovieWatchProvider
+import com.cheeke.surfy.model.MovieWatchProviderResult
 import com.cheeke.surfy.model.People
 import com.cheeke.surfy.model.ProductionCompany
 import com.cheeke.surfy.model.ProductionCountry
@@ -410,6 +412,29 @@ val tvTestData = Tv(
     )
 )
 
+val tvSeasonTestData = TvSeasons(
+    id = 0,
+    name = "tvSeasonName",
+    episodes = listOf()
+)
+
+val tvEpisodeTestData = TvEpisode(
+    id = 0,
+    name = "tvEpisode"
+)
+
+val watchProvidersTestData = MovieWatchProvider(
+    id = 0,
+    results = mapOf(
+        "KR" to MovieWatchProviderResult(
+            link = "link",
+            flatrate = listOf(),
+            buy = listOf(),
+            rent = listOf()
+        )
+    )
+)
+
 val combineCreditsTestData = CombineCredits(
     cast = listOf(
         CombineCreditsCast(posterPath = "/CombineCreditsCast.png")
@@ -443,6 +468,11 @@ val peopleDetailTestData = People(
     placeOfBirth = "placeOfBirth",
     popularity = 3.5,
     posterPath = "/profilePath.png"
+)
+
+val tvDetailTestData = Tv(
+    id = 0,
+    title = "name_0"
 )
 
 val nowPlayingMovieTest = (0..100).map {

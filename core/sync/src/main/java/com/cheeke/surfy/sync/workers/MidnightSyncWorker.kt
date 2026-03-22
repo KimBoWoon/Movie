@@ -13,7 +13,7 @@ import androidx.work.WorkerParameters
 import com.cheeke.surfy.common.Dispatcher
 import com.cheeke.surfy.common.Dispatchers
 import com.cheeke.surfy.data.repository.DatabaseRepository
-import com.cheeke.surfy.data.repository.MainMenuRepository
+import com.cheeke.surfy.data.repository.SyncRepository
 import com.cheeke.surfy.data.repository.UserDataRepository
 import com.cheeke.surfy.data.util.Synchronizer
 import com.cheeke.surfy.notifications.Notifier
@@ -39,7 +39,7 @@ class MidnightSyncWorker @AssistedInject constructor(
     @Assisted private val workerParams: WorkerParameters,
     @param:Dispatcher(Dispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
     private val userDateRepository: UserDataRepository,
-    private val mainMenuRepository: MainMenuRepository,
+    private val syncRepository: SyncRepository,
     private val databaseRepository: DatabaseRepository,
     private val notifier: Notifier
 ) : CoroutineWorker(appContext, workerParams), Synchronizer {
@@ -117,7 +117,7 @@ class MidnightSyncWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result = withContext(context = ioDispatcher) {
         async {
-            mainMenuRepository.sync()
+            syncRepository.sync()
         }.await()
             .let { isSuccess ->
                 when (isSuccess) {

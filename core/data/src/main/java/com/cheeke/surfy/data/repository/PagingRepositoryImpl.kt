@@ -23,8 +23,7 @@ import com.cheeke.surfy.network.MovieNetworkDataSource
 import javax.inject.Inject
 
 class PagingRepositoryImpl @Inject constructor(
-    private val apis: MovieNetworkDataSource,
-    private val userDataRepository: UserDataRepository
+    private val apis: MovieNetworkDataSource
 ) : PagingRepository {
     override fun getSearchPagingSource(
         type: SearchType,
@@ -42,59 +41,80 @@ class PagingRepositoryImpl @Inject constructor(
     )
 
     override fun getSimilarMoviePagingSource(
-        id: Int
+        id: Int,
+        language: String,
+        region: String
     ): PagingSource<Int, Movie> = SimilarMoviePagingSource(
         apis = apis,
         id = id,
-        userDataRepository = userDataRepository
+        language = language,
+        region = region
     )
 
-    override fun getSimilarTvPagingSource(id: Int): PagingSource<Int, Tv> = SimilarTvPagingSource(
+    override fun getSimilarTvPagingSource(
+        id: Int,
+        language: String,
+        region: String
+    ): PagingSource<Int, Tv> = SimilarTvPagingSource(
         apis = apis,
         id = id,
-        userDataRepository = userDataRepository
+        language = language,
+        region = region
     )
 
-    override fun getRecommendKeywordPagingSource(query: String): PagingSource<Int, SearchKeyword> =
-        RecommendKeywordPagingSource(
-            apis = apis,
-            query = query
-        )
+    override fun getRecommendKeywordPagingSource(
+        query: String
+    ): PagingSource<Int, SearchKeyword> = RecommendKeywordPagingSource(
+        apis = apis,
+        query = query
+    )
 
     override fun getMovieReviews(
-        movieId: Int
+        movieId: Int,
+        language: String,
+        region: String
     ): PagingSource<Int, Review> = MovieReviewPagingSource(
         apis = apis,
         id = movieId,
-        userDataRepository = userDataRepository
+        language = language,
+        region = region
     )
 
     override fun getTvReviews(
-        seriesId: Int
+        seriesId: Int,
+        language: String,
+        region: String
     ): PagingSource<Int, Review> = TvReviewPagingSource(
         apis = apis,
         id = seriesId,
-        userDataRepository = userDataRepository
+        language = language,
+        region = region
     )
 
-    override fun getTrendingMovie(timeWindow: String, language: String): PagingSource<Int, TrendingMovieResult> =
-        TrendingMoviePagingSource(
-            apis = apis,
-            timeWindow = timeWindow,
-            language = language
-        )
+    override fun getTrendingMovie(
+        timeWindow: String,
+        language: String
+    ): PagingSource<Int, TrendingMovieResult> = TrendingMoviePagingSource(
+        apis = apis,
+        timeWindow = timeWindow,
+        language = language
+    )
 
-    override fun getTrendingPeople(timeWindow: String, language: String): PagingSource<Int, TrendingPeopleResult> =
-        TrendingPeoplePagingSource(
-            apis = apis,
-            timeWindow = timeWindow,
-            language = language
-        )
+    override fun getTrendingPeople(
+        timeWindow: String,
+        language: String
+    ): PagingSource<Int, TrendingPeopleResult> = TrendingPeoplePagingSource(
+        apis = apis,
+        timeWindow = timeWindow,
+        language = language
+    )
 
-    override fun getTrendingTv(timeWindow: String, language: String): PagingSource<Int, TrendingTvResult> =
-        TrendingTvPagingSource(
-            apis = apis,
-            timeWindow = timeWindow,
-            language = language
-        )
+    override fun getTrendingTv(
+        timeWindow: String,
+        language: String
+    ): PagingSource<Int, TrendingTvResult> = TrendingTvPagingSource(
+        apis = apis,
+        timeWindow = timeWindow,
+        language = language
+    )
 }

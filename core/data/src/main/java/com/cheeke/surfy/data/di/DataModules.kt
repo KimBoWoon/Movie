@@ -2,12 +2,18 @@ package com.cheeke.surfy.data.di
 
 import com.cheeke.surfy.data.repository.DatabaseRepository
 import com.cheeke.surfy.data.repository.DatabaseRepositoryImpl
-import com.cheeke.surfy.data.repository.DetailRepository
-import com.cheeke.surfy.data.repository.DetailRepositoryImpl
-import com.cheeke.surfy.data.repository.MainMenuRepository
-import com.cheeke.surfy.data.repository.MainMenuRepositoryImpl
+import com.cheeke.surfy.data.repository.MovieDetailRepository
+import com.cheeke.surfy.data.repository.MovieDetailRepositoryImpl
 import com.cheeke.surfy.data.repository.PagingRepository
 import com.cheeke.surfy.data.repository.PagingRepositoryImpl
+import com.cheeke.surfy.data.repository.PeopleDetailRepository
+import com.cheeke.surfy.data.repository.PeopleDetailRepositoryImpl
+import com.cheeke.surfy.data.repository.SeriesDetailRepository
+import com.cheeke.surfy.data.repository.SeriesDetailRepositoryImpl
+import com.cheeke.surfy.data.repository.SyncRepository
+import com.cheeke.surfy.data.repository.SyncRepositoryImpl
+import com.cheeke.surfy.data.repository.TvDetailRepository
+import com.cheeke.surfy.data.repository.TvDetailRepositoryImpl
 import com.cheeke.surfy.data.repository.UserDataRepository
 import com.cheeke.surfy.data.repository.UserDataRepositoryImpl
 import dagger.Binds
@@ -24,9 +30,24 @@ abstract class DataModules {
     ): UserDataRepository
 
     @Binds
-    abstract fun bindDetailRepository(
-        detailRepository: DetailRepositoryImpl
-    ): DetailRepository
+    abstract fun bindMovieDetailRepository(
+        movieDetailRepository: MovieDetailRepositoryImpl
+    ): MovieDetailRepository
+
+    @Binds
+    abstract fun bindPeopleDetailRepository(
+        peopleDetailRepository: PeopleDetailRepositoryImpl
+    ): PeopleDetailRepository
+
+    @Binds
+    abstract fun bindTvDetailRepository(
+        tvDetailRepository: TvDetailRepositoryImpl
+    ): TvDetailRepository
+
+    @Binds
+    abstract fun bindSeriesDetailRepository(
+        seriesDetailRepository: SeriesDetailRepositoryImpl
+    ): SeriesDetailRepository
 
     @Binds
     abstract fun bindDatabaseRepository(
@@ -35,8 +56,8 @@ abstract class DataModules {
 
     @Binds
     abstract fun bindMainMenuRepository(
-        mainMenuRepository: MainMenuRepositoryImpl
-    ): MainMenuRepository
+        mainMenuRepository: SyncRepositoryImpl
+    ): SyncRepository
 
     @Binds
     abstract fun bindPagingRepository(

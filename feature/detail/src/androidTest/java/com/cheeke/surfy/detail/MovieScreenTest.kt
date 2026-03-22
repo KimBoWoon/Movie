@@ -19,14 +19,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.PagingSource
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.cheeke.surfy.data.paging.SimilarMoviePagingSource
-import com.cheeke.surfy.detail.movie.MovieVM
 import com.cheeke.surfy.detail.movie.MovieScreen
 import com.cheeke.surfy.detail.movie.MovieState
+import com.cheeke.surfy.detail.movie.MovieVM
 import com.cheeke.surfy.domain.GetMovieDetailUseCase
 import com.cheeke.surfy.model.Genre
 import com.cheeke.surfy.model.Movie
-import com.cheeke.surfy.model.SurfyAppData
 import com.cheeke.surfy.model.PosterSize
+import com.cheeke.surfy.model.SurfyAppData
 import com.cheeke.surfy.testing.TestMovieDataSource
 import com.cheeke.surfy.testing.model.configurationTestData
 import com.cheeke.surfy.testing.model.favoriteMovieDetailTestData
@@ -37,7 +37,6 @@ import com.cheeke.surfy.testing.model.regionTestData
 import com.cheeke.surfy.testing.model.similarMoviesTestData
 import com.cheeke.surfy.testing.model.unFavoriteMovieDetailTestData
 import com.cheeke.surfy.testing.repository.TestDatabaseRepository
-import com.cheeke.surfy.testing.repository.TestDetailRepository
 import com.cheeke.surfy.testing.repository.TestPagingRepository
 import com.cheeke.surfy.testing.repository.TestUserDataRepository
 import com.cheeke.surfy.testing.utils.TestMovieAppDataManager

@@ -1,12 +1,12 @@
 package com.cheeke.surfy.data.repository
 
+import com.cheeke.surfy.core.datastore.InternalDataPreferences
 import com.cheeke.surfy.data.TestSynchronizer
 import com.cheeke.surfy.data.util.Synchronizer
 import com.cheeke.surfy.datastore.InternalDataSource
 import com.cheeke.surfy.datastore_test.InMemoryDataStore
-import com.cheeke.surfy.core.datastore.InternalDataPreferences
 import com.cheeke.surfy.testing.TestMovieDataSource
-import com.cheeke.surfy.testing.repository.TestMainMenuRepository
+import com.cheeke.surfy.testing.repository.TestSyncRepository
 import com.cheeke.surfy.testing.utils.MainDispatcherRule
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -15,12 +15,12 @@ import org.junit.Test
 import java.time.LocalDate
 import kotlin.test.assertEquals
 
-class MainMenuRepositoryTest {
+class SyncRepositoryTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
     private lateinit var movieApis: TestMovieDataSource
     private lateinit var datastore: InternalDataSource
-    private lateinit var repository: TestMainMenuRepository
+    private lateinit var repository: TestSyncRepository
     private lateinit var synchronizer: Synchronizer
 
     @Before
@@ -29,7 +29,7 @@ class MainMenuRepositoryTest {
         datastore = InternalDataSource(
             datastore = InMemoryDataStore(initialValue = InternalDataPreferences.getDefaultInstance())
         )
-        repository = TestMainMenuRepository()
+        repository = TestSyncRepository()
         synchronizer = TestSynchronizer(datastore)
     }
 
