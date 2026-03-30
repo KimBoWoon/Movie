@@ -66,6 +66,7 @@ import com.cheeke.surfy.analytics.logSelectEpisode
 import com.cheeke.surfy.analytics.logSelectSeason
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.detail.movie.AlternativeTitleComponent
+import com.cheeke.surfy.domain.TvSeasonLoadState
 import com.cheeke.surfy.feature.detail.R
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
 import com.cheeke.surfy.model.Cast
@@ -362,7 +363,7 @@ fun SeasonComponent(
     initialSeasonId: Int? = seasons.firstOrNull()?.id,
     onEpisodeClick: (TvEpisode) -> Unit = {},
     onSelectSeason: (TvSeason) -> Unit,
-    episodeState: EpisodesLoadState
+    episodeState: TvSeasonLoadState
 ) {
     var expanded by remember { mutableStateOf(value = false) }
     var selectedSeasonId by rememberSaveable { mutableStateOf(value = initialSeasonId) }
@@ -432,7 +433,7 @@ fun SeasonComponent(
 @Composable
 fun EpisodeContents(
     modifier: Modifier,
-    episodeState: EpisodesLoadState,
+    episodeState: TvSeasonLoadState,
     episodes: List<TvEpisode>,
     episodeListState: LazyListState,
     onEpisodeClick: (TvEpisode) -> Unit
@@ -442,8 +443,8 @@ fun EpisodeContents(
         contentAlignment = Alignment.Center
     ) {
         when (episodeState) {
-            is EpisodesLoadState.Loading -> CircularProgressComponent()
-            is EpisodesLoadState.Idle -> {
+            is TvSeasonLoadState.Loading -> CircularProgressComponent()
+            is TvSeasonLoadState.Idle -> {
                 if (episodes.isEmpty()) {
                     Text(
                         text = "등록된 에피소드가 없습니다.",
@@ -457,7 +458,7 @@ fun EpisodeContents(
                     )
                 }
             }
-            is EpisodesLoadState.Error -> {
+            is TvSeasonLoadState.Error -> {
                 Text(
                     text = episodeState.message,
                     style = MaterialTheme.typography.bodyMedium,

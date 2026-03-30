@@ -1,10 +1,10 @@
 package com.cheeke.surfy.detail
 
-import com.cheeke.surfy.detail.tv.EpisodesLoadState
 import com.cheeke.surfy.detail.tv.TvState
 import com.cheeke.surfy.detail.tv.TvUiState
 import com.cheeke.surfy.detail.tv.TvVM
 import com.cheeke.surfy.domain.GetTvDetailUseCase
+import com.cheeke.surfy.domain.TvSeasonLoadState
 import com.cheeke.surfy.model.Tv
 import com.cheeke.surfy.model.TvEpisode
 import com.cheeke.surfy.model.TvSeason
@@ -66,7 +66,6 @@ class TvVMTest {
             databaseRepository = testDataBaseRepository,
             pagingRepository = testPagingRepository,
             getTvDetailUseCase = getTvDetailUseCase,
-            detailRepository = testDetailRepository,
             analyticsHelper = testAnalyticsHelper,
             userDataRepository = testUserDataRepository
         )
@@ -102,7 +101,7 @@ class TvVMTest {
                     isFavorite = false,
                     autoPlayTrailer = true,
                     seasons = tv.seasons.orEmpty(),
-                    episodeState = EpisodesLoadState.Idle,
+                    episodeState = TvSeasonLoadState.Idle,
                     episodesBySeason = emptyMap()
                 )
             )
@@ -129,7 +128,7 @@ class TvVMTest {
                     isFavorite = false,
                     autoPlayTrailer = true,
                     seasons = tv.seasons.orEmpty(),
-                    episodeState = EpisodesLoadState.Idle,
+                    episodeState = TvSeasonLoadState.Idle,
                     episodesBySeason = emptyMap()
                 )
             )
@@ -143,7 +142,7 @@ class TvVMTest {
                     isFavorite = true,
                     autoPlayTrailer = true,
                     seasons = tv.seasons.orEmpty(),
-                    episodeState = EpisodesLoadState.Idle,
+                    episodeState = TvSeasonLoadState.Idle,
                     episodesBySeason = emptyMap()
                 )
             )
@@ -170,7 +169,7 @@ class TvVMTest {
                     isFavorite = true,
                     autoPlayTrailer = true,
                     seasons = tv.seasons.orEmpty(),
-                    episodeState = EpisodesLoadState.Idle,
+                    episodeState = TvSeasonLoadState.Idle,
                     episodesBySeason = emptyMap()
                 )
             )
@@ -184,7 +183,7 @@ class TvVMTest {
                     isFavorite = false,
                     autoPlayTrailer = true,
                     seasons = tv.seasons.orEmpty(),
-                    episodeState = EpisodesLoadState.Idle,
+                    episodeState = TvSeasonLoadState.Idle,
                     episodesBySeason = emptyMap()
                 )
             )
@@ -247,7 +246,7 @@ class TvVMTest {
                     isFavorite = false,
                     autoPlayTrailer = true,
                     seasons = tv.seasons.orEmpty(),
-                    episodeState = EpisodesLoadState.Idle,
+                    episodeState = TvSeasonLoadState.Idle,
                     episodesBySeason = mapOf("Season1" to listOf(tvEpisode))
                 )
             )

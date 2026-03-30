@@ -37,7 +37,7 @@ class MovieDetailRepositoryImpl @Inject constructor(
     override fun getMovieSeriesImageList(collectionId: Int): Flow<ImageList> = flow {
         val internalData = requestOptionsProvider.current()
 
-        emit(value = seriesApis.getSeriesImages(collectionId = collectionId, includeImageLanguage = "$${internalData.languageTag},null", language = internalData.languageTag))
+        emit(value = seriesApis.getSeriesImages(collectionId = collectionId, includeImageLanguage = "${internalData.languageTag},null", language = internalData.languageTag))
     }
 
     override fun getMovieWatchProviders(movieId: Int): Flow<MovieWatchProvider> = flow {

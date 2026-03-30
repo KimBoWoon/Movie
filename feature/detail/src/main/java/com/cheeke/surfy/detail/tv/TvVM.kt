@@ -12,9 +12,9 @@ import com.cheeke.surfy.common.Result
 import com.cheeke.surfy.common.asResult
 import com.cheeke.surfy.data.repository.DatabaseRepository
 import com.cheeke.surfy.data.repository.PagingRepository
-import com.cheeke.surfy.data.repository.TvDetailRepository
 import com.cheeke.surfy.data.repository.UserDataRepository
 import com.cheeke.surfy.domain.GetTvDetailUseCase
+import com.cheeke.surfy.domain.TvSeasonLoadState
 import com.cheeke.surfy.model.Tv
 import com.cheeke.surfy.model.TvEpisode
 import com.cheeke.surfy.model.TvSeason
@@ -30,11 +30,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 @HiltViewModel(assistedFactory = TvVM.Factory::class)
@@ -43,9 +40,8 @@ class TvVM @AssistedInject constructor(
     private val getTvDetailUseCase: GetTvDetailUseCase,
     private val databaseRepository: DatabaseRepository,
     private val pagingRepository: PagingRepository,
-    private val detailRepository: TvDetailRepository,
     private val analyticsHelper: AnalyticsHelper,
-    private val userDataRepository: UserDataRepository
+    userDataRepository: UserDataRepository
 ) : ViewModel() {
     companion object {
         private const val TAG = "TvVM"
@@ -77,48 +73,15 @@ class TvVM @AssistedInject constructor(
     private val _selectedEpisode = MutableStateFlow<TvEpisode?>(value = null)
     val selectedEpisode = _selectedEpisode.asStateFlow()
     private val selectedSeason = MutableStateFlow<TvSeason?>(value = null)
-    private val episodesCache = MutableStateFlow<Map<String, List<TvEpisode>>>(value = emptyMap())
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private val episodesLoadState: StateFlow<EpisodesLoadState> = selectedSeason
-        .flatMapLatest { season ->
-            if (season == null) {
-                flowOf(value = EpisodesLoadState.Idle)
-            } else {
-                val cached = episodesCache.value[season.name]
-
-                if (cached != null) {
-                    flowOf(value = EpisodesLoadState.Idle)
-                } else {
-                    detailRepository.getTvSeasons(seriesId = id, seasonNumber = season.seasonNumber ?: -1)
-                        .onEach { tvSeasons ->
-                            val episodes = tvSeasons.episodes
-                            episodesCache.update { it + ((tvSeasons.name ?: "") to (episodes ?: emptyList())) }
-                        }.asResult()
-                        .map { result ->
-                            when (result) {
-                                is Result.Loading -> EpisodesLoadState.Loading(message = "${season.name}을 불러오고 있습니다.")
-                                is Result.Success -> EpisodesLoadState.Idle
-                                is Result.Error -> EpisodesLoadState.Error(message = "${season.name}을 불러오지 못했습니다.")
-                            }
-                        }
-                }
-            }
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.Lazily,
-            initialValue = EpisodesLoadState.Idle
-        )
     @OptIn(ExperimentalCoroutinesApi::class)
     private val tv = reload.flatMapLatest {
-        trace(sectionName = "GetTvDetail") { getTvDetailUseCase(id = id) }
+        trace(sectionName = "GetTvDetail") { getTvDetailUseCase(id = id, selectedSeason = selectedSeason) }
     }
     val uiState: StateFlow<TvState> =
         combine(
             tv,
             selectedSeason,
-            episodesCache,
-            episodesLoadState
-        ) { twf, selectedSeason, seasonMap, episodeState ->
+        ) { twf, selectedSeason/*, seasonMap, episodeState*/ ->
             val tv = twf.tv
             val seasons = tv.seasons
             val initialSeason = selectedSeason ?: seasons?.sortedBy { it.seasonNumber }?.firstOrNull()
@@ -130,8 +93,8 @@ class TvVM @AssistedInject constructor(
             TvUiState(
                 tv = twf.tv,
                 seasons = seasons.orEmpty(),
-                episodeState = episodeState,
-                episodesBySeason = seasonMap,
+                episodeState = twf.seasonLoadState,
+                episodesBySeason = twf.episodesBySeason,
                 isFavorite = twf.isFavorite,
                 autoPlayTrailer = twf.autoPlayTrailer
             )
@@ -146,10 +109,10 @@ class TvVM @AssistedInject constructor(
                     is Result.Error -> TvState.Error(message = result.throwable.message ?: "something wrong...")
                 }
             }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.Lazily,
-            initialValue = TvState.Loading
-        )
+                scope = viewModelScope,
+                started = SharingStarted.Lazily,
+                initialValue = TvState.Loading
+            )
 
     init {
         viewModelScope.launch {
@@ -200,16 +163,10 @@ sealed interface TvState {
     data class Error(val message: String) : TvState
 }
 
-sealed interface EpisodesLoadState {
-    data object Idle : EpisodesLoadState
-    data class Loading(val message: String) : EpisodesLoadState
-    data class Error(val message: String) : EpisodesLoadState
-}
-
 data class TvUiState(
     val tv: Tv,
     val seasons: List<TvSeason>,
-    val episodeState: EpisodesLoadState,
+    val episodeState: TvSeasonLoadState,
     val episodesBySeason: Map<String, List<TvEpisode>>,
     val isFavorite: Boolean,
     val autoPlayTrailer: Boolean
