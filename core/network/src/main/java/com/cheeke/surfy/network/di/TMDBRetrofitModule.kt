@@ -1,64 +1,62 @@
 package com.cheeke.surfy.network.di
 
-import com.cheeke.surfy.core.network.BuildConfig
-import com.cheeke.surfy.network.utils.NetworkLogInterceptor
-import com.localebro.okhttpprofiler.OkHttpProfilerInterceptor
+import com.cheeke.surfy.network.CustomCallAdapter
+import com.cheeke.surfy.network.MovieApis
+import com.cheeke.surfy.network.PeopleApis
+import com.cheeke.surfy.network.SearchApis
+import com.cheeke.surfy.network.SeriesApis
+import com.cheeke.surfy.network.SettingApis
+import com.cheeke.surfy.network.SyncApis
+import com.cheeke.surfy.network.TrendingApis
+import com.cheeke.surfy.network.TvApis
+import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import kotlinx.serialization.json.Json
-import okhttp3.Interceptor
 import okhttp3.MediaType
-import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
-import java.util.concurrent.TimeUnit
+import retrofit2.Retrofit
 
 @Module
 @InstallIn(SingletonComponent::class)
 object TMDBRetrofitModule {
     @Provides
-    fun provideTMDBOkHttpClient(
-        httpLoggingInterceptor: HttpLoggingInterceptor,
-        okHttpProfilerInterceptor: OkHttpProfilerInterceptor,
-        networkLogInterceptor: NetworkLogInterceptor
-    ): OkHttpClient = OkHttpClient().newBuilder().apply {
-        connectTimeout(timeout = 1, unit = TimeUnit.MINUTES)
-        readTimeout(timeout = 30, unit = TimeUnit.SECONDS)
-        writeTimeout(timeout = 15, unit = TimeUnit.SECONDS)
-        addNetworkInterceptor(httpLoggingInterceptor)
-        if (BuildConfig.IS_DEBUGGING_LOGGING) {
-            addInterceptor(okHttpProfilerInterceptor)
-            addInterceptor(networkLogInterceptor)
-        }
-        addInterceptor { chain: Interceptor.Chain ->
-            chain.proceed(
-                request = chain.request().newBuilder().apply {
-                    addHeader(name = "accept", value = "application/json")
-                    addHeader(name = "Authorization", value = "Bearer ${BuildConfig.TMDB_OPEN_API_KEY}")
-                }.build()
-            )
-        }
-    }.build()
+    fun provideRetrofit(
+        tmdbUrl: String,
+        customCallAdapter: CustomCallAdapter,
+        serialization: Json,
+        jsonMediaType: MediaType,
+        client: OkHttpClient
+    ): Retrofit = Retrofit.Builder()
+        .baseUrl(tmdbUrl)
+        .addCallAdapterFactory(customCallAdapter)
+        .addConverterFactory(serialization.asConverterFactory(jsonMediaType))
+        .client(client)
+        .build()
 
     @Provides
-    fun provideKotlinSerialization(): Json = Json {
-        ignoreUnknownKeys = true
-        prettyPrint = true
-    }
+    fun provideSettingApis(retrofit: Retrofit): SettingApis = retrofit.create(SettingApis::class.java)
 
     @Provides
-    fun provideJsonMediaType(): MediaType = "application/json".toMediaType()
+    fun provideSearchApis(retrofit: Retrofit): SearchApis = retrofit.create(SearchApis::class.java)
 
     @Provides
-    fun provideInterceptor(): HttpLoggingInterceptor = HttpLoggingInterceptor().apply {
-        level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE
-    }
+    fun provideMovieApis(retrofit: Retrofit): MovieApis = retrofit.create(MovieApis::class.java)
 
     @Provides
-    fun provideOkHttpProfilerInterceptor(): OkHttpProfilerInterceptor = OkHttpProfilerInterceptor()
+    fun provideTvApis(retrofit: Retrofit): TvApis = retrofit.create(TvApis::class.java)
 
     @Provides
-    fun provideTMDBUrl(): String = "https://api.themoviedb.org/"
+    fun providePeopleApis(retrofit: Retrofit): PeopleApis = retrofit.create(PeopleApis::class.java)
+
+    @Provides
+    fun provideSeriesApis(retrofit: Retrofit): SeriesApis = retrofit.create(SeriesApis::class.java)
+
+    @Provides
+    fun provideSyncApis(retrofit: Retrofit): SyncApis = retrofit.create(SyncApis::class.java)
+
+    @Provides
+    fun provideTrendingApis(retrofit: Retrofit): TrendingApis = retrofit.create(TrendingApis::class.java)
 }

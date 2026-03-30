@@ -19,11 +19,17 @@ import com.cheeke.surfy.model.TrendingMovieResult
 import com.cheeke.surfy.model.TrendingPeopleResult
 import com.cheeke.surfy.model.TrendingTvResult
 import com.cheeke.surfy.model.Tv
-import com.cheeke.surfy.network.MovieNetworkDataSource
+import com.cheeke.surfy.network.MovieRemoteDataSource
+import com.cheeke.surfy.network.SearchRemoteDataSource
+import com.cheeke.surfy.network.TrendingRemoteDataSource
+import com.cheeke.surfy.network.TvRemoteDataSource
 import javax.inject.Inject
 
 class PagingRepositoryImpl @Inject constructor(
-    private val apis: MovieNetworkDataSource
+    private val searchApis: SearchRemoteDataSource,
+    private val movieApis: MovieRemoteDataSource,
+    private val tvApis: TvRemoteDataSource,
+    private val trendingApis: TrendingRemoteDataSource
 ) : PagingRepository {
     override fun getSearchPagingSource(
         type: SearchType,
@@ -32,7 +38,7 @@ class PagingRepositoryImpl @Inject constructor(
         region: String,
         isAdult: Boolean
     ): PagingSource<Int, Media> = SearchPagingSource(
-        apis = apis,
+        apis = searchApis,
         type = type,
         query = query,
         language = language,
@@ -45,7 +51,7 @@ class PagingRepositoryImpl @Inject constructor(
         language: String,
         region: String
     ): PagingSource<Int, Movie> = SimilarMoviePagingSource(
-        apis = apis,
+        apis = movieApis,
         id = id,
         language = language,
         region = region
@@ -56,7 +62,7 @@ class PagingRepositoryImpl @Inject constructor(
         language: String,
         region: String
     ): PagingSource<Int, Tv> = SimilarTvPagingSource(
-        apis = apis,
+        apis = tvApis,
         id = id,
         language = language,
         region = region
@@ -65,7 +71,7 @@ class PagingRepositoryImpl @Inject constructor(
     override fun getRecommendKeywordPagingSource(
         query: String
     ): PagingSource<Int, SearchKeyword> = RecommendKeywordPagingSource(
-        apis = apis,
+        apis = searchApis,
         query = query
     )
 
@@ -74,7 +80,7 @@ class PagingRepositoryImpl @Inject constructor(
         language: String,
         region: String
     ): PagingSource<Int, Review> = MovieReviewPagingSource(
-        apis = apis,
+        apis = movieApis,
         id = movieId,
         language = language,
         region = region
@@ -85,7 +91,7 @@ class PagingRepositoryImpl @Inject constructor(
         language: String,
         region: String
     ): PagingSource<Int, Review> = TvReviewPagingSource(
-        apis = apis,
+        apis = tvApis,
         id = seriesId,
         language = language,
         region = region
@@ -95,7 +101,7 @@ class PagingRepositoryImpl @Inject constructor(
         timeWindow: String,
         language: String
     ): PagingSource<Int, TrendingMovieResult> = TrendingMoviePagingSource(
-        apis = apis,
+        apis = trendingApis,
         timeWindow = timeWindow,
         language = language
     )
@@ -104,7 +110,7 @@ class PagingRepositoryImpl @Inject constructor(
         timeWindow: String,
         language: String
     ): PagingSource<Int, TrendingPeopleResult> = TrendingPeoplePagingSource(
-        apis = apis,
+        apis = trendingApis,
         timeWindow = timeWindow,
         language = language
     )
@@ -113,7 +119,7 @@ class PagingRepositoryImpl @Inject constructor(
         timeWindow: String,
         language: String
     ): PagingSource<Int, TrendingTvResult> = TrendingTvPagingSource(
-        apis = apis,
+        apis = trendingApis,
         timeWindow = timeWindow,
         language = language
     )

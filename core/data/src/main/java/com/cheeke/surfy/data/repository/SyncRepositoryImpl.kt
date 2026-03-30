@@ -8,7 +8,7 @@ import com.cheeke.surfy.data.util.updateMovieSync
 import com.cheeke.surfy.database.dao.MovieDao
 import com.cheeke.surfy.datastore.InternalDataSource
 import com.cheeke.surfy.model.Movie
-import com.cheeke.surfy.network.MovieNetworkDataSource
+import com.cheeke.surfy.network.SyncRemoteDataSource
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -18,7 +18,7 @@ import java.time.LocalDate
 import javax.inject.Inject
 
 class SyncRepositoryImpl @Inject constructor(
-    private val apis: MovieNetworkDataSource,
+    private val apis: SyncRemoteDataSource,
     private val datastore: InternalDataSource,
     private val movieDao: MovieDao
 ) : SyncRepository {

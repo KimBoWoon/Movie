@@ -15,7 +15,7 @@ import com.cheeke.surfy.model.LocaleOption
 import com.cheeke.surfy.model.PosterSize
 import com.cheeke.surfy.model.Regions
 import com.cheeke.surfy.model.SurfyAppData
-import com.cheeke.surfy.network.MovieNetworkDataSource
+import com.cheeke.surfy.network.SettingRemoteDataSource
 import jakarta.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -39,9 +39,9 @@ import kotlinx.coroutines.flow.stateIn
 class MovieDataManager @Inject constructor(
     @param:Dispatcher(dispatcher = Dispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
     @ApplicationScope appScope: CoroutineScope,
-    private val apis: MovieNetworkDataSource,
+    private val apis: SettingRemoteDataSource,
     private val userDataRepository: UserDataRepository,
-    private val datastore: InternalDataSource,
+    datastore: InternalDataSource,
     networkMonitor: NetworkMonitor
 ) : DataManager {
     private val cached = MutableStateFlow<SurfyAppDataState?>(value = null)

@@ -2,6 +2,7 @@ package com.cheeke.surfy.detail
 
 import com.cheeke.surfy.detail.series.SeriesState
 import com.cheeke.surfy.detail.series.SeriesVM
+import com.cheeke.surfy.domain.GetSeriesDetailUseCase
 import com.cheeke.surfy.testing.model.movieSeriesTestData
 import com.cheeke.surfy.testing.model.testImageList
 import com.cheeke.surfy.testing.repository.TestSeriesDetailRepository
@@ -26,6 +27,7 @@ class SeriesVMTest {
     private lateinit var testDetailRepository: TestSeriesDetailRepository
     private lateinit var testMovieAppDataManager: TestMovieAppDataManager
     private lateinit var testAnalyticsHelper: TestAnalyticsHelper
+    private lateinit var getSeriesDetailUseCase: GetSeriesDetailUseCase
     private lateinit var seriesVM: SeriesVM
 
     @Before
@@ -33,10 +35,11 @@ class SeriesVMTest {
         testDetailRepository = TestSeriesDetailRepository()
         testMovieAppDataManager = TestMovieAppDataManager()
         testAnalyticsHelper = TestAnalyticsHelper()
+        getSeriesDetailUseCase = GetSeriesDetailUseCase(detailRepository = testDetailRepository)
 
         seriesVM = SeriesVM(
             id = 0,
-            detailRepository = testDetailRepository,
+            getSeriesDetailUseCase = getSeriesDetailUseCase,
             analyticsHelper = testAnalyticsHelper
         )
     }

@@ -2,7 +2,7 @@ package com.cheeke.surfy.data.repository
 
 import com.cheeke.surfy.model.ImageList
 import com.cheeke.surfy.model.Series
-import com.cheeke.surfy.network.MovieNetworkDataSource
+import com.cheeke.surfy.network.SeriesRemoteDataSource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
@@ -13,19 +13,18 @@ interface SeriesDetailRepository : DetailRepository<Series> {
 }
 
 class SeriesDetailRepositoryImpl @Inject constructor(
-    private val apis: MovieNetworkDataSource,
+    private val apis: SeriesRemoteDataSource,
     private val requestOptionsProvider: DetailRequestOptionsProvider
 ) : SeriesDetailRepository {
     override fun getData(id: Int): Flow<Series> = flow {
         val internalData = requestOptionsProvider.current()
 
-        emit(value = apis.getMovieSeries(collectionId = id, language = "${internalData.language}-${internalData.region}"))
+        emit(value = apis.getMovieSeries(collectionId = id, language = internalData.languageTag))
     }
 
     override fun getMovieSeriesImageList(collectionId: Int): Flow<ImageList> = flow {
         val internalData = requestOptionsProvider.current()
-        val language = "${internalData.language}-${internalData.region}"
 
-        emit(value = apis.getSeriesImages(collectionId = collectionId, includeImageLanguage = "$language,null", language = language))
+        emit(value = apis.getSeriesImages(collectionId = collectionId, includeImageLanguage = internalData.includeImageLanguage, language = internalData.languageTag))
     }
 }

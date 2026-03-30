@@ -3,10 +3,10 @@ package com.cheeke.surfy.data.repository
 import com.cheeke.surfy.core.datastore.InternalDataPreferences
 import com.cheeke.surfy.datastore.InternalDataSource
 import com.cheeke.surfy.datastore_test.InMemoryDataStore
-import com.cheeke.surfy.testing.TestMovieDataSource
-import com.cheeke.surfy.testing.model.tvDetailTestData
+import com.cheeke.surfy.testing.TestTvRemoteDataSource
 import com.cheeke.surfy.testing.model.tvEpisodeTestData
 import com.cheeke.surfy.testing.model.tvSeasonTestData
+import com.cheeke.surfy.testing.model.tvTestData
 import com.cheeke.surfy.testing.utils.MainDispatcherRule
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -18,18 +18,18 @@ import kotlin.test.assertEquals
 class TvDetailRepositoryTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
-    private lateinit var movieApis: TestMovieDataSource
+    private lateinit var tvApis: TestTvRemoteDataSource
     private lateinit var datastore: InternalDataSource
     private lateinit var repository: TvDetailRepositoryImpl
 
     @Before
     fun setup() {
-        movieApis = TestMovieDataSource()
+        tvApis = TestTvRemoteDataSource()
         datastore = InternalDataSource(
             datastore = InMemoryDataStore(initialValue = InternalDataPreferences.getDefaultInstance())
         )
         repository = TvDetailRepositoryImpl(
-            apis = movieApis,
+            apis = tvApis,
             requestOptionsProvider = DetailRequestOptionsProvider(datastore = datastore),
         )
     }
@@ -38,7 +38,7 @@ class TvDetailRepositoryTest {
     fun getTvDetailTest() = runTest {
         val result = repository.getData(id = 0)
 
-        assertEquals(expected = result.first(), actual = tvDetailTestData)
+        assertEquals(expected = result.first(), actual = tvTestData)
     }
 
     @Test

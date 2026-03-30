@@ -4,10 +4,10 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.model.Review
-import com.cheeke.surfy.network.MovieNetworkDataSource
+import com.cheeke.surfy.network.TvRemoteDataSource
 
 class TvReviewPagingSource(
-    private val apis: MovieNetworkDataSource,
+    private val apis: TvRemoteDataSource,
     private val id: Int,
     private val language: String,
     private val region: String

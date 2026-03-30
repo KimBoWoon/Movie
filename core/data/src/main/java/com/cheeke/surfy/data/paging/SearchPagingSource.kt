@@ -5,11 +5,11 @@ import androidx.paging.PagingState
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.model.SearchType
-import com.cheeke.surfy.network.MovieNetworkDataSource
+import com.cheeke.surfy.network.SearchRemoteDataSource
 import javax.inject.Inject
 
 class SearchPagingSource @Inject constructor(
-    private val apis: MovieNetworkDataSource,
+    private val apis: SearchRemoteDataSource,
     private val type: SearchType,
     private val query: String,
     private val language: String,

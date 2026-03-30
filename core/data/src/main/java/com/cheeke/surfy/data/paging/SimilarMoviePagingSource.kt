@@ -5,11 +5,11 @@ import androidx.paging.PagingState
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.SimilarMovie
-import com.cheeke.surfy.network.MovieNetworkDataSource
+import com.cheeke.surfy.network.MovieRemoteDataSource
 import javax.inject.Inject
 
 class SimilarMoviePagingSource @Inject constructor(
-    private val apis: MovieNetworkDataSource,
+    private val apis: MovieRemoteDataSource,
     private val id: Int,
     private val language: String,
     private val region: String

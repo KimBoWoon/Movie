@@ -12,7 +12,7 @@ import com.cheeke.surfy.domain.GetMovieDetailUseCase
 import com.cheeke.surfy.domain.MovieWithFavorite
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.Review
-import com.cheeke.surfy.testing.TestMovieDataSource
+import com.cheeke.surfy.testing.TestMovieRemoteDataSource
 import com.cheeke.surfy.testing.model.favoriteMovieDetailTestData
 import com.cheeke.surfy.testing.model.movieSeriesTestData
 import com.cheeke.surfy.testing.model.similarMoviesTestData
@@ -151,7 +151,7 @@ class MovieVMTest {
     @Test
     fun getSimilarMoviesTest() = runTest {
         val source = SimilarMoviePagingSource(
-            apis = TestMovieDataSource(),
+            apis = TestMovieRemoteDataSource(),
             id = 0,
             language = "ko",
             region = "KR"
@@ -182,7 +182,7 @@ class MovieVMTest {
     @Test
     fun getMovieReviewsTest() = runTest {
         val source = MovieReviewPagingSource(
-            apis = TestMovieDataSource(),
+            apis = TestMovieRemoteDataSource(),
             id = 0,
             language = "ko",
             region = "KR"

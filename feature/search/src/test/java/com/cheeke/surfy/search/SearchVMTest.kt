@@ -8,7 +8,7 @@ import com.cheeke.surfy.data.paging.SearchPagingSource
 import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.model.SearchKeyword
 import com.cheeke.surfy.model.SearchType
-import com.cheeke.surfy.testing.TestMovieDataSource
+import com.cheeke.surfy.testing.TestSearchRemoteDataSource
 import com.cheeke.surfy.testing.model.movieSearchTestData
 import com.cheeke.surfy.testing.model.testRecommendedKeyword
 import com.cheeke.surfy.testing.repository.TestPagingRepository
@@ -35,7 +35,7 @@ class SearchVMTest {
     private lateinit var testUserDataRepository: TestUserDataRepository
     private lateinit var testMovieAppDataManager: TestMovieAppDataManager
     private lateinit var testAnalyticsHelper: TestAnalyticsHelper
-    private lateinit var apis: TestMovieDataSource
+    private lateinit var apis: TestSearchRemoteDataSource
 
     @Before
     fun setup() {
@@ -44,7 +44,7 @@ class SearchVMTest {
         testUserDataRepository = TestUserDataRepository()
         testMovieAppDataManager = TestMovieAppDataManager()
         testAnalyticsHelper = TestAnalyticsHelper()
-        apis = TestMovieDataSource()
+        apis = TestSearchRemoteDataSource()
         viewModel = SearchVM(
             initialQuery = "",
             initialSearchType = SearchType.MOVIE,
@@ -82,7 +82,7 @@ class SearchVMTest {
 //        assertEquals(viewModel.searchMovieState.value, PagingData.empty<Movie>())
 
         val pagingSource = SearchPagingSource(
-            apis = TestMovieDataSource(),
+            apis = TestSearchRemoteDataSource(),
             type = SearchType.MOVIE,
             query = "미션",
             language = "ko-KR",
@@ -116,7 +116,7 @@ class SearchVMTest {
         viewModel.updateQuery(value = TextFieldValue(text = "mission"))
 
         val pagingSource = RecommendKeywordPagingSource(
-            apis = TestMovieDataSource(),
+            apis = TestSearchRemoteDataSource(),
             query = "미션"
         )
         val a: PagingSource.LoadResult<Int, SearchKeyword> = PagingSource.LoadResult.Page(

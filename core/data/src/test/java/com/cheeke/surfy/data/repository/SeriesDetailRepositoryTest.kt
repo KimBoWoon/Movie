@@ -3,7 +3,7 @@ package com.cheeke.surfy.data.repository
 import com.cheeke.surfy.core.datastore.InternalDataPreferences
 import com.cheeke.surfy.datastore.InternalDataSource
 import com.cheeke.surfy.datastore_test.InMemoryDataStore
-import com.cheeke.surfy.testing.TestMovieDataSource
+import com.cheeke.surfy.testing.TestSeriesRemoteDataSource
 import com.cheeke.surfy.testing.model.movieSeriesTestData
 import com.cheeke.surfy.testing.model.testImageList
 import com.cheeke.surfy.testing.utils.MainDispatcherRule
@@ -14,16 +14,16 @@ import org.junit.Rule
 import org.junit.Test
 import kotlin.test.assertEquals
 
-class SereisDetailRepositoryTest {
+class SeriesDetailRepositoryTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
-    private lateinit var movieApis: TestMovieDataSource
+    private lateinit var movieApis: TestSeriesRemoteDataSource
     private lateinit var datastore: InternalDataSource
     private lateinit var repository: SeriesDetailRepositoryImpl
 
     @Before
     fun setup() {
-        movieApis = TestMovieDataSource()
+        movieApis = TestSeriesRemoteDataSource()
         datastore = InternalDataSource(
             datastore = InMemoryDataStore(initialValue = InternalDataPreferences.getDefaultInstance())
         )

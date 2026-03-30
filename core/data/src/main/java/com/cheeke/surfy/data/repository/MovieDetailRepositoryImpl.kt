@@ -4,7 +4,8 @@ import com.cheeke.surfy.model.ImageList
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.MovieWatchProvider
 import com.cheeke.surfy.model.Series
-import com.cheeke.surfy.network.MovieNetworkDataSource
+import com.cheeke.surfy.network.MovieRemoteDataSource
+import com.cheeke.surfy.network.SeriesRemoteDataSource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
@@ -17,29 +18,29 @@ interface MovieDetailRepository : DetailRepository<Movie> {
 }
 
 class MovieDetailRepositoryImpl @Inject constructor(
-    private val apis: MovieNetworkDataSource,
+    private val movieApis: MovieRemoteDataSource,
+    private val seriesApis: SeriesRemoteDataSource,
     private val requestOptionsProvider: DetailRequestOptionsProvider
 ) : MovieDetailRepository {
     override fun getData(id: Int): Flow<Movie> = flow {
         val internalData = requestOptionsProvider.current()
 
-        emit(value = apis.getMovie(id = id, language = "${internalData.language}-${internalData.region}", region = internalData.region, includeImageLanguage = "${internalData.language},null"))
+        emit(value = movieApis.getMovie(id = id, language = internalData.languageTag, region = internalData.region, includeImageLanguage = internalData.includeImageLanguage))
     }
 
     override fun getMovieSeries(collectionId: Int): Flow<Series> = flow {
         val internalData = requestOptionsProvider.current()
 
-        emit(value = apis.getMovieSeries(collectionId = collectionId, language = "${internalData.language}-${internalData.region}"))
+        emit(value = seriesApis.getMovieSeries(collectionId = collectionId, language = internalData.languageTag))
     }
 
     override fun getMovieSeriesImageList(collectionId: Int): Flow<ImageList> = flow {
         val internalData = requestOptionsProvider.current()
-        val language = "${internalData.language}-${internalData.region}"
 
-        emit(value = apis.getSeriesImages(collectionId = collectionId, includeImageLanguage = "$language,null", language = language))
+        emit(value = seriesApis.getSeriesImages(collectionId = collectionId, includeImageLanguage = "$${internalData.languageTag},null", language = internalData.languageTag))
     }
 
     override fun getMovieWatchProviders(movieId: Int): Flow<MovieWatchProvider> = flow {
-        emit(value = apis.getMovieWatchProvider(movieId = movieId))
+        emit(value = movieApis.getMovieWatchProvider(movieId = movieId))
     }
 }

@@ -4,10 +4,10 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.model.SearchKeyword
-import com.cheeke.surfy.network.MovieNetworkDataSource
+import com.cheeke.surfy.network.SearchRemoteDataSource
 
 class RecommendKeywordPagingSource(
-    private val apis: MovieNetworkDataSource,
+    private val apis: SearchRemoteDataSource,
     private val query: String
 ): PagingSource<Int, SearchKeyword>() {
     override fun getRefreshKey(state: PagingState<Int, SearchKeyword>): Int? = 1

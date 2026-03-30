@@ -4,11 +4,11 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.model.TrendingPeopleResult
-import com.cheeke.surfy.network.MovieNetworkDataSource
+import com.cheeke.surfy.network.TrendingRemoteDataSource
 import javax.inject.Inject
 
 class TrendingPeoplePagingSource @Inject constructor(
-    private val apis: MovieNetworkDataSource,
+    private val apis: TrendingRemoteDataSource,
     private val timeWindow: String,
     private val language: String
 ) : PagingSource<Int, TrendingPeopleResult>() {

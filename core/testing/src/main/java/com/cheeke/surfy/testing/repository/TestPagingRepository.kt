@@ -97,17 +97,17 @@ class TestPagingRepository : PagingRepository {
     override fun getTrendingMovie(
         timeWindow: String,
         language: String
-    ): PagingSource<Int, TrendingMovieResult> = testTrendingMovie.asPagingSourceFactory().invoke()
+    ): PagingSource<Int, TrendingMovieResult> = testTrendingMovie.results?.asPagingSourceFactory()?.invoke()!!
 
     @SuppressLint("VisibleForTests")
     override fun getTrendingPeople(
         timeWindow: String,
         language: String
-    ): PagingSource<Int, TrendingPeopleResult> = testTrendingPeople.asPagingSourceFactory().invoke()
+    ): PagingSource<Int, TrendingPeopleResult> = testTrendingPeople.results?.asPagingSourceFactory()?.invoke()!!
 
     @SuppressLint("VisibleForTests")
     override fun getTrendingTv(
         timeWindow: String,
         language: String
-    ): PagingSource<Int, TrendingTvResult> = testTrendingTv.asPagingSourceFactory().invoke()
+    ): PagingSource<Int, TrendingTvResult> = testTrendingTv.results?.asPagingSourceFactory()?.invoke()!!
 }

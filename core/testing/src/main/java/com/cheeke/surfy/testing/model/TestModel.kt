@@ -38,8 +38,10 @@ import com.cheeke.surfy.model.Regions
 import com.cheeke.surfy.model.Releases
 import com.cheeke.surfy.model.Review
 import com.cheeke.surfy.model.ReviewAuthorDetails
+import com.cheeke.surfy.model.Reviews
 import com.cheeke.surfy.model.SearchData
 import com.cheeke.surfy.model.SearchKeyword
+import com.cheeke.surfy.model.SearchKeywordData
 import com.cheeke.surfy.model.Series
 import com.cheeke.surfy.model.SeriesPart
 import com.cheeke.surfy.model.SimilarMovie
@@ -47,8 +49,11 @@ import com.cheeke.surfy.model.SimilarMovies
 import com.cheeke.surfy.model.SimilarTv
 import com.cheeke.surfy.model.SimilarTvs
 import com.cheeke.surfy.model.SpokenLanguage
+import com.cheeke.surfy.model.TrendingMovie
 import com.cheeke.surfy.model.TrendingMovieResult
+import com.cheeke.surfy.model.TrendingPeople
 import com.cheeke.surfy.model.TrendingPeopleResult
+import com.cheeke.surfy.model.TrendingTv
 import com.cheeke.surfy.model.TrendingTvResult
 import com.cheeke.surfy.model.Tv
 import com.cheeke.surfy.model.TvEpisode
@@ -220,6 +225,20 @@ val movieSeriesTestData = Series(
 val testRecommendedKeyword = (0 .. 5).map {
     SearchKeyword(id = it, name = "mission$it")
 }
+val searchKeywordTest = SearchKeywordData(
+    page = 1,
+    results = listOf(
+        SearchKeyword(id = 0, name = "mission0"),
+        SearchKeyword(id = 1, name = "mission1"),
+        SearchKeyword(id = 2, name = "mission2"),
+        SearchKeyword(id = 3, name = "mission3"),
+        SearchKeyword(id = 4, name = "mission4"),
+        SearchKeyword(id = 5, name = "mission5")
+    ),
+    totalPages = 1,
+    totalResults = 5
+)
+
 val testMovieReviews = (0..5).map {
     Review(
         id = it.toString(),
@@ -231,6 +250,14 @@ val testMovieReviews = (0..5).map {
         url = "/url$it.jpg",
     )
 }
+
+val testMovieReview = Reviews(
+    id = 0,
+    page = 1,
+    results = testMovieReviews,
+    totalPages = 1,
+    totalResults = 0
+)
 
 val testTvReviews = (0..100).map {
     Review(
@@ -249,36 +276,51 @@ val testTvReviews = (0..100).map {
     )
 }
 
-val testTrendingMovie = (0..100).map {
-    TrendingMovieResult(
-        adult = true,
-        backdropPath = "backdropPath_$it",
-        genreIds = emptyList(),
-        id = it,
-        originalLanguage = "originalLanguage_$it",
-        originalTitle = "originalTitle_$it"
-    )
-}
+val testTrendingMovie = TrendingMovie(
+    page = 1,
+    results = (0..100).map {
+        TrendingMovieResult(
+            adult = true,
+            backdropPath = "backdropPath_$it",
+            genreIds = emptyList(),
+            id = it,
+            originalLanguage = "originalLanguage_$it",
+            originalTitle = "originalTitle_$it"
+        )
+    },
+    totalPages = 1,
+    totalResults = 0
+)
 
-val testTrendingPeople = (0..100).map {
-    TrendingPeopleResult(
-        adult = true,
-        posterPath = "posterPath_$it",
-        id = it,
-        originalTitle = "originalTitle_$it"
-    )
-}
+val testTrendingPeople = TrendingPeople(
+    page = 1,
+    results = (0..100).map {
+        TrendingPeopleResult(
+            adult = true,
+            posterPath = "posterPath_$it",
+            id = it,
+            originalTitle = "originalTitle_$it"
+        )
+    },
+    totalPages = 1,
+    totalResults = 0
+)
 
-val testTrendingTv = (0..100).map {
-    TrendingTvResult(
-        adult = true,
-        backdropPath = "backdropPath_$it",
-        genreIds = emptyList(),
-        id = it,
-        originalLanguage = "originalLanguage_$it",
-        originalTitle = "originalTitle_$it"
-    )
-}
+val testTrendingTv = TrendingTv(
+    page = 1,
+    results = (0..100).map {
+        TrendingTvResult(
+            adult = true,
+            backdropPath = "backdropPath_$it",
+            genreIds = emptyList(),
+            id = it,
+            originalLanguage = "originalLanguage_$it",
+            originalTitle = "originalTitle_$it"
+        )
+    },
+    totalPages = 1,
+    totalResults = 0
+)
 
 val favoriteMovieDetailTestData = Movie(
     adult = true,
