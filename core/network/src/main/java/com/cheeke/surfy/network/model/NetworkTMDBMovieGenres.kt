@@ -1,6 +1,5 @@
 package com.cheeke.surfy.network.model
 
-
 import com.cheeke.surfy.model.Genre
 import com.cheeke.surfy.model.Genres
 import kotlinx.serialization.SerialName

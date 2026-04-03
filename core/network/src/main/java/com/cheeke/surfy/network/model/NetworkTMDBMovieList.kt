@@ -1,6 +1,5 @@
 package com.cheeke.surfy.network.model
 
-
 import com.cheeke.surfy.model.MovieList
 import com.cheeke.surfy.model.MovieListDate
 import com.cheeke.surfy.model.MovieResult

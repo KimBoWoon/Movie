@@ -11,14 +11,11 @@ import com.cheeke.surfy.data.paging.TrendingPeoplePagingSource
 import com.cheeke.surfy.data.paging.TrendingTvPagingSource
 import com.cheeke.surfy.data.paging.TvReviewPagingSource
 import com.cheeke.surfy.model.Media
-import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.Review
 import com.cheeke.surfy.model.SearchKeyword
 import com.cheeke.surfy.model.SearchType
-import com.cheeke.surfy.model.TrendingMovieResult
-import com.cheeke.surfy.model.TrendingPeopleResult
-import com.cheeke.surfy.model.TrendingTvResult
-import com.cheeke.surfy.model.Tv
+import com.cheeke.surfy.model.SimilarMedia
+import com.cheeke.surfy.model.TrendingMediaResult
 import com.cheeke.surfy.network.MovieRemoteDataSource
 import com.cheeke.surfy.network.SearchRemoteDataSource
 import com.cheeke.surfy.network.TrendingRemoteDataSource
@@ -50,7 +47,7 @@ class PagingRepositoryImpl @Inject constructor(
         id: Int,
         language: String,
         region: String
-    ): PagingSource<Int, Movie> = SimilarMoviePagingSource(
+    ): PagingSource<Int, SimilarMedia> = SimilarMoviePagingSource(
         apis = movieApis,
         id = id,
         language = language,
@@ -61,7 +58,7 @@ class PagingRepositoryImpl @Inject constructor(
         id: Int,
         language: String,
         region: String
-    ): PagingSource<Int, Tv> = SimilarTvPagingSource(
+    ): PagingSource<Int, SimilarMedia> = SimilarTvPagingSource(
         apis = tvApis,
         id = id,
         language = language,
@@ -100,7 +97,7 @@ class PagingRepositoryImpl @Inject constructor(
     override fun getTrendingMovie(
         timeWindow: String,
         language: String
-    ): PagingSource<Int, TrendingMovieResult> = TrendingMoviePagingSource(
+    ): PagingSource<Int, TrendingMediaResult> = TrendingMoviePagingSource(
         apis = trendingApis,
         timeWindow = timeWindow,
         language = language
@@ -109,7 +106,7 @@ class PagingRepositoryImpl @Inject constructor(
     override fun getTrendingPeople(
         timeWindow: String,
         language: String
-    ): PagingSource<Int, TrendingPeopleResult> = TrendingPeoplePagingSource(
+    ): PagingSource<Int, TrendingMediaResult> = TrendingPeoplePagingSource(
         apis = trendingApis,
         timeWindow = timeWindow,
         language = language
@@ -118,7 +115,7 @@ class PagingRepositoryImpl @Inject constructor(
     override fun getTrendingTv(
         timeWindow: String,
         language: String
-    ): PagingSource<Int, TrendingTvResult> = TrendingTvPagingSource(
+    ): PagingSource<Int, TrendingMediaResult> = TrendingTvPagingSource(
         apis = trendingApis,
         timeWindow = timeWindow,
         language = language

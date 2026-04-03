@@ -16,9 +16,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.paging.compose.LazyPagingItems
-import com.cheeke.surfy.data.util.POSTER_IMAGE_RATIO
-import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.core.ui.R
+import com.cheeke.surfy.data.util.POSTER_IMAGE_RATIO
+import com.cheeke.surfy.model.SimilarMedia
 import com.cheeke.surfy.ui.image.DynamicAsyncImageLoader
 import com.cheeke.surfy.ui.utils.dp10
 import com.cheeke.surfy.ui.utils.dp12
@@ -28,7 +28,7 @@ import com.cheeke.surfy.ui.utils.roundedCornerClickable
 
 @Composable
 fun SimilarComponent(
-    similar: LazyPagingItems<out Media>,
+    similar: LazyPagingItems<SimilarMedia>,
     goToDestination: (Int) -> Unit
 ) {
     Column(

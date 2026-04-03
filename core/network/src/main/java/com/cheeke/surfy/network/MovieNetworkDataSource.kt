@@ -15,11 +15,8 @@ import com.cheeke.surfy.model.Reviews
 import com.cheeke.surfy.model.SearchData
 import com.cheeke.surfy.model.SearchKeywordData
 import com.cheeke.surfy.model.Series
-import com.cheeke.surfy.model.SimilarMovies
-import com.cheeke.surfy.model.SimilarTvs
-import com.cheeke.surfy.model.TrendingMovie
-import com.cheeke.surfy.model.TrendingPeople
-import com.cheeke.surfy.model.TrendingTv
+import com.cheeke.surfy.model.SimilarMedias
+import com.cheeke.surfy.model.TrendingMedia
 import com.cheeke.surfy.model.Tv
 import com.cheeke.surfy.model.TvEpisode
 import com.cheeke.surfy.model.TvSeasons
@@ -46,7 +43,7 @@ interface MovieRemoteDataSource {
         id: Int,
         language: String = "ko-KR",
         page: Int = 1
-    ): SimilarMovies
+    ): SimilarMedias
 
     suspend fun getMovieReviews(
         movieId: Int,
@@ -104,7 +101,7 @@ interface TvRemoteDataSource {
         id: Int,
         language: String = "ko-KR",
         page: Int = 1
-    ): SimilarTvs
+    ): SimilarMedias
 
     suspend fun getTvReviews(
         seriesId: Int,
@@ -141,15 +138,15 @@ interface SyncRemoteDataSource {
 }
 
 interface TrendingRemoteDataSource {
-    suspend fun getTrendingMovie(timeWindow: String, language: String, page: Int): TrendingMovie
+    suspend fun getTrendingMovie(timeWindow: String, language: String, page: Int): TrendingMedia
 
     suspend fun getTrendingPeople(
         timeWindow: String,
         language: String,
         page: Int = 1
-    ): TrendingPeople
+    ): TrendingMedia
 
-    suspend fun getTrendingTv(timeWindow: String, language: String, page: Int): TrendingTv
+    suspend fun getTrendingTv(timeWindow: String, language: String, page: Int): TrendingMedia
 }
 
 interface SearchRemoteDataSource {

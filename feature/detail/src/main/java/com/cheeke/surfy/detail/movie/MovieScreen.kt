@@ -56,6 +56,7 @@ import com.cheeke.surfy.model.AlternativeTitle
 import com.cheeke.surfy.model.Image
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.Series
+import com.cheeke.surfy.model.SimilarMedia
 import com.cheeke.surfy.ui.components.CircularProgressComponent
 import com.cheeke.surfy.ui.components.CreditsComponent
 import com.cheeke.surfy.ui.components.ImageOverlay
@@ -120,7 +121,7 @@ fun MovieScreen(
 @Composable
 fun MovieScreen(
     movieState: MovieState,
-    similarMovies: LazyPagingItems<Movie>,
+    similarMovies: LazyPagingItems<SimilarMedia>,
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     goToSeries: (Int) -> Unit,
@@ -219,7 +220,7 @@ fun MovieScreen(
 @Composable
 fun MovieDetailComponent(
     movieState: MovieWithFavorite,
-    similarMovies: LazyPagingItems<Movie>,
+    similarMovies: LazyPagingItems<SimilarMedia>,
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     goToSeries: (Int) -> Unit,

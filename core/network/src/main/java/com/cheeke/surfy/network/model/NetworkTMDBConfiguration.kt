@@ -1,8 +1,7 @@
 package com.cheeke.surfy.network.model
 
-
-import com.cheeke.surfy.model.ImageInfo
 import com.cheeke.surfy.model.Configuration
+import com.cheeke.surfy.model.ImageInfo
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

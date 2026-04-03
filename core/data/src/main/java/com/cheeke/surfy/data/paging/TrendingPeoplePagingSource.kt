@@ -3,16 +3,15 @@ package com.cheeke.surfy.data.paging
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.cheeke.surfy.common.Log
-import com.cheeke.surfy.model.TrendingPeopleResult
+import com.cheeke.surfy.model.TrendingMediaResult
 import com.cheeke.surfy.network.TrendingRemoteDataSource
-import javax.inject.Inject
 
-class TrendingPeoplePagingSource @Inject constructor(
+class TrendingPeoplePagingSource(
     private val apis: TrendingRemoteDataSource,
     private val timeWindow: String,
     private val language: String
-) : PagingSource<Int, TrendingPeopleResult>() {
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, TrendingPeopleResult> =
+) : PagingSource<Int, TrendingMediaResult>() {
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, TrendingMediaResult> =
         runCatching {
             val response = apis.getTrendingPeople(timeWindow = timeWindow, language = language, page = params.key ?: 1)
 
@@ -26,7 +25,7 @@ class TrendingPeoplePagingSource @Inject constructor(
             LoadResult.Error(e)
         }
 
-    override fun getRefreshKey(state: PagingState<Int, TrendingPeopleResult>): Int? =
+    override fun getRefreshKey(state: PagingState<Int, TrendingMediaResult>): Int? =
         state.anchorPosition?.let { anchorPosition ->
             val anchorPage = state.closestPageToPosition(anchorPosition)
             anchorPage?.prevKey ?: anchorPage?.nextKey

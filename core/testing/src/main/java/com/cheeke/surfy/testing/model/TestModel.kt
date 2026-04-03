@@ -44,17 +44,11 @@ import com.cheeke.surfy.model.SearchKeyword
 import com.cheeke.surfy.model.SearchKeywordData
 import com.cheeke.surfy.model.Series
 import com.cheeke.surfy.model.SeriesPart
-import com.cheeke.surfy.model.SimilarMovie
-import com.cheeke.surfy.model.SimilarMovies
-import com.cheeke.surfy.model.SimilarTv
-import com.cheeke.surfy.model.SimilarTvs
+import com.cheeke.surfy.model.SimilarMedia
+import com.cheeke.surfy.model.SimilarMedias
 import com.cheeke.surfy.model.SpokenLanguage
-import com.cheeke.surfy.model.TrendingMovie
-import com.cheeke.surfy.model.TrendingMovieResult
-import com.cheeke.surfy.model.TrendingPeople
-import com.cheeke.surfy.model.TrendingPeopleResult
-import com.cheeke.surfy.model.TrendingTv
-import com.cheeke.surfy.model.TrendingTvResult
+import com.cheeke.surfy.model.TrendingMedia
+import com.cheeke.surfy.model.TrendingMediaResult
 import com.cheeke.surfy.model.Tv
 import com.cheeke.surfy.model.TvEpisode
 import com.cheeke.surfy.model.TvSeasons
@@ -173,10 +167,10 @@ val tvSearchTestData = SearchData(
     totalResults = 5
 )
 
-val similarMoviesTestData = SimilarMovies(
+val similarMoviesTestData = SimilarMedias(
     page = 1,
     results = (1..100).map {
-        SimilarMovie(
+        SimilarMedia(
 //            genres = listOf(Genre(id = it)),
             releaseDate = "releaseDate_$it",
             title = "title_$it",
@@ -189,10 +183,10 @@ val similarMoviesTestData = SimilarMovies(
     totalResults = 100
 )
 
-val similarTvTestData = SimilarTvs(
+val similarTvTestData = SimilarMedias(
     page = 1,
     results = (0..100).map {
-        SimilarTv(
+        SimilarMedia(
 //            genres = listOf(Genre(id = it)),
             firstAirDate = "firstAirDate_$it",
             name = "title_$it",
@@ -276,10 +270,10 @@ val testTvReviews = (0..100).map {
     )
 }
 
-val testTrendingMovie = TrendingMovie(
+val testTrendingMovie = TrendingMedia(
     page = 1,
     results = (0..100).map {
-        TrendingMovieResult(
+        TrendingMediaResult(
             adult = true,
             backdropPath = "backdropPath_$it",
             genreIds = emptyList(),
@@ -292,10 +286,10 @@ val testTrendingMovie = TrendingMovie(
     totalResults = 0
 )
 
-val testTrendingPeople = TrendingPeople(
+val testTrendingPeople = TrendingMedia(
     page = 1,
     results = (0..100).map {
-        TrendingPeopleResult(
+        TrendingMediaResult(
             adult = true,
             posterPath = "posterPath_$it",
             id = it,
@@ -306,10 +300,10 @@ val testTrendingPeople = TrendingPeople(
     totalResults = 0
 )
 
-val testTrendingTv = TrendingTv(
+val testTrendingTv = TrendingMedia(
     page = 1,
     results = (0..100).map {
-        TrendingTvResult(
+        TrendingMediaResult(
             adult = true,
             backdropPath = "backdropPath_$it",
             genreIds = emptyList(),
@@ -510,11 +504,6 @@ val peopleDetailTestData = People(
     placeOfBirth = "placeOfBirth",
     popularity = 3.5,
     posterPath = "/profilePath.png"
-)
-
-val tvDetailTestData = Tv(
-    id = 0,
-    title = "name_0"
 )
 
 val nowPlayingMovieTest = (0..100).map {

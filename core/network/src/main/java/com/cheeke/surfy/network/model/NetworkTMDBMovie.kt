@@ -1,6 +1,5 @@
 package com.cheeke.surfy.network.model
 
-
 import com.cheeke.surfy.model.AlternativeTitle
 import com.cheeke.surfy.model.AlternativeTitles
 import com.cheeke.surfy.model.BelongsToCollection
@@ -17,8 +16,6 @@ import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.ProductionCompany
 import com.cheeke.surfy.model.ProductionCountry
 import com.cheeke.surfy.model.Releases
-import com.cheeke.surfy.model.SimilarMovie
-import com.cheeke.surfy.model.SimilarMovies
 import com.cheeke.surfy.model.SpokenLanguage
 import com.cheeke.surfy.model.Translation
 import com.cheeke.surfy.model.TranslationInfo
@@ -352,50 +349,6 @@ data class NetworkTMDBVideoResult(
     val type: String? = null
 )
 
-@Serializable
-data class NetworkTMDBMovieDetailSimilar(
-    @SerialName("page")
-    val page: Int? = null,
-    @SerialName("results")
-    val results: List<NetworkTMDBMovieDetailSimilarResult>? = null,
-    @SerialName("total_pages")
-    val totalPages: Int? = null,
-    @SerialName("total_results")
-    val totalResults: Int? = null
-)
-
-@Serializable
-data class NetworkTMDBMovieDetailSimilarResult(
-    @SerialName("adult")
-    val adult: Boolean? = null,
-    @SerialName("backdrop_path")
-    val backdropPath: String? = null,
-    @SerialName("genre_ids")
-    val genreIds: List<Int>? = null,
-    @SerialName("id")
-    val id: Int? = null,
-    @SerialName("original_language")
-    val originalLanguage: String? = null,
-    @SerialName("original_title")
-    val originalTitle: String? = null,
-    @SerialName("overview")
-    val overview: String? = null,
-    @SerialName("popularity")
-    val popularity: Double? = null,
-    @SerialName("poster_path")
-    val posterPath: String? = null,
-    @SerialName("release_date")
-    val releaseDate: String? = null,
-    @SerialName("title")
-    val title: String? = null,
-    @SerialName("video")
-    val video: Boolean? = null,
-    @SerialName("vote_average")
-    val voteAverage: Float? = null,
-    @SerialName("vote_count")
-    val voteCount: Int? = null
-)
-
 fun NetworkTMDBMovie.asExternalModel(): Movie =
     Movie(
         adult = adult,
@@ -634,33 +587,5 @@ fun List<NetworkTMDBVideoResult>.asExternalModel(): List<VideoInfo> =
             site = it.site,
             size = it.size,
             type = it.type
-        )
-    }
-
-fun NetworkTMDBMovieDetailSimilar.asExternalModel(): SimilarMovies =
-    SimilarMovies(
-        page = page,
-        results = results?.asExternalModel(),
-        totalPages = totalPages,
-        totalResults = totalResults
-    )
-
-fun List<NetworkTMDBMovieDetailSimilarResult>.asExternalModel(): List<SimilarMovie> =
-    map {
-        SimilarMovie(
-            adult = it.adult,
-            backdropPath = it.backdropPath,
-            genreIds = it.genreIds,
-            id = it.id,
-            originalLanguage = it.originalLanguage,
-            originalTitle = it.originalTitle,
-            overview = it.overview,
-            popularity = it.popularity,
-            posterPath = it.posterPath,
-            releaseDate = it.releaseDate,
-            title = it.title,
-            video = it.video,
-            voteAverage = it.voteAverage,
-            voteCount = it.voteCount
         )
     }

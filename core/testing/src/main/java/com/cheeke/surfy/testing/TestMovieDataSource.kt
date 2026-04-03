@@ -15,11 +15,8 @@ import com.cheeke.surfy.model.Reviews
 import com.cheeke.surfy.model.SearchData
 import com.cheeke.surfy.model.SearchKeywordData
 import com.cheeke.surfy.model.Series
-import com.cheeke.surfy.model.SimilarMovies
-import com.cheeke.surfy.model.SimilarTvs
-import com.cheeke.surfy.model.TrendingMovie
-import com.cheeke.surfy.model.TrendingPeople
-import com.cheeke.surfy.model.TrendingTv
+import com.cheeke.surfy.model.SimilarMedias
+import com.cheeke.surfy.model.TrendingMedia
 import com.cheeke.surfy.model.Tv
 import com.cheeke.surfy.model.TvEpisode
 import com.cheeke.surfy.model.TvSeasons
@@ -79,7 +76,7 @@ class TestMovieRemoteDataSource : MovieRemoteDataSource {
         region: String
     ): Movie = favoriteMovieDetailTestData
 
-    override suspend fun getSimilarMovies(id: Int, language: String, page: Int): SimilarMovies =
+    override suspend fun getSimilarMovies(id: Int, language: String, page: Int): SimilarMedias =
         similarMoviesTestData
 
     override suspend fun getMovieReviews(
@@ -138,7 +135,7 @@ class TestTvRemoteDataSource : TvRemoteDataSource {
         id: Int,
         language: String,
         page: Int
-    ): SimilarTvs = similarTvTestData
+    ): SimilarMedias = similarTvTestData
 
     override suspend fun getTvReviews(
         seriesId: Int,
@@ -174,19 +171,19 @@ class TestTrendingRemoteDataSource : TrendingRemoteDataSource {
         timeWindow: String,
         language: String,
         page: Int
-    ): TrendingMovie = testTrendingMovie
+    ): TrendingMedia = testTrendingMovie
 
     override suspend fun getTrendingPeople(
         timeWindow: String,
         language: String,
         page: Int
-    ): TrendingPeople = testTrendingPeople
+    ): TrendingMedia = testTrendingPeople
 
     override suspend fun getTrendingTv(
         timeWindow: String,
         language: String,
         page: Int
-    ): TrendingTv = testTrendingTv
+    ): TrendingMedia = testTrendingTv
 }
 
 class TestSearchRemoteDataSource : SearchRemoteDataSource {

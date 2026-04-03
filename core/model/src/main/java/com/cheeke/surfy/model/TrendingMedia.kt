@@ -1,29 +1,42 @@
 package com.cheeke.surfy.model
 
-data class TrendingPeople(
+data class TrendingMedia(
     val page: Int? = null,
-    val results: List<TrendingPeopleResult>? = null,
+    val results: List<TrendingMediaResult>? = null,
     val totalPages: Int? = null,
     val totalResults: Int? = null
 )
 
-data class TrendingPeopleResult(
+data class TrendingMediaResult(
+    // Movie
     val adult: Boolean? = null,
-    val gender: Int? = null,
+    val backdropPath: String? = null,
+    val genreIds: List<Int>? = null,
     override val id: Int? = null,
-    val knownFor: List<TrendingPeopleKnownFor>? = null,
-    val knownForDepartment: String? = null,
     override val mediaType: MediaType = MediaType.NONE,
-    override val title: String? = null,
+    val originalLanguage: String? = null,
     override val originalTitle: String? = null,
+    val overview: String? = null,
     val popularity: Double? = null,
     override val posterPath: String? = null,
-    override val genres: List<Genre>? = null,
     override val releaseDate: String? = null,
+    override val title: String? = null,
+    val video: Boolean? = null,
+    override val voteAverage: Float? = null,
+    val voteCount: Int? = null,
+    override val genres: List<Genre>? = null,
     override val certification: String? = null,
     override val runtime: Int? = null,
     override val tagline: String? = null,
-    override val voteAverage: Float? = null
+
+    // People
+    val gender: Int? = null,
+    val knownFor: List<TrendingPeopleKnownFor>? = null,
+    val knownForDepartment: String? = null,
+
+    // TV
+    val firstAirDate: String? = null,
+    val originCountry: List<String>? = null
 ) : Media
 
 data class TrendingPeopleKnownFor(

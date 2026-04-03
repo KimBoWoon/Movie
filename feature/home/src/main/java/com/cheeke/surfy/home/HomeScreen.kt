@@ -77,9 +77,7 @@ import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
 import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.model.MediaType
 import com.cheeke.surfy.model.Movie
-import com.cheeke.surfy.model.TrendingMovieResult
-import com.cheeke.surfy.model.TrendingPeopleResult
-import com.cheeke.surfy.model.TrendingTvResult
+import com.cheeke.surfy.model.TrendingMediaResult
 import com.cheeke.surfy.ui.components.CircularProgressComponent
 import com.cheeke.surfy.ui.dialog.Indexer
 import com.cheeke.surfy.ui.image.DynamicAsyncImageLoader
@@ -156,9 +154,9 @@ fun HomeScreen(
     homeUiState: HomeState,
     nowPlayingMovies: LazyPagingItems<Movie>,
     upComingMovies: LazyPagingItems<Movie>,
-    trendingMovies: LazyPagingItems<TrendingMovieResult>,
-    trendingPeoples: LazyPagingItems<TrendingPeopleResult>,
-    trendingTvs: LazyPagingItems<TrendingTvResult>,
+    trendingMovies: LazyPagingItems<TrendingMediaResult>,
+    trendingPeoples: LazyPagingItems<TrendingMediaResult>,
+    trendingTvs: LazyPagingItems<TrendingMediaResult>,
     trendingMovieTimeWindow: TimeWindow,
     updateTrendingMovieTimeWindow: (TimeWindow) -> Unit,
     trendingPeopleTimeWindow: TimeWindow,
@@ -240,13 +238,13 @@ fun HomeComponent(
     popularMovies: List<Movie>,
     nowPlayingMovies: LazyPagingItems<Movie>,
     upComingMovies: LazyPagingItems<Movie>,
-    trendingMovie: LazyPagingItems<TrendingMovieResult>,
+    trendingMovie: LazyPagingItems<TrendingMediaResult>,
     trendingMovieTimeWindow: TimeWindow,
     updateTrendingMovieTimeWindow: (TimeWindow) -> Unit,
-    trendingPeople: LazyPagingItems<TrendingPeopleResult>,
+    trendingPeople: LazyPagingItems<TrendingMediaResult>,
     trendingPeopleTimeWindow: TimeWindow,
     updateTrendingPeopleTimeWindow: (TimeWindow) -> Unit,
-    trendingTv: LazyPagingItems<TrendingTvResult>,
+    trendingTv: LazyPagingItems<TrendingMediaResult>,
     trendingTvTimeWindow: TimeWindow,
     updateTrendingTvTimeWindow: (TimeWindow) -> Unit,
     goToMovie: (Int) -> Unit,

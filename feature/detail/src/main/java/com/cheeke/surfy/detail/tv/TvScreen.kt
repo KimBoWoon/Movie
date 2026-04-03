@@ -72,6 +72,7 @@ import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
 import com.cheeke.surfy.model.Cast
 import com.cheeke.surfy.model.Credits
 import com.cheeke.surfy.model.Image
+import com.cheeke.surfy.model.SimilarMedia
 import com.cheeke.surfy.model.Tv
 import com.cheeke.surfy.model.TvEpisode
 import com.cheeke.surfy.model.TvSeason
@@ -139,7 +140,7 @@ fun TvScreen(
 @Composable
 fun TvScreen(
     tvUiState: TvState,
-    similarTvs: LazyPagingItems<Tv>,
+    similarTvs: LazyPagingItems<SimilarMedia>,
     selectedEpisode: TvEpisode?,
     goToTv: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
@@ -250,7 +251,7 @@ fun TvScreen(
 @Composable
 fun TvDetailComponent(
     tv: TvUiState,
-    similarTvs: LazyPagingItems<Tv>,
+    similarTvs: LazyPagingItems<SimilarMedia>,
     goToTv: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     goToBack: () -> Unit,

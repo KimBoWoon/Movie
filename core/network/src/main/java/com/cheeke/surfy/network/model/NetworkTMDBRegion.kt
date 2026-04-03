@@ -1,8 +1,7 @@
 package com.cheeke.surfy.network.model
 
-
-import com.cheeke.surfy.model.Regions
 import com.cheeke.surfy.model.Region
+import com.cheeke.surfy.model.Regions
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

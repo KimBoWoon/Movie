@@ -13,7 +13,7 @@ data class NetworkTMDBMovieReviews(
     @SerialName("page")
     val page: Int? = null,
     @SerialName("results")
-    val results: List<NetworkTMDBMovieResult>? = null,
+    val results: List<NetworkTMDBMovieReview>? = null,
     @SerialName("total_pages")
     val totalPages: Int? = null,
     @SerialName("total_results")
@@ -21,7 +21,7 @@ data class NetworkTMDBMovieReviews(
 )
 
 @Serializable
-data class NetworkTMDBMovieResult(
+data class NetworkTMDBMovieReview(
     @SerialName("author")
     val author: String? = null,
     @SerialName("author_details")
@@ -58,7 +58,7 @@ fun NetworkTMDBMovieReviews.asExternalModel(): Reviews = Reviews(
     totalResults = totalResults
 )
 
-fun List<NetworkTMDBMovieResult>.asExternalModel(): List<Review> = map { movieReview ->
+fun List<NetworkTMDBMovieReview>.asExternalModel(): List<Review> = map { movieReview ->
     Review(
         author = movieReview.author,
         authorDetails = movieReview.authorDetails?.asExternalModel(),

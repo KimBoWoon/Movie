@@ -1,6 +1,5 @@
 package com.cheeke.surfy.network.model
 
-
 import com.cheeke.surfy.model.ExternalIds
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

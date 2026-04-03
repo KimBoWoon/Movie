@@ -20,9 +20,7 @@ import com.cheeke.surfy.database.model.NowPlayingMovieEntity
 import com.cheeke.surfy.database.model.UpComingMovieEntity
 import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.model.Movie
-import com.cheeke.surfy.model.TrendingMovieResult
-import com.cheeke.surfy.model.TrendingPeopleResult
-import com.cheeke.surfy.model.TrendingTvResult
+import com.cheeke.surfy.model.TrendingMediaResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -84,17 +82,17 @@ class HomeVM @Inject constructor(
     ).flow.map { pagingData ->
         pagingData.map(transform = UpComingMovieEntity::asExternalModel)
     }.cachedIn(scope = viewModelScope)
-    val trendingMoviePaging: Flow<PagingData<TrendingMovieResult>> =
+    val trendingMoviePaging: Flow<PagingData<TrendingMediaResult>> =
         createTrendingPaging(
             timeWindowFlow = trendingMovieTimeWindow,
             pagingSourceFactory = pagingRepository::getTrendingMovie
         )
-    val trendingPeoplePaging: Flow<PagingData<TrendingPeopleResult>> =
+    val trendingPeoplePaging: Flow<PagingData<TrendingMediaResult>> =
         createTrendingPaging(
             timeWindowFlow = trendingPeopleTimeWindow,
             pagingSourceFactory = pagingRepository::getTrendingPeople
         )
-    val trendingTvPaging: Flow<PagingData<TrendingTvResult>> =
+    val trendingTvPaging: Flow<PagingData<TrendingMediaResult>> =
         createTrendingPaging(
             timeWindowFlow = trendingTvTimeWindow,
             pagingSourceFactory = pagingRepository::getTrendingTv

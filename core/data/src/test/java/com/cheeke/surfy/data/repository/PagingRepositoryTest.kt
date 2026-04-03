@@ -1,12 +1,13 @@
 package com.cheeke.surfy.data.repository
 
 import androidx.paging.PagingSource
-import com.cheeke.surfy.model.Genre
 import com.cheeke.surfy.model.SearchType
+import com.cheeke.surfy.model.SimilarMedia
 import com.cheeke.surfy.model.Tv
 import com.cheeke.surfy.testing.model.movieSearchTestData
 import com.cheeke.surfy.testing.model.peopleSearchTestData
 import com.cheeke.surfy.testing.model.seriesSearchTestData
+import com.cheeke.surfy.testing.model.similarMoviesTestData
 import com.cheeke.surfy.testing.model.similarTvTestData
 import com.cheeke.surfy.testing.model.testMovieReviews
 import com.cheeke.surfy.testing.model.testRecommendedKeyword
@@ -179,7 +180,7 @@ class PagingRepositoryTest {
 
         val page = actual as PagingSource.LoadResult.Page
 
-        assertEquals(expected = movieSearchTestData.results ?: emptyList(), actual = page.data)
+        assertEquals(expected = similarMoviesTestData.results ?: emptyList(), actual = page.data)
         assertEquals(expected = 0, actual = page.prevKey)
         assertEquals(expected = null, actual = page.nextKey)
     }
@@ -202,8 +203,8 @@ class PagingRepositoryTest {
 
         assertEquals(
             expected = similarTvTestData.results?.mapIndexed { index, tv ->
-                Tv(
-                    genres = listOf(Genre(id = index)),
+                SimilarMedia(
+//                    genres = listOf(Genre(id = index)),
                     title = tv.name,
                     id = tv.id,
                     posterPath = tv.posterPath,

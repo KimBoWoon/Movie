@@ -1,6 +1,5 @@
 package com.cheeke.surfy.network.model
 
-
 import com.cheeke.surfy.model.CombineCredits
 import com.cheeke.surfy.model.CombineCreditsCast
 import com.cheeke.surfy.model.CombineCreditsCrew

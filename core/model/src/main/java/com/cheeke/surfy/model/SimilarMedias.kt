@@ -1,25 +1,32 @@
 package com.cheeke.surfy.model
 
-data class SimilarTvs(
+data class SimilarMedias(
     val page: Int? = null,
-    val results: List<SimilarTv>? = null,
+    val results: List<SimilarMedia>? = null,
     val totalPages: Int? = null,
     val totalResults: Int? = null
 )
 
-data class SimilarTv(
+data class SimilarMedia(
+    // Movie
     val adult: Boolean? = null,
     val backdropPath: String? = null,
-    val firstAirDate: String? = null,
     val genreIds: List<Int>? = null,
     val id: Int? = null,
-    val name: String? = null,
-    val originCountry: List<String>? = null,
     val originalLanguage: String? = null,
-    val originalName: String? = null,
+    val originalTitle: String? = null,
     val overview: String? = null,
     val popularity: Double? = null,
     val posterPath: String? = null,
+    val releaseDate: String? = null,
+    val title: String? = null,
+    val video: Boolean? = null,
     val voteAverage: Float? = null,
-    val voteCount: Int? = null
+    val voteCount: Int? = null,
+
+    // TV
+    val firstAirDate: String? = null,
+    val name: String? = null,
+    val originCountry: List<String>? = null,
+    val originalName: String? = null,
 )

@@ -12,6 +12,7 @@ import com.cheeke.surfy.domain.GetMovieDetailUseCase
 import com.cheeke.surfy.domain.MovieWithFavorite
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.Review
+import com.cheeke.surfy.model.SimilarMedia
 import com.cheeke.surfy.testing.TestMovieRemoteDataSource
 import com.cheeke.surfy.testing.model.favoriteMovieDetailTestData
 import com.cheeke.surfy.testing.model.movieSeriesTestData
@@ -158,9 +159,11 @@ class MovieVMTest {
         )
 
         assertEquals(
-            expected = PagingSource.LoadResult.Page<Int, Movie>(
+            expected = PagingSource.LoadResult.Page<Int, SimilarMedia>(
                 data = similarMoviesTestData.results?.map {
-                    Movie(
+                    SimilarMedia(
+                        adult = it.adult,
+                        releaseDate = it.releaseDate,
                         id = it.id,
                         title = it.title,
                         posterPath = it.posterPath

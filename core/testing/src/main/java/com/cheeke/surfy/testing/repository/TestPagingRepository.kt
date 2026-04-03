@@ -4,16 +4,12 @@ import android.annotation.SuppressLint
 import androidx.paging.PagingSource
 import androidx.paging.testing.asPagingSourceFactory
 import com.cheeke.surfy.data.repository.PagingRepository
-import com.cheeke.surfy.model.Genre
 import com.cheeke.surfy.model.Media
-import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.Review
 import com.cheeke.surfy.model.SearchKeyword
 import com.cheeke.surfy.model.SearchType
-import com.cheeke.surfy.model.TrendingMovieResult
-import com.cheeke.surfy.model.TrendingPeopleResult
-import com.cheeke.surfy.model.TrendingTvResult
-import com.cheeke.surfy.model.Tv
+import com.cheeke.surfy.model.SimilarMedia
+import com.cheeke.surfy.model.TrendingMediaResult
 import com.cheeke.surfy.testing.model.movieSearchTestData
 import com.cheeke.surfy.testing.model.peopleSearchTestData
 import com.cheeke.surfy.testing.model.seriesSearchTestData
@@ -28,8 +24,8 @@ import com.cheeke.surfy.testing.model.tvSearchTestData
 class TestPagingRepository : PagingRepository {
     @SuppressLint("VisibleForTests")
     private val testPagingSource = (0..100).map {
-        Movie(
-            genres = listOf(Genre(id = it)),
+        SimilarMedia(
+//            genres = listOf(Genre(id = it)),
             releaseDate = "releaseDate_$it",
             title = "title_$it",
             adult = true,
@@ -59,7 +55,7 @@ class TestPagingRepository : PagingRepository {
         id: Int,
         language: String,
         region: String
-    ): PagingSource<Int, Movie> = testPagingSource
+    ): PagingSource<Int, SimilarMedia> = testPagingSource
 
     @SuppressLint("VisibleForTests")
     override fun getRecommendKeywordPagingSource(query: String): PagingSource<Int, SearchKeyword> =
@@ -75,9 +71,9 @@ class TestPagingRepository : PagingRepository {
         id: Int,
         language: String,
         region: String
-    ): PagingSource<Int, Tv> = (0..100).map {
-        Tv(
-            genres = listOf(Genre(id = it)),
+    ): PagingSource<Int, SimilarMedia> = (0..100).map {
+        SimilarMedia(
+//            genres = listOf(Genre(id = it)),
             firstAirDate = "firstAirDate_$it",
             title = "title_$it",
             adult = true,
@@ -97,17 +93,17 @@ class TestPagingRepository : PagingRepository {
     override fun getTrendingMovie(
         timeWindow: String,
         language: String
-    ): PagingSource<Int, TrendingMovieResult> = testTrendingMovie.results?.asPagingSourceFactory()?.invoke()!!
+    ): PagingSource<Int, TrendingMediaResult> = testTrendingMovie.results?.asPagingSourceFactory()?.invoke()!!
 
     @SuppressLint("VisibleForTests")
     override fun getTrendingPeople(
         timeWindow: String,
         language: String
-    ): PagingSource<Int, TrendingPeopleResult> = testTrendingPeople.results?.asPagingSourceFactory()?.invoke()!!
+    ): PagingSource<Int, TrendingMediaResult> = testTrendingPeople.results?.asPagingSourceFactory()?.invoke()!!
 
     @SuppressLint("VisibleForTests")
     override fun getTrendingTv(
         timeWindow: String,
         language: String
-    ): PagingSource<Int, TrendingTvResult> = testTrendingTv.results?.asPagingSourceFactory()?.invoke()!!
+    ): PagingSource<Int, TrendingMediaResult> = testTrendingTv.results?.asPagingSourceFactory()?.invoke()!!
 }

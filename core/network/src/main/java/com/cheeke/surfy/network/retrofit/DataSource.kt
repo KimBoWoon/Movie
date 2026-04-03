@@ -7,6 +7,7 @@ import com.cheeke.surfy.model.ExternalIds
 import com.cheeke.surfy.model.Genres
 import com.cheeke.surfy.model.ImageList
 import com.cheeke.surfy.model.Language
+import com.cheeke.surfy.model.MediaType
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.MovieResult
 import com.cheeke.surfy.model.MovieWatchProvider
@@ -16,11 +17,8 @@ import com.cheeke.surfy.model.Reviews
 import com.cheeke.surfy.model.SearchData
 import com.cheeke.surfy.model.SearchKeywordData
 import com.cheeke.surfy.model.Series
-import com.cheeke.surfy.model.SimilarMovies
-import com.cheeke.surfy.model.SimilarTvs
-import com.cheeke.surfy.model.TrendingMovie
-import com.cheeke.surfy.model.TrendingPeople
-import com.cheeke.surfy.model.TrendingTv
+import com.cheeke.surfy.model.SimilarMedias
+import com.cheeke.surfy.model.TrendingMedia
 import com.cheeke.surfy.model.Tv
 import com.cheeke.surfy.model.TvEpisode
 import com.cheeke.surfy.model.TvSeasons
@@ -106,7 +104,7 @@ class SearchRemoteDataSourceImpl @Inject constructor(
         )
     ) {
         is ApiResponse.Failure -> throw response.throwable
-        is ApiResponse.Success -> response.data.asExternalModel()
+        is ApiResponse.Success -> response.data.asExternalModel(mediaType = null)
     }
 
     override suspend fun searchMovies(
@@ -125,7 +123,7 @@ class SearchRemoteDataSourceImpl @Inject constructor(
         )
     ) {
         is ApiResponse.Failure -> throw response.throwable
-        is ApiResponse.Success -> response.data.asExternalModel()
+        is ApiResponse.Success -> response.data.asExternalModel(mediaType = MediaType.MOVIE)
     }
 
     override suspend fun searchTv(
@@ -144,7 +142,7 @@ class SearchRemoteDataSourceImpl @Inject constructor(
         )
     ) {
         is ApiResponse.Failure -> throw response.throwable
-        is ApiResponse.Success -> response.data.asExternalModel()
+        is ApiResponse.Success -> response.data.asExternalModel(mediaType = MediaType.TV)
     }
 
     override suspend fun searchPeople(
@@ -163,7 +161,7 @@ class SearchRemoteDataSourceImpl @Inject constructor(
         )
     ) {
         is ApiResponse.Failure -> throw response.throwable
-        is ApiResponse.Success -> response.data.asExternalModel()
+        is ApiResponse.Success -> response.data.asExternalModel(mediaType = MediaType.PEOPLE)
     }
 
     override suspend fun searchSeries(
@@ -182,7 +180,7 @@ class SearchRemoteDataSourceImpl @Inject constructor(
         )
     ) {
         is ApiResponse.Failure -> throw response.throwable
-        is ApiResponse.Success -> response.data.asExternalModel()
+        is ApiResponse.Success -> response.data.asExternalModel(mediaType = MediaType.SERIES)
     }
 
     override suspend fun getSearchKeyword(query: String, page: Int): SearchKeywordData =
@@ -218,7 +216,7 @@ class MovieRemoteDataSourceImpl @Inject constructor(
         id: Int,
         language: String,
         page: Int
-    ): SimilarMovies = when (val response = apis.getSimilarMovies(id = id, language = language, page = page)) {
+    ): SimilarMedias = when (val response = apis.getSimilarMovies(id = id, language = language, page = page)) {
         is ApiResponse.Failure -> throw response.throwable
         is ApiResponse.Success -> response.data.asExternalModel()
     }
@@ -312,7 +310,7 @@ class TvRemoteDataSourceImpl @Inject constructor(
         id: Int,
         language: String,
         page: Int
-    ): SimilarTvs = when (val response = apis.getSimilarTv(id = id, language = language, page = page)) {
+    ): SimilarMedias = when (val response = apis.getSimilarTv(id = id, language = language, page = page)) {
         is ApiResponse.Failure -> throw response.throwable
         is ApiResponse.Success -> response.data.asExternalModel()
     }
@@ -406,21 +404,21 @@ class SyncRemoteDataSourceImpl @Inject constructor(
 class TrendingRemoteDataSourceImpl @Inject constructor(
     private val apis: TrendingApis
 ) : TrendingRemoteDataSource {
-    override suspend fun getTrendingMovie(timeWindow: String, language: String, page: Int): TrendingMovie =
+    override suspend fun getTrendingMovie(timeWindow: String, language: String, page: Int): TrendingMedia =
         when (val response = apis.getTrendingMovie(timeWindow = timeWindow, language = language, page = page)) {
             is ApiResponse.Failure -> throw response.throwable
-            is ApiResponse.Success -> response.data.asExternalModel()
+            is ApiResponse.Success -> response.data.asExternalModel(mediaType = MediaType.MOVIE)
         }
 
-    override suspend fun getTrendingPeople(timeWindow: String, language: String, page: Int): TrendingPeople =
+    override suspend fun getTrendingPeople(timeWindow: String, language: String, page: Int): TrendingMedia =
         when (val response = apis.getTrendingPeople(timeWindow = timeWindow, language = language, page = page)) {
             is ApiResponse.Failure -> throw response.throwable
-            is ApiResponse.Success -> response.data.asExternalModel()
+            is ApiResponse.Success -> response.data.asExternalModel(mediaType = MediaType.PEOPLE)
         }
 
-    override suspend fun getTrendingTv(timeWindow: String, language: String, page: Int): TrendingTv =
+    override suspend fun getTrendingTv(timeWindow: String, language: String, page: Int): TrendingMedia =
         when (val response = apis.getTrendingTv(timeWindow = timeWindow, language = language, page = page)) {
             is ApiResponse.Failure -> throw response.throwable
-            is ApiResponse.Success -> response.data.asExternalModel()
+            is ApiResponse.Success -> response.data.asExternalModel(mediaType = MediaType.TV)
         }
 }

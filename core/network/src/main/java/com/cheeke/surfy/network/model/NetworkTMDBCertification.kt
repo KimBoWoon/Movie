@@ -1,6 +1,5 @@
 package com.cheeke.surfy.network.model
 
-
 import com.cheeke.surfy.model.Certification
 import com.cheeke.surfy.model.CertificationData
 import com.cheeke.surfy.model.CertificationMap
