@@ -66,6 +66,14 @@ class NavigationState(
         } else {
             listOf(startRoute, topLevelRoute)
         }
+
+    fun clearToRoot() {
+        backStacks.entries.forEach { (_, value) ->
+            while (value.size > 1) {
+                value.removeAt(index = value.lastIndex)
+            }
+        }
+    }
 }
 
 /**
@@ -125,14 +133,6 @@ class Navigator(val state: NavigationState) {
 
         // 최상위 목적지 일 때
         if (currentRoute == state.topLevelRoute) {
-            // 백스택에 남은 경로를 모두 빼준다
-            if ((state.backStacks[state.topLevelRoute]?.size ?: 0) > 1) {
-                state.backStacks.entries.forEach { (_, value) ->
-                    while (value.size > 1) {
-                        value.removeAt(index = value.lastIndex)
-                    }
-                }
-            }
             // 시작지점으로 보냄
             state.topLevelRoute = state.startRoute
         } else {

@@ -58,7 +58,6 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                         isMinifyEnabled = false
                         isDebuggable = true
                         isJniDebuggable = true
-                        buildConfigField(type = "Boolean", name = "IS_DEBUGGING_LOGGING", value = "true")
                         buildConfigField(type = "String", name = "GIT_HASH", value = "\"$gitHash\"")
                         manifestPlaceholders["appName"] = "${Config.Application.Surfy.appName}-debug"
                         signingConfig = signingConfigs.getByName(Config.Application.Surfy.Sign.Debug.NAME)
@@ -73,7 +72,6 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                             getDefaultProguardFile(Config.ApplicationSetting.DEFAULT_PROGUARD_FILE),
                             Config.ApplicationSetting.PROGUARD_FILE
                         )
-                        buildConfigField(type = "Boolean", name = "IS_DEBUGGING_LOGGING", value = "false")
                         buildConfigField(type = "String", name = "GIT_HASH", value = "\"$gitHash\"")
                         manifestPlaceholders["appName"] = Config.Application.Surfy.appName
                         signingConfig = signingConfigs.getByName(Config.Application.Surfy.Sign.Release.NAME)

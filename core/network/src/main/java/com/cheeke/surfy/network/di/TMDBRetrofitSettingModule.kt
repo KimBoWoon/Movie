@@ -28,7 +28,7 @@ object TMDBRetrofitSettingModule {
         readTimeout(timeout = 30, unit = TimeUnit.SECONDS)
         writeTimeout(timeout = 15, unit = TimeUnit.SECONDS)
         addNetworkInterceptor(httpLoggingInterceptor)
-        if (BuildConfig.IS_DEBUGGING_LOGGING) {
+        if (BuildConfig.DEBUG) {
             addInterceptor(okHttpProfilerInterceptor)
             addInterceptor(networkLogInterceptor)
         }

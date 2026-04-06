@@ -55,6 +55,7 @@ class TvVM @AssistedInject constructor(
     }
 
     private val reload = MutableSharedFlow<Unit>(replay = 1)
+    @OptIn(ExperimentalCoroutinesApi::class)
     val similarTvs = userDataRepository.internalData
         .map { it.language to it.region }
         .flatMapLatest {

@@ -67,6 +67,7 @@ class MovieVM @AssistedInject constructor(
             initialValue = MovieState.Loading,
             started = SharingStarted.Lazily
         )
+    @OptIn(ExperimentalCoroutinesApi::class)
     val similarMovies = userDataRepository.internalData
         .map { it.language to it.region }
         .flatMapLatest {

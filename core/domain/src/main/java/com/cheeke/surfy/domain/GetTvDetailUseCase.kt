@@ -8,6 +8,7 @@ import com.cheeke.surfy.data.repository.UserDataRepository
 import com.cheeke.surfy.model.Tv
 import com.cheeke.surfy.model.TvEpisode
 import com.cheeke.surfy.model.TvSeason
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
@@ -24,6 +25,7 @@ class GetTvDetailUseCase @Inject constructor(
 ) {
     private val episodesCache = MutableStateFlow<Map<String, List<TvEpisode>>>(value = emptyMap())
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     operator fun invoke(
         id: Int,
         selectedSeason: Flow<TvSeason?> = flowOf(value = null)

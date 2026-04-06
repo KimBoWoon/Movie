@@ -22,6 +22,7 @@ import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.TrendingMediaResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -187,6 +188,7 @@ class HomeVM @Inject constructor(
         }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     private fun <T : Any> createTrendingPaging(
         timeWindowFlow: StateFlow<TimeWindow>,
         pagingSourceFactory: (timeWindow: String, language: String) -> PagingSource<Int, T>

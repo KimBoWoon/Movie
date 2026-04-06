@@ -4,7 +4,7 @@ import android.util.Log
 import com.cheeke.surfy.core.common.BuildConfig
 
 object Log {
-    private val IS_SHOWING = BuildConfig.IS_DEBUGGING_LOGGING
+    private val IS_SHOWING = BuildConfig.DEBUG
     private const val PREFIX = "surfy_"
 
     fun i(tag: String, msg: String) {

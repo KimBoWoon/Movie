@@ -20,8 +20,8 @@ import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
 internal class ConnectivityManagerNetworkMonitor @Inject constructor(
-    @ApplicationContext private val context: Context,
-    @Dispatcher(Dispatchers.IO) private val ioDispatcher: CoroutineDispatcher
+    @param:ApplicationContext private val context: Context,
+    @param:Dispatcher(Dispatchers.IO) private val ioDispatcher: CoroutineDispatcher
 ) : NetworkMonitor {
     override val isOnline: Flow<Boolean> = callbackFlow {
         val connectivityManager = context.getSystemService<ConnectivityManager>()

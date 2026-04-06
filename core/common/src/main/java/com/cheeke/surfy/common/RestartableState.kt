@@ -1,6 +1,7 @@
 package com.cheeke.surfy.common
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalForInheritanceCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingCommand
@@ -49,11 +50,13 @@ private class StartedRestartableImpl(
     }
 }
 
+@OptIn(ExperimentalForInheritanceCoroutinesApi::class)
 interface RestartableStateFlow<out T> : StateFlow<T> {
     fun restart()
 }
 
 // 구현체
+@OptIn(ExperimentalForInheritanceCoroutinesApi::class)
 private class RestartableStateFlowImpl<T>(
     flow: StateFlow<T>,
     private val started: StartedRestartable,

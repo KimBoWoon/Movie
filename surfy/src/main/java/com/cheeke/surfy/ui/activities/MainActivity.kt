@@ -155,28 +155,31 @@ class MainActivity : ComponentActivity() {
     }
 
     fun navigationSetting(appState: SurfyAppState) {
-        // 딥링크로 진입시 백스택 초기화
-        appState.navigationState.backStacks.entries.forEach { (_, value) ->
-            while (value.size > 1) {
-                value.removeAt(index = value.lastIndex)
-            }
+        if (deeplinkBackstack.isEmpty()) {
+            return
         }
 
-        appState.navigationState.topLevelRoute = appState.navigationState.startRoute
+        appState.navigationState.clearToRoot()
 
-        deeplinkBackstack.forEach { navKey ->
-            val targetTabKey = TOP_LEVEL_NAV_ITEMS.keys.firstOrNull { it.javaClass == navKey.javaClass }?.let { topLevelNavKey ->
-                appState.navigationState.topLevelRoute = topLevelNavKey
-                topLevelNavKey
-            } ?: appState.navigationState.startRoute
-
-            if (appState.navigationState.backStacks[targetTabKey] != null) {
-                appState.navigationState.backStacks[targetTabKey]?.add(element = navKey)
+        deeplinkBackstack.forEach { route ->
+            if (isTopLevelRoute(route = route)) {
+                // 루트 목적지면 현재 탭 변경만 수행
+                appState.navigationState.topLevelRoute = route
+            } else {
+                // 루트가 아니면 현재 탭 스택에 push
+                appState.navigationState.backStacks[appState.navigationState.topLevelRoute]?.also { currentStack ->
+                    if (currentStack.lastOrNull() != route) {
+                        currentStack.add(element = route)
+                    }
+                }
             }
         }
 
         deeplinkBackstack = emptyList()
     }
+
+    private fun isTopLevelRoute(route: NavKey): Boolean =
+        TOP_LEVEL_NAV_ITEMS.keys.any { topLevel -> topLevel.javaClass == route.javaClass }
 }
 
 /**

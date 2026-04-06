@@ -42,7 +42,7 @@ class NetworkLogInterceptor @Inject constructor(
         val query = request.url.query
         val response = chain.proceed(request)
         val resHeader = response.headers.toString()
-        val bodyString = response.body?.string() ?: ""
+        val bodyString = response.body.string()
         var networkLog = String.format(
             NETWORK_LOG_BODY,
             request.method,
@@ -57,7 +57,7 @@ class NetworkLogInterceptor @Inject constructor(
         runCatching {
             while (networkLog.isNotEmpty()) {
                 if (networkLog.length > STRING_DIVIDER_CNT) {
-                    Log.d(TAG, networkLog.substring(0, STRING_DIVIDER_CNT))
+                    Log.d(TAG, networkLog.take(STRING_DIVIDER_CNT))
                     networkLog = networkLog.substring(STRING_DIVIDER_CNT)
                 } else {
                     Log.d(TAG, networkLog)
@@ -68,7 +68,7 @@ class NetworkLogInterceptor @Inject constructor(
             Log.e(TAG, e.message ?: "something wrong...")
         }
 
-        return response.newBuilder().body(bodyString.toResponseBody(response.body?.contentType())).build()
+        return response.newBuilder().body(bodyString.toResponseBody(response.body.contentType())).build()
     }
 
     /**
