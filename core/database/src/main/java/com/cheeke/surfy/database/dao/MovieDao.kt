@@ -16,7 +16,7 @@ interface MovieDao {
     @Query(value = "SELECT * FROM movies")
     fun getMovieEntities(): Flow<List<MovieEntity>>
 
-    @Query("SELECT EXISTS(SELECT 1 FROM movies WHERE id = :id)")
+    @Query(value = "SELECT EXISTS(SELECT 1 FROM movies WHERE id = :id)")
     fun isFavoriteMovie(id: Int): Flow<Boolean>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
@@ -29,10 +29,10 @@ interface MovieDao {
     suspend fun deleteMovie(id: Int)
 
     @Query(value = "SELECT * FROM movies WHERE releaseDate BETWEEN DATE('now', 'localtime') AND DATE('now', '+7 day', 'localtime') ORDER BY releaseDate ASC, title ASC")
-    fun getNextWeekReleaseMovies(): Flow<List<MovieEntity>>
+    suspend fun getNextWeekReleaseMovies(): List<MovieEntity>
 
     @Query(value = "SELECT * FROM nowplayingmovie WHERE voteCount > 500 AND voteAverage > 7.0")
-    fun getPopularMovies(): Flow<List<NowPlayingMovieEntity>>
+    suspend fun getPopularMovies(): List<NowPlayingMovieEntity>
 
     @Query(value = "SELECT * FROM nowplayingmovie")
     fun getNowPlayingMovie(): PagingSource<Int, NowPlayingMovieEntity>

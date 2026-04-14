@@ -32,12 +32,16 @@ import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.common.isSystemInDarkTheme
 import com.cheeke.surfy.data.util.NetworkMonitor
 import com.cheeke.surfy.deeplink.parseDeeplink
+import com.cheeke.surfy.detail.movie.navigation.navigateToMovie
+import com.cheeke.surfy.detail.tv.navigation.navigateToTv
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
+import com.cheeke.surfy.navigation.Navigator
 import com.cheeke.surfy.navigation.TOP_LEVEL_NAV_ITEMS
 import com.cheeke.surfy.rememberSurfyAppState
 import com.cheeke.surfy.setting.SettingScreen
 import com.cheeke.surfy.setting.SettingVM
 import com.cheeke.surfy.setting.SettingsAction
+import com.cheeke.surfy.ui.ReleaseMoviesDialog
 import com.cheeke.surfy.ui.SurfyApp
 import com.cheeke.surfy.ui.theme.SurfyTheme
 import com.cheeke.surfy.utils.isSystemInDarkTheme
@@ -122,10 +126,12 @@ class MainActivity : ComponentActivity() {
             ) {
                 LocalFirebaseLogHelper.current.sendLog(name = javaClass.simpleName, message = "compose start!")
 
-                val nextWeekReleaseDialogItems by viewModel.nextWeekReleaseDialogItems.collectAsStateWithLifecycle()
+                val nextWeekReleaseDialogItems by viewModel.nextWeekReleaseMedias.collectAsStateWithLifecycle()
+                val shouldShowNextWeekReleaseDialog by viewModel.shouldShowNextWeekReleaseDialog.collectAsStateWithLifecycle()
 
                 SurfyTheme(darkTheme = darkTheme) {
                     val appState = rememberSurfyAppState(networkMonitor = networkMonitor)
+                    val navigator = remember { Navigator(state = appState.navigationState) }
                     val snackbarHostState = remember { SnackbarHostState() }
 
                     LaunchedEffect(key1 = deeplinkBackstack) {
@@ -134,7 +140,18 @@ class MainActivity : ComponentActivity() {
                         }
                     }
 
+                    if (shouldShowNextWeekReleaseDialog) {
+                        ReleaseMoviesDialog(
+                            releaseMovies = nextWeekReleaseDialogItems,
+                            goToMovie = { id -> navigator.navigateToMovie(id = id) },
+                            goToTv = { id -> navigator.navigateToTv(id = id) },
+                            updateShowNextReleaseMoviesDate = viewModel::dontShowNextWeekReleaseDialogToday,
+                            dismissNextWeekReleaseDialog = viewModel::dismissNextWeekReleaseDialog
+                        )
+                    }
+
                     SurfyApp(
+                        navigator = navigator,
                         appState = appState,
                         snackbarHostState = snackbarHostState,
                         nextWeekReleaseMovies = nextWeekReleaseDialogItems,

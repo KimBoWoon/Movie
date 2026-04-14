@@ -7,59 +7,59 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class NetworkTMDBPeopleDetail(
-    @SerialName("adult")
+    @SerialName(value = "adult")
     val adult: Boolean? = null,
-    @SerialName("also_known_as")
+    @SerialName(value = "also_known_as")
     val alsoKnownAs: List<String>? = null,
-    @SerialName("biography")
+    @SerialName(value = "biography")
     val biography: String? = null,
-    @SerialName("birthday")
+    @SerialName(value = "birthday")
     val birthday: String? = null,
-    @SerialName("deathday")
+    @SerialName(value = "deathday")
     val deathday: String? = null,
-    @SerialName("gender")
+    @SerialName(value = "gender")
     val gender: Int? = null,
-    @SerialName("homepage")
+    @SerialName(value = "homepage")
     val homepage: String? = null,
-    @SerialName("id")
+    @SerialName(value = "id")
     val id: Int? = null,
-    @SerialName("images")
+    @SerialName(value = "images")
     val images: NetworkTMDBPeopleImages? = null,
-    @SerialName("imdb_id")
+    @SerialName(value = "imdb_id")
     val imdbId: String? = null,
-    @SerialName("known_for_department")
+    @SerialName(value = "known_for_department")
     val knownForDepartment: String? = null,
-    @SerialName("name")
+    @SerialName(value = "name")
     val name: String? = null,
-    @SerialName("place_of_birth")
+    @SerialName(value = "place_of_birth")
     val placeOfBirth: String? = null,
-    @SerialName("popularity")
+    @SerialName(value = "popularity")
     val popularity: Double? = null,
-    @SerialName("profile_path")
+    @SerialName(value = "profile_path")
     val profilePath: String? = null
 )
 
 @Serializable
 data class NetworkTMDBPeopleImages(
-    @SerialName("profiles")
+    @SerialName(value = "profiles")
     val profiles: List<NetworkTMDBPeopleProfile>? = null
 )
 
 @Serializable
 data class NetworkTMDBPeopleProfile(
-    @SerialName("aspect_ratio")
+    @SerialName(value = "aspect_ratio")
     val aspectRatio: Double? = null,
-    @SerialName("file_path")
+    @SerialName(value = "file_path")
     val filePath: String? = null,
-    @SerialName("height")
+    @SerialName(value = "height")
     val height: Int? = null,
-    @SerialName("iso_639_1")
+    @SerialName(value = "iso_639_1")
     val iso6391: String? = null,
-    @SerialName("vote_average")
+    @SerialName(value = "vote_average")
     val voteAverage: Float? = null,
-    @SerialName("vote_count")
+    @SerialName(value = "vote_count")
     val voteCount: Int? = null,
-    @SerialName("width")
+    @SerialName(value = "width")
     val width: Int? = null
 )
 

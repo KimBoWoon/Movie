@@ -7,23 +7,23 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class NetworkTMDBConfiguration(
-    @SerialName("change_keys")
+    @SerialName(value = "change_keys")
     val changeKeys: List<String>? = null,
-    @SerialName("images")
+    @SerialName(value = "images")
     val images: NetworkTMDBImagesConfiguration? = null
 )
 
 @Serializable
 data class NetworkTMDBImagesConfiguration(
-    @SerialName("backdrop_sizes")
+    @SerialName(value = "backdrop_sizes")
     val backdropSizes: List<String>? = null,
-    @SerialName("base_url")
+    @SerialName(value = "base_url")
     val baseUrl: String? = null,
-    @SerialName("logo_sizes")
+    @SerialName(value = "logo_sizes")
     val logoSizes: List<String>? = null,
-    @SerialName("poster_sizes")
+    @SerialName(value = "poster_sizes")
     val posterSizes: List<String>? = null,
-    @SerialName("profile_sizes")
+    @SerialName(value = "profile_sizes")
     val profileSizes: List<String>? = null,
     @SerialName("secure_base_url")
     val secureBaseUrl: String? = null,

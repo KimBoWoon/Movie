@@ -218,14 +218,14 @@ class DatabaseRepositoryTest {
         )
 
         assertEquals(
-            expected = repository.getPopularMovies().first(),
+            expected = repository.getPopularMovies(),
             actual = emptyList()
         )
 
         movieDao.upsertNowPlayingMovie(entities = listOf(movie))
 
         assertEquals(
-            expected = repository.getPopularMovies().first(),
+            expected = repository.getPopularMovies(),
             actual = listOf(movie.asExternalModel())
         )
     }

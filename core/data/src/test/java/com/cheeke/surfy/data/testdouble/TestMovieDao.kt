@@ -9,6 +9,7 @@ import com.cheeke.surfy.database.model.UpComingMovieEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import java.time.LocalDate
@@ -35,11 +36,11 @@ class TestMovieDao : MovieDao {
         entitiesStateFlow.update { entities -> entities.filterNot { it.id == id } }
     }
 
-    override fun getNextWeekReleaseMovies(): Flow<List<MovieEntity>> = entitiesStateFlow.map { favoriteMovieList ->
+    override suspend fun getNextWeekReleaseMovies(): List<MovieEntity> = entitiesStateFlow.map { favoriteMovieList ->
         favoriteMovieList.filter {
             LocalDate.parse(it.releaseDate) in LocalDate.now()..LocalDate.now().plusDays(7)
         }.sortedWith(compareBy({ it.releaseDate }, { it.title }))
-    }
+    }.first()
 
     override fun getNowPlayingMovie(): PagingSource<Int, NowPlayingMovieEntity> =
         (0..100).map {
@@ -89,5 +90,5 @@ class TestMovieDao : MovieDao {
         entitiesStateFlow.tryEmit(value = emptyList())
     }
 
-    override fun getPopularMovies(): Flow<List<NowPlayingMovieEntity>> = nowPlayingMovieFlow
+    override suspend fun getPopularMovies(): List<NowPlayingMovieEntity> = nowPlayingMovieFlow.first()
 }

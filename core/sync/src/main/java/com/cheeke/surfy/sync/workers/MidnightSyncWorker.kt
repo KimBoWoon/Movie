@@ -24,10 +24,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
-import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
@@ -103,13 +100,8 @@ class MidnightSyncWorker @AssistedInject constructor(
     )
 
     override suspend fun afterSync() {
-        databaseRepository
-            .getNextWeekReleaseMovies()
-            .map { it.takeIf { it.isNotEmpty() } }
-            .firstOrNull()?.also { movies ->
-                notifier.postMovieNotifications(movies = movies)
-            }
-        userDateRepository.updateWorkScheduleTime(value = Instant.now().toEpochMilli())
+        val nextReleaseMedias = databaseRepository.getNextWeekReleaseMovies() + databaseRepository.getNextWeekReleaseTvs()
+        notifier.postMovieNotifications(movies = nextReleaseMedias)
     }
 
     override suspend fun getForegroundInfo(): ForegroundInfo =

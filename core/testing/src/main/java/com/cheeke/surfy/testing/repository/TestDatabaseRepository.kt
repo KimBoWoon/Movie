@@ -16,6 +16,7 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.time.LocalDate
 
@@ -46,18 +47,18 @@ class TestDatabaseRepository : DatabaseRepository {
         )
     }
 
-    override fun getNextWeekReleaseMovies(): Flow<List<Movie>> {
+    override suspend fun getNextWeekReleaseMovies(): List<Movie> {
         val now = LocalDate.now()
         val nextWeekReleaseMovies = currentMovieDatabase.filter { movie ->
             !movie.releaseDate?.trim().isNullOrEmpty() && LocalDate.parse(movie.releaseDate ?: "") in (now..now.plusDays(7))
         }
-        movieDatabase.tryEmit(nextWeekReleaseMovies)
-        return movieDatabase
+        movieDatabase.tryEmit(value = nextWeekReleaseMovies)
+        return movieDatabase.first()
     }
 
-    override fun getPopularMovies(): Flow<List<Movie>> = movieDatabase.map { movies ->
+    override suspend fun getPopularMovies(): List<Movie> = movieDatabase.map { movies ->
         movies.filter { movie -> (movie.voteCount ?: 0) > 500 && (movie.voteAverage ?: 0f) > 7.0f }
-    }
+    }.first()
 
     override fun getPeople(): Flow<List<People>> = peopleDatabase
 
@@ -120,13 +121,13 @@ class TestDatabaseRepository : DatabaseRepository {
         )
     }
 
-    override fun getNextWeekReleaseTvs(): Flow<List<Tv>> {
+    override suspend fun getNextWeekReleaseTvs(): List<Tv> {
         val now = LocalDate.now()
         val nextWeekReleaseMovies = currentTvDatabase.filter { movie ->
             !movie.firstAirDate?.trim().isNullOrEmpty() && LocalDate.parse(movie.firstAirDate ?: "") in (now..now.plusDays(7))
         }
-        tvDatabase.tryEmit(nextWeekReleaseMovies)
-        return tvDatabase
+        tvDatabase.tryEmit(value = nextWeekReleaseMovies)
+        return tvDatabase.first()
     }
 
     @VisibleForTesting

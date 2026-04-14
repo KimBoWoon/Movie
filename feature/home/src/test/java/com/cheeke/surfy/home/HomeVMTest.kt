@@ -40,8 +40,7 @@ class HomeVMTest {
             databaseRepository = testDatabaseRepository,
             pagingRepository = testPagingRepository,
             networkMonitor = testNetworkMonitor,
-            dataManager = testMovieAppDataManager,
-            userDataRepository = testUserRepository
+            dataManager = testMovieAppDataManager
         )
     }
 

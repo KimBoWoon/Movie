@@ -14,21 +14,21 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class NetworkTMDBTv(
-    @SerialName("adult")
+    @SerialName(value = "adult")
     val adult: Boolean? = null,
-    @SerialName("alternative_titles")
+    @SerialName(value = "alternative_titles")
     val alternativeTitles: NetworkTMDBAlternativeTitles? = null,
-    @SerialName("backdrop_path")
+    @SerialName(value = "backdrop_path")
     val backdropPath: String? = null,
-    @SerialName("created_by")
+    @SerialName(value = "created_by")
     val createdBy: List<NetworkTMDBTvCreatedBy>? = null,
-    @SerialName("credits")
+    @SerialName(value = "credits")
     val credits: NetworkTMDBCredits? = null,
-    @SerialName("episode_run_time")
+    @SerialName(value = "episode_run_time")
     val episodeRunTime: List<Int>? = null,
-    @SerialName("first_air_date")
+    @SerialName(value = "first_air_date")
     val firstAirDate: String? = null,
-    @SerialName("genres")
+    @SerialName(value = "genres")
     val genres: List<NetworkTMDBGenre>? = null,
     @SerialName("homepage")
     val homepage: String? = null,

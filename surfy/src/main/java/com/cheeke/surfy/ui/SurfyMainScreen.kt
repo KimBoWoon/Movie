@@ -5,20 +5,30 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -37,17 +47,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import com.cheeke.surfy.R
 import com.cheeke.surfy.SurfyAppState
+import com.cheeke.surfy.common.Log
+import com.cheeke.surfy.data.util.POSTER_IMAGE_RATIO
 import com.cheeke.surfy.detail.movie.navigation.MovieNavKey
 import com.cheeke.surfy.detail.movie.navigation.movieEntry
 import com.cheeke.surfy.detail.movie.navigation.navigateToMovie
@@ -61,11 +78,14 @@ import com.cheeke.surfy.favorite.navigation.favoriteEntry
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
 import com.cheeke.surfy.home.navigation.homeEntry
 import com.cheeke.surfy.model.Media
+import com.cheeke.surfy.model.MediaType
 import com.cheeke.surfy.navigation.Navigator
 import com.cheeke.surfy.navigation.TOP_LEVEL_NAV_ITEMS
 import com.cheeke.surfy.navigation.toEntries
 import com.cheeke.surfy.search.navigation.SearchNavKey
 import com.cheeke.surfy.search.navigation.searchEntry
+import com.cheeke.surfy.ui.dialog.Indexer
+import com.cheeke.surfy.ui.image.DynamicAsyncImageLoader
 import com.cheeke.surfy.ui.utils.Line
 import com.cheeke.surfy.ui.utils.border
 import com.cheeke.surfy.ui.utils.bounceClick
@@ -73,20 +93,23 @@ import com.cheeke.surfy.ui.utils.dp1
 import com.cheeke.surfy.ui.utils.dp10
 import com.cheeke.surfy.ui.utils.dp16
 import com.cheeke.surfy.ui.utils.dp20
+import com.cheeke.surfy.ui.utils.dp300
 import com.cheeke.surfy.ui.utils.dp40
 import com.cheeke.surfy.ui.utils.dp5
 import com.cheeke.surfy.ui.utils.dp50
 import com.cheeke.surfy.ui.utils.roundedCornerClickable
+import com.cheeke.surfy.ui.utils.sp15
+import com.cheeke.surfy.ui.utils.sp20
 import com.cheeke.surfy.utils.VerticalRollingAnimation
 
 @Composable
 fun SurfyApp(
+    navigator: Navigator,
     appState: SurfyAppState,
     snackbarHostState: SnackbarHostState,
     nextWeekReleaseMovies: List<Media>,
     showSettingDialog: () -> Unit
 ) {
-    val navigator = remember { Navigator(state = appState.navigationState) }
     val isTopLevelRoute by remember {
         derivedStateOf {
             navigator.state.backStacks[navigator.state.topLevelRoute]
@@ -350,4 +373,113 @@ fun MovieNavigation(
             )
         }
     }
+}
+
+@Composable
+fun ReleaseMoviesDialog(
+    updateShowNextReleaseMoviesDate: () -> Unit,
+    releaseMovies: List<Media>,
+    goToMovie: (Int) -> Unit,
+    goToTv: (Int) -> Unit,
+    dismissNextWeekReleaseDialog: () -> Unit
+) {
+    Dialog(
+        onDismissRequest = { dismissNextWeekReleaseDialog() },
+        properties = DialogProperties(
+            windowTitle = "NextWeekReleaseMoviesNavKey",
+            dismissOnBackPress = true,
+            dismissOnClickOutside = false
+        ),
+        content = {
+            val pagerState = rememberPagerState(initialPage = 0) { releaseMovies.size }
+
+            Column(
+                modifier = Modifier
+                    .width(width = dp300)
+                    .background(color = Color.White, shape = RoundedCornerShape(size = dp10))
+                    .verticalScroll(state = rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                HorizontalPager(
+                    modifier = Modifier.fillMaxWidth(),
+                    state = pagerState,
+                ) { index ->
+                    Log.d("NextWeekReleaseMovies Index -> $index")
+                    Box {
+                        DynamicAsyncImageLoader(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    when (releaseMovies[index].mediaType) {
+                                        MediaType.MOVIE -> goToMovie(releaseMovies[index].id ?: -1)
+                                        MediaType.TV -> goToTv(releaseMovies[index].id ?: -1)
+                                        else -> Log.d("mediatype not found...")
+                                    }
+                                    dismissNextWeekReleaseDialog()
+                                }
+                                .aspectRatio(ratio = POSTER_IMAGE_RATIO)
+                                .clip(shape = RoundedCornerShape(topStart = dp10, topEnd = dp10)),
+                            source = "${releaseMovies[index].posterPath}",
+                            contentDescription = "ReleaseMovieImage"
+                        )
+                        Text(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .align(Alignment.BottomCenter)
+                                .background(color = Color(color = 0x33000000)),
+                            text = stringResource(id = com.cheeke.surfy.feature.home.R.string.release_movie, releaseMovies[pagerState.currentPage].releaseDate ?: ""),
+                            textAlign = TextAlign.Center,
+                            color = Color.White
+                        )
+                        Indexer(
+                            modifier = Modifier
+                                .padding(top = dp10, end = dp10)
+                                .wrapContentSize()
+                                .background(
+                                    color = Color(color = 0x33000000),
+                                    shape = RoundedCornerShape(size = dp20)
+                                )
+                                .align(Alignment.TopEnd),
+                            current = pagerState.currentPage + 1,
+                            size = pagerState.pageCount
+                        )
+                    }
+                }
+                Text(
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    text = stringResource(id = com.cheeke.surfy.feature.home.R.string.coming_soon_movie),
+                    color = Color.Black
+                )
+                Button(
+                    modifier = Modifier.padding(horizontal = dp16, vertical = dp10),
+                    onClick = { dismissNextWeekReleaseDialog() }
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                            .background(color = MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(size = dp20)),
+                        text = stringResource(id = com.cheeke.surfy.feature.home.R.string.close),
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = sp20,
+                        color = Color.White
+                    )
+                }
+                Text(
+                    modifier = Modifier
+                        .padding(bottom = dp10)
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .clickable { updateShowNextReleaseMoviesDate() },
+                    text = stringResource(id = com.cheeke.surfy.feature.home.R.string.no_show_today),
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = sp15,
+                    color = Color.Black
+                )
+            }
+        }
+    )
 }

@@ -27,223 +27,223 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface SettingApis {
-    @GET("/3/configuration")
+    @GET(value = "/3/configuration")
     suspend fun getConfiguration(): ApiResponse<NetworkTMDBConfiguration>
 
-    @GET("/3/certification/movie/list")
+    @GET(value = "/3/certification/movie/list")
     suspend fun getCertification(): ApiResponse<NetworkTMDBCertificationData>
 
-    @GET("/3/configuration/languages")
+    @GET(value = "/3/configuration/languages")
     suspend fun getAvailableLanguage(): ApiResponse<List<NetworkTMDBLanguageItem>>
 
-    @GET("/3/watch/providers/regions")
+    @GET(value = "/3/watch/providers/regions")
     suspend fun getAvailableRegion(): ApiResponse<NetworkTMDBRegion>
 
-    @GET("/3/genre/movie/list")
+    @GET(value = "/3/genre/movie/list")
     suspend fun getMovieGenres(
-        @Query("language") language: String = "ko-KR"
+        @Query(value = "language") language: String = "ko-KR"
     ): ApiResponse<NetworkTMDBMovieGenres>
 
-    @GET("/3/genre/tv/list")
+    @GET(value = "/3/genre/tv/list")
     suspend fun getTvGenres(
-        @Query("language") language: String = "ko-KR"
+        @Query(value = "language") language: String = "ko-KR"
     ): ApiResponse<NetworkTMDBMovieGenres>
 }
 
 interface MovieApis {
-    @GET("/3/movie/{movie_id}")
+    @GET(value = "/3/movie/{movie_id}")
     suspend fun getMovie(
-        @Path("movie_id") id: Int,
-        @Query("append_to_response") appendToResponse: String = "images,videos,credits,releases,alternative_titles",
-        @Query("language") language: String = "ko-KR",
-        @Query("include_image_language") includeImageLanguage: String = "ko",
-        @Query("region") region: String = "KR"
+        @Path(value = "movie_id") id: Int,
+        @Query(value = "append_to_response") appendToResponse: String = "images,videos,credits,releases,alternative_titles",
+        @Query(value = "language") language: String = "ko-KR",
+        @Query(value = "include_image_language") includeImageLanguage: String = "ko",
+        @Query(value = "region") region: String = "KR"
     ): ApiResponse<NetworkTMDBMovie>
 
-    @GET("/3/movie/{movie_id}/similar")
+    @GET(value = "/3/movie/{movie_id}/similar")
     suspend fun getSimilarMovies(
-        @Path("movie_id") id: Int,
-        @Query("language") language: String = "ko-KR",
-        @Query("page") page: Int = 1,
+        @Path(value = "movie_id") id: Int,
+        @Query(value = "language") language: String = "ko-KR",
+        @Query(value = "page") page: Int = 1,
     ): ApiResponse<NetworkTMDBSimilarMedia>
 
-    @GET("/3/movie/{movie_id}/watch/providers")
+    @GET(value = "/3/movie/{movie_id}/watch/providers")
     suspend fun getMovieWatchProvider(
-        @Path("movie_id") movieId: Int
+        @Path(value = "movie_id") movieId: Int
     ): ApiResponse<NetworkTMDBMovieWatchProvider>
 
-    @GET("/3/movie/{movie_id}/reviews")
+    @GET(value = "/3/movie/{movie_id}/reviews")
     suspend fun getMovieReview(
-        @Path("movie_id") movieId: Int,
-        @Query("language") language: String = "ko-KR",
-        @Query("page") page: Int = 1
+        @Path(value = "movie_id") movieId: Int,
+        @Query(value = "language") language: String = "ko-KR",
+        @Query(value = "page") page: Int = 1
     ): ApiResponse<NetworkTMDBMovieReviews>
 }
 
 interface PeopleApis {
-    @GET("/3/person/{person_id}")
+    @GET(value = "/3/person/{person_id}")
     suspend fun getPeopleDetail(
-        @Path("person_id") personId: Int,
-        @Query("append_to_response") appendToResponse: String = "images, combined_credits, external_ids",
-        @Query("language") language: String = "ko-KR",
-        @Query("include_image_language") includeImageLanguage: String = "ko"
+        @Path(value = "person_id") personId: Int,
+        @Query(value = "append_to_response") appendToResponse: String = "images, combined_credits, external_ids",
+        @Query(value = "language") language: String = "ko-KR",
+        @Query(value = "include_image_language") includeImageLanguage: String = "ko"
     ): ApiResponse<NetworkTMDBPeopleDetail>
 
-    @GET("/3/person/{person_id}/combined_credits")
+    @GET(value = "/3/person/{person_id}/combined_credits")
     suspend fun getCombineCredits(
-        @Path("person_id") personId: Int,
-        @Query("language") language: String = "ko-KR"
+        @Path(value = "person_id") personId: Int,
+        @Query(value = "language") language: String = "ko-KR"
     ): ApiResponse<NetworkTMDBCombineCredits>
 
-    @GET("/3/person/{person_id}/external_ids")
+    @GET(value = "/3/person/{person_id}/external_ids")
     suspend fun getExternalIds(
-        @Path("person_id") personId: Int
+        @Path(value = "person_id") personId: Int
     ): ApiResponse<NetworkTMDBExternalIds>
 }
 
 interface TvApis {
-    @GET("/3/tv/{series_id}/similar")
+    @GET(value = "/3/tv/{series_id}/similar")
     suspend fun getSimilarTv(
-        @Path("series_id") id: Int,
-        @Query("language") language: String = "ko-KR",
-        @Query("page") page: Int = 1,
+        @Path(value = "series_id") id: Int,
+        @Query(value = "language") language: String = "ko-KR",
+        @Query(value = "page") page: Int = 1,
     ): ApiResponse<NetworkTMDBSimilarMedia>
 
-    @GET("/3/tv/{series_id}")
+    @GET(value = "/3/tv/{series_id}")
     suspend fun getTv(
-        @Path("series_id") id: Int,
-        @Query("append_to_response") appendToResponse: String = "images,videos,credits,releases,alternative_titles",
-        @Query("language") language: String = "ko-KR",
-        @Query("include_image_language") includeImageLanguage: String = "ko"
+        @Path(value = "series_id") id: Int,
+        @Query(value = "append_to_response") appendToResponse: String = "images,videos,credits,releases,alternative_titles",
+        @Query(value = "language") language: String = "ko-KR",
+        @Query(value = "include_image_language") includeImageLanguage: String = "ko"
     ): ApiResponse<NetworkTMDBTv>
 
-    @GET("/3/tv/{series_id}/season/{season_number}")
+    @GET(value = "/3/tv/{series_id}/season/{season_number}")
     suspend fun getTvSeasons(
-        @Path("series_id") seriesId: Int,
-        @Path("season_number") seasonNumber: Int,
-        @Query("append_to_response") appendToResponse: String = "images,videos,credits,releases,alternative_titles",
-        @Query("language") language: String = "ko-KR"
+        @Path(value = "series_id") seriesId: Int,
+        @Path(value = "season_number") seasonNumber: Int,
+        @Query(value = "append_to_response") appendToResponse: String = "images,videos,credits,releases,alternative_titles",
+        @Query(value = "language") language: String = "ko-KR"
     ): ApiResponse<NetworkTMDBTvSeasons>
 
-    @GET("/3/tv/{series_id}/season/{season_number}/episode/{episode_number}")
+    @GET(value = "/3/tv/{series_id}/season/{season_number}/episode/{episode_number}")
     suspend fun getTvEpisode(
-        @Path("series_id") seriesId: Int,
-        @Path("season_number") seasonNumber: Int,
-        @Path("episode_number") episodeNumber: Int,
-        @Query("append_to_response") appendToResponse: String = "images,videos,credits,releases,alternative_titles",
-        @Query("language") language: String = "ko-KR"
+        @Path(value = "series_id") seriesId: Int,
+        @Path(value = "season_number") seasonNumber: Int,
+        @Path(value = "episode_number") episodeNumber: Int,
+        @Query(value = "append_to_response") appendToResponse: String = "images,videos,credits,releases,alternative_titles",
+        @Query(value = "language") language: String = "ko-KR"
     ): ApiResponse<NetworkTMDBTvEpisode>
 
-    @GET("/3/tv/{series_id}/reviews")
+    @GET(value = "/3/tv/{series_id}/reviews")
     suspend fun getTvReview(
-        @Path("series_id") seriesId: Int,
-        @Query("language") language: String = "ko-KR",
-        @Query("page") page: Int = 1
+        @Path(value = "series_id") seriesId: Int,
+        @Query(value = "language") language: String = "ko-KR",
+        @Query(value = "page") page: Int = 1
     ): ApiResponse<NetworkTMDBTvReviews>
 }
 
 interface SeriesApis {
-    @GET("/3/collection/{collection_id}")
+    @GET(value = "/3/collection/{collection_id}")
     suspend fun getMovieSeries(
-        @Path("collection_id") collectionId: Int,
-        @Query("language") language: String = "ko-KR",
+        @Path(value = "collection_id") collectionId: Int,
+        @Query(value = "language") language: String = "ko-KR",
     ): ApiResponse<NetworkTMDBMovieSeries>
 
-    @GET("/3/collection/{collection_id}/images")
+    @GET(value = "/3/collection/{collection_id}/images")
     suspend fun getSeriesImages(
-        @Path("collection_id") collectionId: Int,
-        @Query("include_image_language") includeImageLanguage: String = "ko-KR,null",
-        @Query("language") language: String = "ko-KR"
+        @Path(value = "collection_id") collectionId: Int,
+        @Query(value = "include_image_language") includeImageLanguage: String = "ko-KR,null",
+        @Query(value = "language") language: String = "ko-KR"
     ): ApiResponse<NetworkTMDBImageList>
 }
 
 interface SearchApis {
-    @GET("/3/search/multi")
+    @GET(value = "/3/search/multi")
     suspend fun searchMulti(
-        @Query("query") query: String,
-        @Query("include_adult") includeAdult: Boolean = true,
-        @Query("language") language: String = "ko-KR",
-        @Query("page") page: Int = 1
+        @Query(value = "query") query: String,
+        @Query(value = "include_adult") includeAdult: Boolean = true,
+        @Query(value = "language") language: String = "ko-KR",
+        @Query(value = "page") page: Int = 1
     ): ApiResponse<NetworkTMDBSearch>
 
-    @GET("/3/search/movie")
+    @GET(value = "/3/search/movie")
     suspend fun searchMovies(
-        @Query("query") query: String,
-        @Query("include_adult") includeAdult: Boolean = true,
-        @Query("language") language: String = "ko-KR",
-        @Query("region") region: String = "KR",
-        @Query("page") page: Int = 1
+        @Query(value = "query") query: String,
+        @Query(value = "include_adult") includeAdult: Boolean = true,
+        @Query(value = "language") language: String = "ko-KR",
+        @Query(value = "region") region: String = "KR",
+        @Query(value = "page") page: Int = 1
     ): ApiResponse<NetworkTMDBSearch>
 
-    @GET("/3/search/tv")
+    @GET(value = "/3/search/tv")
     suspend fun searchTv(
-        @Query("query") query: String,
-        @Query("include_adult") includeAdult: Boolean = true,
-        @Query("language") language: String = "ko-KR",
-        @Query("region") region: String = "KR",
-        @Query("page") page: Int = 1
+        @Query(value = "query") query: String,
+        @Query(value = "include_adult") includeAdult: Boolean = true,
+        @Query(value = "language") language: String = "ko-KR",
+        @Query(value = "region") region: String = "KR",
+        @Query(value = "page") page: Int = 1
     ): ApiResponse<NetworkTMDBSearch>
 
-    @GET("/3/search/person")
+    @GET(value = "/3/search/person")
     suspend fun searchPeople(
-        @Query("query") query: String,
-        @Query("include_adult") includeAdult: Boolean = true,
-        @Query("language") language: String = "ko-KR",
-        @Query("region") region: String = "KR",
-        @Query("page") page: Int = 1
+        @Query(value = "query") query: String,
+        @Query(value = "include_adult") includeAdult: Boolean = true,
+        @Query(value = "language") language: String = "ko-KR",
+        @Query(value = "region") region: String = "KR",
+        @Query(value = "page") page: Int = 1
     ): ApiResponse<NetworkTMDBSearch>
 
-    @GET("/3/search/collection")
+    @GET(value = "/3/search/collection")
     suspend fun searchMovieSeries(
-        @Query("query") query: String,
-        @Query("include_adult") includeAdult: Boolean = true,
-        @Query("page") page: Int = 1,
-        @Query("language") language: String = "ko-KR",
-        @Query("region") region: String = "KR"
+        @Query(value = "query") query: String,
+        @Query(value = "include_adult") includeAdult: Boolean = true,
+        @Query(value = "page") page: Int = 1,
+        @Query(value = "language") language: String = "ko-KR",
+        @Query(value = "region") region: String = "KR"
     ): ApiResponse<NetworkTMDBSearch>
 
-    @GET("/3/search/keyword")
+    @GET(value = "/3/search/keyword")
     suspend fun getSearchKeyword(
-        @Query("query") query: String,
-        @Query("page") page: Int
+        @Query(value = "query") query: String,
+        @Query(value = "page") page: Int
     ): ApiResponse<NetworkTMDBSearchKeywordData>
 }
 
 interface SyncApis {
-    @GET("/3/movie/now_playing")
+    @GET(value = "/3/movie/now_playing")
     suspend fun getNowPlaying(
-        @Query("language") language: String = "ko-KR",
-        @Query("region") region: String = "KR",
-        @Query("page") page: Int = 1
+        @Query(value = "language") language: String = "ko-KR",
+        @Query(value = "region") region: String = "KR",
+        @Query(value = "page") page: Int = 1
     ): ApiResponse<NetworkTMDBMovieList>
 
-    @GET("/3/movie/upcoming")
+    @GET(value = "/3/movie/upcoming")
     suspend fun getUpcomingMovie(
-        @Query("language") language: String = "ko-KR",
-        @Query("region") region: String = "KR",
-        @Query("page") page: Int = 1
+        @Query(value = "language") language: String = "ko-KR",
+        @Query(value = "region") region: String = "KR",
+        @Query(value = "page") page: Int = 1
     ): ApiResponse<NetworkTMDBMovieList>
 }
 
 interface TrendingApis {
-    @GET("/3/trending/movie/{time_window}")
+    @GET(value = "/3/trending/movie/{time_window}")
     suspend fun getTrendingMovie(
-        @Path("time_window") timeWindow: String,
-        @Query("language") language: String,
-        @Query("page") page: Int = 1
+        @Path(value = "time_window") timeWindow: String,
+        @Query(value = "language") language: String,
+        @Query(value = "page") page: Int = 1
     ): ApiResponse<NetworkTMDBTrendingMedia>
 
-    @GET("/3/trending/person/{time_window}")
+    @GET(value = "/3/trending/person/{time_window}")
     suspend fun getTrendingPeople(
-        @Path("time_window") timeWindow: String,
-        @Query("language") language: String,
-        @Query("page") page: Int = 1
+        @Path(value = "time_window") timeWindow: String,
+        @Query(value = "language") language: String,
+        @Query(value = "page") page: Int = 1
     ): ApiResponse<NetworkTMDBTrendingMedia>
 
-    @GET("/3/trending/tv/{time_window}")
+    @GET(value = "/3/trending/tv/{time_window}")
     suspend fun getTrendingTv(
-        @Path("time_window") timeWindow: String,
-        @Query("language") language: String,
-        @Query("page") page: Int = 1
+        @Path(value = "time_window") timeWindow: String,
+        @Query(value = "language") language: String,
+        @Query(value = "page") page: Int = 1
     ): ApiResponse<NetworkTMDBTrendingMedia>
 }

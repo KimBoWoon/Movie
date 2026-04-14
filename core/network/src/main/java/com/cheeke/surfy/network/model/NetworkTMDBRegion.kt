@@ -7,17 +7,17 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class NetworkTMDBRegion(
-    @SerialName("results")
+    @SerialName(value = "results")
     val results: List<NetworkTMDBRegionResult>? = null
 )
 
 @Serializable
 data class NetworkTMDBRegionResult(
-    @SerialName("english_name")
+    @SerialName(value = "english_name")
     val englishName: String? = null,
-    @SerialName("iso_3166_1")
+    @SerialName(value = "iso_3166_1")
     val iso31661: String? = null,
-    @SerialName("native_name")
+    @SerialName(value = "native_name")
     val nativeName: String? = null
 )
 

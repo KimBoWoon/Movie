@@ -13,7 +13,7 @@ interface TvDao {
     @Query(value = "SELECT * FROM tvs")
     fun getTvEntities(): Flow<List<TvEntity>>
 
-    @Query("SELECT EXISTS(SELECT 1 FROM tvs WHERE id = :id)")
+    @Query(value = "SELECT EXISTS(SELECT 1 FROM tvs WHERE id = :id)")
     fun isFavoriteTv(id: Int): Flow<Boolean>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
@@ -26,7 +26,7 @@ interface TvDao {
     suspend fun deleteTv(id: Int)
 
     @Query(value = "SELECT * FROM tvs WHERE firstAirDate BETWEEN DATE('now', 'localtime') AND DATE('now', '+7 day', 'localtime') ORDER BY firstAirDate ASC, name ASC")
-    fun getNextWeekReleaseTvs(): Flow<List<TvEntity>>
+    suspend fun getNextWeekReleaseTvs(): List<TvEntity>
 
     @Query(value = "DELETE FROM tvs")
     fun deleteAllFavoriteTvs()

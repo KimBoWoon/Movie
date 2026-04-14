@@ -32,7 +32,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -56,13 +55,10 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.LazyPagingItems
@@ -75,11 +71,9 @@ import com.cheeke.surfy.data.util.POSTER_IMAGE_RATIO
 import com.cheeke.surfy.feature.home.R
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
 import com.cheeke.surfy.model.Media
-import com.cheeke.surfy.model.MediaType
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.TrendingMediaResult
 import com.cheeke.surfy.ui.components.CircularProgressComponent
-import com.cheeke.surfy.ui.dialog.Indexer
 import com.cheeke.surfy.ui.image.DynamicAsyncImageLoader
 import com.cheeke.surfy.ui.utils.bounceClick
 import com.cheeke.surfy.ui.utils.dp0
@@ -96,14 +90,11 @@ import com.cheeke.surfy.ui.utils.dp220
 import com.cheeke.surfy.ui.utils.dp230
 import com.cheeke.surfy.ui.utils.dp28
 import com.cheeke.surfy.ui.utils.dp30
-import com.cheeke.surfy.ui.utils.dp300
 import com.cheeke.surfy.ui.utils.dp5
 import com.cheeke.surfy.ui.utils.dp6
 import com.cheeke.surfy.ui.utils.dp60
 import com.cheeke.surfy.ui.utils.dp8
 import com.cheeke.surfy.ui.utils.sp10
-import com.cheeke.surfy.ui.utils.sp15
-import com.cheeke.surfy.ui.utils.sp20
 import com.cheeke.surfy.ui.utils.sp8
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
@@ -143,9 +134,7 @@ fun HomeScreen(
         updateTrendingTvTimeWindow = viewModel::updateTrendingTvTimeWindow,
         goToMovie = goToMovie,
         goToPeople = goToPeople,
-        goToTv = goToTv,
-        dismissNextWeekReleaseDialog = viewModel::dismissNextWeekReleaseDialog,
-        dontShowNextWeekReleaseDialogToday = viewModel::dontShowNextWeekReleaseDialogToday
+        goToTv = goToTv
     )
 }
 
@@ -165,9 +154,7 @@ fun HomeScreen(
     updateTrendingTvTimeWindow: (TimeWindow) -> Unit,
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
-    goToTv: (Int) -> Unit,
-    dismissNextWeekReleaseDialog: () -> Unit,
-    dontShowNextWeekReleaseDialogToday: () -> Unit,
+    goToTv: (Int) -> Unit
 ) {
     LocalFirebaseLogHelper.current.sendLog("HomeScreen", "init screen")
 
@@ -190,16 +177,6 @@ fun HomeScreen(
                 Log.d("$nowPlayingMovies, $upComingMovies, $trendingMovies, $trendingPeoples, $trendingTvs")
 
                 val lazyListState = rememberLazyListState()
-
-                if (homeUiState.homeUiState.isShowNextWeekReleaseMovieDialog) {
-                    ReleaseMoviesDialog(
-                        updateShowNextReleaseMoviesDate = dontShowNextWeekReleaseDialogToday,
-                        releaseMovies = homeUiState.homeUiState.nextWeekReleaseMovies,
-                        goToMovie = goToMovie,
-                        goToTv = goToTv,
-                        dismissNextWeekReleaseDialog = dismissNextWeekReleaseDialog
-                    )
-                }
 
                 HomeComponent(
                     lazyListState = lazyListState,
@@ -741,113 +718,4 @@ private fun PagerIndicator(
             )
         }
     }
-}
-
-@Composable
-fun ReleaseMoviesDialog(
-    updateShowNextReleaseMoviesDate: () -> Unit,
-    releaseMovies: List<Media>,
-    goToMovie: (Int) -> Unit,
-    goToTv: (Int) -> Unit,
-    dismissNextWeekReleaseDialog: () -> Unit
-) {
-    Dialog(
-        onDismissRequest = { dismissNextWeekReleaseDialog() },
-        properties = DialogProperties(
-            windowTitle = "NextWeekReleaseMoviesNavKey",
-            dismissOnBackPress = true,
-            dismissOnClickOutside = false
-        ),
-        content = {
-            val pagerState = rememberPagerState(initialPage = 0) { releaseMovies.size }
-
-            Column(
-                modifier = Modifier
-                    .width(width = dp300)
-                    .background(color = Color.White, shape = RoundedCornerShape(size = dp10))
-                    .verticalScroll(state = rememberScrollState()),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                HorizontalPager(
-                    modifier = Modifier.fillMaxWidth(),
-                    state = pagerState,
-                ) { index ->
-                    Log.d("NextWeekReleaseMovies Index -> $index")
-                    Box {
-                        DynamicAsyncImageLoader(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    when (releaseMovies[index].mediaType) {
-                                        MediaType.MOVIE -> goToMovie(releaseMovies[index].id ?: -1)
-                                        MediaType.TV -> goToTv(releaseMovies[index].id ?: -1)
-                                        else -> Log.d("mediatype not found...")
-                                    }
-                                    dismissNextWeekReleaseDialog()
-                                }
-                                .aspectRatio(ratio = POSTER_IMAGE_RATIO)
-                                .clip(shape = RoundedCornerShape(topStart = dp10, topEnd = dp10)),
-                            source = "${releaseMovies[index].posterPath}",
-                            contentDescription = "ReleaseMovieImage"
-                        )
-                        Text(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .align(Alignment.BottomCenter)
-                                .background(color = Color(color = 0x33000000)),
-                            text = stringResource(id = R.string.release_movie, releaseMovies[pagerState.currentPage].releaseDate ?: ""),
-                            textAlign = TextAlign.Center,
-                            color = Color.White
-                        )
-                        Indexer(
-                            modifier = Modifier
-                                .padding(top = dp10, end = dp10)
-                                .wrapContentSize()
-                                .background(
-                                    color = Color(color = 0x33000000),
-                                    shape = RoundedCornerShape(size = dp20)
-                                )
-                                .align(Alignment.TopEnd),
-                            current = pagerState.currentPage + 1,
-                            size = pagerState.pageCount
-                        )
-                    }
-                }
-                Text(
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
-                    text = stringResource(id = R.string.coming_soon_movie),
-                    color = Color.Black
-                )
-                Button(
-                    modifier = Modifier.padding(horizontal = dp16, vertical = dp10),
-                    onClick = { dismissNextWeekReleaseDialog() }
-                ) {
-                    Text(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .wrapContentHeight()
-                            .background(color = MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(size = dp20)),
-                        text = stringResource(id = R.string.close),
-                        textAlign = TextAlign.Center,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = sp20,
-                        color = Color.White
-                    )
-                }
-                Text(
-                    modifier = Modifier
-                        .padding(bottom = dp10)
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                        .clickable { updateShowNextReleaseMoviesDate() },
-                    text = stringResource(id = R.string.no_show_today),
-                    textAlign = TextAlign.Center,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = sp15,
-                    color = Color.Black
-                )
-            }
-        }
-    )
 }

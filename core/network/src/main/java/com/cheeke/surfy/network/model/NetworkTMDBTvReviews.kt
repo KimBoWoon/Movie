@@ -8,21 +8,21 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class NetworkTMDBTvReviews(
-    @SerialName("id")
+    @SerialName(value = "id")
     val id: Int? = null,
-    @SerialName("page")
+    @SerialName(value = "page")
     val page: Int? = null,
-    @SerialName("results")
+    @SerialName(value = "results")
     val results: List<NetworkTMDBTvReviewsResult>? = null,
-    @SerialName("total_pages")
+    @SerialName(value = "total_pages")
     val totalPages: Int? = null,
-    @SerialName("total_results")
+    @SerialName(value = "total_results")
     val totalResults: Int? = null
 )
 
 @Serializable
 data class NetworkTMDBTvReviewsResult(
-    @SerialName("author")
+    @SerialName(value = "author")
     val author: String? = null,
     @SerialName("author_details")
     val authorDetails: NetworkTMDBTvReviewsAuthorDetails? = null,

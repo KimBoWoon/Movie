@@ -13,20 +13,20 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class NetworkTMDBSearch(
-    @SerialName("page")
+    @SerialName(value = "page")
     val page: Int? = null,
-    @SerialName("results")
+    @SerialName(value = "results")
     val results: List<NetworkTMDBSearchResult>? = null,
-    @SerialName("total_pages")
+    @SerialName(value = "total_pages")
     val totalPages: Int? = null,
-    @SerialName("total_results")
+    @SerialName(value = "total_results")
     val totalResults: Int? = null
 )
 
 @Serializable
 data class NetworkTMDBSearchResult(
     // Movie
-    @SerialName("adult")
+    @SerialName(value = "adult")
     val adult: Boolean? = null,
     @SerialName("backdrop_path")
     val backdropPath: String? = null,

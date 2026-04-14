@@ -6,11 +6,11 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class NetworkTMDBLanguageItem(
-    @SerialName("english_name")
+    @SerialName(value = "english_name")
     val englishName: String? = null,
-    @SerialName("iso_639_1")
+    @SerialName(value = "iso_639_1")
     val iso6391: String? = null,
-    @SerialName("name")
+    @SerialName(value = "name")
     val name: String? = null
 )
 

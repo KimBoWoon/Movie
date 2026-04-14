@@ -13,7 +13,6 @@ import com.cheeke.surfy.common.asResult
 import com.cheeke.surfy.data.model.asExternalModel
 import com.cheeke.surfy.data.repository.DatabaseRepository
 import com.cheeke.surfy.data.repository.PagingRepository
-import com.cheeke.surfy.data.repository.UserDataRepository
 import com.cheeke.surfy.data.util.DataManager
 import com.cheeke.surfy.data.util.NetworkMonitor
 import com.cheeke.surfy.database.model.NowPlayingMovieEntity
@@ -31,14 +30,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.supervisorScope
-import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
@@ -46,8 +41,7 @@ class HomeVM @Inject constructor(
     dataManager: DataManager,
     databaseRepository: DatabaseRepository,
     pagingRepository: PagingRepository,
-    networkMonitor: NetworkMonitor,
-    private val userDataRepository: UserDataRepository
+    networkMonitor: NetworkMonitor
 ) : ViewModel() {
     companion object {
         private const val TAG = "HomeVM"
@@ -98,46 +92,10 @@ class HomeVM @Inject constructor(
             timeWindowFlow = trendingTvTimeWindow,
             pagingSourceFactory = pagingRepository::getTrendingTv
         )
-    private val _nextWeekReleaseMovies: MutableStateFlow<List<Media>> = MutableStateFlow(value = emptyList())
-    private val dismissedThisSession: MutableStateFlow<Boolean> = MutableStateFlow(value = false)
-    private val hiddenToday: StateFlow<Boolean> = flow {
-        emit(value = userDataRepository.getShowNextReleaseMoviesDate())
-    }.map { stored ->
-        stored == LocalDate.now().toString()
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = false
-    )
-    val shouldShowNextWeekReleaseDialog: StateFlow<Boolean> =
-        combine(
-            flow = _nextWeekReleaseMovies,
-            flow2 = hiddenToday,
-            flow3 = dismissedThisSession
-        ) { snapshot: List<Media>?, hidden: Boolean, dismissed: Boolean ->
-            !snapshot.isNullOrEmpty() && !hidden && !dismissed
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(),
-            initialValue = false
-        )
-    val nextWeekReleaseDialogItems: StateFlow<List<Media>> =
-        _nextWeekReleaseMovies
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(),
-                initialValue = emptyList()
-            )
-    val homeUiState: StateFlow<HomeState> = combine(
-        databaseRepository.getPopularMovies(),
-        shouldShowNextWeekReleaseDialog,
-        nextWeekReleaseDialogItems
-    ) { popularMovies, isShowNextWeekReleaseMovieDialog, nextWeekReleaseMovies ->
-        HomeUiState(
-            popularMovies = popularMovies.shuffled(),
-            isShowNextWeekReleaseMovieDialog = isShowNextWeekReleaseMovieDialog,
-            nextWeekReleaseMovies = nextWeekReleaseMovies
-        )
+    val homeUiState: StateFlow<HomeState> = flow {
+        emit(value = databaseRepository.getPopularMovies())
+    }.map { popularMovies ->
+        HomeUiState(popularMovies = popularMovies)
     }.asResult()
         .map { result ->
             when (result) {
@@ -145,27 +103,11 @@ class HomeVM @Inject constructor(
                 is Result.Success -> HomeState.Success(homeUiState = result.data)
                 is Result.Error -> HomeState.Error(result.throwable)
             }
-        }
-        .stateIn(
+        }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.Lazily,
             initialValue = HomeState.Loading
         )
-
-    init {
-        viewModelScope.launch {
-            supervisorScope {
-                _nextWeekReleaseMovies.emit(
-                    value = combine(
-                        flow = databaseRepository.getNextWeekReleaseMovies(),
-                        flow2 = databaseRepository.getNextWeekReleaseTvs()
-                    ) { movies: List<Media>, tvs: List<Media> ->
-                        movies + tvs
-                    }.first().sortedBy { it.releaseDate }
-                )
-            }
-        }
-    }
 
     fun updateTrendingMovieTimeWindow(timeWindow: TimeWindow) {
         when (timeWindow) {
@@ -208,17 +150,6 @@ class HomeVM @Inject constructor(
                     }
                 ).flow
             }.cachedIn(viewModelScope)
-    }
-
-    fun dismissNextWeekReleaseDialog() {
-        dismissedThisSession.value = true
-    }
-
-    fun dontShowNextWeekReleaseDialogToday() {
-        dismissedThisSession.value = true
-        viewModelScope.launch {
-            userDataRepository.updateShowNextReleaseMoviesDate(value = LocalDate.now().toString())
-        }
     }
 }
 

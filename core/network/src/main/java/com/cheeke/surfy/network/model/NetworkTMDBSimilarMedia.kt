@@ -7,38 +7,38 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class NetworkTMDBSimilarMedia(
-    @SerialName("page")
+    @SerialName(value = "page")
     val page: Int? = null,
-    @SerialName("results")
+    @SerialName(value = "results")
     val results: List<NetworkTMDBSimilarMediaResult>? = null,
-    @SerialName("total_pages")
+    @SerialName(value = "total_pages")
     val totalPages: Int? = null,
-    @SerialName("total_results")
+    @SerialName(value = "total_results")
     val totalResults: Int? = null
 )
 
 @Serializable
 data class NetworkTMDBSimilarMediaResult(
     // Movie
-    @SerialName("adult")
+    @SerialName(value = "adult")
     val adult: Boolean? = null,
-    @SerialName("backdrop_path")
+    @SerialName(value = "backdrop_path")
     val backdropPath: String? = null,
-    @SerialName("genre_ids")
+    @SerialName(value = "genre_ids")
     val genreIds: List<Int>? = null,
-    @SerialName("id")
+    @SerialName(value = "id")
     val id: Int? = null,
-    @SerialName("original_language")
+    @SerialName(value = "original_language")
     val originalLanguage: String? = null,
-    @SerialName("original_title")
+    @SerialName(value = "original_title")
     val originalTitle: String? = null,
-    @SerialName("overview")
+    @SerialName(value = "overview")
     val overview: String? = null,
-    @SerialName("popularity")
+    @SerialName(value = "popularity")
     val popularity: Double? = null,
-    @SerialName("poster_path")
+    @SerialName(value = "poster_path")
     val posterPath: String? = null,
-    @SerialName("release_date")
+    @SerialName(value = "release_date")
     val releaseDate: String? = null,
     @SerialName("title")
     val title: String? = null,

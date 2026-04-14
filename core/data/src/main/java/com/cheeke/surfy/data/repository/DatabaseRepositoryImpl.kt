@@ -84,14 +84,14 @@ class DatabaseRepositoryImpl @Inject constructor(
         )
     }
 
-    override fun getPopularMovies(): Flow<List<Movie>> =
+    override suspend fun getPopularMovies(): List<Movie> =
         movieDao.getPopularMovies().map { nowPlayingMovieEntities ->
-            nowPlayingMovieEntities.map(transform = NowPlayingMovieEntity::asExternalModel)
+            nowPlayingMovieEntities.asExternalModel()
         }
 
-    override fun getNextWeekReleaseMovies(): Flow<List<Movie>> =
+    override suspend fun getNextWeekReleaseMovies(): List<Movie> =
         movieDao.getNextWeekReleaseMovies().map { movieEntity ->
-            movieEntity.map(transform = MovieEntity::asExternalModel)
+            movieEntity.asExternalModel()
         }
 
     override fun getPeople(): Flow<List<People>> =
@@ -177,8 +177,8 @@ class DatabaseRepositoryImpl @Inject constructor(
         )
     }
 
-    override fun getNextWeekReleaseTvs(): Flow<List<Tv>> =
+    override suspend fun getNextWeekReleaseTvs(): List<Tv> =
         tvDao.getNextWeekReleaseTvs().map { tvEntity ->
-            tvEntity.map(transform = TvEntity::asExternalModel)
+            tvEntity.asExternalModel()
         }
 }

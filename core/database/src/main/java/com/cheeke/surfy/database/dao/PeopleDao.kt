@@ -13,7 +13,7 @@ interface PeopleDao {
     @Query(value = "SELECT * FROM peoples")
     fun getPeopleEntities(): Flow<List<PeopleEntity>>
 
-    @Query("SELECT EXISTS(SELECT 1 FROM peoples WHERE id = :id)")
+    @Query(value = "SELECT EXISTS(SELECT 1 FROM peoples WHERE id = :id)")
     fun isFavoritePeople(id: Int): Flow<Boolean>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
