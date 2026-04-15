@@ -21,4 +21,7 @@ dependencies {
     }
 
     ksp(libs.hilt.ext.compiler)
+
+    androidTestImplementation(libs.kotlinx.coroutines.test)
+    androidTestImplementation(libs.androidx.work.testing)
 }

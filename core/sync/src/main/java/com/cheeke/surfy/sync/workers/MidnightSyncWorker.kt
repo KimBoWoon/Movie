@@ -41,11 +41,9 @@ class MidnightSyncWorker @AssistedInject constructor(
     private val notifier: Notifier
 ) : CoroutineWorker(appContext, workerParams), Synchronizer {
     companion object {
-        const val WORKER_NAME = "MainSyncWorker"
         const val WORKER_TAG = "MID_NIGHT_SYNC_WORKER"
         const val PERIODIC_WORKER_TAG = "PERIODIC_WORKER_TAG"
         const val EXPEDITED_SYNC_WORK_NAME = "EXPEDITED_SYNC_WORK_NAME"
-        const val IS_FORCE = "IS_FORCE"
 
         fun startUpExpeditedSyncWork(isForce: Boolean = false): OneTimeWorkRequest =
             OneTimeWorkRequestBuilder<DelegatingWorker>()

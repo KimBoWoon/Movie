@@ -555,7 +555,6 @@ private fun TodayRecommendMovieComponent(
 
         snapshotFlow { pagerState.settledPage }
             .collectLatest {
-                Log.d("today recommend movie index -> $it")
                 delay(timeMillis = 2000)
                 val nextPage = (pagerState.settledPage + 1) % movies.size
                 useScroll = false

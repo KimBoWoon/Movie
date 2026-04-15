@@ -19,11 +19,12 @@ interface HiltWorkerFactoryEntryPoint {
 }
 
 private const val WORKER_CLASS_NAME = "MovieInitWorker"
+const val IS_FORCE = "IS_FORCE"
 
 internal fun KClass<out CoroutineWorker>.delegatedData(isForce: Boolean = false) =
     Data.Builder()
         .putString(WORKER_CLASS_NAME, qualifiedName)
-        .putBoolean("IS_FORCE", isForce)
+        .putBoolean(IS_FORCE, isForce)
         .build()
 
 class DelegatingWorker(

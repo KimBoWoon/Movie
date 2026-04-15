@@ -48,7 +48,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -151,7 +150,6 @@ fun SurfyApp(
             }
         }
 
-//        val dialogStrategy = remember { DialogSceneStrategy<NavKey>() }
         val entryProvider = entryProvider {
             movieEntry(
                 goToBack = { navigator.goBack() },
@@ -229,7 +227,6 @@ fun SurfyApp(
         NavDisplay(
             modifier = Modifier.padding(paddingValues = innerPadding),
             entries = navigator.state.toEntries(entryProvider),
-//            sceneStrategy = dialogStrategy,
             onBack = { navigator.goBack() },
         )
     }
@@ -298,7 +295,8 @@ fun MovieSearchTopBar(
                                         }
                                     },
                                 text = stringResource(id = R.string.next_week_release_movie, nextWeekReleaseMovie.title ?: ""),
-                                maxLines = 1
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
                         } else {
                             VerticalRollingAnimation(
@@ -347,8 +345,6 @@ fun MovieBottomBar(
 fun MovieNavigation(
     navigator: Navigator
 ) {
-    val context = LocalContext.current
-
     LocalFirebaseLogHelper.current.sendLog("Navigation", "create navigation bar")
 
     NavigationBar(
@@ -366,7 +362,7 @@ fun MovieNavigation(
         TOP_LEVEL_NAV_ITEMS.forEach { (navKey, navItem) ->
             BottomNavigationBarItem(
                 selected = navKey == navigator.state.topLevelRoute,
-                label = context.getString(navItem.titleTextId),
+                label = stringResource(id = navItem.titleTextId),
                 selectedIcon = navItem.selectedIcon,
                 unSelectedIcon = navItem.unselectedIcon,
                 onClick = { navigator.navigate(route = navKey) }
@@ -448,7 +444,7 @@ fun ReleaseMoviesDialog(
                 }
                 Text(
                     modifier = Modifier.align(Alignment.CenterHorizontally),
-                    text = stringResource(id = com.cheeke.surfy.feature.home.R.string.coming_soon_movie),
+                    text = stringResource(id = R.string.coming_soon_movie),
                     color = Color.Black
                 )
                 Button(
@@ -460,7 +456,7 @@ fun ReleaseMoviesDialog(
                             .fillMaxWidth()
                             .wrapContentHeight()
                             .background(color = MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(size = dp20)),
-                        text = stringResource(id = com.cheeke.surfy.feature.home.R.string.close),
+                        text = stringResource(id = R.string.close),
                         textAlign = TextAlign.Center,
                         fontWeight = FontWeight.Bold,
                         fontSize = sp20,
@@ -473,7 +469,7 @@ fun ReleaseMoviesDialog(
                         .fillMaxWidth()
                         .wrapContentHeight()
                         .clickable { updateShowNextReleaseMoviesDate() },
-                    text = stringResource(id = com.cheeke.surfy.feature.home.R.string.no_show_today),
+                    text = stringResource(id = R.string.no_show_today),
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.Bold,
                     fontSize = sp15,

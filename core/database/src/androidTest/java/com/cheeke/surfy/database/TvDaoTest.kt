@@ -161,14 +161,14 @@ internal class TvDaoTest : DatabaseTest() {
         val tv = favoriteTvs[1].copy(firstAirDate = LocalDate.now().toString())
 
         assertEquals(
-            expected = tvDao.getNextWeekReleaseTvs().first(),
+            expected = tvDao.getNextWeekReleaseTvs(),
             actual = emptyList()
         )
 
         tvDao.insertOrIgnoreTvs(tv = tv)
 
         assertEquals(
-            expected = tvDao.getNextWeekReleaseTvs().first(),
+            expected = tvDao.getNextWeekReleaseTvs(),
             actual = listOf(tv)
         )
     }

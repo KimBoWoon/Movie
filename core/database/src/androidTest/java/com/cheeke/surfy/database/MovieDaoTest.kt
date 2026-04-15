@@ -116,9 +116,9 @@ internal class MovieDaoTest : DatabaseTest() {
             voteAverage = 8.0f,
             voteCount = 864
         )
-        assertEquals(expected = movieDao.getPopularMovies().first(), actual = emptyList())
+        assertEquals(expected = movieDao.getPopularMovies(), actual = emptyList())
         movieDao.upsertNowPlayingMovie(entities = listOf(movie))
-        assertEquals(expected = movieDao.getPopularMovies().first(), actual = listOf(movie))
+        assertEquals(expected = movieDao.getPopularMovies(), actual = listOf(movie))
     }
 
     @Test
@@ -171,14 +171,14 @@ internal class MovieDaoTest : DatabaseTest() {
         val movie = favoriteMovies[1].copy(releaseDate = LocalDate.now().toString())
 
         assertEquals(
-            expected = movieDao.getNextWeekReleaseMovies().first(),
+            expected = movieDao.getNextWeekReleaseMovies(),
             actual = emptyList()
         )
 
         movieDao.insertOrIgnoreMovies(movie = movie)
 
         assertEquals(
-            expected = movieDao.getNextWeekReleaseMovies().first(),
+            expected = movieDao.getNextWeekReleaseMovies(),
             actual = listOf(movie)
         )
     }
