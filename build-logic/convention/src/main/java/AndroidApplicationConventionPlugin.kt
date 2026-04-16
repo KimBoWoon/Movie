@@ -15,6 +15,8 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
         with(receiver = target) {
             apply(plugin = "com.android.application")
 
+            Config.init(rootDir = rootProject.projectDir)
+
             extensions.configure<ApplicationExtension> {
                 defaultConfig {
                     compileSdk = Config.Application.Surfy.compileSdkVersion

@@ -1,12 +1,19 @@
 package com.cheeke.surfy.convention
 
 import java.io.File
-import java.io.FileInputStream
 import java.util.Properties
 
 object Config {
-    private val prop: Properties = Properties().apply {
-        load(FileInputStream(File("./sign", "local.properties")))
+    private lateinit var prop: Properties
+
+    fun init(rootDir: File) {
+        val file = File(rootDir, "sign/local.properties")
+
+        prop = Properties().apply {
+            if (file.exists()) {
+                load(file.inputStream())
+            }
+        }
     }
 
     fun getProp(propertyKey: String): String =
@@ -15,7 +22,7 @@ object Config {
         }.getOrDefault("\"key not found\"")
 
     object ApplicationSetting {
-        const val COMPILE_SDK_VERSION = 36
+        const val COMPILE_SDK_VERSION = 37
         const val MIN_SDK_VERSION = 26
         const val TEST_INSTRUMENTATION_RUNNER = "androidx.test.runner.AndroidJUnitRunner"
         const val SURFY_TEST_INSTRUMENTATION_RUNNER = "androidx.test.runner.AndroidJUnitRunner"
@@ -26,7 +33,7 @@ object Config {
 
     object Library {
         const val MIN_SDK_VERSION = 26
-        const val COMPILE_SDK_VERSION = 36
+        const val COMPILE_SDK_VERSION = 37
     }
 
     sealed class Application(

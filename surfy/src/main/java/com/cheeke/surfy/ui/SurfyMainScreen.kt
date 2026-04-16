@@ -152,7 +152,7 @@ fun SurfyApp(
 
         val entryProvider = entryProvider {
             movieEntry(
-                goToBack = { navigator.goBack() },
+                goToBack = navigator::goBack,
                 goToMovie = navigator::navigateToMovie,
                 goToPeople = navigator::navigateToPeople,
                 goToSeries = navigator::navigateToSeries,
@@ -165,7 +165,7 @@ fun SurfyApp(
                 }
             )
             peopleEntry(
-                goToBack = { navigator.goBack() },
+                goToBack = navigator::goBack,
                 goToMovie = navigator::navigateToMovie,
                 goToTv = navigator::navigateToTv,
                 onShowSnackbar = { message, action ->
@@ -177,11 +177,11 @@ fun SurfyApp(
                 }
             )
             seriesEntry(
-                goToBack = { navigator.goBack() },
+                goToBack = navigator::goBack,
                 goToMovie = navigator::navigateToMovie
             )
             tvEntry(
-                goToBack = { navigator.goBack() },
+                goToBack = navigator::goBack,
                 goToTv = navigator::navigateToTv,
                 goToPeople = navigator::navigateToPeople,
                 onShowSnackbar = { message, action ->
@@ -227,7 +227,7 @@ fun SurfyApp(
         NavDisplay(
             modifier = Modifier.padding(paddingValues = innerPadding),
             entries = navigator.state.toEntries(entryProvider),
-            onBack = { navigator.goBack() },
+            onBack = navigator::goBack
         )
     }
 }
