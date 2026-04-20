@@ -3,6 +3,7 @@ import com.cheeke.surfy.convention.Config
 import com.cheeke.surfy.convention.configureFlavors
 import com.cheeke.surfy.convention.configureKotlinAndroid
 import com.cheeke.surfy.convention.libs
+import com.google.devtools.ksp.gradle.KspExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.apply
@@ -16,6 +17,11 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
             apply(plugin = "com.android.library")
             apply(plugin = "kotlin-parcelize")
             apply(plugin = "org.jetbrains.kotlin.plugin.serialization")
+            apply(plugin = "com.google.devtools.ksp")
+
+            extensions.configure<KspExtension> {
+                arg("circuit.codegen.mode", "hilt")
+            }
 
             extensions.configure<LibraryExtension> {
                 defaultConfig {
@@ -53,6 +59,9 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
             dependencies {
                 "testImplementation"(project(":core:testing"))
                 "androidTestImplementation"(project(":core:testing"))
+                "implementation"(dependency = libs.findLibrary("circuit.foundation").get())
+                "implementation"(dependency = libs.findLibrary("circuit.codegen.annotation").get())
+                "ksp"(dependency = libs.findLibrary("circuit.codegen.ksp").get())
                 "implementation"(dependency = libs.findLibrary("androidx.core.ktx").get())
                 "implementation"(dependency = libs.findLibrary("androidx.appcompat").get())
                 "implementation"(dependency = libs.findLibrary("material").get())

@@ -4,6 +4,7 @@ import com.cheeke.surfy.convention.Config
 import com.cheeke.surfy.convention.Config.getProp
 import com.cheeke.surfy.convention.configureKotlinAndroid
 import com.cheeke.surfy.convention.libs
+import com.google.devtools.ksp.gradle.KspExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.apply
@@ -14,8 +15,13 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(receiver = target) {
             apply(plugin = "com.android.application")
+            apply(plugin = "com.google.devtools.ksp")
 
             Config.init(rootDir = rootProject.projectDir)
+
+            extensions.configure<KspExtension> {
+                arg("circuit.codegen.mode", "hilt")
+            }
 
             extensions.configure<ApplicationExtension> {
                 defaultConfig {
@@ -92,6 +98,9 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
 
             dependencies {
                 "testImplementation"(project(":core:testing"))
+                "implementation"(dependency = libs.findLibrary("circuit.foundation").get())
+                "implementation"(dependency = libs.findLibrary("circuit.codegen.annotation").get())
+                "ksp"(dependency = libs.findLibrary("circuit.codegen.ksp").get())
                 "implementation"(dependency = libs.findLibrary("androidx.compose.material3.icons").get())
                 "implementation"(dependency = libs.findLibrary("androidx.core.ktx").get())
                 "implementation"(dependency = libs.findLibrary("androidx.appcompat").get())

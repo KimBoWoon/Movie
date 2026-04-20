@@ -35,13 +35,12 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cheeke.surfy.analytics.LocalAnalyticsHelper
 import com.cheeke.surfy.analytics.TrackScreenViewEvent
 import com.cheeke.surfy.analytics.logFavorite
 import com.cheeke.surfy.data.util.PEOPLE_IMAGE_RATIO
 import com.cheeke.surfy.data.util.POSTER_IMAGE_RATIO
+import com.cheeke.surfy.favorite.navigation.FavoriteScreen
 import com.cheeke.surfy.feature.favorite.R
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
 import com.cheeke.surfy.model.Movie
@@ -57,46 +56,78 @@ import com.cheeke.surfy.ui.utils.dp4
 import com.cheeke.surfy.ui.utils.dp5
 import com.cheeke.surfy.ui.utils.dp6
 import com.cheeke.surfy.ui.utils.dp999
+import com.slack.circuit.codegen.annotations.CircuitInject
+import dagger.hilt.android.components.ActivityRetainedComponent
 import kotlinx.coroutines.launch
 
+@CircuitInject(FavoriteScreen::class, ActivityRetainedComponent::class)
 @Composable
 fun FavoriteScreen(
-    goToMovie: (Int) -> Unit,
-    goToTv: (Int) -> Unit,
-    goToPeople: (Int) -> Unit,
-    onShowSnackbar: suspend (String, String?) -> Boolean,
-    viewModel: FavoriteVM = hiltViewModel()
+    modifier: Modifier,
+    favoriteUiState: FavoriteUiState
 ) {
     LocalFirebaseLogHelper.current.sendLog("FavoriteScreen", "favorite screen init")
     TrackScreenViewEvent(screenName = "FavoriteScreen")
 
-    val favoriteMovies by viewModel.favoriteMovies.collectAsStateWithLifecycle()
-    val favoriteTvs by viewModel.favoriteTvs.collectAsStateWithLifecycle()
-    val favoritePeoples by viewModel.favoritePeoples.collectAsStateWithLifecycle()
-    val tabIndex by viewModel.tabIndex.collectAsStateWithLifecycle()
+    val favoriteMovies = favoriteUiState.favoriteMovies
+    val favoriteTvs = favoriteUiState.favoriteTvs
+    val favoritePeoples = favoriteUiState.favoritePeoples
+    val tabIndex = favoriteUiState.tabIndex
 
     FavoriteScreen(
         favoriteMovies = favoriteMovies,
         favoriteTvs = favoriteTvs,
         favoritePeoples = favoritePeoples,
-        onShowSnackbar = onShowSnackbar,
+//        onShowSnackbar = onShowSnackbar,
         tabIndex = tabIndex,
-        goToMovie = goToMovie,
-        goToTv = goToTv,
-        goToPeople = goToPeople,
-        updateTabIndex = viewModel::updateTabIndex,
-        deleteFavoriteMovie = viewModel::deleteMovie,
-        deleteFavoriteTv = viewModel::deleteTv,
-        deleteFavoritePeople = viewModel::deletePeople
+        goToMovie = { favoriteUiState.eventSink(FavoriteEvent.GoToMovie(id = it)) },
+        goToTv = { favoriteUiState.eventSink(FavoriteEvent.GoToTv(id = it)) },
+        goToPeople = { favoriteUiState.eventSink(FavoriteEvent.GoToPeople(id = it)) },
+        updateTabIndex = { favoriteUiState.eventSink(FavoriteEvent.UpdateTabIndex(index = it)) },
+        deleteFavoriteMovie = { favoriteUiState.eventSink(FavoriteEvent.DeleteFavoriteMovie(movie = it)) },
+        deleteFavoriteTv = { favoriteUiState.eventSink(FavoriteEvent.DeleteFavoriteTv(tv = it)) },
+        deleteFavoritePeople = { favoriteUiState.eventSink(FavoriteEvent.DeleteFavoritePeople(people = it)) }
     )
 }
+
+//@Composable
+//fun FavoriteScreen(
+//    goToMovie: (Int) -> Unit,
+//    goToTv: (Int) -> Unit,
+//    goToPeople: (Int) -> Unit,
+//    onShowSnackbar: suspend (String, String?) -> Boolean,
+//    viewModel: FavoriteVM = hiltViewModel()
+//) {
+//    LocalFirebaseLogHelper.current.sendLog("FavoriteScreen", "favorite screen init")
+//    TrackScreenViewEvent(screenName = "FavoriteScreen")
+//
+//    val favoriteMovies by viewModel.favoriteMovies.collectAsStateWithLifecycle()
+//    val favoriteTvs by viewModel.favoriteTvs.collectAsStateWithLifecycle()
+//    val favoritePeoples by viewModel.favoritePeoples.collectAsStateWithLifecycle()
+//    val tabIndex by viewModel.tabIndex.collectAsStateWithLifecycle()
+//
+//    FavoriteScreen(
+//        favoriteMovies = favoriteMovies,
+//        favoriteTvs = favoriteTvs,
+//        favoritePeoples = favoritePeoples,
+//        onShowSnackbar = onShowSnackbar,
+//        tabIndex = tabIndex,
+//        goToMovie = goToMovie,
+//        goToTv = goToTv,
+//        goToPeople = goToPeople,
+//        updateTabIndex = viewModel::updateTabIndex,
+//        deleteFavoriteMovie = viewModel::deleteMovie,
+//        deleteFavoriteTv = viewModel::deleteTv,
+//        deleteFavoritePeople = viewModel::deletePeople
+//    )
+//}
 
 @Composable
 fun FavoriteScreen(
     favoriteMovies: List<Movie>,
     favoriteTvs: List<Tv>,
     favoritePeoples: List<People>,
-    onShowSnackbar: suspend (String, String?) -> Boolean,
+//    onShowSnackbar: suspend (String, String?) -> Boolean,
     tabIndex: Int = 0,
     goToMovie: (Int) -> Unit,
     goToTv: (Int) -> Unit,
@@ -114,7 +145,9 @@ fun FavoriteScreen(
         modifier = Modifier.fillMaxSize()
     ) {
         SegmentedTabs(
-            modifier = Modifier.fillMaxWidth().padding(start = dp16, end = dp16, bottom = dp10),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = dp16, end = dp16, bottom = dp10),
             selected = FavoriteTab.entries[tabIndex],
             onSelected = { favoriteTabs ->
                 val index = FavoriteTab.entries.indexOfFirst { it.stringId == favoriteTabs.stringId }
@@ -159,9 +192,9 @@ fun FavoriteScreen(
                                     isFavorite = true,
                                     onClick = {
                                         deleteFavoriteMovie(movieDetail)
-                                        scope.launch {
-                                            onShowSnackbar(removeFavoriteText, null)
-                                        }
+//                                        scope.launch {
+//                                            onShowSnackbar(removeFavoriteText, null)
+//                                        }
                                         analyticsHelper.logFavorite(isFavorite = false, contentType = "movie", media = movieDetail)
                                     }
                                 )
@@ -206,9 +239,9 @@ fun FavoriteScreen(
                                     isFavorite = true,
                                     onClick = {
                                         deleteFavoriteTv(tv)
-                                        scope.launch {
-                                            onShowSnackbar(removeFavoriteText, null)
-                                        }
+//                                        scope.launch {
+//                                            onShowSnackbar(removeFavoriteText, null)
+//                                        }
                                         analyticsHelper.logFavorite(isFavorite = false, contentType = "tv", media = tv)
                                     }
                                 )
@@ -256,9 +289,9 @@ fun FavoriteScreen(
                                         isFavorite = true,
                                         onClick = {
                                             deleteFavoritePeople(peopleDetail)
-                                            scope.launch {
-                                                onShowSnackbar(removeFavoriteText, null)
-                                            }
+//                                            scope.launch {
+//                                                onShowSnackbar(removeFavoriteText, null)
+//                                            }
                                             analyticsHelper.logFavorite(isFavorite = false, contentType = "people", media = peopleDetail)
                                         }
                                     )

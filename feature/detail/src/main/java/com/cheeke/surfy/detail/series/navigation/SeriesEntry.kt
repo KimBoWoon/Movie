@@ -1,37 +1,38 @@
 package com.cheeke.surfy.detail.series.navigation
 
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.navigation3.runtime.EntryProviderScope
-import androidx.navigation3.runtime.NavKey
-import com.cheeke.surfy.detail.series.SeriesScreen
-import com.cheeke.surfy.detail.series.SeriesVM
-import com.cheeke.surfy.navigation.Navigator
-import kotlinx.serialization.Serializable
+import com.slack.circuit.runtime.Navigator
+import com.slack.circuit.runtime.screen.Screen
+import kotlinx.parcelize.Parcelize
 
-@Serializable
-data class SeriesNavKey(
-    val id: Int
-) : NavKey
+@Parcelize
+data class SeriesScreen(val id: Int) : Screen
 
-fun EntryProviderScope<NavKey>.seriesEntry(
-    goToBack: () -> Unit,
-    goToMovie: (Int) -> Unit
-) {
-    entry<SeriesNavKey> { seriesRoute ->
-        SeriesScreen(
-            goToBack = goToBack,
-            goToMovie = goToMovie,
-            viewModel = hiltViewModel<SeriesVM, SeriesVM.Factory>(
-                key = seriesRoute.id.toString(),
-            ) { factory ->
-                factory.create(id = seriesRoute.id)
-            }
-        )
-    }
-}
+fun Navigator.goToSeries(id: Int) { goTo(screen = SeriesScreen(id = id)) }
 
-fun Navigator.navigateToSeries(
-    id: Int
-) {
-    navigate(route = SeriesNavKey(id = id))
-}
+//@Serializable
+//data class SeriesNavKey(
+//    val id: Int
+//) : NavKey
+//
+//fun EntryProviderScope<NavKey>.seriesEntry(
+//    goToBack: () -> Unit,
+//    goToMovie: (Int) -> Unit
+//) {
+//    entry<SeriesNavKey> { seriesRoute ->
+//        SeriesScreen(
+//            goToBack = goToBack,
+//            goToMovie = goToMovie,
+//            viewModel = hiltViewModel<SeriesVM, SeriesVM.Factory>(
+//                key = seriesRoute.id.toString(),
+//            ) { factory ->
+//                factory.create(id = seriesRoute.id)
+//            }
+//        )
+//    }
+//}
+//
+//fun Navigator.navigateToSeries(
+//    id: Int
+//) {
+//    navigate(route = SeriesNavKey(id = id))
+//}

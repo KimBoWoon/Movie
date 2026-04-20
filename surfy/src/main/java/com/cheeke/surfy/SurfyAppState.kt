@@ -5,10 +5,6 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import com.cheeke.surfy.data.util.NetworkMonitor
-import com.cheeke.surfy.home.navigation.HomeNavKey
-import com.cheeke.surfy.navigation.TOP_LEVEL_NAV_ITEMS
-import com.cheeke.surfy.navigation.NavigationState
-import com.cheeke.surfy.navigation.rememberNavigationState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
@@ -19,11 +15,11 @@ fun rememberSurfyAppState(
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     networkMonitor: NetworkMonitor
 ): SurfyAppState {
-    val navigationState = rememberNavigationState(startRoute = HomeNavKey, topLevelRoutes = TOP_LEVEL_NAV_ITEMS.keys)
+//    val navigationState = rememberNavigationState(startRoute = HomeNavKey, topLevelRoutes = TOP_LEVEL_NAV_ITEMS.keys)
 
-    return remember(key1 = coroutineScope, key2 = networkMonitor, key3 = navigationState) {
+    return remember(key1 = coroutineScope, key2 = networkMonitor/*, key3 = navigationState*/) {
         SurfyAppState(
-            navigationState = navigationState,
+//            navigationState = navigationState,
             coroutineScope = coroutineScope,
             networkMonitor = networkMonitor
         )
@@ -32,7 +28,7 @@ fun rememberSurfyAppState(
 
 @Stable
 class SurfyAppState(
-    val navigationState: NavigationState,
+//    val navigationState: NavigationState,
     val coroutineScope: CoroutineScope,
     val networkMonitor: NetworkMonitor
 ) {

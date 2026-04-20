@@ -9,7 +9,7 @@ googleService = "4.4.4"
 agp = "9.1.1"
 
 # ksp
-ksp = "2.3.4"
+ksp = "2.3.6"
 
 # jvm
 jetbrainsKotlinJvm = "2.3.20"
@@ -104,6 +104,9 @@ youtubePlayer = "13.0.0"
 lottieCompose = "6.7.1"
 uiautomator = "2.3.0"
 benchmarkMacroJunit4 = "1.4.1"
+
+# circuit
+circuit = "0.33.1"
 
 [libraries]
 # gradle plugin
@@ -244,6 +247,12 @@ ksp-gradlePlugin = { group = "com.google.devtools.ksp", name = "com.google.devto
 room-gradlePlugin = { group = "androidx.room", name = "room-gradle-plugin", version.ref = "room" }
 androidx-uiautomator = { group = "androidx.test.uiautomator", name = "uiautomator", version.ref = "uiautomator" }
 androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "benchmarkMacroJunit4" }
+
+# circuit
+circuit-foundation = { module = "com.slack.circuit:circuit-foundation", version.ref = "circuit" }
+circuit-codegen-annotation = { module = "com.slack.circuit:circuit-codegen-annotations", version.ref = "circuit" }
+circuit-codegen-ksp = { module = "com.slack.circuit:circuit-codegen", version.ref = "circuit" }
+circuitx-android = { module = "com.slack.circuit:circuitx-android", version.ref = "circuit" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

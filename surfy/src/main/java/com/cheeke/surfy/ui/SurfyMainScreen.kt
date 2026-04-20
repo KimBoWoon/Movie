@@ -33,11 +33,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarDuration.Indefinite
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -58,31 +56,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation3.runtime.entryProvider
-import androidx.navigation3.ui.NavDisplay
 import com.cheeke.surfy.R
 import com.cheeke.surfy.SurfyAppState
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.data.util.POSTER_IMAGE_RATIO
-import com.cheeke.surfy.detail.movie.navigation.MovieNavKey
-import com.cheeke.surfy.detail.movie.navigation.movieEntry
-import com.cheeke.surfy.detail.movie.navigation.navigateToMovie
-import com.cheeke.surfy.detail.people.navigation.navigateToPeople
-import com.cheeke.surfy.detail.people.navigation.peopleEntry
-import com.cheeke.surfy.detail.series.navigation.navigateToSeries
-import com.cheeke.surfy.detail.series.navigation.seriesEntry
-import com.cheeke.surfy.detail.tv.navigation.navigateToTv
-import com.cheeke.surfy.detail.tv.navigation.tvEntry
-import com.cheeke.surfy.favorite.navigation.favoriteEntry
+import com.cheeke.surfy.detail.movie.navigation.MovieScreen
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
-import com.cheeke.surfy.home.navigation.homeEntry
 import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.model.MediaType
-import com.cheeke.surfy.navigation.Navigator
-import com.cheeke.surfy.navigation.TOP_LEVEL_NAV_ITEMS
-import com.cheeke.surfy.navigation.toEntries
-import com.cheeke.surfy.search.navigation.SearchNavKey
-import com.cheeke.surfy.search.navigation.searchEntry
+import com.cheeke.surfy.navigation.TopLevelDestination
+import com.cheeke.surfy.search.navigation.SearchScreen
 import com.cheeke.surfy.ui.dialog.Indexer
 import com.cheeke.surfy.ui.image.DynamicAsyncImageLoader
 import com.cheeke.surfy.ui.utils.Line
@@ -100,10 +83,14 @@ import com.cheeke.surfy.ui.utils.roundedCornerClickable
 import com.cheeke.surfy.ui.utils.sp15
 import com.cheeke.surfy.ui.utils.sp20
 import com.cheeke.surfy.utils.VerticalRollingAnimation
+import com.slack.circuit.backstack.SaveableBackStack
+import com.slack.circuit.foundation.NavigableCircuitContent
 
 @Composable
 fun SurfyApp(
-    navigator: Navigator,
+//    navigator: Navigator,
+    navigator: com.slack.circuit.runtime.Navigator,
+    backStack: SaveableBackStack,
     appState: SurfyAppState,
     snackbarHostState: SnackbarHostState,
     nextWeekReleaseMovies: List<Media>,
@@ -111,9 +98,10 @@ fun SurfyApp(
 ) {
     val isTopLevelRoute by remember {
         derivedStateOf {
-            navigator.state.backStacks[navigator.state.topLevelRoute]
-                ?.lastOrNull()
-                ?.javaClass in TOP_LEVEL_NAV_ITEMS.map { it.key.javaClass }
+            navigator.peek() in TopLevelDestination.entries.map { it.screen }
+//            navigator.state.backStacks[navigator.state.topLevelRoute]
+//                ?.lastOrNull()
+//                ?.javaClass in TopLevelDestination.entries.map { it.javaClass }
         }
     }
 
@@ -150,91 +138,97 @@ fun SurfyApp(
             }
         }
 
-        val entryProvider = entryProvider {
-            movieEntry(
-                goToBack = navigator::goBack,
-                goToMovie = navigator::navigateToMovie,
-                goToPeople = navigator::navigateToPeople,
-                goToSeries = navigator::navigateToSeries,
-                onShowSnackbar = { message, action ->
-                    snackbarHostState.showSnackbar(
-                        message = message,
-                        actionLabel = action,
-                        duration = SnackbarDuration.Short,
-                    ) == SnackbarResult.ActionPerformed
-                }
-            )
-            peopleEntry(
-                goToBack = navigator::goBack,
-                goToMovie = navigator::navigateToMovie,
-                goToTv = navigator::navigateToTv,
-                onShowSnackbar = { message, action ->
-                    snackbarHostState.showSnackbar(
-                        message = message,
-                        actionLabel = action,
-                        duration = SnackbarDuration.Short,
-                    ) == SnackbarResult.ActionPerformed
-                }
-            )
-            seriesEntry(
-                goToBack = navigator::goBack,
-                goToMovie = navigator::navigateToMovie
-            )
-            tvEntry(
-                goToBack = navigator::goBack,
-                goToTv = navigator::navigateToTv,
-                goToPeople = navigator::navigateToPeople,
-                onShowSnackbar = { message, action ->
-                    snackbarHostState.showSnackbar(
-                        message = message,
-                        actionLabel = action,
-                        duration = SnackbarDuration.Short,
-                    ) == SnackbarResult.ActionPerformed
-                }
-            )
-            favoriteEntry(
-                goToMovie = navigator::navigateToMovie,
-                goToTv = navigator::navigateToTv,
-                goToPeople = navigator::navigateToPeople,
-                onShowSnackbar = { message, action ->
-                    snackbarHostState.showSnackbar(
-                        message = message,
-                        actionLabel = action,
-                        duration = SnackbarDuration.Short,
-                    ) == SnackbarResult.ActionPerformed
-                }
-            )
-            homeEntry(
-                goToMovie = navigator::navigateToMovie,
-                goToPeople = navigator::navigateToPeople,
-                goToTv = navigator::navigateToTv
-            )
-            searchEntry(
-                goToMovie = navigator::navigateToMovie,
-                goToTv = navigator::navigateToTv,
-                goToPeople = navigator::navigateToPeople,
-                goToSeries = navigator::navigateToSeries,
-                onShowSnackbar = { message, action ->
-                    snackbarHostState.showSnackbar(
-                        message = message,
-                        actionLabel = action,
-                        duration = SnackbarDuration.Short,
-                    ) == SnackbarResult.ActionPerformed
-                }
-            )
-        }
+//        val entryProvider = entryProvider {
+//            movieEntry(
+//                goToBack = navigator::goBack,
+//                goToMovie = navigator::navigateToMovie,
+//                goToPeople = navigator::navigateToPeople,
+//                goToSeries = navigator::navigateToSeries,
+//                onShowSnackbar = { message, action ->
+//                    snackbarHostState.showSnackbar(
+//                        message = message,
+//                        actionLabel = action,
+//                        duration = SnackbarDuration.Short,
+//                    ) == SnackbarResult.ActionPerformed
+//                }
+//            )
+//            peopleEntry(
+//                goToBack = navigator::goBack,
+//                goToMovie = navigator::navigateToMovie,
+//                goToTv = navigator::navigateToTv,
+//                onShowSnackbar = { message, action ->
+//                    snackbarHostState.showSnackbar(
+//                        message = message,
+//                        actionLabel = action,
+//                        duration = SnackbarDuration.Short,
+//                    ) == SnackbarResult.ActionPerformed
+//                }
+//            )
+//            seriesEntry(
+//                goToBack = navigator::goBack,
+//                goToMovie = navigator::navigateToMovie
+//            )
+//            tvEntry(
+//                goToBack = navigator::goBack,
+//                goToTv = navigator::navigateToTv,
+//                goToPeople = navigator::navigateToPeople,
+//                onShowSnackbar = { message, action ->
+//                    snackbarHostState.showSnackbar(
+//                        message = message,
+//                        actionLabel = action,
+//                        duration = SnackbarDuration.Short,
+//                    ) == SnackbarResult.ActionPerformed
+//                }
+//            )
+//            favoriteEntry(
+//                goToMovie = navigator::navigateToMovie,
+//                goToTv = navigator::navigateToTv,
+//                goToPeople = navigator::navigateToPeople,
+//                onShowSnackbar = { message, action ->
+//                    snackbarHostState.showSnackbar(
+//                        message = message,
+//                        actionLabel = action,
+//                        duration = SnackbarDuration.Short,
+//                    ) == SnackbarResult.ActionPerformed
+//                }
+//            )
+//            homeEntry(
+//                goToMovie = navigator::navigateToMovie,
+//                goToPeople = navigator::navigateToPeople,
+//                goToTv = navigator::navigateToTv
+//            )
+//            searchEntry(
+//                goToMovie = navigator::navigateToMovie,
+//                goToTv = navigator::navigateToTv,
+//                goToPeople = navigator::navigateToPeople,
+//                goToSeries = navigator::navigateToSeries,
+//                onShowSnackbar = { message, action ->
+//                    snackbarHostState.showSnackbar(
+//                        message = message,
+//                        actionLabel = action,
+//                        duration = SnackbarDuration.Short,
+//                    ) == SnackbarResult.ActionPerformed
+//                }
+//            )
+//        }
 
-        NavDisplay(
+//        NavDisplay(
+//            modifier = Modifier.padding(paddingValues = innerPadding),
+//            entries = navigator.state.toEntries(entryProvider),
+//            onBack = navigator::goBack
+//        )
+
+        NavigableCircuitContent(
             modifier = Modifier.padding(paddingValues = innerPadding),
-            entries = navigator.state.toEntries(entryProvider),
-            onBack = navigator::goBack
+            navigator = navigator,
+            backStack = backStack
         )
     }
 }
 
 @Composable
 fun MovieSearchTopBar(
-    navigator: Navigator,
+    navigator: com.slack.circuit.runtime.Navigator,
     isTopLevelRoute: Boolean,
     nextWeekReleaseMovies: List<Media>,
     showSettingDialog: () -> Unit
@@ -257,7 +251,7 @@ fun MovieSearchTopBar(
                         .height(height = dp40)
                         .clip(shape = RoundedCornerShape(percent = 50))
                         .background(color = MaterialTheme.colorScheme.inverseOnSurface)
-                        .roundedCornerClickable(onClick = { navigator.navigate(route = SearchNavKey()) }),
+                        .roundedCornerClickable(onClick = { navigator.goTo(screen = SearchScreen()) }),
                     contentAlignment = Alignment.Center
                 ) {
                     Row(
@@ -269,7 +263,7 @@ fun MovieSearchTopBar(
                                 .wrapContentSize()
                                 .padding(start = dp20)
                                 .align(Alignment.CenterVertically)
-                                .clickable { navigator.navigate(route = SearchNavKey()) },
+                                .clickable { navigator.goTo(screen = SearchScreen()) },
                             imageVector = Icons.Default.Search,
                             contentDescription = "goToSearch",
                             tint = MaterialTheme.colorScheme.onSurface
@@ -291,7 +285,7 @@ fun MovieSearchTopBar(
                                     .wrapContentWidth()
                                     .clickable {
                                         nextWeekReleaseMovie.id?.let { id ->
-                                            navigator.navigate(route = MovieNavKey(id = id))
+                                            navigator.goTo(screen = MovieScreen(id = id))
                                         }
                                     },
                                 text = stringResource(id = R.string.next_week_release_movie, nextWeekReleaseMovie.title ?: ""),
@@ -303,7 +297,7 @@ fun MovieSearchTopBar(
                                 modifier = Modifier.padding(start = dp10, end = dp20),
                                 nextWeekReleaseMovies = nextWeekReleaseMovies,
                                 goToMovie = { id ->
-                                    navigator.navigate(route = MovieNavKey(id = id))
+                                    navigator.goTo(screen = MovieScreen(id = id))
                                 }
                             )
                         }
@@ -325,7 +319,7 @@ fun MovieSearchTopBar(
 
 @Composable
 fun MovieBottomBar(
-    navigator: Navigator,
+    navigator: com.slack.circuit.runtime.Navigator,
     isTopLevelRoute: Boolean
 ) {
     AnimatedVisibility(
@@ -343,7 +337,7 @@ fun MovieBottomBar(
 
 @Composable
 fun MovieNavigation(
-    navigator: Navigator
+    navigator: com.slack.circuit.runtime.Navigator
 ) {
     LocalFirebaseLogHelper.current.sendLog("Navigation", "create navigation bar")
 
@@ -359,13 +353,13 @@ fun MovieNavigation(
         containerColor = MovieNavigationDefaults.navigationContainerColor(),
         contentColor = MovieNavigationDefaults.navigationContentColor()
     ) {
-        TOP_LEVEL_NAV_ITEMS.forEach { (navKey, navItem) ->
+        TopLevelDestination.entries.forEach { navItem ->
             BottomNavigationBarItem(
-                selected = navKey == navigator.state.topLevelRoute,
+                selected = navItem.screen == navigator.peek(),
                 label = stringResource(id = navItem.titleTextId),
                 selectedIcon = navItem.selectedIcon,
                 unSelectedIcon = navItem.unselectedIcon,
-                onClick = { navigator.navigate(route = navKey) }
+                onClick = { navigator.goTo(screen = navItem.screen) }
             )
         }
     }

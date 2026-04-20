@@ -42,7 +42,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -65,11 +64,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.flowWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -84,6 +79,7 @@ import com.cheeke.surfy.model.MediaType
 import com.cheeke.surfy.model.SearchKeyword
 import com.cheeke.surfy.model.SearchType
 import com.cheeke.surfy.model.SurfyAppData
+import com.cheeke.surfy.search.navigation.SearchScreen
 import com.cheeke.surfy.ui.components.CircularProgressComponent
 import com.cheeke.surfy.ui.components.FilterChipComponent
 import com.cheeke.surfy.ui.components.PagingAppendErrorComponent
@@ -106,56 +102,100 @@ import com.cheeke.surfy.ui.utils.matchedColorString
 import com.cheeke.surfy.ui.utils.roundedCornerClickable
 import com.cheeke.surfy.ui.utils.sp12
 import com.cheeke.surfy.ui.utils.sp20
+import com.slack.circuit.codegen.annotations.CircuitInject
+import dagger.hilt.android.components.ActivityRetainedComponent
 import kotlinx.coroutines.launch
 
+@CircuitInject(screen = SearchScreen::class, scope = ActivityRetainedComponent::class)
 @Composable
 fun SearchScreen(
-    goToMovie: (Int) -> Unit,
-    goToTv: (Int) -> Unit,
-    goToPeople: (Int) -> Unit,
-    goToSeries: (Int) -> Unit,
-    onShowSnackbar: suspend (String, String?) -> Boolean,
-    viewModel: SearchVM = hiltViewModel()
+    modifier: Modifier,
+    searchUiState: SearchUiState
 ) {
     LocalFirebaseLogHelper.current.sendLog("SearchScreen", "search screen init")
     TrackScreenViewEvent(screenName = "SearchScreen")
 
-    val searchUiState by viewModel.searchResult.collectAsStateWithLifecycle()
-    val selectedGenre by viewModel.selectedGenre.collectAsStateWithLifecycle()
-    val searchType by viewModel.searchType.collectAsStateWithLifecycle()
-    val recommendKeyword = viewModel.recommendKeywordPaging.collectAsLazyPagingItems()
+    val searchState = searchUiState.searchState
+    val selectedGenre = searchUiState.genre
+    val searchType = searchUiState.searchType
+    val recommendKeyword = searchUiState.recommendItems
     val inputKeyword = stringResource(id = R.string.input_keyword)
-    val movieAppData by viewModel.surfyAppData.collectAsStateWithLifecycle()
+    val movieAppData = searchUiState.surfyAppData
     val lifecycle = LocalLifecycleOwner.current.lifecycle
-    val query by viewModel.query.collectAsStateWithLifecycle()
+    val query = searchUiState.query
 
-    LaunchedEffect(key1 = Unit) {
-        viewModel.showSnackbar
-            .flowWithLifecycle(lifecycle = lifecycle, minActiveState = Lifecycle.State.STARTED)
-            .collect { onShowSnackbar(inputKeyword, null) }
-    }
+//    LaunchedEffect(key1 = Unit) {
+//        searchUiState.showSnackbar
+//            .flowWithLifecycle(lifecycle = lifecycle, minActiveState = Lifecycle.State.STARTED)
+//            .collect { onShowSnackbar(inputKeyword, null) }
+//    }
 
     SearchScreen(
-        searchUiState = searchUiState,
+        searchState = searchState,
         recommendKeyword = recommendKeyword,
         query = query,
         searchType = searchType,
         surfyAppData = movieAppData,
         selectedGenre = selectedGenre,
-        goToMovie = goToMovie,
-        goToTv = goToTv,
-        goToPeople = goToPeople,
-        goToSeries = goToSeries,
-        onSearchClick = viewModel::searchMovies,
-        updateKeyword = viewModel::updateQuery,
-        updateSearchType = viewModel::updateSearchType,
-        updateGenre = viewModel::updateGenre
+        goToMovie = { searchUiState.eventSink(SearchEvent.GoToMovie(id = it)) },
+        goToTv = { searchUiState.eventSink(SearchEvent.GoToTv(id = it)) },
+        goToPeople = { searchUiState.eventSink(SearchEvent.GoToPeople(id = it)) },
+        goToSeries = { searchUiState.eventSink(SearchEvent.GoToSeries(id = it)) },
+        onSearchClick = { searchUiState.eventSink(SearchEvent.SearchMovies) },
+        updateKeyword = { searchUiState.eventSink(SearchEvent.UpdateQuery(query = it)) },
+        updateSearchType = { searchUiState.eventSink(SearchEvent.UpdateSearchType(searchType = it)) },
+        updateGenre = { searchUiState.eventSink(SearchEvent.UpdateGenre(genre = it)) }
     )
 }
 
+//@Composable
+//fun SearchScreen(
+//    goToMovie: (Int) -> Unit,
+//    goToTv: (Int) -> Unit,
+//    goToPeople: (Int) -> Unit,
+//    goToSeries: (Int) -> Unit,
+//    onShowSnackbar: suspend (String, String?) -> Boolean,
+//    viewModel: SearchVM = hiltViewModel()
+//) {
+//    LocalFirebaseLogHelper.current.sendLog("SearchScreen", "search screen init")
+//    TrackScreenViewEvent(screenName = "SearchScreen")
+//
+//    val searchUiState by viewModel.searchResult.collectAsStateWithLifecycle()
+//    val selectedGenre by viewModel.selectedGenre.collectAsStateWithLifecycle()
+//    val searchType by viewModel.searchType.collectAsStateWithLifecycle()
+//    val recommendKeyword = viewModel.recommendKeywordPaging.collectAsLazyPagingItems()
+//    val inputKeyword = stringResource(id = R.string.input_keyword)
+//    val movieAppData by viewModel.surfyAppData.collectAsStateWithLifecycle()
+//    val lifecycle = LocalLifecycleOwner.current.lifecycle
+//    val query by viewModel.query.collectAsStateWithLifecycle()
+//
+//    LaunchedEffect(key1 = Unit) {
+//        viewModel.showSnackbar
+//            .flowWithLifecycle(lifecycle = lifecycle, minActiveState = Lifecycle.State.STARTED)
+//            .collect { onShowSnackbar(inputKeyword, null) }
+//    }
+//
+//    SearchScreen(
+//        searchUiState = searchUiState,
+//        recommendKeyword = recommendKeyword,
+//        query = query,
+//        searchType = searchType,
+//        surfyAppData = movieAppData,
+//        selectedGenre = selectedGenre,
+//        goToMovie = goToMovie,
+//        goToTv = goToTv,
+//        goToPeople = goToPeople,
+//        goToSeries = goToSeries,
+//        onSearchClick = viewModel::searchMovies,
+//        updateKeyword = viewModel::updateQuery,
+//        updateSearchType = viewModel::updateSearchType,
+//        updateGenre = viewModel::updateGenre
+//    )
+//}
+
 @Composable
 fun SearchScreen(
-    searchUiState: SearchUiState,
+    searchState: SearchState,
     recommendKeyword: LazyPagingItems<SearchKeyword>,
     query: TextFieldValue,
     searchType: SearchType,
@@ -199,7 +239,7 @@ fun SearchScreen(
         } else {
             focusManager.clearFocus()
             SearchResultComponent(
-                searchUiState = searchUiState,
+                searchUiState = searchState,
                 scrollState = scrollState,
                 searchType = searchType,
                 goToMovie = goToMovie,
@@ -410,7 +450,7 @@ fun SearchTypeComponent(
 
 @Composable
 fun SearchResultComponent(
-    searchUiState: SearchUiState,
+    searchUiState: SearchState,
     scrollState: LazyGridState,
     searchType: SearchType,
     goToMovie: (Int) -> Unit,
@@ -426,14 +466,14 @@ fun SearchResultComponent(
         contentAlignment = Alignment.Center
     ) {
         when (searchUiState) {
-            is SearchUiState.SearchHint -> {
+            is SearchState.SearchHint -> {
                 Text(
                     modifier = Modifier.align(Alignment.Center),
                     text = stringResource(id = R.string.do_search),
                     style = MaterialTheme.typography.headlineMedium
                 )
             }
-            is SearchUiState.Success -> {
+            is SearchState.Success -> {
                 val pagingData = searchUiState.pagingData.collectAsLazyPagingItems()
 
                 if (pagingData.loadState.refresh is LoadState.Loading) {
@@ -468,7 +508,7 @@ fun SearchResultComponent(
                     }
                 }
             }
-            is SearchUiState.Error -> {
+            is SearchState.Error -> {
                 LocalFirebaseLogHelper.current.sendLog("SearchResultPaging", searchUiState.throwable.message ?: stringResource(com.cheeke.surfy.core.network.R.string.something_wrong))
 
                 ConfirmDialog(

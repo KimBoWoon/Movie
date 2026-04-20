@@ -31,12 +31,13 @@ import com.cheeke.surfy.common.AppDoubleBackToExit
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.common.isSystemInDarkTheme
 import com.cheeke.surfy.data.util.NetworkMonitor
-import com.cheeke.surfy.deeplink.parseDeeplink
-import com.cheeke.surfy.detail.movie.navigation.navigateToMovie
-import com.cheeke.surfy.detail.tv.navigation.navigateToTv
+import com.cheeke.surfy.detail.movie.navigation.goToMovie
+import com.cheeke.surfy.detail.tv.navigation.goToTv
+import com.cheeke.surfy.factory.SurfyPresenterFactory
+import com.cheeke.surfy.factory.SurfyScreenFactory
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
-import com.cheeke.surfy.navigation.Navigator
-import com.cheeke.surfy.navigation.TOP_LEVEL_NAV_ITEMS
+import com.cheeke.surfy.home.navigation.HomeScreen
+import com.cheeke.surfy.navigation.TopLevelDestination
 import com.cheeke.surfy.rememberSurfyAppState
 import com.cheeke.surfy.setting.SettingScreen
 import com.cheeke.surfy.setting.SettingVM
@@ -45,6 +46,10 @@ import com.cheeke.surfy.ui.ReleaseMoviesDialog
 import com.cheeke.surfy.ui.SurfyApp
 import com.cheeke.surfy.ui.theme.SurfyTheme
 import com.cheeke.surfy.utils.isSystemInDarkTheme
+import com.slack.circuit.backstack.rememberSaveableBackStack
+import com.slack.circuit.foundation.Circuit
+import com.slack.circuit.foundation.CircuitCompositionLocals
+import com.slack.circuit.foundation.rememberCircuitNavigator
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -71,14 +76,18 @@ class MainActivity : ComponentActivity() {
         )
     }
     private var deeplinkBackstack by mutableStateOf<List<NavKey>>(value = emptyList())
+    @Inject
+    lateinit var surfyPresenterFactory: SurfyPresenterFactory
+    @Inject
+    lateinit var surfyScreenFactory: SurfyScreenFactory
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
 
-        intent?.let {
-            deeplinkBackstack = parseDeeplink(uri = intent.data)
-        }
+//        intent?.let {
+//            deeplinkBackstack = parseDeeplink(uri = intent.data)
+//        }
 
         onBackPressedDispatcher.addCallback(
             onBackPressedCallback = object : OnBackPressedCallback(enabled = true) {
@@ -120,47 +129,98 @@ class MainActivity : ComponentActivity() {
         splashScreen.setKeepOnScreenCondition { viewModel.surfyAppData.value.shouldKeepSplashScreen() }
 
         setContent {
-            CompositionLocalProvider(
-                LocalFirebaseLogHelper provides surfyFirebase,
-                LocalAnalyticsHelper provides analyticsHelper
-            ) {
-                LocalFirebaseLogHelper.current.sendLog(name = javaClass.simpleName, message = "compose start!")
+            val backStack = rememberSaveableBackStack(root = HomeScreen)
+            val navigator = rememberCircuitNavigator(backStack)
+            val circuit = Circuit.Builder()
+                .addUiFactory(surfyScreenFactory)
+                .addPresenterFactory(surfyPresenterFactory)
+                .build()
 
-                val nextWeekReleaseDialogItems by viewModel.nextWeekReleaseMedias.collectAsStateWithLifecycle()
-                val shouldShowNextWeekReleaseDialog by viewModel.shouldShowNextWeekReleaseDialog.collectAsStateWithLifecycle()
+            CircuitCompositionLocals(circuit = circuit) {
+                CompositionLocalProvider(
+                    LocalFirebaseLogHelper provides surfyFirebase,
+                    LocalAnalyticsHelper provides analyticsHelper
+                ) {
+                    LocalFirebaseLogHelper.current.sendLog(name = javaClass.simpleName, message = "compose start!")
 
-                SurfyTheme(darkTheme = darkTheme) {
-                    val appState = rememberSurfyAppState(networkMonitor = networkMonitor)
-                    val navigator = remember { Navigator(state = appState.navigationState) }
-                    val snackbarHostState = remember { SnackbarHostState() }
+                    val nextWeekReleaseDialogItems by viewModel.nextWeekReleaseMedias.collectAsStateWithLifecycle()
+                    val shouldShowNextWeekReleaseDialog by viewModel.shouldShowNextWeekReleaseDialog.collectAsStateWithLifecycle()
 
-                    LaunchedEffect(key1 = deeplinkBackstack) {
-                        if (deeplinkBackstack.isNotEmpty()) {
-                            navigationSetting(appState = appState)
+                    SurfyTheme(darkTheme = darkTheme) {
+                        val appState = rememberSurfyAppState(networkMonitor = networkMonitor)
+//                        val navigator = remember { Navigator(state = appState.navigationState) }
+                        val snackbarHostState = remember { SnackbarHostState() }
+
+                        LaunchedEffect(key1 = deeplinkBackstack) {
+                            if (deeplinkBackstack.isNotEmpty()) {
+                                navigationSetting(appState = appState)
+                            }
                         }
-                    }
 
-                    if (shouldShowNextWeekReleaseDialog) {
-                        ReleaseMoviesDialog(
-                            releaseMovies = nextWeekReleaseDialogItems,
-                            goToMovie = { id -> navigator.navigateToMovie(id = id) },
-                            goToTv = { id -> navigator.navigateToTv(id = id) },
-                            updateShowNextReleaseMoviesDate = viewModel::dontShowNextWeekReleaseDialogToday,
-                            dismissNextWeekReleaseDialog = viewModel::dismissNextWeekReleaseDialog
+                        if (shouldShowNextWeekReleaseDialog) {
+                            ReleaseMoviesDialog(
+                                releaseMovies = nextWeekReleaseDialogItems,
+                                goToMovie = { id -> navigator.goToMovie(id = id) },
+                                goToTv = { id -> navigator.goToTv(id = id) },
+                                updateShowNextReleaseMoviesDate = viewModel::dontShowNextWeekReleaseDialogToday,
+                                dismissNextWeekReleaseDialog = viewModel::dismissNextWeekReleaseDialog
+                            )
+                        }
+
+                        SurfyApp(
+                            navigator = navigator,
+                            backStack = backStack,
+                            appState = appState,
+                            snackbarHostState = snackbarHostState,
+                            nextWeekReleaseMovies = nextWeekReleaseDialogItems,
+                            showSettingDialog = { settingVM.onAction(action = SettingsAction.OpenMain) }
                         )
+
+                        SettingScreen(viewModel = settingVM)
                     }
-
-                    SurfyApp(
-                        navigator = navigator,
-                        appState = appState,
-                        snackbarHostState = snackbarHostState,
-                        nextWeekReleaseMovies = nextWeekReleaseDialogItems,
-                        showSettingDialog = { settingVM.onAction(action = SettingsAction.OpenMain) }
-                    )
-
-                    SettingScreen(viewModel = settingVM)
                 }
             }
+//            CompositionLocalProvider(
+//                LocalFirebaseLogHelper provides surfyFirebase,
+//                LocalAnalyticsHelper provides analyticsHelper
+//            ) {
+//                LocalFirebaseLogHelper.current.sendLog(name = javaClass.simpleName, message = "compose start!")
+//
+//                val nextWeekReleaseDialogItems by viewModel.nextWeekReleaseMedias.collectAsStateWithLifecycle()
+//                val shouldShowNextWeekReleaseDialog by viewModel.shouldShowNextWeekReleaseDialog.collectAsStateWithLifecycle()
+//
+//                SurfyTheme(darkTheme = darkTheme) {
+//                    val appState = rememberSurfyAppState(networkMonitor = networkMonitor)
+//                    val navigator = remember { Navigator(state = appState.navigationState) }
+//                    val snackbarHostState = remember { SnackbarHostState() }
+//
+//                    LaunchedEffect(key1 = deeplinkBackstack) {
+//                        if (deeplinkBackstack.isNotEmpty()) {
+//                            navigationSetting(appState = appState)
+//                        }
+//                    }
+//
+//                    if (shouldShowNextWeekReleaseDialog) {
+//                        ReleaseMoviesDialog(
+//                            releaseMovies = nextWeekReleaseDialogItems,
+//                            goToMovie = { id -> navigator.navigateToMovie(id = id) },
+//                            goToTv = { id -> navigator.navigateToTv(id = id) },
+//                            updateShowNextReleaseMoviesDate = viewModel::dontShowNextWeekReleaseDialogToday,
+//                            dismissNextWeekReleaseDialog = viewModel::dismissNextWeekReleaseDialog
+//                        )
+//                    }
+//
+//                    SurfyApp(
+//                        navigator = navigator,
+//                        appState = appState,
+//                        snackbarHostState = snackbarHostState,
+//                        nextWeekReleaseMovies = nextWeekReleaseDialogItems,
+//                        showSettingDialog = { settingVM.onAction(action = SettingsAction.OpenMain) }
+//                    )
+//
+//                    SettingScreen(viewModel = settingVM)
+//                }
+//            }
         }
     }
 
@@ -168,35 +228,35 @@ class MainActivity : ComponentActivity() {
         super.onNewIntent(intent = intent)
         Log.d("onNewIntent")
         setIntent(intent)
-        deeplinkBackstack = parseDeeplink(uri = intent.data)
+//        deeplinkBackstack = parseDeeplink(uri = intent.data)
     }
 
     fun navigationSetting(appState: SurfyAppState) {
-        if (deeplinkBackstack.isEmpty()) {
-            return
-        }
-
-        appState.navigationState.clearToRoot()
-
-        deeplinkBackstack.forEach { route ->
-            if (isTopLevelRoute(route = route)) {
-                // 루트 목적지면 현재 탭 변경만 수행
-                appState.navigationState.topLevelRoute = route
-            } else {
-                // 루트가 아니면 현재 탭 스택에 push
-                appState.navigationState.backStacks[appState.navigationState.topLevelRoute]?.also { currentStack ->
-                    if (currentStack.lastOrNull() != route) {
-                        currentStack.add(element = route)
-                    }
-                }
-            }
-        }
-
-        deeplinkBackstack = emptyList()
+//        if (deeplinkBackstack.isEmpty()) {
+//            return
+//        }
+//
+//        appState.navigationState.clearToRoot()
+//
+//        deeplinkBackstack.forEach { route ->
+//            if (isTopLevelRoute(route = route)) {
+//                // 루트 목적지면 현재 탭 변경만 수행
+//                appState.navigationState.topLevelRoute = route
+//            } else {
+//                // 루트가 아니면 현재 탭 스택에 push
+//                appState.navigationState.backStacks[appState.navigationState.topLevelRoute]?.also { currentStack ->
+//                    if (currentStack.lastOrNull() != route) {
+//                        currentStack.add(element = route)
+//                    }
+//                }
+//            }
+//        }
+//
+//        deeplinkBackstack = emptyList()
     }
 
     private fun isTopLevelRoute(route: NavKey): Boolean =
-        TOP_LEVEL_NAV_ITEMS.keys.any { topLevel -> topLevel.javaClass == route.javaClass }
+        TopLevelDestination.entries.any { topLevel -> topLevel.javaClass == route.javaClass }
 }
 
 /**

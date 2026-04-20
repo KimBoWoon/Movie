@@ -48,11 +48,10 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cheeke.surfy.analytics.TrackScreenViewEvent
 import com.cheeke.surfy.core.network.R
 import com.cheeke.surfy.data.util.POSTER_IMAGE_RATIO
+import com.cheeke.surfy.detail.series.navigation.SeriesScreen
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
 import com.cheeke.surfy.model.ImageList
 import com.cheeke.surfy.model.Series
@@ -80,26 +79,47 @@ import com.cheeke.surfy.ui.utils.dp8
 import com.cheeke.surfy.ui.utils.dp88
 import com.cheeke.surfy.ui.utils.dp9
 import com.cheeke.surfy.ui.utils.dp999
+import com.slack.circuit.codegen.annotations.CircuitInject
+import dagger.hilt.android.components.ActivityRetainedComponent
 import java.time.LocalDate
 
+@CircuitInject(screen = SeriesScreen::class, scope = ActivityRetainedComponent::class)
 @Composable
 fun SeriesScreen(
-    goToBack: () -> Unit,
-    goToMovie: (Int) -> Unit,
-    viewModel: SeriesVM = hiltViewModel()
+    modifier: Modifier,
+    seriesUiState: SeriesUiState
 ) {
     LocalFirebaseLogHelper.current.sendLog("SeriesScreen", "series screen init")
     TrackScreenViewEvent(screenName = "SeriesScreen")
 
-    val seriesState by viewModel.series.collectAsStateWithLifecycle()
+    val seriesState = seriesUiState.series
 
     SeriesScreen(
         seriesState = seriesState,
-        restart = viewModel::restart,
-        goToBack = goToBack,
-        goToMovie = goToMovie
+        restart = { seriesUiState.eventSink(SeriesEvent.Restart) },
+        goToBack = { seriesUiState.eventSink(SeriesEvent.GoToBack) },
+        goToMovie = { seriesUiState.eventSink(SeriesEvent.GoToMovie(id = it)) }
     )
 }
+
+//@Composable
+//fun SeriesScreen(
+//    goToBack: () -> Unit,
+//    goToMovie: (Int) -> Unit,
+//    viewModel: SeriesVM = hiltViewModel()
+//) {
+//    LocalFirebaseLogHelper.current.sendLog("SeriesScreen", "series screen init")
+//    TrackScreenViewEvent(screenName = "SeriesScreen")
+//
+//    val seriesState by viewModel.series.collectAsStateWithLifecycle()
+//
+//    SeriesScreen(
+//        seriesState = seriesState,
+//        restart = viewModel::restart,
+//        goToBack = goToBack,
+//        goToMovie = goToMovie
+//    )
+//}
 
 @Composable
 fun SeriesScreen(

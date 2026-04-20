@@ -55,10 +55,7 @@ import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.LazyPagingItems
-import androidx.paging.compose.collectAsLazyPagingItems
 import com.cheeke.surfy.analytics.LocalAnalyticsHelper
 import com.cheeke.surfy.analytics.TrackScreenViewEvent
 import com.cheeke.surfy.analytics.logFavorite
@@ -66,6 +63,7 @@ import com.cheeke.surfy.analytics.logSelectEpisode
 import com.cheeke.surfy.analytics.logSelectSeason
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.detail.movie.AlternativeTitleComponent
+import com.cheeke.surfy.detail.tv.navigation.TvScreen
 import com.cheeke.surfy.domain.TvSeasonLoadState
 import com.cheeke.surfy.feature.detail.R
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
@@ -101,40 +99,71 @@ import com.cheeke.surfy.ui.utils.dp5
 import com.cheeke.surfy.ui.utils.dp8
 import com.cheeke.surfy.ui.utils.sp10
 import com.cheeke.surfy.ui.utils.sp12
+import com.slack.circuit.codegen.annotations.CircuitInject
+import dagger.hilt.android.components.ActivityRetainedComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+@CircuitInject(screen = TvScreen::class, scope = ActivityRetainedComponent::class)
 @Composable
 fun TvScreen(
-    goToBack: () -> Unit,
-    goToTv: (Int) -> Unit,
-    goToPeople: (Int) -> Unit,
-    onShowSnackbar: suspend (String, String?) -> Boolean,
-    viewModel: TvVM = hiltViewModel()
+    modifier: Modifier,
+    tvUiState: TvUiState
 ) {
     LocalFirebaseLogHelper.current.sendLog("DetailScreen", "detail screen start!")
     TrackScreenViewEvent(screenName = "TvScreen")
 
-    val similarTvs = viewModel.similarTvs.collectAsLazyPagingItems()
-    val selectedEpisode by viewModel.selectedEpisode.collectAsStateWithLifecycle()
-    val tvUiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val similarTvs = tvUiState.similarTvs
+    val selectedEpisode = tvUiState.selectedEpisode
 
     TvScreen(
-        tvUiState = tvUiState,
+        tvUiState = tvUiState.tv,
         similarTvs = similarTvs,
         selectedEpisode = selectedEpisode,
-        goToTv = goToTv,
-        goToPeople = goToPeople,
-        goToBack = goToBack,
-        showEpisodeDetail = viewModel::showEpisodeDetail,
-        hideEpisodeDetail = viewModel::hideEpisodeDetail,
-        onShowSnackbar = onShowSnackbar,
-        insertFavoriteTv = viewModel::insertTv,
-        deleteFavoriteTv = viewModel::deleteTv,
-        restart = viewModel::restart,
-        onSelectSeason = viewModel::onSelectSeason
+        goToTv = { tvUiState.eventSink(TvEvent.GoToTv(id = it)) },
+        goToPeople = { tvUiState.eventSink(TvEvent.GoToPeople(id = it)) },
+        goToBack = { tvUiState.eventSink(TvEvent.GoToBack) },
+        showEpisodeDetail = { tvUiState.eventSink(TvEvent.ShowEpisodeDetail(episode = it)) },
+        hideEpisodeDetail = { tvUiState.eventSink(TvEvent.HideEpisodeDetail) },
+//        onShowSnackbar = onShowSnackbar,
+        insertFavoriteTv = { tvUiState.eventSink(TvEvent.InsertTv(tv = it)) },
+        deleteFavoriteTv = { tvUiState.eventSink(TvEvent.DeleteTv(tv = it)) },
+        restart = { tvUiState.eventSink(TvEvent.Restart) },
+        onSelectSeason = { tvUiState.eventSink(TvEvent.SelectSeason(season = it)) }
     )
 }
+
+//@Composable
+//fun TvScreen(
+//    goToBack: () -> Unit,
+//    goToTv: (Int) -> Unit,
+//    goToPeople: (Int) -> Unit,
+//    onShowSnackbar: suspend (String, String?) -> Boolean,
+//    viewModel: TvVM = hiltViewModel()
+//) {
+//    LocalFirebaseLogHelper.current.sendLog("DetailScreen", "detail screen start!")
+//    TrackScreenViewEvent(screenName = "TvScreen")
+//
+//    val similarTvs = viewModel.similarTvs.collectAsLazyPagingItems()
+//    val selectedEpisode by viewModel.selectedEpisode.collectAsStateWithLifecycle()
+//    val tvUiState by viewModel.uiState.collectAsStateWithLifecycle()
+//
+//    TvScreen(
+//        tvUiState = tvUiState,
+//        similarTvs = similarTvs,
+//        selectedEpisode = selectedEpisode,
+//        goToTv = goToTv,
+//        goToPeople = goToPeople,
+//        goToBack = goToBack,
+//        showEpisodeDetail = viewModel::showEpisodeDetail,
+//        hideEpisodeDetail = viewModel::hideEpisodeDetail,
+//        onShowSnackbar = onShowSnackbar,
+//        insertFavoriteTv = viewModel::insertTv,
+//        deleteFavoriteTv = viewModel::deleteTv,
+//        restart = viewModel::restart,
+//        onSelectSeason = viewModel::onSelectSeason
+//    )
+//}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -147,7 +176,7 @@ fun TvScreen(
     goToBack: () -> Unit,
     showEpisodeDetail: (TvEpisode) -> Unit,
     hideEpisodeDetail: () -> Unit,
-    onShowSnackbar: suspend (String, String?) -> Boolean,
+//    onShowSnackbar: suspend (String, String?) -> Boolean,
     insertFavoriteTv: (Tv) -> Unit,
     deleteFavoriteTv: (Tv) -> Unit,
     restart: () -> Unit,
@@ -168,7 +197,7 @@ fun TvScreen(
                 )
             }
             is TvState.Success -> {
-                Log.d("${tvUiState.tvUiState.tv}")
+                Log.d("${tvUiState.tvInfo.tv}")
                 LocalFirebaseLogHelper.current.sendLog(name = "TvScreen", message = "$tvUiState")
 
                 var selectedImage by remember { mutableStateOf<Image?>(value = null) }
@@ -190,13 +219,13 @@ fun TvScreen(
 
                 SharedTransitionLayout {
                     TvDetailComponent(
-                        tv = tvUiState.tvUiState,
+                        tv = tvUiState.tvInfo,
                         similarTvs = similarTvs,
                         goToTv = goToTv,
                         goToPeople = goToPeople,
                         goToBack = goToBack,
                         showEpisodeDetail = showEpisodeDetail,
-                        onShowSnackbar = onShowSnackbar,
+//                        onShowSnackbar = onShowSnackbar,
                         insertFavoriteTv = insertFavoriteTv,
                         deleteFavoriteTv = deleteFavoriteTv,
                         selectedImage = selectedImage,
@@ -250,13 +279,13 @@ fun TvScreen(
 
 @Composable
 fun TvDetailComponent(
-    tv: TvUiState,
+    tv: TvInfo,
     similarTvs: LazyPagingItems<SimilarMedia>,
     goToTv: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     goToBack: () -> Unit,
     showEpisodeDetail: (TvEpisode) -> Unit,
-    onShowSnackbar: suspend (String, String?) -> Boolean,
+//    onShowSnackbar: suspend (String, String?) -> Boolean,
     insertFavoriteTv: (Tv) -> Unit,
     deleteFavoriteTv: (Tv) -> Unit,
     selectedImage: Image?,
@@ -285,9 +314,9 @@ fun TvDetailComponent(
                     insertFavoriteTv(tv.tv)
                     analyticsHelper.logFavorite(isFavorite = true, contentType = "tv", media = tv.tv)
                 }
-                scope.launch {
-                    onShowSnackbar(favoriteMessage, null)
-                }
+//                scope.launch {
+//                    onShowSnackbar(favoriteMessage, null)
+//                }
             }
         )
         tv.tv.videos?.results?.filter { it.site == "YouTube" }?.takeIf { it.isNotEmpty() }?.let { vods ->

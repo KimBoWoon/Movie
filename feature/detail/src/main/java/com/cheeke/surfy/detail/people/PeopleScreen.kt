@@ -25,7 +25,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,13 +37,12 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cheeke.surfy.analytics.LocalAnalyticsHelper
 import com.cheeke.surfy.analytics.TrackScreenViewEvent
 import com.cheeke.surfy.analytics.logFavorite
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.data.util.POSTER_IMAGE_RATIO
+import com.cheeke.surfy.detail.people.navigation.PeopleScreen
 import com.cheeke.surfy.domain.PeopleWithFavorite
 import com.cheeke.surfy.feature.detail.R
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
@@ -64,33 +62,57 @@ import com.cheeke.surfy.ui.utils.dp20
 import com.cheeke.surfy.ui.utils.dp200
 import com.cheeke.surfy.ui.utils.fullBleed
 import com.cheeke.surfy.ui.utils.roundedCornerClickable
-import kotlinx.coroutines.launch
+import com.slack.circuit.codegen.annotations.CircuitInject
+import dagger.hilt.android.components.ActivityRetainedComponent
 import java.time.LocalDate
 
+@CircuitInject(screen = PeopleScreen::class, scope = ActivityRetainedComponent::class)
 @Composable
 fun PeopleScreen(
-    goToBack: () -> Unit,
-    goToMovie: (Int) -> Unit,
-    goToTv: (Int) -> Unit,
-    onShowSnackbar: suspend (String, String?) -> Boolean,
-    viewModel: PeopleVM = hiltViewModel()
+    modifier: Modifier,
+    peopleUiState: PeopleUiState
 ) {
     LocalFirebaseLogHelper.current.sendLog("PeopleScreen", "people screen start!")
     TrackScreenViewEvent(screenName = "PeopleScreen")
 
-    val peopleState by viewModel.people.collectAsStateWithLifecycle()
+    val peopleState = peopleUiState.people
 
     PeopleScreen(
         peopleState = peopleState,
-        goToBack = goToBack,
-        insertFavoritePeople = viewModel::insertPeople,
-        deleteFavoritePeople = viewModel::deletePeople,
-        goToMovie = goToMovie,
-        goToTv = goToTv,
-        onShowSnackbar = onShowSnackbar,
-        restart = viewModel::restart
+        goToBack = { peopleUiState.eventSink(PeopleEvent.GoToBack) },
+        insertFavoritePeople = { peopleUiState.eventSink(PeopleEvent.InsertFavoritePeople(people = it)) },
+        deleteFavoritePeople = { peopleUiState.eventSink(PeopleEvent.DeleteFavoritePeople(people = it)) },
+        goToMovie = { peopleUiState.eventSink(PeopleEvent.GoToMovie(id = it)) },
+        goToTv = { peopleUiState.eventSink(PeopleEvent.GoToTv(id = it)) },
+//        onShowSnackbar = onShowSnackbar,
+        restart = { peopleUiState.eventSink(PeopleEvent.Restart) }
     )
 }
+
+//@Composable
+//fun PeopleScreen(
+//    goToBack: () -> Unit,
+//    goToMovie: (Int) -> Unit,
+//    goToTv: (Int) -> Unit,
+//    onShowSnackbar: suspend (String, String?) -> Boolean,
+//    viewModel: PeopleVM = hiltViewModel()
+//) {
+//    LocalFirebaseLogHelper.current.sendLog("PeopleScreen", "people screen start!")
+//    TrackScreenViewEvent(screenName = "PeopleScreen")
+//
+//    val peopleState by viewModel.people.collectAsStateWithLifecycle()
+//
+//    PeopleScreen(
+//        peopleState = peopleState,
+//        goToBack = goToBack,
+//        insertFavoritePeople = viewModel::insertPeople,
+//        deleteFavoritePeople = viewModel::deletePeople,
+//        goToMovie = goToMovie,
+//        goToTv = goToTv,
+//        onShowSnackbar = onShowSnackbar,
+//        restart = viewModel::restart
+//    )
+//}
 
 @Composable
 fun PeopleScreen(
@@ -100,7 +122,7 @@ fun PeopleScreen(
     deleteFavoritePeople: (People) -> Unit,
     goToMovie: (Int) -> Unit,
     goToTv: (Int) -> Unit,
-    onShowSnackbar: suspend (String, String?) -> Boolean,
+//    onShowSnackbar: suspend (String, String?) -> Boolean,
     restart: () -> Unit
 ) {
     Box(
@@ -125,7 +147,7 @@ fun PeopleScreen(
                     goToTv = goToTv,
                     insertFavoritePeople = insertFavoritePeople,
                     deleteFavoritePeople = deleteFavoritePeople,
-                    onShowSnackbar = onShowSnackbar
+//                    onShowSnackbar = onShowSnackbar
                 )
             }
             is PeopleState.Error -> {
@@ -149,7 +171,7 @@ fun PeopleDetailComponent(
     goToTv: (Int) -> Unit,
     insertFavoritePeople: (People) -> Unit,
     deleteFavoritePeople: (People) -> Unit,
-    onShowSnackbar: suspend (String, String?) -> Boolean
+//    onShowSnackbar: suspend (String, String?) -> Boolean
 ) {
     val scope = rememberCoroutineScope()
 
@@ -187,7 +209,7 @@ fun PeopleDetailComponent(
                         insertFavoritePeople(people.people)
                         analyticsHelper.logFavorite(isFavorite = true, contentType = "people", media = people.people)
                     }
-                    scope.launch { onShowSnackbar(snackbarMessage, null) }
+//                    scope.launch { onShowSnackbar(snackbarMessage, null) }
                 }
             )
         }
@@ -220,7 +242,7 @@ fun PeopleDetailComponent(
                                 MediaType.MOVIE -> goToMovie(media.id ?: -1)
                                 MediaType.TV -> goToTv(media.id ?: -1)
                                 else -> {
-                                    scope.launch { onShowSnackbar("MediaType not found...", null) }
+//                                    scope.launch { onShowSnackbar("MediaType not found...", null) }
                                     return@roundedCornerClickable
                                 }
                             }

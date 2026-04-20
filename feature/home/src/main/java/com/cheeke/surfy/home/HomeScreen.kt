@@ -59,10 +59,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.LazyPagingItems
-import androidx.paging.compose.collectAsLazyPagingItems
 import com.cheeke.surfy.analytics.TrackScreenViewEvent
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.common.isSystemInDarkTheme
@@ -70,6 +67,7 @@ import com.cheeke.surfy.data.util.PEOPLE_IMAGE_RATIO
 import com.cheeke.surfy.data.util.POSTER_IMAGE_RATIO
 import com.cheeke.surfy.feature.home.R
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
+import com.cheeke.surfy.home.navigation.HomeScreen
 import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.TrendingMediaResult
@@ -96,51 +94,94 @@ import com.cheeke.surfy.ui.utils.dp60
 import com.cheeke.surfy.ui.utils.dp8
 import com.cheeke.surfy.ui.utils.sp10
 import com.cheeke.surfy.ui.utils.sp8
+import com.slack.circuit.codegen.annotations.CircuitInject
+import dagger.hilt.android.components.ActivityRetainedComponent
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 
+@CircuitInject(screen = HomeScreen::class, scope = ActivityRetainedComponent::class)
 @Composable
 fun HomeScreen(
-    goToMovie: (Int) -> Unit,
-    goToPeople: (Int) -> Unit,
-    goToTv: (Int) -> Unit,
-    viewModel: HomeVM = hiltViewModel()
+    modifier: Modifier,
+    homeUiState: HomeUiState
 ) {
     LocalFirebaseLogHelper.current.sendLog("HomeScreen", "init screen")
     TrackScreenViewEvent(screenName = "HomeScreen")
 
-    val homeState by viewModel.homeUiState.collectAsStateWithLifecycle()
-    val nowPlayingMovies = viewModel.nowPlayingMoviePaging.collectAsLazyPagingItems()
-    val upComingMovies = viewModel.upComingMoviePaging.collectAsLazyPagingItems()
-    val trendingMovies = viewModel.trendingMoviePaging.collectAsLazyPagingItems()
-    val trendingPeoples = viewModel.trendingPeoplePaging.collectAsLazyPagingItems()
-    val trendingTvs = viewModel.trendingTvPaging.collectAsLazyPagingItems()
-    val trendingMovieTimeWindow by viewModel.trendingMovieTimeWindow.collectAsStateWithLifecycle()
-    val trendingPeopleTimeWindow by viewModel.trendingPeopleTimeWindow.collectAsStateWithLifecycle()
-    val trendingTvTimeWindow by viewModel.trendingTvTimeWindow.collectAsStateWithLifecycle()
+//    val homeState by homeUiState.homeUiState.collectAsStateWithLifecycle()
+    val popularMovies = homeUiState.popularMovies
+    val nowPlayingMovies = homeUiState.nowPlayingMovies
+    val upComingMovies = homeUiState.upComingMovies
+    val trendingMovies = homeUiState.trendingMoviePaging
+    val trendingPeoples = homeUiState.trendingPeoplePaging
+    val trendingTvs = homeUiState.trendingTvPaging
+    val trendingMovieTimeWindow = homeUiState.trendingMovieTimeWindow
+    val trendingPeopleTimeWindow = homeUiState.trendingPeopleTimeWindow
+    val trendingTvTimeWindow = homeUiState.trendingTvTimeWindow
 
     HomeScreen(
-        homeUiState = homeState,
+//        homeUiState = homeState,
+        popularMovies = popularMovies,
         nowPlayingMovies = nowPlayingMovies,
         upComingMovies = upComingMovies,
         trendingMovies = trendingMovies,
         trendingPeoples = trendingPeoples,
         trendingTvs = trendingTvs,
         trendingMovieTimeWindow = trendingMovieTimeWindow,
-        updateTrendingMovieTimeWindow = viewModel::updateTrendingMovieTimeWindow,
+        updateTrendingMovieTimeWindow = { homeUiState.eventSink(HomeEvent.UpdateTrendingMovieTimeWindow(it)) },
         trendingPeopleTimeWindow = trendingPeopleTimeWindow,
-        updateTrendingPeopleTimeWindow = viewModel::updateTrendingPeopleTimeWindow,
+        updateTrendingPeopleTimeWindow = { homeUiState.eventSink(HomeEvent.UpdateTrendingPeopleTimeWindow(it)) },
         trendingTvTimeWindow = trendingTvTimeWindow,
-        updateTrendingTvTimeWindow = viewModel::updateTrendingTvTimeWindow,
-        goToMovie = goToMovie,
-        goToPeople = goToPeople,
-        goToTv = goToTv
+        updateTrendingTvTimeWindow = { homeUiState.eventSink(HomeEvent.UpdateTrendingTvTimeWindow(it)) },
+        goToMovie = { homeUiState.eventSink(HomeEvent.GoToMovie(id = it)) },
+        goToPeople = { homeUiState.eventSink(HomeEvent.GoToPeople(id = it)) },
+        goToTv = { homeUiState.eventSink(HomeEvent.GoToTv(id = it)) }
     )
 }
 
+//@Composable
+//fun HomeScreen(
+//    goToMovie: (Int) -> Unit,
+//    goToPeople: (Int) -> Unit,
+//    goToTv: (Int) -> Unit,
+//    viewModel: HomeVM = hiltViewModel()
+//) {
+//    LocalFirebaseLogHelper.current.sendLog("HomeScreen", "init screen")
+//    TrackScreenViewEvent(screenName = "HomeScreen")
+//
+//    val homeState by viewModel.homeUiState.collectAsStateWithLifecycle()
+//    val nowPlayingMovies = viewModel.nowPlayingMoviePaging.collectAsLazyPagingItems()
+//    val upComingMovies = viewModel.upComingMoviePaging.collectAsLazyPagingItems()
+//    val trendingMovies = viewModel.trendingMoviePaging.collectAsLazyPagingItems()
+//    val trendingPeoples = viewModel.trendingPeoplePaging.collectAsLazyPagingItems()
+//    val trendingTvs = viewModel.trendingTvPaging.collectAsLazyPagingItems()
+//    val trendingMovieTimeWindow by viewModel.trendingMovieTimeWindow.collectAsStateWithLifecycle()
+//    val trendingPeopleTimeWindow by viewModel.trendingPeopleTimeWindow.collectAsStateWithLifecycle()
+//    val trendingTvTimeWindow by viewModel.trendingTvTimeWindow.collectAsStateWithLifecycle()
+//
+//    HomeScreen(
+//        homeUiState = homeState,
+//        nowPlayingMovies = nowPlayingMovies,
+//        upComingMovies = upComingMovies,
+//        trendingMovies = trendingMovies,
+//        trendingPeoples = trendingPeoples,
+//        trendingTvs = trendingTvs,
+//        trendingMovieTimeWindow = trendingMovieTimeWindow,
+//        updateTrendingMovieTimeWindow = viewModel::updateTrendingMovieTimeWindow,
+//        trendingPeopleTimeWindow = trendingPeopleTimeWindow,
+//        updateTrendingPeopleTimeWindow = viewModel::updateTrendingPeopleTimeWindow,
+//        trendingTvTimeWindow = trendingTvTimeWindow,
+//        updateTrendingTvTimeWindow = viewModel::updateTrendingTvTimeWindow,
+//        goToMovie = goToMovie,
+//        goToPeople = goToPeople,
+//        goToTv = goToTv
+//    )
+//}
+
 @Composable
 fun HomeScreen(
-    homeUiState: HomeState,
+//    homeUiState: HomeState,
+    popularMovies: List<Movie>,
     nowPlayingMovies: LazyPagingItems<Movie>,
     upComingMovies: LazyPagingItems<Movie>,
     trendingMovies: LazyPagingItems<TrendingMediaResult>,
@@ -161,18 +202,18 @@ fun HomeScreen(
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        when (homeUiState) {
-            is HomeState.Loading -> {
-                Log.d("loading...")
-                LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data loading...")
-
-                CircularProgressComponent(
-                    modifier = Modifier
-                        .semantics { contentDescription = "homeLoading" }
-                        .align(Alignment.Center)
-                )
-            }
-            is HomeState.Success -> {
+//        when (homeUiState) {
+//            is HomeState.Loading -> {
+//                Log.d("loading...")
+//                LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data loading...")
+//
+//                CircularProgressComponent(
+//                    modifier = Modifier
+//                        .semantics { contentDescription = "homeLoading" }
+//                        .align(Alignment.Center)
+//                )
+//            }
+//            is HomeState.Success -> {
                 LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data load success")
                 Log.d("$nowPlayingMovies, $upComingMovies, $trendingMovies, $trendingPeoples, $trendingTvs")
 
@@ -180,7 +221,8 @@ fun HomeScreen(
 
                 HomeComponent(
                     lazyListState = lazyListState,
-                    popularMovies = homeUiState.homeUiState.popularMovies,
+//                    popularMovies = homeUiState.homeUiState.popularMovies,
+                    popularMovies = popularMovies,
                     nowPlayingMovies = nowPlayingMovies,
                     upComingMovies = upComingMovies,
                     trendingMovie = trendingMovies,
@@ -196,16 +238,16 @@ fun HomeScreen(
                     goToPeople = goToPeople,
                     goToTv = goToTv
                 )
-            }
-            is HomeState.Error -> {
-                LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data load Error > ${homeUiState.throwable.message}")
-                Log.e("${homeUiState.throwable.message}")
-                Text(
-                    modifier = Modifier.fillMaxSize(),
-                    text = homeUiState.throwable.message ?: stringResource(id = com.cheeke.surfy.core.network.R.string.something_wrong)
-                )
-            }
-        }
+//            }
+//            is HomeState.Error -> {
+//                LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data load Error > ${homeUiState.throwable.message}")
+//                Log.e("${homeUiState.throwable.message}")
+//                Text(
+//                    modifier = Modifier.fillMaxSize(),
+//                    text = homeUiState.throwable.message ?: stringResource(id = com.cheeke.surfy.core.network.R.string.something_wrong)
+//                )
+//            }
+//        }
     }
 }
 
@@ -511,7 +553,10 @@ fun MediaItem(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                modifier = Modifier.wrapContentHeight().weight(weight = 1f).padding(end = dp5),
+                modifier = Modifier
+                    .wrapContentHeight()
+                    .weight(weight = 1f)
+                    .padding(end = dp5),
                 text = movie.title ?: "",
                 fontSize = sp10,
                 style = MaterialTheme.typography.labelSmall,

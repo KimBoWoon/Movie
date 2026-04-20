@@ -40,15 +40,13 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.LazyPagingItems
-import androidx.paging.compose.collectAsLazyPagingItems
 import com.cheeke.surfy.analytics.LocalAnalyticsHelper
 import com.cheeke.surfy.analytics.TrackScreenViewEvent
 import com.cheeke.surfy.analytics.logFavorite
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.data.util.POSTER_IMAGE_RATIO
+import com.cheeke.surfy.detail.movie.navigation.MovieScreen
 import com.cheeke.surfy.domain.MovieWithFavorite
 import com.cheeke.surfy.feature.detail.R
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
@@ -85,38 +83,68 @@ import com.cheeke.surfy.ui.utils.dp62
 import com.cheeke.surfy.ui.utils.dp8
 import com.cheeke.surfy.ui.utils.dp92
 import com.cheeke.surfy.ui.utils.sp10
+import com.slack.circuit.codegen.annotations.CircuitInject
+import dagger.hilt.android.components.ActivityRetainedComponent
 import kotlinx.coroutines.launch
 
+@CircuitInject(screen = MovieScreen::class, scope = ActivityRetainedComponent::class)
 @Composable
 fun MovieScreen(
-    goToBack: () -> Unit,
-    goToMovie: (Int) -> Unit,
-    goToPeople: (Int) -> Unit,
-    goToSeries: (Int) -> Unit,
-    onShowSnackbar: suspend (String, String?) -> Boolean,
-    viewModel: MovieVM = hiltViewModel()
+    modifier: Modifier,
+    movieUiState: MovieUiState
 ) {
     LocalFirebaseLogHelper.current.sendLog("DetailScreen", "detail screen start!")
     TrackScreenViewEvent(screenName = "DetailScreen")
 
-    val movieState by viewModel.movie.collectAsStateWithLifecycle()
-    val similarMovies = viewModel.similarMovies.collectAsLazyPagingItems()
-    val isCheatActive by viewModel.isCheatActive.collectAsStateWithLifecycle()
+    val movieState = movieUiState.movie
+    val similarMovies = movieUiState.similarMovies
+    val isCheatActive = movieUiState.isCheatActive
 
     MovieScreen(
         movieState = movieState,
         similarMovies = similarMovies,
-        goToMovie = goToMovie,
-        goToPeople = goToPeople,
-        goToSeries = goToSeries,
-        goToBack = goToBack,
+        goToMovie = { movieUiState.eventSink(MovieEvent.GoToMovie(id = it)) },
+        goToPeople = { movieUiState.eventSink(MovieEvent.GoToPeople(id = it)) },
+        goToSeries = { movieUiState.eventSink(MovieEvent.GoToSeries(id = it)) },
+        goToBack = { movieUiState.eventSink(MovieEvent.GoToBack) },
         isCheatActive = isCheatActive,
-        onShowSnackbar = onShowSnackbar,
-        insertFavoriteMovie = viewModel::insertMovie,
-        deleteFavoriteMovie = viewModel::deleteMovie,
-        restart = viewModel::restart
+//        onShowSnackbar = onShowSnackbar,
+        insertFavoriteMovie = { movieUiState.eventSink(MovieEvent.InsertFavoriteMovie(movie = it)) },
+        deleteFavoriteMovie = { movieUiState.eventSink(MovieEvent.DeleteFavoriteMovie(movie = it)) },
+        restart = { movieUiState.eventSink(MovieEvent.Restart) }
     )
 }
+
+//@Composable
+//fun MovieScreen(
+//    goToBack: () -> Unit,
+//    goToMovie: (Int) -> Unit,
+//    goToPeople: (Int) -> Unit,
+//    goToSeries: (Int) -> Unit,
+//    onShowSnackbar: suspend (String, String?) -> Boolean,
+//    viewModel: MovieVM = hiltViewModel()
+//) {
+//    LocalFirebaseLogHelper.current.sendLog("DetailScreen", "detail screen start!")
+//    TrackScreenViewEvent(screenName = "DetailScreen")
+//
+//    val movieState by viewModel.movie.collectAsStateWithLifecycle()
+//    val similarMovies = viewModel.similarMovies.collectAsLazyPagingItems()
+//    val isCheatActive by viewModel.isCheatActive.collectAsStateWithLifecycle()
+//
+//    MovieScreen(
+//        movieState = movieState,
+//        similarMovies = similarMovies,
+//        goToMovie = goToMovie,
+//        goToPeople = goToPeople,
+//        goToSeries = goToSeries,
+//        goToBack = goToBack,
+//        isCheatActive = isCheatActive,
+//        onShowSnackbar = onShowSnackbar,
+//        insertFavoriteMovie = viewModel::insertMovie,
+//        deleteFavoriteMovie = viewModel::deleteMovie,
+//        restart = viewModel::restart
+//    )
+//}
 
 @Composable
 fun MovieScreen(
@@ -127,7 +155,7 @@ fun MovieScreen(
     goToSeries: (Int) -> Unit,
     goToBack: () -> Unit,
     isCheatActive: Boolean,
-    onShowSnackbar: suspend (String, String?) -> Boolean,
+//    onShowSnackbar: suspend (String, String?) -> Boolean,
     insertFavoriteMovie: (Movie) -> Unit,
     deleteFavoriteMovie: (Movie) -> Unit,
     restart: () -> Unit
@@ -176,7 +204,7 @@ fun MovieScreen(
                         goToSeries = goToSeries,
                         goToBack = goToBack,
                         isCheatActive = isCheatActive,
-                        onShowSnackbar = onShowSnackbar,
+//                        onShowSnackbar = onShowSnackbar,
                         insertFavoriteMovie = insertFavoriteMovie,
                         deleteFavoriteMovie = deleteFavoriteMovie,
                         selectedImage = selectedImage,
@@ -226,7 +254,7 @@ fun MovieDetailComponent(
     goToSeries: (Int) -> Unit,
     goToBack: () -> Unit,
     isCheatActive: Boolean,
-    onShowSnackbar: suspend (String, String?) -> Boolean,
+//    onShowSnackbar: suspend (String, String?) -> Boolean,
     insertFavoriteMovie: (Movie) -> Unit,
     deleteFavoriteMovie: (Movie) -> Unit,
     selectedImage: Image?,
@@ -241,7 +269,9 @@ fun MovieDetailComponent(
     val analyticsHelper = LocalAnalyticsHelper.current
 
     Column(
-        modifier = Modifier.fillMaxSize().verticalScroll(state = scrollState)
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(state = scrollState)
     ) {
         TitleComponent(
             isFavorite = movieState.isFavorite,
@@ -254,9 +284,9 @@ fun MovieDetailComponent(
                     insertFavoriteMovie(movieState.movie)
                     analyticsHelper.logFavorite(isFavorite = true, contentType = "movie", media = movieState.movie)
                 }
-                scope.launch {
-                    onShowSnackbar(favoriteMessage, null)
-                }
+//                scope.launch {
+//                    onShowSnackbar(favoriteMessage, null)
+//                }
             }
         )
         movieState.movie.videos?.results?.filter { it.site == "YouTube" }?.takeIf { it.isNotEmpty() }?.let { vodList ->
@@ -265,7 +295,9 @@ fun MovieDetailComponent(
                 vodList = vodList,
                 autoPlayTrailer = movieState.autoPlayTrailer
             )
-            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
+            Spacer(modifier = Modifier
+                .fillMaxWidth()
+                .height(height = dp10))
         }
 
         MediaTitleComponent(media = movieState.movie)
@@ -277,27 +309,37 @@ fun MovieDetailComponent(
 //            }
         if (isCheatActive) {
             movieState.movie.alternativeTitles?.titles?.takeIf { it.isNotEmpty() }?.let { alternativeTitles ->
-                Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
+                Spacer(modifier = Modifier
+                    .fillMaxWidth()
+                    .height(height = dp10))
                 AlternativeTitleComponent(alternativeTitles = alternativeTitles)
             }
         }
         movieState.movie.overview?.takeIf { it.trim().isNotEmpty() }?.let { overview ->
-            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
+            Spacer(modifier = Modifier
+                .fillMaxWidth()
+                .height(height = dp10))
             OverviewComponent(overview = overview)
         }
         movieState.movie.credits?.let { credits ->
-            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
+            Spacer(modifier = Modifier
+                .fillMaxWidth()
+                .height(height = dp10))
             CreditsComponent(
                 credits = credits,
                 goToPeople = goToPeople
             )
         }
         movieState.movie.productionCompanies?.let { productionCompanies ->
-            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
+            Spacer(modifier = Modifier
+                .fillMaxWidth()
+                .height(height = dp10))
             ProductionComponent(companies = productionCompanies)
         }
         movieState.movie.series?.let { series ->
-            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
+            Spacer(modifier = Modifier
+                .fillMaxWidth()
+                .height(height = dp10))
             SeriesComponent(
                 collection = series,
                 goToMovie = goToMovie,
@@ -308,7 +350,9 @@ fun MovieDetailComponent(
             val posters = images.posters ?: emptyList()
             val backdrops = images.backdrops ?: emptyList()
 
-            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
+            Spacer(modifier = Modifier
+                .fillMaxWidth()
+                .height(height = dp10))
             ImagesComponent(
                 backdrops = backdrops,
                 posters = posters,
@@ -320,13 +364,17 @@ fun MovieDetailComponent(
             )
         }
         if (similarMovies.itemCount > 0) {
-            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
+            Spacer(modifier = Modifier
+                .fillMaxWidth()
+                .height(height = dp10))
             SimilarComponent(
                 similar = similarMovies,
                 goToDestination = goToMovie
             )
         }
-        Spacer(modifier = Modifier.fillMaxWidth().height(height = dp20))
+        Spacer(modifier = Modifier
+            .fillMaxWidth()
+            .height(height = dp20))
 //            // 11) (옵션) Reviews Preview (2~3개) + See all
 //            if (uiState.reviews.isNotEmpty()) {
 //                item {
