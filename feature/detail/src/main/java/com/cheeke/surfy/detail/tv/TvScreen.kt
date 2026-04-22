@@ -133,38 +133,6 @@ fun TvScreen(
     )
 }
 
-//@Composable
-//fun TvScreen(
-//    goToBack: () -> Unit,
-//    goToTv: (Int) -> Unit,
-//    goToPeople: (Int) -> Unit,
-//    onShowSnackbar: suspend (String, String?) -> Boolean,
-//    viewModel: TvVM = hiltViewModel()
-//) {
-//    LocalFirebaseLogHelper.current.sendLog("DetailScreen", "detail screen start!")
-//    TrackScreenViewEvent(screenName = "TvScreen")
-//
-//    val similarTvs = viewModel.similarTvs.collectAsLazyPagingItems()
-//    val selectedEpisode by viewModel.selectedEpisode.collectAsStateWithLifecycle()
-//    val tvUiState by viewModel.uiState.collectAsStateWithLifecycle()
-//
-//    TvScreen(
-//        tvUiState = tvUiState,
-//        similarTvs = similarTvs,
-//        selectedEpisode = selectedEpisode,
-//        goToTv = goToTv,
-//        goToPeople = goToPeople,
-//        goToBack = goToBack,
-//        showEpisodeDetail = viewModel::showEpisodeDetail,
-//        hideEpisodeDetail = viewModel::hideEpisodeDetail,
-//        onShowSnackbar = onShowSnackbar,
-//        insertFavoriteTv = viewModel::insertTv,
-//        deleteFavoriteTv = viewModel::deleteTv,
-//        restart = viewModel::restart,
-//        onSelectSeason = viewModel::onSelectSeason
-//    )
-//}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TvScreen(

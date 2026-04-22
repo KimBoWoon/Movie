@@ -115,37 +115,6 @@ fun MovieScreen(
     )
 }
 
-//@Composable
-//fun MovieScreen(
-//    goToBack: () -> Unit,
-//    goToMovie: (Int) -> Unit,
-//    goToPeople: (Int) -> Unit,
-//    goToSeries: (Int) -> Unit,
-//    onShowSnackbar: suspend (String, String?) -> Boolean,
-//    viewModel: MovieVM = hiltViewModel()
-//) {
-//    LocalFirebaseLogHelper.current.sendLog("DetailScreen", "detail screen start!")
-//    TrackScreenViewEvent(screenName = "DetailScreen")
-//
-//    val movieState by viewModel.movie.collectAsStateWithLifecycle()
-//    val similarMovies = viewModel.similarMovies.collectAsLazyPagingItems()
-//    val isCheatActive by viewModel.isCheatActive.collectAsStateWithLifecycle()
-//
-//    MovieScreen(
-//        movieState = movieState,
-//        similarMovies = similarMovies,
-//        goToMovie = goToMovie,
-//        goToPeople = goToPeople,
-//        goToSeries = goToSeries,
-//        goToBack = goToBack,
-//        isCheatActive = isCheatActive,
-//        onShowSnackbar = onShowSnackbar,
-//        insertFavoriteMovie = viewModel::insertMovie,
-//        deleteFavoriteMovie = viewModel::deleteMovie,
-//        restart = viewModel::restart
-//    )
-//}
-
 @Composable
 fun MovieScreen(
     movieState: MovieState,

@@ -26,7 +26,7 @@ import com.cheeke.surfy.favorite.FavoriteUiState
 import com.cheeke.surfy.favorite.navigation.FavoriteScreen
 import com.cheeke.surfy.home.HomePresenter
 import com.cheeke.surfy.home.HomeScreen
-import com.cheeke.surfy.home.HomeUiState
+import com.cheeke.surfy.home.HomeState
 import com.cheeke.surfy.home.navigation.HomeScreen
 import com.cheeke.surfy.search.SearchPresenter
 import com.cheeke.surfy.search.SearchScreen
@@ -44,7 +44,7 @@ class SurfyScreenFactory @Inject constructor(
 
 ) : Ui.Factory {
     override fun create(screen: Screen, context: CircuitContext): Ui<*>? = when (screen) {
-        is HomeScreen -> ui<HomeUiState> { state, modifier -> HomeScreen(modifier = modifier, homeUiState = state) }
+        is HomeScreen -> ui<HomeState> { state, modifier -> HomeScreen(modifier = modifier, homeState = state) }
         is SearchScreen -> ui<SearchUiState> { state, modifier -> SearchScreen(modifier = modifier, searchUiState = state) }
         is FavoriteScreen -> ui<FavoriteUiState> { state, modifier -> FavoriteScreen(modifier = modifier, favoriteUiState = state) }
         is MovieScreen -> ui<MovieUiState> { state, modifier -> MovieScreen(modifier = modifier, movieUiState = state) }
@@ -71,11 +71,11 @@ class SurfyPresenterFactory @Inject constructor(
     ): Presenter<*>? = when (screen) {
         is HomeScreen -> homePresenterFactory.create(goToMovie = navigator::goToMovie, goToPeople = navigator::goToPeople, goToTv = navigator::goToTv)
         is SearchScreen -> searchPresenterFactory.create(screen = screen, goToMovie = navigator::goToMovie, goToPeople = navigator::goToPeople, goToSeries = navigator::goToSeries, goToTv = navigator::goToTv)
-        is FavoriteScreen -> favoritePresenterFactory.create(goToMovie = navigator::goToMovie, goToPeople = navigator::goToPeople, goToTv = navigator::goToTv)
-        is MovieScreen -> moviePresenterFactory.create(navigator = navigator, screen = screen, goToMovie = navigator::goToMovie, goToPeople = navigator::goToPeople, goToSeries = navigator::goToSeries)
-        is PeopleScreen -> peoplePresenterFactory.create(navigator = navigator, screen = screen, goToMovie = navigator::goToMovie, goToTv = navigator::goToTv)
-        is SeriesScreen -> seriesPresenterFactory.create(navigator = navigator, screen = screen, goToMovie = navigator::goToMovie)
-        is TvScreen -> tvPresenterFactory.create(navigator = navigator, screen = screen, goToTv = navigator::goToTv, goToPeople = navigator::goToPeople)
+        is FavoriteScreen -> favoritePresenterFactory.create(initialTabIndex = 0, goToMovie = navigator::goToMovie, goToPeople = navigator::goToPeople, goToTv = navigator::goToTv)
+        is MovieScreen -> moviePresenterFactory.create(navigator = navigator, screen = screen)
+        is PeopleScreen -> peoplePresenterFactory.create(navigator = navigator, screen = screen)
+        is SeriesScreen -> seriesPresenterFactory.create(navigator = navigator, screen = screen)
+        is TvScreen -> tvPresenterFactory.create(navigator = navigator, screen = screen)
         else -> null
     }
 }

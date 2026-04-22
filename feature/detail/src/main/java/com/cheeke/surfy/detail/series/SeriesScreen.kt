@@ -102,25 +102,6 @@ fun SeriesScreen(
     )
 }
 
-//@Composable
-//fun SeriesScreen(
-//    goToBack: () -> Unit,
-//    goToMovie: (Int) -> Unit,
-//    viewModel: SeriesVM = hiltViewModel()
-//) {
-//    LocalFirebaseLogHelper.current.sendLog("SeriesScreen", "series screen init")
-//    TrackScreenViewEvent(screenName = "SeriesScreen")
-//
-//    val seriesState by viewModel.series.collectAsStateWithLifecycle()
-//
-//    SeriesScreen(
-//        seriesState = seriesState,
-//        restart = viewModel::restart,
-//        goToBack = goToBack,
-//        goToMovie = goToMovie
-//    )
-//}
-
 @Composable
 fun SeriesScreen(
     seriesState: SeriesState,

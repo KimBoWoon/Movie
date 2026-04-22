@@ -89,31 +89,6 @@ fun PeopleScreen(
     )
 }
 
-//@Composable
-//fun PeopleScreen(
-//    goToBack: () -> Unit,
-//    goToMovie: (Int) -> Unit,
-//    goToTv: (Int) -> Unit,
-//    onShowSnackbar: suspend (String, String?) -> Boolean,
-//    viewModel: PeopleVM = hiltViewModel()
-//) {
-//    LocalFirebaseLogHelper.current.sendLog("PeopleScreen", "people screen start!")
-//    TrackScreenViewEvent(screenName = "PeopleScreen")
-//
-//    val peopleState by viewModel.people.collectAsStateWithLifecycle()
-//
-//    PeopleScreen(
-//        peopleState = peopleState,
-//        goToBack = goToBack,
-//        insertFavoritePeople = viewModel::insertPeople,
-//        deleteFavoritePeople = viewModel::deletePeople,
-//        goToMovie = goToMovie,
-//        goToTv = goToTv,
-//        onShowSnackbar = onShowSnackbar,
-//        restart = viewModel::restart
-//    )
-//}
-
 @Composable
 fun PeopleScreen(
     peopleState: PeopleState,

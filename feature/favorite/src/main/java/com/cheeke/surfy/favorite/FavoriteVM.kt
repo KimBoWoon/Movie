@@ -2,6 +2,9 @@ package com.cheeke.surfy.favorite
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.common.di.ActivityRetainedScopeCoroutine
 import com.cheeke.surfy.data.repository.DatabaseRepository
@@ -20,9 +23,7 @@ import dagger.assisted.AssistedInject
 import dagger.hilt.android.components.ActivityRetainedComponent
 import dagger.hilt.android.scopes.ActivityRetainedScoped
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -36,9 +37,6 @@ class FavoriteRepository @Inject constructor(
         private const val TAG = "FavoriteRepository"
     }
 
-//    private val _tabIndex = MutableStateFlow(value = initialTabIndex)
-    private val _tabIndex = MutableStateFlow(value = 0)
-    val tabIndex = _tabIndex.asStateFlow()
     val favoriteMovies = databaseRepository.getMovies()
         .stateIn(
             scope = scope,
@@ -57,10 +55,6 @@ class FavoriteRepository @Inject constructor(
             initialValue = emptyList(),
             started = SharingStarted.WhileSubscribed()
         )
-
-    fun updateTabIndex(index: Int) {
-        _tabIndex.value = index
-    }
 
     fun deleteMovie(movie: Movie) {
         scope.launch {
@@ -82,6 +76,7 @@ class FavoriteRepository @Inject constructor(
 }
 
 class FavoritePresenter @AssistedInject constructor(
+    @Assisted(value = "initialTabIndex") private val initialTabIndex: Int,
     @Assisted(value = "goToMovie") private val goToMovie: (Int) -> Unit,
     @Assisted(value = "goToPeople") private val goToPeople: (Int) -> Unit,
     @Assisted(value = "goToTv") private val goToTv: (Int) -> Unit,
@@ -89,11 +84,7 @@ class FavoritePresenter @AssistedInject constructor(
 ) : Presenter<FavoriteUiState> {
     @Composable
     override fun present(): FavoriteUiState {
-        val tabIndex by produceRetainedState(initialValue = 0) {
-            favoriteRepository.tabIndex.collect { tabIndex ->
-                value = tabIndex
-            }
-        }
+        var tabIndex by rememberSaveable { mutableIntStateOf(value = initialTabIndex) }
         val favoriteMovies by produceRetainedState(initialValue = emptyList()) {
             favoriteRepository.favoriteMovies.collect { favoriteMovies ->
                 value = favoriteMovies
@@ -116,12 +107,12 @@ class FavoritePresenter @AssistedInject constructor(
             favoritePeoples = favoritePeoples,
             favoriteTvs = favoriteTvs
         ) { event ->
-            Log.d("HomePresenter", "$event")
+            Log.d("FavoritePresenter", "$event")
             when (event) {
                 is FavoriteEvent.GoToMovie -> goToMovie(event.id)
                 is FavoriteEvent.GoToPeople -> goToPeople(event.id)
                 is FavoriteEvent.GoToTv -> goToTv(event.id)
-                is FavoriteEvent.UpdateTabIndex -> favoriteRepository.updateTabIndex(index = event.index)
+                is FavoriteEvent.UpdateTabIndex -> tabIndex = event.index
                 is FavoriteEvent.DeleteFavoriteMovie -> favoriteRepository.deleteMovie(movie = event.movie)
                 is FavoriteEvent.DeleteFavoritePeople -> favoriteRepository.deletePeople(people = event.people)
                 is FavoriteEvent.DeleteFavoriteTv -> favoriteRepository.deleteTv(tv = event.tv)
@@ -129,10 +120,11 @@ class FavoritePresenter @AssistedInject constructor(
         }
     }
 
-    @CircuitInject(FavoriteScreen::class, ActivityRetainedComponent::class)
+    @CircuitInject(screen = FavoriteScreen::class, scope = ActivityRetainedComponent::class)
     @AssistedFactory
     interface Factory {
         fun create(
+            @Assisted(value = "initialTabIndex") initialTabIndex: Int = 0,
             @Assisted(value = "goToMovie") goToMovie: ((Int) -> Unit) = {},
             @Assisted(value = "goToPeople") goToPeople: ((Int) -> Unit) = {},
             @Assisted(value = "goToTv") goToTv: ((Int) -> Unit) = {}

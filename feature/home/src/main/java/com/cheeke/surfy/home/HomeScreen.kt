@@ -23,9 +23,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
@@ -103,157 +101,61 @@ import kotlinx.coroutines.flow.collectLatest
 @Composable
 fun HomeScreen(
     modifier: Modifier,
-    homeUiState: HomeUiState
+    homeState: HomeState
 ) {
     LocalFirebaseLogHelper.current.sendLog("HomeScreen", "init screen")
     TrackScreenViewEvent(screenName = "HomeScreen")
 
-//    val homeState by homeUiState.homeUiState.collectAsStateWithLifecycle()
-    val popularMovies = homeUiState.popularMovies
-    val nowPlayingMovies = homeUiState.nowPlayingMovies
-    val upComingMovies = homeUiState.upComingMovies
-    val trendingMovies = homeUiState.trendingMoviePaging
-    val trendingPeoples = homeUiState.trendingPeoplePaging
-    val trendingTvs = homeUiState.trendingTvPaging
-    val trendingMovieTimeWindow = homeUiState.trendingMovieTimeWindow
-    val trendingPeopleTimeWindow = homeUiState.trendingPeopleTimeWindow
-    val trendingTvTimeWindow = homeUiState.trendingTvTimeWindow
-
-    HomeScreen(
-//        homeUiState = homeState,
-        popularMovies = popularMovies,
-        nowPlayingMovies = nowPlayingMovies,
-        upComingMovies = upComingMovies,
-        trendingMovies = trendingMovies,
-        trendingPeoples = trendingPeoples,
-        trendingTvs = trendingTvs,
-        trendingMovieTimeWindow = trendingMovieTimeWindow,
-        updateTrendingMovieTimeWindow = { homeUiState.eventSink(HomeEvent.UpdateTrendingMovieTimeWindow(it)) },
-        trendingPeopleTimeWindow = trendingPeopleTimeWindow,
-        updateTrendingPeopleTimeWindow = { homeUiState.eventSink(HomeEvent.UpdateTrendingPeopleTimeWindow(it)) },
-        trendingTvTimeWindow = trendingTvTimeWindow,
-        updateTrendingTvTimeWindow = { homeUiState.eventSink(HomeEvent.UpdateTrendingTvTimeWindow(it)) },
-        goToMovie = { homeUiState.eventSink(HomeEvent.GoToMovie(id = it)) },
-        goToPeople = { homeUiState.eventSink(HomeEvent.GoToPeople(id = it)) },
-        goToTv = { homeUiState.eventSink(HomeEvent.GoToTv(id = it)) }
-    )
-}
-
-//@Composable
-//fun HomeScreen(
-//    goToMovie: (Int) -> Unit,
-//    goToPeople: (Int) -> Unit,
-//    goToTv: (Int) -> Unit,
-//    viewModel: HomeVM = hiltViewModel()
-//) {
-//    LocalFirebaseLogHelper.current.sendLog("HomeScreen", "init screen")
-//    TrackScreenViewEvent(screenName = "HomeScreen")
-//
-//    val homeState by viewModel.homeUiState.collectAsStateWithLifecycle()
-//    val nowPlayingMovies = viewModel.nowPlayingMoviePaging.collectAsLazyPagingItems()
-//    val upComingMovies = viewModel.upComingMoviePaging.collectAsLazyPagingItems()
-//    val trendingMovies = viewModel.trendingMoviePaging.collectAsLazyPagingItems()
-//    val trendingPeoples = viewModel.trendingPeoplePaging.collectAsLazyPagingItems()
-//    val trendingTvs = viewModel.trendingTvPaging.collectAsLazyPagingItems()
-//    val trendingMovieTimeWindow by viewModel.trendingMovieTimeWindow.collectAsStateWithLifecycle()
-//    val trendingPeopleTimeWindow by viewModel.trendingPeopleTimeWindow.collectAsStateWithLifecycle()
-//    val trendingTvTimeWindow by viewModel.trendingTvTimeWindow.collectAsStateWithLifecycle()
-//
-//    HomeScreen(
-//        homeUiState = homeState,
-//        nowPlayingMovies = nowPlayingMovies,
-//        upComingMovies = upComingMovies,
-//        trendingMovies = trendingMovies,
-//        trendingPeoples = trendingPeoples,
-//        trendingTvs = trendingTvs,
-//        trendingMovieTimeWindow = trendingMovieTimeWindow,
-//        updateTrendingMovieTimeWindow = viewModel::updateTrendingMovieTimeWindow,
-//        trendingPeopleTimeWindow = trendingPeopleTimeWindow,
-//        updateTrendingPeopleTimeWindow = viewModel::updateTrendingPeopleTimeWindow,
-//        trendingTvTimeWindow = trendingTvTimeWindow,
-//        updateTrendingTvTimeWindow = viewModel::updateTrendingTvTimeWindow,
-//        goToMovie = goToMovie,
-//        goToPeople = goToPeople,
-//        goToTv = goToTv
-//    )
-//}
-
-@Composable
-fun HomeScreen(
-//    homeUiState: HomeState,
-    popularMovies: List<Movie>,
-    nowPlayingMovies: LazyPagingItems<Movie>,
-    upComingMovies: LazyPagingItems<Movie>,
-    trendingMovies: LazyPagingItems<TrendingMediaResult>,
-    trendingPeoples: LazyPagingItems<TrendingMediaResult>,
-    trendingTvs: LazyPagingItems<TrendingMediaResult>,
-    trendingMovieTimeWindow: TimeWindow,
-    updateTrendingMovieTimeWindow: (TimeWindow) -> Unit,
-    trendingPeopleTimeWindow: TimeWindow,
-    updateTrendingPeopleTimeWindow: (TimeWindow) -> Unit,
-    trendingTvTimeWindow: TimeWindow,
-    updateTrendingTvTimeWindow: (TimeWindow) -> Unit,
-    goToMovie: (Int) -> Unit,
-    goToPeople: (Int) -> Unit,
-    goToTv: (Int) -> Unit
-) {
-    LocalFirebaseLogHelper.current.sendLog("HomeScreen", "init screen")
-
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
-//        when (homeUiState) {
-//            is HomeState.Loading -> {
-//                Log.d("loading...")
-//                LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data loading...")
-//
-//                CircularProgressComponent(
-//                    modifier = Modifier
-//                        .semantics { contentDescription = "homeLoading" }
-//                        .align(Alignment.Center)
-//                )
-//            }
-//            is HomeState.Success -> {
-                LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data load success")
-                Log.d("$nowPlayingMovies, $upComingMovies, $trendingMovies, $trendingPeoples, $trendingTvs")
+        when (homeState) {
+            is HomeState.Loading -> {
+                Log.d("loading...")
+                LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data loading...")
 
-                val lazyListState = rememberLazyListState()
+                CircularProgressComponent(
+                    modifier = Modifier
+                        .semantics { contentDescription = "homeLoading" }
+                        .align(Alignment.Center)
+                )
+            }
+            is HomeState.Success -> {
+                LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data load success")
+                Log.d("$homeState")
 
                 HomeComponent(
-                    lazyListState = lazyListState,
-//                    popularMovies = homeUiState.homeUiState.popularMovies,
-                    popularMovies = popularMovies,
-                    nowPlayingMovies = nowPlayingMovies,
-                    upComingMovies = upComingMovies,
-                    trendingMovie = trendingMovies,
-                    trendingMovieTimeWindow = trendingMovieTimeWindow,
-                    updateTrendingMovieTimeWindow = updateTrendingMovieTimeWindow,
-                    trendingPeople = trendingPeoples,
-                    trendingPeopleTimeWindow = trendingPeopleTimeWindow,
-                    updateTrendingPeopleTimeWindow = updateTrendingPeopleTimeWindow,
-                    trendingTv = trendingTvs,
-                    trendingTvTimeWindow = trendingTvTimeWindow,
-                    updateTrendingTvTimeWindow = updateTrendingTvTimeWindow,
-                    goToMovie = goToMovie,
-                    goToPeople = goToPeople,
-                    goToTv = goToTv
+                    popularMovies = homeState.homeUiState.popularMovies,
+                    nowPlayingMovies = homeState.homeUiState.nowPlayingMovies,
+                    upComingMovies = homeState.homeUiState.upComingMovies,
+                    trendingMovie = homeState.homeUiState.trendingMoviePaging,
+                    trendingMovieTimeWindow = homeState.homeUiState.trendingMovieTimeWindow,
+                    updateTrendingMovieTimeWindow = { homeState.homeUiState.eventSink(HomeEvent.UpdateTrendingMovieTimeWindow(timeWindow = it)) },
+                    trendingPeople = homeState.homeUiState.trendingPeoplePaging,
+                    trendingPeopleTimeWindow = homeState.homeUiState.trendingPeopleTimeWindow,
+                    updateTrendingPeopleTimeWindow = { homeState.homeUiState.eventSink(HomeEvent.UpdateTrendingPeopleTimeWindow(timeWindow = it)) },
+                    trendingTv = homeState.homeUiState.trendingTvPaging,
+                    trendingTvTimeWindow = homeState.homeUiState.trendingTvTimeWindow,
+                    updateTrendingTvTimeWindow = { homeState.homeUiState.eventSink(HomeEvent.UpdateTrendingTvTimeWindow(timeWindow = it)) },
+                    goToMovie = { homeState.homeUiState.eventSink(HomeEvent.GoToMovie(id = it)) },
+                    goToPeople = { homeState.homeUiState.eventSink(HomeEvent.GoToPeople(id = it)) },
+                    goToTv = { homeState.homeUiState.eventSink(HomeEvent.GoToTv(id = it)) }
                 )
-//            }
-//            is HomeState.Error -> {
-//                LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data load Error > ${homeUiState.throwable.message}")
-//                Log.e("${homeUiState.throwable.message}")
-//                Text(
-//                    modifier = Modifier.fillMaxSize(),
-//                    text = homeUiState.throwable.message ?: stringResource(id = com.cheeke.surfy.core.network.R.string.something_wrong)
-//                )
-//            }
-//        }
+            }
+            is HomeState.Error -> {
+                LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data load Error > ${homeState.throwable.message}")
+                Log.e("${homeState.throwable.message}")
+                Text(
+                    modifier = Modifier.fillMaxSize(),
+                    text = homeState.throwable.message ?: stringResource(id = com.cheeke.surfy.core.network.R.string.something_wrong)
+                )
+            }
+        }
     }
 }
 
 @Composable
 fun HomeComponent(
-    lazyListState: LazyListState,
     popularMovies: List<Movie>,
     nowPlayingMovies: LazyPagingItems<Movie>,
     upComingMovies: LazyPagingItems<Movie>,
@@ -282,10 +184,12 @@ fun HomeComponent(
             .fillMaxSize()
             .verticalScroll(state = scrollState)
     ) {
-        TodayRecommendMovieComponent(
-            movies = popularMovies,
-            goToMovie = goToMovie
-        )
+        if (popularMovies.isNotEmpty()) {
+            TodayRecommendMovieComponent(
+                movies = popularMovies,
+                goToMovie = goToMovie
+            )
+        }
 
         if (nowPlayingMovies.itemCount != 0) {
             HorizontalMovieListComponent(

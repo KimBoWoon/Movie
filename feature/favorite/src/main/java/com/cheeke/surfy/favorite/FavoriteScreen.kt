@@ -73,76 +73,12 @@ fun FavoriteScreen(
     val favoriteTvs = favoriteUiState.favoriteTvs
     val favoritePeoples = favoriteUiState.favoritePeoples
     val tabIndex = favoriteUiState.tabIndex
-
-    FavoriteScreen(
-        favoriteMovies = favoriteMovies,
-        favoriteTvs = favoriteTvs,
-        favoritePeoples = favoritePeoples,
-//        onShowSnackbar = onShowSnackbar,
-        tabIndex = tabIndex,
-        goToMovie = { favoriteUiState.eventSink(FavoriteEvent.GoToMovie(id = it)) },
-        goToTv = { favoriteUiState.eventSink(FavoriteEvent.GoToTv(id = it)) },
-        goToPeople = { favoriteUiState.eventSink(FavoriteEvent.GoToPeople(id = it)) },
-        updateTabIndex = { favoriteUiState.eventSink(FavoriteEvent.UpdateTabIndex(index = it)) },
-        deleteFavoriteMovie = { favoriteUiState.eventSink(FavoriteEvent.DeleteFavoriteMovie(movie = it)) },
-        deleteFavoriteTv = { favoriteUiState.eventSink(FavoriteEvent.DeleteFavoriteTv(tv = it)) },
-        deleteFavoritePeople = { favoriteUiState.eventSink(FavoriteEvent.DeleteFavoritePeople(people = it)) }
-    )
-}
-
-//@Composable
-//fun FavoriteScreen(
-//    goToMovie: (Int) -> Unit,
-//    goToTv: (Int) -> Unit,
-//    goToPeople: (Int) -> Unit,
-//    onShowSnackbar: suspend (String, String?) -> Boolean,
-//    viewModel: FavoriteVM = hiltViewModel()
-//) {
-//    LocalFirebaseLogHelper.current.sendLog("FavoriteScreen", "favorite screen init")
-//    TrackScreenViewEvent(screenName = "FavoriteScreen")
-//
-//    val favoriteMovies by viewModel.favoriteMovies.collectAsStateWithLifecycle()
-//    val favoriteTvs by viewModel.favoriteTvs.collectAsStateWithLifecycle()
-//    val favoritePeoples by viewModel.favoritePeoples.collectAsStateWithLifecycle()
-//    val tabIndex by viewModel.tabIndex.collectAsStateWithLifecycle()
-//
-//    FavoriteScreen(
-//        favoriteMovies = favoriteMovies,
-//        favoriteTvs = favoriteTvs,
-//        favoritePeoples = favoritePeoples,
-//        onShowSnackbar = onShowSnackbar,
-//        tabIndex = tabIndex,
-//        goToMovie = goToMovie,
-//        goToTv = goToTv,
-//        goToPeople = goToPeople,
-//        updateTabIndex = viewModel::updateTabIndex,
-//        deleteFavoriteMovie = viewModel::deleteMovie,
-//        deleteFavoriteTv = viewModel::deleteTv,
-//        deleteFavoritePeople = viewModel::deletePeople
-//    )
-//}
-
-@Composable
-fun FavoriteScreen(
-    favoriteMovies: List<Movie>,
-    favoriteTvs: List<Tv>,
-    favoritePeoples: List<People>,
-//    onShowSnackbar: suspend (String, String?) -> Boolean,
-    tabIndex: Int = 0,
-    goToMovie: (Int) -> Unit,
-    goToTv: (Int) -> Unit,
-    goToPeople: (Int) -> Unit,
-    updateTabIndex: (Int) -> Unit,
-    deleteFavoriteMovie: (Movie) -> Unit,
-    deleteFavoriteTv: (Tv) -> Unit,
-    deleteFavoritePeople: (People) -> Unit
-) {
     val scope = rememberCoroutineScope()
     val removeFavoriteText = stringResource(id = R.string.remove_favorite)
     val analyticsHelper = LocalAnalyticsHelper.current
 
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
         SegmentedTabs(
             modifier = Modifier
@@ -151,7 +87,7 @@ fun FavoriteScreen(
             selected = FavoriteTab.entries[tabIndex],
             onSelected = { favoriteTabs ->
                 val index = FavoriteTab.entries.indexOfFirst { it.stringId == favoriteTabs.stringId }
-                updateTabIndex(index)
+                favoriteUiState.eventSink(FavoriteEvent.UpdateTabIndex(index))
             }
         )
 
@@ -172,16 +108,16 @@ fun FavoriteScreen(
                     FavoriteListComponent<Movie>(
                         favoriteList = favoriteMovies,
                         spanCount = 3,
-                        content = { movieDetail ->
+                        content = { movie ->
                             Box(
-                                modifier = Modifier.bounceClick { goToMovie(movieDetail.id ?: -1) }
+                                modifier = Modifier.bounceClick { favoriteUiState.eventSink(FavoriteEvent.GoToMovie(id = movie.id ?: -1)) }
                             ) {
                                 DynamicAsyncImageLoader(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .aspectRatio(ratio = POSTER_IMAGE_RATIO)
                                         .clip(shape = RoundedCornerShape(size = dp10)),
-                                    source = movieDetail.posterPath ?: "",
+                                    source = movie.posterPath ?: "",
                                     contentDescription = "FavoriteMoviePoster"
                                 )
                                 FavoriteButtonComponent(
@@ -191,11 +127,11 @@ fun FavoriteScreen(
                                         .align(Alignment.TopEnd),
                                     isFavorite = true,
                                     onClick = {
-                                        deleteFavoriteMovie(movieDetail)
+                                        favoriteUiState.eventSink(FavoriteEvent.DeleteFavoriteMovie(movie = movie))
 //                                        scope.launch {
 //                                            onShowSnackbar(removeFavoriteText, null)
 //                                        }
-                                        analyticsHelper.logFavorite(isFavorite = false, contentType = "movie", media = movieDetail)
+                                        analyticsHelper.logFavorite(isFavorite = false, contentType = "movie", media = movie)
                                     }
                                 )
                             }
@@ -221,7 +157,7 @@ fun FavoriteScreen(
                         spanCount = 3,
                         content = { tv ->
                             Box(
-                                modifier = Modifier.bounceClick { goToTv(tv.id ?: -1) }
+                                modifier = Modifier.bounceClick { favoriteUiState.eventSink(FavoriteEvent.GoToTv(id = tv.id ?: -1)) }
                             ) {
                                 DynamicAsyncImageLoader(
                                     modifier = Modifier
@@ -238,7 +174,7 @@ fun FavoriteScreen(
                                         .align(Alignment.TopEnd),
                                     isFavorite = true,
                                     onClick = {
-                                        deleteFavoriteTv(tv)
+                                        favoriteUiState.eventSink(FavoriteEvent.DeleteFavoriteTv(tv = tv))
 //                                        scope.launch {
 //                                            onShowSnackbar(removeFavoriteText, null)
 //                                        }
@@ -270,7 +206,7 @@ fun FavoriteScreen(
                             Column(
                                 modifier = Modifier
                                     .wrapContentSize()
-                                    .bounceClick { goToPeople(peopleDetail.id ?: -1) }
+                                    .bounceClick { favoriteUiState.eventSink(FavoriteEvent.GoToPeople(id = peopleDetail.id ?: -1)) }
                             ) {
                                 Box {
                                     DynamicAsyncImageLoader(
@@ -288,7 +224,7 @@ fun FavoriteScreen(
                                             .align(Alignment.TopEnd),
                                         isFavorite = true,
                                         onClick = {
-                                            deleteFavoritePeople(peopleDetail)
+                                            favoriteUiState.eventSink(FavoriteEvent.DeleteFavoritePeople(people = peopleDetail))
 //                                            scope.launch {
 //                                                onShowSnackbar(removeFavoriteText, null)
 //                                            }

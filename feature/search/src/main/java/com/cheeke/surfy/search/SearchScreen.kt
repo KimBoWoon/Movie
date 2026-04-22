@@ -148,51 +148,6 @@ fun SearchScreen(
     )
 }
 
-//@Composable
-//fun SearchScreen(
-//    goToMovie: (Int) -> Unit,
-//    goToTv: (Int) -> Unit,
-//    goToPeople: (Int) -> Unit,
-//    goToSeries: (Int) -> Unit,
-//    onShowSnackbar: suspend (String, String?) -> Boolean,
-//    viewModel: SearchVM = hiltViewModel()
-//) {
-//    LocalFirebaseLogHelper.current.sendLog("SearchScreen", "search screen init")
-//    TrackScreenViewEvent(screenName = "SearchScreen")
-//
-//    val searchUiState by viewModel.searchResult.collectAsStateWithLifecycle()
-//    val selectedGenre by viewModel.selectedGenre.collectAsStateWithLifecycle()
-//    val searchType by viewModel.searchType.collectAsStateWithLifecycle()
-//    val recommendKeyword = viewModel.recommendKeywordPaging.collectAsLazyPagingItems()
-//    val inputKeyword = stringResource(id = R.string.input_keyword)
-//    val movieAppData by viewModel.surfyAppData.collectAsStateWithLifecycle()
-//    val lifecycle = LocalLifecycleOwner.current.lifecycle
-//    val query by viewModel.query.collectAsStateWithLifecycle()
-//
-//    LaunchedEffect(key1 = Unit) {
-//        viewModel.showSnackbar
-//            .flowWithLifecycle(lifecycle = lifecycle, minActiveState = Lifecycle.State.STARTED)
-//            .collect { onShowSnackbar(inputKeyword, null) }
-//    }
-//
-//    SearchScreen(
-//        searchUiState = searchUiState,
-//        recommendKeyword = recommendKeyword,
-//        query = query,
-//        searchType = searchType,
-//        surfyAppData = movieAppData,
-//        selectedGenre = selectedGenre,
-//        goToMovie = goToMovie,
-//        goToTv = goToTv,
-//        goToPeople = goToPeople,
-//        goToSeries = goToSeries,
-//        onSearchClick = viewModel::searchMovies,
-//        updateKeyword = viewModel::updateQuery,
-//        updateSearchType = viewModel::updateSearchType,
-//        updateGenre = viewModel::updateGenre
-//    )
-//}
-
 @Composable
 fun SearchScreen(
     searchState: SearchState,
