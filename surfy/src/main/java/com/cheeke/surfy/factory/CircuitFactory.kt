@@ -71,7 +71,7 @@ class SurfyPresenterFactory @Inject constructor(
     ): Presenter<*>? = when (screen) {
         is HomeScreen -> homePresenterFactory.create(goToMovie = navigator::goToMovie, goToPeople = navigator::goToPeople, goToTv = navigator::goToTv)
         is SearchScreen -> searchPresenterFactory.create(screen = screen, goToMovie = navigator::goToMovie, goToPeople = navigator::goToPeople, goToSeries = navigator::goToSeries, goToTv = navigator::goToTv)
-        is FavoriteScreen -> favoritePresenterFactory.create(initialTabIndex = 0, goToMovie = navigator::goToMovie, goToPeople = navigator::goToPeople, goToTv = navigator::goToTv)
+        is FavoriteScreen -> favoritePresenterFactory.create(screen = screen, goToMovie = navigator::goToMovie, goToPeople = navigator::goToPeople, goToTv = navigator::goToTv)
         is MovieScreen -> moviePresenterFactory.create(navigator = navigator, screen = screen)
         is PeopleScreen -> peoplePresenterFactory.create(navigator = navigator, screen = screen)
         is SeriesScreen -> seriesPresenterFactory.create(navigator = navigator, screen = screen)

@@ -76,7 +76,7 @@ class FavoriteRepository @Inject constructor(
 }
 
 class FavoritePresenter @AssistedInject constructor(
-    @Assisted(value = "initialTabIndex") private val initialTabIndex: Int,
+    @Assisted private val screen: FavoriteScreen,
     @Assisted(value = "goToMovie") private val goToMovie: (Int) -> Unit,
     @Assisted(value = "goToPeople") private val goToPeople: (Int) -> Unit,
     @Assisted(value = "goToTv") private val goToTv: (Int) -> Unit,
@@ -84,7 +84,7 @@ class FavoritePresenter @AssistedInject constructor(
 ) : Presenter<FavoriteUiState> {
     @Composable
     override fun present(): FavoriteUiState {
-        var tabIndex by rememberSaveable { mutableIntStateOf(value = initialTabIndex) }
+        var tabIndex by rememberSaveable { mutableIntStateOf(value = screen.tab) }
         val favoriteMovies by produceRetainedState(initialValue = emptyList()) {
             favoriteRepository.favoriteMovies.collect { favoriteMovies ->
                 value = favoriteMovies
@@ -124,7 +124,7 @@ class FavoritePresenter @AssistedInject constructor(
     @AssistedFactory
     interface Factory {
         fun create(
-            @Assisted(value = "initialTabIndex") initialTabIndex: Int = 0,
+            @Assisted screen: FavoriteScreen,
             @Assisted(value = "goToMovie") goToMovie: ((Int) -> Unit) = {},
             @Assisted(value = "goToPeople") goToPeople: ((Int) -> Unit) = {},
             @Assisted(value = "goToTv") goToTv: ((Int) -> Unit) = {}

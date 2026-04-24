@@ -5,6 +5,11 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import com.cheeke.surfy.data.util.NetworkMonitor
+import com.cheeke.surfy.home.navigation.HomeScreen
+import com.slack.circuit.backstack.SaveableBackStack
+import com.slack.circuit.backstack.rememberSaveableBackStack
+import com.slack.circuit.foundation.rememberCircuitNavigator
+import com.slack.circuit.runtime.Navigator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
@@ -15,11 +20,13 @@ fun rememberSurfyAppState(
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     networkMonitor: NetworkMonitor
 ): SurfyAppState {
-//    val navigationState = rememberNavigationState(startRoute = HomeNavKey, topLevelRoutes = TOP_LEVEL_NAV_ITEMS.keys)
+    val backStack = rememberSaveableBackStack(root = HomeScreen)
+    val navigator = rememberCircuitNavigator(backStack)
 
-    return remember(key1 = coroutineScope, key2 = networkMonitor/*, key3 = navigationState*/) {
+    return remember(key1 = coroutineScope, key2 = networkMonitor, key3 = navigator) {
         SurfyAppState(
-//            navigationState = navigationState,
+            navigator = navigator,
+            backStack = backStack,
             coroutineScope = coroutineScope,
             networkMonitor = networkMonitor
         )
@@ -28,7 +35,8 @@ fun rememberSurfyAppState(
 
 @Stable
 class SurfyAppState(
-//    val navigationState: NavigationState,
+    val navigator: Navigator,
+    val backStack: SaveableBackStack,
     val coroutineScope: CoroutineScope,
     val networkMonitor: NetworkMonitor
 ) {
@@ -36,7 +44,7 @@ class SurfyAppState(
         .map(transform = Boolean::not)
         .stateIn(
             scope = coroutineScope,
-            started = SharingStarted.WhileSubscribed(5_000),
+            started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000),
             initialValue = false
         )
 }

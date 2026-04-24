@@ -98,10 +98,9 @@ fun SurfyApp(
 ) {
     val isTopLevelRoute by remember {
         derivedStateOf {
-            navigator.peek() in TopLevelDestination.entries.map { it.screen }
-//            navigator.state.backStacks[navigator.state.topLevelRoute]
-//                ?.lastOrNull()
-//                ?.javaClass in TopLevelDestination.entries.map { it.javaClass }
+            navigator.peek()?.let {
+                it.javaClass.simpleName in TopLevelDestination.entries.map { entry -> entry.screen.javaClass.simpleName }
+            } ?: false
         }
     }
 
@@ -137,86 +136,6 @@ fun SurfyApp(
                 )
             }
         }
-
-//        val entryProvider = entryProvider {
-//            movieEntry(
-//                goToBack = navigator::goBack,
-//                goToMovie = navigator::navigateToMovie,
-//                goToPeople = navigator::navigateToPeople,
-//                goToSeries = navigator::navigateToSeries,
-//                onShowSnackbar = { message, action ->
-//                    snackbarHostState.showSnackbar(
-//                        message = message,
-//                        actionLabel = action,
-//                        duration = SnackbarDuration.Short,
-//                    ) == SnackbarResult.ActionPerformed
-//                }
-//            )
-//            peopleEntry(
-//                goToBack = navigator::goBack,
-//                goToMovie = navigator::navigateToMovie,
-//                goToTv = navigator::navigateToTv,
-//                onShowSnackbar = { message, action ->
-//                    snackbarHostState.showSnackbar(
-//                        message = message,
-//                        actionLabel = action,
-//                        duration = SnackbarDuration.Short,
-//                    ) == SnackbarResult.ActionPerformed
-//                }
-//            )
-//            seriesEntry(
-//                goToBack = navigator::goBack,
-//                goToMovie = navigator::navigateToMovie
-//            )
-//            tvEntry(
-//                goToBack = navigator::goBack,
-//                goToTv = navigator::navigateToTv,
-//                goToPeople = navigator::navigateToPeople,
-//                onShowSnackbar = { message, action ->
-//                    snackbarHostState.showSnackbar(
-//                        message = message,
-//                        actionLabel = action,
-//                        duration = SnackbarDuration.Short,
-//                    ) == SnackbarResult.ActionPerformed
-//                }
-//            )
-//            favoriteEntry(
-//                goToMovie = navigator::navigateToMovie,
-//                goToTv = navigator::navigateToTv,
-//                goToPeople = navigator::navigateToPeople,
-//                onShowSnackbar = { message, action ->
-//                    snackbarHostState.showSnackbar(
-//                        message = message,
-//                        actionLabel = action,
-//                        duration = SnackbarDuration.Short,
-//                    ) == SnackbarResult.ActionPerformed
-//                }
-//            )
-//            homeEntry(
-//                goToMovie = navigator::navigateToMovie,
-//                goToPeople = navigator::navigateToPeople,
-//                goToTv = navigator::navigateToTv
-//            )
-//            searchEntry(
-//                goToMovie = navigator::navigateToMovie,
-//                goToTv = navigator::navigateToTv,
-//                goToPeople = navigator::navigateToPeople,
-//                goToSeries = navigator::navigateToSeries,
-//                onShowSnackbar = { message, action ->
-//                    snackbarHostState.showSnackbar(
-//                        message = message,
-//                        actionLabel = action,
-//                        duration = SnackbarDuration.Short,
-//                    ) == SnackbarResult.ActionPerformed
-//                }
-//            )
-//        }
-
-//        NavDisplay(
-//            modifier = Modifier.padding(paddingValues = innerPadding),
-//            entries = navigator.state.toEntries(entryProvider),
-//            onBack = navigator::goBack
-//        )
 
         NavigableCircuitContent(
             modifier = Modifier.padding(paddingValues = innerPadding),
@@ -355,7 +274,7 @@ fun MovieNavigation(
     ) {
         TopLevelDestination.entries.forEach { navItem ->
             BottomNavigationBarItem(
-                selected = navItem.screen == navigator.peek(),
+                selected = navItem.screen.javaClass.simpleName == navigator.peek()?.javaClass?.simpleName,
                 label = stringResource(id = navItem.titleTextId),
                 selectedIcon = navItem.selectedIcon,
                 unSelectedIcon = navItem.unselectedIcon,

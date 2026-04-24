@@ -1,100 +1,101 @@
-//package com.cheeke.surfy.deeplink
-//
-//import android.net.Uri
-//import androidx.navigation3.runtime.NavKey
-//import com.cheeke.surfy.detail.movie.navigation.MovieNavKey
-//import com.cheeke.surfy.detail.people.navigation.PeopleNavKey
-//import com.cheeke.surfy.detail.series.navigation.SeriesNavKey
-//import com.cheeke.surfy.detail.tv.navigation.TvNavKey
-//import com.cheeke.surfy.favorite.FavoriteTab
-//import com.cheeke.surfy.favorite.navigation.FavoriteNavKey
-//import com.cheeke.surfy.home.navigation.HomeNavKey
-//import com.cheeke.surfy.search.navigation.SearchNavKey
-//
-//fun parseDeeplink(uri: Uri?): List<NavKey> = uri?.let { uri ->
-//    val path = uri.pathSegments.firstOrNull()
-//    val query = uri.queryParameterNames.associateWith { name -> uri.getQueryParameter(name) }
-//
-//    DeeplinkAction.entries.find { it.value == path }?.let { deeplinkAction ->
-//        when (deeplinkAction) {
-//            DeeplinkAction.GO_TO_HOME -> createDeeplinkStack(command = DeeplinkCommand.GoToHome)
-//            DeeplinkAction.GO_TO_FAVORITE -> createDeeplinkStack(
-//                command = DeeplinkCommand.GoToFavorite(tabIndex = query["tabIndex"]?.toIntOrNull() ?: 0)
-//            )
-//            DeeplinkAction.GO_TO_SETTING -> createDeeplinkStack(command = DeeplinkCommand.GoToSetting)
-//            DeeplinkAction.OPEN_FAVORITE_PERSON -> createDeeplinkStack(
-//                command = DeeplinkCommand.OpenFavoritePeople(id = query["peopleId"]?.toIntOrNull() ?: -1)
-//            )
-//            DeeplinkAction.OPEN_FAVORITE_MOVIE -> createDeeplinkStack(
-//                command = DeeplinkCommand.OpenFavoriteMovie(id = query["id"]?.toIntOrNull() ?: -1)
-//            )
-//            DeeplinkAction.OPEN_FAVORITE_TV -> createDeeplinkStack(
-//                command = DeeplinkCommand.OpenFavoriteTv(id = query["id"]?.toIntOrNull() ?: -1)
-//            )
-//            DeeplinkAction.GO_TO_MOVIE -> createDeeplinkStack(
-//                command = DeeplinkCommand.GoToMovie(id = query["id"]?.toIntOrNull() ?: -1)
-//            )
-//            DeeplinkAction.GO_TO_TV -> createDeeplinkStack(
-//                command = DeeplinkCommand.GoToTv(id = query["id"]?.toIntOrNull() ?: -1)
-//            )
-//            DeeplinkAction.GO_TO_PEOPLE -> createDeeplinkStack(
-//                command = DeeplinkCommand.GoToPeople(id = query["id"]?.toIntOrNull() ?: -1)
-//            )
-//            DeeplinkAction.GO_TO_SERIES -> createDeeplinkStack(
-//                command = DeeplinkCommand.GoToSeries(id = query["id"]?.toIntOrNull() ?: -1)
-//            )
-//            DeeplinkAction.GO_TO_SEARCH -> createDeeplinkStack(
-//                command = DeeplinkCommand.GoToSearch(
-//                    query = query["query"] ?: "",
-//                    searchType = query["searchType"] ?: "surfy"
-//                )
-//            )
-//            DeeplinkAction.SEARCH_TO_MOVIE -> createDeeplinkStack(
-//                command = DeeplinkCommand.SearchToMovie(
-//                    query = query["query"] ?: "",
-//                    searchType = query["searchType"] ?: "surfy",
-//                    id = query["id"]?.toIntOrNull() ?: -1
-//                )
-//            )
-//            DeeplinkAction.SEARCH_TO_PEOPLE -> createDeeplinkStack(
-//                command = DeeplinkCommand.SearchToPeople(
-//                    query = query["query"] ?: "",
-//                    searchType = query["searchType"] ?: "people",
-//                    id = query["id"]?.toIntOrNull() ?: -1
-//                )
-//            )
-//            DeeplinkAction.SEARCH_TO_SERIES -> createDeeplinkStack(
-//                command = DeeplinkCommand.SearchToSeries(
-//                    query = query["query"] ?: "",
-//                    searchType = query["searchType"] ?: "series",
-//                    id = query["id"]?.toIntOrNull() ?: -1
-//                )
-//            )
-//            DeeplinkAction.SEARCH_TO_TV -> createDeeplinkStack(
-//                command = DeeplinkCommand.SearchToTv(
-//                    query = query["query"] ?: "",
-//                    searchType = query["searchType"] ?: "tv",
-//                    id = query["id"]?.toIntOrNull() ?: -1
-//                )
-//            )
-//        }
-//    }
-//} ?: emptyList()
-//
-//private fun createDeeplinkStack(command: DeeplinkCommand): List<NavKey> = when (command) {
-//    is DeeplinkCommand.GoToHome -> listOf(HomeNavKey)
-//    is DeeplinkCommand.GoToFavorite -> listOf(FavoriteNavKey(tab = command.tabIndex))
-//    is DeeplinkCommand.GoToSetting -> emptyList()
-//    is DeeplinkCommand.OpenFavoritePeople -> listOf(FavoriteNavKey(tab = FavoriteTab.PEOPLE.ordinal), PeopleNavKey(id = command.id))
-//    is DeeplinkCommand.OpenFavoriteMovie -> listOf(FavoriteNavKey(tab = FavoriteTab.MOVIE.ordinal), MovieNavKey(id = command.id))
-//    is DeeplinkCommand.OpenFavoriteTv -> listOf(FavoriteNavKey(tab = FavoriteTab.TV.ordinal), TvNavKey(id = command.id))
-//    is DeeplinkCommand.GoToMovie -> listOf(MovieNavKey(id = command.id))
-//    is DeeplinkCommand.GoToTv -> listOf(TvNavKey(id = command.id))
-//    is DeeplinkCommand.GoToPeople -> listOf(PeopleNavKey(id = command.id))
-//    is DeeplinkCommand.GoToSeries -> listOf(SeriesNavKey(id = command.id))
-//    is DeeplinkCommand.GoToSearch -> listOf(SearchNavKey(query = command.query, searchType = command.searchType))
-//    is DeeplinkCommand.SearchToMovie -> listOf(SearchNavKey(query = command.query, searchType = command.searchType), MovieNavKey(id = command.id))
-//    is DeeplinkCommand.SearchToPeople -> listOf(SearchNavKey(query = command.query, searchType = command.searchType), PeopleNavKey(id = command.id))
-//    is DeeplinkCommand.SearchToSeries -> listOf(SearchNavKey(query = command.query, searchType = command.searchType), SeriesNavKey(id = command.id))
-//    is DeeplinkCommand.SearchToTv -> listOf(SearchNavKey(query = command.query, searchType = command.searchType), TvNavKey(id = command.id))
-//}
+package com.cheeke.surfy.deeplink
+
+import android.net.Uri
+import com.cheeke.surfy.detail.movie.navigation.MovieScreen
+import com.cheeke.surfy.detail.people.navigation.PeopleScreen
+import com.cheeke.surfy.detail.series.navigation.SeriesScreen
+import com.cheeke.surfy.detail.tv.navigation.TvScreen
+import com.cheeke.surfy.favorite.FavoriteTab
+import com.cheeke.surfy.favorite.navigation.FavoriteScreen
+import com.cheeke.surfy.home.navigation.HomeScreen
+import com.cheeke.surfy.model.SearchType
+import com.cheeke.surfy.search.navigation.SearchScreen
+import com.slack.circuit.runtime.screen.Screen
+
+fun parseDeeplink(uri: Uri?): List<Screen> = uri?.let { uri ->
+    val path = uri.pathSegments.firstOrNull()
+    val query = uri.queryParameterNames.associateWith { name -> uri.getQueryParameter(name) }
+
+    DeeplinkAction.entries.find { it.value == path }?.let { deeplinkAction ->
+        when (deeplinkAction) {
+            DeeplinkAction.GO_TO_HOME -> createDeeplinkStack(command = DeeplinkCommand.GoToHome)
+            DeeplinkAction.GO_TO_FAVORITE -> createDeeplinkStack(
+                command = DeeplinkCommand.GoToFavorite(tabIndex = query["tabIndex"]?.toIntOrNull() ?: 0)
+            )
+            DeeplinkAction.GO_TO_SETTING -> createDeeplinkStack(command = DeeplinkCommand.GoToSetting)
+            DeeplinkAction.OPEN_FAVORITE_PERSON -> createDeeplinkStack(
+                command = DeeplinkCommand.OpenFavoritePeople(id = query["peopleId"]?.toIntOrNull() ?: -1)
+            )
+            DeeplinkAction.OPEN_FAVORITE_MOVIE -> createDeeplinkStack(
+                command = DeeplinkCommand.OpenFavoriteMovie(id = query["id"]?.toIntOrNull() ?: -1)
+            )
+            DeeplinkAction.OPEN_FAVORITE_TV -> createDeeplinkStack(
+                command = DeeplinkCommand.OpenFavoriteTv(id = query["id"]?.toIntOrNull() ?: -1)
+            )
+            DeeplinkAction.GO_TO_MOVIE -> createDeeplinkStack(
+                command = DeeplinkCommand.GoToMovie(id = query["id"]?.toIntOrNull() ?: -1)
+            )
+            DeeplinkAction.GO_TO_TV -> createDeeplinkStack(
+                command = DeeplinkCommand.GoToTv(id = query["id"]?.toIntOrNull() ?: -1)
+            )
+            DeeplinkAction.GO_TO_PEOPLE -> createDeeplinkStack(
+                command = DeeplinkCommand.GoToPeople(id = query["id"]?.toIntOrNull() ?: -1)
+            )
+            DeeplinkAction.GO_TO_SERIES -> createDeeplinkStack(
+                command = DeeplinkCommand.GoToSeries(id = query["id"]?.toIntOrNull() ?: -1)
+            )
+            DeeplinkAction.GO_TO_SEARCH -> createDeeplinkStack(
+                command = DeeplinkCommand.GoToSearch(
+                    query = query["query"] ?: "",
+                    searchType = query["searchType"] ?: "surfy"
+                )
+            )
+            DeeplinkAction.SEARCH_TO_MOVIE -> createDeeplinkStack(
+                command = DeeplinkCommand.SearchToMovie(
+                    query = query["query"] ?: "",
+                    searchType = query["searchType"] ?: "surfy",
+                    id = query["id"]?.toIntOrNull() ?: -1
+                )
+            )
+            DeeplinkAction.SEARCH_TO_PEOPLE -> createDeeplinkStack(
+                command = DeeplinkCommand.SearchToPeople(
+                    query = query["query"] ?: "",
+                    searchType = query["searchType"] ?: "people",
+                    id = query["id"]?.toIntOrNull() ?: -1
+                )
+            )
+            DeeplinkAction.SEARCH_TO_SERIES -> createDeeplinkStack(
+                command = DeeplinkCommand.SearchToSeries(
+                    query = query["query"] ?: "",
+                    searchType = query["searchType"] ?: "series",
+                    id = query["id"]?.toIntOrNull() ?: -1
+                )
+            )
+            DeeplinkAction.SEARCH_TO_TV -> createDeeplinkStack(
+                command = DeeplinkCommand.SearchToTv(
+                    query = query["query"] ?: "",
+                    searchType = query["searchType"] ?: "tv",
+                    id = query["id"]?.toIntOrNull() ?: -1
+                )
+            )
+        }
+    }
+} ?: emptyList()
+
+private fun createDeeplinkStack(command: DeeplinkCommand): List<Screen> = when (command) {
+    is DeeplinkCommand.GoToHome -> listOf(HomeScreen)
+    is DeeplinkCommand.GoToFavorite -> listOf(FavoriteScreen(tab = command.tabIndex))
+    is DeeplinkCommand.GoToSetting -> emptyList()
+    is DeeplinkCommand.OpenFavoritePeople -> listOf(FavoriteScreen(tab = FavoriteTab.PEOPLE.ordinal), PeopleScreen(id = command.id))
+    is DeeplinkCommand.OpenFavoriteMovie -> listOf(FavoriteScreen(tab = FavoriteTab.MOVIE.ordinal), MovieScreen(id = command.id))
+    is DeeplinkCommand.OpenFavoriteTv -> listOf(FavoriteScreen(tab = FavoriteTab.TV.ordinal), TvScreen(id = command.id))
+    is DeeplinkCommand.GoToMovie -> listOf(MovieScreen(id = command.id))
+    is DeeplinkCommand.GoToTv -> listOf(TvScreen(id = command.id))
+    is DeeplinkCommand.GoToPeople -> listOf(PeopleScreen(id = command.id))
+    is DeeplinkCommand.GoToSeries -> listOf(SeriesScreen(id = command.id))
+    is DeeplinkCommand.GoToSearch -> listOf(SearchScreen(query = command.query, searchType = SearchType.valueOf(command.searchType.uppercase())))
+    is DeeplinkCommand.SearchToMovie -> listOf(SearchScreen(query = command.query, searchType = SearchType.valueOf(command.searchType.uppercase())), MovieScreen(id = command.id))
+    is DeeplinkCommand.SearchToPeople -> listOf(SearchScreen(query = command.query, searchType = SearchType.valueOf(command.searchType.uppercase())), PeopleScreen(id = command.id))
+    is DeeplinkCommand.SearchToSeries -> listOf(SearchScreen(query = command.query, searchType = SearchType.valueOf(command.searchType.uppercase())), SeriesScreen(id = command.id))
+    is DeeplinkCommand.SearchToTv -> listOf(SearchScreen(query = command.query, searchType = SearchType.valueOf(command.searchType.uppercase())), TvScreen(id = command.id))
+}
