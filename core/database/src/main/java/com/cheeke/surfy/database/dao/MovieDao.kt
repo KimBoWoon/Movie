@@ -34,6 +34,9 @@ interface MovieDao {
     @Query(value = "SELECT * FROM nowplayingmovie WHERE voteCount > 500 AND voteAverage > 7.0")
     suspend fun getPopularMovies(): List<NowPlayingMovieEntity>
 
+    @Query(value = "SELECT * FROM movies ORDER BY timestamp DESC")
+    fun getFavoriteMovie(): PagingSource<Int, MovieEntity>
+
     @Query(value = "SELECT * FROM nowplayingmovie")
     fun getNowPlayingMovie(): PagingSource<Int, NowPlayingMovieEntity>
 

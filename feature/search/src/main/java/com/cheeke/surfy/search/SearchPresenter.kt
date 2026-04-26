@@ -21,7 +21,8 @@ import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.model.SearchKeyword
 import com.cheeke.surfy.model.SearchType
 import com.cheeke.surfy.model.SurfyAppData
-import com.cheeke.surfy.search.navigation.SearchScreen
+import com.cheeke.surfy.navigation.LocalAppNavigator
+import com.cheeke.surfy.navigation.SearchScreen
 import com.slack.circuit.codegen.annotations.CircuitInject
 import com.slack.circuit.retained.rememberRetained
 import com.slack.circuit.runtime.CircuitUiState
@@ -185,15 +186,12 @@ class SearchRepository @AssistedInject constructor(
 
 class SearchPresenter @AssistedInject constructor(
     @Assisted private val screen: SearchScreen,
-    @Assisted(value = "goToMovie") private val goToMovie: (Int) -> Unit,
-    @Assisted(value = "goToPeople") private val goToPeople: (Int) -> Unit,
-    @Assisted(value = "goToTv") private val goToTv: (Int) -> Unit,
-    @Assisted(value = "goToSeries") private val goToSeries: ((Int) -> Unit),
     private val searchRepositoryFactory: SearchRepository.Factory,
     private val analyticsHelper: AnalyticsHelper
 ) : Presenter<SearchUiState> {
     @Composable
     override fun present(): SearchUiState {
+        val navigator = LocalAppNavigator.current
         val searchRepository = rememberRetained(screen) {
             searchRepositoryFactory.create(initialQuery = screen.query, initialSearchType = screen.searchType, genre = null)
         }
@@ -229,10 +227,10 @@ class SearchPresenter @AssistedInject constructor(
                     analyticsHelper.logSearch(searchType = searchType.label, query = query.text)
                     searchRepository.search()
                 }
-                is SearchEvent.GoToMovie -> goToMovie(event.id)
-                is SearchEvent.GoToPeople -> goToPeople(event.id)
-                is SearchEvent.GoToTv -> goToTv(event.id)
-                is SearchEvent.GoToSeries -> goToSeries(event.id)
+                is SearchEvent.GoToMovie -> navigator.goToMovie(event.id)
+                is SearchEvent.GoToPeople -> navigator.goToPeople(event.id)
+                is SearchEvent.GoToTv -> navigator.goToTv(event.id)
+                is SearchEvent.GoToSeries -> navigator.goToSeries(event.id)
             }
         }
     }
@@ -241,11 +239,7 @@ class SearchPresenter @AssistedInject constructor(
     @AssistedFactory
     interface Factory {
         fun create(
-            @Assisted screen: SearchScreen,
-            @Assisted(value = "goToMovie") goToMovie: (Int) -> Unit = {},
-            @Assisted(value = "goToPeople") goToPeople: (Int) -> Unit = {},
-            @Assisted(value = "goToTv") goToTv: (Int) -> Unit = {},
-            @Assisted(value = "goToSeries") goToSeries: ((Int) -> Unit) = {}
+            @Assisted screen: SearchScreen
         ): SearchPresenter
     }
 }

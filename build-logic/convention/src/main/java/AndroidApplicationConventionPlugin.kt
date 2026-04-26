@@ -16,6 +16,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
         with(receiver = target) {
             apply(plugin = "com.android.application")
             apply(plugin = "com.google.devtools.ksp")
+            apply(plugin = "kotlin-parcelize")
 
             Config.init(rootDir = rootProject.projectDir)
 

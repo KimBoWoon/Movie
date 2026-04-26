@@ -3,35 +3,39 @@ package com.cheeke.surfy.factory
 import com.cheeke.surfy.detail.movie.MoviePresenter
 import com.cheeke.surfy.detail.movie.MovieScreen
 import com.cheeke.surfy.detail.movie.MovieUiState
-import com.cheeke.surfy.detail.movie.navigation.MovieScreen
-import com.cheeke.surfy.detail.movie.navigation.goToMovie
 import com.cheeke.surfy.detail.people.PeoplePresenter
 import com.cheeke.surfy.detail.people.PeopleScreen
 import com.cheeke.surfy.detail.people.PeopleUiState
-import com.cheeke.surfy.detail.people.navigation.PeopleScreen
-import com.cheeke.surfy.detail.people.navigation.goToPeople
 import com.cheeke.surfy.detail.series.SeriesPresenter
 import com.cheeke.surfy.detail.series.SeriesScreen
 import com.cheeke.surfy.detail.series.SeriesUiState
-import com.cheeke.surfy.detail.series.navigation.SeriesScreen
-import com.cheeke.surfy.detail.series.navigation.goToSeries
 import com.cheeke.surfy.detail.tv.TvPresenter
 import com.cheeke.surfy.detail.tv.TvScreen
 import com.cheeke.surfy.detail.tv.TvUiState
-import com.cheeke.surfy.detail.tv.navigation.TvScreen
-import com.cheeke.surfy.detail.tv.navigation.goToTv
 import com.cheeke.surfy.favorite.FavoritePresenter
 import com.cheeke.surfy.favorite.FavoriteScreen
 import com.cheeke.surfy.favorite.FavoriteUiState
-import com.cheeke.surfy.favorite.navigation.FavoriteScreen
 import com.cheeke.surfy.home.HomePresenter
 import com.cheeke.surfy.home.HomeScreen
 import com.cheeke.surfy.home.HomeState
-import com.cheeke.surfy.home.navigation.HomeScreen
+import com.cheeke.surfy.navigation.FavoriteScreen
+import com.cheeke.surfy.navigation.HomeScreen
+import com.cheeke.surfy.navigation.MovieScreen
+import com.cheeke.surfy.navigation.PeopleScreen
+import com.cheeke.surfy.navigation.RootScreen
+import com.cheeke.surfy.navigation.SearchScreen
+import com.cheeke.surfy.navigation.SeriesScreen
+import com.cheeke.surfy.navigation.SettingScreen
+import com.cheeke.surfy.navigation.TvScreen
 import com.cheeke.surfy.search.SearchPresenter
 import com.cheeke.surfy.search.SearchScreen
 import com.cheeke.surfy.search.SearchUiState
-import com.cheeke.surfy.search.navigation.SearchScreen
+import com.cheeke.surfy.setting.SettingPresenter
+import com.cheeke.surfy.setting.SettingScreen
+import com.cheeke.surfy.setting.SettingsUiState
+import com.cheeke.surfy.ui.RootPresenter
+import com.cheeke.surfy.ui.RootScreen
+import com.cheeke.surfy.ui.RootState
 import com.slack.circuit.runtime.CircuitContext
 import com.slack.circuit.runtime.Navigator
 import com.slack.circuit.runtime.presenter.Presenter
@@ -44,7 +48,9 @@ class SurfyScreenFactory @Inject constructor(
 
 ) : Ui.Factory {
     override fun create(screen: Screen, context: CircuitContext): Ui<*>? = when (screen) {
+        is RootScreen -> ui<RootState> { state, modifier -> RootScreen(modifier = modifier, rootState = state) }
         is HomeScreen -> ui<HomeState> { state, modifier -> HomeScreen(modifier = modifier, homeState = state) }
+        is SettingScreen -> ui<SettingsUiState> { state, modifier -> SettingScreen(modifier = modifier, settingUiState = state) }
         is SearchScreen -> ui<SearchUiState> { state, modifier -> SearchScreen(modifier = modifier, searchUiState = state) }
         is FavoriteScreen -> ui<FavoriteUiState> { state, modifier -> FavoriteScreen(modifier = modifier, favoriteUiState = state) }
         is MovieScreen -> ui<MovieUiState> { state, modifier -> MovieScreen(modifier = modifier, movieUiState = state) }
@@ -56,7 +62,9 @@ class SurfyScreenFactory @Inject constructor(
 }
 
 class SurfyPresenterFactory @Inject constructor(
+    private val rootPresenterFactory: RootPresenter.Factory,
     private val homePresenterFactory: HomePresenter.Factory,
+    private val settingPresenterFactory: SettingPresenter.Factory,
     private val searchPresenterFactory: SearchPresenter.Factory,
     private val favoritePresenterFactory: FavoritePresenter.Factory,
     private val moviePresenterFactory: MoviePresenter.Factory,
@@ -69,13 +77,15 @@ class SurfyPresenterFactory @Inject constructor(
         navigator: Navigator,
         context: CircuitContext
     ): Presenter<*>? = when (screen) {
-        is HomeScreen -> homePresenterFactory.create(goToMovie = navigator::goToMovie, goToPeople = navigator::goToPeople, goToTv = navigator::goToTv)
-        is SearchScreen -> searchPresenterFactory.create(screen = screen, goToMovie = navigator::goToMovie, goToPeople = navigator::goToPeople, goToSeries = navigator::goToSeries, goToTv = navigator::goToTv)
-        is FavoriteScreen -> favoritePresenterFactory.create(screen = screen, goToMovie = navigator::goToMovie, goToPeople = navigator::goToPeople, goToTv = navigator::goToTv)
-        is MovieScreen -> moviePresenterFactory.create(navigator = navigator, screen = screen)
-        is PeopleScreen -> peoplePresenterFactory.create(navigator = navigator, screen = screen)
-        is SeriesScreen -> seriesPresenterFactory.create(navigator = navigator, screen = screen)
-        is TvScreen -> tvPresenterFactory.create(navigator = navigator, screen = screen)
+        is RootScreen -> rootPresenterFactory.create()
+        is HomeScreen -> homePresenterFactory.create()
+        is SettingScreen -> settingPresenterFactory.create()
+        is SearchScreen -> searchPresenterFactory.create(screen = screen)
+        is FavoriteScreen -> favoritePresenterFactory.create(screen = screen)
+        is MovieScreen -> moviePresenterFactory.create(screen = screen)
+        is PeopleScreen -> peoplePresenterFactory.create(screen = screen)
+        is SeriesScreen -> seriesPresenterFactory.create(screen = screen)
+        is TvScreen -> tvPresenterFactory.create(screen = screen)
         else -> null
     }
 }

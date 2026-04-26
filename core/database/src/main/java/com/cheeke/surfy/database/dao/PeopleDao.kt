@@ -1,5 +1,6 @@
 package com.cheeke.surfy.database.dao
 
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -24,4 +25,7 @@ interface PeopleDao {
 
     @Query(value = "DELETE FROM peoples WHERE id = (:id)")
     suspend fun deletePeople(id: Int)
+
+    @Query(value = "SELECT * FROM peoples ORDER BY timestamp DESC")
+    fun getFavoritePeople(): PagingSource<Int, PeopleEntity>
 }

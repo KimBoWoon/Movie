@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyListState
@@ -63,7 +64,6 @@ import com.cheeke.surfy.analytics.logSelectEpisode
 import com.cheeke.surfy.analytics.logSelectSeason
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.detail.movie.AlternativeTitleComponent
-import com.cheeke.surfy.detail.tv.navigation.TvScreen
 import com.cheeke.surfy.domain.TvSeasonLoadState
 import com.cheeke.surfy.feature.detail.R
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
@@ -74,6 +74,7 @@ import com.cheeke.surfy.model.SimilarMedia
 import com.cheeke.surfy.model.Tv
 import com.cheeke.surfy.model.TvEpisode
 import com.cheeke.surfy.model.TvSeason
+import com.cheeke.surfy.navigation.TvScreen
 import com.cheeke.surfy.ui.components.CircularProgressComponent
 import com.cheeke.surfy.ui.components.CreditsComponent
 import com.cheeke.surfy.ui.components.ImageOverlay
@@ -151,7 +152,7 @@ fun TvScreen(
     onSelectSeason: (TvSeason) -> Unit
 ) {
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize().statusBarsPadding()
     ) {
         when (tvUiState) {
             is TvState.Loading -> {

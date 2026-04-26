@@ -1,15 +1,15 @@
 package com.cheeke.surfy.deeplink
 
 import android.net.Uri
-import com.cheeke.surfy.detail.movie.navigation.MovieScreen
-import com.cheeke.surfy.detail.people.navigation.PeopleScreen
-import com.cheeke.surfy.detail.series.navigation.SeriesScreen
-import com.cheeke.surfy.detail.tv.navigation.TvScreen
 import com.cheeke.surfy.favorite.FavoriteTab
-import com.cheeke.surfy.favorite.navigation.FavoriteScreen
-import com.cheeke.surfy.home.navigation.HomeScreen
 import com.cheeke.surfy.model.SearchType
-import com.cheeke.surfy.search.navigation.SearchScreen
+import com.cheeke.surfy.navigation.FavoriteScreen
+import com.cheeke.surfy.navigation.HomeScreen
+import com.cheeke.surfy.navigation.MovieScreen
+import com.cheeke.surfy.navigation.PeopleScreen
+import com.cheeke.surfy.navigation.SearchScreen
+import com.cheeke.surfy.navigation.SeriesScreen
+import com.cheeke.surfy.navigation.TvScreen
 import com.slack.circuit.runtime.screen.Screen
 
 fun parseDeeplink(uri: Uri?): List<Screen> = uri?.let { uri ->
@@ -84,11 +84,11 @@ fun parseDeeplink(uri: Uri?): List<Screen> = uri?.let { uri ->
 
 private fun createDeeplinkStack(command: DeeplinkCommand): List<Screen> = when (command) {
     is DeeplinkCommand.GoToHome -> listOf(HomeScreen)
-    is DeeplinkCommand.GoToFavorite -> listOf(FavoriteScreen(tab = command.tabIndex))
+    is DeeplinkCommand.GoToFavorite -> listOf(FavoriteScreen(index = command.tabIndex))
     is DeeplinkCommand.GoToSetting -> emptyList()
-    is DeeplinkCommand.OpenFavoritePeople -> listOf(FavoriteScreen(tab = FavoriteTab.PEOPLE.ordinal), PeopleScreen(id = command.id))
-    is DeeplinkCommand.OpenFavoriteMovie -> listOf(FavoriteScreen(tab = FavoriteTab.MOVIE.ordinal), MovieScreen(id = command.id))
-    is DeeplinkCommand.OpenFavoriteTv -> listOf(FavoriteScreen(tab = FavoriteTab.TV.ordinal), TvScreen(id = command.id))
+    is DeeplinkCommand.OpenFavoritePeople -> listOf(FavoriteScreen(index = FavoriteTab.PEOPLE.ordinal), PeopleScreen(id = command.id))
+    is DeeplinkCommand.OpenFavoriteMovie -> listOf(FavoriteScreen(index = FavoriteTab.MOVIE.ordinal), MovieScreen(id = command.id))
+    is DeeplinkCommand.OpenFavoriteTv -> listOf(FavoriteScreen(index = FavoriteTab.TV.ordinal), TvScreen(id = command.id))
     is DeeplinkCommand.GoToMovie -> listOf(MovieScreen(id = command.id))
     is DeeplinkCommand.GoToTv -> listOf(TvScreen(id = command.id))
     is DeeplinkCommand.GoToPeople -> listOf(PeopleScreen(id = command.id))

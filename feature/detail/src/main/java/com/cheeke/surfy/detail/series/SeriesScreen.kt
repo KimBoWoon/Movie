@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -51,11 +52,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import com.cheeke.surfy.analytics.TrackScreenViewEvent
 import com.cheeke.surfy.core.network.R
 import com.cheeke.surfy.data.util.POSTER_IMAGE_RATIO
-import com.cheeke.surfy.detail.series.navigation.SeriesScreen
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
 import com.cheeke.surfy.model.ImageList
 import com.cheeke.surfy.model.Series
 import com.cheeke.surfy.model.SeriesPart
+import com.cheeke.surfy.navigation.SeriesScreen
 import com.cheeke.surfy.ui.components.CircularProgressComponent
 import com.cheeke.surfy.ui.dialog.ConfirmDialog
 import com.cheeke.surfy.ui.image.DynamicAsyncImageLoader
@@ -110,7 +111,7 @@ fun SeriesScreen(
     goToMovie: (Int) -> Unit
 ) {
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize().statusBarsPadding()
     ) {
         when (seriesState) {
             is SeriesState.Loading -> {

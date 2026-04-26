@@ -7,8 +7,7 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.cheeke.surfy.favorite.navigation.FavoriteScreen
-import com.cheeke.surfy.home.navigation.HomeScreen
+import com.cheeke.surfy.ui.RootTab
 import com.slack.circuit.runtime.screen.Screen
 
 enum class TopLevelDestination(
@@ -16,14 +15,16 @@ enum class TopLevelDestination(
     val unselectedIcon: ImageVector,
     @StringRes val iconTextId: Int,
     @StringRes val titleTextId: Int,
-    val screen: Screen
+    val screen: Screen,
+    val rootTab: RootTab
 ) {
     HOME(
         selectedIcon = Icons.Rounded.Home,
         unselectedIcon = Icons.Outlined.Home,
         iconTextId = com.cheeke.surfy.feature.home.R.string.feature_home_name,
         titleTextId = com.cheeke.surfy.feature.home.R.string.feature_home_name,
-        screen = HomeScreen
+        screen = HomeScreen,
+        rootTab = RootTab.HOME
     ),
 //    SEARCH(
 //        selectedIcon = Icons.Rounded.Search,
@@ -37,7 +38,8 @@ enum class TopLevelDestination(
         unselectedIcon = Icons.Outlined.FavoriteBorder,
         iconTextId = com.cheeke.surfy.feature.favorite.R.string.feature_favorite_name,
         titleTextId = com.cheeke.surfy.feature.favorite.R.string.feature_favorite_name,
-        screen = FavoriteScreen()
+        screen = FavoriteScreen(),
+        rootTab = RootTab.FAVORITE
     ),
 //    MY(
 //        selectedIcon = Icons.Rounded.Settings,

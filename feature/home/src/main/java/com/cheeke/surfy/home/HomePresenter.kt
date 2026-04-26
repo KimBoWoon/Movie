@@ -22,14 +22,14 @@ import com.cheeke.surfy.data.util.DataManager
 import com.cheeke.surfy.data.util.NetworkMonitor
 import com.cheeke.surfy.database.model.NowPlayingMovieEntity
 import com.cheeke.surfy.database.model.UpComingMovieEntity
-import com.cheeke.surfy.home.navigation.HomeScreen
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.TrendingMediaResult
+import com.cheeke.surfy.navigation.HomeScreen
+import com.cheeke.surfy.navigation.LocalAppNavigator
 import com.slack.circuit.codegen.annotations.CircuitInject
 import com.slack.circuit.retained.produceRetainedState
 import com.slack.circuit.runtime.CircuitUiState
 import com.slack.circuit.runtime.presenter.Presenter
-import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.components.ActivityRetainedComponent
@@ -128,13 +128,11 @@ class HomeRepository @Inject constructor(
 }
 
 class HomePresenter @AssistedInject constructor(
-    @Assisted(value = "goToMovie") private val goToMovie: (Int) -> Unit,
-    @Assisted(value = "goToPeople") private val goToPeople: (Int) -> Unit,
-    @Assisted(value = "goToTv") private val goToTv: (Int) -> Unit,
     private val homeRepository: HomeRepository
 ) : Presenter<HomeState> {
     @Composable
     override fun present(): HomeState {
+        val navigator = LocalAppNavigator.current
         var trendingMovieTimeWindow by rememberSaveable { mutableStateOf(value = TimeWindow.DAY) }
         var trendingPeopleTimeWindow by rememberSaveable { mutableStateOf(value = TimeWindow.DAY) }
         var trendingTvTimeWindow by rememberSaveable { mutableStateOf(value = TimeWindow.DAY) }
@@ -163,9 +161,9 @@ class HomePresenter @AssistedInject constructor(
                 ) { event ->
                     Log.d("HomePresenter", "$event")
                     when (event) {
-                        is HomeEvent.GoToMovie -> goToMovie(event.id)
-                        is HomeEvent.GoToPeople -> goToPeople(event.id)
-                        is HomeEvent.GoToTv -> goToTv(event.id)
+                        is HomeEvent.GoToMovie -> navigator.goToMovie(event.id)
+                        is HomeEvent.GoToPeople -> navigator.goToPeople(event.id)
+                        is HomeEvent.GoToTv -> navigator.goToTv(event.id)
                         is HomeEvent.UpdateTrendingMovieTimeWindow -> {
                             trendingMovieTimeWindow = event.timeWindow
                             homeRepository.updateTrendingMovieTimeWindow(event.timeWindow)
@@ -187,15 +185,11 @@ class HomePresenter @AssistedInject constructor(
     @CircuitInject(screen = HomeScreen::class, scope = ActivityRetainedComponent::class)
     @AssistedFactory
     interface Factory {
-        fun create(
-            @Assisted(value = "goToMovie") goToMovie: ((Int) -> Unit) = {},
-            @Assisted(value = "goToPeople") goToPeople: ((Int) -> Unit) = {},
-            @Assisted(value = "goToTv") goToTv: ((Int) -> Unit) = {}
-        ): HomePresenter
+        fun create(): HomePresenter
     }
 }
 
-class HomeUiState(
+data class HomeUiState(
     val popularMovies: List<Movie>,
     val nowPlayingMovies: LazyPagingItems<Movie>,
     val upComingMovies: LazyPagingItems<Movie>,

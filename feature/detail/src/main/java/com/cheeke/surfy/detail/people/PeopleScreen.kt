@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -42,7 +43,6 @@ import com.cheeke.surfy.analytics.TrackScreenViewEvent
 import com.cheeke.surfy.analytics.logFavorite
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.data.util.POSTER_IMAGE_RATIO
-import com.cheeke.surfy.detail.people.navigation.PeopleScreen
 import com.cheeke.surfy.domain.PeopleWithFavorite
 import com.cheeke.surfy.feature.detail.R
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
@@ -51,6 +51,7 @@ import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.model.MediaType
 import com.cheeke.surfy.model.People
 import com.cheeke.surfy.model.getRelatedMovie
+import com.cheeke.surfy.navigation.PeopleScreen
 import com.cheeke.surfy.ui.components.CircularProgressComponent
 import com.cheeke.surfy.ui.components.ExternalIdLinkComponent
 import com.cheeke.surfy.ui.components.TitleComponent
@@ -101,7 +102,7 @@ fun PeopleScreen(
     restart: () -> Unit
 ) {
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize().statusBarsPadding()
     ) {
         when (peopleState) {
             is PeopleState.Loading -> {

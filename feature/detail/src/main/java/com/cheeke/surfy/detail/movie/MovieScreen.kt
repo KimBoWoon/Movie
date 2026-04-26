@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -46,7 +47,6 @@ import com.cheeke.surfy.analytics.TrackScreenViewEvent
 import com.cheeke.surfy.analytics.logFavorite
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.data.util.POSTER_IMAGE_RATIO
-import com.cheeke.surfy.detail.movie.navigation.MovieScreen
 import com.cheeke.surfy.domain.MovieWithFavorite
 import com.cheeke.surfy.feature.detail.R
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
@@ -55,6 +55,7 @@ import com.cheeke.surfy.model.Image
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.Series
 import com.cheeke.surfy.model.SimilarMedia
+import com.cheeke.surfy.navigation.MovieScreen
 import com.cheeke.surfy.ui.components.CircularProgressComponent
 import com.cheeke.surfy.ui.components.CreditsComponent
 import com.cheeke.surfy.ui.components.ImageOverlay
@@ -130,7 +131,7 @@ fun MovieScreen(
     restart: () -> Unit
 ) {
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize().statusBarsPadding()
     ) {
         when (movieState) {
             is MovieState.Loading -> {

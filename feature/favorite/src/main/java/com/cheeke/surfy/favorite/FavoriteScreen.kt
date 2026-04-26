@@ -14,9 +14,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -25,6 +24,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,17 +35,19 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
 import com.cheeke.surfy.analytics.LocalAnalyticsHelper
 import com.cheeke.surfy.analytics.TrackScreenViewEvent
 import com.cheeke.surfy.analytics.logFavorite
 import com.cheeke.surfy.data.util.PEOPLE_IMAGE_RATIO
 import com.cheeke.surfy.data.util.POSTER_IMAGE_RATIO
-import com.cheeke.surfy.favorite.navigation.FavoriteScreen
 import com.cheeke.surfy.feature.favorite.R
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
-import com.cheeke.surfy.model.Movie
+import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.model.People
-import com.cheeke.surfy.model.Tv
+import com.cheeke.surfy.navigation.FavoriteScreen
+import com.cheeke.surfy.ui.components.CircularProgressComponent
 import com.cheeke.surfy.ui.components.FavoriteButtonComponent
 import com.cheeke.surfy.ui.components.ScrollToTopComponent
 import com.cheeke.surfy.ui.image.DynamicAsyncImageLoader
@@ -60,7 +62,7 @@ import com.slack.circuit.codegen.annotations.CircuitInject
 import dagger.hilt.android.components.ActivityRetainedComponent
 import kotlinx.coroutines.launch
 
-@CircuitInject(FavoriteScreen::class, ActivityRetainedComponent::class)
+@CircuitInject(screen = FavoriteScreen::class, scope = ActivityRetainedComponent::class)
 @Composable
 fun FavoriteScreen(
     modifier: Modifier,
@@ -69,10 +71,9 @@ fun FavoriteScreen(
     LocalFirebaseLogHelper.current.sendLog("FavoriteScreen", "favorite screen init")
     TrackScreenViewEvent(screenName = "FavoriteScreen")
 
-    val favoriteMovies = favoriteUiState.favoriteMovies
-    val favoriteTvs = favoriteUiState.favoriteTvs
-    val favoritePeoples = favoriteUiState.favoritePeoples
     val tabIndex = favoriteUiState.tabIndex
+    val selectedTab = favoriteUiState.selectedTab
+    val favoriteMap = favoriteUiState.favoriteMap
     val scope = rememberCoroutineScope()
     val removeFavoriteText = stringResource(id = R.string.remove_favorite)
     val analyticsHelper = LocalAnalyticsHelper.current
@@ -91,131 +92,80 @@ fun FavoriteScreen(
             }
         )
 
-        when (FavoriteTab.entries[tabIndex]) {
-            FavoriteTab.MOVIE -> {
-                if (favoriteMovies.isEmpty()) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            modifier = Modifier.testTag(tag = "favoriteMovieEmpty"),
-                            text = stringResource(id = R.string.empty_favorite_movie),
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                    }
-                } else {
-                    FavoriteListComponent<Movie>(
-                        favoriteList = favoriteMovies,
-                        spanCount = 3,
-                        content = { movie ->
-                            Box(
-                                modifier = Modifier.bounceClick { favoriteUiState.eventSink(FavoriteEvent.GoToMovie(id = movie.id ?: -1)) }
-                            ) {
-                                DynamicAsyncImageLoader(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .aspectRatio(ratio = POSTER_IMAGE_RATIO)
-                                        .clip(shape = RoundedCornerShape(size = dp10)),
-                                    source = movie.posterPath ?: "",
-                                    contentDescription = "FavoriteMoviePoster"
-                                )
-                                FavoriteButtonComponent(
-                                    modifier = Modifier
-                                        .wrapContentSize()
-                                        .padding(end = dp5, top = dp5)
-                                        .align(Alignment.TopEnd),
-                                    isFavorite = true,
-                                    onClick = {
-                                        favoriteUiState.eventSink(FavoriteEvent.DeleteFavoriteMovie(movie = movie))
-//                                        scope.launch {
-//                                            onShowSnackbar(removeFavoriteText, null)
-//                                        }
-                                        analyticsHelper.logFavorite(isFavorite = false, contentType = "movie", media = movie)
-                                    }
-                                )
-                            }
-                        }
+        favoriteMap.get(key = FavoriteTab.entries[tabIndex])?.let { pagingItems ->
+            if (pagingItems.itemCount == 0) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        modifier = Modifier.testTag(tag = "favoriteMovieEmpty"),
+                        text = when (selectedTab) {
+                            FavoriteTab.MOVIE -> stringResource(id = R.string.empty_favorite_movie)
+                            FavoriteTab.PEOPLE -> stringResource(id = R.string.empty_favorite_people)
+                            FavoriteTab.TV -> stringResource(id = R.string.empty_favorite_tv)
+                        },
+                        style = MaterialTheme.typography.titleLarge
                     )
                 }
-            }
-            FavoriteTab.TV -> {
-                if (favoriteTvs.isEmpty()) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            modifier = Modifier.testTag(tag = "favoriteTvEmpty"),
-                            text = stringResource(id = R.string.empty_favorite_tv),
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                    }
-                } else {
-                    FavoriteListComponent<Tv>(
-                        favoriteList = favoriteTvs,
-                        spanCount = 3,
-                        content = { tv ->
-                            Box(
-                                modifier = Modifier.bounceClick { favoriteUiState.eventSink(FavoriteEvent.GoToTv(id = tv.id ?: -1)) }
-                            ) {
-                                DynamicAsyncImageLoader(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .aspectRatio(ratio = POSTER_IMAGE_RATIO)
-                                        .clip(shape = RoundedCornerShape(size = dp10)),
-                                    source = tv.posterPath ?: "",
-                                    contentDescription = "FavoriteTvPoster"
-                                )
-                                FavoriteButtonComponent(
+            } else {
+                FavoriteListComponent(
+                    favoriteList = pagingItems,
+                    spanCount = 3,
+                    content = { media ->
+                        when (media) {
+                            is People -> {
+                                Column(
                                     modifier = Modifier
                                         .wrapContentSize()
-                                        .padding(end = dp5, top = dp5)
-                                        .align(Alignment.TopEnd),
-                                    isFavorite = true,
-                                    onClick = {
-                                        favoriteUiState.eventSink(FavoriteEvent.DeleteFavoriteTv(tv = tv))
-//                                        scope.launch {
-//                                            onShowSnackbar(removeFavoriteText, null)
-//                                        }
-                                        analyticsHelper.logFavorite(isFavorite = false, contentType = "tv", media = tv)
+                                        .bounceClick { favoriteUiState.eventSink(FavoriteEvent.GoTo(favoriteTab = selectedTab, media = media)) }
+                                ) {
+                                    Box {
+                                        DynamicAsyncImageLoader(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .aspectRatio(ratio = PEOPLE_IMAGE_RATIO)
+                                                .clip(shape = RoundedCornerShape(size = dp10)),
+                                            source = media.posterPath ?: "",
+                                            contentDescription = "FavoriteImage"
+                                        )
+                                        FavoriteButtonComponent(
+                                            modifier = Modifier
+                                                .wrapContentSize()
+                                                .padding(end = dp5, top = dp5)
+                                                .align(Alignment.TopEnd),
+                                            isFavorite = true,
+                                            onClick = {
+                                                favoriteUiState.eventSink(FavoriteEvent.DeleteFavorite(favoriteTab = selectedTab, media = media))
+//                                                scope.launch {
+//                                                    onShowSnackbar(removeFavoriteText, null)
+//                                                }
+                                                analyticsHelper.logFavorite(isFavorite = false, contentType = selectedTab.name, media = media)
+                                            }
+                                        )
                                     }
-                                )
+                                    Text(
+                                        modifier = Modifier
+                                            .wrapContentWidth()
+                                            .padding(top = dp5)
+                                            .align(Alignment.CenterHorizontally),
+                                        text = media.title ?: "",
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                }
                             }
-                        }
-                    )
-                }
-            }
-            FavoriteTab.PEOPLE -> {
-                if (favoritePeoples.isEmpty()) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            modifier = Modifier.testTag(tag = "favoritePeopleEmpty"),
-                            text = stringResource(id = R.string.empty_favorite_people),
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                    }
-                } else {
-                    FavoriteListComponent<People>(
-                        favoriteList = favoritePeoples,
-                        spanCount = 3,
-                        content = { peopleDetail ->
-                            Column(
-                                modifier = Modifier
-                                    .wrapContentSize()
-                                    .bounceClick { favoriteUiState.eventSink(FavoriteEvent.GoToPeople(id = peopleDetail.id ?: -1)) }
-                            ) {
-                                Box {
+                            else -> {
+                                Box(
+                                    modifier = Modifier.bounceClick { favoriteUiState.eventSink(FavoriteEvent.GoTo(favoriteTab = selectedTab, media = media)) }
+                                ) {
                                     DynamicAsyncImageLoader(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .aspectRatio(ratio = PEOPLE_IMAGE_RATIO)
+                                            .aspectRatio(ratio = POSTER_IMAGE_RATIO)
                                             .clip(shape = RoundedCornerShape(size = dp10)),
-                                        source = peopleDetail.posterPath ?: "",
-                                        contentDescription = "FavoritePeopleProfileImage"
+                                        source = media.posterPath ?: "",
+                                        contentDescription = "FavoriteMoviePoster"
                                     )
                                     FavoriteButtonComponent(
                                         modifier = Modifier
@@ -224,40 +174,36 @@ fun FavoriteScreen(
                                             .align(Alignment.TopEnd),
                                         isFavorite = true,
                                         onClick = {
-                                            favoriteUiState.eventSink(FavoriteEvent.DeleteFavoritePeople(people = peopleDetail))
-//                                            scope.launch {
-//                                                onShowSnackbar(removeFavoriteText, null)
-//                                            }
-                                            analyticsHelper.logFavorite(isFavorite = false, contentType = "people", media = peopleDetail)
+                                            favoriteUiState.eventSink(FavoriteEvent.DeleteFavorite(favoriteTab = selectedTab, media = media))
+//                                        scope.launch {
+//                                            onShowSnackbar(removeFavoriteText, null)
+//                                        }
+                                            analyticsHelper.logFavorite(isFavorite = false, contentType = selectedTab.name, media = media)
                                         }
                                     )
                                 }
-                                Text(
-                                    modifier = Modifier
-                                        .wrapContentWidth()
-                                        .padding(top = dp5)
-                                        .align(Alignment.CenterHorizontally),
-                                    text = peopleDetail.title ?: "",
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
                             }
                         }
-                    )
-                }
+                    }
+                )
             }
         }
     }
 }
 
 @Composable
-fun <T> FavoriteListComponent(
-    favoriteList: List<T>,
+fun <T : Media> FavoriteListComponent(
+    favoriteList: LazyPagingItems<out T>,
     spanCount: Int,
     content: @Composable (T) -> Unit
 ) {
     val scope = rememberCoroutineScope()
-    val lazyGridState = rememberLazyGridState()
+    val lazyGridState = rememberSaveable(
+//        key = tabIndex,
+        saver = LazyGridState.Saver
+    ) {
+        LazyGridState()
+    }
     val visibleItemIndex by remember { derivedStateOf { lazyGridState.firstVisibleItemIndex } }
 
     Box(
@@ -276,8 +222,20 @@ fun <T> FavoriteListComponent(
             verticalArrangement = Arrangement.spacedBy(space = dp10)
         ) {
             items(
-                items = favoriteList
-            ) { item -> content(item) }
+                count = favoriteList.itemCount
+            ) { item ->
+                favoriteList[item]?.let { item ->
+                    content(item)
+                }
+            }
+
+            if (favoriteList.loadState.append is LoadState.Loading) {
+                item {
+                    Box(modifier = Modifier.fillMaxWidth()) {
+                        CircularProgressComponent(modifier = Modifier.wrapContentSize().align(alignment = Alignment.Center))
+                    }
+                }
+            }
         }
 
         if (visibleItemIndex >= spanCount) {

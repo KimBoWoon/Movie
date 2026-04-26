@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -79,7 +80,7 @@ import com.cheeke.surfy.model.MediaType
 import com.cheeke.surfy.model.SearchKeyword
 import com.cheeke.surfy.model.SearchType
 import com.cheeke.surfy.model.SurfyAppData
-import com.cheeke.surfy.search.navigation.SearchScreen
+import com.cheeke.surfy.navigation.SearchScreen
 import com.cheeke.surfy.ui.components.CircularProgressComponent
 import com.cheeke.surfy.ui.components.FilterChipComponent
 import com.cheeke.surfy.ui.components.PagingAppendErrorComponent
@@ -170,7 +171,7 @@ fun SearchScreen(
     var isVisible by remember { mutableStateOf(value = false) }
 
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize().statusBarsPadding()
     ) {
         SearchBarComponent(
             query = query,

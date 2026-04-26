@@ -9,13 +9,18 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -31,22 +36,24 @@ import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.common.isSystemInDarkTheme
 import com.cheeke.surfy.data.util.NetworkMonitor
 import com.cheeke.surfy.deeplink.parseDeeplink
-import com.cheeke.surfy.detail.movie.navigation.goToMovie
-import com.cheeke.surfy.detail.tv.navigation.goToTv
 import com.cheeke.surfy.factory.SurfyPresenterFactory
 import com.cheeke.surfy.factory.SurfyScreenFactory
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
-import com.cheeke.surfy.home.navigation.HomeScreen
+import com.cheeke.surfy.navigation.AppNavigatorImpl
+import com.cheeke.surfy.navigation.HomeScreen
+import com.cheeke.surfy.navigation.LocalAppNavigator
+import com.cheeke.surfy.navigation.LocalCircuitBackStack
+import com.cheeke.surfy.navigation.LocalCircuitNavigator
+import com.cheeke.surfy.navigation.RootScreen
 import com.cheeke.surfy.rememberSurfyAppState
-import com.cheeke.surfy.setting.SettingScreen
-import com.cheeke.surfy.setting.SettingVM
-import com.cheeke.surfy.setting.SettingsAction
 import com.cheeke.surfy.ui.ReleaseMoviesDialog
-import com.cheeke.surfy.ui.SurfyApp
 import com.cheeke.surfy.ui.theme.SurfyTheme
 import com.cheeke.surfy.utils.isSystemInDarkTheme
+import com.slack.circuit.backstack.rememberSaveableBackStack
 import com.slack.circuit.foundation.Circuit
 import com.slack.circuit.foundation.CircuitCompositionLocals
+import com.slack.circuit.foundation.NavigableCircuitContent
+import com.slack.circuit.foundation.rememberCircuitNavigator
 import com.slack.circuit.runtime.screen.Screen
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.combine
@@ -58,7 +65,6 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val viewModel: MainVM by viewModels()
-    private val settingVM: SettingVM by viewModels()
     @Inject
     lateinit var networkMonitor: NetworkMonitor
     @Inject
@@ -131,47 +137,53 @@ class MainActivity : ComponentActivity() {
                 .addUiFactory(surfyScreenFactory)
                 .addPresenterFactory(surfyPresenterFactory)
                 .build()
+            val rootBackStack = rememberSaveableBackStack(root = RootScreen)
+            val rootNavigator = rememberCircuitNavigator(backStack = rootBackStack)
+            val appNavigator = remember {
+                AppNavigatorImpl(navigator = rootNavigator)
+            }
 
-            CircuitCompositionLocals(circuit = circuit) {
-                CompositionLocalProvider(
-                    LocalFirebaseLogHelper provides surfyFirebase,
-                    LocalAnalyticsHelper provides analyticsHelper
-                ) {
-                    LocalFirebaseLogHelper.current.sendLog(name = javaClass.simpleName, message = "compose start!")
+            CompositionLocalProvider(
+                LocalFirebaseLogHelper provides surfyFirebase,
+                LocalAnalyticsHelper provides analyticsHelper,
+                LocalAppNavigator provides appNavigator,
+                LocalCircuitNavigator provides rootNavigator,
+                LocalCircuitBackStack provides rootBackStack
+            ) {
+                LocalFirebaseLogHelper.current.sendLog(name = javaClass.simpleName, message = "compose start!")
 
-                    val nextWeekReleaseDialogItems by viewModel.nextWeekReleaseMedias.collectAsStateWithLifecycle()
-                    val shouldShowNextWeekReleaseDialog by viewModel.shouldShowNextWeekReleaseDialog.collectAsStateWithLifecycle()
+                val navigator = LocalAppNavigator.current
+                val nextWeekReleaseDialogItems by viewModel.nextWeekReleaseMedias.collectAsStateWithLifecycle()
+                val shouldShowNextWeekReleaseDialog by viewModel.shouldShowNextWeekReleaseDialog.collectAsStateWithLifecycle()
 
-                    SurfyTheme(darkTheme = darkTheme) {
-                        val appState = rememberSurfyAppState(networkMonitor = networkMonitor)
-                        val snackbarHostState = remember { SnackbarHostState() }
+                SurfyTheme(darkTheme = darkTheme) {
+                    Surface(color = MaterialTheme.colorScheme.background) {
+                        CircuitCompositionLocals(circuit = circuit) {
+                            val appState = rememberSurfyAppState(networkMonitor = networkMonitor)
+                            val snackbarHostState = remember { SnackbarHostState() }
 
-                        LaunchedEffect(key1 = deeplinkBackstack) {
-                            if (deeplinkBackstack.isNotEmpty()) {
-                                navigationSetting(appState = appState)
+                            LaunchedEffect(key1 = deeplinkBackstack) {
+                                if (deeplinkBackstack.isNotEmpty()) {
+                                    navigationSetting(appState = appState)
+                                }
                             }
-                        }
 
-                        if (shouldShowNextWeekReleaseDialog) {
-                            ReleaseMoviesDialog(
-                                releaseMovies = nextWeekReleaseDialogItems,
-                                goToMovie = { id -> appState.navigator.goToMovie(id = id) },
-                                goToTv = { id -> appState.navigator.goToTv(id = id) },
-                                updateShowNextReleaseMoviesDate = viewModel::dontShowNextWeekReleaseDialogToday,
-                                dismissNextWeekReleaseDialog = viewModel::dismissNextWeekReleaseDialog
+                            if (shouldShowNextWeekReleaseDialog) {
+                                ReleaseMoviesDialog(
+                                    releaseMovies = nextWeekReleaseDialogItems,
+                                    goToMovie = { id -> navigator.goToMovie(id = id) },
+                                    goToTv = { id -> navigator.goToTv(id = id) },
+                                    updateShowNextReleaseMoviesDate = viewModel::dontShowNextWeekReleaseDialogToday,
+                                    dismissNextWeekReleaseDialog = viewModel::dismissNextWeekReleaseDialog
+                                )
+                            }
+
+                            NavigableCircuitContent(
+                                modifier = Modifier.fillMaxSize().statusBarsPadding(),
+                                navigator = rootNavigator,
+                                backStack = rootBackStack
                             )
                         }
-
-                        SurfyApp(
-                            navigator = appState.navigator,
-                            backStack = appState.backStack,
-                            appState = appState,
-                            snackbarHostState = snackbarHostState,
-                            nextWeekReleaseMovies = nextWeekReleaseDialogItems,
-                            showSettingDialog = { settingVM.onAction(action = SettingsAction.OpenMain) }
-                        )
-
-                        SettingScreen(viewModel = settingVM)
                     }
                 }
             }

@@ -5,7 +5,8 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import com.cheeke.surfy.data.util.NetworkMonitor
-import com.cheeke.surfy.home.navigation.HomeScreen
+import com.cheeke.surfy.navigation.TopLevelDestination
+import com.cheeke.surfy.ui.RootTab
 import com.slack.circuit.backstack.SaveableBackStack
 import com.slack.circuit.backstack.rememberSaveableBackStack
 import com.slack.circuit.foundation.rememberCircuitNavigator
@@ -20,13 +21,18 @@ fun rememberSurfyAppState(
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     networkMonitor: NetworkMonitor
 ): SurfyAppState {
-    val backStack = rememberSaveableBackStack(root = HomeScreen)
-    val navigator = rememberCircuitNavigator(backStack)
+    val multipleBackStack: Map<RootTab, SaveableBackStack> = buildMap {
+        TopLevelDestination.entries.forEach { topLevelDestination ->
+            put(key = topLevelDestination.rootTab, value = rememberSaveableBackStack(root = topLevelDestination.screen))
+        }
+    }
+    val currentBackStack: SaveableBackStack = multipleBackStack[TopLevelDestination.HOME.rootTab]!!
+    val navigator = rememberCircuitNavigator(currentBackStack)
 
     return remember(key1 = coroutineScope, key2 = networkMonitor, key3 = navigator) {
         SurfyAppState(
             navigator = navigator,
-            backStack = backStack,
+            multipleBackStack = multipleBackStack,
             coroutineScope = coroutineScope,
             networkMonitor = networkMonitor
         )
@@ -36,7 +42,7 @@ fun rememberSurfyAppState(
 @Stable
 class SurfyAppState(
     val navigator: Navigator,
-    val backStack: SaveableBackStack,
+    val multipleBackStack: Map<RootTab, SaveableBackStack>,
     val coroutineScope: CoroutineScope,
     val networkMonitor: NetworkMonitor
 ) {
@@ -47,4 +53,8 @@ class SurfyAppState(
             started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000),
             initialValue = false
         )
+
+    fun changeRootTab(rootTab: RootTab) {
+
+    }
 }

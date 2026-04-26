@@ -1,8 +1,5 @@
 package com.cheeke.surfy.ui
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -15,57 +12,54 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration.Indefinite
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.zIndex
 import com.cheeke.surfy.R
-import com.cheeke.surfy.SurfyAppState
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.data.util.POSTER_IMAGE_RATIO
-import com.cheeke.surfy.detail.movie.navigation.MovieScreen
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
 import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.model.MediaType
+import com.cheeke.surfy.navigation.FavoriteScreen
+import com.cheeke.surfy.navigation.HomeScreen
+import com.cheeke.surfy.navigation.LocalAppNavigator
+import com.cheeke.surfy.navigation.RootScreen
 import com.cheeke.surfy.navigation.TopLevelDestination
-import com.cheeke.surfy.search.navigation.SearchScreen
 import com.cheeke.surfy.ui.dialog.Indexer
 import com.cheeke.surfy.ui.image.DynamicAsyncImageLoader
 import com.cheeke.surfy.ui.utils.Line
@@ -82,181 +76,204 @@ import com.cheeke.surfy.ui.utils.dp50
 import com.cheeke.surfy.ui.utils.roundedCornerClickable
 import com.cheeke.surfy.ui.utils.sp15
 import com.cheeke.surfy.ui.utils.sp20
-import com.cheeke.surfy.utils.VerticalRollingAnimation
 import com.slack.circuit.backstack.SaveableBackStack
-import com.slack.circuit.foundation.NavigableCircuitContent
+import com.slack.circuit.codegen.annotations.CircuitInject
+import com.slack.circuit.foundation.CircuitContent
+import com.slack.circuit.retained.rememberRetained
+import com.slack.circuit.runtime.CircuitUiState
+import com.slack.circuit.runtime.Navigator
+import com.slack.circuit.runtime.presenter.Presenter
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
+import dagger.hilt.android.components.ActivityRetainedComponent
 
+data class RootState(
+    val currentTab: RootTab,
+    val onTabSelected: (RootTab) -> Unit,
+    val openSearch: () -> Unit,
+    val goToMovie: (Int) -> Unit,
+    val goToPeople: (Int) -> Unit,
+    val goToTv: (Int) -> Unit
+) : CircuitUiState
+
+enum class RootTab {
+    HOME, FAVORITE
+}
+
+@CircuitInject(screen = RootScreen::class, scope = ActivityRetainedComponent::class)
 @Composable
-fun SurfyApp(
-//    navigator: Navigator,
-    navigator: com.slack.circuit.runtime.Navigator,
-    backStack: SaveableBackStack,
-    appState: SurfyAppState,
-    snackbarHostState: SnackbarHostState,
-    nextWeekReleaseMovies: List<Media>,
-    showSettingDialog: () -> Unit
+fun RootScreen(
+    modifier: Modifier = Modifier,
+    rootState: RootState
 ) {
-    val isTopLevelRoute by remember {
-        derivedStateOf {
-            navigator.peek()?.let {
-                it.javaClass.simpleName in TopLevelDestination.entries.map { entry -> entry.screen.javaClass.simpleName }
-            } ?: false
-        }
-    }
+    var selectedTab by rememberRetained { mutableStateOf(value = RootTab.HOME) }
 
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        snackbarHost = { SnackbarHost(modifier = Modifier.semantics { contentDescription = "snackbar" }, hostState = snackbarHostState) },
         topBar = {
             MovieSearchTopBar(
-                navigator = navigator,
-                isTopLevelRoute = isTopLevelRoute,
-                nextWeekReleaseMovies = nextWeekReleaseMovies,
-                showSettingDialog = showSettingDialog
+                goToSearch = rootState.openSearch,
+                showSettingDialog = LocalAppNavigator.current::goToSetting
             )
         },
         bottomBar = {
-            MovieBottomBar(
-                navigator = navigator,
-                isTopLevelRoute = isTopLevelRoute
-            )
-        }
-    ) { innerPadding ->
-        val isOffline by appState.isOffline.collectAsStateWithLifecycle()
-        val notConnectedMessage = stringResource(id = R.string.not_connected)
-        val firebaseLog = LocalFirebaseLogHelper.current
-
-        LaunchedEffect(key1 = isOffline) {
-            firebaseLog.sendLog("MovieMainScreen", "isOffline $isOffline")
-
-            if (isOffline) {
-                snackbarHostState.showSnackbar(
-                    message = notConnectedMessage,
-                    duration = Indefinite,
+            NavigationBar {
+                NavigationBarItem(
+                    selected = selectedTab == RootTab.HOME,
+                    onClick = { selectedTab = RootTab.HOME },
+                    icon = { Icon(imageVector = Icons.Default.Home, contentDescription = null) },
+                    label = { Text("홈") }
+                )
+                NavigationBarItem(
+                    selected = selectedTab == RootTab.FAVORITE,
+                    onClick = { selectedTab = RootTab.FAVORITE },
+                    icon = { Icon(imageVector = Icons.Default.Favorite, contentDescription = null) },
+                    label = { Text("찜") }
                 )
             }
         }
+    ) { paddingValues ->
+        CircuitContent(
+            screen = HomeScreen,
+            modifier = Modifier
+                .padding(paddingValues)
+                .alpha(if (selectedTab == RootTab.HOME) 1f else 0f)
+                .zIndex(if (selectedTab == RootTab.HOME) 1f else 0f)
+        )
+        CircuitContent(
+            screen = FavoriteScreen(),
+            modifier = Modifier
+                .padding(paddingValues)
+                .alpha(if (selectedTab == RootTab.FAVORITE) 1f else 0f)
+                .zIndex(if (selectedTab == RootTab.FAVORITE) 1f else 0f)
+        )
+    }
+}
 
-        NavigableCircuitContent(
-            modifier = Modifier.padding(paddingValues = innerPadding),
-            navigator = navigator,
-            backStack = backStack
+class RootPresenter @AssistedInject constructor(
+) : Presenter<RootState> {
+    @CircuitInject(screen = RootScreen::class, scope = ActivityRetainedComponent::class)
+    @AssistedFactory
+    interface Factory {
+        fun create() : RootPresenter
+    }
+
+    @Composable
+    override fun present(): RootState {
+        val navigator = LocalAppNavigator.current
+        var currentTab by rememberSaveable { mutableStateOf(value = RootTab.HOME) }
+
+        return RootState(
+            currentTab = currentTab,
+            onTabSelected = { currentTab = it },
+            openSearch = navigator::goToSearch,
+            goToMovie = navigator::goToMovie,
+            goToPeople = navigator::goToPeople,
+            goToTv = navigator::goToTv
         )
     }
 }
 
 @Composable
 fun MovieSearchTopBar(
-    navigator: com.slack.circuit.runtime.Navigator,
-    isTopLevelRoute: Boolean,
-    nextWeekReleaseMovies: List<Media>,
+    goToSearch: () -> Unit,
     showSettingDialog: () -> Unit
 ) {
-    AnimatedVisibility(
-        modifier = Modifier.statusBarsPadding(),
-        visible = isTopLevelRoute,
-        label = "TopSearchBarAnimation",
-        enter = expandVertically(),
-        exit = shrinkVertically(),
-        content = {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .padding(top = dp10, bottom = dp10, start = dp16)
+                .weight(weight = 1f)
+                .height(height = dp40)
+                .clip(shape = RoundedCornerShape(percent = 50))
+                .background(color = MaterialTheme.colorScheme.inverseOnSurface)
+                .roundedCornerClickable(onClick = { goToSearch() }),
+            contentAlignment = Alignment.Center
+        ) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxSize(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(
-                    modifier = Modifier
-                        .padding(top = dp10, bottom = dp10, start = dp16)
-                        .weight(weight = 1f)
-                        .height(height = dp40)
-                        .clip(shape = RoundedCornerShape(percent = 50))
-                        .background(color = MaterialTheme.colorScheme.inverseOnSurface)
-                        .roundedCornerClickable(onClick = { navigator.goTo(screen = SearchScreen()) }),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            modifier = Modifier
-                                .wrapContentSize()
-                                .padding(start = dp20)
-                                .align(Alignment.CenterVertically)
-                                .clickable { navigator.goTo(screen = SearchScreen()) },
-                            imageVector = Icons.Default.Search,
-                            contentDescription = "goToSearch",
-                            tint = MaterialTheme.colorScheme.onSurface
-                        )
-                        if (nextWeekReleaseMovies.isEmpty()) {
-                            Text(
-                                modifier = Modifier
-                                    .wrapContentWidth()
-                                    .padding(start = dp10),
-                                text = stringResource(id = R.string.go_to_search),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        } else if (nextWeekReleaseMovies.size == 1) {
-                            val nextWeekReleaseMovie = nextWeekReleaseMovies.first()
-
-                            Text(
-                                modifier = Modifier
-                                    .wrapContentWidth()
-                                    .clickable {
-                                        nextWeekReleaseMovie.id?.let { id ->
-                                            navigator.goTo(screen = MovieScreen(id = id))
-                                        }
-                                    },
-                                text = stringResource(id = R.string.next_week_release_movie, nextWeekReleaseMovie.title ?: ""),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        } else {
-                            VerticalRollingAnimation(
-                                modifier = Modifier.padding(start = dp10, end = dp20),
-                                nextWeekReleaseMovies = nextWeekReleaseMovies,
-                                goToMovie = { id ->
-                                    navigator.goTo(screen = MovieScreen(id = id))
-                                }
-                            )
-                        }
-                    }
-                }
-
                 Icon(
                     modifier = Modifier
-                        .size(size = 48.dp)
-                        .padding(start = dp5, end = dp16)
-                        .bounceClick(onClick = { showSettingDialog() }),
-                    imageVector = Icons.Rounded.Settings,
-                    contentDescription = "SettingIcon"
+                        .wrapContentSize()
+                        .padding(start = dp20)
+                        .align(Alignment.CenterVertically)
+                        .clickable { goToSearch() },
+                    imageVector = Icons.Default.Search,
+                    contentDescription = "goToSearch",
+                    tint = MaterialTheme.colorScheme.onSurface
                 )
+//                if (nextWeekReleaseMovies.isEmpty()) {
+//                    Text(
+//                        modifier = Modifier
+//                            .wrapContentWidth()
+//                            .padding(start = dp10),
+//                        text = stringResource(id = R.string.go_to_search),
+//                        maxLines = 1,
+//                        overflow = TextOverflow.Ellipsis
+//                    )
+//                } else if (nextWeekReleaseMovies.size == 1) {
+//                    val nextWeekReleaseMovie = nextWeekReleaseMovies.first()
+//
+//                    Text(
+//                        modifier = Modifier
+//                            .wrapContentWidth()
+//                            .clickable {
+//                                nextWeekReleaseMovie.id?.let { id ->
+//                                    navigator.goTo(screen = MovieScreen(id = id))
+//                                }
+//                            },
+//                        text = stringResource(id = R.string.next_week_release_movie, nextWeekReleaseMovie.title ?: ""),
+//                        maxLines = 1,
+//                        overflow = TextOverflow.Ellipsis
+//                    )
+//                } else {
+//                    VerticalRollingAnimation(
+//                        modifier = Modifier.padding(start = dp10, end = dp20),
+//                        nextWeekReleaseMovies = nextWeekReleaseMovies,
+//                        goToMovie = { id ->
+//                            navigator.goTo(screen = MovieScreen(id = id))
+//                        }
+//                    )
+//                }
             }
         }
-    )
+
+        Icon(
+            modifier = Modifier
+                .size(size = 48.dp)
+                .padding(start = dp5, end = dp16)
+                .bounceClick(onClick = { showSettingDialog() }),
+            imageVector = Icons.Rounded.Settings,
+            contentDescription = "SettingIcon"
+        )
+    }
 }
 
 @Composable
 fun MovieBottomBar(
-    navigator: com.slack.circuit.runtime.Navigator,
-    isTopLevelRoute: Boolean
+    currentTab: RootTab,
+    onTabSelected: (RootTab) -> Unit,
+    navigator: Navigator,
+    backStack: SaveableBackStack
 ) {
-    AnimatedVisibility(
-        visible = isTopLevelRoute,
-        label = "BottomNavigationAnimation",
-        enter = expandVertically(),
-        exit = shrinkVertically(),
-        content = {
-            MovieNavigation(
-                navigator = navigator
-            )
-        }
+    MovieNavigation(
+        currentTab = currentTab,
+        onTabSelected = onTabSelected,
+        navigator = navigator,
+        backStack = backStack,
     )
 }
 
 @Composable
 fun MovieNavigation(
-    navigator: com.slack.circuit.runtime.Navigator
+    currentTab: RootTab,
+    onTabSelected: (RootTab) -> Unit,
+    navigator: Navigator,
+    backStack: SaveableBackStack
 ) {
     LocalFirebaseLogHelper.current.sendLog("Navigation", "create navigation bar")
 
@@ -274,11 +291,21 @@ fun MovieNavigation(
     ) {
         TopLevelDestination.entries.forEach { navItem ->
             BottomNavigationBarItem(
-                selected = navItem.screen.javaClass.simpleName == navigator.peek()?.javaClass?.simpleName,
+//                selected = navItem.screen.javaClass.simpleName == navigator.peek()?.javaClass?.simpleName,
+                selected = currentTab == navItem.rootTab,
                 label = stringResource(id = navItem.titleTextId),
                 selectedIcon = navItem.selectedIcon,
                 unSelectedIcon = navItem.unselectedIcon,
-                onClick = { navigator.goTo(screen = navItem.screen) }
+                onClick = {
+                    onTabSelected(navItem.rootTab)
+//                    val found = backStack.any { it.screen.javaClass.simpleName == navItem.screen.javaClass.simpleName }
+//                    if (found) {
+//                        backStack.popUntil { it.screen.javaClass.simpleName == navItem.screen.javaClass.simpleName }
+//                    } else {
+//                        navigator.goTo(screen = navItem.screen)
+//                        navigator.resetRoot(newRoot = navItem.screen, saveState = true, restoreState = true)
+//                    }
+                }
             )
         }
     }
@@ -368,7 +395,10 @@ fun ReleaseMoviesDialog(
                         modifier = Modifier
                             .fillMaxWidth()
                             .wrapContentHeight()
-                            .background(color = MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(size = dp20)),
+                            .background(
+                                color = MaterialTheme.colorScheme.primary,
+                                shape = RoundedCornerShape(size = dp20)
+                            ),
                         text = stringResource(id = R.string.close),
                         textAlign = TextAlign.Center,
                         fontWeight = FontWeight.Bold,

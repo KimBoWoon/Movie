@@ -42,12 +42,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cheeke.surfy.analytics.TrackScreenViewEvent
 import com.cheeke.surfy.common.getVersionName
 import com.cheeke.surfy.feature.setting.R
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
+import com.cheeke.surfy.navigation.SettingScreen
 import com.cheeke.surfy.ui.utils.dp1
 import com.cheeke.surfy.ui.utils.dp10
 import com.cheeke.surfy.ui.utils.dp12
@@ -64,22 +63,23 @@ import com.cheeke.surfy.ui.utils.dp560
 import com.cheeke.surfy.ui.utils.dp8
 import com.cheeke.surfy.ui.utils.dp84
 import com.cheeke.surfy.ui.utils.dp999
+import com.slack.circuit.codegen.annotations.CircuitInject
+import dagger.hilt.android.components.ActivityRetainedComponent
 
+@CircuitInject(screen = SettingScreen::class, scope = ActivityRetainedComponent::class)
 @Composable
 fun SettingScreen(
-    viewModel: SettingVM = hiltViewModel()
+    modifier: Modifier,
+    settingUiState: SettingsUiState
 ) {
-    LocalFirebaseLogHelper.current.sendLog("MyScreen", "my screen init")
+    LocalFirebaseLogHelper.current.sendLog("SettingScreen", "init screen")
     TrackScreenViewEvent(screenName = "SettingScreen")
 
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val isCheatActive by viewModel.isCheatActive.collectAsStateWithLifecycle()
-
     SettingScreen(
-        state = uiState,
-        isCheatActive = isCheatActive,
-        onAction = viewModel::onAction,
-        onClickTitle = viewModel::onClickTitle
+        state = settingUiState,
+        isCheatActive = settingUiState.isCheatActive ?: false,
+        onAction = { settingUiState.eventSink(SettingEvent.OnAction(action = it)) },
+        onClickTitle = { settingUiState.eventSink(SettingEvent.OnClickTitle) }
     )
 }
 
@@ -153,7 +153,9 @@ fun SettingMainSheet(
         )
         HorizontalDivider()
         Card(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = dp10, vertical = dp5),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = dp10, vertical = dp5),
             shape = RoundedCornerShape(size = dp16),
             border = BorderStroke(width = dp1, color = MaterialTheme.colorScheme.inverseSurface)
         ) {
@@ -169,7 +171,9 @@ fun SettingMainSheet(
             )
         }
         Card(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = dp10, vertical = dp5),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = dp10, vertical = dp5),
             shape = RoundedCornerShape(size = dp16),
             border = BorderStroke(width = dp1, color = MaterialTheme.colorScheme.inverseSurface)
         ) {
@@ -190,7 +194,9 @@ fun SettingMainSheet(
             )
         }
         Card(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = dp10, vertical = dp5),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = dp10, vertical = dp5),
             shape = RoundedCornerShape(size = dp16),
             border = BorderStroke(width = dp1, color = MaterialTheme.colorScheme.inverseSurface)
         ) {
@@ -281,10 +287,14 @@ private fun SettingRowSwitch(title: String, checked: Boolean, onCheckedChange: (
 
 @Composable
 private fun BottomCloseButton(onClick: () -> Unit) {
-    Box(Modifier.fillMaxWidth().padding(horizontal = dp18, vertical = dp10)) {
+    Box(Modifier
+        .fillMaxWidth()
+        .padding(horizontal = dp18, vertical = dp10)) {
         Button(
             onClick = onClick,
-            modifier = Modifier.fillMaxWidth().height(height = dp48),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(height = dp48),
             shape = RoundedCornerShape(size = dp999)
         ) { Text("닫기") }
     }
@@ -303,7 +313,9 @@ fun ThemeSettingSubSheet(
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = dp18, vertical = dp10),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = dp18, vertical = dp10),
             verticalAlignment = Alignment.CenterVertically
         ) {
             TextButton(onClick = { onAction(SettingsAction.BackToMainFromImageQuality) }) { Text(text = "뒤로") }
@@ -316,10 +328,14 @@ fun ThemeSettingSubSheet(
         HorizontalDivider()
 
         Box(
-            modifier = Modifier.fillMaxWidth().heightIn(min = dp420, max = dp520)
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = dp420, max = dp520)
         ) {
             LazyColumn(
-                modifier = Modifier.fillMaxSize().padding(bottom = dp84),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = dp84),
                 contentPadding = PaddingValues(horizontal = dp16, vertical = dp12),
                 verticalArrangement = Arrangement.spacedBy(space = dp10)
             ) {
@@ -358,7 +374,9 @@ fun ImageQualitySubSheet(
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = dp18, vertical = dp10),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = dp18, vertical = dp10),
             verticalAlignment = Alignment.CenterVertically
         ) {
             TextButton(onClick = { onAction(SettingsAction.BackToMainFromImageQuality) }) { Text(text = "뒤로") }
@@ -371,10 +389,14 @@ fun ImageQualitySubSheet(
         HorizontalDivider()
 
         Box(
-            modifier = Modifier.fillMaxWidth().heightIn(min = dp420, max = dp520)
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = dp420, max = dp520)
         ) {
             LazyColumn(
-                modifier = Modifier.fillMaxSize().padding(bottom = dp84),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = dp84),
                 contentPadding = PaddingValues(horizontal = dp16, vertical = dp12),
                 verticalArrangement = Arrangement.spacedBy(space = dp10)
             ) {
@@ -425,7 +447,9 @@ fun LanguageRegionSubSheet(
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = dp18, vertical = dp10),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = dp18, vertical = dp10),
             verticalAlignment = Alignment.CenterVertically
         ) {
             TextButton(onClick = { onAction(SettingsAction.BackToMainFromLanguageRegion) }) { Text(text = "뒤로") }
@@ -445,7 +469,9 @@ fun LanguageRegionSubSheet(
         OutlinedTextField(
             value = query,
             onValueChange = { query = it },
-            modifier = Modifier.fillMaxWidth().padding(horizontal = dp16),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = dp16),
             placeholder = { Text(text = "검색...") },
             singleLine = true,
             shape = RoundedCornerShape(size = dp16),
@@ -454,7 +480,9 @@ fun LanguageRegionSubSheet(
                     Text(
                         text = "지우기",
                         color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(end = dp12).clickable { query = TextFieldValue(text = "") }
+                        modifier = Modifier
+                            .padding(end = dp12)
+                            .clickable { query = TextFieldValue(text = "") }
                     )
                 }
             }
@@ -463,10 +491,14 @@ fun LanguageRegionSubSheet(
         Spacer(modifier = Modifier.height(height = dp12))
 
         Box(
-            modifier = Modifier.fillMaxWidth().heightIn(min = dp420, max = dp560)
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = dp420, max = dp560)
         ) {
             LazyColumn(
-                modifier = Modifier.fillMaxSize().padding(bottom = dp84),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = dp84),
                 contentPadding = PaddingValues(horizontal = dp16, vertical = dp8),
                 verticalArrangement = Arrangement.spacedBy(space = dp10)
             ) {
@@ -498,7 +530,9 @@ fun LanguageRegionSubSheet(
 @Composable
 private fun SelectRowSimple(label: String, selected: Boolean, onClick: () -> Unit) {
     Surface(
-        modifier = Modifier.fillMaxWidth().clickable { onClick() },
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
         shape = RoundedCornerShape(size = dp16),
         color = if (selected) {
             MaterialTheme.colorScheme.primary.copy(alpha = 0.10f)
@@ -507,7 +541,9 @@ private fun SelectRowSimple(label: String, selected: Boolean, onClick: () -> Uni
         }
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = dp14, vertical = dp12)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = dp14, vertical = dp12)
         ) {
             Text(text = label, modifier = Modifier.weight(weight = 1f))
             if (selected) Text(text = "✓", color = MaterialTheme.colorScheme.primary)
@@ -527,12 +563,16 @@ private fun BottomConfirmBar(
         shadowElevation = dp10, tonalElevation = dp2
     ) {
         Box(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = dp16, vertical = dp14)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = dp16, vertical = dp14)
         ) {
             Button(
                 enabled = enabled,
                 onClick = onClick,
-                modifier = Modifier.fillMaxWidth().height(height = dp48),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(height = dp48),
                 shape = RoundedCornerShape(size = dp999)
             ) { Text(text) }
         }
