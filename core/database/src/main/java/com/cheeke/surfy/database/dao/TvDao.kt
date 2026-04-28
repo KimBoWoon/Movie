@@ -1,5 +1,6 @@
 package com.cheeke.surfy.database.dao
 
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -30,4 +31,7 @@ interface TvDao {
 
     @Query(value = "DELETE FROM tvs")
     fun deleteAllFavoriteTvs()
+
+    @Query(value = "SELECT * FROM tvs ORDER BY timestamp DESC")
+    fun getFavoriteTv(): PagingSource<Int, TvEntity>
 }

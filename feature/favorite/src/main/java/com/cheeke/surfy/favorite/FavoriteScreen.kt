@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -37,6 +36,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.cheeke.surfy.analytics.LocalAnalyticsHelper
 import com.cheeke.surfy.analytics.TrackScreenViewEvent
 import com.cheeke.surfy.analytics.logFavorite
@@ -44,9 +46,11 @@ import com.cheeke.surfy.data.util.PEOPLE_IMAGE_RATIO
 import com.cheeke.surfy.data.util.POSTER_IMAGE_RATIO
 import com.cheeke.surfy.feature.favorite.R
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
+import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.People
 import com.cheeke.surfy.model.Tv
+import com.cheeke.surfy.ui.components.CircularProgressComponent
 import com.cheeke.surfy.ui.components.FavoriteButtonComponent
 import com.cheeke.surfy.ui.components.ScrollToTopComponent
 import com.cheeke.surfy.ui.image.DynamicAsyncImageLoader
@@ -70,9 +74,9 @@ fun FavoriteScreen(
     LocalFirebaseLogHelper.current.sendLog("FavoriteScreen", "favorite screen init")
     TrackScreenViewEvent(screenName = "FavoriteScreen")
 
-    val favoriteMovies by viewModel.favoriteMovies.collectAsStateWithLifecycle()
-    val favoriteTvs by viewModel.favoriteTvs.collectAsStateWithLifecycle()
-    val favoritePeoples by viewModel.favoritePeoples.collectAsStateWithLifecycle()
+    val favoriteMovies = viewModel.favoriteMovies.collectAsLazyPagingItems()
+    val favoriteTvs = viewModel.favoriteTvs.collectAsLazyPagingItems()
+    val favoritePeoples = viewModel.favoritePeoples.collectAsLazyPagingItems()
     val tabIndex by viewModel.tabIndex.collectAsStateWithLifecycle()
 
     FavoriteScreen(
@@ -93,9 +97,9 @@ fun FavoriteScreen(
 
 @Composable
 fun FavoriteScreen(
-    favoriteMovies: List<Movie>,
-    favoriteTvs: List<Tv>,
-    favoritePeoples: List<People>,
+    favoriteMovies: LazyPagingItems<Movie>,
+    favoriteTvs: LazyPagingItems<Tv>,
+    favoritePeoples: LazyPagingItems<People>,
     onShowSnackbar: suspend (String, String?) -> Boolean,
     tabIndex: Int = 0,
     goToMovie: (Int) -> Unit,
@@ -124,7 +128,7 @@ fun FavoriteScreen(
 
         when (FavoriteTab.entries[tabIndex]) {
             FavoriteTab.MOVIE -> {
-                if (favoriteMovies.isEmpty()) {
+                if (favoriteMovies.itemCount == 0) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
@@ -139,16 +143,16 @@ fun FavoriteScreen(
                     FavoriteListComponent<Movie>(
                         favoriteList = favoriteMovies,
                         spanCount = 3,
-                        content = { movieDetail ->
+                        content = { movie ->
                             Box(
-                                modifier = Modifier.bounceClick { goToMovie(movieDetail.id ?: -1) }
+                                modifier = Modifier.bounceClick { goToMovie(movie.id ?: -1) }
                             ) {
                                 DynamicAsyncImageLoader(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .aspectRatio(ratio = POSTER_IMAGE_RATIO)
                                         .clip(shape = RoundedCornerShape(size = dp10)),
-                                    source = movieDetail.posterPath ?: "",
+                                    source = movie.posterPath ?: "",
                                     contentDescription = "FavoriteMoviePoster"
                                 )
                                 FavoriteButtonComponent(
@@ -158,11 +162,11 @@ fun FavoriteScreen(
                                         .align(Alignment.TopEnd),
                                     isFavorite = true,
                                     onClick = {
-                                        deleteFavoriteMovie(movieDetail)
+                                        deleteFavoriteMovie(movie)
                                         scope.launch {
                                             onShowSnackbar(removeFavoriteText, null)
                                         }
-                                        analyticsHelper.logFavorite(isFavorite = false, contentType = "movie", media = movieDetail)
+                                        analyticsHelper.logFavorite(isFavorite = false, contentType = "movie", media = movie)
                                     }
                                 )
                             }
@@ -171,7 +175,7 @@ fun FavoriteScreen(
                 }
             }
             FavoriteTab.TV -> {
-                if (favoriteTvs.isEmpty()) {
+                if (favoriteTvs.itemCount == 0) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
@@ -218,7 +222,7 @@ fun FavoriteScreen(
                 }
             }
             FavoriteTab.PEOPLE -> {
-                if (favoritePeoples.isEmpty()) {
+                if (favoritePeoples.itemCount == 0) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
@@ -233,11 +237,11 @@ fun FavoriteScreen(
                     FavoriteListComponent<People>(
                         favoriteList = favoritePeoples,
                         spanCount = 3,
-                        content = { peopleDetail ->
+                        content = { people ->
                             Column(
                                 modifier = Modifier
                                     .wrapContentSize()
-                                    .bounceClick { goToPeople(peopleDetail.id ?: -1) }
+                                    .bounceClick { goToPeople(people.id ?: -1) }
                             ) {
                                 Box {
                                     DynamicAsyncImageLoader(
@@ -245,7 +249,7 @@ fun FavoriteScreen(
                                             .fillMaxWidth()
                                             .aspectRatio(ratio = PEOPLE_IMAGE_RATIO)
                                             .clip(shape = RoundedCornerShape(size = dp10)),
-                                        source = peopleDetail.posterPath ?: "",
+                                        source = people.posterPath ?: "",
                                         contentDescription = "FavoritePeopleProfileImage"
                                     )
                                     FavoriteButtonComponent(
@@ -255,11 +259,11 @@ fun FavoriteScreen(
                                             .align(Alignment.TopEnd),
                                         isFavorite = true,
                                         onClick = {
-                                            deleteFavoritePeople(peopleDetail)
+                                            deleteFavoritePeople(people)
                                             scope.launch {
                                                 onShowSnackbar(removeFavoriteText, null)
                                             }
-                                            analyticsHelper.logFavorite(isFavorite = false, contentType = "people", media = peopleDetail)
+                                            analyticsHelper.logFavorite(isFavorite = false, contentType = "people", media = people)
                                         }
                                     )
                                 }
@@ -268,7 +272,7 @@ fun FavoriteScreen(
                                         .wrapContentWidth()
                                         .padding(top = dp5)
                                         .align(Alignment.CenterHorizontally),
-                                    text = peopleDetail.title ?: "",
+                                    text = people.title ?: "",
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )
@@ -282,8 +286,8 @@ fun FavoriteScreen(
 }
 
 @Composable
-fun <T> FavoriteListComponent(
-    favoriteList: List<T>,
+fun <T : Media> FavoriteListComponent(
+    favoriteList: LazyPagingItems<T>,
     spanCount: Int,
     content: @Composable (T) -> Unit
 ) {
@@ -307,8 +311,20 @@ fun <T> FavoriteListComponent(
             verticalArrangement = Arrangement.spacedBy(space = dp10)
         ) {
             items(
-                items = favoriteList
-            ) { item -> content(item) }
+                count = favoriteList.itemCount
+            ) {
+                content(favoriteList[it] ?: return@items)
+            }
+
+            if (favoriteList.loadState.append is LoadState.Loading) {
+                item {
+                    Box(modifier = Modifier.fillMaxWidth()) {
+                        CircularProgressComponent(
+                            modifier = Modifier.wrapContentSize().align(alignment = Alignment.Center)
+                        )
+                    }
+                }
+            }
         }
 
         if (visibleItemIndex >= spanCount) {

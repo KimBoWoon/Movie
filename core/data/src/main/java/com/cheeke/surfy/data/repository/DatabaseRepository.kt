@@ -1,7 +1,10 @@
 package com.cheeke.surfy.data.repository
 
 import androidx.paging.PagingSource
+import com.cheeke.surfy.database.model.MovieEntity
 import com.cheeke.surfy.database.model.NowPlayingMovieEntity
+import com.cheeke.surfy.database.model.PeopleEntity
+import com.cheeke.surfy.database.model.TvEntity
 import com.cheeke.surfy.database.model.UpComingMovieEntity
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.People
@@ -23,6 +26,10 @@ interface DatabaseRepository {
     suspend fun insertPeople(people: People): Long
     suspend fun deletePeople(people: People)
     suspend fun upsertPeoples(peoples: List<People>)
+
+    fun getFavoriteMovie(): PagingSource<Int, MovieEntity>
+    fun getFavoritePeople(): PagingSource<Int, PeopleEntity>
+    fun getFavoriteTv(): PagingSource<Int, TvEntity>
 
     fun getNowPlayingMovies(): PagingSource<Int, NowPlayingMovieEntity>
     fun getUpComingMovies(): PagingSource<Int, UpComingMovieEntity>

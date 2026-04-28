@@ -2,7 +2,15 @@ package com.cheeke.surfy.favorite
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.cachedIn
+import androidx.paging.map
 import com.cheeke.surfy.data.repository.DatabaseRepository
+import com.cheeke.surfy.database.model.MovieEntity
+import com.cheeke.surfy.database.model.PeopleEntity
+import com.cheeke.surfy.database.model.TvEntity
+import com.cheeke.surfy.database.model.asExternalModel
 import com.cheeke.surfy.feature.favorite.R
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.People
@@ -12,9 +20,8 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 @HiltViewModel(assistedFactory = FavoriteVM.Factory::class)
@@ -33,25 +40,24 @@ class FavoriteVM @AssistedInject constructor(
 
     private val _tabIndex = MutableStateFlow(value = initialTabIndex)
     val tabIndex = _tabIndex.asStateFlow()
-
-    val favoriteMovies = databaseRepository.getMovies()
-        .stateIn(
-            scope = viewModelScope,
-            initialValue = emptyList(),
-            started = SharingStarted.WhileSubscribed()
-        )
-    val favoriteTvs = databaseRepository.getTv()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(),
-            initialValue = emptyList()
-        )
-    val favoritePeoples = databaseRepository.getPeople()
-        .stateIn(
-            scope = viewModelScope,
-            initialValue = emptyList(),
-            started = SharingStarted.WhileSubscribed()
-        )
+    val favoriteMovies = Pager(
+        config = PagingConfig(pageSize = 20, prefetchDistance = 5),
+        pagingSourceFactory = { databaseRepository.getFavoriteMovie() }
+    ).flow.map { pagingData ->
+        pagingData.map(transform = MovieEntity::asExternalModel)
+    }.cachedIn(scope = viewModelScope)
+    val favoritePeoples = Pager(
+        config = PagingConfig(pageSize = 20, prefetchDistance = 5),
+        pagingSourceFactory = { databaseRepository.getFavoritePeople() }
+    ).flow.map { pagingData ->
+        pagingData.map(transform = PeopleEntity::asExternalModel)
+    }.cachedIn(scope = viewModelScope)
+    val favoriteTvs = Pager(
+        config = PagingConfig(pageSize = 20, prefetchDistance = 5),
+        pagingSourceFactory = { databaseRepository.getFavoriteTv() }
+    ).flow.map { pagingData ->
+        pagingData.map(transform = TvEntity::asExternalModel)
+    }.cachedIn(scope = viewModelScope)
 
     fun updateTabIndex(index: Int) {
         _tabIndex.value = index

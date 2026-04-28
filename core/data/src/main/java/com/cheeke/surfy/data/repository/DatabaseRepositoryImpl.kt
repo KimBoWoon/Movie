@@ -131,6 +131,13 @@ class DatabaseRepositoryImpl @Inject constructor(
             }
         )
 
+    override fun getFavoriteMovie(): PagingSource<Int, MovieEntity> =
+        movieDao.getFavoriteMovie()
+    override fun getFavoritePeople(): PagingSource<Int, PeopleEntity> =
+        peopleDao.getFavoritePeople()
+    override fun getFavoriteTv(): PagingSource<Int, TvEntity> =
+        tvDao.getFavoriteTv()
+
     override fun getNowPlayingMovies(): PagingSource<Int, NowPlayingMovieEntity> =
         movieDao.getNowPlayingMovie()
 
