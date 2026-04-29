@@ -5,8 +5,12 @@ import androidx.annotation.VisibleForTesting
 import androidx.paging.PagingSource
 import androidx.paging.testing.asPagingSourceFactory
 import com.cheeke.surfy.data.repository.DatabaseRepository
+import com.cheeke.surfy.database.model.MovieEntity
 import com.cheeke.surfy.database.model.NowPlayingMovieEntity
+import com.cheeke.surfy.database.model.PeopleEntity
+import com.cheeke.surfy.database.model.TvEntity
 import com.cheeke.surfy.database.model.UpComingMovieEntity
+import com.cheeke.surfy.database.model.asExternalModel
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.People
 import com.cheeke.surfy.model.Tv
@@ -129,6 +133,15 @@ class TestDatabaseRepository : DatabaseRepository {
         tvDatabase.tryEmit(value = nextWeekReleaseMovies)
         return tvDatabase.first()
     }
+
+    override fun getFavoriteMovie(): PagingSource<Int, MovieEntity> =
+        currentMovieDatabase.map(transform = Movie::asExternalModel).asPagingSourceFactory().invoke()
+
+    override fun getFavoritePeople(): PagingSource<Int, PeopleEntity> =
+        currentPeopleDatabase.map(transform = People::asExternalModel).asPagingSourceFactory().invoke()
+
+    override fun getFavoriteTv(): PagingSource<Int, TvEntity> =
+        currentTvDatabase.map(transform = Tv::asExternalModel).asPagingSourceFactory().invoke()
 
     @VisibleForTesting
     fun setMovies(list: List<Movie>) {

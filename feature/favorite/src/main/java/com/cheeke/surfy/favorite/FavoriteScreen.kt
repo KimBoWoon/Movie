@@ -47,9 +47,7 @@ import com.cheeke.surfy.data.util.POSTER_IMAGE_RATIO
 import com.cheeke.surfy.feature.favorite.R
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
 import com.cheeke.surfy.model.Media
-import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.People
-import com.cheeke.surfy.model.Tv
 import com.cheeke.surfy.ui.components.CircularProgressComponent
 import com.cheeke.surfy.ui.components.FavoriteButtonComponent
 import com.cheeke.surfy.ui.components.ScrollToTopComponent
@@ -74,174 +72,81 @@ fun FavoriteScreen(
     LocalFirebaseLogHelper.current.sendLog("FavoriteScreen", "favorite screen init")
     TrackScreenViewEvent(screenName = "FavoriteScreen")
 
-    val favoriteMovies = viewModel.favoriteMovies.collectAsLazyPagingItems()
-    val favoriteTvs = viewModel.favoriteTvs.collectAsLazyPagingItems()
-    val favoritePeoples = viewModel.favoritePeoples.collectAsLazyPagingItems()
     val tabIndex by viewModel.tabIndex.collectAsStateWithLifecycle()
+    val selectedTab = FavoriteTab.entries[tabIndex]
+    val state by viewModel.currentPagingItems.collectAsStateWithLifecycle()
+    val favoritePagingItems = when (val uiState = state) {
+        is FavoriteUiState.MovieState -> uiState.items.collectAsLazyPagingItems()
+        is FavoriteUiState.TvState -> uiState.items.collectAsLazyPagingItems()
+        is FavoriteUiState.PeopleState -> uiState.items.collectAsLazyPagingItems()
+    }
+
 
     FavoriteScreen(
-        favoriteMovies = favoriteMovies,
-        favoriteTvs = favoriteTvs,
-        favoritePeoples = favoritePeoples,
+        selectedTab = selectedTab,
+        favoritePagingItems = favoritePagingItems,
         onShowSnackbar = onShowSnackbar,
-        tabIndex = tabIndex,
-        goToMovie = goToMovie,
-        goToTv = goToTv,
-        goToPeople = goToPeople,
         updateTabIndex = viewModel::updateTabIndex,
-        deleteFavoriteMovie = viewModel::deleteMovie,
-        deleteFavoriteTv = viewModel::deleteTv,
-        deleteFavoritePeople = viewModel::deletePeople
+        goTo = { favoriteTab, media ->
+            when (favoriteTab) {
+                FavoriteTab.MOVIE -> goToMovie(media.id ?: -1)
+                FavoriteTab.TV -> goToTv(media.id ?: -1)
+                FavoriteTab.PEOPLE -> goToPeople(media.id ?: -1)
+            }
+        },
+        deleteFavorite = viewModel::deleteFavorite
     )
 }
 
 @Composable
 fun FavoriteScreen(
-    favoriteMovies: LazyPagingItems<Movie>,
-    favoriteTvs: LazyPagingItems<Tv>,
-    favoritePeoples: LazyPagingItems<People>,
+    selectedTab: FavoriteTab,
+    favoritePagingItems: LazyPagingItems<out Media>,
     onShowSnackbar: suspend (String, String?) -> Boolean,
-    tabIndex: Int = 0,
-    goToMovie: (Int) -> Unit,
-    goToTv: (Int) -> Unit,
-    goToPeople: (Int) -> Unit,
     updateTabIndex: (Int) -> Unit,
-    deleteFavoriteMovie: (Movie) -> Unit,
-    deleteFavoriteTv: (Tv) -> Unit,
-    deleteFavoritePeople: (People) -> Unit
+    goTo: (FavoriteTab, Media) -> Unit,
+    deleteFavorite: (FavoriteTab, Media) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
     val removeFavoriteText = stringResource(id = R.string.remove_favorite)
     val analyticsHelper = LocalAnalyticsHelper.current
 
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
+    Column(modifier = Modifier.fillMaxSize()) {
         SegmentedTabs(
             modifier = Modifier.fillMaxWidth().padding(start = dp16, end = dp16, bottom = dp10),
-            selected = FavoriteTab.entries[tabIndex],
+            selected = selectedTab,
             onSelected = { favoriteTabs ->
                 val index = FavoriteTab.entries.indexOfFirst { it.stringId == favoriteTabs.stringId }
                 updateTabIndex(index)
             }
         )
 
-        when (FavoriteTab.entries[tabIndex]) {
-            FavoriteTab.MOVIE -> {
-                if (favoriteMovies.itemCount == 0) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            modifier = Modifier.testTag(tag = "favoriteMovieEmpty"),
-                            text = stringResource(id = R.string.empty_favorite_movie),
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                    }
-                } else {
-                    FavoriteListComponent<Movie>(
-                        favoriteList = favoriteMovies,
-                        spanCount = 3,
-                        content = { movie ->
-                            Box(
-                                modifier = Modifier.bounceClick { goToMovie(movie.id ?: -1) }
-                            ) {
-                                DynamicAsyncImageLoader(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .aspectRatio(ratio = POSTER_IMAGE_RATIO)
-                                        .clip(shape = RoundedCornerShape(size = dp10)),
-                                    source = movie.posterPath ?: "",
-                                    contentDescription = "FavoriteMoviePoster"
-                                )
-                                FavoriteButtonComponent(
-                                    modifier = Modifier
-                                        .wrapContentSize()
-                                        .padding(end = dp5, top = dp5)
-                                        .align(Alignment.TopEnd),
-                                    isFavorite = true,
-                                    onClick = {
-                                        deleteFavoriteMovie(movie)
-                                        scope.launch {
-                                            onShowSnackbar(removeFavoriteText, null)
-                                        }
-                                        analyticsHelper.logFavorite(isFavorite = false, contentType = "movie", media = movie)
-                                    }
-                                )
-                            }
-                        }
-                    )
-                }
+        if (favoritePagingItems.itemCount == 0) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    modifier = Modifier.testTag(tag = "favoriteMovieEmpty"),
+                    text = when (selectedTab) {
+                        FavoriteTab.MOVIE -> stringResource(id = R.string.empty_favorite_movie)
+                        FavoriteTab.PEOPLE -> stringResource(id = R.string.empty_favorite_people)
+                        FavoriteTab.TV -> stringResource(id = R.string.empty_favorite_tv)
+                    },
+                    style = MaterialTheme.typography.titleLarge
+                )
             }
-            FavoriteTab.TV -> {
-                if (favoriteTvs.itemCount == 0) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            modifier = Modifier.testTag(tag = "favoriteTvEmpty"),
-                            text = stringResource(id = R.string.empty_favorite_tv),
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                    }
-                } else {
-                    FavoriteListComponent<Tv>(
-                        favoriteList = favoriteTvs,
-                        spanCount = 3,
-                        content = { tv ->
-                            Box(
-                                modifier = Modifier.bounceClick { goToTv(tv.id ?: -1) }
-                            ) {
-                                DynamicAsyncImageLoader(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .aspectRatio(ratio = POSTER_IMAGE_RATIO)
-                                        .clip(shape = RoundedCornerShape(size = dp10)),
-                                    source = tv.posterPath ?: "",
-                                    contentDescription = "FavoriteTvPoster"
-                                )
-                                FavoriteButtonComponent(
-                                    modifier = Modifier
-                                        .wrapContentSize()
-                                        .padding(end = dp5, top = dp5)
-                                        .align(Alignment.TopEnd),
-                                    isFavorite = true,
-                                    onClick = {
-                                        deleteFavoriteTv(tv)
-                                        scope.launch {
-                                            onShowSnackbar(removeFavoriteText, null)
-                                        }
-                                        analyticsHelper.logFavorite(isFavorite = false, contentType = "tv", media = tv)
-                                    }
-                                )
-                            }
-                        }
-                    )
-                }
-            }
-            FavoriteTab.PEOPLE -> {
-                if (favoritePeoples.itemCount == 0) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            modifier = Modifier.testTag(tag = "favoritePeopleEmpty"),
-                            text = stringResource(id = R.string.empty_favorite_people),
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                    }
-                } else {
-                    FavoriteListComponent<People>(
-                        favoriteList = favoritePeoples,
-                        spanCount = 3,
-                        content = { people ->
+        } else {
+            FavoriteListComponent(
+                favoriteList = favoritePagingItems,
+                spanCount = 3,
+                content = { media ->
+                    when (media) {
+                        is People -> {
                             Column(
                                 modifier = Modifier
                                     .wrapContentSize()
-                                    .bounceClick { goToPeople(people.id ?: -1) }
+                                    .bounceClick { goTo(selectedTab, media) }
                             ) {
                                 Box {
                                     DynamicAsyncImageLoader(
@@ -249,8 +154,8 @@ fun FavoriteScreen(
                                             .fillMaxWidth()
                                             .aspectRatio(ratio = PEOPLE_IMAGE_RATIO)
                                             .clip(shape = RoundedCornerShape(size = dp10)),
-                                        source = people.posterPath ?: "",
-                                        contentDescription = "FavoritePeopleProfileImage"
+                                        source = media.posterPath ?: "",
+                                        contentDescription = "FavoriteImage"
                                     )
                                     FavoriteButtonComponent(
                                         modifier = Modifier
@@ -259,11 +164,11 @@ fun FavoriteScreen(
                                             .align(Alignment.TopEnd),
                                         isFavorite = true,
                                         onClick = {
-                                            deleteFavoritePeople(people)
+                                            deleteFavorite(selectedTab, media)
                                             scope.launch {
                                                 onShowSnackbar(removeFavoriteText, null)
                                             }
-                                            analyticsHelper.logFavorite(isFavorite = false, contentType = "people", media = people)
+                                            analyticsHelper.logFavorite(isFavorite = false, contentType = "people", media = media)
                                         }
                                     )
                                 }
@@ -272,15 +177,43 @@ fun FavoriteScreen(
                                         .wrapContentWidth()
                                         .padding(top = dp5)
                                         .align(Alignment.CenterHorizontally),
-                                    text = people.title ?: "",
+                                    text = media.title ?: "",
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )
                             }
                         }
-                    )
+                        else -> {
+                            Box(
+                                modifier = Modifier.bounceClick { goTo(selectedTab, media) }
+                            ) {
+                                DynamicAsyncImageLoader(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .aspectRatio(ratio = POSTER_IMAGE_RATIO)
+                                        .clip(shape = RoundedCornerShape(size = dp10)),
+                                    source = media.posterPath ?: "",
+                                    contentDescription = "FavoriteImage"
+                                )
+                                FavoriteButtonComponent(
+                                    modifier = Modifier
+                                        .wrapContentSize()
+                                        .padding(end = dp5, top = dp5)
+                                        .align(Alignment.TopEnd),
+                                    isFavorite = true,
+                                    onClick = {
+                                        deleteFavorite(selectedTab, media)
+                                        scope.launch {
+                                            onShowSnackbar(removeFavoriteText, null)
+                                        }
+                                        analyticsHelper.logFavorite(isFavorite = false, contentType = selectedTab.name, media = media)
+                                    }
+                                )
+                            }
+                        }
+                    }
                 }
-            }
+            )
         }
     }
 }
@@ -320,7 +253,9 @@ fun <T : Media> FavoriteListComponent(
                 item {
                     Box(modifier = Modifier.fillMaxWidth()) {
                         CircularProgressComponent(
-                            modifier = Modifier.wrapContentSize().align(alignment = Alignment.Center)
+                            modifier = Modifier
+                                .wrapContentSize()
+                                .align(alignment = Alignment.Center)
                         )
                     }
                 }

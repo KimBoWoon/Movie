@@ -1,7 +1,11 @@
 package com.cheeke.surfy.data.testdouble
 
+import androidx.paging.PagingSource
+import androidx.paging.testing.asPagingSourceFactory
 import com.cheeke.surfy.database.dao.PeopleDao
 import com.cheeke.surfy.database.model.PeopleEntity
+import com.cheeke.surfy.database.model.asExternalModel
+import com.cheeke.surfy.model.People
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -31,4 +35,7 @@ class TestPeopleDao : PeopleDao {
     override fun isFavoritePeople(id: Int): Flow<Boolean> = entitiesStateFlow.map {
         it.find { entity -> entity.id == id } != null
     }.distinctUntilChanged()
+
+    override fun getFavoritePeople(): PagingSource<Int, PeopleEntity> =
+        (0 until 50).map { People(id = it) }.map(transform = People::asExternalModel).asPagingSourceFactory().invoke()
 }

@@ -1,7 +1,11 @@
 package com.cheeke.surfy.data.testdouble
 
+import androidx.paging.PagingSource
+import androidx.paging.testing.asPagingSourceFactory
 import com.cheeke.surfy.database.dao.TvDao
 import com.cheeke.surfy.database.model.TvEntity
+import com.cheeke.surfy.database.model.asExternalModel
+import com.cheeke.surfy.model.Tv
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -43,4 +47,7 @@ class TestTvDao : TvDao {
     override fun deleteAllFavoriteTvs() {
         entitiesStateFlow.tryEmit(value = emptyList())
     }
+
+    override fun getFavoriteTv(): PagingSource<Int, TvEntity> =
+        (0 until 50).map { Tv(id = it) }.map(transform = Tv::asExternalModel).asPagingSourceFactory().invoke()
 }

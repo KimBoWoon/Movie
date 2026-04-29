@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.cheeke.surfy.model.MediaType
 import com.cheeke.surfy.model.Tv
+import kotlin.time.Clock
 
 @Entity(tableName = "tvs")
 data class TvEntity(
@@ -24,4 +25,13 @@ fun TvEntity.asExternalModel(): Tv = Tv(
     firstAirDate = firstAirDate,
     lastAirDate = lastAirDate,
     mediaType = MediaType.TV
+)
+
+fun Tv.asExternalModel(): TvEntity = TvEntity(
+    id = id ?: -1,
+    posterPath = posterPath ?: "",
+    timestamp = Clock.System.now().toEpochMilliseconds(),
+    name = title,
+    firstAirDate = firstAirDate,
+    lastAirDate = lastAirDate
 )

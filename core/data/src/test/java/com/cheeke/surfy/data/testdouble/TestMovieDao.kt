@@ -6,6 +6,8 @@ import com.cheeke.surfy.database.dao.MovieDao
 import com.cheeke.surfy.database.model.MovieEntity
 import com.cheeke.surfy.database.model.NowPlayingMovieEntity
 import com.cheeke.surfy.database.model.UpComingMovieEntity
+import com.cheeke.surfy.database.model.asExternalModel
+import com.cheeke.surfy.model.Movie
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -91,4 +93,7 @@ class TestMovieDao : MovieDao {
     }
 
     override suspend fun getPopularMovies(): List<NowPlayingMovieEntity> = nowPlayingMovieFlow.first()
+
+    override fun getFavoriteMovie(): PagingSource<Int, MovieEntity> =
+        (0 until 50).map { Movie(id = it) }.map(transform = Movie::asExternalModel).asPagingSourceFactory().invoke()
 }
