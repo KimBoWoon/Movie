@@ -69,8 +69,8 @@ class TvVM @AssistedInject constructor(
                         region = it.second
                     )
                 }
-            ).flow.cachedIn(scope = viewModelScope)
-        }
+            ).flow
+        }.cachedIn(scope = viewModelScope)
     private val _selectedEpisode = MutableStateFlow<TvEpisode?>(value = null)
     val selectedEpisode = _selectedEpisode.asStateFlow()
     private val selectedSeason = MutableStateFlow<TvSeason?>(value = null)

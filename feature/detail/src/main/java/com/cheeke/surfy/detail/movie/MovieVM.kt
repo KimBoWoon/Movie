@@ -81,8 +81,8 @@ class MovieVM @AssistedInject constructor(
                         region = it.second
                     )
                 }
-            ).flow.cachedIn(scope = viewModelScope)
-        }
+            ).flow
+        }.cachedIn(scope = viewModelScope)
     val isCheatActive = userDataRepository.internalData
         .map { it.isCheatActive }
         .stateIn(
