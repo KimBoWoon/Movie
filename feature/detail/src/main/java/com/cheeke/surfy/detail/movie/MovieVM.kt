@@ -10,7 +10,7 @@ import com.cheeke.surfy.analytics.AnalyticsHelper
 import com.cheeke.surfy.analytics.logSelectContent
 import com.cheeke.surfy.common.Result
 import com.cheeke.surfy.common.asResult
-import com.cheeke.surfy.data.repository.DatabaseRepository
+import com.cheeke.surfy.data.repository.MovieDataBaseRepository
 import com.cheeke.surfy.data.repository.PagingRepository
 import com.cheeke.surfy.data.repository.UserDataRepository
 import com.cheeke.surfy.domain.GetMovieDetailUseCase
@@ -32,7 +32,7 @@ import kotlinx.coroutines.launch
 class MovieVM @AssistedInject constructor(
     @Assisted(value = "id") val id: Int,
     private val getMovieDetail: GetMovieDetailUseCase,
-    private val databaseRepository: DatabaseRepository,
+    private val movieDataBaseRepository: MovieDataBaseRepository,
     private val pagingRepository: PagingRepository,
     private val userDataRepository: UserDataRepository,
     private val analyticsHelper: AnalyticsHelper
@@ -119,13 +119,13 @@ class MovieVM @AssistedInject constructor(
 
     fun insertMovie(movie: Movie) {
         viewModelScope.launch {
-            databaseRepository.insertMovie(movie)
+            movieDataBaseRepository.insert(media = movie)
         }
     }
 
     fun deleteMovie(movie: Movie) {
         viewModelScope.launch {
-            databaseRepository.deleteMovie(movie)
+            movieDataBaseRepository.delete(media = movie)
         }
     }
 }

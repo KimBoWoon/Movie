@@ -7,7 +7,9 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
-import com.cheeke.surfy.data.repository.DatabaseRepository
+import com.cheeke.surfy.data.repository.MovieDataBaseRepository
+import com.cheeke.surfy.data.repository.PeopleDataBaseRepository
+import com.cheeke.surfy.data.repository.TvDataBaseRepository
 import com.cheeke.surfy.database.model.MovieEntity
 import com.cheeke.surfy.database.model.PeopleEntity
 import com.cheeke.surfy.database.model.TvEntity
@@ -33,7 +35,9 @@ import kotlinx.coroutines.launch
 @HiltViewModel(assistedFactory = FavoriteVM.Factory::class)
 class FavoriteVM @AssistedInject constructor(
     @Assisted initialTabIndex: Int,
-    private val databaseRepository: DatabaseRepository
+    private val movieDataBaseRepository: MovieDataBaseRepository,
+    private val peopleDataBaseRepository: PeopleDataBaseRepository,
+    private val tvDataBaseRepository: TvDataBaseRepository
 ) : ViewModel() {
     companion object {
         internal const val TAG = "FavoriteVM"
@@ -48,19 +52,19 @@ class FavoriteVM @AssistedInject constructor(
     val tabIndex = _tabIndex.asStateFlow()
     val favoriteMovies = Pager(
         config = PagingConfig(pageSize = 20, prefetchDistance = 5),
-        pagingSourceFactory = { databaseRepository.getFavoriteMovie() }
+        pagingSourceFactory = { movieDataBaseRepository.getFavorite() }
     ).flow.map { pagingData ->
         pagingData.map(transform = MovieEntity::asExternalModel)
     }.cachedIn(scope = viewModelScope)
     val favoritePeoples = Pager(
         config = PagingConfig(pageSize = 20, prefetchDistance = 5),
-        pagingSourceFactory = { databaseRepository.getFavoritePeople() }
+        pagingSourceFactory = { peopleDataBaseRepository.getFavorite() }
     ).flow.map { pagingData ->
         pagingData.map(transform = PeopleEntity::asExternalModel)
     }.cachedIn(scope = viewModelScope)
     val favoriteTvs = Pager(
         config = PagingConfig(pageSize = 20, prefetchDistance = 5),
-        pagingSourceFactory = { databaseRepository.getFavoriteTv() }
+        pagingSourceFactory = { tvDataBaseRepository.getFavorite() }
     ).flow.map { pagingData ->
         pagingData.map(transform = TvEntity::asExternalModel)
     }.cachedIn(scope = viewModelScope)
@@ -84,9 +88,9 @@ class FavoriteVM @AssistedInject constructor(
     fun deleteFavorite(favoriteTab: FavoriteTab, media: Media) {
         viewModelScope.launch {
             when (favoriteTab) {
-                FavoriteTab.MOVIE -> databaseRepository.deleteMovie(movie = media as Movie)
-                FavoriteTab.TV -> databaseRepository.deleteTv(tv = media as Tv)
-                FavoriteTab.PEOPLE -> databaseRepository.deletePeople(people = media as People)
+                FavoriteTab.MOVIE -> movieDataBaseRepository.delete(media = media)
+                FavoriteTab.TV -> tvDataBaseRepository.delete(media = media)
+                FavoriteTab.PEOPLE -> peopleDataBaseRepository.delete(media = media)
             }
         }
     }

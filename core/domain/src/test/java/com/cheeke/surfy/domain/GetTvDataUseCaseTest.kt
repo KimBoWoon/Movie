@@ -3,7 +3,7 @@ package com.cheeke.surfy.domain
 import com.cheeke.surfy.model.Tv
 import com.cheeke.surfy.model.TvEpisode
 import com.cheeke.surfy.model.TvSeasons
-import com.cheeke.surfy.testing.repository.TestDatabaseRepository
+import com.cheeke.surfy.testing.repository.TestTvDatabaseRepository
 import com.cheeke.surfy.testing.repository.TestTvDetailRepository
 import com.cheeke.surfy.testing.repository.TestUserDataRepository
 import com.cheeke.surfy.testing.utils.MainDispatcherRule
@@ -18,7 +18,7 @@ class GetTvDataUseCaseTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
     private lateinit var detailRepository: TestTvDetailRepository
-    private lateinit var databaseRepository: TestDatabaseRepository
+    private lateinit var tvDataBaseRepository: TestTvDatabaseRepository
     private lateinit var getTvDetailUseCase: GetTvDetailUseCase
     private lateinit var userDataRepository: TestUserDataRepository
     private val tv = Tv(id = 0)
@@ -35,10 +35,10 @@ class GetTvDataUseCaseTest {
     @Before
     fun setup() {
         detailRepository = TestTvDetailRepository()
-        databaseRepository = TestDatabaseRepository()
+        tvDataBaseRepository = TestTvDatabaseRepository()
         userDataRepository = TestUserDataRepository()
         getTvDetailUseCase = GetTvDetailUseCase(
-            databaseRepository = databaseRepository,
+            tvDataBaseRepository = tvDataBaseRepository,
             detailRepository = detailRepository,
             userDataRepository = userDataRepository
         )
@@ -49,7 +49,7 @@ class GetTvDataUseCaseTest {
         detailRepository.setTv(tv)
         detailRepository.setTvSeason(tvSeasons)
         detailRepository.setTvEpisode(tvEpisode)
-        databaseRepository.insertTv(tv = tv)
+        tvDataBaseRepository.insert(media = tv)
 
         val result = getTvDetailUseCase(id = 0).first()
 
@@ -64,13 +64,13 @@ class GetTvDataUseCaseTest {
         detailRepository.setTv(tv)
         detailRepository.setTvSeason(tvSeasons)
         detailRepository.setTvEpisode(tvEpisode)
-        databaseRepository.insertTv(tv = Tv(id = 123))
+        tvDataBaseRepository.insert(media = Tv(id = 123))
 
         assertEquals(
             expected = getTvDetailUseCase(id = 0).first().isFavorite,
             actual = false
         )
-        databaseRepository.insertTv(tv)
+        tvDataBaseRepository.insert(media = tv)
         assertEquals(
             expected = getTvDetailUseCase(id = 0).first().isFavorite,
             actual = true

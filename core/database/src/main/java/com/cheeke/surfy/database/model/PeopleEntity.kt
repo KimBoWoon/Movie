@@ -3,7 +3,6 @@ package com.cheeke.surfy.database.model
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.cheeke.surfy.model.People
-import kotlin.time.Clock
 
 @Entity(tableName = "peoples")
 data class PeopleEntity(
@@ -22,7 +21,7 @@ fun PeopleEntity.asExternalModel(): People = People(
 
 fun People.asExternalModel(): PeopleEntity = PeopleEntity(
     id = id ?: -1,
-    timestamp = Clock.System.now().toEpochMilliseconds(),
+    timestamp = -1L,//Clock.System.now().toEpochMilliseconds(),
     name = title,
     profilePath = posterPath
 )

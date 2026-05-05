@@ -11,7 +11,7 @@ import androidx.compose.ui.test.performScrollToNode
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cheeke.surfy.testing.model.nowPlayingMovieTest
 import com.cheeke.surfy.testing.model.upComingMovieTest
-import com.cheeke.surfy.testing.repository.TestDatabaseRepository
+import com.cheeke.surfy.testing.repository.TestMovieDatabaseRepository
 import com.cheeke.surfy.testing.repository.TestPagingRepository
 import com.cheeke.surfy.testing.repository.TestUserDataRepository
 import com.cheeke.surfy.testing.utils.TestNetworkMonitor
@@ -23,14 +23,14 @@ class HomeScreenTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<ComponentActivity>()
     private lateinit var viewModel: HomeVM
-    private lateinit var testDatabaseRepository: TestDatabaseRepository
+    private lateinit var testDatabaseRepository: TestMovieDatabaseRepository
     private lateinit var testPagingRepository: TestPagingRepository
     private lateinit var testNetworkMonitor: TestNetworkMonitor
     private lateinit var testUserRepository: TestUserDataRepository
 
     @Before
     fun setup() {
-        testDatabaseRepository = TestDatabaseRepository()
+        testDatabaseRepository = TestMovieDatabaseRepository()
         viewModel = HomeVM(
             databaseRepository = testDatabaseRepository,
             pagingRepository = testPagingRepository,

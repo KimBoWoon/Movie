@@ -35,7 +35,8 @@ data class TrendingMediaResult(
     val knownForDepartment: String? = null,
 
     // TV
-    val firstAirDate: String? = null,
+    override val firstAirDate: String? = null,
+    override val lastAirDate: String? = null,
     val originCountry: List<String>? = null
 ) : Media
 

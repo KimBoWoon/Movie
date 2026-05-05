@@ -20,7 +20,7 @@ import com.cheeke.surfy.model.Tv
 import com.cheeke.surfy.model.TvEpisode
 import com.cheeke.surfy.model.TvSeasons
 import com.cheeke.surfy.testing.model.tvTestData
-import com.cheeke.surfy.testing.repository.TestDatabaseRepository
+import com.cheeke.surfy.testing.repository.TestMovieDatabaseRepository
 import com.cheeke.surfy.testing.repository.TestPagingRepository
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -33,13 +33,13 @@ class TvScreenTest {
     val composeTestRule = createAndroidComposeRule<ComponentActivity>()
     private lateinit var viewModel: TvVM
     private lateinit var getTvDetailUseCase: GetTvDetailUseCase
-    private lateinit var databaseRepository: TestDatabaseRepository
+    private lateinit var databaseRepository: TestMovieDatabaseRepository
     private lateinit var detailRepository: TestDetailRepository
     private lateinit var pagingRepository: TestPagingRepository
 
     @Before
     fun setup() {
-        databaseRepository = TestDatabaseRepository()
+        databaseRepository = TestMovieDatabaseRepository()
         detailRepository = TestDetailRepository()
         pagingRepository = TestPagingRepository()
         getTvDetailUseCase = GetTvDetailUseCase(

@@ -12,7 +12,7 @@ import androidx.compose.ui.test.performClick
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.People
-import com.cheeke.surfy.testing.repository.TestDatabaseRepository
+import com.cheeke.surfy.testing.repository.TestMovieDatabaseRepository
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
@@ -22,11 +22,11 @@ class FavoriteScreenTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<ComponentActivity>()
     private lateinit var viewModel: FavoriteVM
-    private lateinit var testDataBaseRepository: TestDatabaseRepository
+    private lateinit var testDataBaseRepository: TestMovieDatabaseRepository
 
     @Before
     fun setup() {
-        testDataBaseRepository = TestDatabaseRepository()
+        testDataBaseRepository = TestMovieDatabaseRepository()
         viewModel = FavoriteVM(
             initialTabIndex = 0,
             databaseRepository = testDataBaseRepository

@@ -4,7 +4,7 @@ import com.cheeke.surfy.model.People
 import com.cheeke.surfy.testing.model.combineCreditsTestData
 import com.cheeke.surfy.testing.model.externalIdsTestData
 import com.cheeke.surfy.testing.model.peopleDetailTestData
-import com.cheeke.surfy.testing.repository.TestDatabaseRepository
+import com.cheeke.surfy.testing.repository.TestPeopleDatabaseRepository
 import com.cheeke.surfy.testing.repository.TestPeopleDetailRepository
 import com.cheeke.surfy.testing.utils.MainDispatcherRule
 import com.cheeke.surfy.testing.utils.TestMovieAppDataManager
@@ -20,21 +20,21 @@ class GetPeopleDetailUseCaseTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
     private lateinit var detailRepository: TestPeopleDetailRepository
-    private lateinit var databaseRepository: TestDatabaseRepository
+    private lateinit var peopleDataBaseRepository: TestPeopleDatabaseRepository
     private lateinit var movieAppDataRepository: TestMovieAppDataManager
     private lateinit var getPeopleDetailUseCase: GetPeopleDetailUseCase
 
     @Before
     fun setup() {
         detailRepository = TestPeopleDetailRepository()
-        databaseRepository = TestDatabaseRepository()
+        peopleDataBaseRepository = TestPeopleDatabaseRepository()
         movieAppDataRepository = TestMovieAppDataManager()
         getPeopleDetailUseCase = GetPeopleDetailUseCase(
             detailRepository = detailRepository,
-            databaseRepository = databaseRepository
+            peopleDataBaseRepository = peopleDataBaseRepository
         )
 
-        runBlocking { databaseRepository.insertPeople(people = People(id = 489)) }
+        runBlocking { peopleDataBaseRepository.insert(media = People(id = 489)) }
     }
 
     @Test
@@ -52,7 +52,7 @@ class GetPeopleDetailUseCaseTest {
 
         assertEquals(
             result.first().isFavorite,
-            databaseRepository.isFavoritePeople(id = 0).first()
+            peopleDataBaseRepository.isFavorite(id = 0).first()
         )
     }
 
@@ -61,7 +61,7 @@ class GetPeopleDetailUseCaseTest {
         detailRepository.setPeopleDetail(peopleDetailTestData)
         detailRepository.setCombineCredits(combineCreditsTestData)
         detailRepository.setExternalIds(externalIdsTestData)
-        databaseRepository.insertPeople(people = People(id = 0))
+        peopleDataBaseRepository.insert(media = People(id = 0))
 
         val result = getPeopleDetailUseCase(0)
 

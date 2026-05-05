@@ -7,7 +7,7 @@ import com.cheeke.surfy.analytics.AnalyticsHelper
 import com.cheeke.surfy.analytics.logSelectContent
 import com.cheeke.surfy.common.Result
 import com.cheeke.surfy.common.asResult
-import com.cheeke.surfy.data.repository.DatabaseRepository
+import com.cheeke.surfy.data.repository.PeopleDataBaseRepository
 import com.cheeke.surfy.domain.GetPeopleDetailUseCase
 import com.cheeke.surfy.domain.PeopleWithFavorite
 import com.cheeke.surfy.model.People
@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
 class PeopleVM @AssistedInject constructor(
     @Assisted val id: Int,
     getPeopleDetail: GetPeopleDetailUseCase,
-    private val databaseRepository: DatabaseRepository,
+    private val peopleDataBaseRepository: PeopleDataBaseRepository,
     private val analyticsHelper: AnalyticsHelper
 ) : ViewModel() {
     companion object {
@@ -73,13 +73,13 @@ class PeopleVM @AssistedInject constructor(
 
     fun insertPeople(people: People) {
         viewModelScope.launch {
-            databaseRepository.insertPeople(people)
+            peopleDataBaseRepository.insert(media = people)
         }
     }
 
     fun deletePeople(people: People) {
         viewModelScope.launch {
-            databaseRepository.deletePeople(people)
+            peopleDataBaseRepository.delete(media = people)
         }
     }
 }

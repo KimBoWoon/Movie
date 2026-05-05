@@ -4,12 +4,11 @@ import com.cheeke.surfy.detail.people.PeopleState
 import com.cheeke.surfy.detail.people.PeopleVM
 import com.cheeke.surfy.domain.GetPeopleDetailUseCase
 import com.cheeke.surfy.domain.PeopleWithFavorite
-import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.People
 import com.cheeke.surfy.testing.model.combineCreditsTestData
 import com.cheeke.surfy.testing.model.externalIdsTestData
 import com.cheeke.surfy.testing.model.peopleDetailTestData
-import com.cheeke.surfy.testing.repository.TestDatabaseRepository
+import com.cheeke.surfy.testing.repository.TestPeopleDatabaseRepository
 import com.cheeke.surfy.testing.repository.TestPeopleDetailRepository
 import com.cheeke.surfy.testing.utils.MainDispatcherRule
 import com.cheeke.surfy.testing.utils.TestAnalyticsHelper
@@ -32,7 +31,7 @@ class PeopleVMTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
     private lateinit var viewModel: PeopleVM
-    private lateinit var testDatabaseRepository: TestDatabaseRepository
+    private lateinit var testDatabaseRepository: TestPeopleDatabaseRepository
     private lateinit var testDetailRepository: TestPeopleDetailRepository
     private lateinit var getPeopleDetailUseCase: GetPeopleDetailUseCase
     private lateinit var testMovieAppDataManager: TestMovieAppDataManager
@@ -40,22 +39,22 @@ class PeopleVMTest {
 
     @Before
     fun setup() {
-        testDatabaseRepository = TestDatabaseRepository()
+        testDatabaseRepository = TestPeopleDatabaseRepository()
         testDetailRepository = TestPeopleDetailRepository()
         testMovieAppDataManager = TestMovieAppDataManager()
         testAnalyticsHelper = TestAnalyticsHelper()
         getPeopleDetailUseCase = GetPeopleDetailUseCase(
             detailRepository = testDetailRepository,
-            databaseRepository = testDatabaseRepository
+            peopleDataBaseRepository = testDatabaseRepository
         )
         viewModel = PeopleVM(
             id = 0,
             getPeopleDetail = getPeopleDetailUseCase,
-            databaseRepository = testDatabaseRepository,
+            peopleDataBaseRepository = testDatabaseRepository,
             analyticsHelper = testAnalyticsHelper
         )
         runBlocking {
-            testDatabaseRepository.insertPeople(people = People(id = 0, title = "people_1", posterPath = "/peopleImagePath.png"))
+            testDatabaseRepository.insert(media = People(id = 0, title = "people_1", posterPath = "/peopleImagePath.png"))
         }
     }
 
@@ -81,7 +80,7 @@ class PeopleVMTest {
             PeopleState.Success(
                 PeopleWithFavorite(
                     people = peopleDetailTestData,
-                    isFavorite = testDatabaseRepository.isFavoritePeople(id = 0).first()
+                    isFavorite = testDatabaseRepository.isFavorite(id = 0).first()
                 )
             )
         )
@@ -92,7 +91,7 @@ class PeopleVMTest {
         viewModel = PeopleVM(
             id = 124,
             getPeopleDetail = getPeopleDetailUseCase,
-            databaseRepository = testDatabaseRepository,
+            peopleDataBaseRepository = testDatabaseRepository,
             analyticsHelper = testAnalyticsHelper
         )
         backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.people.collect() }
@@ -102,14 +101,14 @@ class PeopleVMTest {
         testDetailRepository.setPeopleDetail(people)
         testDetailRepository.setCombineCredits(combineCreditsTestData)
         testDetailRepository.setExternalIds(externalIdsTestData)
-        testDatabaseRepository.insertMovie(movie = Movie(id = 124, title = "people_124", posterPath = "/peopleImagePath.png"))
+        testDatabaseRepository.insert(media = People(id = 124, title = "people_124", posterPath = "/peopleImagePath.png"))
 
         assertEquals(
             viewModel.people.value,
             PeopleState.Success(
                 data = PeopleWithFavorite(
                     people = people,
-                    isFavorite = testDatabaseRepository.isFavoritePeople(id = 124).first()
+                    isFavorite = testDatabaseRepository.isFavorite(id = 124).first()
                 )
             )
         )
@@ -120,7 +119,7 @@ class PeopleVMTest {
         viewModel = PeopleVM(
             id = 124,
             getPeopleDetail = getPeopleDetailUseCase,
-            databaseRepository = testDatabaseRepository,
+            peopleDataBaseRepository = testDatabaseRepository,
             analyticsHelper = testAnalyticsHelper
         )
         backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.people.collect() }
@@ -128,14 +127,14 @@ class PeopleVMTest {
         testDetailRepository.setPeopleDetail(peopleDetailTestData)
         testDetailRepository.setCombineCredits(combineCreditsTestData)
         testDetailRepository.setExternalIds(externalIdsTestData)
-        testDatabaseRepository.deletePeople(people = People(id = 124, title = "people_124", posterPath = "/peopleImagePath.png"))
+        testDatabaseRepository.delete(media = People(id = 124, title = "people_124", posterPath = "/peopleImagePath.png"))
 
         assertEquals(
             viewModel.people.value,
             PeopleState.Success(
                 PeopleWithFavorite(
                     people = peopleDetailTestData,
-                    isFavorite = testDatabaseRepository.isFavoritePeople(id = 124).first()
+                    isFavorite = testDatabaseRepository.isFavorite(id = 124).first()
                 )
             )
         )

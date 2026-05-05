@@ -7,7 +7,6 @@ import androidx.work.ListenableWorker
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
 import androidx.work.testing.TestListenableWorkerBuilder
-import com.cheeke.surfy.data.repository.DatabaseRepository
 import com.cheeke.surfy.data.repository.SyncRepository
 import com.cheeke.surfy.data.repository.UserDataRepository
 import com.cheeke.surfy.notifications.Notifier
@@ -15,7 +14,7 @@ import com.cheeke.surfy.notifications.SystemTrayNotifier
 import com.cheeke.surfy.sync.workers.MidnightSyncWorker
 import com.cheeke.surfy.sync.workers.delegatedData
 import com.cheeke.surfy.testing.TestSyncRemoteDataSource
-import com.cheeke.surfy.testing.repository.TestDatabaseRepository
+import com.cheeke.surfy.testing.repository.TestMovieDatabaseRepository
 import com.cheeke.surfy.testing.repository.TestSyncRepository
 import com.cheeke.surfy.testing.repository.TestUserDataRepository
 import kotlinx.coroutines.Dispatchers
@@ -33,7 +32,7 @@ class MidnightSyncWorkerTest {
     private lateinit var apis: TestSyncRemoteDataSource
     private lateinit var syncRepository: TestSyncRepository
     private lateinit var userDataRepository: TestUserDataRepository
-    private lateinit var databaseRepository: TestDatabaseRepository
+    private lateinit var databaseRepository: TestMovieDatabaseRepository
     private lateinit var notifier: Notifier
 
     @Before
@@ -42,7 +41,7 @@ class MidnightSyncWorkerTest {
         apis = TestSyncRemoteDataSource()
         syncRepository = TestSyncRepository()
         userDataRepository = TestUserDataRepository()
-        databaseRepository = TestDatabaseRepository()
+        databaseRepository = TestMovieDatabaseRepository()
         notifier = SystemTrayNotifier(
             context = context,
             ioDispatcher = UnconfinedTestDispatcher(),

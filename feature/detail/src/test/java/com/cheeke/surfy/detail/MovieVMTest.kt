@@ -19,7 +19,7 @@ import com.cheeke.surfy.testing.model.movieSeriesTestData
 import com.cheeke.surfy.testing.model.similarMoviesTestData
 import com.cheeke.surfy.testing.model.testMovieReviews
 import com.cheeke.surfy.testing.model.unFavoriteMovieDetailTestData
-import com.cheeke.surfy.testing.repository.TestDatabaseRepository
+import com.cheeke.surfy.testing.repository.TestMovieDatabaseRepository
 import com.cheeke.surfy.testing.repository.TestMovieDetailRepository
 import com.cheeke.surfy.testing.repository.TestPagingRepository
 import com.cheeke.surfy.testing.repository.TestUserDataRepository
@@ -45,7 +45,7 @@ import kotlin.test.assertTrue
 class MovieVMTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
-    private val testDataBaseRepository = TestDatabaseRepository()
+    private val testDataBaseRepository = TestMovieDatabaseRepository()
     private val testPagingRepository = TestPagingRepository()
     private val testDetailRepository = TestMovieDetailRepository()
     private val testUserDataRepository = TestUserDataRepository()
@@ -53,7 +53,7 @@ class MovieVMTest {
     private val getMovieDetailUseCase = GetMovieDetailUseCase(
         detailRepository = testDetailRepository,
         userDataRepository = testUserDataRepository,
-        databaseRepository = testDataBaseRepository
+        movieDataBaseRepository = testDataBaseRepository
     )
     private lateinit var viewModel: MovieVM
 
@@ -61,14 +61,14 @@ class MovieVMTest {
     fun setup() {
         viewModel = MovieVM(
             id = 0,
-            databaseRepository = testDataBaseRepository,
+            movieDataBaseRepository = testDataBaseRepository,
             getMovieDetail = getMovieDetailUseCase,
             pagingRepository = testPagingRepository,
             analyticsHelper = testAnalyticsHelper,
             userDataRepository = testUserDataRepository
         )
         runBlocking {
-            testDataBaseRepository.insertMovie(movie = Movie(id = 0, title = "movie_1", posterPath = "/movieImagePath.png"))
+            testDataBaseRepository.insert(media = Movie(id = 0, title = "movie_1", posterPath = "/movieImagePath.png"))
             testDetailRepository.setMovieSeries(movieSeriesTestData)
         }
     }
@@ -101,7 +101,7 @@ class MovieVMTest {
                 MovieWithFavorite(
                     movie = favoriteMovieDetailTestData,
                     autoPlayTrailer = testUserDataRepository.internalData.map { it.isAutoPlayTrailer }.first(),
-                    isFavorite = testDataBaseRepository.isFavoriteMovie(id = 0).first()
+                    isFavorite = testDataBaseRepository.isFavorite(id = 0).first()
                 )
             )
         )
@@ -112,7 +112,7 @@ class MovieVMTest {
         viewModel = MovieVM(
             id = 324,
             getMovieDetail = getMovieDetailUseCase,
-            databaseRepository = testDataBaseRepository,
+            movieDataBaseRepository = testDataBaseRepository,
             pagingRepository = testPagingRepository,
             analyticsHelper = testAnalyticsHelper,
             userDataRepository = testUserDataRepository
@@ -143,7 +143,7 @@ class MovieVMTest {
                 MovieWithFavorite(
                     movie = unFavoriteMovieDetailTestData,
                     autoPlayTrailer = testUserDataRepository.internalData.map { it.isAutoPlayTrailer }.first(),
-                    isFavorite = testDataBaseRepository.isFavoriteMovie(id = 324).first()
+                    isFavorite = testDataBaseRepository.isFavorite(id = 324).first()
                 )
             )
         )
@@ -212,7 +212,7 @@ class MovieVMTest {
         viewModel = MovieVM(
             id = 23,
             getMovieDetail = getMovieDetailUseCase,
-            databaseRepository = testDataBaseRepository,
+            movieDataBaseRepository = testDataBaseRepository,
             pagingRepository = testPagingRepository,
             analyticsHelper = testAnalyticsHelper,
             userDataRepository = testUserDataRepository
@@ -262,12 +262,12 @@ class MovieVMTest {
 //        )
 
         assertEquals(
-            testDataBaseRepository.getMovies().first(),
+            testDataBaseRepository.movieDatabase.first(),
             listOf(movie)
         )
         viewModel.deleteMovie(movie)
         assertEquals(
-            testDataBaseRepository.getMovies().first(),
+            testDataBaseRepository.movieDatabase.first(),
             emptyList()
         )
     }

@@ -2,7 +2,7 @@ package com.cheeke.surfy.domain
 
 import com.cheeke.surfy.common.Result
 import com.cheeke.surfy.common.asResult
-import com.cheeke.surfy.data.repository.DatabaseRepository
+import com.cheeke.surfy.data.repository.TvDataBaseRepository
 import com.cheeke.surfy.data.repository.TvDetailRepository
 import com.cheeke.surfy.data.repository.UserDataRepository
 import com.cheeke.surfy.model.Tv
@@ -19,7 +19,7 @@ import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 class GetTvDetailUseCase @Inject constructor(
-    private val databaseRepository: DatabaseRepository,
+    private val tvDataBaseRepository: TvDataBaseRepository,
     private val detailRepository: TvDetailRepository,
     private val userDataRepository: UserDataRepository
 ) {
@@ -59,7 +59,7 @@ class GetTvDetailUseCase @Inject constructor(
 
         return combine(
             detailRepository.getData(id = id),
-            databaseRepository.isFavoriteTv(id = id),
+            tvDataBaseRepository.isFavorite(id = id),
             userDataRepository.internalData,
             episodesCache,
             seasonState

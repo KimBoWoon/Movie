@@ -4,7 +4,6 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.cheeke.surfy.model.MediaType
 import com.cheeke.surfy.model.Movie
-import kotlin.time.Clock
 
 @Entity(tableName = "movies")
 data class MovieEntity(
@@ -27,7 +26,7 @@ fun MovieEntity.asExternalModel(): Movie = Movie(
 fun Movie.asExternalModel(): MovieEntity = MovieEntity(
     id = id ?: -1,
     posterPath = posterPath ?: "",
-    timestamp = Clock.System.now().toEpochMilliseconds(),
+    timestamp = -1L,//Clock.System.now().toEpochMilliseconds(),
     title = title,
     releaseDate = releaseDate
 )

@@ -10,8 +10,8 @@ import com.cheeke.surfy.analytics.AnalyticsHelper
 import com.cheeke.surfy.analytics.logSelectContent
 import com.cheeke.surfy.common.Result
 import com.cheeke.surfy.common.asResult
-import com.cheeke.surfy.data.repository.DatabaseRepository
 import com.cheeke.surfy.data.repository.PagingRepository
+import com.cheeke.surfy.data.repository.TvDataBaseRepository
 import com.cheeke.surfy.data.repository.UserDataRepository
 import com.cheeke.surfy.domain.GetTvDetailUseCase
 import com.cheeke.surfy.domain.TvSeasonLoadState
@@ -38,7 +38,7 @@ import kotlinx.coroutines.launch
 class TvVM @AssistedInject constructor(
     @Assisted(value = "id") val id: Int,
     private val getTvDetailUseCase: GetTvDetailUseCase,
-    private val databaseRepository: DatabaseRepository,
+    private val tvDataBaseRepository: TvDataBaseRepository,
     private val pagingRepository: PagingRepository,
     private val analyticsHelper: AnalyticsHelper,
     userDataRepository: UserDataRepository
@@ -135,13 +135,13 @@ class TvVM @AssistedInject constructor(
 
     fun insertTv(tv: Tv) {
         viewModelScope.launch {
-            databaseRepository.insertTv(tv = tv)
+            tvDataBaseRepository.insert(media = tv)
         }
     }
 
     fun deleteTv(tv: Tv) {
         viewModelScope.launch {
-            databaseRepository.deleteTv(tv = tv)
+            tvDataBaseRepository.delete(media = tv)
         }
     }
 

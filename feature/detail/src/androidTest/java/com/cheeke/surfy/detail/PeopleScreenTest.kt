@@ -27,7 +27,7 @@ import com.cheeke.surfy.testing.model.genreListTestData
 import com.cheeke.surfy.testing.model.languageListTestData
 import com.cheeke.surfy.testing.model.peopleDetailTestData
 import com.cheeke.surfy.testing.model.regionTestData
-import com.cheeke.surfy.testing.repository.TestDatabaseRepository
+import com.cheeke.surfy.testing.repository.TestMovieDatabaseRepository
 import com.cheeke.surfy.testing.utils.TestMovieAppDataManager
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -43,7 +43,7 @@ class PeopleScreenTest {
     private lateinit var viewModel: PeopleVM
     private lateinit var savedStateHandle: SavedStateHandle
     private lateinit var getPeopleDetail: GetPeopleDetailUseCase
-    private lateinit var testDatabaseRepository: TestDatabaseRepository
+    private lateinit var testDatabaseRepository: TestMovieDatabaseRepository
     private lateinit var testDetailRepository: TestDetailRepository
     private lateinit var testMovieAppDataManager: TestMovieAppDataManager
     private val surfyAppData = SurfyAppData(
@@ -60,7 +60,7 @@ class PeopleScreenTest {
     fun setup() {
         savedStateHandle = SavedStateHandle(initialState = mapOf("id" to 0))
         testMovieAppDataManager = TestMovieAppDataManager()
-        testDatabaseRepository = TestDatabaseRepository()
+        testDatabaseRepository = TestMovieDatabaseRepository()
         testDetailRepository = TestDetailRepository()
         getPeopleDetail = GetPeopleDetailUseCase(
             detailRepository = testDetailRepository,

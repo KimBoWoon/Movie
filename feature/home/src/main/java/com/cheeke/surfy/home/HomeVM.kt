@@ -11,7 +11,7 @@ import androidx.paging.map
 import com.cheeke.surfy.common.Result
 import com.cheeke.surfy.common.asResult
 import com.cheeke.surfy.data.model.asExternalModel
-import com.cheeke.surfy.data.repository.DatabaseRepository
+import com.cheeke.surfy.data.repository.MovieDataBaseRepository
 import com.cheeke.surfy.data.repository.PagingRepository
 import com.cheeke.surfy.data.util.DataManager
 import com.cheeke.surfy.data.util.NetworkMonitor
@@ -39,7 +39,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeVM @Inject constructor(
     dataManager: DataManager,
-    databaseRepository: DatabaseRepository,
+    movieDataBaseRepository: MovieDataBaseRepository,
     pagingRepository: PagingRepository,
     networkMonitor: NetworkMonitor
 ) : ViewModel() {
@@ -67,13 +67,13 @@ class HomeVM @Inject constructor(
         .distinctUntilChanged()
     val nowPlayingMoviePaging = Pager(
         config = PagingConfig(pageSize = 20, prefetchDistance = 5),
-        pagingSourceFactory = { databaseRepository.getNowPlayingMovies() }
+        pagingSourceFactory = { movieDataBaseRepository.getNowPlayingMovies() }
     ).flow.map { pagingData ->
         pagingData.map(transform = NowPlayingMovieEntity::asExternalModel)
     }.cachedIn(scope = viewModelScope)
     val upComingMoviePaging = Pager(
         config = PagingConfig(pageSize = 20, prefetchDistance = 5),
-        pagingSourceFactory = { databaseRepository.getUpComingMovies() }
+        pagingSourceFactory = { movieDataBaseRepository.getUpComingMovies() }
     ).flow.map { pagingData ->
         pagingData.map(transform = UpComingMovieEntity::asExternalModel)
     }.cachedIn(scope = viewModelScope)
@@ -93,7 +93,7 @@ class HomeVM @Inject constructor(
             pagingSourceFactory = pagingRepository::getTrendingTv
         )
     val homeUiState: StateFlow<HomeState> = flow {
-        emit(value = databaseRepository.getPopularMovies())
+        emit(value = movieDataBaseRepository.getPopularMovies())
     }.map { popularMovies ->
         HomeUiState(popularMovies = popularMovies)
     }.asResult()

@@ -4,7 +4,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.paging.testing.TestPager
 import com.cheeke.surfy.model.Movie
-import com.cheeke.surfy.testing.repository.TestDatabaseRepository
+import com.cheeke.surfy.testing.repository.TestMovieDatabaseRepository
 import com.cheeke.surfy.testing.repository.TestPagingRepository
 import com.cheeke.surfy.testing.repository.TestUserDataRepository
 import com.cheeke.surfy.testing.utils.MainDispatcherRule
@@ -23,7 +23,7 @@ class HomeVMTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
     private lateinit var viewModel: HomeVM
-    private lateinit var testDatabaseRepository: TestDatabaseRepository
+    private lateinit var testDatabaseRepository: TestMovieDatabaseRepository
     private lateinit var testPagingRepository: TestPagingRepository
     private lateinit var testNetworkMonitor: TestNetworkMonitor
     private lateinit var testUserRepository: TestUserDataRepository
@@ -31,13 +31,13 @@ class HomeVMTest {
 
     @Before
     fun setup() {
-        testDatabaseRepository = TestDatabaseRepository()
+        testDatabaseRepository = TestMovieDatabaseRepository()
         testPagingRepository = TestPagingRepository()
         testNetworkMonitor = TestNetworkMonitor()
         testUserRepository = TestUserDataRepository()
         testMovieAppDataManager = TestMovieAppDataManager()
         viewModel = HomeVM(
-            databaseRepository = testDatabaseRepository,
+            movieDataBaseRepository = testDatabaseRepository,
             pagingRepository = testPagingRepository,
             networkMonitor = testNetworkMonitor,
             dataManager = testMovieAppDataManager
