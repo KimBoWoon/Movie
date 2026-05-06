@@ -1,5 +1,6 @@
 package com.cheeke.surfy.database
 
+import androidx.paging.PagingSource
 import com.cheeke.surfy.database.model.TvEntity
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -16,7 +17,7 @@ internal class TvDaoTest : DatabaseTest() {
             posterPath = "/Movie_1.png",
             name = "tv_1",
             firstAirDate = "2025-05-23",
-            lastAirDate = "2026-07-29",
+            lastAirDate = "2026-07-29"
         ),
         TvEntity(
             id = 2,
@@ -24,7 +25,7 @@ internal class TvDaoTest : DatabaseTest() {
             posterPath = "/Tv_1.png",
             name = "tv_2",
             firstAirDate = "2025-05-23",
-            lastAirDate = "2026-07-29",
+            lastAirDate = "2026-07-29"
         ),
         TvEntity(
             id = 3,
@@ -32,40 +33,60 @@ internal class TvDaoTest : DatabaseTest() {
             posterPath = "/Tv_3.png",
             name = "tv_3",
             firstAirDate = "2025-05-23",
-            lastAirDate = "2026-07-29",
+            lastAirDate = "2026-07-29"
         )
     )
 
     @Test
     fun getTvTest() = runTest {
-        assertEquals(
-            expected = tvDao.getTvEntities().first(),
-            actual = emptyList()
-        )
+        val emptyResult = tvDao.getFavoriteTv().load(
+            params = PagingSource.LoadParams.Refresh(
+                key = null,
+                loadSize = 20,
+                placeholdersEnabled = false
+            )
+        ) as PagingSource.LoadResult.Page
+
+        assertEquals(expected = emptyResult.data.isEmpty(), actual = true)
 
         tvDao.upsertTvs(entities = favoriteTvs)
 
-        assertEquals(
-            expected = tvDao.getTvEntities().first(),
-            actual = favoriteTvs
-        )
+        val result = tvDao.getFavoriteTv().load(
+            params = PagingSource.LoadParams.Refresh(
+                key = null,
+                loadSize = 20,
+                placeholdersEnabled = false
+            )
+        ) as PagingSource.LoadResult.Page
+
+        assertEquals(expected = favoriteTvs, actual = result.data)
     }
 
     @Test
     fun deleteTvTest() = runTest {
         tvDao.upsertTvs(entities = favoriteTvs)
 
-        assertEquals(
-            expected = tvDao.getTvEntities().first(),
-            actual = favoriteTvs
-        )
+        val favoritePagerBeforeDelete = tvDao.getFavoriteTv().load(
+            params = PagingSource.LoadParams.Refresh(
+                key = null,
+                loadSize = 20,
+                placeholdersEnabled = false
+            )
+        ) as PagingSource.LoadResult.Page
 
-        tvDao.deleteTv(id = 2)
+        assertEquals(expected = favoriteTvs, actual = favoritePagerBeforeDelete.data)
 
-        assertEquals(
-            expected = tvDao.getTvEntities().first(),
-            actual = favoriteTvs.filter { it.id != 2 }
-        )
+        tvDao.deleteTv(id = favoriteTvs.first().id)
+
+        val favoritePagerAfterDelete = tvDao.getFavoriteTv().load(
+            params = PagingSource.LoadParams.Refresh(
+                key = null,
+                loadSize = 20,
+                placeholdersEnabled = false
+            )
+        ) as PagingSource.LoadResult.Page
+
+        assertEquals(expected = favoriteTvs.filter { it.id != favoriteTvs.first().id }, actual = favoritePagerAfterDelete.data)
     }
 
     @Test
@@ -81,33 +102,48 @@ internal class TvDaoTest : DatabaseTest() {
 
         tvDao.upsertTvs(entities = favoriteTvs)
 
-        assertEquals(
-            expected = tvDao.getTvEntities().first(),
-            actual = favoriteTvs
-        )
+        val favoritePagerBeforeInsert = tvDao.getFavoriteTv().load(
+            params = PagingSource.LoadParams.Refresh(
+                key = null,
+                loadSize = 20,
+                placeholdersEnabled = false
+            )
+        ) as PagingSource.LoadResult.Page
+
+        assertEquals(expected = favoriteTvs, actual = favoritePagerBeforeInsert.data)
 
         tvDao.insertOrIgnoreTvs(
             tv = TvEntity(
                 id = 3,
                 timestamp = Instant.now().epochSecond,
-                posterPath = "/Movie_4.png",
-                name = "movie_4",
-                firstAirDate = "2025-01-04",
-                lastAirDate = "2026-03-08"
+                posterPath = "/Tv_3.png",
+                name = "tv_3",
+                firstAirDate = "2025-05-23",
+                lastAirDate = "2026-07-29"
             )
         )
 
-        assertEquals(
-            expected = tvDao.getTvEntities().first(),
-            actual = favoriteTvs
-        )
+        val favoritePagerAfterInsert = tvDao.getFavoriteTv().load(
+            params = PagingSource.LoadParams.Refresh(
+                key = null,
+                loadSize = 20,
+                placeholdersEnabled = false
+            )
+        ) as PagingSource.LoadResult.Page
+
+        assertEquals(expected = favoriteTvs, actual = favoritePagerAfterInsert.data)
 
         tvDao.insertOrIgnoreTvs(tv = tv)
 
-        assertEquals(
-            expected = tvDao.getTvEntities().first(),
-            actual = favoriteTvs + tv
-        )
+        val favoritePagerAfterInsert2 = tvDao.getFavoriteTv().load(
+            params = PagingSource.LoadParams.Refresh(
+                key = null,
+                loadSize = 20,
+                placeholdersEnabled = false
+            )
+        ) as PagingSource.LoadResult.Page
+
+        assertEquals(expected = favoriteTvs + tv, actual = favoritePagerAfterInsert2.data)
     }
 
     @Test
@@ -136,24 +172,40 @@ internal class TvDaoTest : DatabaseTest() {
 
     @Test
     fun deleteAllTvs() = runTest {
-        assertEquals(
-            expected = tvDao.getTvEntities().first(),
-            actual = emptyList()
-        )
+        val favoritePagerBeforeInsert = tvDao.getFavoriteTv().load(
+            params = PagingSource.LoadParams.Refresh(
+                key = null,
+                loadSize = 20,
+                placeholdersEnabled = false
+            )
+        ) as PagingSource.LoadResult.Page
+
+        assertEquals(expected = true, actual = favoritePagerBeforeInsert.data.isEmpty())
 
         tvDao.upsertTvs(entities = favoriteTvs)
 
-        assertEquals(
-            expected = tvDao.getTvEntities().first(),
-            actual = favoriteTvs
-        )
+        val favoritePagerAfterInsert = tvDao.getFavoriteTv().load(
+            params = PagingSource.LoadParams.Refresh(
+                key = null,
+                loadSize = 20,
+                placeholdersEnabled = false
+            )
+        ) as PagingSource.LoadResult.Page
+
+        assertEquals(expected = false, actual = favoritePagerAfterInsert.data.isEmpty())
+        assertEquals(expected = favoriteTvs, actual = favoritePagerAfterInsert.data)
 
         tvDao.deleteAllFavoriteTvs()
 
-        assertEquals(
-            expected = tvDao.getTvEntities().first(),
-            actual = emptyList()
-        )
+        val favoritePagerAfterDelete = tvDao.getFavoriteTv().load(
+            params = PagingSource.LoadParams.Refresh(
+                key = null,
+                loadSize = 20,
+                placeholdersEnabled = false
+            )
+        ) as PagingSource.LoadResult.Page
+
+        assertEquals(expected = true, actual = favoritePagerAfterDelete.data.isEmpty())
     }
 
     @Test

@@ -1,5 +1,6 @@
 package com.cheeke.surfy.database
 
+import androidx.paging.PagingSource
 import com.cheeke.surfy.database.model.PeopleEntity
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -8,97 +9,81 @@ import java.time.Instant
 import kotlin.test.assertEquals
 
 internal class PeopleDaoTest : DatabaseTest() {
+    private val favoritePeoples = listOf(
+        PeopleEntity(
+            id = 1,
+            timestamp = Instant.now().epochSecond,
+            name = "people_1",
+            profilePath = "/People_1.png"
+        ),
+        PeopleEntity(
+            id = 2,
+            timestamp = Instant.now().epochSecond,
+            name = "people_2",
+            profilePath = "/People_2.png"
+        ),
+        PeopleEntity(
+            id = 3,
+            timestamp = Instant.now().epochSecond,
+            name = "people_3",
+            profilePath = "/People_3.png"
+        )
+    )
+
     @Test
-    fun getMovieTest() = runTest {
-        val favoritePeoples = listOf(
-            PeopleEntity(
-                id = 1,
-                timestamp = Instant.now().epochSecond,
-                name = "people_1",
-                profilePath = "/People_1.png"
-            ),
-            PeopleEntity(
-                id = 2,
-                timestamp = Instant.now().epochSecond,
-                name = "people_2",
-                profilePath = "/People_2.png"
-            ),
-            PeopleEntity(
-                id = 3,
-                timestamp = Instant.now().epochSecond,
-                name = "people_3",
-                profilePath = "/People_3.png"
+    fun getPeopleTest() = runTest {
+        val emptyResult = peopleDao.getFavoritePeople().load(
+            params = PagingSource.LoadParams.Refresh(
+                key = null,
+                loadSize = 20,
+                placeholdersEnabled = false
             )
-        )
+        ) as PagingSource.LoadResult.Page
 
-        peopleDao.upsertPeoples(favoritePeoples)
+        assertEquals(expected = emptyResult.data.isEmpty(), actual = true)
 
-        assertEquals(
-            peopleDao.getPeopleEntities().first(),
-            favoritePeoples
-        )
+        peopleDao.upsertPeoples(entities = favoritePeoples)
+
+        val result = peopleDao.getFavoritePeople().load(
+            params = PagingSource.LoadParams.Refresh(
+                key = null,
+                loadSize = 20,
+                placeholdersEnabled = false
+            )
+        ) as PagingSource.LoadResult.Page
+
+        assertEquals(expected = favoritePeoples, actual = result.data)
     }
 
     @Test
-    fun deleteMovieTest() = runTest {
-        val favoritePeoples = listOf(
-            PeopleEntity(
-                id = 1,
-                timestamp = Instant.now().epochSecond,
-                name = "people_1",
-                profilePath = "/People_1.png"
-            ),
-            PeopleEntity(
-                id = 2,
-                timestamp = Instant.now().epochSecond,
-                name = "people_2",
-                profilePath = "/People_2.png"
-            ),
-            PeopleEntity(
-                id = 3,
-                timestamp = Instant.now().epochSecond,
-                name = "people_3",
-                profilePath = "/People_3.png"
+    fun deletePeopleTest() = runTest {
+        peopleDao.upsertPeoples(entities = favoritePeoples)
+
+        val favoritePagerBeforeDelete = peopleDao.getFavoritePeople().load(
+            params = PagingSource.LoadParams.Refresh(
+                key = null,
+                loadSize = 20,
+                placeholdersEnabled = false
             )
-        )
+        ) as PagingSource.LoadResult.Page
 
-        peopleDao.upsertPeoples(favoritePeoples)
+        assertEquals(expected = favoritePeoples, actual = favoritePagerBeforeDelete.data)
 
-        assertEquals(
-            peopleDao.getPeopleEntities().first(),
-            favoritePeoples
-        )
+        peopleDao.deletePeople(id = favoritePeoples.first().id)
 
-        peopleDao.deletePeople(2)
+        val favoritePagerAfterDelete = peopleDao.getFavoritePeople().load(
+            params = PagingSource.LoadParams.Refresh(
+                key = null,
+                loadSize = 20,
+                placeholdersEnabled = false
+            )
+        ) as PagingSource.LoadResult.Page
 
-        assertEquals(
-            peopleDao.getPeopleEntities().first(),
-            favoritePeoples.filter { it.id != 2 }
-        )
+        assertEquals(expected = favoritePeoples.filter { it.id != favoritePeoples.first().id }, actual = favoritePagerAfterDelete.data)
     }
 
     @Test
     fun insertOrIgnoreTest() = runTest {
-        val favoritePeoples = listOf(
-            PeopleEntity(
-                id = 1,
-                timestamp = Instant.now().epochSecond,
-                name = "people_1",
-                profilePath = "/People_1.png"
-            ),
-            PeopleEntity(
-                id = 2,
-                timestamp = Instant.now().epochSecond,
-                name = "people_2",
-                profilePath = "/People_2.png"
-            ),
-            PeopleEntity(
-                id = 3,
-                timestamp = Instant.now().epochSecond,
-                name = "people_3",
-                profilePath = "/People_3.png"
-            )
-        )
         val people = PeopleEntity(
             id = 4,
             timestamp = Instant.now().epochSecond,
@@ -106,33 +91,48 @@ internal class PeopleDaoTest : DatabaseTest() {
             profilePath = "/People_4.png"
         )
 
-        peopleDao.upsertPeoples(favoritePeoples)
+        peopleDao.upsertPeoples(entities = favoritePeoples)
 
-        assertEquals(
-            peopleDao.getPeopleEntities().first(),
-            favoritePeoples
-        )
+        val favoritePagerBeforeInsert = peopleDao.getFavoritePeople().load(
+            params = PagingSource.LoadParams.Refresh(
+                key = null,
+                loadSize = 20,
+                placeholdersEnabled = false
+            )
+        ) as PagingSource.LoadResult.Page
+
+        assertEquals(expected = favoritePeoples, actual = favoritePagerBeforeInsert.data)
 
         peopleDao.insertOrIgnorePeoples(
-            PeopleEntity(
+            people = PeopleEntity(
                 id = 3,
                 timestamp = Instant.now().epochSecond,
-                name = "people_4",
-                profilePath = "/People_4.png"
+                name = "people_3",
+                profilePath = "/People_3.png"
             )
         )
 
-        assertEquals(
-            peopleDao.getPeopleEntities().first(),
-            favoritePeoples
-        )
+        val favoritePagerAfterInsert = peopleDao.getFavoritePeople().load(
+            params = PagingSource.LoadParams.Refresh(
+                key = null,
+                loadSize = 20,
+                placeholdersEnabled = false
+            )
+        ) as PagingSource.LoadResult.Page
 
-        peopleDao.insertOrIgnorePeoples(people)
+        assertEquals(expected = favoritePeoples, actual = favoritePagerAfterInsert.data)
 
-        assertEquals(
-            peopleDao.getPeopleEntities().first(),
-            favoritePeoples + people
-        )
+        peopleDao.insertOrIgnorePeoples(people = people)
+
+        val favoritePagerAfterInsert2 = peopleDao.getFavoritePeople().load(
+            params = PagingSource.LoadParams.Refresh(
+                key = null,
+                loadSize = 20,
+                placeholdersEnabled = false
+            )
+        ) as PagingSource.LoadResult.Page
+
+        assertEquals(expected = favoritePeoples + people, actual = favoritePagerAfterInsert2.data)
     }
 
     @Test

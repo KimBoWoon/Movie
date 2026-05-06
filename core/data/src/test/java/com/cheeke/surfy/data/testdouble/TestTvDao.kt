@@ -4,8 +4,6 @@ import androidx.paging.PagingSource
 import androidx.paging.testing.asPagingSourceFactory
 import com.cheeke.surfy.database.dao.TvDao
 import com.cheeke.surfy.database.model.TvEntity
-import com.cheeke.surfy.database.model.asExternalModel
-import com.cheeke.surfy.model.Tv
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -16,8 +14,6 @@ import java.time.LocalDate
 
 class TestTvDao : TvDao {
     private val entitiesStateFlow = MutableStateFlow(value = emptyList<TvEntity>())
-
-    override fun getTvEntities(): Flow<List<TvEntity>> = entitiesStateFlow
 
     override fun isFavoriteTv(id: Int): Flow<Boolean> = entitiesStateFlow.map {
         it.find { entity -> entity.id == id } != null
@@ -49,5 +45,5 @@ class TestTvDao : TvDao {
     }
 
     override fun getFavoriteTv(): PagingSource<Int, TvEntity> =
-        (0 until 50).map { Tv(id = it) }.map(transform = Tv::asExternalModel).asPagingSourceFactory().invoke()
+        entitiesStateFlow.value.asPagingSourceFactory().invoke()
 }

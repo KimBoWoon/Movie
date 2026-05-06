@@ -11,9 +11,6 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface PeopleDao {
-    @Query(value = "SELECT * FROM peoples")
-    fun getPeopleEntities(): Flow<List<PeopleEntity>>
-
     @Query(value = "SELECT EXISTS(SELECT 1 FROM peoples WHERE id = :id)")
     fun isFavoritePeople(id: Int): Flow<Boolean>
 

@@ -13,9 +13,6 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface MovieDao {
-    @Query(value = "SELECT * FROM movies")
-    fun getMovieEntities(): Flow<List<MovieEntity>>
-
     @Query(value = "SELECT EXISTS(SELECT 1 FROM movies WHERE id = :id)")
     fun isFavoriteMovie(id: Int): Flow<Boolean>
 

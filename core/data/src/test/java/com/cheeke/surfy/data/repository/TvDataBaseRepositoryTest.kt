@@ -13,7 +13,7 @@ import org.junit.Test
 import java.time.LocalDate
 import kotlin.test.assertEquals
 
-class TvDatabaseRepositoryTest {
+class TvDataBaseRepositoryTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
     private val tvDao = TestTvDao()
@@ -57,54 +57,85 @@ class TvDatabaseRepositoryTest {
 
     @Test
     fun insert() = runTest {
-        assertEquals(
-            expected = tvDao.getTvEntities().first(),
-            actual = emptyList()
+        val favoritePagerBeforeInsert = TestPager(
+            config = PagingConfig(pageSize = 0, initialLoadSize = 20, prefetchDistance = 5),
+            pagingSource = repository.getFavorite()
         )
+
+        var result = favoritePagerBeforeInsert.refresh() as PagingSource.LoadResult.Page
+
+        assertEquals(expected = result.data.isEmpty(), actual = true)
 
         tvDao.insertOrIgnoreTvs(tv = tv)
 
-        assertEquals(
-            expected = tvDao.getTvEntities().first(),
-            actual = listOf(tv)
+        val favoritePagerAfterInsert = TestPager(
+            config = PagingConfig(pageSize = 0, initialLoadSize = 20, prefetchDistance = 5),
+            pagingSource = repository.getFavorite()
         )
+
+        result = favoritePagerAfterInsert.refresh() as PagingSource.LoadResult.Page
+
+        assertEquals(expected = result.data.isEmpty(), actual = false)
+        assertEquals(expected = tv, actual = result.data.first())
     }
 
     @Test
     fun delete() = runTest {
-        assertEquals(
-            expected = tvDao.getTvEntities().first(),
-            actual = emptyList()
+        val favoritePagerBeforeInsert = TestPager(
+            config = PagingConfig(pageSize = 0, initialLoadSize = 20, prefetchDistance = 5),
+            pagingSource = repository.getFavorite()
         )
+
+        var result = favoritePagerBeforeInsert.refresh() as PagingSource.LoadResult.Page
+
+        assertEquals(expected = result.data.isEmpty(), actual = true)
 
         tvDao.insertOrIgnoreTvs(tv = tv)
 
-        assertEquals(
-            expected = tvDao.getTvEntities().first(),
-            actual = listOf(tv)
+        val favoritePagerAfterInsert = TestPager(
+            config = PagingConfig(pageSize = 0, initialLoadSize = 20, prefetchDistance = 5),
+            pagingSource = repository.getFavorite()
         )
 
-        tvDao.deleteTv(id = 0)
+        result = favoritePagerAfterInsert.refresh() as PagingSource.LoadResult.Page
 
-        assertEquals(
-            expected = tvDao.getTvEntities().first(),
-            actual = emptyList()
+        assertEquals(expected = result.data.isEmpty(), actual = false)
+        assertEquals(expected = tv, actual = result.data.first())
+
+        tvDao.deleteTv(id = tv.id)
+
+        val favoritePagerAfterDelete = TestPager(
+            config = PagingConfig(pageSize = 0, initialLoadSize = 20, prefetchDistance = 5),
+            pagingSource = repository.getFavorite()
         )
+
+        result = favoritePagerAfterDelete.refresh() as PagingSource.LoadResult.Page
+
+        assertEquals(expected = result.data.isEmpty(), actual = true)
     }
 
     @Test
     fun upsert() = runTest {
-        assertEquals(
-            expected = tvDao.getTvEntities().first(),
-            actual = emptyList()
+        val favoritePagerBeforeInsert = TestPager(
+            config = PagingConfig(pageSize = 0, initialLoadSize = 20, prefetchDistance = 5),
+            pagingSource = repository.getFavorite()
         )
+
+        var result = favoritePagerBeforeInsert.refresh() as PagingSource.LoadResult.Page
+
+        assertEquals(expected = result.data.isEmpty(), actual = true)
 
         tvDao.upsertTvs(entities = listOf(tv))
 
-        assertEquals(
-            expected = tvDao.getTvEntities().first(),
-            actual = listOf(tv)
+        val favoritePagerAfterInsert = TestPager(
+            config = PagingConfig(pageSize = 0, initialLoadSize = 20, prefetchDistance = 5),
+            pagingSource = repository.getFavorite()
         )
+
+        result = favoritePagerAfterInsert.refresh() as PagingSource.LoadResult.Page
+
+        assertEquals(expected = result.data.isEmpty(), actual = false)
+        assertEquals(expected = tv, actual = result.data.first())
     }
 
     @Test

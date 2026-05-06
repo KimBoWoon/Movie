@@ -1,5 +1,6 @@
 package com.cheeke.surfy.database
 
+import androidx.paging.PagingSource
 import com.cheeke.surfy.database.model.MovieEntity
 import com.cheeke.surfy.database.model.NowPlayingMovieEntity
 import kotlinx.coroutines.flow.first
@@ -36,34 +37,54 @@ internal class MovieDaoTest : DatabaseTest() {
 
     @Test
     fun getMovieTest() = runTest {
-        assertEquals(
-            expected = movieDao.getMovieEntities().first(),
-            actual = emptyList()
-        )
+        val emptyResult = movieDao.getFavoriteMovie().load(
+            params = PagingSource.LoadParams.Refresh(
+                key = null,
+                loadSize = 20,
+                placeholdersEnabled = false
+            )
+        ) as PagingSource.LoadResult.Page
+
+        assertEquals(expected = emptyResult.data.isEmpty(), actual = true)
 
         movieDao.upsertMovies(entities = favoriteMovies)
 
-        assertEquals(
-            expected = movieDao.getMovieEntities().first(),
-            actual = favoriteMovies
-        )
+        val result = movieDao.getFavoriteMovie().load(
+            params = PagingSource.LoadParams.Refresh(
+                key = null,
+                loadSize = 20,
+                placeholdersEnabled = false
+            )
+        ) as PagingSource.LoadResult.Page
+
+        assertEquals(expected = favoriteMovies, actual = result.data)
     }
 
     @Test
     fun deleteMovieTest() = runTest {
         movieDao.upsertMovies(entities = favoriteMovies)
 
-        assertEquals(
-            expected = movieDao.getMovieEntities().first(),
-            actual = favoriteMovies
-        )
+        val favoritePagerBeforeDelete = movieDao.getFavoriteMovie().load(
+            params = PagingSource.LoadParams.Refresh(
+                key = null,
+                loadSize = 20,
+                placeholdersEnabled = false
+            )
+        ) as PagingSource.LoadResult.Page
 
-        movieDao.deleteMovie(id = 2)
+        assertEquals(expected = favoriteMovies, actual = favoritePagerBeforeDelete.data)
 
-        assertEquals(
-            expected = movieDao.getMovieEntities().first(),
-            actual = favoriteMovies.filter { it.id != 2 }
-        )
+        movieDao.deleteMovie(id = favoriteMovies.first().id)
+
+        val favoritePagerAfterDelete = movieDao.getFavoriteMovie().load(
+            params = PagingSource.LoadParams.Refresh(
+                key = null,
+                loadSize = 20,
+                placeholdersEnabled = false
+            )
+        ) as PagingSource.LoadResult.Page
+
+        assertEquals(expected = favoriteMovies.filter { it.id != favoriteMovies.first().id }, actual = favoritePagerAfterDelete.data)
     }
 
     @Test
@@ -78,10 +99,15 @@ internal class MovieDaoTest : DatabaseTest() {
 
         movieDao.upsertMovies(entities = favoriteMovies)
 
-        assertEquals(
-            expected = movieDao.getMovieEntities().first(),
-            actual = favoriteMovies
-        )
+        val favoritePagerBeforeInsert = movieDao.getFavoriteMovie().load(
+            params = PagingSource.LoadParams.Refresh(
+                key = null,
+                loadSize = 20,
+                placeholdersEnabled = false
+            )
+        ) as PagingSource.LoadResult.Page
+
+        assertEquals(expected = favoriteMovies, actual = favoritePagerBeforeInsert.data)
 
         movieDao.insertOrIgnoreMovies(
             MovieEntity(
@@ -93,17 +119,27 @@ internal class MovieDaoTest : DatabaseTest() {
             )
         )
 
-        assertEquals(
-            expected = movieDao.getMovieEntities().first(),
-            actual = favoriteMovies
-        )
+        val favoritePagerAfterInsert = movieDao.getFavoriteMovie().load(
+            params = PagingSource.LoadParams.Refresh(
+                key = null,
+                loadSize = 20,
+                placeholdersEnabled = false
+            )
+        ) as PagingSource.LoadResult.Page
+
+        assertEquals(expected = favoriteMovies, actual = favoritePagerAfterInsert.data)
 
         movieDao.insertOrIgnoreMovies(movie = movie)
 
-        assertEquals(
-            expected = movieDao.getMovieEntities().first(),
-            actual = favoriteMovies + movie
-        )
+        val favoritePagerAfterInsert2 = movieDao.getFavoriteMovie().load(
+            params = PagingSource.LoadParams.Refresh(
+                key = null,
+                loadSize = 20,
+                placeholdersEnabled = false
+            )
+        ) as PagingSource.LoadResult.Page
+
+        assertEquals(expected = favoriteMovies + movie, actual = favoritePagerAfterInsert2.data)
     }
 
     @Test
@@ -145,29 +181,45 @@ internal class MovieDaoTest : DatabaseTest() {
     }
 
     @Test
-    fun deleteAllTvs() = runTest {
-        assertEquals(
-            expected = movieDao.getMovieEntities().first(),
-            actual = emptyList()
-        )
+    fun deleteAllMovies() = runTest {
+        val favoritePagerBeforeInsert = movieDao.getFavoriteMovie().load(
+            params = PagingSource.LoadParams.Refresh(
+                key = null,
+                loadSize = 20,
+                placeholdersEnabled = false
+            )
+        ) as PagingSource.LoadResult.Page
+
+        assertEquals(expected = true, actual = favoritePagerBeforeInsert.data.isEmpty())
 
         movieDao.upsertMovies(entities = favoriteMovies)
 
-        assertEquals(
-            expected = movieDao.getMovieEntities().first(),
-            actual = favoriteMovies
-        )
+        val favoritePagerAfterInsert = movieDao.getFavoriteMovie().load(
+            params = PagingSource.LoadParams.Refresh(
+                key = null,
+                loadSize = 20,
+                placeholdersEnabled = false
+            )
+        ) as PagingSource.LoadResult.Page
+
+        assertEquals(expected = false, actual = favoritePagerAfterInsert.data.isEmpty())
+        assertEquals(expected = favoriteMovies, actual = favoritePagerAfterInsert.data)
 
         movieDao.deleteAllFavoriteMovies()
 
-        assertEquals(
-            expected = movieDao.getMovieEntities().first(),
-            actual = emptyList()
-        )
+        val favoritePagerAfterDelete = movieDao.getFavoriteMovie().load(
+            params = PagingSource.LoadParams.Refresh(
+                key = null,
+                loadSize = 20,
+                placeholdersEnabled = false
+            )
+        ) as PagingSource.LoadResult.Page
+
+        assertEquals(expected = true, actual = favoritePagerAfterDelete.data.isEmpty())
     }
 
     @Test
-    fun getNextWeekReleaseTvs() = runTest {
+    fun getNextWeekReleaseMovies() = runTest {
         val movie = favoriteMovies[1].copy(releaseDate = LocalDate.now().toString())
 
         assertEquals(

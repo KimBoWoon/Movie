@@ -11,9 +11,6 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TvDao {
-    @Query(value = "SELECT * FROM tvs")
-    fun getTvEntities(): Flow<List<TvEntity>>
-
     @Query(value = "SELECT EXISTS(SELECT 1 FROM tvs WHERE id = :id)")
     fun isFavoriteTv(id: Int): Flow<Boolean>
 

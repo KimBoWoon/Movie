@@ -15,7 +15,7 @@ import org.junit.Test
 import java.time.LocalDate
 import kotlin.test.assertEquals
 
-class MovieDatabaseRepositoryTest {
+class MovieDataBaseRepositoryTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
     private val movieDao = TestMovieDao()
@@ -59,54 +59,85 @@ class MovieDatabaseRepositoryTest {
 
     @Test
     fun insert() = runTest {
-        assertEquals(
-            expected = movieDao.getMovieEntities().first(),
-            actual = emptyList()
+        val favoritePagerBeforeInsert = TestPager(
+            config = PagingConfig(pageSize = 0, initialLoadSize = 20, prefetchDistance = 5),
+            pagingSource = repository.getFavorite()
         )
+
+        var result = favoritePagerBeforeInsert.refresh() as PagingSource.LoadResult.Page
+
+        assertEquals(expected = result.data.isEmpty(), actual = true)
 
         movieDao.insertOrIgnoreMovies(movie = movie)
 
-        assertEquals(
-            expected = movieDao.getMovieEntities().first(),
-            actual = listOf(movie)
+        val favoritePagerAfterInsert = TestPager(
+            config = PagingConfig(pageSize = 0, initialLoadSize = 20, prefetchDistance = 5),
+            pagingSource = repository.getFavorite()
         )
+
+        result = favoritePagerAfterInsert.refresh() as PagingSource.LoadResult.Page
+
+        assertEquals(expected = result.data.isEmpty(), actual = false)
+        assertEquals(expected = movie, actual = result.data.first())
     }
 
     @Test
     fun delete() = runTest {
-        assertEquals(
-            expected = movieDao.getMovieEntities().first(),
-            actual = emptyList()
+        val favoritePagerBeforeInsert = TestPager(
+            config = PagingConfig(pageSize = 0, initialLoadSize = 20, prefetchDistance = 5),
+            pagingSource = repository.getFavorite()
         )
+
+        var result = favoritePagerBeforeInsert.refresh() as PagingSource.LoadResult.Page
+
+        assertEquals(expected = result.data.isEmpty(), actual = true)
 
         movieDao.insertOrIgnoreMovies(movie = movie)
 
-        assertEquals(
-            expected = movieDao.getMovieEntities().first(),
-            actual = listOf(movie)
+        val favoritePagerAfterInsert = TestPager(
+            config = PagingConfig(pageSize = 0, initialLoadSize = 20, prefetchDistance = 5),
+            pagingSource = repository.getFavorite()
         )
 
-        movieDao.deleteMovie(id = 0)
+        result = favoritePagerAfterInsert.refresh() as PagingSource.LoadResult.Page
 
-        assertEquals(
-            expected = movieDao.getMovieEntities().first(),
-            actual = emptyList()
+        assertEquals(expected = result.data.isEmpty(), actual = false)
+        assertEquals(expected = movie, actual = result.data.first())
+
+        movieDao.deleteMovie(id = movie.id)
+
+        val favoritePagerAfterDelete = TestPager(
+            config = PagingConfig(pageSize = 0, initialLoadSize = 20, prefetchDistance = 5),
+            pagingSource = repository.getFavorite()
         )
+
+        result = favoritePagerAfterDelete.refresh() as PagingSource.LoadResult.Page
+
+        assertEquals(expected = result.data.isEmpty(), actual = true)
     }
 
     @Test
     fun upsert() = runTest {
-        assertEquals(
-            expected = movieDao.getMovieEntities().first(),
-            actual = emptyList()
+        val favoritePagerBeforeInsert = TestPager(
+            config = PagingConfig(pageSize = 0, initialLoadSize = 20, prefetchDistance = 5),
+            pagingSource = repository.getFavorite()
         )
+
+        var result = favoritePagerBeforeInsert.refresh() as PagingSource.LoadResult.Page
+
+        assertEquals(expected = result.data.isEmpty(), actual = true)
 
         movieDao.upsertMovies(entities = listOf(movie))
 
-        assertEquals(
-            expected = movieDao.getMovieEntities().first(),
-            actual = listOf(movie)
+        val favoritePagerAfterInsert = TestPager(
+            config = PagingConfig(pageSize = 0, initialLoadSize = 20, prefetchDistance = 5),
+            pagingSource = repository.getFavorite()
         )
+
+        result = favoritePagerAfterInsert.refresh() as PagingSource.LoadResult.Page
+
+        assertEquals(expected = result.data.isEmpty(), actual = false)
+        assertEquals(expected = movie, actual = result.data.first())
     }
 
     @Test
