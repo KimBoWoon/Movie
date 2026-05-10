@@ -2,6 +2,7 @@ package com.cheeke.surfy.search.navigation
 
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation3.runtime.EntryProviderScope
+import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.model.SearchType
@@ -48,3 +49,5 @@ fun EntryProviderScope<NavKey>.searchEntry(
         )
     }
 }
+
+fun NavBackStack<NavKey>.goToSearch(query: String, searchType: SearchType) = add(element = SearchNavKey(query = query, searchType = searchType.label))

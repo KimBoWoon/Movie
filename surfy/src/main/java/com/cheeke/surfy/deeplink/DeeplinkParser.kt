@@ -23,7 +23,7 @@ fun parseDeeplink(uri: Uri?): List<NavKey> = uri?.let { uri ->
             )
             DeeplinkAction.GO_TO_SETTING -> createDeeplinkStack(command = DeeplinkCommand.GoToSetting)
             DeeplinkAction.OPEN_FAVORITE_PERSON -> createDeeplinkStack(
-                command = DeeplinkCommand.OpenFavoritePeople(id = query["peopleId"]?.toIntOrNull() ?: -1)
+                command = DeeplinkCommand.OpenFavoritePeople(id = query["id"]?.toIntOrNull() ?: -1)
             )
             DeeplinkAction.OPEN_FAVORITE_MOVIE -> createDeeplinkStack(
                 command = DeeplinkCommand.OpenFavoriteMovie(id = query["id"]?.toIntOrNull() ?: -1)

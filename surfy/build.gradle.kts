@@ -17,7 +17,6 @@ dependencies {
         project(":core:firebase"),
         project(":core:domain"),
         project(":core:analytics"),
-        project(":core:navigation"),
         project(":feature:home"),
         project(":feature:detail"),
         project(":feature:search"),
@@ -26,10 +25,13 @@ dependencies {
         libs.coil.compose,
         libs.androidx.compose.material3.navigationSuite,
         libs.androidx.compose.material3.adaptive.navigation3,
+        libs.androidx.lifecycle.viewmodel.navigation3,
         libs.androidx.work.ktx,
         libs.androidx.splash,
         libs.androidx.startup,
-        libs.hilt.ext.work
+        libs.hilt.ext.work,
+
+        libs.androidx.compose.hilt.navigation,
     ).forEach {
         implementation(it)
     }

@@ -17,7 +17,6 @@ dependencies {
         project(":core:model"),
         project(":core:notifications"),
         project(":core:firebase"),
-        project(":core:navigation"),
         project(":core:analytics"),
         libs.androidx.navigation3.runtime,
         libs.androidx.compose.hilt.navigation,

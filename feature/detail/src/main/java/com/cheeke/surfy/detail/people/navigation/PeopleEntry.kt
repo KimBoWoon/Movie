@@ -2,10 +2,10 @@ package com.cheeke.surfy.detail.people.navigation
 
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation3.runtime.EntryProviderScope
+import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import com.cheeke.surfy.detail.people.PeopleScreen
 import com.cheeke.surfy.detail.people.PeopleVM
-import com.cheeke.surfy.navigation.Navigator
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -34,8 +34,4 @@ fun EntryProviderScope<NavKey>.peopleEntry(
     }
 }
 
-fun Navigator.navigateToPeople(
-    id: Int
-) {
-    navigate(route = PeopleNavKey(id = id))
-}
+fun NavBackStack<NavKey>.goToPeople(id: Int) = add(element = PeopleNavKey(id = id))

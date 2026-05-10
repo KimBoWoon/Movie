@@ -16,7 +16,6 @@ dependencies {
         project(":core:datastore"),
         project(":core:model"),
         project(":core:firebase"),
-        project(":core:navigation"),
         project(":core:analytics"),
         libs.androidx.navigation3.runtime,
         libs.androidx.compose.hilt.navigation,

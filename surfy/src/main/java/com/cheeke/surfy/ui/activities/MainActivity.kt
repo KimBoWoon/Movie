@@ -21,9 +21,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation3.runtime.NavKey
+import androidx.navigation3.runtime.rememberNavBackStack
 import com.cheeke.surfy.R
-import com.cheeke.surfy.SurfyAppState
 import com.cheeke.surfy.SurfyFirebase
 import com.cheeke.surfy.analytics.AnalyticsHelper
 import com.cheeke.surfy.analytics.LocalAnalyticsHelper
@@ -31,18 +30,16 @@ import com.cheeke.surfy.common.AppDoubleBackToExit
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.common.isSystemInDarkTheme
 import com.cheeke.surfy.data.util.NetworkMonitor
-import com.cheeke.surfy.deeplink.parseDeeplink
-import com.cheeke.surfy.detail.movie.navigation.navigateToMovie
-import com.cheeke.surfy.detail.tv.navigation.navigateToTv
+import com.cheeke.surfy.deeplink.DeepLinkManager
+import com.cheeke.surfy.detail.movie.navigation.MovieNavKey
+import com.cheeke.surfy.detail.tv.navigation.TvNavKey
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
-import com.cheeke.surfy.navigation.Navigator
-import com.cheeke.surfy.navigation.TOP_LEVEL_NAV_ITEMS
-import com.cheeke.surfy.rememberSurfyAppState
 import com.cheeke.surfy.setting.SettingScreen
 import com.cheeke.surfy.setting.SettingVM
 import com.cheeke.surfy.setting.SettingsAction
-import com.cheeke.surfy.ui.ReleaseMoviesDialog
 import com.cheeke.surfy.ui.SurfyApp
+import com.cheeke.surfy.ui.root.ReleaseMoviesDialog
+import com.cheeke.surfy.ui.root.navigation.RootNavKey
 import com.cheeke.surfy.ui.theme.SurfyTheme
 import com.cheeke.surfy.utils.isSystemInDarkTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -70,15 +67,14 @@ class MainActivity : ComponentActivity() {
             exitText = getString(R.string.double_back_message)
         )
     }
-    private var deeplinkBackstack by mutableStateOf<List<NavKey>>(value = emptyList())
+    @Inject
+    lateinit var deepLinkManager: DeepLinkManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
 
-        intent?.let {
-            deeplinkBackstack = parseDeeplink(uri = intent.data)
-        }
+        deepLinkManager.handleDeepLink(uri = intent?.data)
 
         onBackPressedDispatcher.addCallback(
             onBackPressedCallback = object : OnBackPressedCallback(enabled = true) {
@@ -130,31 +126,29 @@ class MainActivity : ComponentActivity() {
                 val shouldShowNextWeekReleaseDialog by viewModel.shouldShowNextWeekReleaseDialog.collectAsStateWithLifecycle()
 
                 SurfyTheme(darkTheme = darkTheme) {
-                    val appState = rememberSurfyAppState(networkMonitor = networkMonitor)
-                    val navigator = remember { Navigator(state = appState.navigationState) }
+                    val backstack = rememberNavBackStack(RootNavKey)
                     val snackbarHostState = remember { SnackbarHostState() }
+                    val rootDeeplink by deepLinkManager.rootDeeplink.collectAsStateWithLifecycle()
 
-                    LaunchedEffect(key1 = deeplinkBackstack) {
-                        if (deeplinkBackstack.isNotEmpty()) {
-                            navigationSetting(appState = appState)
-                        }
+                    LaunchedEffect(key1 = rootDeeplink) {
+                        if (rootDeeplink.isEmpty()) return@LaunchedEffect
+                        rootDeeplink.forEach { backstack.add(it) }
+                        deepLinkManager.consumeRootDeepLink()
                     }
 
                     if (shouldShowNextWeekReleaseDialog) {
                         ReleaseMoviesDialog(
                             releaseMovies = nextWeekReleaseDialogItems,
-                            goToMovie = { id -> navigator.navigateToMovie(id = id) },
-                            goToTv = { id -> navigator.navigateToTv(id = id) },
+                            goToMovie = { id -> backstack.add(element = MovieNavKey(id = id)) },
+                            goToTv = { id -> backstack.add(element = TvNavKey(id = id)) },
                             updateShowNextReleaseMoviesDate = viewModel::dontShowNextWeekReleaseDialogToday,
                             dismissNextWeekReleaseDialog = viewModel::dismissNextWeekReleaseDialog
                         )
                     }
 
                     SurfyApp(
-                        navigator = navigator,
-                        appState = appState,
+                        backstack = backstack,
                         snackbarHostState = snackbarHostState,
-                        nextWeekReleaseMovies = nextWeekReleaseDialogItems,
                         showSettingDialog = { settingVM.onAction(action = SettingsAction.OpenMain) }
                     )
 
@@ -168,35 +162,8 @@ class MainActivity : ComponentActivity() {
         super.onNewIntent(intent = intent)
         Log.d("onNewIntent")
         setIntent(intent)
-        deeplinkBackstack = parseDeeplink(uri = intent.data)
+        deepLinkManager.handleDeepLink(uri = intent.data)
     }
-
-    fun navigationSetting(appState: SurfyAppState) {
-        if (deeplinkBackstack.isEmpty()) {
-            return
-        }
-
-        appState.navigationState.clearToRoot()
-
-        deeplinkBackstack.forEach { route ->
-            if (isTopLevelRoute(route = route)) {
-                // 루트 목적지면 현재 탭 변경만 수행
-                appState.navigationState.topLevelRoute = route
-            } else {
-                // 루트가 아니면 현재 탭 스택에 push
-                appState.navigationState.backStacks[appState.navigationState.topLevelRoute]?.also { currentStack ->
-                    if (currentStack.lastOrNull() != route) {
-                        currentStack.add(element = route)
-                    }
-                }
-            }
-        }
-
-        deeplinkBackstack = emptyList()
-    }
-
-    private fun isTopLevelRoute(route: NavKey): Boolean =
-        TOP_LEVEL_NAV_ITEMS.keys.any { topLevel -> topLevel.javaClass == route.javaClass }
 }
 
 /**

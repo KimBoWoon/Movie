@@ -2,10 +2,10 @@ package com.cheeke.surfy.detail.tv.navigation
 
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation3.runtime.EntryProviderScope
+import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import com.cheeke.surfy.detail.tv.TvScreen
 import com.cheeke.surfy.detail.tv.TvVM
-import com.cheeke.surfy.navigation.Navigator
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -34,8 +34,4 @@ fun EntryProviderScope<NavKey>.tvEntry(
     }
 }
 
-fun Navigator.navigateToTv(
-    id: Int
-) {
-    navigate(route = TvNavKey(id = id))
-}
+fun NavBackStack<NavKey>.goToTv(id: Int) = add(element = TvNavKey(id = id))

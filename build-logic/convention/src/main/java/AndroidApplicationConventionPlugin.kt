@@ -14,6 +14,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(receiver = target) {
             apply(plugin = "com.android.application")
+            apply(plugin = "org.jetbrains.kotlin.plugin.serialization")
 
             Config.init(rootDir = rootProject.projectDir)
 

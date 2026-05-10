@@ -2,8 +2,8 @@ package com.cheeke.surfy.ui.activities
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cheeke.surfy.data.repository.MovieDataBaseRepositoryImpl
-import com.cheeke.surfy.data.repository.TvDataBaseRepositoryImpl
+import com.cheeke.surfy.data.repository.MovieDataBaseRepository
+import com.cheeke.surfy.data.repository.TvDataBaseRepository
 import com.cheeke.surfy.data.repository.UserDataRepository
 import com.cheeke.surfy.data.util.DataManager
 import com.cheeke.surfy.data.util.SurfyAppDataState
@@ -30,8 +30,8 @@ class MainVM @Inject constructor(
     dataManager: DataManager,
     syncManager: SyncManager,
     private val userDataRepository: UserDataRepository,
-    private val movieDataBaseRepository: MovieDataBaseRepositoryImpl,
-    private val tvDataBaseRepository: TvDataBaseRepositoryImpl
+    private val movieDataBaseRepository: MovieDataBaseRepository,
+    private val tvDataBaseRepository: TvDataBaseRepository
 ) : ViewModel() {
     init {
         viewModelScope.launch {

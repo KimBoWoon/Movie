@@ -19,6 +19,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.cheeke.surfy.R
 import com.cheeke.surfy.model.Media
+import com.cheeke.surfy.model.MediaType
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 
@@ -26,7 +27,8 @@ import kotlinx.coroutines.isActive
 fun VerticalRollingAnimation(
     modifier: Modifier = Modifier,
     nextWeekReleaseMovies: List<Media>,
-    goToMovie: (Int) -> Unit
+    goToMovie: (Int) -> Unit,
+    goToTv: (Int) -> Unit
 ) {
     if (nextWeekReleaseMovies.isEmpty()) return
 
@@ -54,7 +56,11 @@ fun VerticalRollingAnimation(
     ) { animatedTitle ->
         Text(
             modifier = modifier.clickable {
-                current.id?.let { id -> goToMovie(id) }
+                when (current.mediaType) {
+                    MediaType.MOVIE -> goToMovie(current.id ?: -1)
+                    MediaType.TV -> goToTv(current.id ?: -1)
+                    else -> throw RuntimeException("${current.mediaType} not found")
+                }
             },
             text = stringResource(id = R.string.next_week_release_movie, animatedTitle),
             maxLines = 1,

@@ -2,10 +2,10 @@ package com.cheeke.surfy.detail.movie.navigation
 
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation3.runtime.EntryProviderScope
+import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import com.cheeke.surfy.detail.movie.MovieScreen
 import com.cheeke.surfy.detail.movie.MovieVM
-import com.cheeke.surfy.navigation.Navigator
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -36,8 +36,4 @@ fun EntryProviderScope<NavKey>.movieEntry(
     }
 }
 
-fun Navigator.navigateToMovie(
-    id: Int
-) {
-    navigate(route = MovieNavKey(id = id))
-}
+fun NavBackStack<NavKey>.goToMovie(id: Int) = add(element = MovieNavKey(id = id))
