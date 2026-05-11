@@ -12,9 +12,9 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkerParameters
 import com.cheeke.surfy.common.Dispatcher
 import com.cheeke.surfy.common.Dispatchers
-import com.cheeke.surfy.data.repository.MovieDataBaseRepositoryImpl
+import com.cheeke.surfy.data.repository.MovieDataBaseRepository
 import com.cheeke.surfy.data.repository.SyncRepository
-import com.cheeke.surfy.data.repository.TvDataBaseRepositoryImpl
+import com.cheeke.surfy.data.repository.TvDataBaseRepository
 import com.cheeke.surfy.data.repository.UserDataRepository
 import com.cheeke.surfy.data.util.Synchronizer
 import com.cheeke.surfy.notifications.Notifier
@@ -38,8 +38,8 @@ class MidnightSyncWorker @AssistedInject constructor(
     @param:Dispatcher(Dispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
     private val userDateRepository: UserDataRepository,
     private val syncRepository: SyncRepository,
-    private val movieDataBaseRepository: MovieDataBaseRepositoryImpl,
-    private val tvDataBaseRepository: TvDataBaseRepositoryImpl,
+    private val movieDataBaseRepository: MovieDataBaseRepository,
+    private val tvDataBaseRepository: TvDataBaseRepository,
     private val notifier: Notifier
 ) : CoroutineWorker(appContext, workerParams), Synchronizer {
     companion object {
