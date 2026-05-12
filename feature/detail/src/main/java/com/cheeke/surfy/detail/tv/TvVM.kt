@@ -107,7 +107,7 @@ class TvVM @AssistedInject constructor(
                         analyticsHelper.logSelectContent(contentType = "tv", media = result.data.tv)
                         TvState.Success(tvUiState = result.data)
                     }
-                    is Result.Error -> TvState.Error(message = result.throwable.message ?: "something wrong...")
+                    is Result.Error -> TvState.Error(throwable = result.throwable)
                 }
             }.stateIn(
                 scope = viewModelScope,
@@ -161,7 +161,7 @@ class TvVM @AssistedInject constructor(
 sealed interface TvState {
     data object Loading : TvState
     data class Success(val tvUiState: TvUiState) : TvState
-    data class Error(val message: String) : TvState
+    data class Error(val throwable: Throwable) : TvState
 }
 
 data class TvUiState(

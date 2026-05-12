@@ -53,6 +53,7 @@ import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.model.MediaType
 import com.cheeke.surfy.model.People
 import com.cheeke.surfy.model.getRelatedMovie
+import com.cheeke.surfy.network.model.SurfyNetworkException
 import com.cheeke.surfy.ui.components.CircularProgressComponent
 import com.cheeke.surfy.ui.components.ExternalIdLinkComponent
 import com.cheeke.surfy.ui.components.TitleComponent
@@ -130,9 +131,12 @@ fun PeopleScreen(
             }
             is PeopleState.Error -> {
                 Log.e("${peopleState.throwable.message}")
+
+                val message = (peopleState.throwable as? SurfyNetworkException)?.stringRes?.let { stringResource(id = it) } ?: stringResource(id = com.cheeke.surfy.core.network.R.string.something_wrong)
+
                 ConfirmDialog(
                     title = stringResource(id = com.cheeke.surfy.core.network.R.string.network_failed),
-                    message = "${peopleState.throwable.message}",
+                    message = message,
                     confirmPair = stringResource(id = com.cheeke.surfy.core.ui.R.string.retry_message) to { restart() },
                     dismissPair = stringResource(id = com.cheeke.surfy.core.ui.R.string.back_message) to goToBack
                 )

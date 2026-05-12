@@ -40,6 +40,7 @@ import com.cheeke.surfy.network.TrendingApis
 import com.cheeke.surfy.network.TrendingRemoteDataSource
 import com.cheeke.surfy.network.TvApis
 import com.cheeke.surfy.network.TvRemoteDataSource
+import com.cheeke.surfy.network.model.SurfyNetworkException
 import com.cheeke.surfy.network.model.asExternalModel
 import java.time.LocalDate
 import javax.inject.Inject
@@ -51,37 +52,37 @@ class SettingNetworkDataSourceImpl @Inject constructor(
 ) : SettingRemoteDataSource {
     override suspend fun getConfiguration(): Configuration =
         when (val response = apis.getConfiguration()) {
-            is ApiResponse.Failure -> throw response.throwable
+            is ApiResponse.Failure -> throw SurfyNetworkException(throwable = response.throwable, stringRes = response.stringRes)
             is ApiResponse.Success -> response.data.asExternalModel()
         }
 
     override suspend fun getCertification(): CertificationData =
         when (val response = apis.getCertification()) {
-            is ApiResponse.Failure -> throw response.throwable
+            is ApiResponse.Failure -> throw SurfyNetworkException(throwable = response.throwable, stringRes = response.stringRes)
             is ApiResponse.Success -> response.data.asExternalModel()
         }
 
     override suspend fun getAvailableLanguage(): List<Language> =
         when (val response = apis.getAvailableLanguage()) {
-            is ApiResponse.Failure -> throw response.throwable
+            is ApiResponse.Failure -> throw SurfyNetworkException(throwable = response.throwable, stringRes = response.stringRes)
             is ApiResponse.Success -> response.data.asExternalModel()
         }
 
     override suspend fun getAvailableRegion(): Regions =
         when (val response = apis.getAvailableRegion()) {
-            is ApiResponse.Failure -> throw response.throwable
+            is ApiResponse.Failure -> throw SurfyNetworkException(throwable = response.throwable, stringRes = response.stringRes)
             is ApiResponse.Success -> response.data.asExternalModel()
         }
 
     override suspend fun getMovieGenres(language: String): Genres =
         when (val response = apis.getMovieGenres(language = language)) {
-            is ApiResponse.Failure -> throw response.throwable
+            is ApiResponse.Failure -> throw SurfyNetworkException(throwable = response.throwable, stringRes = response.stringRes)
             is ApiResponse.Success -> response.data.asExternalModel()
         }
 
     override suspend fun getTvGenres(language: String): Genres =
         when (val response = apis.getTvGenres(language = language)) {
-            is ApiResponse.Failure -> throw response.throwable
+            is ApiResponse.Failure -> throw SurfyNetworkException(throwable = response.throwable, stringRes = response.stringRes)
             is ApiResponse.Success -> response.data.asExternalModel()
         }
 }
@@ -103,7 +104,7 @@ class SearchRemoteDataSourceImpl @Inject constructor(
             page = page
         )
     ) {
-        is ApiResponse.Failure -> throw response.throwable
+        is ApiResponse.Failure -> throw SurfyNetworkException(throwable = response.throwable, stringRes = response.stringRes)
         is ApiResponse.Success -> response.data.asExternalModel(mediaType = null)
     }
 
@@ -122,7 +123,7 @@ class SearchRemoteDataSourceImpl @Inject constructor(
             page = page
         )
     ) {
-        is ApiResponse.Failure -> throw response.throwable
+        is ApiResponse.Failure -> throw SurfyNetworkException(throwable = response.throwable, stringRes = response.stringRes)
         is ApiResponse.Success -> response.data.asExternalModel(mediaType = MediaType.MOVIE)
     }
 
@@ -141,7 +142,7 @@ class SearchRemoteDataSourceImpl @Inject constructor(
             page = page
         )
     ) {
-        is ApiResponse.Failure -> throw response.throwable
+        is ApiResponse.Failure -> throw SurfyNetworkException(throwable = response.throwable, stringRes = response.stringRes)
         is ApiResponse.Success -> response.data.asExternalModel(mediaType = MediaType.TV)
     }
 
@@ -160,7 +161,7 @@ class SearchRemoteDataSourceImpl @Inject constructor(
             page = page
         )
     ) {
-        is ApiResponse.Failure -> throw response.throwable
+        is ApiResponse.Failure -> throw SurfyNetworkException(throwable = response.throwable, stringRes = response.stringRes)
         is ApiResponse.Success -> response.data.asExternalModel(mediaType = MediaType.PEOPLE)
     }
 
@@ -179,13 +180,13 @@ class SearchRemoteDataSourceImpl @Inject constructor(
             page = page
         )
     ) {
-        is ApiResponse.Failure -> throw response.throwable
+        is ApiResponse.Failure -> throw SurfyNetworkException(throwable = response.throwable, stringRes = response.stringRes)
         is ApiResponse.Success -> response.data.asExternalModel(mediaType = MediaType.SERIES)
     }
 
     override suspend fun getSearchKeyword(query: String, page: Int): SearchKeywordData =
         when (val response = apis.getSearchKeyword(query = query, page = page)) {
-            is ApiResponse.Failure -> throw response.throwable
+            is ApiResponse.Failure -> throw SurfyNetworkException(throwable = response.throwable, stringRes = response.stringRes)
             is ApiResponse.Success -> response.data.asExternalModel()
         }
 }
@@ -208,7 +209,7 @@ class MovieRemoteDataSourceImpl @Inject constructor(
             includeImageLanguage = includeImageLanguage
         )
     ) {
-        is ApiResponse.Failure -> throw response.throwable
+        is ApiResponse.Failure -> throw SurfyNetworkException(throwable = response.throwable, stringRes = response.stringRes)
         is ApiResponse.Success -> response.data.asExternalModel()
     }
 
@@ -217,7 +218,7 @@ class MovieRemoteDataSourceImpl @Inject constructor(
         language: String,
         page: Int
     ): SimilarMedias = when (val response = apis.getSimilarMovies(id = id, language = language, page = page)) {
-        is ApiResponse.Failure -> throw response.throwable
+        is ApiResponse.Failure -> throw SurfyNetworkException(throwable = response.throwable, stringRes = response.stringRes)
         is ApiResponse.Success -> response.data.asExternalModel()
     }
 
@@ -226,12 +227,12 @@ class MovieRemoteDataSourceImpl @Inject constructor(
         language: String,
         page: Int
     ): Reviews = when (val response = apis.getMovieReview(movieId = movieId, language = language, page = page)) {
-        is ApiResponse.Failure -> throw response.throwable
+        is ApiResponse.Failure -> throw SurfyNetworkException(throwable = response.throwable, stringRes = response.stringRes)
         is ApiResponse.Success -> response.data.asExternalModel()
     }
 
     override suspend fun getMovieWatchProvider(movieId: Int): MovieWatchProvider = when (val response = apis.getMovieWatchProvider(movieId = movieId)) {
-        is ApiResponse.Failure -> throw response.throwable
+        is ApiResponse.Failure -> throw SurfyNetworkException(throwable = response.throwable, stringRes = response.stringRes)
         is ApiResponse.Success -> response.data.asExternalModel()
     }
 }
@@ -253,7 +254,7 @@ class PeopleRemoteDataSourceImpl @Inject constructor(
             includeImageLanguage = includeImageLanguage
         )
     ) {
-        is ApiResponse.Failure -> throw response.throwable
+        is ApiResponse.Failure -> throw SurfyNetworkException(throwable = response.throwable, stringRes = response.stringRes)
         is ApiResponse.Success -> response.data.asExternalModel()
     }
 
@@ -261,12 +262,12 @@ class PeopleRemoteDataSourceImpl @Inject constructor(
         personId: Int,
         language: String
     ): CombineCredits = when (val response = apis.getCombineCredits(personId = personId, language = language)) {
-        is ApiResponse.Failure -> throw response.throwable
+        is ApiResponse.Failure -> throw SurfyNetworkException(throwable = response.throwable, stringRes = response.stringRes)
         is ApiResponse.Success -> response.data.asExternalModel()
     }
 
     override suspend fun getExternalIds(personId: Int): ExternalIds = when (val response = apis.getExternalIds(personId)) {
-        is ApiResponse.Failure -> throw response.throwable
+        is ApiResponse.Failure -> throw SurfyNetworkException(throwable = response.throwable, stringRes = response.stringRes)
         is ApiResponse.Success -> response.data.asExternalModel()
     }
 }
@@ -281,7 +282,7 @@ class TvRemoteDataSourceImpl @Inject constructor(
         appendToResponse: String,
         includeImageLanguage: String
     ): Tv = when (val response = apis.getTv(id = id, appendToResponse = appendToResponse, language = language, includeImageLanguage = includeImageLanguage)) {
-        is ApiResponse.Failure -> throw response.throwable
+        is ApiResponse.Failure -> throw SurfyNetworkException(throwable = response.throwable, stringRes = response.stringRes)
         is ApiResponse.Success -> response.data.asExternalModel()
     }
 
@@ -291,7 +292,7 @@ class TvRemoteDataSourceImpl @Inject constructor(
         appendToResponse: String,
         language: String
     ): TvSeasons = when (val response = apis.getTvSeasons(seriesId = seriesId, seasonNumber = seasonNumber, appendToResponse = appendToResponse, language = language)) {
-        is ApiResponse.Failure -> throw response.throwable
+        is ApiResponse.Failure -> throw SurfyNetworkException(throwable = response.throwable, stringRes = response.stringRes)
         is ApiResponse.Success -> response.data.asExternalModel()
     }
 
@@ -302,7 +303,7 @@ class TvRemoteDataSourceImpl @Inject constructor(
         appendToResponse: String,
         language: String
     ): TvEpisode = when (val response = apis.getTvEpisode(seriesId = seriesId, seasonNumber = seasonNumber, episodeNumber = episodeNumber, appendToResponse = appendToResponse, language = language)) {
-        is ApiResponse.Failure -> throw response.throwable
+        is ApiResponse.Failure -> throw SurfyNetworkException(throwable = response.throwable, stringRes = response.stringRes)
         is ApiResponse.Success -> response.data.asExternalModel()
     }
 
@@ -311,7 +312,7 @@ class TvRemoteDataSourceImpl @Inject constructor(
         language: String,
         page: Int
     ): SimilarMedias = when (val response = apis.getSimilarTv(id = id, language = language, page = page)) {
-        is ApiResponse.Failure -> throw response.throwable
+        is ApiResponse.Failure -> throw SurfyNetworkException(throwable = response.throwable, stringRes = response.stringRes)
         is ApiResponse.Success -> response.data.asExternalModel()
     }
 
@@ -320,7 +321,7 @@ class TvRemoteDataSourceImpl @Inject constructor(
         language: String,
         page: Int
     ): Reviews = when (val response = apis.getTvReview(seriesId = seriesId, language = language, page = page)) {
-        is ApiResponse.Failure -> throw response.throwable
+        is ApiResponse.Failure -> throw SurfyNetworkException(throwable = response.throwable, stringRes = response.stringRes)
         is ApiResponse.Success -> response.data.asExternalModel()
     }
 }
@@ -331,7 +332,7 @@ class SeriesRemoteDataSourceImpl @Inject constructor(
 ) : SeriesRemoteDataSource {
     override suspend fun getMovieSeries(collectionId: Int, language: String): Series =
         when (val response = apis.getMovieSeries(collectionId = collectionId, language = language)) {
-            is ApiResponse.Failure -> throw response.throwable
+            is ApiResponse.Failure -> throw SurfyNetworkException(throwable = response.throwable, stringRes = response.stringRes)
             is ApiResponse.Success -> response.data.asExternalModel()
         }
 
@@ -340,7 +341,7 @@ class SeriesRemoteDataSourceImpl @Inject constructor(
         includeImageLanguage: String,
         language: String
     ): ImageList = when (val response = apis.getSeriesImages(collectionId = collectionId, includeImageLanguage = includeImageLanguage, language = language)) {
-        is ApiResponse.Failure -> throw response.throwable
+        is ApiResponse.Failure -> throw SurfyNetworkException(throwable = response.throwable, stringRes = response.stringRes)
         is ApiResponse.Success -> response.data.asExternalModel()
     }
 }
@@ -360,7 +361,7 @@ class SyncRemoteDataSourceImpl @Inject constructor(
 
         do {
             when (val response = apis.getNowPlaying(language = "$language-$region", region = region, page = currentPage)) {
-                is ApiResponse.Failure -> throw response.throwable
+                is ApiResponse.Failure -> throw SurfyNetworkException(throwable = response.throwable, stringRes = response.stringRes)
                 is ApiResponse.Success -> {
                     currentPage = (response.data.page ?: 1) + 1
                     totalPage = response.data.totalPages ?: Int.MAX_VALUE
@@ -385,7 +386,7 @@ class SyncRemoteDataSourceImpl @Inject constructor(
 
         do {
             when (val response = apis.getUpcomingMovie(language = "$language-$region", region = region, page = currentPage)) {
-                is ApiResponse.Failure -> throw response.throwable
+                is ApiResponse.Failure -> throw SurfyNetworkException(throwable = response.throwable, stringRes = response.stringRes)
                 is ApiResponse.Success -> {
                     currentPage = (response.data.page ?: 1) + 1
                     totalPage = response.data.totalPages ?: Int.MAX_VALUE
@@ -406,19 +407,19 @@ class TrendingRemoteDataSourceImpl @Inject constructor(
 ) : TrendingRemoteDataSource {
     override suspend fun getTrendingMovie(timeWindow: String, language: String, page: Int): TrendingMedia =
         when (val response = apis.getTrendingMovie(timeWindow = timeWindow, language = language, page = page)) {
-            is ApiResponse.Failure -> throw response.throwable
+            is ApiResponse.Failure -> throw SurfyNetworkException(throwable = response.throwable, stringRes = response.stringRes)
             is ApiResponse.Success -> response.data.asExternalModel(mediaType = MediaType.MOVIE)
         }
 
     override suspend fun getTrendingPeople(timeWindow: String, language: String, page: Int): TrendingMedia =
         when (val response = apis.getTrendingPeople(timeWindow = timeWindow, language = language, page = page)) {
-            is ApiResponse.Failure -> throw response.throwable
+            is ApiResponse.Failure -> throw SurfyNetworkException(throwable = response.throwable, stringRes = response.stringRes)
             is ApiResponse.Success -> response.data.asExternalModel(mediaType = MediaType.PEOPLE)
         }
 
     override suspend fun getTrendingTv(timeWindow: String, language: String, page: Int): TrendingMedia =
         when (val response = apis.getTrendingTv(timeWindow = timeWindow, language = language, page = page)) {
-            is ApiResponse.Failure -> throw response.throwable
+            is ApiResponse.Failure -> throw SurfyNetworkException(throwable = response.throwable, stringRes = response.stringRes)
             is ApiResponse.Success -> response.data.asExternalModel(mediaType = MediaType.TV)
         }
 }

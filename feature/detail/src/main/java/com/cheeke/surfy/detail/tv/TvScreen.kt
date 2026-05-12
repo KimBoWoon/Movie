@@ -76,6 +76,7 @@ import com.cheeke.surfy.model.SimilarMedia
 import com.cheeke.surfy.model.Tv
 import com.cheeke.surfy.model.TvEpisode
 import com.cheeke.surfy.model.TvSeason
+import com.cheeke.surfy.network.model.SurfyNetworkException
 import com.cheeke.surfy.ui.components.CircularProgressComponent
 import com.cheeke.surfy.ui.components.CreditsComponent
 import com.cheeke.surfy.ui.components.ImageOverlay
@@ -234,12 +235,14 @@ fun TvScreen(
                 }
             }
             is TvState.Error -> {
-                Log.e(tvUiState.message)
-                LocalFirebaseLogHelper.current.sendLog(name = "TvScreen", message = tvUiState.message)
+                Log.e(tvUiState.throwable.toString())
+                LocalFirebaseLogHelper.current.sendLog(name = "TvScreen", message = tvUiState.throwable.message ?: "something wrong")
+
+                val message = (tvUiState.throwable as? SurfyNetworkException)?.stringRes?.let { stringResource(id = it) } ?: stringResource(id = com.cheeke.surfy.core.network.R.string.something_wrong)
 
                 ConfirmDialog(
                     title = stringResource(id = com.cheeke.surfy.core.network.R.string.network_failed),
-                    message = tvUiState.message,
+                    message = message,
                     confirmPair = stringResource(id = com.cheeke.surfy.core.ui.R.string.retry_message) to { restart() },
                     dismissPair = stringResource(id = com.cheeke.surfy.core.ui.R.string.back_message) to goToBack
                 )

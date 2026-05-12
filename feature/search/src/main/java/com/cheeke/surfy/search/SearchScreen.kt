@@ -84,6 +84,7 @@ import com.cheeke.surfy.model.MediaType
 import com.cheeke.surfy.model.SearchKeyword
 import com.cheeke.surfy.model.SearchType
 import com.cheeke.surfy.model.SurfyAppData
+import com.cheeke.surfy.network.model.SurfyNetworkException
 import com.cheeke.surfy.ui.components.CircularProgressComponent
 import com.cheeke.surfy.ui.components.FilterChipComponent
 import com.cheeke.surfy.ui.components.PagingAppendErrorComponent
@@ -471,9 +472,11 @@ fun SearchResultComponent(
             is SearchUiState.Error -> {
                 LocalFirebaseLogHelper.current.sendLog("SearchResultPaging", searchUiState.throwable.message ?: stringResource(com.cheeke.surfy.core.network.R.string.something_wrong))
 
+                val message = (searchUiState.throwable as? SurfyNetworkException)?.stringRes?.let { stringResource(id = it) } ?: stringResource(id = com.cheeke.surfy.core.network.R.string.something_wrong)
+
                 ConfirmDialog(
                     title = stringResource(id = com.cheeke.surfy.core.network.R.string.network_failed),
-                    message = searchUiState.throwable.message ?: stringResource(id = com.cheeke.surfy.core.network.R.string.something_wrong),
+                    message = message,
                     confirmPair = stringResource(id = com.cheeke.surfy.core.ui.R.string.confirm_message) to {}
                 )
             }
