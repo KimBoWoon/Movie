@@ -17,6 +17,7 @@ import com.cheeke.surfy.model.Genre
 import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.model.SearchType
 import com.cheeke.surfy.model.SurfyAppData
+import com.cheeke.surfy.network.model.SurfyNetworkException
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -144,7 +145,7 @@ class SearchVM @AssistedInject constructor(
                         )
                     )
                 }.catch { throwable: Throwable ->
-                    emit(value = SearchUiState.Error(throwable = throwable))
+                    emit(value = SearchUiState.Error(throwable = throwable as SurfyNetworkException))
                 }
             }
         ).stateIn(
@@ -175,5 +176,5 @@ class SearchVM @AssistedInject constructor(
 sealed interface SearchUiState {
     data object SearchHint : SearchUiState
     data class Success(val pagingData: Flow<PagingData<Media>>) : SearchUiState
-    data class Error(val throwable: Throwable) : SearchUiState
+    data class Error(val throwable: SurfyNetworkException) : SearchUiState
 }

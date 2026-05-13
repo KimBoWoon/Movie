@@ -7,7 +7,7 @@ data class SurfyNetworkException(
     val code: Int? = null,
     val throwable: Throwable? = null,
     val stringRes: Int? = null,
-    override val message: String? = null,
+    override val message: String? = null
 ) : Exception(message)
 
 enum class SurfyNetworkErrorMessage(@param:StringRes val stringRes: Int) {

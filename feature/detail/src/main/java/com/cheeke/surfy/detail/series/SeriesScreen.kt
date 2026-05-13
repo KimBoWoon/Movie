@@ -57,7 +57,6 @@ import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
 import com.cheeke.surfy.model.ImageList
 import com.cheeke.surfy.model.Series
 import com.cheeke.surfy.model.SeriesPart
-import com.cheeke.surfy.network.model.SurfyNetworkException
 import com.cheeke.surfy.ui.components.CircularProgressComponent
 import com.cheeke.surfy.ui.dialog.ConfirmDialog
 import com.cheeke.surfy.ui.image.DynamicAsyncImageLoader
@@ -135,7 +134,7 @@ fun SeriesScreen(
             is SeriesState.Error -> {
                 LocalFirebaseLogHelper.current.sendLog("SeriesScreen", "Series state Error")
 
-                val message = (seriesState.throwable as? SurfyNetworkException)?.stringRes?.let { stringResource(id = it) } ?: stringResource(id = com.cheeke.surfy.core.network.R.string.something_wrong)
+                val message = seriesState.throwable.stringRes?.let { stringResource(id = it) } ?: stringResource(id = com.cheeke.surfy.core.network.R.string.something_wrong)
 
                 ConfirmDialog(
                     title = stringResource(id = R.string.network_failed),

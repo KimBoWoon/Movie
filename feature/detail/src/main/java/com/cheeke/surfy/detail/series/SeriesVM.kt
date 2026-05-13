@@ -10,6 +10,7 @@ import com.cheeke.surfy.common.asResult
 import com.cheeke.surfy.domain.GetSeriesDetailUseCase
 import com.cheeke.surfy.model.ImageList
 import com.cheeke.surfy.model.Series
+import com.cheeke.surfy.network.model.SurfyNetworkException
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -49,7 +50,7 @@ class SeriesVM @AssistedInject constructor(
                     analyticsHelper.logSelectContent(contentType = "series", media = result.data.series)
                     SeriesState.Success(series = result.data.series, imageList = result.data.imageList)
                 }
-                is Result.Error -> SeriesState.Error(throwable = result.throwable)
+                is Result.Error -> SeriesState.Error(throwable = result.throwable as SurfyNetworkException)
             }
         }.stateIn(
             scope = viewModelScope,
@@ -73,5 +74,5 @@ class SeriesVM @AssistedInject constructor(
 sealed interface SeriesState {
     data object Loading : SeriesState
     data class Success(val series: Series, val imageList: ImageList) : SeriesState
-    data class Error(val throwable: Throwable) : SeriesState
+    data class Error(val throwable: SurfyNetworkException) : SeriesState
 }

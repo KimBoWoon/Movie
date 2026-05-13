@@ -37,10 +37,11 @@ dependencies {
         project(":core:testing"),
         libs.retrofit2,
         libs.kotlinx.serialization.converter,
-        libs.mockwebserver
+        libs.okhttp.mockWebServer,
+        libs.io.mockk
     ).forEach {
         testImplementation(it)
     }
 
-    androidTestImplementation(libs.mockwebserver)
+    androidTestImplementation(libs.okhttp.mockWebServer)
 }

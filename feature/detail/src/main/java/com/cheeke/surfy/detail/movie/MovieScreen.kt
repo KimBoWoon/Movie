@@ -57,7 +57,6 @@ import com.cheeke.surfy.model.Image
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.Series
 import com.cheeke.surfy.model.SimilarMedia
-import com.cheeke.surfy.network.model.SurfyNetworkException
 import com.cheeke.surfy.ui.components.CircularProgressComponent
 import com.cheeke.surfy.ui.components.CreditsComponent
 import com.cheeke.surfy.ui.components.ImageOverlay
@@ -207,7 +206,7 @@ fun MovieScreen(
                 Log.e("${movieState.throwable.message}")
                 LocalFirebaseLogHelper.current.sendLog(name = "DetailScreen", message = "${movieState.throwable.message}")
 
-                val message = (movieState.throwable as? SurfyNetworkException)?.stringRes?.let { stringResource(id = it) } ?: stringResource(id = com.cheeke.surfy.core.network.R.string.something_wrong)
+                val message = movieState.throwable.stringRes?.let { stringResource(id = it) } ?: stringResource(id = com.cheeke.surfy.core.network.R.string.something_wrong)
 
                 ConfirmDialog(
                     title = stringResource(id = com.cheeke.surfy.core.network.R.string.network_failed),

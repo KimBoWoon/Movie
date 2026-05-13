@@ -18,6 +18,7 @@ import com.cheeke.surfy.domain.TvSeasonLoadState
 import com.cheeke.surfy.model.Tv
 import com.cheeke.surfy.model.TvEpisode
 import com.cheeke.surfy.model.TvSeason
+import com.cheeke.surfy.network.model.SurfyNetworkException
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -26,7 +27,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
@@ -76,44 +76,42 @@ class TvVM @AssistedInject constructor(
     private val selectedSeason = MutableStateFlow<TvSeason?>(value = null)
     @OptIn(ExperimentalCoroutinesApi::class)
     private val tv = reload.flatMapLatest {
-        trace(sectionName = "GetTvDetail") { getTvDetailUseCase(id = id, selectedSeason = selectedSeason) }
+        trace(sectionName = "GetTvDetail") { getTvDetailUseCase(id = id, selectedSeason = selectedSeason).asResult() }
     }
-    val uiState: StateFlow<TvState> =
-        combine(
-            tv,
-            selectedSeason,
-        ) { twf, selectedSeason/*, seasonMap, episodeState*/ ->
-            val tv = twf.tv
-            val seasons = tv.seasons
-            val initialSeason = selectedSeason ?: seasons?.sortedBy { it.seasonNumber }?.firstOrNull()
+    val uiState = combine(
+        tv,
+        selectedSeason,
+    ) { twf, selectedSeason ->
+        when (twf) {
+            is Result.Loading -> TvState.Loading
+            is Result.Success -> {
+                analyticsHelper.logSelectContent(contentType = "tv", media = twf.data.tv)
+                val tv = twf.data.tv
+                val seasons = tv.seasons
+                val initialSeason = selectedSeason ?: seasons?.sortedBy { it.seasonNumber }?.firstOrNull()
 
-            if (selectedSeason == null && initialSeason != null) {
-                this@TvVM.selectedSeason.value = initialSeason
-            }
-
-            TvUiState(
-                tv = twf.tv,
-                seasons = seasons.orEmpty(),
-                episodeState = twf.seasonLoadState,
-                episodesBySeason = twf.episodesBySeason,
-                isFavorite = twf.isFavorite,
-                autoPlayTrailer = twf.autoPlayTrailer
-            )
-        }.asResult()
-            .map { result ->
-                when (result) {
-                    is Result.Loading -> TvState.Loading
-                    is Result.Success -> {
-                        analyticsHelper.logSelectContent(contentType = "tv", media = result.data.tv)
-                        TvState.Success(tvUiState = result.data)
-                    }
-                    is Result.Error -> TvState.Error(throwable = result.throwable)
+                if (selectedSeason == null && initialSeason != null) {
+                    this@TvVM.selectedSeason.value = initialSeason
                 }
-            }.stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.Lazily,
-                initialValue = TvState.Loading
-            )
+
+                TvState.Success(
+                    tvUiState = TvUiState(
+                        tv = twf.data.tv,
+                        seasons = seasons.orEmpty(),
+                        episodeState = twf.data.seasonLoadState,
+                        episodesBySeason = twf.data.episodesBySeason,
+                        isFavorite = twf.data.isFavorite,
+                        autoPlayTrailer = twf.data.autoPlayTrailer
+                    )
+                )
+            }
+            is Result.Error -> TvState.Error(throwable = twf.throwable as SurfyNetworkException)
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Lazily,
+        initialValue = TvState.Loading
+    )
 
     init {
         viewModelScope.launch {
@@ -161,7 +159,7 @@ class TvVM @AssistedInject constructor(
 sealed interface TvState {
     data object Loading : TvState
     data class Success(val tvUiState: TvUiState) : TvState
-    data class Error(val throwable: Throwable) : TvState
+    data class Error(val throwable: SurfyNetworkException) : TvState
 }
 
 data class TvUiState(
