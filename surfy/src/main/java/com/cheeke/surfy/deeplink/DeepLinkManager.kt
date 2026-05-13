@@ -43,10 +43,10 @@ class DeepLinkManager @Inject constructor() {
         val bottomDeepLink = mutableListOf<NavKey>()
 
         stack.forEach { route ->
-            if (bottomNavKeys.any { it.java.simpleName == route::class.java.simpleName }) {
-                bottomDeepLink.add(element = route)
-            } else {
-                rootDeepLink.add(element = route)
+            when {
+                bottomNavKeys.any { it.java.simpleName == route::class.java.simpleName } -> bottomDeepLink.add(element = route)
+                rootNavKeys.any { it.java.simpleName == route::class.java.simpleName } -> rootDeepLink.add(element = route)
+                else -> throw RuntimeException("잘못된 deeplink 입니다. : $route")
             }
         }
 
