@@ -1,5 +1,6 @@
 package com.cheeke.surfy.ui
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -39,7 +40,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -48,7 +48,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.compose.ui.zIndex
 import com.cheeke.surfy.R
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.data.util.POSTER_IMAGE_RATIO
@@ -80,6 +79,7 @@ import com.slack.circuit.backstack.SaveableBackStack
 import com.slack.circuit.codegen.annotations.CircuitInject
 import com.slack.circuit.foundation.CircuitContent
 import com.slack.circuit.retained.rememberRetained
+import com.slack.circuit.retained.rememberRetainedStateHolder
 import com.slack.circuit.runtime.CircuitUiState
 import com.slack.circuit.runtime.Navigator
 import com.slack.circuit.runtime.presenter.Presenter
@@ -106,6 +106,7 @@ fun RootScreen(
     modifier: Modifier = Modifier,
     rootState: RootState
 ) {
+    val retainedStateHolder = rememberRetainedStateHolder()
     var selectedTab by rememberRetained { mutableStateOf(value = RootTab.HOME) }
 
     Scaffold(
@@ -132,20 +133,22 @@ fun RootScreen(
             }
         }
     ) { paddingValues ->
-        CircuitContent(
-            screen = HomeScreen,
-            modifier = Modifier
-                .padding(paddingValues)
-                .alpha(if (selectedTab == RootTab.HOME) 1f else 0f)
-                .zIndex(if (selectedTab == RootTab.HOME) 1f else 0f)
-        )
-        CircuitContent(
-            screen = FavoriteScreen(),
-            modifier = Modifier
-                .padding(paddingValues)
-                .alpha(if (selectedTab == RootTab.FAVORITE) 1f else 0f)
-                .zIndex(if (selectedTab == RootTab.FAVORITE) 1f else 0f)
-        )
+        retainedStateHolder.RetainedStateProvider(key = selectedTab.name) {
+            when (selectedTab) {
+                RootTab.HOME -> CircuitContent(
+                    screen = HomeScreen,
+                    modifier = Modifier.padding(paddingValues = paddingValues)
+                )
+                RootTab.FAVORITE -> CircuitContent(
+                    screen = FavoriteScreen(),
+                    modifier = Modifier.padding(paddingValues = paddingValues)
+                )
+            }
+        }
+    }
+
+    BackHandler(enabled = selectedTab != RootTab.HOME) {
+        selectedTab = RootTab.HOME
     }
 }
 

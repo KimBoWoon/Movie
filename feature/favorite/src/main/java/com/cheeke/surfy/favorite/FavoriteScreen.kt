@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -24,7 +23,6 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,6 +38,7 @@ import androidx.paging.compose.LazyPagingItems
 import com.cheeke.surfy.analytics.LocalAnalyticsHelper
 import com.cheeke.surfy.analytics.TrackScreenViewEvent
 import com.cheeke.surfy.analytics.logFavorite
+import com.cheeke.surfy.common.retainedLazyGridListState
 import com.cheeke.surfy.data.util.PEOPLE_IMAGE_RATIO
 import com.cheeke.surfy.data.util.POSTER_IMAGE_RATIO
 import com.cheeke.surfy.feature.favorite.R
@@ -198,12 +197,7 @@ fun <T : Media> FavoriteListComponent(
     content: @Composable (T) -> Unit
 ) {
     val scope = rememberCoroutineScope()
-    val lazyGridState = rememberSaveable(
-//        key = tabIndex,
-        saver = LazyGridState.Saver
-    ) {
-        LazyGridState()
-    }
+    val lazyGridState = retainedLazyGridListState()
     val visibleItemIndex by remember { derivedStateOf { lazyGridState.firstVisibleItemIndex } }
 
     Box(

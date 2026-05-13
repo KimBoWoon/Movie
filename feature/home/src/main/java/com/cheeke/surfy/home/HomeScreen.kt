@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -61,6 +60,7 @@ import androidx.paging.compose.LazyPagingItems
 import com.cheeke.surfy.analytics.TrackScreenViewEvent
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.common.isSystemInDarkTheme
+import com.cheeke.surfy.common.retainedScrollState
 import com.cheeke.surfy.data.util.PEOPLE_IMAGE_RATIO
 import com.cheeke.surfy.data.util.POSTER_IMAGE_RATIO
 import com.cheeke.surfy.feature.home.R
@@ -172,7 +172,7 @@ fun HomeComponent(
     goToPeople: (Int) -> Unit,
     goToTv: (Int) -> Unit,
 ) {
-    val scrollState = rememberScrollState()
+    val scrollState = retainedScrollState()
     val nowPlayingMoviesTitle = stringResource(id = R.string.now_playing_movies)
     val upcomingMoviesTitle = stringResource(id = R.string.upcoming_movies)
     val trendingMovieTitle = stringResource(id = R.string.trending_movie)
