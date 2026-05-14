@@ -27,7 +27,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.cheeke.surfy.R
-import com.cheeke.surfy.SurfyAppState
 import com.cheeke.surfy.SurfyFirebase
 import com.cheeke.surfy.analytics.AnalyticsHelper
 import com.cheeke.surfy.analytics.LocalAnalyticsHelper
@@ -35,18 +34,16 @@ import com.cheeke.surfy.common.AppDoubleBackToExit
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.common.isSystemInDarkTheme
 import com.cheeke.surfy.data.util.NetworkMonitor
-import com.cheeke.surfy.deeplink.parseDeeplink
+import com.cheeke.surfy.deeplink.DeepLinkManager
 import com.cheeke.surfy.factory.SurfyPresenterFactory
 import com.cheeke.surfy.factory.SurfyScreenFactory
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
 import com.cheeke.surfy.navigation.AppNavigatorImpl
-import com.cheeke.surfy.navigation.HomeScreen
 import com.cheeke.surfy.navigation.LocalAppNavigator
 import com.cheeke.surfy.navigation.LocalCircuitBackStack
 import com.cheeke.surfy.navigation.LocalCircuitNavigator
 import com.cheeke.surfy.navigation.RootScreen
-import com.cheeke.surfy.rememberSurfyAppState
-import com.cheeke.surfy.ui.ReleaseMoviesDialog
+import com.cheeke.surfy.ui.root.ReleaseMoviesDialog
 import com.cheeke.surfy.ui.theme.SurfyTheme
 import com.cheeke.surfy.utils.isSystemInDarkTheme
 import com.slack.circuit.backstack.rememberSaveableBackStack
@@ -54,7 +51,6 @@ import com.slack.circuit.foundation.Circuit
 import com.slack.circuit.foundation.CircuitCompositionLocals
 import com.slack.circuit.foundation.NavigableCircuitContent
 import com.slack.circuit.foundation.rememberCircuitNavigator
-import com.slack.circuit.runtime.screen.Screen
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -79,19 +75,18 @@ class MainActivity : ComponentActivity() {
             exitText = getString(R.string.double_back_message)
         )
     }
-    private var deeplinkBackstack by mutableStateOf<List<Screen>>(value = emptyList())
     @Inject
     lateinit var surfyPresenterFactory: SurfyPresenterFactory
     @Inject
     lateinit var surfyScreenFactory: SurfyScreenFactory
+    @Inject
+    lateinit var deepLinkManager: DeepLinkManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
 
-        intent?.let {
-            deeplinkBackstack = parseDeeplink(uri = intent.data)
-        }
+        deepLinkManager.handleDeepLink(uri = intent?.data)
 
         onBackPressedDispatcher.addCallback(
             onBackPressedCallback = object : OnBackPressedCallback(enabled = true) {
@@ -159,13 +154,13 @@ class MainActivity : ComponentActivity() {
                 SurfyTheme(darkTheme = darkTheme) {
                     Surface(color = MaterialTheme.colorScheme.background) {
                         CircuitCompositionLocals(circuit = circuit) {
-                            val appState = rememberSurfyAppState(networkMonitor = networkMonitor)
                             val snackbarHostState = remember { SnackbarHostState() }
+                            val rootDeeplink by deepLinkManager.rootDeeplink.collectAsStateWithLifecycle()
 
-                            LaunchedEffect(key1 = deeplinkBackstack) {
-                                if (deeplinkBackstack.isNotEmpty()) {
-                                    navigationSetting(appState = appState)
-                                }
+                            LaunchedEffect(key1 = rootDeeplink) {
+                                if (rootDeeplink.isEmpty()) return@LaunchedEffect
+                                rootDeeplink.forEach { rootNavigator.goTo(screen = it) }
+                                deepLinkManager.consumeRootDeepLink()
                             }
 
                             if (shouldShowNextWeekReleaseDialog) {
@@ -194,21 +189,7 @@ class MainActivity : ComponentActivity() {
         super.onNewIntent(intent = intent)
         Log.d("onNewIntent")
         setIntent(intent)
-        deeplinkBackstack = parseDeeplink(uri = intent.data)
-    }
-
-    fun navigationSetting(appState: SurfyAppState) {
-        if (deeplinkBackstack.isEmpty()) {
-            return
-        }
-
-        appState.navigator.resetRoot(newRoot = HomeScreen)
-
-        deeplinkBackstack.forEach { screen ->
-            appState.navigator.goTo(screen = screen)
-        }
-
-        deeplinkBackstack = emptyList()
+        deepLinkManager.handleDeepLink(uri = intent.data)
     }
 }
 

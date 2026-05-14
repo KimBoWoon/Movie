@@ -7,7 +7,7 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.cheeke.surfy.ui.RootTab
+import com.cheeke.surfy.ui.root.RootTab
 import com.slack.circuit.runtime.screen.Screen
 
 enum class TopLevelDestination(

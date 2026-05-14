@@ -19,6 +19,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.cheeke.surfy.R
 import com.cheeke.surfy.model.Media
+import com.cheeke.surfy.model.Movie
+import com.cheeke.surfy.model.Tv
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 
@@ -26,7 +28,8 @@ import kotlinx.coroutines.isActive
 fun VerticalRollingAnimation(
     modifier: Modifier = Modifier,
     nextWeekReleaseMovies: List<Media>,
-    goToMovie: (Int) -> Unit
+    goToMovie: (Int) -> Unit,
+    gotoTv: (Int) -> Unit
 ) {
     if (nextWeekReleaseMovies.isEmpty()) return
 
@@ -54,7 +57,10 @@ fun VerticalRollingAnimation(
     ) { animatedTitle ->
         Text(
             modifier = modifier.clickable {
-                current.id?.let { id -> goToMovie(id) }
+                when (current) {
+                    is Movie -> goToMovie(current.id ?: -1)
+                    is Tv -> gotoTv(current.id ?: -1)
+                }
             },
             text = stringResource(id = R.string.next_week_release_movie, animatedTitle),
             maxLines = 1,

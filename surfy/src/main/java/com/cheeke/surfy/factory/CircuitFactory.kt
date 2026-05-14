@@ -33,9 +33,9 @@ import com.cheeke.surfy.search.SearchUiState
 import com.cheeke.surfy.setting.SettingPresenter
 import com.cheeke.surfy.setting.SettingScreen
 import com.cheeke.surfy.setting.SettingsUiState
-import com.cheeke.surfy.ui.RootPresenter
-import com.cheeke.surfy.ui.RootScreen
-import com.cheeke.surfy.ui.RootState
+import com.cheeke.surfy.ui.root.RootPresenter
+import com.cheeke.surfy.ui.root.RootScreen
+import com.cheeke.surfy.ui.root.RootState
 import com.slack.circuit.runtime.CircuitContext
 import com.slack.circuit.runtime.Navigator
 import com.slack.circuit.runtime.presenter.Presenter
