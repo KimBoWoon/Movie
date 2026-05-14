@@ -89,29 +89,35 @@ class SystemTrayNotifier @Inject constructor(
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_DENIED) return
         if (movies.isEmpty()) return
 
-        val comingSoonMovie = context.getString(R.string.coming_soon_movie)
-
         CoroutineScope(context = ioDispatcher).launch {
             val imageUrl = userDataRepository.getSecureBaseUrl()
             Log.d("imageUrl -> $imageUrl")
-            val notifications = movies.map { movie ->
-                async(context = ioDispatcher) { loadNotificationImage(context = context, imageUrl = "$imageUrl${movie.posterPath}") }
+            val notifications = movies.map { media ->
+                async(context = ioDispatcher) { loadNotificationImage(context = context, imageUrl = "$imageUrl${media.posterPath}") }
             }.awaitAll().let { bitmapList ->
-                movies.mapIndexed { index, movie ->
+                movies.mapIndexed { index, media ->
+                    val notificationTitle = when (media) {
+                        is Movie -> context.getString(R.string.coming_soon_movie)
+                        is Tv -> context.getString(R.string.coming_soon_tv)
+                        else -> {
+                            Log.i("$media not found")
+                            ""
+                        }
+                    }
                     context.createMovieNotification {
                         if (bitmapList[index] == null) {
                             setSmallIcon(R.drawable.ic_launcher_round)
-                                .setContentTitle(comingSoonMovie)
-                                .setContentText(movie.title)
-                                .setContentIntent(context.moviePendingIntent(movie = movie))
+                                .setContentTitle(notificationTitle)
+                                .setContentText(media.title)
+                                .setContentIntent(context.moviePendingIntent(movie = media))
                                 .setGroup(MOVIE_NOTIFICATION_GROUP)
                                 .setAutoCancel(true)
                         } else {
                             setSmallIcon(R.drawable.ic_launcher_round)
                                 .setLargeIcon(bitmapList[index])
-                                .setContentTitle(comingSoonMovie)
-                                .setContentText(movie.title)
-                                .setContentIntent(context.moviePendingIntent(movie = movie))
+                                .setContentTitle(notificationTitle)
+                                .setContentText(media.title)
+                                .setContentIntent(context.moviePendingIntent(movie = media))
                                 .setStyle(NotificationCompat.BigPictureStyle().bigPicture(bitmapList[index]))
                                 .setGroup(MOVIE_NOTIFICATION_GROUP)
                                 .setAutoCancel(true)
@@ -128,7 +134,6 @@ class SystemTrayNotifier @Inject constructor(
 
             val summaryMovieNotification = context.createMovieNotification {
                 setSmallIcon(R.drawable.ic_launcher_round)
-                    .setContentTitle(comingSoonMovie)
                     .setGroup(MOVIE_NOTIFICATION_GROUP)
                     .setGroupSummary(true)
                     .setAutoCancel(true)
