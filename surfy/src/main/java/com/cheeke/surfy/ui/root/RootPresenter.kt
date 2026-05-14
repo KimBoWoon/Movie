@@ -3,7 +3,8 @@ package com.cheeke.surfy.ui.root
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import com.cheeke.surfy.common.Log
-import com.cheeke.surfy.data.repository.DatabaseRepository
+import com.cheeke.surfy.data.repository.MovieDataBaseRepository
+import com.cheeke.surfy.data.repository.TvDataBaseRepository
 import com.cheeke.surfy.deeplink.DeepLinkManager
 import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.navigation.LocalAppNavigator
@@ -19,7 +20,8 @@ import dagger.hilt.android.components.ActivityRetainedComponent
 import kotlinx.coroutines.flow.StateFlow
 
 class RootPresenter @AssistedInject constructor(
-    private val databaseRepository: DatabaseRepository,
+    private val movieDataBaseRepository: MovieDataBaseRepository,
+    private val tvDataBaseRepository: TvDataBaseRepository,
     private val deepLinkManager: DeepLinkManager
 ) : Presenter<RootState> {
     @CircuitInject(screen = RootScreen::class, scope = ActivityRetainedComponent::class)
@@ -33,7 +35,7 @@ class RootPresenter @AssistedInject constructor(
         val navigator = LocalAppNavigator.current
         val nextWeekReleaseMedia by produceRetainedState(initialValue = emptyList()) {
             Log.d("nextReleaseMedias")
-            value = databaseRepository.getNextWeekReleaseMovies() + databaseRepository.getNextWeekReleaseTvs()
+            value = movieDataBaseRepository.getNextWeekReleaseMovies() + tvDataBaseRepository.getNextWeekReleaseTvs()
         }
         val bottomDeeplink = deepLinkManager.bottomDeeplink
 

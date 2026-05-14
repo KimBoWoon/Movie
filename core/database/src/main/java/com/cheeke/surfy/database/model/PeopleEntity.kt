@@ -18,3 +18,10 @@ fun PeopleEntity.asExternalModel(): People = People(
     title = name,
     posterPath = profilePath
 )
+
+fun People.asExternalModel(): PeopleEntity = PeopleEntity(
+    id = id ?: -1,
+    timestamp = -1L,//Clock.System.now().toEpochMilliseconds(),
+    name = title,
+    profilePath = posterPath
+)

@@ -15,8 +15,8 @@ import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.common.Result
 import com.cheeke.surfy.common.asResult
 import com.cheeke.surfy.common.di.ActivityRetainedScopeCoroutine
-import com.cheeke.surfy.data.repository.DatabaseRepository
 import com.cheeke.surfy.data.repository.PagingRepository
+import com.cheeke.surfy.data.repository.TvDataBaseRepository
 import com.cheeke.surfy.data.repository.UserDataRepository
 import com.cheeke.surfy.domain.GetTvDetailUseCase
 import com.cheeke.surfy.domain.TvSeasonLoadState
@@ -50,7 +50,7 @@ class TvRepository @AssistedInject constructor(
     @Assisted private val id: Int = 0,
     @param:ActivityRetainedScopeCoroutine private val scope: CoroutineScope,
     private val getTvDetailUseCase: GetTvDetailUseCase,
-    private val databaseRepository: DatabaseRepository,
+    private val tvDataBaseRepository: TvDataBaseRepository,
     private val pagingRepository: PagingRepository,
     private val analyticsHelper: AnalyticsHelper,
     private val userDataRepository: UserDataRepository
@@ -144,13 +144,13 @@ class TvRepository @AssistedInject constructor(
 
     fun insertTv(tv: Tv) {
         scope.launch {
-            databaseRepository.insertTv(tv = tv)
+            tvDataBaseRepository.insert(media = tv)
         }
     }
 
     fun deleteTv(tv: Tv) {
         scope.launch {
-            databaseRepository.deleteTv(tv = tv)
+            tvDataBaseRepository.delete(media = tv)
         }
     }
 

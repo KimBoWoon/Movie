@@ -2,7 +2,6 @@ package com.cheeke.surfy.navigation
 
 import androidx.compose.runtime.staticCompositionLocalOf
 import com.cheeke.surfy.model.SearchType
-import com.slack.circuit.backstack.SaveableBackStack
 import com.slack.circuit.runtime.Navigator
 import com.slack.circuit.runtime.screen.Screen
 import kotlinx.parcelize.Parcelize
@@ -77,13 +76,5 @@ class AppNavigatorImpl(
 }
 
 val LocalAppNavigator = staticCompositionLocalOf<AppNavigator> {
-    error("No AppNavigator")
-}
-
-val LocalCircuitNavigator = staticCompositionLocalOf<Navigator> {
-    error("No AppNavigator")
-}
-
-val LocalCircuitBackStack = staticCompositionLocalOf<SaveableBackStack> {
     error("No AppNavigator")
 }

@@ -25,3 +25,12 @@ fun TvEntity.asExternalModel(): Tv = Tv(
     lastAirDate = lastAirDate,
     mediaType = MediaType.TV
 )
+
+fun Tv.asExternalModel(): TvEntity = TvEntity(
+    id = id ?: -1,
+    posterPath = posterPath ?: "",
+    timestamp = -1L,//Clock.System.now().toEpochMilliseconds(),
+    name = title,
+    firstAirDate = firstAirDate,
+    lastAirDate = lastAirDate
+)

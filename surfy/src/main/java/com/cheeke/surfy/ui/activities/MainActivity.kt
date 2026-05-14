@@ -40,8 +40,6 @@ import com.cheeke.surfy.factory.SurfyScreenFactory
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
 import com.cheeke.surfy.navigation.AppNavigatorImpl
 import com.cheeke.surfy.navigation.LocalAppNavigator
-import com.cheeke.surfy.navigation.LocalCircuitBackStack
-import com.cheeke.surfy.navigation.LocalCircuitNavigator
 import com.cheeke.surfy.navigation.RootScreen
 import com.cheeke.surfy.ui.root.ReleaseMoviesDialog
 import com.cheeke.surfy.ui.theme.SurfyTheme
@@ -141,9 +139,7 @@ class MainActivity : ComponentActivity() {
             CompositionLocalProvider(
                 LocalFirebaseLogHelper provides surfyFirebase,
                 LocalAnalyticsHelper provides analyticsHelper,
-                LocalAppNavigator provides appNavigator,
-                LocalCircuitNavigator provides rootNavigator,
-                LocalCircuitBackStack provides rootBackStack
+                LocalAppNavigator provides appNavigator
             ) {
                 LocalFirebaseLogHelper.current.sendLog(name = javaClass.simpleName, message = "compose start!")
 

@@ -16,7 +16,7 @@ import androidx.paging.map
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.common.di.ActivityRetainedScopeCoroutine
 import com.cheeke.surfy.data.model.asExternalModel
-import com.cheeke.surfy.data.repository.DatabaseRepository
+import com.cheeke.surfy.data.repository.MovieDataBaseRepository
 import com.cheeke.surfy.data.repository.PagingRepository
 import com.cheeke.surfy.data.util.DataManager
 import com.cheeke.surfy.data.util.NetworkMonitor
@@ -48,7 +48,7 @@ import javax.inject.Inject
 class HomeRepository @Inject constructor(
     @param:ActivityRetainedScopeCoroutine private val scope: CoroutineScope,
     private val dataManager: DataManager,
-    private val databaseRepository: DatabaseRepository,
+    private val movieDataBaseRepository: MovieDataBaseRepository,
     private val pagingRepository: PagingRepository,
     private val networkMonitor: NetworkMonitor
 ) {
@@ -67,13 +67,13 @@ class HomeRepository @Inject constructor(
         .distinctUntilChanged()
     val nowPlayingMoviePaging = Pager(
         config = PagingConfig(pageSize = 20, prefetchDistance = 5),
-        pagingSourceFactory = { databaseRepository.getNowPlayingMovies() }
+        pagingSourceFactory = { movieDataBaseRepository.getNowPlayingMovies() }
     ).flow.map { pagingData ->
         pagingData.map(transform = NowPlayingMovieEntity::asExternalModel)
     }.cachedIn(scope = scope)
     val upComingMoviePaging = Pager(
         config = PagingConfig(pageSize = 20, prefetchDistance = 5),
-        pagingSourceFactory = { databaseRepository.getUpComingMovies() }
+        pagingSourceFactory = { movieDataBaseRepository.getUpComingMovies() }
     ).flow.map { pagingData ->
         pagingData.map(transform = UpComingMovieEntity::asExternalModel)
     }.cachedIn(scope = scope)
@@ -112,7 +112,7 @@ class HomeRepository @Inject constructor(
                 ).flow
             }.cachedIn(scope)
 
-    suspend fun getPopularMovies() = databaseRepository.getPopularMovies()
+    suspend fun getPopularMovies() = movieDataBaseRepository.getPopularMovies()
 
     fun updateTrendingMovieTimeWindow(timeWindow: TimeWindow) {
         trendingMovieTimeWindow.value = timeWindow

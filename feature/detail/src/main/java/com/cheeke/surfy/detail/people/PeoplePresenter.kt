@@ -10,7 +10,7 @@ import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.common.Result
 import com.cheeke.surfy.common.asResult
 import com.cheeke.surfy.common.di.ActivityRetainedScopeCoroutine
-import com.cheeke.surfy.data.repository.DatabaseRepository
+import com.cheeke.surfy.data.repository.PeopleDataBaseRepository
 import com.cheeke.surfy.domain.GetPeopleDetailUseCase
 import com.cheeke.surfy.domain.PeopleWithFavorite
 import com.cheeke.surfy.model.People
@@ -37,7 +37,7 @@ class PeopleRepository @AssistedInject constructor(
     @Assisted private val id: Int,
     @param:ActivityRetainedScopeCoroutine private val scope: CoroutineScope,
     private val getPeopleDetail: GetPeopleDetailUseCase,
-    private val databaseRepository: DatabaseRepository,
+    private val peopleDataBaseRepository: PeopleDataBaseRepository,
     private val analyticsHelper: AnalyticsHelper
 ) {
     @AssistedFactory
@@ -83,13 +83,13 @@ class PeopleRepository @AssistedInject constructor(
 
     fun insertPeople(people: People) {
         scope.launch {
-            databaseRepository.insertPeople(people)
+            peopleDataBaseRepository.insert(media = people)
         }
     }
 
     fun deletePeople(people: People) {
         scope.launch {
-            databaseRepository.deletePeople(people)
+            peopleDataBaseRepository.delete(media = people)
         }
     }
 }
