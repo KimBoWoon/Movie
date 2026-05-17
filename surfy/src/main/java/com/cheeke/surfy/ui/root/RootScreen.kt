@@ -55,16 +55,18 @@ import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
 import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.model.MediaType
 import com.cheeke.surfy.model.Movie
+import com.cheeke.surfy.model.SearchType
 import com.cheeke.surfy.model.Tv
 import com.cheeke.surfy.navigation.FavoriteScreen
 import com.cheeke.surfy.navigation.HomeScreen
-import com.cheeke.surfy.navigation.LocalAppNavigator
 import com.cheeke.surfy.navigation.RootScreen
 import com.cheeke.surfy.navigation.TopLevelDestination
 import com.cheeke.surfy.ui.BottomNavigationBarItem
 import com.cheeke.surfy.ui.MovieNavigationDefaults
 import com.cheeke.surfy.ui.dialog.Indexer
 import com.cheeke.surfy.ui.image.DynamicAsyncImageLoader
+import com.cheeke.surfy.ui.setting.SettingScreen
+import com.cheeke.surfy.ui.setting.SettingsSheet
 import com.cheeke.surfy.ui.utils.Line
 import com.cheeke.surfy.ui.utils.border
 import com.cheeke.surfy.ui.utils.bounceClick
@@ -92,9 +94,14 @@ fun RootScreen(
     modifier: Modifier = Modifier,
     rootState: RootState
 ) {
+    val rootUiState = rootState.rootUiState
     val retainedStateHolder = rememberRetainedStateHolder()
     var selectedTab by rememberRetained { mutableStateOf(value = RootTab.HOME) }
-    val bottomDeeplink by rootState.bottomDeeplink.collectAsStateWithLifecycle()
+    val bottomDeeplink by rootUiState.bottomDeeplink.collectAsStateWithLifecycle(initialValue = emptyList())
+//    val homeBackstack = rememberSaveableBackStack(root = HomeScreen)
+//    val homeNavigator = rememberCircuitNavigator(homeBackstack)
+//    val favoriteBackstack = rememberSaveableBackStack(root = FavoriteScreen())
+//    val favoriteNavigator = rememberCircuitNavigator(favoriteBackstack)
 
     LaunchedEffect(key1 = bottomDeeplink) {
         if (bottomDeeplink.isEmpty()) return@LaunchedEffect
@@ -106,17 +113,17 @@ fun RootScreen(
             }
         }
 
-        rootState.consumeBottomDeepLink()
+        rootState.eventSink(RootEvent.ConsumeBottomDeepLink)
     }
 
     Scaffold(
         topBar = {
             MovieSearchTopBar(
-                nextWeekReleaseMovies = rootState.nextWeekReleaseMedia,
-                goToMovie = rootState.goToMovie,
-                goToTv = rootState.goToTv,
-                goToSearch = rootState.openSearch,
-                showSettingDialog = LocalAppNavigator.current::goToSetting
+                nextWeekReleaseMovies = rootUiState.nextWeekReleaseMedia,
+                goToMovie = { id -> rootState.eventSink(RootEvent.GoToMovie(id = id)) },
+                goToTv = { id -> rootState.eventSink(RootEvent.GoToTv(id = id)) },
+                goToSearch = { query, searchType -> rootState.eventSink(RootEvent.OpenSearch(query = query, searchType = searchType)) },
+                showSettingDialog = { rootState.eventSink(RootEvent.GoToSetting) }
             )
         },
         bottomBar = {
@@ -126,6 +133,20 @@ fun RootScreen(
             )
         }
     ) { paddingValues ->
+//        retainedStateHolder.RetainedStateProvider(key = selectedTab.name) {
+//            when (selectedTab) {
+//                RootTab.HOME -> NavigableCircuitContent(
+//                    modifier = Modifier.padding(paddingValues = paddingValues),
+//                    backStack = homeBackstack,
+//                    navigator = homeNavigator
+//                )
+//                RootTab.FAVORITE -> NavigableCircuitContent(
+//                    modifier = Modifier.padding(paddingValues = paddingValues),
+//                    backStack = favoriteBackstack,
+//                    navigator = favoriteNavigator
+//                )
+//            }
+//        }
         retainedStateHolder.RetainedStateProvider(key = selectedTab.name) {
             when (selectedTab) {
                 RootTab.HOME -> CircuitContent(
@@ -140,6 +161,14 @@ fun RootScreen(
         }
     }
 
+    if (rootUiState.settingsUiState.sheet != SettingsSheet.Hidden) {
+        SettingScreen(
+            settingUiState = rootUiState.settingsUiState,
+            onAction = { action -> rootState.eventSink(RootEvent.OnSettingsAction(action = action)) },
+            onSettingTitleClick = { rootState.eventSink(RootEvent.OnSettingTitleClick) }
+        )
+    }
+
     BackHandler(enabled = selectedTab != RootTab.HOME) {
         selectedTab = RootTab.HOME
     }
@@ -150,7 +179,7 @@ fun MovieSearchTopBar(
     nextWeekReleaseMovies: List<Media>,
     goToMovie: (Int) -> Unit,
     goToTv: (Int) -> Unit,
-    goToSearch: () -> Unit,
+    goToSearch: (String, SearchType) -> Unit,
     showSettingDialog: () -> Unit
 ) {
     Row(
@@ -164,7 +193,7 @@ fun MovieSearchTopBar(
                 .height(height = dp40)
                 .clip(shape = RoundedCornerShape(percent = 50))
                 .background(color = MaterialTheme.colorScheme.inverseOnSurface)
-                .roundedCornerClickable(onClick = { goToSearch() }),
+                .roundedCornerClickable(onClick = { goToSearch("", SearchType.MULTI) }),
             contentAlignment = Alignment.Center
         ) {
             Row(
@@ -176,7 +205,7 @@ fun MovieSearchTopBar(
                         .wrapContentSize()
                         .padding(start = dp20)
                         .align(Alignment.CenterVertically)
-                        .clickable { goToSearch() },
+                        .clickable { goToSearch("", SearchType.MULTI) },
                     imageVector = Icons.Default.Search,
                     contentDescription = "goToSearch",
                     tint = MaterialTheme.colorScheme.onSurface

@@ -65,11 +65,12 @@ import kotlinx.coroutines.launch
 @Composable
 fun FavoriteScreen(
     modifier: Modifier,
-    favoriteUiState: FavoriteUiState
+    favoriteState: FavoriteState
 ) {
     LocalFirebaseLogHelper.current.sendLog("FavoriteScreen", "favorite screen init")
     TrackScreenViewEvent(screenName = "FavoriteScreen")
 
+    val favoriteUiState = favoriteState.favoriteUiState
     val tabIndex = favoriteUiState.tabIndex
     val selectedTab = favoriteUiState.selectedTab
     val favoriteMap = favoriteUiState.favoriteMap
@@ -87,7 +88,7 @@ fun FavoriteScreen(
             selected = FavoriteTab.entries[tabIndex],
             onSelected = { favoriteTabs ->
                 val index = FavoriteTab.entries.indexOfFirst { it.stringId == favoriteTabs.stringId }
-                favoriteUiState.eventSink(FavoriteEvent.UpdateTabIndex(index))
+                favoriteState.eventSink(FavoriteEvent.UpdateTabIndex(index))
             }
         )
 
@@ -117,7 +118,7 @@ fun FavoriteScreen(
                                 Column(
                                     modifier = Modifier
                                         .wrapContentSize()
-                                        .bounceClick { favoriteUiState.eventSink(FavoriteEvent.GoTo(favoriteTab = selectedTab, media = media)) }
+                                        .bounceClick { favoriteState.eventSink(FavoriteEvent.GoTo(favoriteTab = selectedTab, media = media)) }
                                 ) {
                                     Box {
                                         DynamicAsyncImageLoader(
@@ -135,7 +136,7 @@ fun FavoriteScreen(
                                                 .align(Alignment.TopEnd),
                                             isFavorite = true,
                                             onClick = {
-                                                favoriteUiState.eventSink(FavoriteEvent.DeleteFavorite(favoriteTab = selectedTab, media = media))
+                                                favoriteState.eventSink(FavoriteEvent.DeleteFavorite(favoriteTab = selectedTab, media = media))
 //                                                scope.launch {
 //                                                    onShowSnackbar(removeFavoriteText, null)
 //                                                }
@@ -156,7 +157,7 @@ fun FavoriteScreen(
                             }
                             else -> {
                                 Box(
-                                    modifier = Modifier.bounceClick { favoriteUiState.eventSink(FavoriteEvent.GoTo(favoriteTab = selectedTab, media = media)) }
+                                    modifier = Modifier.bounceClick { favoriteState.eventSink(FavoriteEvent.GoTo(favoriteTab = selectedTab, media = media)) }
                                 ) {
                                     DynamicAsyncImageLoader(
                                         modifier = Modifier
@@ -173,7 +174,7 @@ fun FavoriteScreen(
                                             .align(Alignment.TopEnd),
                                         isFavorite = true,
                                         onClick = {
-                                            favoriteUiState.eventSink(FavoriteEvent.DeleteFavorite(favoriteTab = selectedTab, media = media))
+                                            favoriteState.eventSink(FavoriteEvent.DeleteFavorite(favoriteTab = selectedTab, media = media))
 //                                        scope.launch {
 //                                            onShowSnackbar(removeFavoriteText, null)
 //                                        }

@@ -24,8 +24,12 @@ import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.People
 import com.cheeke.surfy.model.Tv
 import com.cheeke.surfy.navigation.FavoriteScreen
-import com.cheeke.surfy.navigation.LocalAppNavigator
+import com.cheeke.surfy.navigation.LocalRootNavigator
+import com.cheeke.surfy.navigation.goToMovie
+import com.cheeke.surfy.navigation.goToPeople
+import com.cheeke.surfy.navigation.goToTv
 import com.slack.circuit.codegen.annotations.CircuitInject
+import com.slack.circuit.runtime.CircuitUiEvent
 import com.slack.circuit.runtime.CircuitUiState
 import com.slack.circuit.runtime.presenter.Presenter
 import dagger.assisted.Assisted
@@ -98,10 +102,10 @@ class FavoriteRepository @Inject constructor(
 class FavoritePresenter @AssistedInject constructor(
     @Assisted private val screen: FavoriteScreen,
     private val favoriteRepository: FavoriteRepository
-) : Presenter<FavoriteUiState> {
+) : Presenter<FavoriteState> {
     @Composable
-    override fun present(): FavoriteUiState {
-        val navigator = LocalAppNavigator.current
+    override fun present(): FavoriteState {
+        val rootNavigator = LocalRootNavigator.current
         val tabIndex by favoriteRepository.tabIndex.collectAsStateWithLifecycle(initialValue = screen.index)
         val favoriteMap = FavoriteTab.entries.associateWith { favoriteTab ->
             when (favoriteTab) {
@@ -112,53 +116,58 @@ class FavoritePresenter @AssistedInject constructor(
         }
         val selectedTab = FavoriteTab.entries[tabIndex]
 
-        return FavoriteUiState(
-            tabIndex = tabIndex,
-            selectedTab = selectedTab,
-            favoriteMap = favoriteMap,
-        ) { event ->
-            Log.d("FavoritePresenter", "$event")
-            when (event) {
-                is FavoriteEvent.UpdateTabIndex -> favoriteRepository.setTabIndex(index = event.index)
-                is FavoriteEvent.GoTo -> {
-                    when (event.favoriteTab) {
-                        FavoriteTab.MOVIE -> navigator.goToMovie(id = event.media.id ?: -1)
-                        FavoriteTab.PEOPLE -> navigator.goToPeople(id = event.media.id ?: -1)
-                        FavoriteTab.TV -> navigator.goToTv(id = event.media.id ?: -1)
+        return FavoriteState(
+            favoriteUiState = FavoriteUiState(
+                tabIndex = tabIndex,
+                selectedTab = selectedTab,
+                favoriteMap = favoriteMap
+            ),
+            eventSink = { event ->
+                Log.d("FavoritePresenter", "$event")
+                when (event) {
+                    is FavoriteEvent.UpdateTabIndex -> favoriteRepository.setTabIndex(index = event.index)
+                    is FavoriteEvent.GoTo -> {
+                        when (event.favoriteTab) {
+                            FavoriteTab.MOVIE -> rootNavigator.goToMovie(id = event.media.id ?: -1)
+                            FavoriteTab.PEOPLE -> rootNavigator.goToPeople(id = event.media.id ?: -1)
+                            FavoriteTab.TV -> rootNavigator.goToTv(id = event.media.id ?: -1)
+                        }
                     }
-                }
-                is FavoriteEvent.DeleteFavorite -> {
-                    when (event.favoriteTab) {
-                        FavoriteTab.MOVIE -> favoriteRepository.deleteMovie(movie = event.media as Movie)
-                        FavoriteTab.PEOPLE -> favoriteRepository.deletePeople(people = event.media as People)
-                        FavoriteTab.TV -> favoriteRepository.deleteTv(tv = event.media as Tv)
+                    is FavoriteEvent.DeleteFavorite -> {
+                        when (event.favoriteTab) {
+                            FavoriteTab.MOVIE -> favoriteRepository.deleteMovie(movie = event.media as Movie)
+                            FavoriteTab.PEOPLE -> favoriteRepository.deletePeople(people = event.media as People)
+                            FavoriteTab.TV -> favoriteRepository.deleteTv(tv = event.media as Tv)
+                        }
                     }
                 }
             }
-        }
+        )
     }
 
     @CircuitInject(screen = FavoriteScreen::class, scope = ActivityRetainedComponent::class)
     @AssistedFactory
     interface Factory {
-        fun create(
-            @Assisted screen: FavoriteScreen
-        ): FavoritePresenter
+        fun create(screen: FavoriteScreen): FavoritePresenter
     }
 }
 
 data class FavoriteUiState(
     val tabIndex: Int,
     val selectedTab: FavoriteTab,
-    val favoriteMap: Map<FavoriteTab, LazyPagingItems<out Media>>,
-    val eventSink: (FavoriteEvent) -> Unit,
-) : CircuitUiState
+    val favoriteMap: Map<FavoriteTab, LazyPagingItems<out Media>>
+)
 
-sealed interface FavoriteEvent {
+sealed interface FavoriteEvent : CircuitUiEvent {
     data class UpdateTabIndex(val index: Int) : FavoriteEvent
     data class GoTo(val favoriteTab: FavoriteTab, val media: Media) : FavoriteEvent
     data class DeleteFavorite(val favoriteTab: FavoriteTab, val media: Media) : FavoriteEvent
 }
+
+data class FavoriteState(
+    val favoriteUiState: FavoriteUiState,
+    val eventSink: (FavoriteEvent) -> Unit
+) : CircuitUiState
 
 enum class FavoriteTab(val stringId: Int) {
     MOVIE(stringId = R.string.movie),

@@ -22,7 +22,6 @@ dependencies {
         project(":feature:detail"),
         project(":feature:search"),
         project(":feature:favorite"),
-        project(":feature:setting"),
         libs.coil.compose,
         libs.androidx.compose.material3.navigationSuite,
         libs.androidx.compose.material3.adaptive.navigation3,

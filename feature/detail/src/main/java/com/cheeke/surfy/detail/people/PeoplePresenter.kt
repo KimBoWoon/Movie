@@ -14,11 +14,13 @@ import com.cheeke.surfy.data.repository.PeopleDataBaseRepository
 import com.cheeke.surfy.domain.GetPeopleDetailUseCase
 import com.cheeke.surfy.domain.PeopleWithFavorite
 import com.cheeke.surfy.model.People
-import com.cheeke.surfy.navigation.LocalAppNavigator
 import com.cheeke.surfy.navigation.PeopleScreen
+import com.cheeke.surfy.navigation.goToMovie
+import com.cheeke.surfy.navigation.goToTv
 import com.slack.circuit.codegen.annotations.CircuitInject
 import com.slack.circuit.retained.rememberRetained
 import com.slack.circuit.runtime.CircuitUiState
+import com.slack.circuit.runtime.Navigator
 import com.slack.circuit.runtime.presenter.Presenter
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -95,12 +97,12 @@ class PeopleRepository @AssistedInject constructor(
 }
 
 class PeoplePresenter @AssistedInject constructor(
-    @Assisted(value = "screen") private val screen: PeopleScreen,
+    @Assisted private val screen: PeopleScreen,
+    @Assisted private val navigator: Navigator,
     private val peopleRepositoryFactory: PeopleRepository.Factory
 ) : Presenter<PeopleUiState> {
     @Composable
     override fun present(): PeopleUiState {
-        val navigator = LocalAppNavigator.current
         val peopleRepository = rememberRetained(screen.id) {
             peopleRepositoryFactory.create(id = screen.id)
         }
@@ -109,14 +111,14 @@ class PeoplePresenter @AssistedInject constructor(
         return PeopleUiState(
             people = peopleState,
         ) { event ->
-            Log.d("HomePresenter", "$event")
+            Log.d("PeoplePresenter", "$event")
             when (event) {
                 is PeopleEvent.DeleteFavoritePeople -> peopleRepository.deletePeople(people = event.people)
-                is PeopleEvent.GoToMovie -> navigator.goToMovie(event.id)
-                is PeopleEvent.GoToTv -> navigator.goToTv(event.id)
+                is PeopleEvent.GoToMovie -> navigator.goToMovie(id = event.id)
+                is PeopleEvent.GoToTv -> navigator.goToTv(id = event.id)
                 is PeopleEvent.InsertFavoritePeople -> peopleRepository.insertPeople(people = event.people)
                 is PeopleEvent.Restart -> peopleRepository.restart()
-                is PeopleEvent.GoToBack -> navigator.back()
+                is PeopleEvent.GoToBack -> navigator.pop()
             }
         }
     }
@@ -125,7 +127,8 @@ class PeoplePresenter @AssistedInject constructor(
     @AssistedFactory
     interface Factory {
         fun create(
-            @Assisted(value = "screen") screen: PeopleScreen,
+            screen: PeopleScreen,
+            navigator: Navigator
         ): PeoplePresenter
     }
 }

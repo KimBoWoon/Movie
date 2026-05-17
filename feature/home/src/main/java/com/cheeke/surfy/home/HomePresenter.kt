@@ -1,6 +1,7 @@
 package com.cheeke.surfy.home
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -25,9 +26,13 @@ import com.cheeke.surfy.database.model.UpComingMovieEntity
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.TrendingMediaResult
 import com.cheeke.surfy.navigation.HomeScreen
-import com.cheeke.surfy.navigation.LocalAppNavigator
+import com.cheeke.surfy.navigation.LocalRootNavigator
+import com.cheeke.surfy.navigation.goToMovie
+import com.cheeke.surfy.navigation.goToPeople
+import com.cheeke.surfy.navigation.goToTv
 import com.slack.circuit.codegen.annotations.CircuitInject
-import com.slack.circuit.retained.produceRetainedState
+import com.slack.circuit.retained.rememberRetained
+import com.slack.circuit.runtime.CircuitUiEvent
 import com.slack.circuit.runtime.CircuitUiState
 import com.slack.circuit.runtime.presenter.Presenter
 import dagger.assisted.AssistedFactory
@@ -132,54 +137,61 @@ class HomePresenter @AssistedInject constructor(
 ) : Presenter<HomeState> {
     @Composable
     override fun present(): HomeState {
-        val navigator = LocalAppNavigator.current
+        val rootNavigator = LocalRootNavigator.current
         var trendingMovieTimeWindow by rememberSaveable { mutableStateOf(value = TimeWindow.DAY) }
         var trendingPeopleTimeWindow by rememberSaveable { mutableStateOf(value = TimeWindow.DAY) }
         var trendingTvTimeWindow by rememberSaveable { mutableStateOf(value = TimeWindow.DAY) }
-        val popularMovies by produceRetainedState<List<Movie>?>(initialValue = null) {
-            value = homeRepository.getPopularMovies()
-        }
         val nowPlayingMovies = homeRepository.nowPlayingMoviePaging.collectAsLazyPagingItems()
         val upComingMovies = homeRepository.upComingMoviePaging.collectAsLazyPagingItems()
         val trendingMoviePaging = homeRepository.trendingMoviePaging.collectAsLazyPagingItems()
         val trendingPeoplePaging = homeRepository.trendingPeoplePaging.collectAsLazyPagingItems()
         val trendingTvPaging = homeRepository.trendingTvPaging.collectAsLazyPagingItems()
+        var status by rememberRetained { mutableStateOf<HomeStatus>(value = HomeStatus.Loading) }
 
-        return when {
-            popularMovies == null -> HomeState.Loading
-            else -> HomeState.Success(
-                homeUiState = HomeUiState(
-                    popularMovies = popularMovies ?: emptyList(),
-                    nowPlayingMovies = nowPlayingMovies,
-                    upComingMovies = upComingMovies,
-                    trendingMovieTimeWindow = trendingMovieTimeWindow,
-                    trendingPeopleTimeWindow = trendingPeopleTimeWindow,
-                    trendingTvTimeWindow = trendingTvTimeWindow,
-                    trendingMoviePaging = trendingMoviePaging,
-                    trendingPeoplePaging = trendingPeoplePaging,
-                    trendingTvPaging = trendingTvPaging,
-                ) { event ->
-                    Log.d("HomePresenter", "$event")
-                    when (event) {
-                        is HomeEvent.GoToMovie -> navigator.goToMovie(event.id)
-                        is HomeEvent.GoToPeople -> navigator.goToPeople(event.id)
-                        is HomeEvent.GoToTv -> navigator.goToTv(event.id)
-                        is HomeEvent.UpdateTrendingMovieTimeWindow -> {
-                            trendingMovieTimeWindow = event.timeWindow
-                            homeRepository.updateTrendingMovieTimeWindow(event.timeWindow)
-                        }
-                        is HomeEvent.UpdateTrendingPeopleTimeWindow -> {
-                            trendingPeopleTimeWindow = event.timeWindow
-                            homeRepository.updateTrendingPeopleTimeWindow(event.timeWindow)
-                        }
-                        is HomeEvent.UpdateTrendingTvTimeWindow -> {
-                            trendingTvTimeWindow = event.timeWindow
-                            homeRepository.updateTrendingTvTimeWindow(event.timeWindow)
-                        }
+        LaunchedEffect(key1 = Unit) {
+            runCatching {
+                val popularMovies = homeRepository.getPopularMovies()
+                status = HomeStatus.Success(
+                    homeUiState = HomeUiState(
+                        popularMovies = popularMovies,
+                        nowPlayingMovies = nowPlayingMovies,
+                        upComingMovies = upComingMovies,
+                        trendingMovieTimeWindow = trendingMovieTimeWindow,
+                        trendingPeopleTimeWindow = trendingPeopleTimeWindow,
+                        trendingTvTimeWindow = trendingTvTimeWindow,
+                        trendingMoviePaging = trendingMoviePaging,
+                        trendingPeoplePaging = trendingPeoplePaging,
+                        trendingTvPaging = trendingTvPaging
+                    )
+                )
+            }.onFailure { e ->
+                status = HomeStatus.Error(throwable = e)
+            }
+        }
+
+        return HomeState(
+            homeStatus = status,
+            eventSink = { event ->
+                Log.d("HomePresenter", "$event")
+                when (event) {
+                    is HomeEvent.GoToMovie -> rootNavigator.goToMovie(id = event.id)
+                    is HomeEvent.GoToPeople -> rootNavigator.goToPeople(id = event.id)
+                    is HomeEvent.GoToTv -> rootNavigator.goToTv(id = event.id)
+                    is HomeEvent.UpdateTrendingMovieTimeWindow -> {
+                        trendingMovieTimeWindow = event.timeWindow
+                        homeRepository.updateTrendingMovieTimeWindow(event.timeWindow)
+                    }
+                    is HomeEvent.UpdateTrendingPeopleTimeWindow -> {
+                        trendingPeopleTimeWindow = event.timeWindow
+                        homeRepository.updateTrendingPeopleTimeWindow(event.timeWindow)
+                    }
+                    is HomeEvent.UpdateTrendingTvTimeWindow -> {
+                        trendingTvTimeWindow = event.timeWindow
+                        homeRepository.updateTrendingTvTimeWindow(event.timeWindow)
                     }
                 }
-            )
-        }
+            }
+        )
     }
 
     @CircuitInject(screen = HomeScreen::class, scope = ActivityRetainedComponent::class)
@@ -198,11 +210,10 @@ data class HomeUiState(
     val trendingTvTimeWindow: TimeWindow,
     val trendingMoviePaging: LazyPagingItems<TrendingMediaResult>,
     val trendingPeoplePaging: LazyPagingItems<TrendingMediaResult>,
-    val trendingTvPaging: LazyPagingItems<TrendingMediaResult>,
-    val eventSink: (HomeEvent) -> Unit
+    val trendingTvPaging: LazyPagingItems<TrendingMediaResult>
 )
 
-sealed interface HomeEvent {
+sealed interface HomeEvent : CircuitUiEvent {
     data class GoToMovie(val id: Int) : HomeEvent
     data class GoToPeople(val id: Int) : HomeEvent
     data class GoToTv(val id: Int) : HomeEvent
@@ -211,12 +222,17 @@ sealed interface HomeEvent {
     data class UpdateTrendingTvTimeWindow(val timeWindow: TimeWindow) : HomeEvent
 }
 
+data class HomeState(
+    val homeStatus: HomeStatus,
+    val eventSink: (HomeEvent) -> Unit
+) : CircuitUiState
+
 enum class TimeWindow(val label: String) {
     DAY(label = "day"), WEEK(label = "week")
 }
 
-sealed interface HomeState : CircuitUiState {
-    data object Loading : HomeState
-    data class Success(val homeUiState: HomeUiState) : HomeState
-    data class Error(val throwable: Throwable) : HomeState
+sealed interface HomeStatus {
+    object Loading : HomeStatus
+    data class Success(val homeUiState: HomeUiState) : HomeStatus
+    data class Error(val throwable: Throwable) : HomeStatus
 }

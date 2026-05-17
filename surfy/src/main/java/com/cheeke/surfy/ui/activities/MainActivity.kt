@@ -38,9 +38,11 @@ import com.cheeke.surfy.deeplink.DeepLinkManager
 import com.cheeke.surfy.factory.SurfyPresenterFactory
 import com.cheeke.surfy.factory.SurfyScreenFactory
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
-import com.cheeke.surfy.navigation.AppNavigatorImpl
-import com.cheeke.surfy.navigation.LocalAppNavigator
+import com.cheeke.surfy.navigation.LocalRootBackstack
+import com.cheeke.surfy.navigation.LocalRootNavigator
 import com.cheeke.surfy.navigation.RootScreen
+import com.cheeke.surfy.navigation.goToMovie
+import com.cheeke.surfy.navigation.goToTv
 import com.cheeke.surfy.ui.root.ReleaseMoviesDialog
 import com.cheeke.surfy.ui.theme.SurfyTheme
 import com.cheeke.surfy.utils.isSystemInDarkTheme
@@ -132,18 +134,15 @@ class MainActivity : ComponentActivity() {
                 .build()
             val rootBackStack = rememberSaveableBackStack(root = RootScreen)
             val rootNavigator = rememberCircuitNavigator(backStack = rootBackStack)
-            val appNavigator = remember {
-                AppNavigatorImpl(navigator = rootNavigator)
-            }
 
             CompositionLocalProvider(
                 LocalFirebaseLogHelper provides surfyFirebase,
                 LocalAnalyticsHelper provides analyticsHelper,
-                LocalAppNavigator provides appNavigator
+                LocalRootNavigator provides rootNavigator,
+                LocalRootBackstack provides rootBackStack
             ) {
                 LocalFirebaseLogHelper.current.sendLog(name = javaClass.simpleName, message = "compose start!")
 
-                val navigator = LocalAppNavigator.current
                 val nextWeekReleaseDialogItems by viewModel.nextWeekReleaseMedias.collectAsStateWithLifecycle()
                 val shouldShowNextWeekReleaseDialog by viewModel.shouldShowNextWeekReleaseDialog.collectAsStateWithLifecycle()
 
@@ -162,8 +161,8 @@ class MainActivity : ComponentActivity() {
                             if (shouldShowNextWeekReleaseDialog) {
                                 ReleaseMoviesDialog(
                                     releaseMovies = nextWeekReleaseDialogItems,
-                                    goToMovie = { id -> navigator.goToMovie(id = id) },
-                                    goToTv = { id -> navigator.goToTv(id = id) },
+                                    goToMovie = { id -> rootNavigator.goToMovie(id = id) },
+                                    goToTv = { id -> rootNavigator.goToTv(id = id) },
                                     updateShowNextReleaseMoviesDate = viewModel::dontShowNextWeekReleaseDialogToday,
                                     dismissNextWeekReleaseDialog = viewModel::dismissNextWeekReleaseDialog
                                 )

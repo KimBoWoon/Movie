@@ -24,11 +24,13 @@ import com.cheeke.surfy.model.SimilarMedia
 import com.cheeke.surfy.model.Tv
 import com.cheeke.surfy.model.TvEpisode
 import com.cheeke.surfy.model.TvSeason
-import com.cheeke.surfy.navigation.LocalAppNavigator
 import com.cheeke.surfy.navigation.TvScreen
+import com.cheeke.surfy.navigation.goToPeople
+import com.cheeke.surfy.navigation.goToTv
 import com.slack.circuit.codegen.annotations.CircuitInject
 import com.slack.circuit.retained.rememberRetained
 import com.slack.circuit.runtime.CircuitUiState
+import com.slack.circuit.runtime.Navigator
 import com.slack.circuit.runtime.presenter.Presenter
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -168,12 +170,12 @@ class TvRepository @AssistedInject constructor(
 }
 
 class TvPresenter @AssistedInject constructor(
-    @Assisted(value = "screen") private val screen: TvScreen,
+    @Assisted private val screen: TvScreen,
+    @Assisted private val navigator: Navigator,
     private val seriesRepositoryFactory: TvRepository.Factory
 ) : Presenter<TvUiState> {
     @Composable
     override fun present(): TvUiState {
-        val navigator = LocalAppNavigator.current
         val seriesRepository = rememberRetained(screen.id) {
             seriesRepositoryFactory.create(id = screen.id)
         }
@@ -186,12 +188,12 @@ class TvPresenter @AssistedInject constructor(
             similarTvs = similarTvs,
             selectedEpisode = selectedEpisode
         ) { event ->
-            Log.d("HomePresenter", "$event")
+            Log.d("TvPresenter", "$event")
             when (event) {
-                is TvEvent.GoToTv -> navigator.goToTv(event.id)
-                is TvEvent.GoToPeople -> navigator.goToPeople(event.id)
+                is TvEvent.GoToTv -> navigator.goToTv(id = event.id)
+                is TvEvent.GoToPeople -> navigator.goToPeople(id = event.id)
                 is TvEvent.Restart -> seriesRepository.restart()
-                is TvEvent.GoToBack -> navigator.back()
+                is TvEvent.GoToBack -> navigator.pop()
                 is TvEvent.InsertTv -> seriesRepository.insertTv(tv = event.tv)
                 is TvEvent.DeleteTv -> seriesRepository.deleteTv(tv = event.tv)
                 is TvEvent.ShowEpisodeDetail -> seriesRepository.showEpisodeDetail(episode = event.episode)
@@ -205,7 +207,8 @@ class TvPresenter @AssistedInject constructor(
     @AssistedFactory
     interface Factory {
         fun create(
-            @Assisted(value = "screen") screen: TvScreen
+            screen: TvScreen,
+            navigator: Navigator
         ): TvPresenter
     }
 }

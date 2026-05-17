@@ -21,11 +21,15 @@ import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.model.SearchKeyword
 import com.cheeke.surfy.model.SearchType
 import com.cheeke.surfy.model.SurfyAppData
-import com.cheeke.surfy.navigation.LocalAppNavigator
 import com.cheeke.surfy.navigation.SearchScreen
+import com.cheeke.surfy.navigation.goToMovie
+import com.cheeke.surfy.navigation.goToPeople
+import com.cheeke.surfy.navigation.goToSeries
+import com.cheeke.surfy.navigation.goToTv
 import com.slack.circuit.codegen.annotations.CircuitInject
 import com.slack.circuit.retained.rememberRetained
 import com.slack.circuit.runtime.CircuitUiState
+import com.slack.circuit.runtime.Navigator
 import com.slack.circuit.runtime.presenter.Presenter
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -186,12 +190,12 @@ class SearchRepository @AssistedInject constructor(
 
 class SearchPresenter @AssistedInject constructor(
     @Assisted private val screen: SearchScreen,
+    @Assisted private val navigator: Navigator,
     private val searchRepositoryFactory: SearchRepository.Factory,
     private val analyticsHelper: AnalyticsHelper
 ) : Presenter<SearchUiState> {
     @Composable
     override fun present(): SearchUiState {
-        val navigator = LocalAppNavigator.current
         val searchRepository = rememberRetained(screen) {
             searchRepositoryFactory.create(initialQuery = screen.query, initialSearchType = screen.searchType, genre = null)
         }
@@ -216,7 +220,6 @@ class SearchPresenter @AssistedInject constructor(
                 is SearchEvent.UpdateGenre -> searchRepository.updateGenre(genre = event.genre)
                 is SearchEvent.ClearQuery -> {
                     searchRepository.updateQuery(value = TextFieldValue(text = ""))
-//                    searchStateFlow.value = SearchState.SearchHint
                 }
                 is SearchEvent.ClickRecommendKeyword -> {
                     searchRepository.updateQuery(value = TextFieldValue(text = event.keyword))
@@ -227,10 +230,10 @@ class SearchPresenter @AssistedInject constructor(
                     analyticsHelper.logSearch(searchType = searchType.label, query = query.text)
                     searchRepository.search()
                 }
-                is SearchEvent.GoToMovie -> navigator.goToMovie(event.id)
-                is SearchEvent.GoToPeople -> navigator.goToPeople(event.id)
-                is SearchEvent.GoToTv -> navigator.goToTv(event.id)
-                is SearchEvent.GoToSeries -> navigator.goToSeries(event.id)
+                is SearchEvent.GoToMovie -> navigator.goToMovie(id = event.id)
+                is SearchEvent.GoToPeople -> navigator.goToPeople(id = event.id)
+                is SearchEvent.GoToTv -> navigator.goToTv(id = event.id)
+                is SearchEvent.GoToSeries -> navigator.goToSeries(id = event.id)
             }
         }
     }
@@ -239,7 +242,8 @@ class SearchPresenter @AssistedInject constructor(
     @AssistedFactory
     interface Factory {
         fun create(
-            @Assisted screen: SearchScreen
+            screen: SearchScreen,
+            navigator: Navigator
         ): SearchPresenter
     }
 }

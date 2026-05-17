@@ -14,7 +14,7 @@ import com.cheeke.surfy.detail.tv.TvScreen
 import com.cheeke.surfy.detail.tv.TvUiState
 import com.cheeke.surfy.favorite.FavoritePresenter
 import com.cheeke.surfy.favorite.FavoriteScreen
-import com.cheeke.surfy.favorite.FavoriteUiState
+import com.cheeke.surfy.favorite.FavoriteState
 import com.cheeke.surfy.home.HomePresenter
 import com.cheeke.surfy.home.HomeScreen
 import com.cheeke.surfy.home.HomeState
@@ -25,14 +25,10 @@ import com.cheeke.surfy.navigation.PeopleScreen
 import com.cheeke.surfy.navigation.RootScreen
 import com.cheeke.surfy.navigation.SearchScreen
 import com.cheeke.surfy.navigation.SeriesScreen
-import com.cheeke.surfy.navigation.SettingScreen
 import com.cheeke.surfy.navigation.TvScreen
 import com.cheeke.surfy.search.SearchPresenter
 import com.cheeke.surfy.search.SearchScreen
 import com.cheeke.surfy.search.SearchUiState
-import com.cheeke.surfy.setting.SettingPresenter
-import com.cheeke.surfy.setting.SettingScreen
-import com.cheeke.surfy.setting.SettingsUiState
 import com.cheeke.surfy.ui.root.RootPresenter
 import com.cheeke.surfy.ui.root.RootScreen
 import com.cheeke.surfy.ui.root.RootState
@@ -50,9 +46,8 @@ class SurfyScreenFactory @Inject constructor(
     override fun create(screen: Screen, context: CircuitContext): Ui<*>? = when (screen) {
         is RootScreen -> ui<RootState> { state, modifier -> RootScreen(modifier = modifier, rootState = state) }
         is HomeScreen -> ui<HomeState> { state, modifier -> HomeScreen(modifier = modifier, homeState = state) }
-        is SettingScreen -> ui<SettingsUiState> { state, modifier -> SettingScreen(modifier = modifier, settingUiState = state) }
         is SearchScreen -> ui<SearchUiState> { state, modifier -> SearchScreen(modifier = modifier, searchUiState = state) }
-        is FavoriteScreen -> ui<FavoriteUiState> { state, modifier -> FavoriteScreen(modifier = modifier, favoriteUiState = state) }
+        is FavoriteScreen -> ui<FavoriteState> { state, modifier -> FavoriteScreen(modifier = modifier, favoriteState = state) }
         is MovieScreen -> ui<MovieUiState> { state, modifier -> MovieScreen(modifier = modifier, movieUiState = state) }
         is PeopleScreen -> ui<PeopleUiState> { state, modifier -> PeopleScreen(modifier = modifier, peopleUiState = state) }
         is SeriesScreen -> ui<SeriesUiState> { state, modifier -> SeriesScreen(modifier = modifier, seriesUiState = state) }
@@ -64,7 +59,6 @@ class SurfyScreenFactory @Inject constructor(
 class SurfyPresenterFactory @Inject constructor(
     private val rootPresenterFactory: RootPresenter.Factory,
     private val homePresenterFactory: HomePresenter.Factory,
-    private val settingPresenterFactory: SettingPresenter.Factory,
     private val searchPresenterFactory: SearchPresenter.Factory,
     private val favoritePresenterFactory: FavoritePresenter.Factory,
     private val moviePresenterFactory: MoviePresenter.Factory,
@@ -79,13 +73,12 @@ class SurfyPresenterFactory @Inject constructor(
     ): Presenter<*>? = when (screen) {
         is RootScreen -> rootPresenterFactory.create()
         is HomeScreen -> homePresenterFactory.create()
-        is SettingScreen -> settingPresenterFactory.create()
-        is SearchScreen -> searchPresenterFactory.create(screen = screen)
+        is SearchScreen -> searchPresenterFactory.create(screen = screen, navigator = navigator)
         is FavoriteScreen -> favoritePresenterFactory.create(screen = screen)
-        is MovieScreen -> moviePresenterFactory.create(screen = screen)
-        is PeopleScreen -> peoplePresenterFactory.create(screen = screen)
-        is SeriesScreen -> seriesPresenterFactory.create(screen = screen)
-        is TvScreen -> tvPresenterFactory.create(screen = screen)
+        is MovieScreen -> moviePresenterFactory.create(screen = screen, navigator = navigator)
+        is PeopleScreen -> peoplePresenterFactory.create(screen = screen, navigator = navigator)
+        is SeriesScreen -> seriesPresenterFactory.create(screen = screen, navigator = navigator)
+        is TvScreen -> tvPresenterFactory.create(screen = screen, navigator = navigator)
         else -> null
     }
 }

@@ -13,11 +13,12 @@ import com.cheeke.surfy.common.di.ActivityRetainedScopeCoroutine
 import com.cheeke.surfy.domain.GetSeriesDetailUseCase
 import com.cheeke.surfy.model.ImageList
 import com.cheeke.surfy.model.Series
-import com.cheeke.surfy.navigation.LocalAppNavigator
 import com.cheeke.surfy.navigation.SeriesScreen
+import com.cheeke.surfy.navigation.goToMovie
 import com.slack.circuit.codegen.annotations.CircuitInject
 import com.slack.circuit.retained.rememberRetained
 import com.slack.circuit.runtime.CircuitUiState
+import com.slack.circuit.runtime.Navigator
 import com.slack.circuit.runtime.presenter.Presenter
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -80,12 +81,12 @@ class SeriesRepository @AssistedInject constructor(
 }
 
 class SeriesPresenter @AssistedInject constructor(
-    @Assisted(value = "screen") private val screen: SeriesScreen,
+    @Assisted private val screen: SeriesScreen,
+    @Assisted private val navigator: Navigator,
     private val seriesRepositoryFactory: SeriesRepository.Factory
 ) : Presenter<SeriesUiState> {
     @Composable
     override fun present(): SeriesUiState {
-        val navigator = LocalAppNavigator.current
         val seriesRepository = rememberRetained(screen.id) {
             seriesRepositoryFactory.create(id = screen.id)
         }
@@ -94,11 +95,11 @@ class SeriesPresenter @AssistedInject constructor(
         return SeriesUiState(
             series = seriesState,
         ) { event ->
-            Log.d("HomePresenter", "$event")
+            Log.d("SeriesPresenter", "$event")
             when (event) {
-                is SeriesEvent.GoToMovie -> navigator.goToMovie(event.id)
+                is SeriesEvent.GoToMovie -> navigator.goToMovie(id = event.id)
                 is SeriesEvent.Restart -> seriesRepository.restart()
-                is SeriesEvent.GoToBack -> navigator.back()
+                is SeriesEvent.GoToBack -> navigator.pop()
             }
         }
     }
@@ -107,7 +108,8 @@ class SeriesPresenter @AssistedInject constructor(
     @AssistedFactory
     interface Factory {
         fun create(
-            @Assisted(value = "screen") screen: SeriesScreen
+            screen: SeriesScreen,
+            navigator: Navigator
         ): SeriesPresenter
     }
 }

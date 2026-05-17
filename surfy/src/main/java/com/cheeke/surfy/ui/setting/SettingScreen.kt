@@ -1,4 +1,4 @@
-package com.cheeke.surfy.setting
+package com.cheeke.surfy.ui.setting
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -42,11 +42,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
+import com.cheeke.surfy.R
 import com.cheeke.surfy.analytics.TrackScreenViewEvent
 import com.cheeke.surfy.common.getVersionName
-import com.cheeke.surfy.feature.setting.R
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
-import com.cheeke.surfy.navigation.SettingScreen
 import com.cheeke.surfy.ui.utils.dp1
 import com.cheeke.surfy.ui.utils.dp10
 import com.cheeke.surfy.ui.utils.dp12
@@ -63,14 +62,12 @@ import com.cheeke.surfy.ui.utils.dp560
 import com.cheeke.surfy.ui.utils.dp8
 import com.cheeke.surfy.ui.utils.dp84
 import com.cheeke.surfy.ui.utils.dp999
-import com.slack.circuit.codegen.annotations.CircuitInject
-import dagger.hilt.android.components.ActivityRetainedComponent
 
-@CircuitInject(screen = SettingScreen::class, scope = ActivityRetainedComponent::class)
 @Composable
 fun SettingScreen(
-    modifier: Modifier,
-    settingUiState: SettingsUiState
+    settingUiState: SettingsUiState,
+    onAction: (SettingsAction) -> Unit,
+    onSettingTitleClick: () -> Unit
 ) {
     LocalFirebaseLogHelper.current.sendLog("SettingScreen", "init screen")
     TrackScreenViewEvent(screenName = "SettingScreen")
@@ -78,8 +75,8 @@ fun SettingScreen(
     SettingScreen(
         state = settingUiState,
         isCheatActive = settingUiState.isCheatActive ?: false,
-        onAction = { settingUiState.eventSink(SettingEvent.OnAction(action = it)) },
-        onClickTitle = { settingUiState.eventSink(SettingEvent.OnClickTitle) }
+        onAction = onAction,
+        onClickTitle = onSettingTitleClick
     )
 }
 

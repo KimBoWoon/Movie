@@ -106,11 +106,13 @@ fun HomeScreen(
     LocalFirebaseLogHelper.current.sendLog("HomeScreen", "init screen")
     TrackScreenViewEvent(screenName = "HomeScreen")
 
+    val homeStatus = homeState.homeStatus
+
     Box(
         modifier = modifier.fillMaxSize()
     ) {
-        when (homeState) {
-            is HomeState.Loading -> {
+        when (homeStatus) {
+            is HomeStatus.Loading -> {
                 Log.d("loading...")
                 LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data loading...")
 
@@ -120,34 +122,34 @@ fun HomeScreen(
                         .align(Alignment.Center)
                 )
             }
-            is HomeState.Success -> {
+            is HomeStatus.Success -> {
                 LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data load success")
                 Log.d("$homeState")
 
                 HomeComponent(
-                    popularMovies = homeState.homeUiState.popularMovies,
-                    nowPlayingMovies = homeState.homeUiState.nowPlayingMovies,
-                    upComingMovies = homeState.homeUiState.upComingMovies,
-                    trendingMovie = homeState.homeUiState.trendingMoviePaging,
-                    trendingMovieTimeWindow = homeState.homeUiState.trendingMovieTimeWindow,
-                    updateTrendingMovieTimeWindow = { homeState.homeUiState.eventSink(HomeEvent.UpdateTrendingMovieTimeWindow(timeWindow = it)) },
-                    trendingPeople = homeState.homeUiState.trendingPeoplePaging,
-                    trendingPeopleTimeWindow = homeState.homeUiState.trendingPeopleTimeWindow,
-                    updateTrendingPeopleTimeWindow = { homeState.homeUiState.eventSink(HomeEvent.UpdateTrendingPeopleTimeWindow(timeWindow = it)) },
-                    trendingTv = homeState.homeUiState.trendingTvPaging,
-                    trendingTvTimeWindow = homeState.homeUiState.trendingTvTimeWindow,
-                    updateTrendingTvTimeWindow = { homeState.homeUiState.eventSink(HomeEvent.UpdateTrendingTvTimeWindow(timeWindow = it)) },
-                    goToMovie = { homeState.homeUiState.eventSink(HomeEvent.GoToMovie(id = it)) },
-                    goToPeople = { homeState.homeUiState.eventSink(HomeEvent.GoToPeople(id = it)) },
-                    goToTv = { homeState.homeUiState.eventSink(HomeEvent.GoToTv(id = it)) }
+                    popularMovies = homeStatus.homeUiState.popularMovies,
+                    nowPlayingMovies = homeStatus.homeUiState.nowPlayingMovies,
+                    upComingMovies = homeStatus.homeUiState.upComingMovies,
+                    trendingMovie = homeStatus.homeUiState.trendingMoviePaging,
+                    trendingMovieTimeWindow = homeStatus.homeUiState.trendingMovieTimeWindow,
+                    updateTrendingMovieTimeWindow = { homeState.eventSink(HomeEvent.UpdateTrendingMovieTimeWindow(timeWindow = it)) },
+                    trendingPeople = homeStatus.homeUiState.trendingPeoplePaging,
+                    trendingPeopleTimeWindow = homeStatus.homeUiState.trendingPeopleTimeWindow,
+                    updateTrendingPeopleTimeWindow = { homeState.eventSink(HomeEvent.UpdateTrendingPeopleTimeWindow(timeWindow = it)) },
+                    trendingTv = homeStatus.homeUiState.trendingTvPaging,
+                    trendingTvTimeWindow = homeStatus.homeUiState.trendingTvTimeWindow,
+                    updateTrendingTvTimeWindow = { homeState.eventSink(HomeEvent.UpdateTrendingTvTimeWindow(timeWindow = it)) },
+                    goToMovie = { homeState.eventSink(HomeEvent.GoToMovie(id = it)) },
+                    goToPeople = { homeState.eventSink(HomeEvent.GoToPeople(id = it)) },
+                    goToTv = { homeState.eventSink(HomeEvent.GoToTv(id = it)) }
                 )
             }
-            is HomeState.Error -> {
-                LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data load Error > ${homeState.throwable.message}")
-                Log.e("${homeState.throwable.message}")
+            is HomeStatus.Error -> {
+                LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data load Error > ${homeStatus.throwable.message}")
+                Log.e("${homeStatus.throwable.message}")
                 Text(
                     modifier = Modifier.fillMaxSize(),
-                    text = homeState.throwable.message ?: stringResource(id = com.cheeke.surfy.core.network.R.string.something_wrong)
+                    text = homeStatus.throwable.message ?: stringResource(id = com.cheeke.surfy.core.network.R.string.something_wrong)
                 )
             }
         }

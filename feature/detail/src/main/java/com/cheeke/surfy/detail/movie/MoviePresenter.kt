@@ -22,11 +22,14 @@ import com.cheeke.surfy.domain.GetMovieDetailUseCase
 import com.cheeke.surfy.domain.MovieWithFavorite
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.SimilarMedia
-import com.cheeke.surfy.navigation.LocalAppNavigator
 import com.cheeke.surfy.navigation.MovieScreen
+import com.cheeke.surfy.navigation.goToMovie
+import com.cheeke.surfy.navigation.goToPeople
+import com.cheeke.surfy.navigation.goToSeries
 import com.slack.circuit.codegen.annotations.CircuitInject
 import com.slack.circuit.retained.rememberRetained
 import com.slack.circuit.runtime.CircuitUiState
+import com.slack.circuit.runtime.Navigator
 import com.slack.circuit.runtime.presenter.Presenter
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -144,12 +147,12 @@ class MovieRepository @AssistedInject constructor(
 }
 
 class MoviePresenter @AssistedInject constructor(
-    @Assisted(value = "screen") private val screen: MovieScreen,
+    @Assisted private val screen: MovieScreen,
+    @Assisted private val navigator: Navigator,
     private val movieRepositoryFactory: MovieRepository.Factory
 ) : Presenter<MovieUiState> {
     @Composable
     override fun present(): MovieUiState {
-        val navigator = LocalAppNavigator.current
         val movieRepository = rememberRetained(screen.id) {
             movieRepositoryFactory.create(screen.id)
         }
@@ -165,12 +168,12 @@ class MoviePresenter @AssistedInject constructor(
             Log.d("MoviePresenter", "$event")
             when (event) {
                 is MovieEvent.DeleteFavoriteMovie -> movieRepository.deleteMovie(movie = event.movie)
-                is MovieEvent.GoToMovie -> navigator.goToMovie(event.id)
-                is MovieEvent.GoToPeople -> navigator.goToPeople(event.id)
+                is MovieEvent.GoToMovie -> navigator.goToMovie(id = event.id)
+                is MovieEvent.GoToPeople -> navigator.goToPeople(id = event.id)
                 is MovieEvent.InsertFavoriteMovie -> movieRepository.insertMovie(movie = event.movie)
                 is MovieEvent.Restart -> movieRepository.restart()
-                is MovieEvent.GoToBack -> navigator.back()
-                is MovieEvent.GoToSeries -> navigator.goToSeries(event.id)
+                is MovieEvent.GoToBack -> navigator.pop()
+                is MovieEvent.GoToSeries -> navigator.goToSeries(id = event.id)
             }
         }
     }
@@ -179,7 +182,8 @@ class MoviePresenter @AssistedInject constructor(
     @AssistedFactory
     interface Factory {
         fun create(
-            @Assisted(value = "screen") screen: MovieScreen
+            screen: MovieScreen,
+            navigator: Navigator
         ): MoviePresenter
     }
 }
