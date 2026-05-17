@@ -74,7 +74,7 @@ class SurfyPresenterFactory @Inject constructor(
         is RootScreen -> rootPresenterFactory.create()
         is HomeScreen -> homePresenterFactory.create()
         is SearchScreen -> searchPresenterFactory.create(screen = screen, navigator = navigator)
-        is FavoriteScreen -> favoritePresenterFactory.create(screen = screen)
+        is FavoriteScreen -> favoritePresenterFactory.create()
         is MovieScreen -> moviePresenterFactory.create(screen = screen, navigator = navigator)
         is PeopleScreen -> peoplePresenterFactory.create(screen = screen, navigator = navigator)
         is SeriesScreen -> seriesPresenterFactory.create(screen = screen, navigator = navigator)

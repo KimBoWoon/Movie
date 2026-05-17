@@ -32,7 +32,6 @@ import com.slack.circuit.codegen.annotations.CircuitInject
 import com.slack.circuit.runtime.CircuitUiEvent
 import com.slack.circuit.runtime.CircuitUiState
 import com.slack.circuit.runtime.presenter.Presenter
-import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.components.ActivityRetainedComponent
@@ -100,13 +99,12 @@ class FavoriteRepository @Inject constructor(
 }
 
 class FavoritePresenter @AssistedInject constructor(
-    @Assisted private val screen: FavoriteScreen,
     private val favoriteRepository: FavoriteRepository
 ) : Presenter<FavoriteState> {
     @Composable
     override fun present(): FavoriteState {
         val rootNavigator = LocalRootNavigator.current
-        val tabIndex by favoriteRepository.tabIndex.collectAsStateWithLifecycle(initialValue = screen.index)
+        val tabIndex by favoriteRepository.tabIndex.collectAsStateWithLifecycle()
         val favoriteMap = FavoriteTab.entries.associateWith { favoriteTab ->
             when (favoriteTab) {
                 FavoriteTab.MOVIE -> favoriteRepository.favoriteMovies.collectAsLazyPagingItems()
@@ -148,7 +146,7 @@ class FavoritePresenter @AssistedInject constructor(
     @CircuitInject(screen = FavoriteScreen::class, scope = ActivityRetainedComponent::class)
     @AssistedFactory
     interface Factory {
-        fun create(screen: FavoriteScreen): FavoritePresenter
+        fun create(): FavoritePresenter
     }
 }
 
