@@ -66,7 +66,6 @@ import com.cheeke.surfy.ui.MovieNavigationDefaults
 import com.cheeke.surfy.ui.dialog.Indexer
 import com.cheeke.surfy.ui.image.DynamicAsyncImageLoader
 import com.cheeke.surfy.ui.setting.SettingScreen
-import com.cheeke.surfy.ui.setting.SettingsSheet
 import com.cheeke.surfy.ui.utils.Line
 import com.cheeke.surfy.ui.utils.border
 import com.cheeke.surfy.ui.utils.bounceClick
@@ -98,10 +97,6 @@ fun RootScreen(
     val retainedStateHolder = rememberRetainedStateHolder()
     var selectedTab by rememberRetained { mutableStateOf(value = RootTab.HOME) }
     val bottomDeeplink by rootUiState.bottomDeeplink.collectAsStateWithLifecycle(initialValue = emptyList())
-//    val homeBackstack = rememberSaveableBackStack(root = HomeScreen)
-//    val homeNavigator = rememberCircuitNavigator(homeBackstack)
-//    val favoriteBackstack = rememberSaveableBackStack(root = FavoriteScreen())
-//    val favoriteNavigator = rememberCircuitNavigator(favoriteBackstack)
 
     LaunchedEffect(key1 = bottomDeeplink) {
         if (bottomDeeplink.isEmpty()) return@LaunchedEffect
@@ -133,20 +128,6 @@ fun RootScreen(
             )
         }
     ) { paddingValues ->
-//        retainedStateHolder.RetainedStateProvider(key = selectedTab.name) {
-//            when (selectedTab) {
-//                RootTab.HOME -> NavigableCircuitContent(
-//                    modifier = Modifier.padding(paddingValues = paddingValues),
-//                    backStack = homeBackstack,
-//                    navigator = homeNavigator
-//                )
-//                RootTab.FAVORITE -> NavigableCircuitContent(
-//                    modifier = Modifier.padding(paddingValues = paddingValues),
-//                    backStack = favoriteBackstack,
-//                    navigator = favoriteNavigator
-//                )
-//            }
-//        }
         retainedStateHolder.RetainedStateProvider(key = selectedTab.name) {
             when (selectedTab) {
                 RootTab.HOME -> CircuitContent(
@@ -161,13 +142,11 @@ fun RootScreen(
         }
     }
 
-    if (rootUiState.settingsUiState.sheet != SettingsSheet.Hidden) {
-        SettingScreen(
-            settingUiState = rootUiState.settingsUiState,
-            onAction = { action -> rootState.eventSink(RootEvent.OnSettingsAction(action = action)) },
-            onSettingTitleClick = { rootState.eventSink(RootEvent.OnSettingTitleClick) }
-        )
-    }
+    SettingScreen(
+        settingUiState = rootUiState.settingsUiState,
+        onAction = { action -> rootState.eventSink(RootEvent.OnSettingsAction(action = action)) },
+        onSettingTitleClick = { rootState.eventSink(RootEvent.OnSettingTitleClick) }
+    )
 
     BackHandler(enabled = selectedTab != RootTab.HOME) {
         selectedTab = RootTab.HOME

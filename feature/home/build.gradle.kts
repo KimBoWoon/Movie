@@ -20,7 +20,6 @@ dependencies {
         project(":core:navigation"),
         project(":core:analytics"),
         libs.coil.compose,
-        libs.androidx.navigation3.runtime,
         libs.androidx.compose.hilt.navigation,
         libs.androidx.compose.paging
     ).forEach {
