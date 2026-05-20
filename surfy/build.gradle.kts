@@ -23,8 +23,6 @@ dependencies {
         project(":feature:search"),
         project(":feature:favorite"),
         libs.coil.compose,
-        libs.androidx.compose.material3.navigationSuite,
-        libs.androidx.compose.material3.adaptive.navigation3,
         libs.androidx.work.ktx,
         libs.androidx.splash,
         libs.androidx.startup,
