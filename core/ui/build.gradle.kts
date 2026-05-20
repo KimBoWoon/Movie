@@ -16,7 +16,6 @@ dependencies {
         project(":core:analytics"),
         libs.androidx.compose.material3,
         libs.androidx.compose.material3.adaptive,
-        libs.androidx.compose.material3.navigationSuite,
         libs.androidx.compose.material3.icons,
         libs.coil.okhttp,
         libs.coil.compose,
