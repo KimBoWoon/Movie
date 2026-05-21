@@ -22,7 +22,6 @@ import com.cheeke.surfy.data.repository.MovieDataBaseRepository
 import com.cheeke.surfy.data.repository.PagingRepository
 import com.cheeke.surfy.data.repository.UserDataRepository
 import com.cheeke.surfy.domain.GetMovieDetailUseCase
-import com.cheeke.surfy.domain.MovieWithFavorite
 import com.cheeke.surfy.feature.detail.R
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.SimilarMedia
@@ -45,6 +44,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
@@ -78,23 +78,35 @@ class MovieRepository @AssistedInject constructor(
         )
     private val reload = MutableSharedFlow<Unit>(replay = 1)
     @OptIn(ExperimentalCoroutinesApi::class)
-    val movieState = reload
-        .flatMapLatest {
+    val movieState = combine(
+        reload.flatMapLatest {
             trace(sectionName = "GetMovieDetail") { getMovieDetail(id = id) }.asResult()
-        }.map { result ->
-            when (result) {
-                is Result.Loading -> MovieStatus.Loading
-                is Result.Success -> {
-                    analyticsHelper.logSelectContent(contentType = "movie", media = result.data.movie)
-                    MovieStatus.Success(movie = result.data, isCheatActive = isCheatActive.value)
-                }
-                is Result.Error -> MovieStatus.Error(throwable = result.throwable)
+        },
+        movieDataBaseRepository.isFavorite(id = id),
+        userDataRepository.internalData
+    ) { movie, isFavorite, internalData ->
+        Triple(movie, isFavorite, internalData.isAutoPlayTrailer)
+    }.map { (result, isFavorite, isAutoPlayTrailer) ->
+        when (result) {
+            is Result.Loading -> MovieStatus.Loading
+            is Result.Success -> {
+                analyticsHelper.logSelectContent(contentType = "movie", media = result.data)
+                MovieStatus.Success(
+                    movie = MovieUiState(
+                        movie = result.data,
+                        isFavorite = isFavorite,
+                        autoPlayTrailer = isAutoPlayTrailer
+                    ),
+                    isCheatActive = isCheatActive.value
+                )
             }
-        }.stateIn(
-            scope = scope,
-            initialValue = MovieStatus.Loading,
-            started = SharingStarted.Lazily
-        )
+            is Result.Error -> MovieStatus.Error(throwable = result.throwable)
+        }
+    }.stateIn(
+        scope = scope,
+        initialValue = MovieStatus.Loading,
+        started = SharingStarted.Lazily
+    )
     @OptIn(ExperimentalCoroutinesApi::class)
     val similarMovies = userDataRepository.internalData
         .map { it.language to it.region }
@@ -207,6 +219,12 @@ class MoviePresenter @AssistedInject constructor(
     }
 }
 
+data class MovieUiState(
+    val movie: Movie,
+    val isFavorite: Boolean,
+    val autoPlayTrailer: Boolean,
+)
+
 data class MovieState(
     val movie: MovieStatus,
     val similarMovies: LazyPagingItems<SimilarMedia>,
@@ -232,6 +250,6 @@ sealed interface MovieEffect {
 
 sealed interface MovieStatus {
     data object Loading : MovieStatus
-    data class Success(val movie: MovieWithFavorite, val isCheatActive: Boolean) : MovieStatus
+    data class Success(val movie: MovieUiState, val isCheatActive: Boolean) : MovieStatus
     data class Error(val throwable: Throwable) : MovieStatus
 }

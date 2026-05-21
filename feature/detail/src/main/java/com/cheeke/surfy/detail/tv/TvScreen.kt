@@ -67,7 +67,6 @@ import com.cheeke.surfy.analytics.logSelectEpisode
 import com.cheeke.surfy.analytics.logSelectSeason
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.detail.movie.AlternativeTitleComponent
-import com.cheeke.surfy.detail.people.PeopleEffect
 import com.cheeke.surfy.domain.TvSeasonLoadState
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
 import com.cheeke.surfy.model.Cast
@@ -124,7 +123,7 @@ fun TvScreen(
     LaunchedEffect(key1 = tvState.effect) {
         tvState.effect.collect { effect ->
             when (effect) {
-                is PeopleEffect.ShowSnackbar -> {
+                is TvEffect.ShowSnackbar -> {
                     snackbarHostState.showSnackbar(message = effect.message)
                 }
             }

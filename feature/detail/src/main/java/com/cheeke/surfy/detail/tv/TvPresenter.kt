@@ -21,7 +21,6 @@ import com.cheeke.surfy.common.di.ActivityRetainedScopeCoroutine
 import com.cheeke.surfy.data.repository.PagingRepository
 import com.cheeke.surfy.data.repository.TvDataBaseRepository
 import com.cheeke.surfy.data.repository.UserDataRepository
-import com.cheeke.surfy.detail.people.PeopleEffect
 import com.cheeke.surfy.domain.GetTvDetailUseCase
 import com.cheeke.surfy.domain.TvSeasonLoadState
 import com.cheeke.surfy.feature.detail.R
@@ -84,7 +83,9 @@ class TvRepository @AssistedInject constructor(
     val tv = combine(
         tvData,
         selectedSeason,
-    ) { twf, selectedSeason/*, seasonMap, episodeState*/ ->
+        tvDataBaseRepository.isFavorite(id = id),
+        userDataRepository.internalData
+    ) { twf, selectedSeason, isFavorite, internalData/*, seasonMap, episodeState*/ ->
         val tv = twf.tv
         val seasons = tv.seasons
         val initialSeason = selectedSeason ?: seasons?.sortedBy { it.seasonNumber }?.firstOrNull()
@@ -98,8 +99,8 @@ class TvRepository @AssistedInject constructor(
             seasons = seasons.orEmpty(),
             episodeState = twf.seasonLoadState,
             episodesBySeason = twf.episodesBySeason,
-            isFavorite = twf.isFavorite,
-            autoPlayTrailer = twf.autoPlayTrailer
+            isFavorite = isFavorite,
+            autoPlayTrailer = internalData.isAutoPlayTrailer
         )
     }.asResult()
         .map { result ->
@@ -183,7 +184,7 @@ class TvPresenter @AssistedInject constructor(
 ) : Presenter<TvState> {
     @Composable
     override fun present(): TvState {
-        val effectFlow = remember { MutableSharedFlow<PeopleEffect>() }
+        val effectFlow = remember { MutableSharedFlow<TvEffect>() }
         val scope = rememberCoroutineScope()
         val tvRepository = rememberRetained(screen.id) {
             tvRepositoryFactory.create(id = screen.id)
@@ -209,13 +210,13 @@ class TvPresenter @AssistedInject constructor(
                 is TvEvent.InsertTv -> {
                     tvRepository.insertTv(tv = event.tv)
                     scope.launch {
-                        effectFlow.emit(value = PeopleEffect.ShowSnackbar(insertFavoriteMessage))
+                        effectFlow.emit(value = TvEffect.ShowSnackbar(insertFavoriteMessage))
                     }
                 }
                 is TvEvent.DeleteTv -> {
                     tvRepository.deleteTv(tv = event.tv)
                     scope.launch {
-                        effectFlow.emit(value = PeopleEffect.ShowSnackbar(deleteFavoriteMessage))
+                        effectFlow.emit(value = TvEffect.ShowSnackbar(deleteFavoriteMessage))
                     }
                 }
                 is TvEvent.ShowEpisodeDetail -> tvRepository.showEpisodeDetail(episode = event.episode)
@@ -248,7 +249,7 @@ data class TvState(
     val tv: TvStatus,
     val similarTvs: LazyPagingItems<SimilarMedia>,
     val selectedEpisode: TvEpisode?,
-    val effect: Flow<PeopleEffect>,
+    val effect: Flow<TvEffect>,
     val eventSink: (TvEvent) -> Unit
 ) : CircuitUiState
 

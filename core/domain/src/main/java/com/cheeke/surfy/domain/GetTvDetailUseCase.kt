@@ -2,9 +2,7 @@ package com.cheeke.surfy.domain
 
 import com.cheeke.surfy.common.Result
 import com.cheeke.surfy.common.asResult
-import com.cheeke.surfy.data.repository.TvDataBaseRepository
 import com.cheeke.surfy.data.repository.TvDetailRepository
-import com.cheeke.surfy.data.repository.UserDataRepository
 import com.cheeke.surfy.model.Tv
 import com.cheeke.surfy.model.TvEpisode
 import com.cheeke.surfy.model.TvSeason
@@ -19,9 +17,7 @@ import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 class GetTvDetailUseCase @Inject constructor(
-    private val tvDataBaseRepository: TvDataBaseRepository,
-    private val detailRepository: TvDetailRepository,
-    private val userDataRepository: UserDataRepository
+    private val detailRepository: TvDetailRepository
 ) {
     private val episodesCache = MutableStateFlow<Map<String, List<TvEpisode>>>(value = emptyMap())
 
@@ -29,7 +25,7 @@ class GetTvDetailUseCase @Inject constructor(
     operator fun invoke(
         id: Int,
         selectedSeason: Flow<TvSeason?> = flowOf(value = null)
-    ): Flow<TvScreenData> {
+    ): Flow<TvInfo> {
         val seasonState = selectedSeason
             .flatMapLatest { season ->
                 if (season == null) {
@@ -59,15 +55,11 @@ class GetTvDetailUseCase @Inject constructor(
 
         return combine(
             detailRepository.getData(id = id),
-            tvDataBaseRepository.isFavorite(id = id),
-            userDataRepository.internalData,
             episodesCache,
             seasonState
-        ) { tv, isFavorite, internalData, episodesBySeason, currentSeasonState ->
-            TvScreenData(
+        ) { tv, episodesBySeason, currentSeasonState ->
+            TvInfo(
                 tv = tv,
-                isFavorite = isFavorite,
-                autoPlayTrailer = internalData.isAutoPlayTrailer,
                 episodesBySeason = episodesBySeason,
                 seasonLoadState = currentSeasonState
             )
@@ -75,10 +67,8 @@ class GetTvDetailUseCase @Inject constructor(
     }
 }
 
-data class TvScreenData(
+data class TvInfo(
     val tv: Tv,
-    val isFavorite: Boolean,
-    val autoPlayTrailer: Boolean,
     val episodesBySeason: Map<String, List<TvEpisode>>,
     val seasonLoadState: TvSeasonLoadState
 )

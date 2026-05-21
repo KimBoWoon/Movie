@@ -50,7 +50,6 @@ import com.cheeke.surfy.analytics.TrackScreenViewEvent
 import com.cheeke.surfy.analytics.logFavorite
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.data.util.POSTER_IMAGE_RATIO
-import com.cheeke.surfy.domain.MovieWithFavorite
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
 import com.cheeke.surfy.model.AlternativeTitle
 import com.cheeke.surfy.model.Image
@@ -227,7 +226,7 @@ fun MovieScreen(
 
 @Composable
 fun MovieDetailComponent(
-    movieState: MovieWithFavorite,
+    movieState: MovieUiState,
     similarMovies: LazyPagingItems<SimilarMedia>,
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,

@@ -15,7 +15,6 @@ import com.cheeke.surfy.common.asResult
 import com.cheeke.surfy.common.di.ActivityRetainedScopeCoroutine
 import com.cheeke.surfy.data.repository.PeopleDataBaseRepository
 import com.cheeke.surfy.domain.GetPeopleDetailUseCase
-import com.cheeke.surfy.domain.PeopleWithFavorite
 import com.cheeke.surfy.feature.detail.R
 import com.cheeke.surfy.model.People
 import com.cheeke.surfy.navigation.PeopleScreen
@@ -36,6 +35,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -59,23 +59,27 @@ class PeopleRepository @AssistedInject constructor(
 
     private val reload = MutableSharedFlow<Unit>(replay = 1)
     @OptIn(ExperimentalCoroutinesApi::class)
-    val peopleState = reload
-        .flatMapLatest {
+    val peopleState = combine(
+        reload.flatMapLatest {
             trace(sectionName = "GetPeopleDetail") { getPeopleDetail(personId = id) }.asResult()
-        }.map { result ->
-            when (result) {
-                is Result.Loading -> PeopleStatus.Loading
-                is Result.Success -> {
-                    analyticsHelper.logSelectContent(contentType = "people", media = result.data.people)
-                    PeopleStatus.Success(people = result.data)
-                }
-                is Result.Error -> PeopleStatus.Error(result.throwable)
+        },
+        peopleDataBaseRepository.isFavorite(id = id)
+    ) { people, isFavorite ->
+        people to isFavorite
+    }.map { (result, isFavorite) ->
+        when (result) {
+            is Result.Loading -> PeopleStatus.Loading
+            is Result.Success -> {
+                analyticsHelper.logSelectContent(contentType = "people", media = result.data)
+                PeopleStatus.Success(people = PeopleUiState(people = result.data, isFavorite = isFavorite))
             }
-        }.stateIn(
-            scope = scope,
-            initialValue = PeopleStatus.Loading,
-            started = SharingStarted.Lazily
-        )
+            is Result.Error -> PeopleStatus.Error(result.throwable)
+        }
+    }.stateIn(
+        scope = scope,
+        initialValue = PeopleStatus.Loading,
+        started = SharingStarted.Lazily
+    )
 
     init {
         scope.launch {
@@ -154,6 +158,11 @@ class PeoplePresenter @AssistedInject constructor(
     }
 }
 
+data class PeopleUiState(
+    val people: People,
+    val isFavorite: Boolean
+)
+
 data class PeopleState(
     val people: PeopleStatus,
     val effect: Flow<PeopleEffect>,
@@ -177,6 +186,6 @@ sealed interface PeopleEffect {
 
 sealed interface PeopleStatus {
     data object Loading : PeopleStatus
-    data class Success(val people: PeopleWithFavorite) : PeopleStatus
+    data class Success(val people: PeopleUiState) : PeopleStatus
     data class Error(val throwable: Throwable) : PeopleStatus
 }

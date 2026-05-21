@@ -46,7 +46,6 @@ import com.cheeke.surfy.analytics.TrackScreenViewEvent
 import com.cheeke.surfy.analytics.logFavorite
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.data.util.POSTER_IMAGE_RATIO
-import com.cheeke.surfy.domain.PeopleWithFavorite
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
 import com.cheeke.surfy.model.Image
 import com.cheeke.surfy.model.Media
@@ -154,7 +153,7 @@ fun PeopleScreen(
 
 @Composable
 fun PeopleDetailComponent(
-    people: PeopleWithFavorite,
+    people: PeopleUiState,
     goToBack: () -> Unit,
     goToMovie: (Int) -> Unit,
     goToTv: (Int) -> Unit,
@@ -252,7 +251,7 @@ fun PeopleDetailComponent(
 
 @Composable
 fun ProfileComponent(
-    people: PeopleWithFavorite,
+    people: PeopleUiState,
     images: List<Image>,
     goToBack: () -> Unit,
     onFavorite: () -> Unit
