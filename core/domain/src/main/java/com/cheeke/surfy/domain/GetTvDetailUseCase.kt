@@ -1,11 +1,14 @@
 package com.cheeke.surfy.domain
 
+import android.content.Context
 import com.cheeke.surfy.common.Result
 import com.cheeke.surfy.common.asResult
+import com.cheeke.surfy.core.domain.R
 import com.cheeke.surfy.data.repository.TvDetailRepository
 import com.cheeke.surfy.model.Tv
 import com.cheeke.surfy.model.TvEpisode
 import com.cheeke.surfy.model.TvSeason
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,6 +20,7 @@ import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 class GetTvDetailUseCase @Inject constructor(
+    @ApplicationContext private val appContext: Context,
     private val detailRepository: TvDetailRepository
 ) {
     private val episodesCache = MutableStateFlow<Map<String, List<TvEpisode>>>(value = emptyMap())
@@ -39,14 +43,14 @@ class GetTvDetailUseCase @Inject constructor(
                             .asResult()
                             .map { result ->
                                 when (result) {
-                                    is Result.Loading -> TvSeasonLoadState.Loading(message = "${season.name}을 불러오고 있습니다.")
+                                    is Result.Loading -> TvSeasonLoadState.Loading(message = appContext.getString(R.string.tv_season_loading).format(season.name))
                                     is Result.Success -> {
                                         episodesCache.update {
                                             it + ((result.data.name ?: "") to (result.data.episodes ?: emptyList()))
                                         }
                                         TvSeasonLoadState.Idle
                                     }
-                                    is Result.Error -> TvSeasonLoadState.Error(message = "${season.name}을 불러오지 못했습니다.")
+                                    is Result.Error -> TvSeasonLoadState.Error(message = appContext.getString(R.string.tv_season_error).format(season.name))
                                 }
                             }
                     }
