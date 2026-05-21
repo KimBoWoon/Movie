@@ -28,6 +28,7 @@ import com.cheeke.surfy.navigation.goToSeries
 import com.cheeke.surfy.navigation.goToTv
 import com.slack.circuit.codegen.annotations.CircuitInject
 import com.slack.circuit.retained.rememberRetained
+import com.slack.circuit.runtime.CircuitUiEvent
 import com.slack.circuit.runtime.CircuitUiState
 import com.slack.circuit.runtime.Navigator
 import com.slack.circuit.runtime.presenter.Presenter
@@ -111,7 +112,7 @@ class SearchRepository @AssistedInject constructor(
     private val searchTrigger: MutableSharedFlow<Unit> = MutableSharedFlow(replay = 0, extraBufferCapacity = 1)
     @OptIn(ExperimentalCoroutinesApi::class)
     val searchResult = merge(
-        searchType.map { SearchState.SearchHint },
+        searchType.map { SearchStatus.SearchHint },
         searchTrigger
             .onStart {
                 if (query.value.text.trim().isNotEmpty()) emit(value = Unit)
@@ -126,9 +127,9 @@ class SearchRepository @AssistedInject constructor(
             }.filter { currentQuery: String ->
                 currentQuery.isNotEmpty()
             }.flatMapLatest { currentQuery: String ->
-                flow<SearchState> {
+                flow<SearchStatus> {
                     emit(
-                        value = SearchState.Success(
+                        value = SearchStatus.Success(
                             pagingData = combine(
                                 Pager(
                                     config = PagingConfig(pageSize = 20, initialLoadSize = 20, prefetchDistance = 5),
@@ -156,13 +157,13 @@ class SearchRepository @AssistedInject constructor(
                         )
                     )
                 }.catch { throwable: Throwable ->
-                    emit(value = SearchState.Error(throwable = throwable))
+                    emit(value = SearchStatus.Error(throwable = throwable))
                 }
             }
     ).stateIn(
         scope = scope,
         started = SharingStarted.Lazily,
-        initialValue = SearchState.SearchHint
+        initialValue = SearchStatus.SearchHint
     )
 
     fun updateGenre(genre: Genre?) {
@@ -250,7 +251,7 @@ class SearchPresenter @AssistedInject constructor(
 
 data class SearchUiState(
     val surfyAppData: SurfyAppData,
-    val searchState: SearchState,
+    val searchState: SearchStatus,
     val query: TextFieldValue,
     val searchType: SearchType,
     val genre: Genre?,
@@ -258,7 +259,7 @@ data class SearchUiState(
     val eventSink: (SearchEvent) -> Unit
 ) : CircuitUiState
 
-sealed interface SearchEvent {
+sealed interface SearchEvent : CircuitUiEvent {
     data class GoToMovie(val id: Int) : SearchEvent
     data class GoToPeople(val id: Int) : SearchEvent
     data class GoToTv(val id: Int) : SearchEvent
@@ -271,8 +272,8 @@ sealed interface SearchEvent {
     data class ClickRecommendKeyword(val keyword: String) : SearchEvent
 }
 
-sealed interface SearchState {
-    data object SearchHint : SearchState
-    data class Success(val pagingData: Flow<PagingData<Media>>) : SearchState
-    data class Error(val throwable: Throwable) : SearchState
+sealed interface SearchStatus {
+    data object SearchHint : SearchStatus
+    data class Success(val pagingData: Flow<PagingData<Media>>) : SearchStatus
+    data class Error(val throwable: Throwable) : SearchStatus
 }

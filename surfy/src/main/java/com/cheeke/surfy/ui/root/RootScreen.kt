@@ -66,6 +66,7 @@ import com.cheeke.surfy.ui.MovieNavigationDefaults
 import com.cheeke.surfy.ui.dialog.Indexer
 import com.cheeke.surfy.ui.image.DynamicAsyncImageLoader
 import com.cheeke.surfy.ui.setting.SettingScreen
+import com.cheeke.surfy.ui.utils.BOTTOM_NAVIGATION_HEIGHT
 import com.cheeke.surfy.ui.utils.Line
 import com.cheeke.surfy.ui.utils.border
 import com.cheeke.surfy.ui.utils.bounceClick
@@ -76,7 +77,6 @@ import com.cheeke.surfy.ui.utils.dp20
 import com.cheeke.surfy.ui.utils.dp300
 import com.cheeke.surfy.ui.utils.dp40
 import com.cheeke.surfy.ui.utils.dp5
-import com.cheeke.surfy.ui.utils.dp50
 import com.cheeke.surfy.ui.utils.roundedCornerClickable
 import com.cheeke.surfy.ui.utils.sp15
 import com.cheeke.surfy.ui.utils.sp20
@@ -246,7 +246,7 @@ fun MovieBottomBar(
     NavigationBar(
         modifier = Modifier
             .fillMaxWidth()
-            .height(height = dp50)
+            .height(height = BOTTOM_NAVIGATION_HEIGHT)
             .border(
                 line = Line.TOP,
                 strokeWidth = dp1,

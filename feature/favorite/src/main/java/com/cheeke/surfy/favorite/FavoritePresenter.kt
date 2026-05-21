@@ -2,6 +2,8 @@ package com.cheeke.surfy.favorite
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -37,6 +39,8 @@ import dagger.assisted.AssistedInject
 import dagger.hilt.android.components.ActivityRetainedComponent
 import dagger.hilt.android.scopes.ActivityRetainedScoped
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
@@ -104,6 +108,8 @@ class FavoritePresenter @AssistedInject constructor(
     @Composable
     override fun present(): FavoriteState {
         val rootNavigator = LocalRootNavigator.current
+        val effectFlow = MutableSharedFlow<FavoriteEffect>()
+        val scope = rememberCoroutineScope()
         val tabIndex by favoriteRepository.tabIndex.collectAsStateWithLifecycle()
         val favoriteMap = FavoriteTab.entries.associateWith { favoriteTab ->
             when (favoriteTab) {
@@ -113,6 +119,7 @@ class FavoritePresenter @AssistedInject constructor(
             }
         }
         val selectedTab = FavoriteTab.entries[tabIndex]
+        val removeFavoriteText = stringResource(id = R.string.remove_favorite)
 
         return FavoriteState(
             favoriteUiState = FavoriteUiState(
@@ -120,6 +127,7 @@ class FavoritePresenter @AssistedInject constructor(
                 selectedTab = selectedTab,
                 favoriteMap = favoriteMap
             ),
+            effect = effectFlow,
             eventSink = { event ->
                 Log.d("FavoritePresenter", "$event")
                 when (event) {
@@ -136,6 +144,9 @@ class FavoritePresenter @AssistedInject constructor(
                             FavoriteTab.MOVIE -> favoriteRepository.deleteMovie(movie = event.media as Movie)
                             FavoriteTab.PEOPLE -> favoriteRepository.deletePeople(people = event.media as People)
                             FavoriteTab.TV -> favoriteRepository.deleteTv(tv = event.media as Tv)
+                        }
+                        scope.launch {
+                            effectFlow.emit(value = FavoriteEffect.ShowSnackbar(removeFavoriteText))
                         }
                     }
                 }
@@ -164,8 +175,15 @@ sealed interface FavoriteEvent : CircuitUiEvent {
 
 data class FavoriteState(
     val favoriteUiState: FavoriteUiState,
+    val effect: Flow<FavoriteEffect>,
     val eventSink: (FavoriteEvent) -> Unit
 ) : CircuitUiState
+
+sealed interface FavoriteEffect {
+    data class ShowSnackbar(
+        val message: String
+    ) : FavoriteEffect
+}
 
 enum class FavoriteTab(val stringId: Int) {
     MOVIE(stringId = R.string.movie),

@@ -24,9 +24,12 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -44,7 +47,6 @@ import com.cheeke.surfy.analytics.logFavorite
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.data.util.POSTER_IMAGE_RATIO
 import com.cheeke.surfy.domain.PeopleWithFavorite
-import com.cheeke.surfy.feature.detail.R
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
 import com.cheeke.surfy.model.Image
 import com.cheeke.surfy.model.Media
@@ -71,12 +73,23 @@ import java.time.LocalDate
 @Composable
 fun PeopleScreen(
     modifier: Modifier,
-    peopleUiState: PeopleUiState
+    peopleUiState: PeopleState
 ) {
     LocalFirebaseLogHelper.current.sendLog("PeopleScreen", "people screen start!")
     TrackScreenViewEvent(screenName = "PeopleScreen")
 
+    val snackbarHostState = remember { SnackbarHostState() }
     val peopleState = peopleUiState.people
+
+    LaunchedEffect(key1 = peopleUiState.effect) {
+        peopleUiState.effect.collect { effect ->
+            when (effect) {
+                is PeopleEffect.ShowSnackbar -> {
+                    snackbarHostState.showSnackbar(message = effect.message)
+                }
+            }
+        }
+    }
 
     PeopleScreen(
         peopleState = peopleState,
@@ -85,27 +98,27 @@ fun PeopleScreen(
         deleteFavoritePeople = { peopleUiState.eventSink(PeopleEvent.DeleteFavoritePeople(people = it)) },
         goToMovie = { peopleUiState.eventSink(PeopleEvent.GoToMovie(id = it)) },
         goToTv = { peopleUiState.eventSink(PeopleEvent.GoToTv(id = it)) },
-//        onShowSnackbar = onShowSnackbar,
+        snackbarHostState = snackbarHostState,
         restart = { peopleUiState.eventSink(PeopleEvent.Restart) }
     )
 }
 
 @Composable
 fun PeopleScreen(
-    peopleState: PeopleState,
+    peopleState: PeopleStatus,
     goToBack: () -> Unit,
     insertFavoritePeople: (People) -> Unit,
     deleteFavoritePeople: (People) -> Unit,
     goToMovie: (Int) -> Unit,
     goToTv: (Int) -> Unit,
-//    onShowSnackbar: suspend (String, String?) -> Boolean,
+    snackbarHostState: SnackbarHostState,
     restart: () -> Unit
 ) {
     Box(
         modifier = Modifier.fillMaxSize().statusBarsPadding()
     ) {
         when (peopleState) {
-            is PeopleState.Loading -> {
+            is PeopleStatus.Loading -> {
                 Log.d("loading...")
                 CircularProgressComponent(
                     modifier = Modifier
@@ -113,20 +126,20 @@ fun PeopleScreen(
                         .align(Alignment.Center)
                 )
             }
-            is PeopleState.Success -> {
-                Log.d("${peopleState.data}")
+            is PeopleStatus.Success -> {
+                Log.d("${peopleState.people}")
 
                 PeopleDetailComponent(
-                    people = peopleState.data,
+                    people = peopleState.people,
                     goToBack = goToBack,
                     goToMovie = goToMovie,
                     goToTv = goToTv,
                     insertFavoritePeople = insertFavoritePeople,
                     deleteFavoritePeople = deleteFavoritePeople,
-//                    onShowSnackbar = onShowSnackbar
+                    snackbarHostState = snackbarHostState
                 )
             }
-            is PeopleState.Error -> {
+            is PeopleStatus.Error -> {
                 Log.e("${peopleState.throwable.message}")
                 ConfirmDialog(
                     title = stringResource(id = com.cheeke.surfy.core.network.R.string.network_failed),
@@ -147,10 +160,8 @@ fun PeopleDetailComponent(
     goToTv: (Int) -> Unit,
     insertFavoritePeople: (People) -> Unit,
     deleteFavoritePeople: (People) -> Unit,
-//    onShowSnackbar: suspend (String, String?) -> Boolean
+    snackbarHostState: SnackbarHostState
 ) {
-    val scope = rememberCoroutineScope()
-
     val relatedMovie = people.people.combineCredits?.getRelatedMovie()?.sortedWith(
         compareByDescending<Media> {
             if (it.releaseDate.isNullOrEmpty()) {
@@ -160,75 +171,82 @@ fun PeopleDetailComponent(
             }
         }.thenByDescending { it.title }
     ).orEmpty()
-    val snackbarMessage = if (people.isFavorite) stringResource(id = R.string.remove_favorite_people) else stringResource(id = R.string.add_favorite_people)
     val lazyGridScrollState = rememberLazyGridState()
     val analyticsHelper = LocalAnalyticsHelper.current
 
-    LazyVerticalGrid(
-        modifier = Modifier.fillMaxSize(),
-        columns = GridCells.Fixed(count = 3),
-        state = lazyGridScrollState,
-        contentPadding = PaddingValues(start = dp10, end = dp10, bottom = dp20),
-        horizontalArrangement = Arrangement.spacedBy(space = dp10),
-        verticalArrangement = Arrangement.spacedBy(space = dp10)
+    Box(
+        modifier = Modifier.fillMaxSize()
     ) {
-        item(span = { GridItemSpan(currentLineSpan = maxLineSpan) }) {
-            ProfileComponent(
-                people = people,
-                images = people.people.images.orEmpty(),
-                goToBack = goToBack,
-                onFavorite = {
-                    if (people.isFavorite) {
-                        deleteFavoritePeople(people.people)
-                        analyticsHelper.logFavorite(isFavorite = false, contentType = "people", media = people.people)
-                    } else {
-                        insertFavoritePeople(people.people)
-                        analyticsHelper.logFavorite(isFavorite = true, contentType = "people", media = people.people)
-                    }
-//                    scope.launch { onShowSnackbar(snackbarMessage, null) }
-                }
-            )
-        }
-
-        item(span = { GridItemSpan(currentLineSpan = maxLineSpan) }) {
-            ExternalIdLinkComponent(people = people.people)
-        }
-
-        if (!people.people.biography.isNullOrBlank()) {
+        LazyVerticalGrid(
+            modifier = Modifier.fillMaxSize(),
+            columns = GridCells.Fixed(count = 3),
+            state = lazyGridScrollState,
+            contentPadding = PaddingValues(start = dp10, end = dp10, bottom = dp20),
+            horizontalArrangement = Arrangement.spacedBy(space = dp10),
+            verticalArrangement = Arrangement.spacedBy(space = dp10)
+        ) {
             item(span = { GridItemSpan(currentLineSpan = maxLineSpan) }) {
-                Text(
-                    modifier = Modifier.semantics { contentDescription = "peopleBiography" },
-                    text = people.people.biography.orEmpty()
+                ProfileComponent(
+                    people = people,
+                    images = people.people.images.orEmpty(),
+                    goToBack = goToBack,
+                    onFavorite = {
+                        if (people.isFavorite) {
+                            deleteFavoritePeople(people.people)
+                            analyticsHelper.logFavorite(isFavorite = false, contentType = "people", media = people.people)
+                        } else {
+                            insertFavoritePeople(people.people)
+                            analyticsHelper.logFavorite(isFavorite = true, contentType = "people", media = people.people)
+                        }
+                    }
+                )
+            }
+
+            item(span = { GridItemSpan(currentLineSpan = maxLineSpan) }) {
+                ExternalIdLinkComponent(people = people.people)
+            }
+
+            if (!people.people.biography.isNullOrBlank()) {
+                item(span = { GridItemSpan(currentLineSpan = maxLineSpan) }) {
+                    Text(
+                        modifier = Modifier.semantics { contentDescription = "peopleBiography" },
+                        text = people.people.biography.orEmpty()
+                    )
+                }
+            }
+
+            items(
+                items = relatedMovie,
+                key = { media -> "${media.mediaType}_${media.id}" },
+                contentType = { "people_credit_poster" }
+            ) { media ->
+                DynamicAsyncImageLoader(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(ratio = POSTER_IMAGE_RATIO)
+                        .roundedCornerClickable(
+                            onClick = {
+                                when (media.mediaType) {
+                                    MediaType.MOVIE -> goToMovie(media.id ?: -1)
+                                    MediaType.TV -> goToTv(media.id ?: -1)
+                                    else -> {
+                                        Log.e("${media.mediaType} not found...")
+                                        return@roundedCornerClickable
+                                    }
+                                }
+                            },
+                            cornerRadius = dp10
+                        ),
+                    source = media.posterPath.orEmpty(),
+                    contentDescription = "RelatedMovie"
                 )
             }
         }
 
-        items(
-            items = relatedMovie,
-            key = { media -> "${media.mediaType}_${media.id}" },
-            contentType = { "people_credit_poster" }
-        ) { media ->
-            DynamicAsyncImageLoader(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(ratio = POSTER_IMAGE_RATIO)
-                    .roundedCornerClickable(
-                        onClick = {
-                            when (media.mediaType) {
-                                MediaType.MOVIE -> goToMovie(media.id ?: -1)
-                                MediaType.TV -> goToTv(media.id ?: -1)
-                                else -> {
-//                                    scope.launch { onShowSnackbar("MediaType not found...", null) }
-                                    return@roundedCornerClickable
-                                }
-                            }
-                        },
-                        cornerRadius = dp10
-                    ),
-                source = media.posterPath.orEmpty(),
-                contentDescription = "RelatedMovie"
-            )
-        }
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
     }
 }
 

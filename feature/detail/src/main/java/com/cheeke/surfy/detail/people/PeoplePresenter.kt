@@ -2,6 +2,9 @@ package com.cheeke.surfy.detail.people
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.util.trace
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cheeke.surfy.analytics.AnalyticsHelper
@@ -13,12 +16,14 @@ import com.cheeke.surfy.common.di.ActivityRetainedScopeCoroutine
 import com.cheeke.surfy.data.repository.PeopleDataBaseRepository
 import com.cheeke.surfy.domain.GetPeopleDetailUseCase
 import com.cheeke.surfy.domain.PeopleWithFavorite
+import com.cheeke.surfy.feature.detail.R
 import com.cheeke.surfy.model.People
 import com.cheeke.surfy.navigation.PeopleScreen
 import com.cheeke.surfy.navigation.goToMovie
 import com.cheeke.surfy.navigation.goToTv
 import com.slack.circuit.codegen.annotations.CircuitInject
 import com.slack.circuit.retained.rememberRetained
+import com.slack.circuit.runtime.CircuitUiEvent
 import com.slack.circuit.runtime.CircuitUiState
 import com.slack.circuit.runtime.Navigator
 import com.slack.circuit.runtime.presenter.Presenter
@@ -28,6 +33,7 @@ import dagger.assisted.AssistedInject
 import dagger.hilt.android.components.ActivityRetainedComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flatMapLatest
@@ -58,16 +64,16 @@ class PeopleRepository @AssistedInject constructor(
             trace(sectionName = "GetPeopleDetail") { getPeopleDetail(personId = id) }.asResult()
         }.map { result ->
             when (result) {
-                is Result.Loading -> PeopleState.Loading
+                is Result.Loading -> PeopleStatus.Loading
                 is Result.Success -> {
                     analyticsHelper.logSelectContent(contentType = "people", media = result.data.people)
-                    PeopleState.Success(data = result.data)
+                    PeopleStatus.Success(people = result.data)
                 }
-                is Result.Error -> PeopleState.Error(result.throwable)
+                is Result.Error -> PeopleStatus.Error(result.throwable)
             }
         }.stateIn(
             scope = scope,
-            initialValue = PeopleState.Loading,
+            initialValue = PeopleStatus.Loading,
             started = SharingStarted.Lazily
         )
 
@@ -100,23 +106,38 @@ class PeoplePresenter @AssistedInject constructor(
     @Assisted private val screen: PeopleScreen,
     @Assisted private val navigator: Navigator,
     private val peopleRepositoryFactory: PeopleRepository.Factory
-) : Presenter<PeopleUiState> {
+) : Presenter<PeopleState> {
     @Composable
-    override fun present(): PeopleUiState {
+    override fun present(): PeopleState {
+        val effectFlow = remember { MutableSharedFlow<PeopleEffect>() }
+        val scope = rememberCoroutineScope()
         val peopleRepository = rememberRetained(screen.id) {
             peopleRepositoryFactory.create(id = screen.id)
         }
         val peopleState by peopleRepository.peopleState.collectAsStateWithLifecycle()
+        val deleteFavoriteMessage = stringResource(id = R.string.remove_favorite_people)
+        val insertFavoriteMessage = stringResource(id = R.string.add_favorite_people)
 
-        return PeopleUiState(
+        return PeopleState(
             people = peopleState,
+            effect = effectFlow
         ) { event ->
             Log.d("PeoplePresenter", "$event")
             when (event) {
-                is PeopleEvent.DeleteFavoritePeople -> peopleRepository.deletePeople(people = event.people)
+                is PeopleEvent.DeleteFavoritePeople -> {
+                    peopleRepository.deletePeople(people = event.people)
+                    scope.launch {
+                        effectFlow.emit(value = PeopleEffect.ShowSnackbar(deleteFavoriteMessage))
+                    }
+                }
                 is PeopleEvent.GoToMovie -> navigator.goToMovie(id = event.id)
                 is PeopleEvent.GoToTv -> navigator.goToTv(id = event.id)
-                is PeopleEvent.InsertFavoritePeople -> peopleRepository.insertPeople(people = event.people)
+                is PeopleEvent.InsertFavoritePeople -> {
+                    peopleRepository.insertPeople(people = event.people)
+                    scope.launch {
+                        effectFlow.emit(value = PeopleEffect.ShowSnackbar(insertFavoriteMessage))
+                    }
+                }
                 is PeopleEvent.Restart -> peopleRepository.restart()
                 is PeopleEvent.GoToBack -> navigator.pop()
             }
@@ -133,12 +154,13 @@ class PeoplePresenter @AssistedInject constructor(
     }
 }
 
-data class PeopleUiState(
-    val people: PeopleState,
+data class PeopleState(
+    val people: PeopleStatus,
+    val effect: Flow<PeopleEffect>,
     val eventSink: (PeopleEvent) -> Unit
 ) : CircuitUiState
 
-sealed interface PeopleEvent {
+sealed interface PeopleEvent : CircuitUiEvent {
     object GoToBack : PeopleEvent
     object Restart : PeopleEvent
     data class GoToMovie(val id: Int) : PeopleEvent
@@ -147,8 +169,14 @@ sealed interface PeopleEvent {
     data class DeleteFavoritePeople(val people: People) : PeopleEvent
 }
 
-sealed interface PeopleState {
-    data object Loading : PeopleState
-    data class Success(val data: PeopleWithFavorite) : PeopleState
-    data class Error(val throwable: Throwable) : PeopleState
+sealed interface PeopleEffect {
+    data class ShowSnackbar(
+        val message: String
+    ) : PeopleEffect
+}
+
+sealed interface PeopleStatus {
+    data object Loading : PeopleStatus
+    data class Success(val people: PeopleWithFavorite) : PeopleStatus
+    data class Error(val throwable: Throwable) : PeopleStatus
 }

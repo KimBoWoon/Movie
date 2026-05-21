@@ -2,16 +2,16 @@ package com.cheeke.surfy.factory
 
 import com.cheeke.surfy.detail.movie.MoviePresenter
 import com.cheeke.surfy.detail.movie.MovieScreen
-import com.cheeke.surfy.detail.movie.MovieUiState
+import com.cheeke.surfy.detail.movie.MovieState
 import com.cheeke.surfy.detail.people.PeoplePresenter
 import com.cheeke.surfy.detail.people.PeopleScreen
-import com.cheeke.surfy.detail.people.PeopleUiState
+import com.cheeke.surfy.detail.people.PeopleState
 import com.cheeke.surfy.detail.series.SeriesPresenter
 import com.cheeke.surfy.detail.series.SeriesScreen
-import com.cheeke.surfy.detail.series.SeriesUiState
+import com.cheeke.surfy.detail.series.SeriesState
 import com.cheeke.surfy.detail.tv.TvPresenter
 import com.cheeke.surfy.detail.tv.TvScreen
-import com.cheeke.surfy.detail.tv.TvUiState
+import com.cheeke.surfy.detail.tv.TvState
 import com.cheeke.surfy.favorite.FavoritePresenter
 import com.cheeke.surfy.favorite.FavoriteScreen
 import com.cheeke.surfy.favorite.FavoriteState
@@ -48,10 +48,10 @@ class SurfyScreenFactory @Inject constructor(
         is HomeScreen -> ui<HomeState> { state, modifier -> HomeScreen(modifier = modifier, homeState = state) }
         is SearchScreen -> ui<SearchUiState> { state, modifier -> SearchScreen(modifier = modifier, searchUiState = state) }
         is FavoriteScreen -> ui<FavoriteState> { state, modifier -> FavoriteScreen(modifier = modifier, favoriteState = state) }
-        is MovieScreen -> ui<MovieUiState> { state, modifier -> MovieScreen(modifier = modifier, movieUiState = state) }
-        is PeopleScreen -> ui<PeopleUiState> { state, modifier -> PeopleScreen(modifier = modifier, peopleUiState = state) }
-        is SeriesScreen -> ui<SeriesUiState> { state, modifier -> SeriesScreen(modifier = modifier, seriesUiState = state) }
-        is TvScreen -> ui<TvUiState> { state, modifier -> TvScreen(modifier = modifier, tvUiState = state) }
+        is MovieScreen -> ui<MovieState> { state, modifier -> MovieScreen(modifier = modifier, movieUiState = state) }
+        is PeopleScreen -> ui<PeopleState> { state, modifier -> PeopleScreen(modifier = modifier, peopleUiState = state) }
+        is SeriesScreen -> ui<SeriesState> { state, modifier -> SeriesScreen(modifier = modifier, seriesState = state) }
+        is TvScreen -> ui<TvState> { state, modifier -> TvScreen(modifier = modifier, tvState = state) }
         else -> null
     }
 }

@@ -2,6 +2,9 @@ package com.cheeke.surfy.detail.tv
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.util.trace
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.Pager
@@ -18,8 +21,10 @@ import com.cheeke.surfy.common.di.ActivityRetainedScopeCoroutine
 import com.cheeke.surfy.data.repository.PagingRepository
 import com.cheeke.surfy.data.repository.TvDataBaseRepository
 import com.cheeke.surfy.data.repository.UserDataRepository
+import com.cheeke.surfy.detail.people.PeopleEffect
 import com.cheeke.surfy.domain.GetTvDetailUseCase
 import com.cheeke.surfy.domain.TvSeasonLoadState
+import com.cheeke.surfy.feature.detail.R
 import com.cheeke.surfy.model.SimilarMedia
 import com.cheeke.surfy.model.Tv
 import com.cheeke.surfy.model.TvEpisode
@@ -29,6 +34,7 @@ import com.cheeke.surfy.navigation.goToPeople
 import com.cheeke.surfy.navigation.goToTv
 import com.slack.circuit.codegen.annotations.CircuitInject
 import com.slack.circuit.retained.rememberRetained
+import com.slack.circuit.runtime.CircuitUiEvent
 import com.slack.circuit.runtime.CircuitUiState
 import com.slack.circuit.runtime.Navigator
 import com.slack.circuit.runtime.presenter.Presenter
@@ -38,6 +44,7 @@ import dagger.assisted.AssistedInject
 import dagger.hilt.android.components.ActivityRetainedComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -86,7 +93,7 @@ class TvRepository @AssistedInject constructor(
             this@TvRepository.selectedSeason.value = initialSeason
         }
 
-        TvInfo(
+        TvUiState(
             tv = twf.tv,
             seasons = seasons.orEmpty(),
             episodeState = twf.seasonLoadState,
@@ -97,17 +104,17 @@ class TvRepository @AssistedInject constructor(
     }.asResult()
         .map { result ->
             when (result) {
-                is Result.Loading -> TvState.Loading
+                is Result.Loading -> TvStatus.Loading
                 is Result.Success -> {
                     analyticsHelper.logSelectContent(contentType = "tv", media = result.data.tv)
-                    TvState.Success(tvInfo = result.data)
+                    TvStatus.Success(tvInfo = result.data)
                 }
-                is Result.Error -> TvState.Error(message = result.throwable.message ?: "something wrong...")
+                is Result.Error -> TvStatus.Error(message = result.throwable.message ?: "something wrong...")
             }
         }.stateIn(
             scope = scope,
             started = SharingStarted.Lazily,
-            initialValue = TvState.Loading
+            initialValue = TvStatus.Loading
         )
     @OptIn(ExperimentalCoroutinesApi::class)
     val similarTvs = userDataRepository.internalData
@@ -172,33 +179,48 @@ class TvRepository @AssistedInject constructor(
 class TvPresenter @AssistedInject constructor(
     @Assisted private val screen: TvScreen,
     @Assisted private val navigator: Navigator,
-    private val seriesRepositoryFactory: TvRepository.Factory
-) : Presenter<TvUiState> {
+    private val tvRepositoryFactory: TvRepository.Factory
+) : Presenter<TvState> {
     @Composable
-    override fun present(): TvUiState {
-        val seriesRepository = rememberRetained(screen.id) {
-            seriesRepositoryFactory.create(id = screen.id)
+    override fun present(): TvState {
+        val effectFlow = remember { MutableSharedFlow<PeopleEffect>() }
+        val scope = rememberCoroutineScope()
+        val tvRepository = rememberRetained(screen.id) {
+            tvRepositoryFactory.create(id = screen.id)
         }
-        val tv by seriesRepository.tv.collectAsStateWithLifecycle()
-        val similarTvs = seriesRepository.similarTvs.collectAsLazyPagingItems()
-        val selectedEpisode by seriesRepository.selectedEpisode.collectAsStateWithLifecycle()
+        val tv by tvRepository.tv.collectAsStateWithLifecycle()
+        val similarTvs = tvRepository.similarTvs.collectAsLazyPagingItems()
+        val selectedEpisode by tvRepository.selectedEpisode.collectAsStateWithLifecycle()
+        val deleteFavoriteMessage = stringResource(id = R.string.remove_favorite_tv)
+        val insertFavoriteMessage = stringResource(id = R.string.add_favorite_tv)
 
-        return TvUiState(
+        return TvState(
             tv = tv,
             similarTvs = similarTvs,
-            selectedEpisode = selectedEpisode
+            selectedEpisode = selectedEpisode,
+            effect = effectFlow
         ) { event ->
             Log.d("TvPresenter", "$event")
             when (event) {
                 is TvEvent.GoToTv -> navigator.goToTv(id = event.id)
                 is TvEvent.GoToPeople -> navigator.goToPeople(id = event.id)
-                is TvEvent.Restart -> seriesRepository.restart()
+                is TvEvent.Restart -> tvRepository.restart()
                 is TvEvent.GoToBack -> navigator.pop()
-                is TvEvent.InsertTv -> seriesRepository.insertTv(tv = event.tv)
-                is TvEvent.DeleteTv -> seriesRepository.deleteTv(tv = event.tv)
-                is TvEvent.ShowEpisodeDetail -> seriesRepository.showEpisodeDetail(episode = event.episode)
-                is TvEvent.HideEpisodeDetail -> seriesRepository.hideEpisodeDetail()
-                is TvEvent.SelectSeason -> seriesRepository.onSelectSeason(season = event.season)
+                is TvEvent.InsertTv -> {
+                    tvRepository.insertTv(tv = event.tv)
+                    scope.launch {
+                        effectFlow.emit(value = PeopleEffect.ShowSnackbar(insertFavoriteMessage))
+                    }
+                }
+                is TvEvent.DeleteTv -> {
+                    tvRepository.deleteTv(tv = event.tv)
+                    scope.launch {
+                        effectFlow.emit(value = PeopleEffect.ShowSnackbar(deleteFavoriteMessage))
+                    }
+                }
+                is TvEvent.ShowEpisodeDetail -> tvRepository.showEpisodeDetail(episode = event.episode)
+                is TvEvent.HideEpisodeDetail -> tvRepository.hideEpisodeDetail()
+                is TvEvent.SelectSeason -> tvRepository.onSelectSeason(season = event.season)
             }
         }
     }
@@ -213,7 +235,7 @@ class TvPresenter @AssistedInject constructor(
     }
 }
 
-data class TvInfo(
+data class TvUiState(
     val tv: Tv,
     val seasons: List<TvSeason>,
     val episodeState: TvSeasonLoadState,
@@ -222,14 +244,15 @@ data class TvInfo(
     val autoPlayTrailer: Boolean
 )
 
-data class TvUiState(
-    val tv: TvState,
+data class TvState(
+    val tv: TvStatus,
     val similarTvs: LazyPagingItems<SimilarMedia>,
     val selectedEpisode: TvEpisode?,
+    val effect: Flow<PeopleEffect>,
     val eventSink: (TvEvent) -> Unit
 ) : CircuitUiState
 
-sealed interface TvEvent {
+sealed interface TvEvent : CircuitUiEvent {
     object GoToBack : TvEvent
     object Restart : TvEvent
     data class GoToTv(val id: Int) : TvEvent
@@ -241,8 +264,14 @@ sealed interface TvEvent {
     data class SelectSeason(val season: TvSeason) : TvEvent
 }
 
-sealed interface TvState {
-    data object Loading : TvState
-    data class Success(val tvInfo: TvInfo) : TvState
-    data class Error(val message: String) : TvState
+sealed interface TvEffect {
+    data class ShowSnackbar(
+        val message: String
+    ) : TvEffect
+}
+
+sealed interface TvStatus {
+    data object Loading : TvStatus
+    data class Success(val tvInfo: TvUiState) : TvStatus
+    data class Error(val message: String) : TvStatus
 }

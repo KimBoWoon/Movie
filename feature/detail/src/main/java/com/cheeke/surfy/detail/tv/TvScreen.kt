@@ -34,9 +34,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SheetState
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -64,8 +67,8 @@ import com.cheeke.surfy.analytics.logSelectEpisode
 import com.cheeke.surfy.analytics.logSelectSeason
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.detail.movie.AlternativeTitleComponent
+import com.cheeke.surfy.detail.people.PeopleEffect
 import com.cheeke.surfy.domain.TvSeasonLoadState
-import com.cheeke.surfy.feature.detail.R
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
 import com.cheeke.surfy.model.Cast
 import com.cheeke.surfy.model.Credits
@@ -109,35 +112,46 @@ import kotlinx.coroutines.launch
 @Composable
 fun TvScreen(
     modifier: Modifier,
-    tvUiState: TvUiState
+    tvState: TvState
 ) {
     LocalFirebaseLogHelper.current.sendLog("DetailScreen", "detail screen start!")
     TrackScreenViewEvent(screenName = "TvScreen")
 
-    val similarTvs = tvUiState.similarTvs
-    val selectedEpisode = tvUiState.selectedEpisode
+    val snackbarHostState = remember { SnackbarHostState() }
+    val similarTvs = tvState.similarTvs
+    val selectedEpisode = tvState.selectedEpisode
+
+    LaunchedEffect(key1 = tvState.effect) {
+        tvState.effect.collect { effect ->
+            when (effect) {
+                is PeopleEffect.ShowSnackbar -> {
+                    snackbarHostState.showSnackbar(message = effect.message)
+                }
+            }
+        }
+    }
 
     TvScreen(
-        tvUiState = tvUiState.tv,
+        tvUiState = tvState.tv,
         similarTvs = similarTvs,
         selectedEpisode = selectedEpisode,
-        goToTv = { tvUiState.eventSink(TvEvent.GoToTv(id = it)) },
-        goToPeople = { tvUiState.eventSink(TvEvent.GoToPeople(id = it)) },
-        goToBack = { tvUiState.eventSink(TvEvent.GoToBack) },
-        showEpisodeDetail = { tvUiState.eventSink(TvEvent.ShowEpisodeDetail(episode = it)) },
-        hideEpisodeDetail = { tvUiState.eventSink(TvEvent.HideEpisodeDetail) },
-//        onShowSnackbar = onShowSnackbar,
-        insertFavoriteTv = { tvUiState.eventSink(TvEvent.InsertTv(tv = it)) },
-        deleteFavoriteTv = { tvUiState.eventSink(TvEvent.DeleteTv(tv = it)) },
-        restart = { tvUiState.eventSink(TvEvent.Restart) },
-        onSelectSeason = { tvUiState.eventSink(TvEvent.SelectSeason(season = it)) }
+        goToTv = { tvState.eventSink(TvEvent.GoToTv(id = it)) },
+        goToPeople = { tvState.eventSink(TvEvent.GoToPeople(id = it)) },
+        goToBack = { tvState.eventSink(TvEvent.GoToBack) },
+        showEpisodeDetail = { tvState.eventSink(TvEvent.ShowEpisodeDetail(episode = it)) },
+        hideEpisodeDetail = { tvState.eventSink(TvEvent.HideEpisodeDetail) },
+        snackbarHostState = snackbarHostState,
+        insertFavoriteTv = { tvState.eventSink(TvEvent.InsertTv(tv = it)) },
+        deleteFavoriteTv = { tvState.eventSink(TvEvent.DeleteTv(tv = it)) },
+        restart = { tvState.eventSink(TvEvent.Restart) },
+        onSelectSeason = { tvState.eventSink(TvEvent.SelectSeason(season = it)) }
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TvScreen(
-    tvUiState: TvState,
+    tvUiState: TvStatus,
     similarTvs: LazyPagingItems<SimilarMedia>,
     selectedEpisode: TvEpisode?,
     goToTv: (Int) -> Unit,
@@ -145,7 +159,7 @@ fun TvScreen(
     goToBack: () -> Unit,
     showEpisodeDetail: (TvEpisode) -> Unit,
     hideEpisodeDetail: () -> Unit,
-//    onShowSnackbar: suspend (String, String?) -> Boolean,
+    snackbarHostState: SnackbarHostState,
     insertFavoriteTv: (Tv) -> Unit,
     deleteFavoriteTv: (Tv) -> Unit,
     restart: () -> Unit,
@@ -155,7 +169,7 @@ fun TvScreen(
         modifier = Modifier.fillMaxSize().statusBarsPadding()
     ) {
         when (tvUiState) {
-            is TvState.Loading -> {
+            is TvStatus.Loading -> {
                 Log.d("loading...")
                 LocalFirebaseLogHelper.current.sendLog(name = "TvScreen", message = "loading...")
 
@@ -165,7 +179,7 @@ fun TvScreen(
                         .align(Alignment.Center)
                 )
             }
-            is TvState.Success -> {
+            is TvStatus.Success -> {
                 Log.d("${tvUiState.tvInfo.tv}")
                 LocalFirebaseLogHelper.current.sendLog(name = "TvScreen", message = "$tvUiState")
 
@@ -194,7 +208,7 @@ fun TvScreen(
                         goToPeople = goToPeople,
                         goToBack = goToBack,
                         showEpisodeDetail = showEpisodeDetail,
-//                        onShowSnackbar = onShowSnackbar,
+                        snackbarHostState = snackbarHostState,
                         insertFavoriteTv = insertFavoriteTv,
                         deleteFavoriteTv = deleteFavoriteTv,
                         selectedImage = selectedImage,
@@ -231,7 +245,7 @@ fun TvScreen(
                     )
                 }
             }
-            is TvState.Error -> {
+            is TvStatus.Error -> {
                 Log.e(tvUiState.message)
                 LocalFirebaseLogHelper.current.sendLog(name = "TvScreen", message = tvUiState.message)
 
@@ -248,13 +262,13 @@ fun TvScreen(
 
 @Composable
 fun TvDetailComponent(
-    tv: TvInfo,
+    tv: TvUiState,
     similarTvs: LazyPagingItems<SimilarMedia>,
     goToTv: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     goToBack: () -> Unit,
     showEpisodeDetail: (TvEpisode) -> Unit,
-//    onShowSnackbar: suspend (String, String?) -> Boolean,
+    snackbarHostState: SnackbarHostState,
     insertFavoriteTv: (Tv) -> Unit,
     deleteFavoriteTv: (Tv) -> Unit,
     selectedImage: Image?,
@@ -264,93 +278,98 @@ fun TvDetailComponent(
     sharedTransitionScope: SharedTransitionScope,
     onSelectSeason: (TvSeason) -> Unit
 ) {
-    val favoriteMessage = if (tv.isFavorite) stringResource(id = R.string.add_favorite_movie) else stringResource(id = R.string.remove_favorite_movie)
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
     val analyticsHelper = LocalAnalyticsHelper.current
 
-    Column(
-        modifier = Modifier.fillMaxSize().verticalScroll(state = scrollState)
+    Box(
+        modifier = Modifier.fillMaxSize()
     ) {
-        TitleComponent(
-            isFavorite = tv.isFavorite,
-            goToBack = goToBack,
-            onFavorite = {
-                if (tv.isFavorite) {
-                    deleteFavoriteTv(tv.tv)
-                    analyticsHelper.logFavorite(isFavorite = false, contentType = "tv", media = tv.tv)
-                } else {
-                    insertFavoriteTv(tv.tv)
-                    analyticsHelper.logFavorite(isFavorite = true, contentType = "tv", media = tv.tv)
+        Column(
+            modifier = Modifier.fillMaxSize().verticalScroll(state = scrollState)
+        ) {
+            TitleComponent(
+                isFavorite = tv.isFavorite,
+                goToBack = goToBack,
+                onFavorite = {
+                    if (tv.isFavorite) {
+                        deleteFavoriteTv(tv.tv)
+                        analyticsHelper.logFavorite(isFavorite = false, contentType = "tv", media = tv.tv)
+                    } else {
+                        insertFavoriteTv(tv.tv)
+                        analyticsHelper.logFavorite(isFavorite = true, contentType = "tv", media = tv.tv)
+                    }
                 }
-//                scope.launch {
-//                    onShowSnackbar(favoriteMessage, null)
-//                }
+            )
+            tv.tv.videos?.results?.filter { it.site == "YouTube" }?.takeIf { it.isNotEmpty() }?.let { vods ->
+                VideosComponent(scope = scope, vodList = vods, autoPlayTrailer = tv.autoPlayTrailer)
+                Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
             }
-        )
-        tv.tv.videos?.results?.filter { it.site == "YouTube" }?.takeIf { it.isNotEmpty() }?.let { vods ->
-            VideosComponent(scope = scope, vodList = vods, autoPlayTrailer = tv.autoPlayTrailer)
-            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
-        }
-        MediaTitleComponent(media = tv.tv)
-        tv.tv.alternativeTitles?.titles?.takeIf { it.isNotEmpty() }?.let { alternativeTitles ->
-            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
-            AlternativeTitleComponent(alternativeTitles = alternativeTitles)
-        }
-        tv.tv.overview?.takeIf { it.trim().isNotEmpty() }?.let { overview ->
-            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
-            OverviewComponent(overview = overview)
-        }
-        tv.tv.credits?.let { credits ->
-            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
-            CreditsComponent(credits = credits, goToPeople = goToPeople)
-        }
-        tv.seasons.takeIf { it.isNotEmpty() }?.let { seasons ->
-            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
-            SeasonComponent(
-                tv = tv.tv,
-                seasons = seasons,
-                episodeState = tv.episodeState,
-                episodesBySeason = tv.episodesBySeason,
-                initialSeasonId = seasons.firstOrNull()?.id,
-                onEpisodeClick = { episode ->
-                    showEpisodeDetail(episode)
-                    analyticsHelper.logSelectEpisode(
-                        tvId = tv.tv.id.toString(),
-                        tvTitle = tv.tv.title.toString(),
-                        seasonName = seasons.find { it.seasonNumber == episode.seasonNumber }?.name.toString(),
-                        seasonNumber = episode.seasonNumber.toString(),
-                        episodeName = episode.name.toString(),
-                        episodeNumber = episode.episodeNumber.toString()
-                    )
-                },
-                onSelectSeason = onSelectSeason
-            )
-        }
-        tv.tv.productionCompanies?.let { productionCompanies ->
-            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
-            ProductionComponent(companies = productionCompanies)
-        }
-        tv.tv.images?.let {
-            val backdrops = it.backdrops ?: emptyList()
-            val posters = it.posters ?: emptyList()
+            MediaTitleComponent(media = tv.tv)
+            tv.tv.alternativeTitles?.titles?.takeIf { it.isNotEmpty() }?.let { alternativeTitles ->
+                Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
+                AlternativeTitleComponent(alternativeTitles = alternativeTitles)
+            }
+            tv.tv.overview?.takeIf { it.trim().isNotEmpty() }?.let { overview ->
+                Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
+                OverviewComponent(overview = overview)
+            }
+            tv.tv.credits?.let { credits ->
+                Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
+                CreditsComponent(credits = credits, goToPeople = goToPeople)
+            }
+            tv.seasons.takeIf { it.isNotEmpty() }?.let { seasons ->
+                Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
+                SeasonComponent(
+                    tv = tv.tv,
+                    seasons = seasons,
+                    episodeState = tv.episodeState,
+                    episodesBySeason = tv.episodesBySeason,
+                    initialSeasonId = seasons.firstOrNull()?.id,
+                    onEpisodeClick = { episode ->
+                        showEpisodeDetail(episode)
+                        analyticsHelper.logSelectEpisode(
+                            tvId = tv.tv.id.toString(),
+                            tvTitle = tv.tv.title.toString(),
+                            seasonName = seasons.find { it.seasonNumber == episode.seasonNumber }?.name.toString(),
+                            seasonNumber = episode.seasonNumber.toString(),
+                            episodeName = episode.name.toString(),
+                            episodeNumber = episode.episodeNumber.toString()
+                        )
+                    },
+                    onSelectSeason = onSelectSeason
+                )
+            }
+            tv.tv.productionCompanies?.let { productionCompanies ->
+                Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
+                ProductionComponent(companies = productionCompanies)
+            }
+            tv.tv.images?.let {
+                val backdrops = it.backdrops ?: emptyList()
+                val posters = it.posters ?: emptyList()
 
-            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
-            ImagesComponent(
-                backdrops = backdrops,
-                posters = posters,
-                sharedTransitionScope = sharedTransitionScope,
-                selectedImage = selectedImage,
-                selectedIndex = selectedIndex,
-                overlayVisible = overlayVisible,
-                onSelect = onSelect
-            )
+                Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
+                ImagesComponent(
+                    backdrops = backdrops,
+                    posters = posters,
+                    sharedTransitionScope = sharedTransitionScope,
+                    selectedImage = selectedImage,
+                    selectedIndex = selectedIndex,
+                    overlayVisible = overlayVisible,
+                    onSelect = onSelect
+                )
+            }
+            if (similarTvs.itemCount > 0) {
+                Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
+                SimilarComponent(similar = similarTvs, goToDestination = goToTv)
+            }
+            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp20))
         }
-        if (similarTvs.itemCount > 0) {
-            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
-            SimilarComponent(similar = similarTvs, goToDestination = goToTv)
-        }
-        Spacer(modifier = Modifier.fillMaxWidth().height(height = dp20))
+
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
     }
 }
 

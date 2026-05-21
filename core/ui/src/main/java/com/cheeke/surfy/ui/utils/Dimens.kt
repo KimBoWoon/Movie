@@ -124,3 +124,5 @@ val sp90 = 90.sp
 val sp100 = 100.sp
 val sp150 = 150.sp
 val sp300 = 300.sp
+
+val BOTTOM_NAVIGATION_HEIGHT = dp50

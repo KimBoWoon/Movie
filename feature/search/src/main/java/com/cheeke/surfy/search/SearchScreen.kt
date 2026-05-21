@@ -151,7 +151,7 @@ fun SearchScreen(
 
 @Composable
 fun SearchScreen(
-    searchState: SearchState,
+    searchState: SearchStatus,
     recommendKeyword: LazyPagingItems<SearchKeyword>,
     query: TextFieldValue,
     searchType: SearchType,
@@ -406,7 +406,7 @@ fun SearchTypeComponent(
 
 @Composable
 fun SearchResultComponent(
-    searchUiState: SearchState,
+    searchUiState: SearchStatus,
     scrollState: LazyGridState,
     searchType: SearchType,
     goToMovie: (Int) -> Unit,
@@ -422,14 +422,14 @@ fun SearchResultComponent(
         contentAlignment = Alignment.Center
     ) {
         when (searchUiState) {
-            is SearchState.SearchHint -> {
+            is SearchStatus.SearchHint -> {
                 Text(
                     modifier = Modifier.align(Alignment.Center),
                     text = stringResource(id = R.string.do_search),
                     style = MaterialTheme.typography.headlineMedium
                 )
             }
-            is SearchState.Success -> {
+            is SearchStatus.Success -> {
                 val pagingData = searchUiState.pagingData.collectAsLazyPagingItems()
 
                 if (pagingData.loadState.refresh is LoadState.Loading) {
@@ -464,7 +464,7 @@ fun SearchResultComponent(
                     }
                 }
             }
-            is SearchState.Error -> {
+            is SearchStatus.Error -> {
                 LocalFirebaseLogHelper.current.sendLog("SearchResultPaging", searchUiState.throwable.message ?: stringResource(com.cheeke.surfy.core.network.R.string.something_wrong))
 
                 ConfirmDialog(

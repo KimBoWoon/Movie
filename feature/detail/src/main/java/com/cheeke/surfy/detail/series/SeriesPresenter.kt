@@ -17,6 +17,7 @@ import com.cheeke.surfy.navigation.SeriesScreen
 import com.cheeke.surfy.navigation.goToMovie
 import com.slack.circuit.codegen.annotations.CircuitInject
 import com.slack.circuit.retained.rememberRetained
+import com.slack.circuit.runtime.CircuitUiEvent
 import com.slack.circuit.runtime.CircuitUiState
 import com.slack.circuit.runtime.Navigator
 import com.slack.circuit.runtime.presenter.Presenter
@@ -54,17 +55,17 @@ class SeriesRepository @AssistedInject constructor(
         trace(sectionName = "GetSeriesDetail") { getSeriesDetailUseCase(id = id) }.asResult()
     }.map { result ->
         when (result) {
-            is Result.Loading -> SeriesState.Loading
+            is Result.Loading -> SeriesStatus.Loading
             is Result.Success -> {
                 analyticsHelper.logSelectContent(contentType = "series", media = result.data.series)
-                SeriesState.Success(series = result.data.series, imageList = result.data.imageList)
+                SeriesStatus.Success(seriesUiState = SeriesUiState(series = result.data.series, imageList = result.data.imageList))
             }
-            is Result.Error -> SeriesState.Error(throwable = result.throwable)
+            is Result.Error -> SeriesStatus.Error(throwable = result.throwable)
         }
     }.stateIn(
         scope = scope,
         started = SharingStarted.Lazily,
-        initialValue = SeriesState.Loading
+        initialValue = SeriesStatus.Loading
     )
 
     init {
@@ -84,15 +85,15 @@ class SeriesPresenter @AssistedInject constructor(
     @Assisted private val screen: SeriesScreen,
     @Assisted private val navigator: Navigator,
     private val seriesRepositoryFactory: SeriesRepository.Factory
-) : Presenter<SeriesUiState> {
+) : Presenter<SeriesState> {
     @Composable
-    override fun present(): SeriesUiState {
+    override fun present(): SeriesState {
         val seriesRepository = rememberRetained(screen.id) {
             seriesRepositoryFactory.create(id = screen.id)
         }
         val seriesState by seriesRepository.seriesState.collectAsStateWithLifecycle()
 
-        return SeriesUiState(
+        return SeriesState(
             series = seriesState,
         ) { event ->
             Log.d("SeriesPresenter", "$event")
@@ -115,18 +116,23 @@ class SeriesPresenter @AssistedInject constructor(
 }
 
 data class SeriesUiState(
-    val series: SeriesState,
+    val series: Series,
+    val imageList: ImageList
+)
+
+data class SeriesState(
+    val series: SeriesStatus,
     val eventSink: (SeriesEvent) -> Unit
 ) : CircuitUiState
 
-sealed interface SeriesEvent {
+sealed interface SeriesEvent : CircuitUiEvent {
     object GoToBack : SeriesEvent
     object Restart : SeriesEvent
     data class GoToMovie(val id: Int) : SeriesEvent
 }
 
-sealed interface SeriesState {
-    data object Loading : SeriesState
-    data class Success(val series: Series, val imageList: ImageList) : SeriesState
-    data class Error(val throwable: Throwable) : SeriesState
+sealed interface SeriesStatus {
+    data object Loading : SeriesStatus
+    data class Success(val seriesUiState: SeriesUiState) : SeriesStatus
+    data class Error(val throwable: Throwable) : SeriesStatus
 }

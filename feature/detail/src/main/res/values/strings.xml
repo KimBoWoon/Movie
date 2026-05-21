@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Detail -->
-    <string name="add_favorite_movie">Add Favorite Movie</string>
-    <string name="remove_favorite_movie">Remove Favorite Movie</string>
+    <string name="insert_favorite_movie">Insert favorite movie</string>
+    <string name="delete_favorite_movie">Delete favorite movie</string>
     <string name="movie_runtime">%d runtime</string>
     <string name="movie_info_separator">|</string>
     <string name="movie_vote_average">%.2f</string>
@@ -20,8 +20,8 @@
 
     <!-- People -->
     <string name="title_people">People Info</string>
-    <string name="add_favorite_people">Add Favorite</string>
-    <string name="remove_favorite_people">Remove Favorite</string>
+    <string name="add_favorite_people">Insert favorite people</string>
+    <string name="remove_favorite_people">Delete favorite people</string>
 
     <!-- TV -->
     <string name="tv_detail">Info</string>
@@ -31,4 +31,6 @@
     <string name="tv_reviews">Review</string>
     <string name="tv_images">Image</string>
     <string name="tv_similar_tv">Similar TV</string>
+    <string name="add_favorite_tv">Insert favorite tv program</string>
+    <string name="remove_favorite_tv">Delete favorite tv program</string>
 </resources>

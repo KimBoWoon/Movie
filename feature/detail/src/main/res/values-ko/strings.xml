@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Detail -->
-    <string name="add_favorite_movie">보고 싶은 영화에서 제거했습니다.</string>
-    <string name="remove_favorite_movie">보고 싶은 영화에 추가했습니다.</string>
+    <string name="insert_favorite_movie">보고 싶은 영화에서 추가했습니다.</string>
+    <string name="delete_favorite_movie">보고 싶은 영화에 제거했습니다.</string>
     <string name="movie_runtime">%d분</string>
     <string name="movie_info_separator">|</string>
     <string name="movie_vote_average">%.2f</string>
@@ -31,4 +31,6 @@
     <string name="tv_reviews">리뷰</string>
     <string name="tv_images">이미지</string>
     <string name="tv_similar_tv">다른 작품</string>
+    <string name="add_favorite_tv">"좋아하는 TV 프로그램에 추가했습니다."</string>
+    <string name="remove_favorite_tv">"좋아하는 TV 프로그램 에서 제거했습니다."</string>
 </resources>

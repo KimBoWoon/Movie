@@ -2,6 +2,9 @@ package com.cheeke.surfy.detail.movie
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.util.trace
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.Pager
@@ -20,6 +23,7 @@ import com.cheeke.surfy.data.repository.PagingRepository
 import com.cheeke.surfy.data.repository.UserDataRepository
 import com.cheeke.surfy.domain.GetMovieDetailUseCase
 import com.cheeke.surfy.domain.MovieWithFavorite
+import com.cheeke.surfy.feature.detail.R
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.SimilarMedia
 import com.cheeke.surfy.navigation.MovieScreen
@@ -28,6 +32,7 @@ import com.cheeke.surfy.navigation.goToPeople
 import com.cheeke.surfy.navigation.goToSeries
 import com.slack.circuit.codegen.annotations.CircuitInject
 import com.slack.circuit.retained.rememberRetained
+import com.slack.circuit.runtime.CircuitUiEvent
 import com.slack.circuit.runtime.CircuitUiState
 import com.slack.circuit.runtime.Navigator
 import com.slack.circuit.runtime.presenter.Presenter
@@ -37,6 +42,7 @@ import dagger.assisted.AssistedInject
 import dagger.hilt.android.components.ActivityRetainedComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -77,16 +83,16 @@ class MovieRepository @AssistedInject constructor(
             trace(sectionName = "GetMovieDetail") { getMovieDetail(id = id) }.asResult()
         }.map { result ->
             when (result) {
-                is Result.Loading -> MovieState.Loading
+                is Result.Loading -> MovieStatus.Loading
                 is Result.Success -> {
                     analyticsHelper.logSelectContent(contentType = "movie", media = result.data.movie)
-                    MovieState.Success(movie = result.data)
+                    MovieStatus.Success(movie = result.data, isCheatActive = isCheatActive.value)
                 }
-                is Result.Error -> MovieState.Error(throwable = result.throwable)
+                is Result.Error -> MovieStatus.Error(throwable = result.throwable)
             }
         }.stateIn(
             scope = scope,
-            initialValue = MovieState.Loading,
+            initialValue = MovieStatus.Loading,
             started = SharingStarted.Lazily
         )
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -150,27 +156,40 @@ class MoviePresenter @AssistedInject constructor(
     @Assisted private val screen: MovieScreen,
     @Assisted private val navigator: Navigator,
     private val movieRepositoryFactory: MovieRepository.Factory
-) : Presenter<MovieUiState> {
+) : Presenter<MovieState> {
     @Composable
-    override fun present(): MovieUiState {
+    override fun present(): MovieState {
+        val effectFlow = remember { MutableSharedFlow<MovieEffect>() }
+        val scope = rememberCoroutineScope()
         val movieRepository = rememberRetained(screen.id) {
             movieRepositoryFactory.create(screen.id)
         }
         val movieState by movieRepository.movieState.collectAsStateWithLifecycle()
         val similarMovies = movieRepository.similarMovies.collectAsLazyPagingItems()
-        val isCheatActive by movieRepository.isCheatActive.collectAsStateWithLifecycle()
+        val insertFavoriteMessage = stringResource(id = R.string.insert_favorite_movie)
+        val deleteFavoriteMessage = stringResource(id = R.string.delete_favorite_movie)
 
-        return MovieUiState(
+        return MovieState(
             movie = movieState,
             similarMovies = similarMovies,
-            isCheatActive = isCheatActive
+            effect = effectFlow
         ) { event ->
             Log.d("MoviePresenter", "$event")
             when (event) {
-                is MovieEvent.DeleteFavoriteMovie -> movieRepository.deleteMovie(movie = event.movie)
+                is MovieEvent.DeleteFavoriteMovie -> {
+                    movieRepository.deleteMovie(movie = event.movie)
+                    scope.launch {
+                        effectFlow.emit(value = MovieEffect.ShowSnackbar(deleteFavoriteMessage))
+                    }
+                }
                 is MovieEvent.GoToMovie -> navigator.goToMovie(id = event.id)
                 is MovieEvent.GoToPeople -> navigator.goToPeople(id = event.id)
-                is MovieEvent.InsertFavoriteMovie -> movieRepository.insertMovie(movie = event.movie)
+                is MovieEvent.InsertFavoriteMovie -> {
+                    movieRepository.insertMovie(movie = event.movie)
+                    scope.launch {
+                        effectFlow.emit(value = MovieEffect.ShowSnackbar(insertFavoriteMessage))
+                    }
+                }
                 is MovieEvent.Restart -> movieRepository.restart()
                 is MovieEvent.GoToBack -> navigator.pop()
                 is MovieEvent.GoToSeries -> navigator.goToSeries(id = event.id)
@@ -188,14 +207,14 @@ class MoviePresenter @AssistedInject constructor(
     }
 }
 
-data class MovieUiState(
-    val movie: MovieState,
+data class MovieState(
+    val movie: MovieStatus,
     val similarMovies: LazyPagingItems<SimilarMedia>,
-    val isCheatActive: Boolean,
+    val effect: Flow<MovieEffect>,
     val eventSink: (MovieEvent) -> Unit
 ) : CircuitUiState
 
-sealed interface MovieEvent {
+sealed interface MovieEvent : CircuitUiEvent {
     object GoToBack : MovieEvent
     object Restart : MovieEvent
     data class GoToMovie(val id: Int) : MovieEvent
@@ -205,8 +224,14 @@ sealed interface MovieEvent {
     data class DeleteFavoriteMovie(val movie: Movie) : MovieEvent
 }
 
-sealed interface MovieState {
-    data object Loading : MovieState
-    data class Success(val movie: MovieWithFavorite) : MovieState
-    data class Error(val throwable: Throwable) : MovieState
+sealed interface MovieEffect {
+    data class ShowSnackbar(
+        val message: String
+    ) : MovieEffect
+}
+
+sealed interface MovieStatus {
+    data object Loading : MovieStatus
+    data class Success(val movie: MovieWithFavorite, val isCheatActive: Boolean) : MovieStatus
+    data class Error(val throwable: Throwable) : MovieStatus
 }

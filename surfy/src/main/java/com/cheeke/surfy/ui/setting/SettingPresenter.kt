@@ -120,13 +120,13 @@ class SettingRepository @Inject constructor(
                             userDataRepository.updateRegion(value = it.code)
                         }
                     }
-                }
-                _uiState.update {
-                    it.copy(
-                        language = _uiState.value.selectedLanguage,
-                        region = _uiState.value.selectedRegion,
-                        sheet = SettingsSheet.Main
-                    )
+                    _uiState.update {
+                        it.copy(
+                            language = _uiState.value.selectedLanguage,
+                            region = _uiState.value.selectedRegion,
+                            sheet = SettingsSheet.Main
+                        )
+                    }
                 }
             }
             SettingsAction.BackToMainFromLanguageRegion -> {
@@ -200,8 +200,8 @@ class SettingRepository @Inject constructor(
                     _uiState.value.isCheatActive?.let { isCheatActive ->
                         userDataRepository.updateIsCheatActive(value = !isCheatActive)
                     }
+                    _uiState.update { it.copy(isCheatActive = it.isCheatActive?.not()) }
                 }
-                _uiState.update { it.copy(isCheatActive = it.isCheatActive?.not()) }
             }
         }
     }

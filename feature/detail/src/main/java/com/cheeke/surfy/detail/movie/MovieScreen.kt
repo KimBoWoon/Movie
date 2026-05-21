@@ -24,8 +24,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,7 +51,6 @@ import com.cheeke.surfy.analytics.logFavorite
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.data.util.POSTER_IMAGE_RATIO
 import com.cheeke.surfy.domain.MovieWithFavorite
-import com.cheeke.surfy.feature.detail.R
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
 import com.cheeke.surfy.model.AlternativeTitle
 import com.cheeke.surfy.model.Image
@@ -92,14 +94,24 @@ import kotlinx.coroutines.launch
 @Composable
 fun MovieScreen(
     modifier: Modifier,
-    movieUiState: MovieUiState
+    movieUiState: MovieState
 ) {
     LocalFirebaseLogHelper.current.sendLog("DetailScreen", "detail screen start!")
     TrackScreenViewEvent(screenName = "DetailScreen")
 
+    val snackbarHostState = remember { SnackbarHostState() }
     val movieState = movieUiState.movie
     val similarMovies = movieUiState.similarMovies
-    val isCheatActive = movieUiState.isCheatActive
+
+    LaunchedEffect(key1 = movieUiState.effect) {
+        movieUiState.effect.collect { effect ->
+            when (effect) {
+                is MovieEffect.ShowSnackbar -> {
+                    snackbarHostState.showSnackbar(message = effect.message)
+                }
+            }
+        }
+    }
 
     MovieScreen(
         movieState = movieState,
@@ -108,8 +120,7 @@ fun MovieScreen(
         goToPeople = { movieUiState.eventSink(MovieEvent.GoToPeople(id = it)) },
         goToSeries = { movieUiState.eventSink(MovieEvent.GoToSeries(id = it)) },
         goToBack = { movieUiState.eventSink(MovieEvent.GoToBack) },
-        isCheatActive = isCheatActive,
-//        onShowSnackbar = onShowSnackbar,
+        snackbarHostState = snackbarHostState,
         insertFavoriteMovie = { movieUiState.eventSink(MovieEvent.InsertFavoriteMovie(movie = it)) },
         deleteFavoriteMovie = { movieUiState.eventSink(MovieEvent.DeleteFavoriteMovie(movie = it)) },
         restart = { movieUiState.eventSink(MovieEvent.Restart) }
@@ -118,14 +129,13 @@ fun MovieScreen(
 
 @Composable
 fun MovieScreen(
-    movieState: MovieState,
+    movieState: MovieStatus,
     similarMovies: LazyPagingItems<SimilarMedia>,
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     goToSeries: (Int) -> Unit,
     goToBack: () -> Unit,
-    isCheatActive: Boolean,
-//    onShowSnackbar: suspend (String, String?) -> Boolean,
+    snackbarHostState: SnackbarHostState,
     insertFavoriteMovie: (Movie) -> Unit,
     deleteFavoriteMovie: (Movie) -> Unit,
     restart: () -> Unit
@@ -134,7 +144,7 @@ fun MovieScreen(
         modifier = Modifier.fillMaxSize().statusBarsPadding()
     ) {
         when (movieState) {
-            is MovieState.Loading -> {
+            is MovieStatus.Loading -> {
                 Log.d("loading...")
                 LocalFirebaseLogHelper.current.sendLog(name = "DetailScreen", message = "loading...")
 
@@ -144,7 +154,7 @@ fun MovieScreen(
                         .align(Alignment.Center)
                 )
             }
-            is MovieState.Success -> {
+            is MovieStatus.Success -> {
                 Log.d("$movieState")
                 LocalFirebaseLogHelper.current.sendLog(name = "DetailScreen", message = "$movieState")
 
@@ -173,8 +183,8 @@ fun MovieScreen(
                         goToPeople = goToPeople,
                         goToSeries = goToSeries,
                         goToBack = goToBack,
-                        isCheatActive = isCheatActive,
-//                        onShowSnackbar = onShowSnackbar,
+                        isCheatActive = movieState.isCheatActive,
+                        snackbarHostState = snackbarHostState,
                         insertFavoriteMovie = insertFavoriteMovie,
                         deleteFavoriteMovie = deleteFavoriteMovie,
                         selectedImage = selectedImage,
@@ -200,7 +210,7 @@ fun MovieScreen(
                     )
                 }
             }
-            is MovieState.Error -> {
+            is MovieStatus.Error -> {
                 Log.e("${movieState.throwable.message}")
                 LocalFirebaseLogHelper.current.sendLog(name = "DetailScreen", message = "${movieState.throwable.message}")
 
@@ -224,7 +234,7 @@ fun MovieDetailComponent(
     goToSeries: (Int) -> Unit,
     goToBack: () -> Unit,
     isCheatActive: Boolean,
-//    onShowSnackbar: suspend (String, String?) -> Boolean,
+    snackbarHostState: SnackbarHostState,
     insertFavoriteMovie: (Movie) -> Unit,
     deleteFavoriteMovie: (Movie) -> Unit,
     selectedImage: Image?,
@@ -233,118 +243,117 @@ fun MovieDetailComponent(
     onSelect: (ImageType, Image, Int) -> Unit,
     sharedTransitionScope: SharedTransitionScope
 ) {
-    val favoriteMessage = if (movieState.isFavorite) stringResource(id = R.string.add_favorite_movie) else stringResource(id = R.string.remove_favorite_movie)
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
     val analyticsHelper = LocalAnalyticsHelper.current
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(state = scrollState)
+    Box(
+        modifier = Modifier.fillMaxSize()
     ) {
-        TitleComponent(
-            isFavorite = movieState.isFavorite,
-            goToBack = goToBack,
-            onFavorite = {
-                if (movieState.isFavorite) {
-                    deleteFavoriteMovie(movieState.movie)
-                    analyticsHelper.logFavorite(isFavorite = false, contentType = "movie", media = movieState.movie)
-                } else {
-                    insertFavoriteMovie(movieState.movie)
-                    analyticsHelper.logFavorite(isFavorite = true, contentType = "movie", media = movieState.movie)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(state = scrollState)
+        ) {
+            TitleComponent(
+                isFavorite = movieState.isFavorite,
+                goToBack = goToBack,
+                onFavorite = {
+                    if (movieState.isFavorite) {
+                        deleteFavoriteMovie(movieState.movie)
+                        analyticsHelper.logFavorite(isFavorite = false, contentType = "movie", media = movieState.movie)
+                    } else {
+                        insertFavoriteMovie(movieState.movie)
+                        analyticsHelper.logFavorite(isFavorite = true, contentType = "movie", media = movieState.movie)
+                    }
                 }
-//                scope.launch {
-//                    onShowSnackbar(favoriteMessage, null)
-//                }
-            }
-        )
-        movieState.movie.videos?.results?.filter { it.site == "YouTube" }?.takeIf { it.isNotEmpty() }?.let { vodList ->
-            VideosComponent(
-                scope = scope,
-                vodList = vodList,
-                autoPlayTrailer = movieState.autoPlayTrailer
             )
-            Spacer(modifier = Modifier
-                .fillMaxWidth()
-                .height(height = dp10))
-        }
+            movieState.movie.videos?.results?.filter { it.site == "YouTube" }?.takeIf { it.isNotEmpty() }?.let { vodList ->
+                VideosComponent(
+                    scope = scope,
+                    vodList = vodList,
+                    autoPlayTrailer = movieState.autoPlayTrailer
+                )
+                Spacer(modifier = Modifier
+                    .fillMaxWidth()
+                    .height(height = dp10))
+            }
 
-        MediaTitleComponent(media = movieState.movie)
-        // 12) (옵션) Watch Providers / Where to watch
+            MediaTitleComponent(media = movieState.movie)
+            // 12) (옵션) Watch Providers / Where to watch
 //            movieState.watchProviders?.let { watchProvider ->
 //                item {
 //                    WatchProvidersSection(providers = watchProvider)
 //                }
 //            }
-        if (isCheatActive) {
-            movieState.movie.alternativeTitles?.titles?.takeIf { it.isNotEmpty() }?.let { alternativeTitles ->
+            if (isCheatActive) {
+                movieState.movie.alternativeTitles?.titles?.takeIf { it.isNotEmpty() }?.let { alternativeTitles ->
+                    Spacer(modifier = Modifier
+                        .fillMaxWidth()
+                        .height(height = dp10))
+                    AlternativeTitleComponent(alternativeTitles = alternativeTitles)
+                }
+            }
+            movieState.movie.overview?.takeIf { it.trim().isNotEmpty() }?.let { overview ->
                 Spacer(modifier = Modifier
                     .fillMaxWidth()
                     .height(height = dp10))
-                AlternativeTitleComponent(alternativeTitles = alternativeTitles)
+                OverviewComponent(overview = overview)
             }
-        }
-        movieState.movie.overview?.takeIf { it.trim().isNotEmpty() }?.let { overview ->
-            Spacer(modifier = Modifier
-                .fillMaxWidth()
-                .height(height = dp10))
-            OverviewComponent(overview = overview)
-        }
-        movieState.movie.credits?.let { credits ->
-            Spacer(modifier = Modifier
-                .fillMaxWidth()
-                .height(height = dp10))
-            CreditsComponent(
-                credits = credits,
-                goToPeople = goToPeople
-            )
-        }
-        movieState.movie.productionCompanies?.let { productionCompanies ->
-            Spacer(modifier = Modifier
-                .fillMaxWidth()
-                .height(height = dp10))
-            ProductionComponent(companies = productionCompanies)
-        }
-        movieState.movie.series?.let { series ->
-            Spacer(modifier = Modifier
-                .fillMaxWidth()
-                .height(height = dp10))
-            SeriesComponent(
-                collection = series,
-                goToMovie = goToMovie,
-                goToSeries = goToSeries
-            )
-        }
-        movieState.movie.images?.let { images ->
-            val posters = images.posters ?: emptyList()
-            val backdrops = images.backdrops ?: emptyList()
+            movieState.movie.credits?.let { credits ->
+                Spacer(modifier = Modifier
+                    .fillMaxWidth()
+                    .height(height = dp10))
+                CreditsComponent(
+                    credits = credits,
+                    goToPeople = goToPeople
+                )
+            }
+            movieState.movie.productionCompanies?.let { productionCompanies ->
+                Spacer(modifier = Modifier
+                    .fillMaxWidth()
+                    .height(height = dp10))
+                ProductionComponent(companies = productionCompanies)
+            }
+            movieState.movie.series?.let { series ->
+                Spacer(modifier = Modifier
+                    .fillMaxWidth()
+                    .height(height = dp10))
+                SeriesComponent(
+                    collection = series,
+                    goToMovie = goToMovie,
+                    goToSeries = goToSeries
+                )
+            }
+            movieState.movie.images?.let { images ->
+                val posters = images.posters ?: emptyList()
+                val backdrops = images.backdrops ?: emptyList()
 
+                Spacer(modifier = Modifier
+                    .fillMaxWidth()
+                    .height(height = dp10))
+                ImagesComponent(
+                    backdrops = backdrops,
+                    posters = posters,
+                    sharedTransitionScope = sharedTransitionScope,
+                    selectedImage = selectedImage,
+                    selectedIndex = selectedIndex,
+                    overlayVisible = overlayVisible,
+                    onSelect = onSelect
+                )
+            }
+            if (similarMovies.itemCount > 0) {
+                Spacer(modifier = Modifier
+                    .fillMaxWidth()
+                    .height(height = dp10))
+                SimilarComponent(
+                    similar = similarMovies,
+                    goToDestination = goToMovie
+                )
+            }
             Spacer(modifier = Modifier
                 .fillMaxWidth()
-                .height(height = dp10))
-            ImagesComponent(
-                backdrops = backdrops,
-                posters = posters,
-                sharedTransitionScope = sharedTransitionScope,
-                selectedImage = selectedImage,
-                selectedIndex = selectedIndex,
-                overlayVisible = overlayVisible,
-                onSelect = onSelect
-            )
-        }
-        if (similarMovies.itemCount > 0) {
-            Spacer(modifier = Modifier
-                .fillMaxWidth()
-                .height(height = dp10))
-            SimilarComponent(
-                similar = similarMovies,
-                goToDestination = goToMovie
-            )
-        }
-        Spacer(modifier = Modifier
-            .fillMaxWidth()
-            .height(height = dp20))
+                .height(height = dp20))
 //            // 11) (옵션) Reviews Preview (2~3개) + See all
 //            if (uiState.reviews.isNotEmpty()) {
 //                item {
@@ -354,6 +363,12 @@ fun MovieDetailComponent(
 //                    )
 //                }
 //            }
+        }
+
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
     }
 }
 

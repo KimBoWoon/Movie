@@ -88,24 +88,22 @@ import java.time.LocalDate
 @Composable
 fun SeriesScreen(
     modifier: Modifier,
-    seriesUiState: SeriesUiState
+    seriesState: SeriesState
 ) {
     LocalFirebaseLogHelper.current.sendLog("SeriesScreen", "series screen init")
     TrackScreenViewEvent(screenName = "SeriesScreen")
 
-    val seriesState = seriesUiState.series
-
     SeriesScreen(
-        seriesState = seriesState,
-        restart = { seriesUiState.eventSink(SeriesEvent.Restart) },
-        goToBack = { seriesUiState.eventSink(SeriesEvent.GoToBack) },
-        goToMovie = { seriesUiState.eventSink(SeriesEvent.GoToMovie(id = it)) }
+        seriesState = seriesState.series,
+        restart = { seriesState.eventSink(SeriesEvent.Restart) },
+        goToBack = { seriesState.eventSink(SeriesEvent.GoToBack) },
+        goToMovie = { seriesState.eventSink(SeriesEvent.GoToMovie(id = it)) }
     )
 }
 
 @Composable
 fun SeriesScreen(
-    seriesState: SeriesState,
+    seriesState: SeriesStatus,
     restart: () -> Unit,
     goToBack: () -> Unit,
     goToMovie: (Int) -> Unit
@@ -114,7 +112,7 @@ fun SeriesScreen(
         modifier = Modifier.fillMaxSize().statusBarsPadding()
     ) {
         when (seriesState) {
-            is SeriesState.Loading -> {
+            is SeriesStatus.Loading -> {
                 LocalFirebaseLogHelper.current.sendLog("SeriesScreen", "Series state Loading...")
 
                 CircularProgressComponent(
@@ -123,17 +121,17 @@ fun SeriesScreen(
                         .align(Alignment.Center)
                 )
             }
-            is SeriesState.Success -> {
+            is SeriesStatus.Success -> {
                 LocalFirebaseLogHelper.current.sendLog("SeriesScreen", "Series state Success")
 
                 SeriesComponent(
-                    series = seriesState.series,
-                    imageList = seriesState.imageList,
+                    series = seriesState.seriesUiState.series,
+                    imageList = seriesState.seriesUiState.imageList,
                     goToBack = goToBack,
                     goToMovie = goToMovie
                 )
             }
-            is SeriesState.Error -> {
+            is SeriesStatus.Error -> {
                 LocalFirebaseLogHelper.current.sendLog("SeriesScreen", "Series state Error")
 
                 ConfirmDialog(
