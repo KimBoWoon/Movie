@@ -10,7 +10,6 @@ import com.cheeke.surfy.data.repository.UserDataRepository
 import com.cheeke.surfy.datastore.InternalDataSource
 import com.cheeke.surfy.model.Configuration
 import com.cheeke.surfy.model.Genre
-import com.cheeke.surfy.model.Language
 import com.cheeke.surfy.model.LocaleOption
 import com.cheeke.surfy.model.PosterSize
 import com.cheeke.surfy.model.Regions
@@ -23,6 +22,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -36,35 +36,56 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 
-class MovieDataManager @Inject constructor(
+class SurfyDataManager @Inject constructor(
     @param:Dispatcher(dispatcher = Dispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
-    @ApplicationScope appScope: CoroutineScope,
+    @param:ApplicationScope private val appScope: CoroutineScope,
     private val apis: SettingRemoteDataSource,
     private val userDataRepository: UserDataRepository,
     datastore: InternalDataSource,
     networkMonitor: NetworkMonitor
 ) : DataManager {
+    private val userDataFlow = datastore.userData.distinctUntilChanged()
+    override val localeFlow: Flow<Locale> =
+        userDataFlow
+            .map { Locale(it.language, it.region) }
+            .distinctUntilChanged()
     private val cached = MutableStateFlow<SurfyAppDataState?>(value = null)
+
     @OptIn(ExperimentalCoroutinesApi::class)
-    override val surfyAppData = networkMonitor.isOnline
+    override val surfyAppData: StateFlow<SurfyAppDataState> = networkMonitor.isOnline
         .distinctUntilChanged()
         .filter { it }
-        .flatMapLatest { _ ->
-            cached.value?.let { flowOf(value = it) } ?: loadData()
-        }.onEach {
-            if (it is SurfyAppDataState.Success) {
-                cached.value = it
+        .flatMapLatest {
+            val current = cached.value
+            if (current is SurfyAppDataState.Success) {
+                flowOf(value = current)
+            } else {
+                loadData()
+            }
+        }.onEach { state ->
+            if (state is SurfyAppDataState.Success) {
+                cached.value = state
             }
         }.stateIn(
             scope = appScope,
             started = SharingStarted.Lazily,
             initialValue = SurfyAppDataState.Success(data = SurfyAppData())
         )
-    private val userDataFlow = datastore.userData.distinctUntilChanged()
-    override val localeFlow: Flow<Locale> =
-        userDataFlow
-            .map { Locale(it.language, it.region) }
+
+    init {
+        combine(
+            userDataFlow.map { it.imageQuality }.distinctUntilChanged(),
+            flow { emit(value = apis.getConfiguration()) }
+                .catch { e -> Log.printStackTrace(e); emit(value = Configuration()) }
+                .map { it.images?.secureBaseUrl.orEmpty() }
+                .distinctUntilChanged()
+        ) { quality, base -> "$base$quality" }
             .distinctUntilChanged()
+            .onEach { userDataRepository.updateSecureBaseUrl(value = it) }
+            .flowOn(context = ioDispatcher)
+            .launchIn(appScope)
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     private val genresFlow: Flow<GenreData> =
         localeFlow
@@ -74,57 +95,18 @@ class MovieDataManager @Inject constructor(
                     val movie = apis.getMovieGenres(language = language)
                     val tv = apis.getTvGenres(language = language)
                     emit(value = GenreData(movie = movie.genres.orEmpty(), tv = tv.genres.orEmpty()))
-                }.catch { e -> Log.printStackTrace(tr = e) }
-            }.distinctUntilChanged()
-    private val configurationFlow: Flow<Configuration> =
-        flow { emit(value = apis.getConfiguration()) }
-            .catch { e -> Log.printStackTrace(tr = e) }
-            .stateIn(
-                scope = appScope,
-                started = SharingStarted.WhileSubscribed(),
-                initialValue = Configuration()
-            )
-    private val availableLanguageFlow: Flow<List<Language>> =
-        flow { emit(value = apis.getAvailableLanguage()) }
-            .catch { e -> Log.printStackTrace(tr = e) }
-            .stateIn(
-                scope = appScope,
-                started = SharingStarted.WhileSubscribed(),
-                initialValue = emptyList()
-            )
-    private val availableRegionFlow: Flow<Regions> =
-        flow { emit(value = apis.getAvailableRegion()) }
-            .catch { e -> Log.printStackTrace(tr = e) }
-            .stateIn(
-                scope = appScope,
-                started = SharingStarted.WhileSubscribed(),
-                initialValue = Regions()
-            )
-    private val secureBaseUrlFlow: Flow<String> =
-        combine(
-            userDataFlow.map { it.imageQuality }.distinctUntilChanged(),
-            configurationFlow.map { it.images?.secureBaseUrl.orEmpty() }.distinctUntilChanged()
-        ) { quality, base ->
-            "$base$quality"
-        }.distinctUntilChanged()
+                }.catch { e -> Log.printStackTrace(e) }
+            }
+            .distinctUntilChanged()
 
-    init {
-        secureBaseUrlFlow
-            .onEach { userDataRepository.updateSecureBaseUrl(value = it) }
-            .flowOn(context = ioDispatcher)
-            .launchIn(scope = appScope)
-    }
-
-    fun loadData(): Flow<SurfyAppDataState> = combine(
+    // private으로 변경
+    private fun loadData(): Flow<SurfyAppDataState> = combine(
         userDataFlow,
-        configurationFlow,
-        availableLanguageFlow,
-        availableRegionFlow,
+        flow { emit(apis.getConfiguration()) }.catch { e -> Log.printStackTrace(e); emit(value = Configuration()) },
+        flow { emit(apis.getAvailableLanguage()) }.catch { e -> Log.printStackTrace(e); emit(value = emptyList()) },
+        flow { emit(apis.getAvailableRegion()) }.catch { e -> Log.printStackTrace(e); emit(value = Regions()) },
         genresFlow
     ) { internalData, configuration, language, region, genresPair ->
-        Log.d("${configuration.images?.secureBaseUrl}${internalData.imageQuality}")
-        Log.d("movieAppDataGenres -> $genresPair")
-
         SurfyAppData(
             isAdult = internalData.isAdult,
             autoPlayTrailer = internalData.isAutoPlayTrailer,
@@ -135,16 +117,21 @@ class MovieDataManager @Inject constructor(
             movieGenres = genresPair.movie,
             tvGenres = genresPair.tv,
             region = region.results?.map {
-                LocaleOption(code = it.iso31661 ?: "", label = it.nativeName ?: "", isSelected = internalData.region == it.iso31661)
+                LocaleOption(
+                    code = it.iso31661 ?: "",
+                    label = it.nativeName ?: "",
+                    isSelected = internalData.region == it.iso31661
+                )
             } ?: emptyList(),
             language = language.map {
-                LocaleOption(code = it.iso6391 ?: "", label = it.englishName ?: "", isSelected = internalData.language == it.iso6391)
+                LocaleOption(
+                    code = it.iso6391 ?: "",
+                    label = it.englishName ?: "",
+                    isSelected = internalData.language == it.iso6391
+                )
             },
             posterSize = configuration.images?.posterSizes?.map {
-                PosterSize(
-                    size = it,
-                    isSelected = internalData.imageQuality == it
-                )
+                PosterSize(size = it, isSelected = internalData.imageQuality == it)
             } ?: emptyList()
         )
     }.asResult()
