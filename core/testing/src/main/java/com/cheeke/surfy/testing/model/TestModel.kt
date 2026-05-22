@@ -350,7 +350,8 @@ val favoriteMovieDetailTestData = Movie(
     voteAverage = 3.5f,
     voteCount = 203,
     certification = "15",
-    series = movieSeriesTestData
+    series = movieSeriesTestData,
+    isFavorite = true
 )
 
 val unFavoriteMovieDetailTestData = Movie(
@@ -387,7 +388,8 @@ val unFavoriteMovieDetailTestData = Movie(
     voteAverage = 3.5f,
     voteCount = 203,
     certification = "15",
-    series = movieSeriesTestData
+    series = movieSeriesTestData,
+    isFavorite = false
 )
 
 val tvTestData = Tv(

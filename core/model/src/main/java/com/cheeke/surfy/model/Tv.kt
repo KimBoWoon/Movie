@@ -43,7 +43,8 @@ data class Tv(
     override val releaseDate: String? = null,
     override val certification: String? = null,
     override val runtime: Int? = null,
-    override val mediaType: MediaType = MediaType.TV
+    override val mediaType: MediaType = MediaType.TV,
+    override val isFavorite: Boolean = false
 ) : Media
 
 data class TvAlternativeTitles(

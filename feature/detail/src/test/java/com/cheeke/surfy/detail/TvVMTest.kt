@@ -37,8 +37,7 @@ class TvVMTest {
     private val testAnalyticsHelper = TestAnalyticsHelper()
     private val getTvDetailUseCase = GetTvDetailUseCase(
         detailRepository = testDetailRepository,
-        tvDataBaseRepository = testDataBaseRepository,
-        userDataRepository = testUserDataRepository
+        tvDataBaseRepository = testDataBaseRepository
     )
     private lateinit var viewModel: TvVM
     private val tv = Tv(id = 0)
@@ -97,8 +96,7 @@ class TvVMTest {
             expected = viewModel.uiState.value,
             actual = TvState.Success(
                 TvUiState(
-                    tv = tv,
-                    isFavorite = false,
+                    tv = tv.copy(isFavorite = false),
                     autoPlayTrailer = true,
                     seasons = tv.seasons.orEmpty(),
                     episodeState = TvSeasonLoadState.Idle,
@@ -124,8 +122,7 @@ class TvVMTest {
             expected = viewModel.uiState.value,
             actual = TvState.Success(
                 TvUiState(
-                    tv = tv,
-                    isFavorite = false,
+                    tv = tv.copy(isFavorite = false),
                     autoPlayTrailer = true,
                     seasons = tv.seasons.orEmpty(),
                     episodeState = TvSeasonLoadState.Idle,
@@ -138,8 +135,7 @@ class TvVMTest {
             expected = viewModel.uiState.value,
             actual = TvState.Success(
                 TvUiState(
-                    tv = tv,
-                    isFavorite = true,
+                    tv = tv.copy(isFavorite = true),
                     autoPlayTrailer = true,
                     seasons = tv.seasons.orEmpty(),
                     episodeState = TvSeasonLoadState.Idle,
@@ -165,8 +161,7 @@ class TvVMTest {
             expected = viewModel.uiState.value,
             actual = TvState.Success(
                 TvUiState(
-                    tv = tv,
-                    isFavorite = true,
+                    tv = tv.copy(isFavorite = true),
                     autoPlayTrailer = true,
                     seasons = tv.seasons.orEmpty(),
                     episodeState = TvSeasonLoadState.Idle,
@@ -179,8 +174,7 @@ class TvVMTest {
             expected = viewModel.uiState.value,
             actual = TvState.Success(
                 TvUiState(
-                    tv = tv,
-                    isFavorite = false,
+                    tv = tv.copy(isFavorite = false),
                     autoPlayTrailer = true,
                     seasons = tv.seasons.orEmpty(),
                     episodeState = TvSeasonLoadState.Idle,
@@ -242,8 +236,7 @@ class TvVMTest {
             expected = viewModel.uiState.value,
             actual = TvState.Success(
                 TvUiState(
-                    tv = tv,
-                    isFavorite = false,
+                    tv = tv.copy(isFavorite = false),
                     autoPlayTrailer = true,
                     seasons = tv.seasons.orEmpty(),
                     episodeState = TvSeasonLoadState.Idle,

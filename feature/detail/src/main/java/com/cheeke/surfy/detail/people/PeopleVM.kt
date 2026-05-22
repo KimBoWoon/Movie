@@ -9,7 +9,6 @@ import com.cheeke.surfy.common.Result
 import com.cheeke.surfy.common.asResult
 import com.cheeke.surfy.data.repository.PeopleDataBaseRepository
 import com.cheeke.surfy.domain.GetPeopleDetailUseCase
-import com.cheeke.surfy.domain.PeopleWithFavorite
 import com.cheeke.surfy.model.People
 import com.cheeke.surfy.network.model.SurfyNetworkException
 import dagger.assisted.Assisted
@@ -44,21 +43,21 @@ class PeopleVM @AssistedInject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     val people = reload
         .flatMapLatest {
-            trace(sectionName = "GetPeopleDetail") { getPeopleDetail(personId = id) }.asResult()
-        }.map { result ->
-            when (result) {
-                is Result.Loading -> PeopleState.Loading
-                is Result.Success -> {
-                    analyticsHelper.logSelectContent(contentType = "people", media = result.data.people)
-                    PeopleState.Success(data = result.data)
-                }
-                is Result.Error -> PeopleState.Error(result.throwable as SurfyNetworkException)
+        trace(sectionName = "GetPeopleDetail") { getPeopleDetail(personId = id) }.asResult()
+    }.map { result ->
+        when (result) {
+            is Result.Loading -> PeopleState.Loading
+            is Result.Success -> {
+                analyticsHelper.logSelectContent(contentType = "people", media = result.data)
+                PeopleState.Success(data = result.data)
             }
-        }.stateIn(
-            scope = viewModelScope,
-            initialValue = PeopleState.Loading,
-            started = SharingStarted.Lazily
-        )
+            is Result.Error -> PeopleState.Error(result.throwable as SurfyNetworkException)
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        initialValue = PeopleState.Loading,
+        started = SharingStarted.Lazily
+    )
 
     init {
         viewModelScope.launch {
@@ -87,6 +86,6 @@ class PeopleVM @AssistedInject constructor(
 
 sealed interface PeopleState {
     data object Loading : PeopleState
-    data class Success(val data: PeopleWithFavorite) : PeopleState
+    data class Success(val data: People) : PeopleState
     data class Error(val throwable: SurfyNetworkException) : PeopleState
 }

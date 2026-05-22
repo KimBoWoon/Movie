@@ -14,7 +14,6 @@ import com.cheeke.surfy.data.repository.MovieDataBaseRepository
 import com.cheeke.surfy.data.repository.PagingRepository
 import com.cheeke.surfy.data.repository.UserDataRepository
 import com.cheeke.surfy.domain.GetMovieDetailUseCase
-import com.cheeke.surfy.domain.MovieWithFavorite
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.network.model.SurfyNetworkException
 import dagger.assisted.Assisted
@@ -24,6 +23,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -51,23 +51,23 @@ class MovieVM @AssistedInject constructor(
 
     private val reload = MutableSharedFlow<Unit>(replay = 1)
     @OptIn(ExperimentalCoroutinesApi::class)
-    val movie = reload
-        .flatMapLatest {
-            trace(sectionName = "GetMovieDetail") { getMovieDetail(id = id) }.asResult()
-        }.map { result ->
-            when (result) {
-                is Result.Loading -> MovieState.Loading
-                is Result.Success -> {
-                    analyticsHelper.logSelectContent(contentType = "movie", media = result.data.movie)
-                    MovieState.Success(movie = result.data)
-                }
-                is Result.Error -> MovieState.Error(throwable = result.throwable as SurfyNetworkException)
+    val movie = combine(
+        reload.flatMapLatest { trace(sectionName = "GetMovieDetail") { getMovieDetail(id = id) }.asResult() },
+        userDataRepository.internalData
+    ) { result, internalData ->
+        when (result) {
+            is Result.Loading -> MovieState.Loading
+            is Result.Success -> {
+                analyticsHelper.logSelectContent(contentType = "movie", media = result.data)
+                MovieState.Success(movie = result.data, isAutoPlayTrailer = internalData.isAutoPlayTrailer)
             }
-        }.stateIn(
-            scope = viewModelScope,
-            initialValue = MovieState.Loading,
-            started = SharingStarted.Lazily
-        )
+            is Result.Error -> MovieState.Error(throwable = result.throwable as SurfyNetworkException)
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        initialValue = MovieState.Loading,
+        started = SharingStarted.Lazily
+    )
     @OptIn(ExperimentalCoroutinesApi::class)
     val similarMovies = userDataRepository.internalData
         .map { it.language to it.region }
@@ -133,6 +133,6 @@ class MovieVM @AssistedInject constructor(
 
 sealed interface MovieState {
     data object Loading : MovieState
-    data class Success(val movie: MovieWithFavorite) : MovieState
+    data class Success(val movie: Movie, val isAutoPlayTrailer: Boolean) : MovieState
     data class Error(val throwable: SurfyNetworkException) : MovieState
 }

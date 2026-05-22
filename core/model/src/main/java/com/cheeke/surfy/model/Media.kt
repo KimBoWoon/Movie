@@ -14,4 +14,5 @@ interface Media {
     val lastAirDate: String?
     val voteAverage: Float?
     val mediaType: MediaType
+    val isFavorite: Boolean
 }

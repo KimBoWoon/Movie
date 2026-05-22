@@ -46,7 +46,7 @@ class GetPeopleDetailUseCaseTest {
         val result = getPeopleDetailUseCase(0)
 
         assertEquals(
-            result.first().people,
+            result.first(),
             peopleDetailTestData
         )
 
@@ -63,11 +63,11 @@ class GetPeopleDetailUseCaseTest {
         detailRepository.setExternalIds(externalIdsTestData)
         peopleDataBaseRepository.insert(media = People(id = 0))
 
-        val result = getPeopleDetailUseCase(0)
+        val result = getPeopleDetailUseCase(personId = 0)
 
         assertEquals(
-            result.first().people,
-            peopleDetailTestData
+            result.first(),
+            peopleDetailTestData.copy(isFavorite = true)
         )
     }
 }

@@ -41,7 +41,7 @@ class TvVM @AssistedInject constructor(
     private val tvDataBaseRepository: TvDataBaseRepository,
     private val pagingRepository: PagingRepository,
     private val analyticsHelper: AnalyticsHelper,
-    userDataRepository: UserDataRepository
+    private val userDataRepository: UserDataRepository
 ) : ViewModel() {
     companion object {
         private const val TAG = "TvVM"
@@ -81,12 +81,13 @@ class TvVM @AssistedInject constructor(
     val uiState = combine(
         tv,
         selectedSeason,
-    ) { twf, selectedSeason ->
-        when (twf) {
+        userDataRepository.internalData
+    ) { result, selectedSeason, internalData ->
+        when (result) {
             is Result.Loading -> TvState.Loading
             is Result.Success -> {
-                analyticsHelper.logSelectContent(contentType = "tv", media = twf.data.tv)
-                val tv = twf.data.tv
+                analyticsHelper.logSelectContent(contentType = "tv", media = result.data.tv)
+                val tv = result.data.tv
                 val seasons = tv.seasons
                 val initialSeason = selectedSeason ?: seasons?.sortedBy { it.seasonNumber }?.firstOrNull()
 
@@ -96,16 +97,15 @@ class TvVM @AssistedInject constructor(
 
                 TvState.Success(
                     tvUiState = TvUiState(
-                        tv = twf.data.tv,
+                        tv = result.data.tv,
                         seasons = seasons.orEmpty(),
-                        episodeState = twf.data.seasonLoadState,
-                        episodesBySeason = twf.data.episodesBySeason,
-                        isFavorite = twf.data.isFavorite,
-                        autoPlayTrailer = twf.data.autoPlayTrailer
+                        episodeState = result.data.seasonLoadState,
+                        episodesBySeason = result.data.episodesBySeason,
+                        autoPlayTrailer = internalData.isAutoPlayTrailer
                     )
                 )
             }
-            is Result.Error -> TvState.Error(throwable = twf.throwable as SurfyNetworkException)
+            is Result.Error -> TvState.Error(throwable = result.throwable as SurfyNetworkException)
         }
     }.stateIn(
         scope = viewModelScope,
@@ -167,6 +167,5 @@ data class TvUiState(
     val seasons: List<TvSeason>,
     val episodeState: TvSeasonLoadState,
     val episodesBySeason: Map<String, List<TvEpisode>>,
-    val isFavorite: Boolean,
     val autoPlayTrailer: Boolean
 )

@@ -45,7 +45,6 @@ import com.cheeke.surfy.analytics.TrackScreenViewEvent
 import com.cheeke.surfy.analytics.logFavorite
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.data.util.POSTER_IMAGE_RATIO
-import com.cheeke.surfy.domain.PeopleWithFavorite
 import com.cheeke.surfy.feature.detail.R
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
 import com.cheeke.surfy.model.Image
@@ -146,7 +145,7 @@ fun PeopleScreen(
 
 @Composable
 fun PeopleDetailComponent(
-    people: PeopleWithFavorite,
+    people: People,
     goToBack: () -> Unit,
     goToMovie: (Int) -> Unit,
     goToTv: (Int) -> Unit,
@@ -156,7 +155,7 @@ fun PeopleDetailComponent(
 ) {
     val scope = rememberCoroutineScope()
 
-    val relatedMovie = people.people.combineCredits?.getRelatedMovie()?.sortedWith(
+    val relatedMovie = people.combineCredits?.getRelatedMovie()?.sortedWith(
         compareByDescending<Media> {
             if (it.releaseDate.isNullOrEmpty()) {
                 LocalDate.MAX
@@ -180,15 +179,15 @@ fun PeopleDetailComponent(
         item(span = { GridItemSpan(currentLineSpan = maxLineSpan) }) {
             ProfileComponent(
                 people = people,
-                images = people.people.images.orEmpty(),
+                images = people.images.orEmpty(),
                 goToBack = goToBack,
                 onFavorite = {
                     if (people.isFavorite) {
-                        deleteFavoritePeople(people.people)
-                        analyticsHelper.logFavorite(isFavorite = false, contentType = "people", media = people.people)
+                        deleteFavoritePeople(people)
+                        analyticsHelper.logFavorite(isFavorite = false, contentType = "people", media = people)
                     } else {
-                        insertFavoritePeople(people.people)
-                        analyticsHelper.logFavorite(isFavorite = true, contentType = "people", media = people.people)
+                        insertFavoritePeople(people)
+                        analyticsHelper.logFavorite(isFavorite = true, contentType = "people", media = people)
                     }
                     scope.launch { onShowSnackbar(snackbarMessage, null) }
                 }
@@ -196,14 +195,14 @@ fun PeopleDetailComponent(
         }
 
         item(span = { GridItemSpan(currentLineSpan = maxLineSpan) }) {
-            ExternalIdLinkComponent(people = people.people)
+            ExternalIdLinkComponent(people = people)
         }
 
-        if (!people.people.biography.isNullOrBlank()) {
+        if (!people.biography.isNullOrBlank()) {
             item(span = { GridItemSpan(currentLineSpan = maxLineSpan) }) {
                 Text(
                     modifier = Modifier.semantics { contentDescription = "peopleBiography" },
-                    text = people.people.biography.orEmpty()
+                    text = people.biography.orEmpty()
                 )
             }
         }
@@ -239,7 +238,7 @@ fun PeopleDetailComponent(
 
 @Composable
 fun ProfileComponent(
-    people: PeopleWithFavorite,
+    people: People,
     images: List<Image>,
     goToBack: () -> Unit,
     onFavorite: () -> Unit
@@ -309,7 +308,7 @@ fun ProfileComponent(
             }
 
             Text(
-                text = people.people.title ?: "",
+                text = people.title ?: "",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(horizontal = 20.dp),
@@ -318,21 +317,21 @@ fun ProfileComponent(
             )
 
             Text(
-                text = people.people.knownForDepartment ?: "",
+                text = people.knownForDepartment ?: "",
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = 1
             )
 
-            if (!people.people.birthday.isNullOrEmpty() && !people.people.deathday.isNullOrEmpty()) {
+            if (!people.birthday.isNullOrEmpty() && !people.deathday.isNullOrEmpty()) {
                 Text(
-                    text = "${people.people.birthday} ~ ${people.people.deathday}",
+                    text = "${people.birthday} ~ ${people.deathday}",
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1
                 )
             } else {
                 Text(
-                    text = people.people.birthday ?: "",
+                    text = people.birthday ?: "",
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1

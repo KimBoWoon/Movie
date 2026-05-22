@@ -191,6 +191,7 @@ fun TvScreen(
                 SharedTransitionLayout {
                     TvDetailComponent(
                         tv = tvUiState.tvUiState,
+                        isAutoPlayTrailer = tvUiState.tvUiState.autoPlayTrailer,
                         similarTvs = similarTvs,
                         goToTv = goToTv,
                         goToPeople = goToPeople,
@@ -234,7 +235,7 @@ fun TvScreen(
                 }
             }
             is TvState.Error -> {
-                Log.e(tvUiState.throwable.toString())
+                Log.e(tvUiState.throwable.message ?: "something wrong")
                 LocalFirebaseLogHelper.current.sendLog(name = "TvScreen", message = tvUiState.throwable.message ?: "something wrong")
 
                 val message = tvUiState.throwable.stringRes?.let { stringResource(id = it) } ?: stringResource(id = com.cheeke.surfy.core.network.R.string.something_wrong)
@@ -253,6 +254,7 @@ fun TvScreen(
 @Composable
 fun TvDetailComponent(
     tv: TvUiState,
+    isAutoPlayTrailer: Boolean,
     similarTvs: LazyPagingItems<SimilarMedia>,
     goToTv: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
@@ -268,19 +270,21 @@ fun TvDetailComponent(
     sharedTransitionScope: SharedTransitionScope,
     onSelectSeason: (TvSeason) -> Unit
 ) {
-    val favoriteMessage = if (tv.isFavorite) stringResource(id = R.string.add_favorite_movie) else stringResource(id = R.string.remove_favorite_movie)
+    val favoriteMessage = if (tv.tv.isFavorite) stringResource(id = R.string.add_favorite_movie) else stringResource(id = R.string.remove_favorite_movie)
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
     val analyticsHelper = LocalAnalyticsHelper.current
 
     Column(
-        modifier = Modifier.fillMaxSize().verticalScroll(state = scrollState)
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(state = scrollState)
     ) {
         TitleComponent(
-            isFavorite = tv.isFavorite,
+            isFavorite = tv.tv.isFavorite,
             goToBack = goToBack,
             onFavorite = {
-                if (tv.isFavorite) {
+                if (tv.tv.isFavorite) {
                     deleteFavoriteTv(tv.tv)
                     analyticsHelper.logFavorite(isFavorite = false, contentType = "tv", media = tv.tv)
                 } else {
@@ -293,24 +297,34 @@ fun TvDetailComponent(
             }
         )
         tv.tv.videos?.results?.filter { it.site == "YouTube" }?.takeIf { it.isNotEmpty() }?.let { vods ->
-            VideosComponent(scope = scope, vodList = vods, autoPlayTrailer = tv.autoPlayTrailer)
-            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
+            VideosComponent(scope = scope, vodList = vods, autoPlayTrailer = isAutoPlayTrailer)
+            Spacer(modifier = Modifier
+                .fillMaxWidth()
+                .height(height = dp10))
         }
         MediaTitleComponent(media = tv.tv)
         tv.tv.alternativeTitles?.titles?.takeIf { it.isNotEmpty() }?.let { alternativeTitles ->
-            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
+            Spacer(modifier = Modifier
+                .fillMaxWidth()
+                .height(height = dp10))
             AlternativeTitleComponent(alternativeTitles = alternativeTitles)
         }
         tv.tv.overview?.takeIf { it.trim().isNotEmpty() }?.let { overview ->
-            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
+            Spacer(modifier = Modifier
+                .fillMaxWidth()
+                .height(height = dp10))
             OverviewComponent(overview = overview)
         }
         tv.tv.credits?.let { credits ->
-            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
+            Spacer(modifier = Modifier
+                .fillMaxWidth()
+                .height(height = dp10))
             CreditsComponent(credits = credits, goToPeople = goToPeople)
         }
         tv.seasons.takeIf { it.isNotEmpty() }?.let { seasons ->
-            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
+            Spacer(modifier = Modifier
+                .fillMaxWidth()
+                .height(height = dp10))
             SeasonComponent(
                 tv = tv.tv,
                 seasons = seasons,
@@ -332,14 +346,18 @@ fun TvDetailComponent(
             )
         }
         tv.tv.productionCompanies?.let { productionCompanies ->
-            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
+            Spacer(modifier = Modifier
+                .fillMaxWidth()
+                .height(height = dp10))
             ProductionComponent(companies = productionCompanies)
         }
         tv.tv.images?.let {
             val backdrops = it.backdrops ?: emptyList()
             val posters = it.posters ?: emptyList()
 
-            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
+            Spacer(modifier = Modifier
+                .fillMaxWidth()
+                .height(height = dp10))
             ImagesComponent(
                 backdrops = backdrops,
                 posters = posters,
@@ -351,10 +369,14 @@ fun TvDetailComponent(
             )
         }
         if (similarTvs.itemCount > 0) {
-            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
+            Spacer(modifier = Modifier
+                .fillMaxWidth()
+                .height(height = dp10))
             SimilarComponent(similar = similarTvs, goToDestination = goToTv)
         }
-        Spacer(modifier = Modifier.fillMaxWidth().height(height = dp20))
+        Spacer(modifier = Modifier
+            .fillMaxWidth()
+            .height(height = dp20))
     }
 }
 
@@ -381,7 +403,9 @@ fun SeasonComponent(
     val analyticsHelper = LocalAnalyticsHelper.current
 
     Column(
-        modifier = Modifier.fillMaxWidth().height(height = dp227)
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(height = dp227)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -424,7 +448,9 @@ fun SeasonComponent(
         Spacer(modifier = Modifier.height(height = dp12))
 
         EpisodeContents(
-            modifier = Modifier.fillMaxWidth().weight(weight = 1f),
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(weight = 1f),
             episodeState = episodeState,
             episodes = episodes,
             episodeListState = episodeListState,
@@ -446,11 +472,23 @@ fun EpisodeContents(
         contentAlignment = Alignment.Center
     ) {
         when (episodeState) {
-            is TvSeasonLoadState.Loading -> CircularProgressComponent()
+            is TvSeasonLoadState.Loading -> {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    CircularProgressComponent()
+                    Text(
+                        text = stringResource(id = R.string.tv_season_loading, episodeState.message ?: ""),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.Gray
+                    )
+                }
+            }
             is TvSeasonLoadState.Idle -> {
                 if (episodes.isEmpty()) {
                     Text(
-                        text = "등록된 에피소드가 없습니다.",
+                        text = stringResource(id = R.string.empty_episode),
                         style = MaterialTheme.typography.bodyMedium
                     )
                 } else {
@@ -463,7 +501,7 @@ fun EpisodeContents(
             }
             is TvSeasonLoadState.Error -> {
                 Text(
-                    text = episodeState.message,
+                    text = stringResource(id = R.string.tv_season_error, episodeState.message ?: ""),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray
                 )
@@ -678,6 +716,8 @@ fun EpisodeDetailBottomSheetDialog(
                 goToPeople = goToPeople
             )
         }
-        Spacer(modifier = Modifier.fillMaxWidth().height(height = dp20))
+        Spacer(modifier = Modifier
+            .fillMaxWidth()
+            .height(height = dp20))
     }
 }

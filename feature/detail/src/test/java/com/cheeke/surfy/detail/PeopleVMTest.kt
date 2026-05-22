@@ -3,7 +3,6 @@ package com.cheeke.surfy.detail
 import com.cheeke.surfy.detail.people.PeopleState
 import com.cheeke.surfy.detail.people.PeopleVM
 import com.cheeke.surfy.domain.GetPeopleDetailUseCase
-import com.cheeke.surfy.domain.PeopleWithFavorite
 import com.cheeke.surfy.model.People
 import com.cheeke.surfy.testing.model.combineCreditsTestData
 import com.cheeke.surfy.testing.model.externalIdsTestData
@@ -19,12 +18,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import kotlin.test.assertEquals
 
 @RunWith(RobolectricTestRunner::class)
 class PeopleVMTest {
@@ -62,26 +61,23 @@ class PeopleVMTest {
     fun peopleDetailLoadingTest() = runTest {
         backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.people.collect() }
 
-        assertEquals(viewModel.people.value, PeopleState.Loading)
+        assertEquals(expected = viewModel.people.value, actual = PeopleState.Loading)
     }
 
     @Test
     fun peopleDetailSuccessTest() = runTest {
         backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.people.collect() }
 
-        assertEquals(viewModel.people.value, PeopleState.Loading)
+        assertEquals(expected = viewModel.people.value, actual = PeopleState.Loading)
 
         testDetailRepository.setPeopleDetail(peopleDetailTestData)
         testDetailRepository.setCombineCredits(combineCreditsTestData)
         testDetailRepository.setExternalIds(externalIdsTestData)
 
         assertEquals(
-            viewModel.people.value,
-            PeopleState.Success(
-                PeopleWithFavorite(
-                    people = peopleDetailTestData,
-                    isFavorite = testDatabaseRepository.isFavorite(id = 0).first()
-                )
+            expected = viewModel.people.value,
+            actual = PeopleState.Success(
+                data = peopleDetailTestData.copy(isFavorite = testDatabaseRepository.isFavorite(id = 0).first())
             )
         )
     }
@@ -104,12 +100,9 @@ class PeopleVMTest {
         testDatabaseRepository.insert(media = People(id = 124, title = "people_124", posterPath = "/peopleImagePath.png"))
 
         assertEquals(
-            viewModel.people.value,
-            PeopleState.Success(
-                data = PeopleWithFavorite(
-                    people = people,
-                    isFavorite = testDatabaseRepository.isFavorite(id = 124).first()
-                )
+            expected = viewModel.people.value,
+            actual = PeopleState.Success(
+                data = people.copy(isFavorite = testDatabaseRepository.isFavorite(id = 124).first())
             )
         )
     }
@@ -130,12 +123,9 @@ class PeopleVMTest {
         testDatabaseRepository.delete(media = People(id = 124, title = "people_124", posterPath = "/peopleImagePath.png"))
 
         assertEquals(
-            viewModel.people.value,
-            PeopleState.Success(
-                PeopleWithFavorite(
-                    people = peopleDetailTestData,
-                    isFavorite = testDatabaseRepository.isFavorite(id = 124).first()
-                )
+            expected = viewModel.people.value,
+            actual = PeopleState.Success(
+                data = peopleDetailTestData.copy(isFavorite = testDatabaseRepository.isFavorite(id = 124).first())
             )
         )
     }

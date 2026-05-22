@@ -8,6 +8,9 @@ data class TrendingMedia(
 )
 
 data class TrendingMediaResult(
+    // common
+    override val isFavorite: Boolean = false,
+
     // Movie
     val adult: Boolean? = null,
     val backdropPath: String? = null,

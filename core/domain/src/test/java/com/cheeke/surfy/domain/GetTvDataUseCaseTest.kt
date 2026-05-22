@@ -39,8 +39,7 @@ class GetTvDataUseCaseTest {
         userDataRepository = TestUserDataRepository()
         getTvDetailUseCase = GetTvDetailUseCase(
             tvDataBaseRepository = tvDataBaseRepository,
-            detailRepository = detailRepository,
-            userDataRepository = userDataRepository
+            detailRepository = detailRepository
         )
     }
 
@@ -55,7 +54,7 @@ class GetTvDataUseCaseTest {
 
         assertEquals(
             expected = result.tv,
-            actual = tv
+            actual = tv.copy(isFavorite = true)
         )
     }
 
@@ -67,12 +66,12 @@ class GetTvDataUseCaseTest {
         tvDataBaseRepository.insert(media = Tv(id = 123))
 
         assertEquals(
-            expected = getTvDetailUseCase(id = 0).first().isFavorite,
+            expected = getTvDetailUseCase(id = 0).first().tv.isFavorite,
             actual = false
         )
         tvDataBaseRepository.insert(media = tv)
         assertEquals(
-            expected = getTvDetailUseCase(id = 0).first().isFavorite,
+            expected = getTvDetailUseCase(id = 0).first().tv.isFavorite,
             actual = true
         )
     }

@@ -27,7 +27,8 @@ data class People(
     override val voteAverage: Float? = null,
     override val mediaType: MediaType = MediaType.PEOPLE,
     override val firstAirDate: String? = null,
-    override val lastAirDate: String? = null
+    override val lastAirDate: String? = null,
+    override val isFavorite: Boolean = false
 ) : Media
 
 data class RelatedMovie(

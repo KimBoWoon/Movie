@@ -31,4 +31,7 @@
     <string name="tv_reviews">Review</string>
     <string name="tv_images">Image</string>
     <string name="tv_similar_tv">Similar TV</string>
+    <string name="empty_episode">Empty episode</string>
+    <string name="tv_season_loading">%s loading…</string>
+    <string name="tv_season_error">%s failed to load</string>
 </resources>

@@ -18,7 +18,6 @@ import com.cheeke.surfy.testing.repository.TestUserDataRepository
 import com.cheeke.surfy.testing.utils.MainDispatcherRule
 import com.cheeke.surfy.testing.utils.TestMovieAppDataManager
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -72,18 +71,13 @@ class GetMovieDetailUseCaseTest {
         val result = getMovieDetailUseCase(id = 0).first()
 
         assertEquals(
-            expected = result.movie,
-            actual = favoriteMovieDetailTestData
+            expected = result,
+            actual = favoriteMovieDetailTestData.copy(isFavorite = false)
         )
 
         assertEquals(
-            expected = result.movie.series,
+            expected = result.series,
             actual = movieSeriesTestData
-        )
-
-        assertEquals(
-            expected = result.autoPlayTrailer,
-            actual = userDataRepository.internalData.map { it.isAutoPlayTrailer }.first()
         )
 
         assertEquals(
@@ -107,18 +101,13 @@ class GetMovieDetailUseCaseTest {
         val result = getMovieDetailUseCase(id = 324).first()
 
         assertEquals(
-            expected = result.movie,
-            actual = unFavoriteMovieDetailTestData
+            expected = result,
+            actual = unFavoriteMovieDetailTestData.copy(isFavorite = true)
         )
 
         assertEquals(
-            expected = result.movie.series,
+            expected = result.series,
             actual = movieSeriesTestData
-        )
-
-        assertEquals(
-            expected = result.autoPlayTrailer,
-            actual = userDataRepository.internalData.map { it.isAutoPlayTrailer }.first()
         )
 
         assertEquals(

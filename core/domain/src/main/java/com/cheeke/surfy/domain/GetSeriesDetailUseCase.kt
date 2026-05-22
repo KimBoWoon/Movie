@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class GetSeriesDetailUseCase @Inject constructor(
-    private val detailRepository: SeriesDetailRepository,
+    private val detailRepository: SeriesDetailRepository
 ) {
     operator fun invoke(id: Int): Flow<SeriesWithImages> = combine(
         detailRepository.getData(id = id)

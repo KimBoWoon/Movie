@@ -9,7 +9,6 @@ import com.cheeke.surfy.data.paging.SimilarMoviePagingSource
 import com.cheeke.surfy.detail.movie.MovieState
 import com.cheeke.surfy.detail.movie.MovieVM
 import com.cheeke.surfy.domain.GetMovieDetailUseCase
-import com.cheeke.surfy.domain.MovieWithFavorite
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.Review
 import com.cheeke.surfy.model.SimilarMedia
@@ -91,18 +90,15 @@ class MovieVMTest {
         val similarMovies = viewModel.similarMovies
 
         assertEquals(
-            similarMovies.asSnapshot(),
-            (testPager.refresh(initialKey = 0) as PagingSource.LoadResult.Page).data
+            expected = similarMovies.asSnapshot(),
+            actual = (testPager.refresh(initialKey = 0) as PagingSource.LoadResult.Page).data
         )
 
         assertEquals(
-            viewModel.movie.value,
-            MovieState.Success(
-                MovieWithFavorite(
-                    movie = favoriteMovieDetailTestData,
-                    autoPlayTrailer = testUserDataRepository.internalData.map { it.isAutoPlayTrailer }.first(),
-                    isFavorite = testDataBaseRepository.isFavorite(id = 0).first()
-                )
+            expected = viewModel.movie.value,
+            actual = MovieState.Success(
+                movie = favoriteMovieDetailTestData.copy(isFavorite = testDataBaseRepository.isFavorite(id = 0).first()),
+                isAutoPlayTrailer = testUserDataRepository.internalData.map { it.isAutoPlayTrailer }.first(),
             )
         )
     }
@@ -140,11 +136,8 @@ class MovieVMTest {
         assertEquals(
             viewModel.movie.value,
             MovieState.Success(
-                MovieWithFavorite(
-                    movie = unFavoriteMovieDetailTestData,
-                    autoPlayTrailer = testUserDataRepository.internalData.map { it.isAutoPlayTrailer }.first(),
-                    isFavorite = testDataBaseRepository.isFavorite(id = 324).first()
-                )
+                movie = unFavoriteMovieDetailTestData.copy(isFavorite = testDataBaseRepository.isFavorite(id = 324).first()),
+                isAutoPlayTrailer = testUserDataRepository.internalData.map { it.isAutoPlayTrailer }.first(),
             )
         )
     }

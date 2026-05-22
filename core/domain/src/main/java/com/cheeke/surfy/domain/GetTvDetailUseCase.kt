@@ -4,7 +4,6 @@ import com.cheeke.surfy.common.Result
 import com.cheeke.surfy.common.asResult
 import com.cheeke.surfy.data.repository.TvDataBaseRepository
 import com.cheeke.surfy.data.repository.TvDetailRepository
-import com.cheeke.surfy.data.repository.UserDataRepository
 import com.cheeke.surfy.model.Tv
 import com.cheeke.surfy.model.TvEpisode
 import com.cheeke.surfy.model.TvSeason
@@ -20,8 +19,7 @@ import javax.inject.Inject
 
 class GetTvDetailUseCase @Inject constructor(
     private val tvDataBaseRepository: TvDataBaseRepository,
-    private val detailRepository: TvDetailRepository,
-    private val userDataRepository: UserDataRepository
+    private val detailRepository: TvDetailRepository
 ) {
     private val episodesCache = MutableStateFlow<Map<String, List<TvEpisode>>>(value = emptyMap())
 
@@ -39,20 +37,7 @@ class GetTvDetailUseCase @Inject constructor(
                     if (cached != null) {
                         flowOf(value = TvSeasonLoadState.Idle)
                     } else {
-                        detailRepository.getTvSeasons(seriesId = id, seasonNumber = season.seasonNumber ?: -1)
-                            .asResult()
-                            .map { result ->
-                                when (result) {
-                                    is Result.Loading -> TvSeasonLoadState.Loading(message = "${season.name}을 불러오고 있습니다.")
-                                    is Result.Success -> {
-                                        episodesCache.update {
-                                            it + ((result.data.name ?: "") to (result.data.episodes ?: emptyList()))
-                                        }
-                                        TvSeasonLoadState.Idle
-                                    }
-                                    is Result.Error -> TvSeasonLoadState.Error(message = "${season.name}을 불러오지 못했습니다.")
-                                }
-                            }
+                        getTvSeason(id = id, season = season)
                     }
                 }
             }
@@ -60,31 +45,42 @@ class GetTvDetailUseCase @Inject constructor(
         return combine(
             detailRepository.getData(id = id),
             tvDataBaseRepository.isFavorite(id = id),
-            userDataRepository.internalData,
             episodesCache,
             seasonState
-        ) { tv, isFavorite, internalData, episodesBySeason, currentSeasonState ->
+        ) { tv, isFavorite, episodesBySeason, currentSeasonState ->
             TvScreenData(
-                tv = tv,
-                isFavorite = isFavorite,
-                autoPlayTrailer = internalData.isAutoPlayTrailer,
+                tv = tv.copy(isFavorite = isFavorite),
                 episodesBySeason = episodesBySeason,
                 seasonLoadState = currentSeasonState
             )
         }
     }
+
+    private fun getTvSeason(id: Int, season: TvSeason): Flow<TvSeasonLoadState> =
+        detailRepository.getTvSeasons(seriesId = id, seasonNumber = season.seasonNumber ?: -1)
+            .asResult()
+            .map { result ->
+                when (result) {
+                    is Result.Loading -> TvSeasonLoadState.Loading(message = season.name)
+                    is Result.Success -> {
+                        episodesCache.update {
+                            it + ((result.data.name ?: "") to (result.data.episodes ?: emptyList()))
+                        }
+                        TvSeasonLoadState.Idle
+                    }
+                    is Result.Error -> TvSeasonLoadState.Error(message = season.name)
+                }
+            }
 }
 
 data class TvScreenData(
     val tv: Tv,
-    val isFavorite: Boolean,
-    val autoPlayTrailer: Boolean,
     val episodesBySeason: Map<String, List<TvEpisode>>,
     val seasonLoadState: TvSeasonLoadState
 )
 
 sealed interface TvSeasonLoadState {
     data object Idle : TvSeasonLoadState
-    data class Loading(val message: String) : TvSeasonLoadState
-    data class Error(val message: String) : TvSeasonLoadState
+    data class Loading(val message: String?) : TvSeasonLoadState
+    data class Error(val message: String?) : TvSeasonLoadState
 }
