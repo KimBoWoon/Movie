@@ -1,6 +1,5 @@
 package com.cheeke.surfy.home
 
-import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -23,25 +22,18 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -64,6 +56,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.cheeke.surfy.analytics.TrackScreenViewEvent
+import com.cheeke.surfy.common.InfinitePager
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.common.isSystemInDarkTheme
 import com.cheeke.surfy.data.util.PEOPLE_IMAGE_RATIO
@@ -81,23 +74,18 @@ import com.cheeke.surfy.ui.utils.dp1
 import com.cheeke.surfy.ui.utils.dp10
 import com.cheeke.surfy.ui.utils.dp110
 import com.cheeke.surfy.ui.utils.dp12
-import com.cheeke.surfy.ui.utils.dp14
 import com.cheeke.surfy.ui.utils.dp150
 import com.cheeke.surfy.ui.utils.dp16
-import com.cheeke.surfy.ui.utils.dp18
 import com.cheeke.surfy.ui.utils.dp20
 import com.cheeke.surfy.ui.utils.dp220
 import com.cheeke.surfy.ui.utils.dp230
 import com.cheeke.surfy.ui.utils.dp28
 import com.cheeke.surfy.ui.utils.dp30
 import com.cheeke.surfy.ui.utils.dp5
-import com.cheeke.surfy.ui.utils.dp6
 import com.cheeke.surfy.ui.utils.dp60
 import com.cheeke.surfy.ui.utils.dp8
 import com.cheeke.surfy.ui.utils.sp10
 import com.cheeke.surfy.ui.utils.sp8
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun HomeScreen(
@@ -179,7 +167,6 @@ fun HomeScreen(
                 val lazyListState = rememberLazyListState()
 
                 HomeComponent(
-                    lazyListState = lazyListState,
                     popularMovies = homeUiState.homeUiState.popularMovies,
                     nowPlayingMovies = nowPlayingMovies,
                     upComingMovies = upComingMovies,
@@ -211,7 +198,6 @@ fun HomeScreen(
 
 @Composable
 fun HomeComponent(
-    lazyListState: LazyListState,
     popularMovies: List<Movie>,
     nowPlayingMovies: LazyPagingItems<Movie>,
     upComingMovies: LazyPagingItems<Movie>,
@@ -543,32 +529,6 @@ private fun TodayRecommendMovieComponent(
     movies: List<Movie>,
     goToMovie: (Int) -> Unit
 ) {
-    var index by remember { mutableIntStateOf(value = 0) }
-    var useScroll by remember { mutableStateOf(value = true) }
-    val pagerState = rememberPagerState(
-        initialPage = index,
-        pageCount = { movies.size }
-    )
-
-    LaunchedEffect(key1 = pagerState, key2 = movies.size) {
-        if (movies.size <= 1) return@LaunchedEffect
-
-        snapshotFlow { pagerState.settledPage }
-            .collectLatest {
-                delay(timeMillis = 2000)
-                val nextPage = (pagerState.settledPage + 1) % movies.size
-                useScroll = false
-                pagerState.animateScrollToPage(
-                    page = nextPage,
-                    animationSpec = tween(
-                        durationMillis = 500,
-                        easing = FastOutSlowInEasing
-                    )
-                )
-                useScroll = true
-            }
-    }
-
     Column {
         Text(
             modifier = Modifier
@@ -576,27 +536,19 @@ private fun TodayRecommendMovieComponent(
                 .padding(all = dp16),
             text = "오늘의 추천 영화"
         )
-        HorizontalPager(
-            state = pagerState,
+        InfinitePager<Movie>(
             contentPadding = PaddingValues(horizontal = dp20),
             pageSpacing = dp12,
             modifier = Modifier.fillMaxWidth(),
-            userScrollEnabled = useScroll
-        ) { page ->
-            val movie = movies[page]
-
-            RecommendMovie(
-                movie = movie,
-                goToMovie = goToMovie,
-            )
-        }
-
-        Spacer(modifier = Modifier.height(height = dp14))
-
-        PagerIndicator(
-            pageCount = movies.size,
-            currentPage = pagerState.currentPage,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
+            isVisibleIndicator = true,
+            isAutoScroll = true,
+            items = movies,
+            content = {
+                RecommendMovie(
+                    movie = it,
+                    goToMovie = goToMovie,
+                )
+            }
         )
     }
 }
@@ -686,35 +638,6 @@ private fun RecommendMovie(
                 )
                 Spacer(modifier = Modifier.height(height = dp16))
             }
-        }
-    }
-}
-
-@Composable
-private fun PagerIndicator(
-    pageCount: Int,
-    currentPage: Int,
-    modifier: Modifier = Modifier,
-) {
-    Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(space = dp6),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        repeat(times = pageCount) { index ->
-            val isSelected = index == currentPage
-
-            Box(
-                modifier = Modifier
-                    .clip(shape = CircleShape)
-                    .background(
-                        color = if (isSelected) Color.White else Color.White.copy(alpha = 0.28f)
-                    )
-                    .size(
-                        width = if (isSelected) dp18 else dp6,
-                        height = dp6
-                    )
-            )
         }
     }
 }
