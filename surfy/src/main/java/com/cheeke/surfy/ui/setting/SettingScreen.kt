@@ -1,4 +1,4 @@
-package com.cheeke.surfy.setting
+package com.cheeke.surfy.ui.setting
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -44,9 +44,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.cheeke.surfy.R
 import com.cheeke.surfy.analytics.TrackScreenViewEvent
 import com.cheeke.surfy.common.getVersionName
-import com.cheeke.surfy.feature.setting.R
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
 import com.cheeke.surfy.ui.utils.dp1
 import com.cheeke.surfy.ui.utils.dp10

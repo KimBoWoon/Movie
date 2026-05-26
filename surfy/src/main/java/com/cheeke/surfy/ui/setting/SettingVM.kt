@@ -1,4 +1,4 @@
-package com.cheeke.surfy.setting
+package com.cheeke.surfy.ui.setting
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

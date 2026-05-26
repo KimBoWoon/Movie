@@ -1,20 +1,20 @@
-package com.cheeke.surfy.setting
+package com.cheeke.surfy
 
 import androidx.activity.ComponentActivity
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cheeke.surfy.model.LocaleOption
-import com.cheeke.surfy.model.SurfyAppData
 import com.cheeke.surfy.model.PosterSize
+import com.cheeke.surfy.model.SurfyAppData
 import com.cheeke.surfy.testing.model.configurationTestData
 import com.cheeke.surfy.testing.model.genreListTestData
 import com.cheeke.surfy.testing.model.languageListTestData
 import com.cheeke.surfy.testing.model.regionTestData
 import com.cheeke.surfy.testing.repository.TestUserDataRepository
 import com.cheeke.surfy.testing.utils.TestMovieAppDataManager
+import com.cheeke.surfy.ui.setting.SettingVM
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -28,8 +28,20 @@ class SettingScreenTest {
     private val surfyAppData = SurfyAppData(
         secureBaseUrl = configurationTestData.images?.secureBaseUrl ?: "",
         movieGenres = genreListTestData.genres ?: emptyList(),
-        region = regionTestData.results?.map { LocaleOption(code = it.iso31661 ?: "", label = it.englishName ?: "", isSelected = false) }.orEmpty(),
-        language = languageListTestData.map { LocaleOption(code = it.iso6391 ?: "", label = it.englishName ?: "", isSelected = false) },
+        region = regionTestData.results?.map {
+            LocaleOption(
+                code = it.iso31661 ?: "",
+                label = it.englishName ?: "",
+                isSelected = false
+            )
+        }.orEmpty(),
+        language = languageListTestData.map {
+            LocaleOption(
+                code = it.iso6391 ?: "",
+                label = it.englishName ?: "",
+                isSelected = false
+            )
+        },
         posterSize = configurationTestData.images?.posterSizes?.map {
             PosterSize(size = it, isSelected = it == "original")
         } ?: emptyList()
@@ -55,7 +67,9 @@ class SettingScreenTest {
 
                 SettingScreen(
                     state = uiState,
-                    onAction = {}
+                    onAction = {},
+                    onClickTitle = {},
+                    isCheatActive = false
                 )
             }
 

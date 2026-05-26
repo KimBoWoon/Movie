@@ -34,12 +34,12 @@ import com.cheeke.surfy.deeplink.DeepLinkManager
 import com.cheeke.surfy.detail.movie.navigation.MovieNavKey
 import com.cheeke.surfy.detail.tv.navigation.TvNavKey
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
-import com.cheeke.surfy.setting.SettingScreen
-import com.cheeke.surfy.setting.SettingVM
-import com.cheeke.surfy.setting.SettingsAction
 import com.cheeke.surfy.ui.SurfyApp
 import com.cheeke.surfy.ui.root.ReleaseMoviesDialog
 import com.cheeke.surfy.ui.root.navigation.RootNavKey
+import com.cheeke.surfy.ui.setting.SettingScreen
+import com.cheeke.surfy.ui.setting.SettingVM
+import com.cheeke.surfy.ui.setting.SettingsAction
 import com.cheeke.surfy.ui.theme.SurfyTheme
 import com.cheeke.surfy.utils.isSystemInDarkTheme
 import dagger.hilt.android.AndroidEntryPoint
