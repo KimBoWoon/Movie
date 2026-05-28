@@ -120,9 +120,7 @@ fun <T : Any> InfinitePager(
         }
 
         if (isVisibleIndicator && items.size > 1) {
-            Spacer(
-                modifier = Modifier.height(14.dp)
-            )
+            Spacer(modifier = Modifier.height(height = 14.dp))
 
             PagerIndicator(
                 pageCount = items.size,
@@ -141,7 +139,7 @@ private fun PagerIndicator(
 ) {
     Row(
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        horizontalArrangement = Arrangement.spacedBy(space = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         repeat(times = pageCount) { index ->

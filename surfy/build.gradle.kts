@@ -51,7 +51,8 @@ dependencies {
         libs.kotlin.test,
         libs.androidx.navigation.testing,
         libs.robolectric,
-        libs.androidx.compose.ui.test.junit4
+        libs.androidx.compose.ui.test.junit4,
+        libs.turbine
     ).forEach {
         testImplementation(it)
     }

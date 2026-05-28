@@ -1,5 +1,6 @@
 package com.cheeke.surfy.testing.repository
 
+import androidx.annotation.VisibleForTesting
 import androidx.paging.PagingSource
 import androidx.paging.testing.asPagingSourceFactory
 import com.cheeke.surfy.data.repository.TvDataBaseRepository
@@ -55,5 +56,10 @@ class TestTvDatabaseRepository : TvDataBaseRepository {
         }
         tvDatabase.tryEmit(value = nextWeekReleaseMovies)
         return tvDatabase.first()
+    }
+
+    @VisibleForTesting
+    fun setTvs(list: List<Tv>) {
+        tvDatabase.tryEmit(value = list)
     }
 }

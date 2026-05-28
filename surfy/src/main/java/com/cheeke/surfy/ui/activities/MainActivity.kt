@@ -128,7 +128,7 @@ class MainActivity : ComponentActivity() {
                 SurfyTheme(darkTheme = darkTheme) {
                     val backstack = rememberNavBackStack(RootNavKey)
                     val snackbarHostState = remember { SnackbarHostState() }
-                    val rootDeeplink by deepLinkManager.rootDeeplink.collectAsStateWithLifecycle()
+                    val rootDeeplink by deepLinkManager.rootDeeplink.collectAsStateWithLifecycle(initialValue = emptyList())
 
                     LaunchedEffect(key1 = rootDeeplink) {
                         if (rootDeeplink.isEmpty()) return@LaunchedEffect

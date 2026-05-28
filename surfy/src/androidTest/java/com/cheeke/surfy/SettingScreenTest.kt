@@ -1,8 +1,8 @@
 package com.cheeke.surfy
 
-import androidx.activity.ComponentActivity
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cheeke.surfy.model.LocaleOption
@@ -14,14 +14,16 @@ import com.cheeke.surfy.testing.model.languageListTestData
 import com.cheeke.surfy.testing.model.regionTestData
 import com.cheeke.surfy.testing.repository.TestUserDataRepository
 import com.cheeke.surfy.testing.utils.TestMovieAppDataManager
+import com.cheeke.surfy.ui.setting.SettingScreen
 import com.cheeke.surfy.ui.setting.SettingVM
+import com.cheeke.surfy.ui.setting.SettingsAction
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
 class SettingScreenTest {
     @get:Rule
-    val composeTestRule = createAndroidComposeRule<ComponentActivity>()
+    val composeTestRule = createComposeRule()
     private lateinit var viewModel: SettingVM
     private lateinit var testUserDataRepository: TestUserDataRepository
     private lateinit var testMovieAppDataManager: TestMovieAppDataManager
@@ -57,6 +59,7 @@ class SettingScreenTest {
         )
 
         testMovieAppDataManager.setMovieAppData(surfyAppData)
+        viewModel.onAction(action = SettingsAction.OpenMain)
     }
 
     @Test

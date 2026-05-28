@@ -10,12 +10,20 @@ import com.cheeke.surfy.favorite.navigation.FavoriteNavKey
 import com.cheeke.surfy.home.navigation.HomeNavKey
 import com.cheeke.surfy.search.navigation.SearchNavKey
 import jakarta.inject.Inject
-import jakarta.inject.Singleton
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-@Singleton
-class DeepLinkManager @Inject constructor() {
+interface DeepLinkManager {
+    val rootDeeplink: Flow<List<NavKey>>
+    val bottomDeeplink: Flow<List<NavKey>>
+
+    fun handleDeepLink(uri: Uri?)
+    fun consumeRootDeepLink()
+    fun consumeBottomDeepLink()
+}
+
+class DeepLinkManagerImpl @Inject constructor() : DeepLinkManager {
     private val rootNavKeys = setOf(
         MovieNavKey::class,
         TvNavKey::class,
@@ -29,11 +37,11 @@ class DeepLinkManager @Inject constructor() {
     )
 
     private val _rootDeeplink = MutableStateFlow<List<NavKey>>(value = emptyList())
-    val rootDeeplink = _rootDeeplink.asStateFlow()
+    override val rootDeeplink = _rootDeeplink.asStateFlow()
     private val _bottomDeeplink = MutableStateFlow<List<NavKey>>(value = emptyList())
-    val bottomDeeplink = _bottomDeeplink.asStateFlow()
+    override val bottomDeeplink = _bottomDeeplink.asStateFlow()
 
-    fun handleDeepLink(uri: Uri?) {
+    override fun handleDeepLink(uri: Uri?) {
         val stack = parseDeeplink(uri = uri)
         if (stack.isEmpty()) {
             return
@@ -54,11 +62,11 @@ class DeepLinkManager @Inject constructor() {
         _bottomDeeplink.value = bottomDeepLink
     }
 
-    fun consumeRootDeepLink() {
+    override fun consumeRootDeepLink() {
         _rootDeeplink.value = emptyList()
     }
 
-    fun consumeBottomDeepLink() {
+    override fun consumeBottomDeepLink() {
         _bottomDeeplink.value = emptyList()
     }
 }

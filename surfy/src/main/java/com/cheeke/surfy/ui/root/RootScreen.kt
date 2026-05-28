@@ -103,7 +103,7 @@ fun RootScreen(
     val backstack = rememberNavBackStack(HomeNavKey)
     val snackbarHostState = remember { SnackbarHostState() }
     val nextWeekReleaseDialogItems by viewModel.nextWeekReleaseMedias.collectAsStateWithLifecycle()
-    val bottomDeeplink by viewModel.bottomDeeplink.collectAsStateWithLifecycle()
+    val bottomDeeplink by viewModel.bottomDeeplink.collectAsStateWithLifecycle(initialValue = emptyList())
 
     LaunchedEffect(key1 = bottomDeeplink) {
         if (bottomDeeplink.isEmpty()) return@LaunchedEffect
