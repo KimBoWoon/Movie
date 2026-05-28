@@ -1,14 +1,11 @@
 package com.cheeke.surfy.domain
 
-import android.content.Context
 import com.cheeke.surfy.common.Result
 import com.cheeke.surfy.common.asResult
-import com.cheeke.surfy.core.domain.R
 import com.cheeke.surfy.data.repository.TvDetailRepository
 import com.cheeke.surfy.model.Tv
 import com.cheeke.surfy.model.TvEpisode
 import com.cheeke.surfy.model.TvSeason
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,7 +17,6 @@ import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 class GetTvDetailUseCase @Inject constructor(
-    @ApplicationContext private val appContext: Context,
     private val detailRepository: TvDetailRepository
 ) {
     private val episodesCache = MutableStateFlow<Map<String, List<TvEpisode>>>(value = emptyMap())
@@ -29,7 +25,7 @@ class GetTvDetailUseCase @Inject constructor(
     operator fun invoke(
         id: Int,
         selectedSeason: Flow<TvSeason?> = flowOf(value = null)
-    ): Flow<TvInfo> {
+    ): Flow<TvScreenData> {
         val seasonState = selectedSeason
             .flatMapLatest { season ->
                 if (season == null) {
@@ -39,20 +35,7 @@ class GetTvDetailUseCase @Inject constructor(
                     if (cached != null) {
                         flowOf(value = TvSeasonLoadState.Idle)
                     } else {
-                        detailRepository.getTvSeasons(seriesId = id, seasonNumber = season.seasonNumber ?: -1)
-                            .asResult()
-                            .map { result ->
-                                when (result) {
-                                    is Result.Loading -> TvSeasonLoadState.Loading(message = appContext.getString(R.string.tv_season_loading).format(season.name))
-                                    is Result.Success -> {
-                                        episodesCache.update {
-                                            it + ((result.data.name ?: "") to (result.data.episodes ?: emptyList()))
-                                        }
-                                        TvSeasonLoadState.Idle
-                                    }
-                                    is Result.Error -> TvSeasonLoadState.Error(message = appContext.getString(R.string.tv_season_error).format(season.name))
-                                }
-                            }
+                        getTvSeason(id = id, season = season)
                     }
                 }
             }
@@ -62,16 +45,32 @@ class GetTvDetailUseCase @Inject constructor(
             episodesCache,
             seasonState
         ) { tv, episodesBySeason, currentSeasonState ->
-            TvInfo(
+            TvScreenData(
                 tv = tv,
                 episodesBySeason = episodesBySeason,
                 seasonLoadState = currentSeasonState
             )
         }
     }
+
+    private fun getTvSeason(id: Int, season: TvSeason): Flow<TvSeasonLoadState> =
+        detailRepository.getTvSeasons(seriesId = id, seasonNumber = season.seasonNumber ?: -1)
+            .asResult()
+            .map { result ->
+                when (result) {
+                    is Result.Loading -> TvSeasonLoadState.Loading(message = season.name.orEmpty())
+                    is Result.Success -> {
+                        episodesCache.update {
+                            it + ((result.data.name ?: "") to (result.data.episodes ?: emptyList()))
+                        }
+                        TvSeasonLoadState.Idle
+                    }
+                    is Result.Error -> TvSeasonLoadState.Error(message = season.name.orEmpty())
+                }
+            }
 }
 
-data class TvInfo(
+data class TvScreenData(
     val tv: Tv,
     val episodesBySeason: Map<String, List<TvEpisode>>,
     val seasonLoadState: TvSeasonLoadState
