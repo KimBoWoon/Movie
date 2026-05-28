@@ -18,6 +18,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -98,7 +99,7 @@ class RootVMTest {
         deepLinkManager.emitBottomDeepLink(HomeNavKey, FavoriteNavKey())
 
         assertEquals(
-            expected = viewModel.bottomDeeplink.value,
+            expected = viewModel.bottomDeeplink.first(),
             actual = deepLinkManager.bottomDeeplink.value
         )
     }
