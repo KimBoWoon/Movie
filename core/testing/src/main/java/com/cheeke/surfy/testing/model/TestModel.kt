@@ -27,6 +27,7 @@ import com.cheeke.surfy.model.Keyword
 import com.cheeke.surfy.model.Keywords
 import com.cheeke.surfy.model.Language
 import com.cheeke.surfy.model.Media
+import com.cheeke.surfy.model.MediaType
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.MovieWatchProvider
 import com.cheeke.surfy.model.MovieWatchProviderResult
@@ -209,10 +210,10 @@ val movieSeriesTestData = Series(
     title = "movieSeries",
     overview = "movieSeriesOverview",
     parts = listOf(
-        SeriesPart(id = 0, title = "movieSeries_0", releaseDate = "2024-09-23_0", overview = "movieSeries_0_overview", posterPath = "/movieSeriesPosterPath_1.png"),
-        SeriesPart(id = 1, title = "movieSeries_1", releaseDate = "2024-09-23_1", overview = "movieSeries_1_overview", posterPath = "/movieSeriesPosterPath_2.png"),
-        SeriesPart(adult = true, id = 2, title = "movieSeries_2", releaseDate = "2024-09-23_2", overview = "movieSeries_2_overview", posterPath = "/movieSeriesPosterPath_3.jpg"),
-        SeriesPart(adult = false, id = 3, title = "movieSeries_3", releaseDate = "2024-09-23_3", overview = "movieSeries_3_overview", posterPath = "/movieSeriesPosterPath_3.png")
+        SeriesPart(id = 0, title = "movieSeries_0", releaseDate = "2024-09-23", overview = "movieSeries_0_overview", posterPath = "/movieSeriesPosterPath_1.png", voteAverage = 8.72f),
+        SeriesPart(id = 1, title = "movieSeries_1", releaseDate = "2024-09-24", overview = "movieSeries_1_overview", posterPath = "/movieSeriesPosterPath_2.png", voteAverage = 7.8f),
+        SeriesPart(adult = true, id = 2, title = "movieSeries_2", releaseDate = "2024-09-25", overview = "movieSeries_2_overview", posterPath = "/movieSeriesPosterPath_3.jpg", voteAverage = 6.54f),
+        SeriesPart(adult = false, id = 3, title = "movieSeries_3", releaseDate = "2024-09-26", overview = "movieSeries_3_overview", posterPath = "/movieSeriesPosterPath_3.png", voteAverage = 7.59f)
     ),
     posterPath = "/movieSeriesPosterPath.png"
 )
@@ -272,14 +273,15 @@ val testTvReviews = (0..100).map {
 
 val testTrendingMovie = TrendingMedia(
     page = 1,
-    results = (0..100).map {
+    results = (0..10).map {
         TrendingMediaResult(
             adult = true,
             backdropPath = "backdropPath_$it",
             genreIds = emptyList(),
             id = it,
             originalLanguage = "originalLanguage_$it",
-            originalTitle = "originalTitle_$it"
+            originalTitle = "originalTitle_$it",
+            title = "trendingMovieTitle_$it"
         )
     },
     totalPages = 1,
@@ -288,12 +290,13 @@ val testTrendingMovie = TrendingMedia(
 
 val testTrendingPeople = TrendingMedia(
     page = 1,
-    results = (0..100).map {
+    results = (0..10).map {
         TrendingMediaResult(
             adult = true,
             posterPath = "posterPath_$it",
             id = it,
-            originalTitle = "originalTitle_$it"
+            originalTitle = "originalTitle_$it",
+            title = "trendingPeopleTitle_$it"
         )
     },
     totalPages = 1,
@@ -302,14 +305,15 @@ val testTrendingPeople = TrendingMedia(
 
 val testTrendingTv = TrendingMedia(
     page = 1,
-    results = (0..100).map {
+    results = (0..10).map {
         TrendingMediaResult(
             adult = true,
             backdropPath = "backdropPath_$it",
             genreIds = emptyList(),
             id = it,
             originalLanguage = "originalLanguage_$it",
-            originalTitle = "originalTitle_$it"
+            originalTitle = "originalTitle_$it",
+            title = "trendingTvTitle_$it"
         )
     },
     totalPages = 1,
@@ -322,7 +326,7 @@ val favoriteMovieDetailTestData = Movie(
     backdropPath = "backdropPath",
     belongsToCollection = BelongsToCollection(backdropPath = "/backdropPath.png", id = 896, name = "name", posterPath = "/posterPath.png"),
     budget = 30_000_000_000,
-    credits = Credits(cast = listOf(Cast(castId = 0, name = "cast_1")), crew = listOf(Crew(id = 0, name = "crew_1"))),
+    credits = Credits(cast = listOf(Cast(castId = 0, name = "cast_1", profilePath = "/cast.png", character = "character")), crew = listOf(Crew(id = 0, name = "crew_1", profilePath = "/crew.png", department = "department", job = "job"))),
     genres = listOf(Genre(id = 0, name = "genre")),
     homepage = "homepage",
     id = 0,
@@ -475,10 +479,10 @@ val watchProvidersTestData = MovieWatchProvider(
 
 val combineCreditsTestData = CombineCredits(
     cast = listOf(
-        CombineCreditsCast(posterPath = "/CombineCreditsCast.png")
+        CombineCreditsCast(id = 1, posterPath = "/CombineCreditsCast.png", mediaType = MediaType.MOVIE)
     ),
     crew = listOf(
-        CombineCreditsCrew(posterPath = "/CombineCreditsCrew.png")
+        CombineCreditsCrew(id = 2, posterPath = "/CombineCreditsCrew.png", mediaType = MediaType.MOVIE)
     )
 )
 
@@ -489,6 +493,7 @@ val externalIdsTestData = ExternalIds(
 )
 
 val peopleDetailTestData = People(
+    mediaType = MediaType.PEOPLE,
     adult = true,
     alsoKnownAs = listOf("alsoKnownAs"),
     biography = "biography",
@@ -508,7 +513,7 @@ val peopleDetailTestData = People(
     posterPath = "/profilePath.png"
 )
 
-val nowPlayingMovieTest = (0..100).map {
+val nowPlayingMovieTest = (0..20).map {
     NowPlayingMovieEntity(
         releaseDate = "nowPlaying_releaseDate_$it",
         title = "nowPlaying_$it",
@@ -519,7 +524,7 @@ val nowPlayingMovieTest = (0..100).map {
     )
 }
 
-val upComingMovieTest = (0..100).map {
+val upComingMovieTest = (0..20).map {
     UpComingMovieEntity(
         releaseDate = "upcomingMovie_releaseDate_$it",
         title = "upcomingMovie_$it",
@@ -527,5 +532,16 @@ val upComingMovieTest = (0..100).map {
         posterPath = "/imagePath_$it.png",
         voteAverage = 3.5f,
         voteCount = 395
+    )
+}
+
+val popularMovieTest = (0 until 5).map {
+    Movie(
+        id = it,
+        title = "popularMovie_$it",
+        posterPath = "/imagePath_$it.png",
+        releaseDate = "2026-05-29",
+        voteAverage = 8.57f,
+        voteCount = 36246
     )
 }

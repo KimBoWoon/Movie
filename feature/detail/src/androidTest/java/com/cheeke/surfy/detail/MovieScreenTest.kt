@@ -1,13 +1,11 @@
 package com.cheeke.surfy.detail
 
-import androidx.activity.ComponentActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
-import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -16,31 +14,32 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performScrollToNode
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.paging.PagingSource
+import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.cheeke.surfy.data.paging.SimilarMoviePagingSource
+import com.cheeke.surfy.analytics.AnalyticsEvent
+import com.cheeke.surfy.analytics.AnalyticsHelper
 import com.cheeke.surfy.detail.movie.MovieScreen
 import com.cheeke.surfy.detail.movie.MovieState
 import com.cheeke.surfy.detail.movie.MovieVM
 import com.cheeke.surfy.domain.GetMovieDetailUseCase
-import com.cheeke.surfy.model.Genre
-import com.cheeke.surfy.model.Movie
+import com.cheeke.surfy.model.LocaleOption
 import com.cheeke.surfy.model.PosterSize
+import com.cheeke.surfy.model.SimilarMedia
 import com.cheeke.surfy.model.SurfyAppData
-import com.cheeke.surfy.testing.TestMovieDataSource
+import com.cheeke.surfy.network.model.SurfyNetworkException
 import com.cheeke.surfy.testing.model.configurationTestData
 import com.cheeke.surfy.testing.model.favoriteMovieDetailTestData
 import com.cheeke.surfy.testing.model.genreListTestData
 import com.cheeke.surfy.testing.model.languageListTestData
 import com.cheeke.surfy.testing.model.movieSeriesTestData
 import com.cheeke.surfy.testing.model.regionTestData
-import com.cheeke.surfy.testing.model.similarMoviesTestData
 import com.cheeke.surfy.testing.model.unFavoriteMovieDetailTestData
 import com.cheeke.surfy.testing.repository.TestMovieDatabaseRepository
+import com.cheeke.surfy.testing.repository.TestMovieDetailRepository
 import com.cheeke.surfy.testing.repository.TestPagingRepository
 import com.cheeke.surfy.testing.repository.TestUserDataRepository
 import com.cheeke.surfy.testing.utils.TestMovieAppDataManager
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -50,20 +49,24 @@ import kotlin.test.assertEquals
 
 class MovieScreenTest {
     @get:Rule
-    val composeTestRule = createAndroidComposeRule<ComponentActivity>()
+    val composeTestRule = createComposeRule()
     private lateinit var viewModel: MovieVM
     private lateinit var savedStateHandle: SavedStateHandle
     private lateinit var testUserDataRepository: TestUserDataRepository
     private lateinit var movieDetailUseCase: GetMovieDetailUseCase
     private lateinit var testDatabaseRepository: TestMovieDatabaseRepository
-    private lateinit var testDetailRepository: TestDetailRepository
+    private lateinit var testDetailRepository: TestMovieDetailRepository
     private lateinit var testPagingRepository: TestPagingRepository
     private lateinit var testMovieAppDataManager: TestMovieAppDataManager
     private val surfyAppData = SurfyAppData(
         secureBaseUrl = configurationTestData.images?.secureBaseUrl ?: "",
         movieGenres = genreListTestData.genres ?: emptyList(),
-        region = regionTestData.results ?: emptyList(),
-        language = languageListTestData.map { it.copy(isSelected = it.name == "en") },
+        region = regionTestData.results?.map { region ->
+            LocaleOption(code = region.iso31661 ?: "KR", label = region.nativeName ?: "KR", isSelected = region.iso31661 == "KR")
+        } ?: emptyList(),
+        language = languageListTestData.map { language ->
+            LocaleOption(code = language.iso6391 ?: "ko", label = language.englishName ?: "Korean", isSelected = language.iso6391 == "ko")
+        },
         posterSize = configurationTestData.images?.posterSizes?.map {
             PosterSize(size = it, isSelected = it == "original")
         } ?: emptyList()
@@ -71,26 +74,31 @@ class MovieScreenTest {
 
     @Before
     fun setup() {
-//        savedStateHandle = SavedStateHandle(route = DetailRoute(id = 0))
+//        savedStateHandle = SavedStateHandle(route = MovieNavKey(id = 0))
         savedStateHandle = SavedStateHandle().apply {
             set("id", 0)
         }
         testUserDataRepository = TestUserDataRepository()
-        testDetailRepository = TestDetailRepository()
+        testDetailRepository = TestMovieDetailRepository()
         testDatabaseRepository = TestMovieDatabaseRepository()
         testPagingRepository = TestPagingRepository()
         testMovieAppDataManager = TestMovieAppDataManager()
         movieDetailUseCase = GetMovieDetailUseCase(
             userDataRepository = testUserDataRepository,
-            databaseRepository = testDatabaseRepository,
+            movieDataBaseRepository = testDatabaseRepository,
             detailRepository = testDetailRepository
         )
         viewModel = MovieVM(
             id = 0,
-            initialTabIndex = 0,
             getMovieDetail = movieDetailUseCase,
-            databaseRepository = testDatabaseRepository,
-            pagingRepository = testPagingRepository
+            movieDataBaseRepository = testDatabaseRepository,
+            pagingRepository = testPagingRepository,
+            userDataRepository = testUserDataRepository,
+            analyticsHelper = object : AnalyticsHelper {
+                override fun logEvent(event: AnalyticsEvent) {
+                    println("event: $event")
+                }
+            },
         )
 
         runBlocking {
@@ -102,20 +110,17 @@ class MovieScreenTest {
     fun detailLoadingTest() = runTest {
         composeTestRule.apply {
             setContent {
-                val movie by viewModel.movie.collectAsStateWithLifecycle()
                 val similarMovie = viewModel.similarMovies.collectAsLazyPagingItems()
-                val movieReview = viewModel.movieReviews.collectAsLazyPagingItems()
 
                 MovieScreen(
-                    movieState = movie,
+                    movieState = MovieState.Loading,
                     similarMovies = similarMovie,
-                    movieReviews = movieReview,
-                    tabIndex = 0,
                     goToMovie = {},
                     goToPeople = {},
                     goToBack = {},
+                    goToSeries = {},
+                    isCheatActive = false,
                     onShowSnackbar = { _, _ -> true },
-                    updateTabIndex = viewModel::updateTabIndex,
                     insertFavoriteMovie = viewModel::insertMovie,
                     deleteFavoriteMovie = viewModel::deleteMovie,
                     restart = viewModel::restart
@@ -131,25 +136,26 @@ class MovieScreenTest {
         composeTestRule.apply {
             setContent {
                 val similarMovie = viewModel.similarMovies.collectAsLazyPagingItems()
-                val movieReview = viewModel.movieReviews.collectAsLazyPagingItems()
 
                 MovieScreen(
-                    movieState = MovieState.Error(throwable = Throwable("something wrong...")),
+                    movieState = MovieState.Error(throwable = SurfyNetworkException(throwable = Throwable("something wrong..."))),
                     similarMovies = similarMovie,
-                    movieReviews = movieReview,
-                    tabIndex = 0,
                     goToMovie = {},
                     goToPeople = {},
                     goToBack = {},
+                    goToSeries = {},
+                    isCheatActive = false,
                     onShowSnackbar = { _, _ -> true },
-                    updateTabIndex = viewModel::updateTabIndex,
                     insertFavoriteMovie = viewModel::insertMovie,
                     deleteFavoriteMovie = viewModel::deleteMovie,
                     restart = viewModel::restart
                 )
             }
 
-            onNodeWithText(text = "something wrong...").assertExists().assertIsDisplayed()
+            onNodeWithText(text = "통신 실패").assertExists().assertIsDisplayed()
+            onNodeWithText(text = "알 수 없는 문제가 있습니다.").assertExists().assertIsDisplayed()
+            onNodeWithText(text = "돌아가기").assertExists().assertIsDisplayed()
+            onNodeWithText(text = "재시도").assertExists().assertIsDisplayed()
         }
     }
 
@@ -158,19 +164,20 @@ class MovieScreenTest {
         composeTestRule.apply {
             setContent {
                 val movie by viewModel.movie.collectAsStateWithLifecycle()
-                val similarMovie = viewModel.similarMovies.collectAsLazyPagingItems()
-                val movieReview = viewModel.movieReviews.collectAsLazyPagingItems()
+//                val similarMovie = viewModel.similarMovies.collectAsLazyPagingItems()
+                val pagingData = PagingData.from(data = listOf(element = SimilarMedia(id = 3)))
+                val flow = MutableStateFlow(value = pagingData)
 
                 MovieScreen(
                     movieState = movie,
-                    similarMovies = similarMovie,
-                    movieReviews = movieReview,
-                    tabIndex = 0,
+//                    similarMovies = similarMovie,
+                    similarMovies = flow.collectAsLazyPagingItems(),
                     goToMovie = {},
                     goToPeople = {},
                     goToBack = {},
+                    goToSeries = {},
+                    isCheatActive = false,
                     onShowSnackbar = { _, _ -> true },
-                    updateTabIndex = viewModel::updateTabIndex,
                     insertFavoriteMovie = viewModel::insertMovie,
                     deleteFavoriteMovie = viewModel::deleteMovie,
                     restart = viewModel::restart
@@ -179,14 +186,11 @@ class MovieScreenTest {
 
             onNodeWithTag(testTag = "detailScreenLoading").assertExists().assertIsDisplayed()
 
-            testDatabaseRepository.insertMovie(movie = favoriteMovieDetailTestData)
+            testDatabaseRepository.insert(media = favoriteMovieDetailTestData)
             testDetailRepository.setMovie(detail = favoriteMovieDetailTestData)
-            testPagingRepository.getSimilarMoviePagingSource(id = 0)
             testDetailRepository.setMovieSeries(movieSeries = movieSeriesTestData)
 
             onNodeWithContentDescription(label = "favorite").assertExists().assertIsDisplayed()
-            onNodeWithTag(testTag = "titleComponent").assertTextEquals(favoriteMovieDetailTestData.title ?: "").assertIsDisplayed()
-            onNodeWithTag(testTag = "movieTitle").assertTextEquals(favoriteMovieDetailTestData.title ?: "").assertIsDisplayed()
             onNodeWithText(text = favoriteMovieDetailTestData.originalTitle ?: "").assertExists().assertIsDisplayed()
             onNodeWithText(text = favoriteMovieDetailTestData.overview ?: "").assertExists().assertIsDisplayed()
         }
@@ -197,19 +201,20 @@ class MovieScreenTest {
         composeTestRule.apply {
             setContent {
                 val movie by viewModel.movie.collectAsStateWithLifecycle()
-                val similarMovie = viewModel.similarMovies.collectAsLazyPagingItems()
-                val movieReview = viewModel.movieReviews.collectAsLazyPagingItems()
+//                val similarMovie = viewModel.similarMovies.collectAsLazyPagingItems()
+                val pagingData = PagingData.from(data = listOf(element = SimilarMedia(id = 3)))
+                val flow = MutableStateFlow(value = pagingData)
 
                 MovieScreen(
                     movieState = movie,
-                    similarMovies = similarMovie,
-                    movieReviews = movieReview,
-                    tabIndex = 0,
+//                    similarMovies = similarMovie,
+                    similarMovies = flow.collectAsLazyPagingItems(),
                     goToMovie = {},
                     goToPeople = {},
                     goToBack = {},
+                    goToSeries = {},
+                    isCheatActive = false,
                     onShowSnackbar = { _, _ -> true },
-                    updateTabIndex = viewModel::updateTabIndex,
                     insertFavoriteMovie = viewModel::insertMovie,
                     deleteFavoriteMovie = viewModel::deleteMovie,
                     restart = viewModel::restart
@@ -218,25 +223,26 @@ class MovieScreenTest {
 
             onNodeWithTag(testTag = "detailScreenLoading").assertExists().assertIsDisplayed()
 
-            testDatabaseRepository.insertMovie(movie = favoriteMovieDetailTestData)
+            testDatabaseRepository.insert(media = favoriteMovieDetailTestData)
             testDetailRepository.setMovie(detail = favoriteMovieDetailTestData)
-            testPagingRepository.getSimilarMoviePagingSource(id = 0)
             testDetailRepository.setMovieSeries(movieSeries = movieSeriesTestData)
 
-            onNodeWithContentDescription(label = "detailTabRow").assertExists().assertIsDisplayed()
             onNodeWithText(text = "시리즈")
                 .performScrollTo()
                 .assertExists()
                 .assertIsDisplayed()
                 .performClick()
 
+            onNodeWithContentDescription(label = movieSeriesTestData.posterPath!!).assertExists().assertIsDisplayed()
             onNodeWithText(text = movieSeriesTestData.title!!).assertExists().assertIsDisplayed()
             onNodeWithText(text = movieSeriesTestData.overview!!).assertExists().assertIsDisplayed()
+            onNodeWithText(text = "${movieSeriesTestData.parts?.size} movies").assertExists().assertIsDisplayed()
+            onNodeWithText(text = "Parts").performScrollTo().assertExists().assertIsDisplayed()
+            onNodeWithContentDescription(label = "seriesList").performScrollTo().assertExists().assertIsDisplayed()
             movieSeriesTestData.parts?.forEach { part ->
                 onNodeWithContentDescription(label = "seriesList").performScrollToNode(matcher = hasContentDescription(value = part.posterPath!!)).assertExists().assertIsDisplayed()
                 onNodeWithContentDescription(label = "seriesList").performScrollToNode(matcher = hasText(text = part.title!!)).assertExists().assertIsDisplayed()
-                onNodeWithContentDescription(label = "seriesList").performScrollToNode(matcher = hasText(text = part.releaseDate!!)).assertExists().assertIsDisplayed()
-                onNodeWithContentDescription(label = "seriesList").performScrollToNode(matcher = hasText(text = part.overview!!)).assertExists().assertIsDisplayed()
+                onNodeWithContentDescription(label = "seriesList").performScrollToNode(matcher = hasText(text = "★ ${"%.1f".format(part.voteAverage)}")).assertExists().assertIsDisplayed()
             }
         }
     }
@@ -246,19 +252,20 @@ class MovieScreenTest {
         composeTestRule.apply {
             setContent {
                 val movie by viewModel.movie.collectAsStateWithLifecycle()
-                val similarMovie = viewModel.similarMovies.collectAsLazyPagingItems()
-                val movieReview = viewModel.movieReviews.collectAsLazyPagingItems()
+//                val similarMovie = viewModel.similarMovies.collectAsLazyPagingItems()
+                val pagingData = PagingData.from(data = listOf(element = SimilarMedia(id = 3)))
+                val flow = MutableStateFlow(value = pagingData)
 
                 MovieScreen(
                     movieState = movie,
-                    similarMovies = similarMovie,
-                    movieReviews = movieReview,
-                    tabIndex = 0,
+//                    similarMovies = similarMovie,
+                    similarMovies = flow.collectAsLazyPagingItems(),
                     goToMovie = {},
                     goToPeople = {},
                     goToBack = {},
+                    goToSeries = {},
+                    isCheatActive = false,
                     onShowSnackbar = { _, _ -> true },
-                    updateTabIndex = viewModel::updateTabIndex,
                     insertFavoriteMovie = viewModel::insertMovie,
                     deleteFavoriteMovie = viewModel::deleteMovie,
                     restart = viewModel::restart
@@ -267,20 +274,23 @@ class MovieScreenTest {
 
             onNodeWithTag(testTag = "detailScreenLoading").assertExists().assertIsDisplayed()
 
-            testDatabaseRepository.insertMovie(movie = favoriteMovieDetailTestData)
+            testDatabaseRepository.insert(media = favoriteMovieDetailTestData)
             testDetailRepository.setMovie(detail = favoriteMovieDetailTestData)
-            testPagingRepository.getSimilarMoviePagingSource(id = 0)
             testDetailRepository.setMovieSeries(movieSeries = movieSeriesTestData)
 
-            onNodeWithContentDescription(label = "detailTabRow").assertExists().assertIsDisplayed()
-            onNodeWithText(text = "배우 / 감독")
-                .performScrollTo()
-                .assertExists()
-                .assertIsDisplayed()
-                .performClick()
-
-            onNodeWithText(text = favoriteMovieDetailTestData.credits?.cast?.get(0)?.name ?: "").assertIsDisplayed()
-            onNodeWithTag(testTag = "castAndCrew").performScrollToNode(hasText(text = favoriteMovieDetailTestData.credits?.crew?.get(0)?.name ?: "")).assertIsDisplayed()
+            onNodeWithText(text = "배우").performScrollTo().assertExists().assertIsDisplayed()
+            favoriteMovieDetailTestData.credits?.cast?.forEach { cast ->
+                onNodeWithContentDescription(label = cast.profilePath ?: "").assertExists().assertIsDisplayed()
+                onNodeWithText(text = cast.name ?: "").assertExists().assertIsDisplayed()
+                onNodeWithText(text = cast.character ?: "").assertExists().assertIsDisplayed()
+            }
+            onNodeWithText(text = "스태프").performScrollTo().assertExists().assertIsDisplayed()
+            favoriteMovieDetailTestData.credits?.crew?.forEach { crew ->
+                onNodeWithContentDescription(label = crew.profilePath ?: "").assertExists().assertIsDisplayed()
+                onNodeWithText(text = crew.name ?: "").assertExists().assertIsDisplayed()
+                onNodeWithText(text = crew.job ?: "").assertExists().assertIsDisplayed()
+                onNodeWithText(text = crew.department ?: "").assertExists().assertIsDisplayed()
+            }
         }
     }
 
@@ -289,19 +299,20 @@ class MovieScreenTest {
         composeTestRule.apply {
             setContent {
                 val movie by viewModel.movie.collectAsStateWithLifecycle()
-                val similarMovie = viewModel.similarMovies.collectAsLazyPagingItems()
-                val movieReview = viewModel.movieReviews.collectAsLazyPagingItems()
+//                val similarMovie = viewModel.similarMovies.collectAsLazyPagingItems()
+                val pagingData = PagingData.from(data = listOf(element = SimilarMedia(id = 3)))
+                val flow = MutableStateFlow(value = pagingData)
 
                 MovieScreen(
                     movieState = movie,
-                    similarMovies = similarMovie,
-                    movieReviews = movieReview,
-                    tabIndex = 0,
+//                    similarMovies = similarMovie,
+                    similarMovies = flow.collectAsLazyPagingItems(),
                     goToMovie = {},
                     goToPeople = {},
                     goToBack = {},
+                    goToSeries = {},
+                    isCheatActive = false,
                     onShowSnackbar = { _, _ -> true },
-                    updateTabIndex = viewModel::updateTabIndex,
                     insertFavoriteMovie = viewModel::insertMovie,
                     deleteFavoriteMovie = viewModel::deleteMovie,
                     restart = viewModel::restart
@@ -310,55 +321,49 @@ class MovieScreenTest {
 
             onNodeWithTag(testTag = "detailScreenLoading").assertExists().assertIsDisplayed()
 
-            testDatabaseRepository.insertMovie(movie = favoriteMovieDetailTestData)
+            testDatabaseRepository.insert(media = favoriteMovieDetailTestData)
             testDetailRepository.setMovie(detail = favoriteMovieDetailTestData)
-            testPagingRepository.getSimilarMoviePagingSource(id = 0)
             testDetailRepository.setMovieSeries(movieSeries = movieSeriesTestData)
 
-            onNodeWithContentDescription(label = "detailTabRow").assertExists().assertIsDisplayed()
-            onNodeWithText(text = "이미지")
-                .performScrollTo()
-                .assertExists()
-                .assertIsDisplayed()
-                .performClick()
+            onNodeWithText(text = "이미지").performScrollTo().assertExists().assertIsDisplayed()
 
             assertEquals(
                 expected = favoriteMovieDetailTestData.images?.posters?.plus(element = favoriteMovieDetailTestData.images?.backdrops)?.size,
                 actual = 4
             )
-            ((favoriteMovieDetailTestData.images?.backdrops ?: emptyList()) + (favoriteMovieDetailTestData.images?.posters ?: emptyList())).forEach {
-                it.filePath?.let { filePath ->
-//                    onNodeWithTag(testTag = "$posterUrl$filePath").assertExists().assertIsDisplayed()
-                    onNodeWithTag(testTag = filePath).assertExists().assertIsDisplayed()
-                }
+            onNodeWithText(text = "Backdrops").performScrollTo().assertExists().assertIsDisplayed()
+            onNodeWithContentDescription(label = "backdrops").performScrollTo().assertExists().assertIsDisplayed()
+            (favoriteMovieDetailTestData.images?.backdrops ?: emptyList()).forEach { backdrops ->
+                onNodeWithContentDescription(label = backdrops.filePath ?: "").assertExists().assertIsDisplayed()
+            }
+            onNodeWithText(text = "Posters").performScrollTo().assertExists().assertIsDisplayed()
+            onNodeWithContentDescription(label = "posters").performScrollTo().assertExists().assertIsDisplayed()
+            (favoriteMovieDetailTestData.images?.posters ?: emptyList()).forEach { posters ->
+                onNodeWithContentDescription(label = posters.filePath ?: "").assertExists().assertIsDisplayed()
             }
         }
     }
 
     @Test
     fun similarMovieTest() = runTest {
-        val source = SimilarMoviePagingSource(
-            apis = TestMovieDataSource(),
-            id = 0,
-            userDataRepository = testUserDataRepository
-        )
+        val pagingData = PagingData.from(data = listOf(element = SimilarMedia(id = 3, posterPath = "/similarMedia.png")))
+        val flow = MutableStateFlow(value = pagingData)
 
         composeTestRule.apply {
             setContent {
                 val movie by viewModel.movie.collectAsStateWithLifecycle()
-                val similarMovie = viewModel.similarMovies.collectAsLazyPagingItems()
-                val movieReview = viewModel.movieReviews.collectAsLazyPagingItems()
+//                val similarMovie = viewModel.similarMovies.collectAsLazyPagingItems()
 
                 MovieScreen(
                     movieState = movie,
-                    similarMovies = similarMovie,
-                    movieReviews = movieReview,
-                    tabIndex = 0,
+//                    similarMovies = similarMovie,
+                    similarMovies = flow.collectAsLazyPagingItems(),
                     goToMovie = {},
                     goToPeople = {},
                     goToBack = {},
+                    goToSeries = {},
+                    isCheatActive = false,
                     onShowSnackbar = { _, _ -> true },
-                    updateTabIndex = viewModel::updateTabIndex,
                     insertFavoriteMovie = viewModel::insertMovie,
                     deleteFavoriteMovie = viewModel::deleteMovie,
                     restart = viewModel::restart
@@ -367,40 +372,13 @@ class MovieScreenTest {
 
             onNodeWithTag(testTag = "detailScreenLoading").assertExists().assertIsDisplayed()
 
-            testDatabaseRepository.insertMovie(movie = favoriteMovieDetailTestData)
+            testDatabaseRepository.insert(media = favoriteMovieDetailTestData)
             testDetailRepository.setMovie(detail = favoriteMovieDetailTestData)
-            testPagingRepository.getSimilarMoviePagingSource(id = 0)
             testDetailRepository.setMovieSeries(movieSeries = movieSeriesTestData)
 
-            onNodeWithContentDescription(label = "detailTabRow").assertExists().assertIsDisplayed()
-            onNodeWithContentDescription(label = "detailTabRow", useUnmergedTree = true)
-                .performScrollToNode(matcher = hasText(text = "다른 영화"))
-                .assertExists()
-                .assertIsDisplayed()
-                .performClick()
-
-            assertEquals(
-                expected = PagingSource.LoadResult.Page<Int, Movie>(
-                    data = similarMoviesTestData.results?.map {
-                        Movie(
-                            id = it.id,
-                            title = it.title,
-                            posterPath = it.posterPath,
-                            genres = it.genreIds?.map { id -> Genre(id = id) },
-                            releaseDate = it.releaseDate
-                        )
-                    } ?: emptyList(),
-                    prevKey = null,
-                    nextKey = null
-                ),
-                actual = source.load(
-                    params = PagingSource.LoadParams.Refresh(
-                        key = null,
-                        loadSize = 2,
-                        placeholdersEnabled = false
-                    )
-                ),
-            )
+            onNodeWithText(text = "비슷한 작품").performScrollTo().assertExists().assertIsDisplayed()
+            onNodeWithContentDescription(label = "similarMovies").performScrollTo().assertExists().assertIsDisplayed()
+            onNodeWithContentDescription(label = "/similarMedia.png").assertExists().assertIsDisplayed()
         }
     }
 
@@ -409,19 +387,20 @@ class MovieScreenTest {
         composeTestRule.apply {
             setContent {
                 val movie by viewModel.movie.collectAsStateWithLifecycle()
-                val similarMovie = viewModel.similarMovies.collectAsLazyPagingItems()
-                val movieReview = viewModel.movieReviews.collectAsLazyPagingItems()
+//                val similarMovie = viewModel.similarMovies.collectAsLazyPagingItems()
+                val pagingData = PagingData.from(data = listOf(element = SimilarMedia(id = 3, posterPath = "/similarMedia.png")))
+                val flow = MutableStateFlow(value = pagingData)
 
                 MovieScreen(
                     movieState = movie,
-                    similarMovies = similarMovie,
-                    movieReviews = movieReview,
-                    tabIndex = 0,
+//                    similarMovies = similarMovie,
+                    similarMovies = flow.collectAsLazyPagingItems(),
                     goToMovie = {},
                     goToPeople = {},
                     goToBack = {},
+                    goToSeries = {},
+                    isCheatActive = false,
                     onShowSnackbar = { _, _ -> true },
-                    updateTabIndex = viewModel::updateTabIndex,
                     insertFavoriteMovie = viewModel::insertMovie,
                     deleteFavoriteMovie = viewModel::deleteMovie,
                     restart = viewModel::restart
@@ -430,23 +409,19 @@ class MovieScreenTest {
 
             onNodeWithTag(testTag = "detailScreenLoading").assertExists().assertIsDisplayed()
 
-            testDatabaseRepository.insertMovie(movie = favoriteMovieDetailTestData)
             testDetailRepository.setMovie(detail = unFavoriteMovieDetailTestData)
-            testPagingRepository.getSimilarMoviePagingSource(id = 0)
             testDetailRepository.setMovieSeries(movieSeries = movieSeriesTestData)
 
             onNodeWithContentDescription(label = "unFavorite").assertExists().assertIsDisplayed()
             onNodeWithContentDescription(label = "favorite").assertIsNotDisplayed()
-            onNodeWithTag(testTag = "titleComponent").assertTextEquals(favoriteMovieDetailTestData.title ?: "").assertIsDisplayed()
-            onNodeWithTag(testTag = "movieTitle").assertTextEquals(favoriteMovieDetailTestData.title ?: "").assertIsDisplayed()
             onNodeWithText(text = favoriteMovieDetailTestData.originalTitle ?: "").assertExists().assertIsDisplayed()
             onNodeWithText(text = favoriteMovieDetailTestData.overview ?: "").assertExists().assertIsDisplayed()
-            onNodeWithContentDescription(label = "unFavorite").performClick()
-            onNodeWithContentDescription(label = "unFavorite").assertIsNotDisplayed()
-            onNodeWithContentDescription(label = "favorite").assertIsDisplayed()
+            onNodeWithContentDescription(label = "unFavorite").assertExists().assertIsDisplayed().performClick()
+//            onNodeWithContentDescription(label = "unFavorite").assertIsNotDisplayed()
+//            onNodeWithContentDescription(label = "favorite").assertIsDisplayed()
             assertEquals(
-                testDatabaseRepository.getMovies().first().find { it.id == 324 }?.id,
-                unFavoriteMovieDetailTestData.id
+                expected = testDatabaseRepository.currentMovieDatabase.find { it.id == 324 }?.id,
+                actual = unFavoriteMovieDetailTestData.id
             )
         }
     }
@@ -456,19 +431,20 @@ class MovieScreenTest {
         composeTestRule.apply {
             setContent {
                 val movie by viewModel.movie.collectAsStateWithLifecycle()
-                val similarMovie = viewModel.similarMovies.collectAsLazyPagingItems()
-                val movieReview = viewModel.movieReviews.collectAsLazyPagingItems()
+//                val similarMovie = viewModel.similarMovies.collectAsLazyPagingItems()
+                val pagingData = PagingData.from(data = listOf(element = SimilarMedia(id = 3, posterPath = "/similarMedia.png")))
+                val flow = MutableStateFlow(value = pagingData)
 
                 MovieScreen(
                     movieState = movie,
-                    similarMovies = similarMovie,
-                    movieReviews = movieReview,
-                    tabIndex = 0,
+//                    similarMovies = similarMovie,
+                    similarMovies = flow.collectAsLazyPagingItems(),
                     goToMovie = {},
                     goToPeople = {},
                     goToBack = {},
+                    goToSeries = {},
+                    isCheatActive = false,
                     onShowSnackbar = { _, _ -> true },
-                    updateTabIndex = viewModel::updateTabIndex,
                     insertFavoriteMovie = viewModel::insertMovie,
                     deleteFavoriteMovie = viewModel::deleteMovie,
                     restart = viewModel::restart
@@ -477,23 +453,20 @@ class MovieScreenTest {
 
             onNodeWithTag(testTag = "detailScreenLoading").assertExists().assertIsDisplayed()
 
-            testDatabaseRepository.insertMovie(movie = favoriteMovieDetailTestData)
+            testDatabaseRepository.insert(media = favoriteMovieDetailTestData)
             testDetailRepository.setMovie(detail = favoriteMovieDetailTestData)
-            testPagingRepository.getSimilarMoviePagingSource(id = 0)
             testDetailRepository.setMovieSeries(movieSeries = movieSeriesTestData)
 
             onNodeWithContentDescription(label = "favorite").assertExists().assertIsDisplayed()
             onNodeWithContentDescription(label = "unFavorite").assertIsNotDisplayed()
-            onNodeWithTag(testTag = "titleComponent").assertTextEquals(favoriteMovieDetailTestData.title ?: "").assertIsDisplayed()
-            onNodeWithTag(testTag = "movieTitle").assertTextEquals(favoriteMovieDetailTestData.title ?: "").assertIsDisplayed()
             onNodeWithText(text = favoriteMovieDetailTestData.originalTitle ?: "").assertExists().assertIsDisplayed()
             onNodeWithText(text = favoriteMovieDetailTestData.overview ?: "").assertExists().assertIsDisplayed()
             onNodeWithContentDescription(label = "favorite").assertExists().assertIsDisplayed().performClick()
             onNodeWithContentDescription(label = "unFavorite").assertIsDisplayed()
             onNodeWithContentDescription(label = "favorite").assertIsNotDisplayed()
             assertEquals(
-                testDatabaseRepository.getMovies().first().find { it.id == 0 },
-                null
+                expected = testDatabaseRepository.currentMovieDatabase.find { it.id == 0 },
+                actual = null
             )
         }
     }

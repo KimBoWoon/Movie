@@ -28,7 +28,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -81,7 +80,6 @@ fun FavoriteScreen(
         is FavoriteUiState.PeopleState -> uiState.items.collectAsLazyPagingItems()
     }
 
-
     FavoriteScreen(
         selectedTab = selectedTab,
         favoritePagingItems = favoritePagingItems,
@@ -127,7 +125,7 @@ fun FavoriteScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    modifier = Modifier.testTag(tag = "favoriteMovieEmpty"),
+                    modifier = Modifier.semantics { contentDescription = "favoriteEmpty" },
                     text = when (selectedTab) {
                         FavoriteTab.MOVIE -> stringResource(id = R.string.empty_favorite_movie)
                         FavoriteTab.PEOPLE -> stringResource(id = R.string.empty_favorite_people)
@@ -159,6 +157,7 @@ fun FavoriteScreen(
                                     )
                                     FavoriteButtonComponent(
                                         modifier = Modifier
+                                            .semantics { contentDescription = "favoriteButton" }
                                             .wrapContentSize()
                                             .padding(end = dp5, top = dp5)
                                             .align(Alignment.TopEnd),
@@ -197,6 +196,7 @@ fun FavoriteScreen(
                                 )
                                 FavoriteButtonComponent(
                                     modifier = Modifier
+                                        .semantics { contentDescription = "favoriteButton" }
                                         .wrapContentSize()
                                         .padding(end = dp5, top = dp5)
                                         .align(Alignment.TopEnd),
@@ -244,7 +244,8 @@ fun <T : Media> FavoriteListComponent(
             verticalArrangement = Arrangement.spacedBy(space = dp10)
         ) {
             items(
-                count = favoriteList.itemCount
+                count = favoriteList.itemCount,
+                key = { index -> favoriteList[index]?.id ?: index }
             ) {
                 content(favoriteList[it] ?: return@items)
             }

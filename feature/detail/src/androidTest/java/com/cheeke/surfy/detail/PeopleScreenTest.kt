@@ -1,25 +1,28 @@
 package com.cheeke.surfy.detail
 
-import androidx.activity.ComponentActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertTextEquals
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.cheeke.surfy.analytics.AnalyticsEvent
+import com.cheeke.surfy.analytics.AnalyticsHelper
 import com.cheeke.surfy.detail.people.PeopleScreen
 import com.cheeke.surfy.detail.people.PeopleState
 import com.cheeke.surfy.detail.people.PeopleVM
 import com.cheeke.surfy.domain.GetPeopleDetailUseCase
+import com.cheeke.surfy.model.LocaleOption
 import com.cheeke.surfy.model.People
 import com.cheeke.surfy.model.PosterSize
 import com.cheeke.surfy.model.SurfyAppData
 import com.cheeke.surfy.model.getRelatedMovie
+import com.cheeke.surfy.network.model.SurfyNetworkException
 import com.cheeke.surfy.testing.model.combineCreditsTestData
 import com.cheeke.surfy.testing.model.configurationTestData
 import com.cheeke.surfy.testing.model.externalIdsTestData
@@ -27,7 +30,8 @@ import com.cheeke.surfy.testing.model.genreListTestData
 import com.cheeke.surfy.testing.model.languageListTestData
 import com.cheeke.surfy.testing.model.peopleDetailTestData
 import com.cheeke.surfy.testing.model.regionTestData
-import com.cheeke.surfy.testing.repository.TestMovieDatabaseRepository
+import com.cheeke.surfy.testing.repository.TestPeopleDatabaseRepository
+import com.cheeke.surfy.testing.repository.TestPeopleDetailRepository
 import com.cheeke.surfy.testing.utils.TestMovieAppDataManager
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -39,18 +43,22 @@ import kotlin.test.assertEquals
 
 class PeopleScreenTest {
     @get:Rule
-    val composeTestRule = createAndroidComposeRule<ComponentActivity>()
+    val composeTestRule = createComposeRule()
     private lateinit var viewModel: PeopleVM
     private lateinit var savedStateHandle: SavedStateHandle
     private lateinit var getPeopleDetail: GetPeopleDetailUseCase
-    private lateinit var testDatabaseRepository: TestMovieDatabaseRepository
-    private lateinit var testDetailRepository: TestDetailRepository
+    private lateinit var testDatabaseRepository: TestPeopleDatabaseRepository
+    private lateinit var testDetailRepository: TestPeopleDetailRepository
     private lateinit var testMovieAppDataManager: TestMovieAppDataManager
     private val surfyAppData = SurfyAppData(
         secureBaseUrl = configurationTestData.images?.secureBaseUrl ?: "",
         movieGenres = genreListTestData.genres ?: emptyList(),
-        region = regionTestData.results ?: emptyList(),
-        language = languageListTestData,
+        region = regionTestData.results?.map { region ->
+            LocaleOption(code = region.iso31661 ?: "KR", label = region.nativeName ?: "KR", isSelected = region.iso31661 == "KR")
+        } ?: emptyList(),
+        language = languageListTestData.map { language ->
+            LocaleOption(code = language.iso6391 ?: "ko", label = language.englishName ?: "Korean", isSelected = language.iso6391 == "ko")
+        },
         posterSize = configurationTestData.images?.posterSizes?.map {
             PosterSize(size = it, isSelected = it == "original")
         } ?: emptyList()
@@ -60,16 +68,21 @@ class PeopleScreenTest {
     fun setup() {
         savedStateHandle = SavedStateHandle(initialState = mapOf("id" to 0))
         testMovieAppDataManager = TestMovieAppDataManager()
-        testDatabaseRepository = TestMovieDatabaseRepository()
-        testDetailRepository = TestDetailRepository()
+        testDatabaseRepository = TestPeopleDatabaseRepository()
+        testDetailRepository = TestPeopleDetailRepository()
         getPeopleDetail = GetPeopleDetailUseCase(
             detailRepository = testDetailRepository,
-            databaseRepository = testDatabaseRepository
+            peopleDataBaseRepository = testDatabaseRepository
         )
         viewModel = PeopleVM(
             id = 0,
             getPeopleDetail = getPeopleDetail,
-            databaseRepository = testDatabaseRepository
+            peopleDataBaseRepository = testDatabaseRepository,
+            analyticsHelper = object : AnalyticsHelper {
+                override fun logEvent(event: AnalyticsEvent) {
+                    println("event: $event")
+                }
+            }
         )
         testMovieAppDataManager.setMovieAppData(surfyAppData)
     }
@@ -101,7 +114,7 @@ class PeopleScreenTest {
         composeTestRule.apply {
             setContent {
                 PeopleScreen(
-                    peopleState = PeopleState.Error(Throwable("something wrong...")),
+                    peopleState = PeopleState.Error(throwable = SurfyNetworkException(throwable = Throwable("something wrong..."))),
                     goToBack = {},
                     insertFavoritePeople = viewModel::insertPeople,
                     deleteFavoritePeople = viewModel::deletePeople,
@@ -140,13 +153,12 @@ class PeopleScreenTest {
                 testDetailRepository.setPeopleDetail(people = peopleDetailTestData)
                 testDetailRepository.setCombineCredits(credits = combineCreditsTestData)
                 testDetailRepository.setExternalIds(ids = externalIdsTestData)
-                testDatabaseRepository.insertPeople(people = peopleDetailTestData)
+                testDatabaseRepository.insert(media = peopleDetailTestData)
             }
 
-            onNodeWithTag(testTag = "titleComponent").assertExists().assertTextEquals(peopleDetailTestData.title!!).assertIsDisplayed()
             onNodeWithContentDescription(label = "peopleImageHorizontalPager").assertExists().assertIsDisplayed()
-            onNodeWithContentDescription(label = "peopleName").assertExists().assertTextEquals(peopleDetailTestData.title!!).assertIsDisplayed()
-            onNodeWithContentDescription(label = "peoplePlaceOfBirth").assertExists().assertTextEquals(peopleDetailTestData.placeOfBirth!!).assertIsDisplayed()
+            onNodeWithText(text = peopleDetailTestData.title!!).assertExists().assertIsDisplayed()
+            onNodeWithText(text = peopleDetailTestData.birthday!!).assertExists().assertIsDisplayed()
             onNodeWithContentDescription(label = "facebookId").assertExists().assertIsDisplayed()
             onNodeWithContentDescription(label = "instagramId").assertExists().assertIsDisplayed()
             onNodeWithContentDescription(label = "youtubeId").assertExists().assertIsDisplayed()
@@ -175,17 +187,14 @@ class PeopleScreenTest {
                 )
             }
 
-            runBlocking {
-                testDetailRepository.setPeopleDetail(people = peopleDetailTestData)
-                testDetailRepository.setCombineCredits(credits = combineCreditsTestData)
-                testDetailRepository.setExternalIds(ids = externalIdsTestData)
-                testDatabaseRepository.insertPeople(people = People(id = 123))
-            }
+            testDetailRepository.setPeopleDetail(people = peopleDetailTestData)
+            testDetailRepository.setCombineCredits(credits = combineCreditsTestData)
+            testDetailRepository.setExternalIds(ids = externalIdsTestData)
+            testDatabaseRepository.insert(media = People(id = 123))
 
-            onNodeWithTag(testTag = "titleComponent").assertExists().assertTextEquals(peopleDetailTestData.title!!).assertIsDisplayed()
             onNodeWithContentDescription(label = "peopleImageHorizontalPager").assertExists().assertIsDisplayed()
-            onNodeWithContentDescription(label = "peopleName").assertExists().assertTextEquals(peopleDetailTestData.title!!).assertIsDisplayed()
-            onNodeWithContentDescription(label = "peoplePlaceOfBirth").assertExists().assertTextEquals(peopleDetailTestData.placeOfBirth!!).assertIsDisplayed()
+            onNodeWithText(text = peopleDetailTestData.title!!).assertExists().assertIsDisplayed()
+            onNodeWithText(text = peopleDetailTestData.birthday!!).assertExists().assertIsDisplayed()
             onNodeWithContentDescription(label = "facebookId").assertExists().assertIsDisplayed()
             onNodeWithContentDescription(label = "instagramId").assertExists().assertIsDisplayed()
             onNodeWithContentDescription(label = "youtubeId").assertExists().assertIsDisplayed()
@@ -199,8 +208,8 @@ class PeopleScreenTest {
             onNodeWithContentDescription(label = "unFavorite").assertIsNotDisplayed()
             onNodeWithContentDescription(label = "favorite").assertIsDisplayed()
             assertEquals(
-                testDatabaseRepository.getPeople().first().find { it.id == peopleDetailTestData.id }?.id,
-                peopleDetailTestData.id
+                expected = testDatabaseRepository.peopleDatabase.first().find { it.id == peopleDetailTestData.id }?.id,
+                actual = peopleDetailTestData.id
             )
         }
     }
@@ -223,17 +232,14 @@ class PeopleScreenTest {
                 )
             }
 
-            runBlocking {
-                testDetailRepository.setPeopleDetail(people = peopleDetailTestData)
-                testDetailRepository.setCombineCredits(credits = combineCreditsTestData)
-                testDetailRepository.setExternalIds(ids = externalIdsTestData)
-                testDatabaseRepository.insertPeople(people = peopleDetailTestData)
-            }
+            testDetailRepository.setPeopleDetail(people = peopleDetailTestData)
+            testDetailRepository.setCombineCredits(credits = combineCreditsTestData)
+            testDetailRepository.setExternalIds(ids = externalIdsTestData)
+            testDatabaseRepository.insert(media = peopleDetailTestData)
 
-            onNodeWithTag(testTag = "titleComponent").assertExists().assertTextEquals(peopleDetailTestData.title!!).assertIsDisplayed()
             onNodeWithContentDescription(label = "peopleImageHorizontalPager").assertExists().assertIsDisplayed()
-            onNodeWithContentDescription(label = "peopleName").assertExists().assertTextEquals(peopleDetailTestData.title!!).assertIsDisplayed()
-            onNodeWithContentDescription(label = "peoplePlaceOfBirth").assertExists().assertTextEquals(peopleDetailTestData.placeOfBirth!!).assertIsDisplayed()
+            onNodeWithText(text = peopleDetailTestData.title!!).assertExists().assertIsDisplayed()
+            onNodeWithText(text = peopleDetailTestData.birthday!!).assertExists().assertIsDisplayed()
             onNodeWithContentDescription(label = "facebookId").assertExists().assertIsDisplayed()
             onNodeWithContentDescription(label = "instagramId").assertExists().assertIsDisplayed()
             onNodeWithContentDescription(label = "youtubeId").assertExists().assertIsDisplayed()
@@ -247,8 +253,8 @@ class PeopleScreenTest {
             onNodeWithContentDescription(label = "unFavorite").assertIsDisplayed()
             onNodeWithContentDescription(label = "favorite").assertIsNotDisplayed()
             assertEquals(
-                testDatabaseRepository.getPeople().first().find { it.id == peopleDetailTestData.id }?.id,
-                null
+                expected = testDatabaseRepository.peopleDatabase.first().find { it.id == peopleDetailTestData.id }?.id,
+                actual = null
             )
         }
     }

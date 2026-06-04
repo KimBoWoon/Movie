@@ -5,6 +5,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,7 +24,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -31,7 +31,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -41,7 +41,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -58,7 +58,6 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.cheeke.surfy.analytics.TrackScreenViewEvent
 import com.cheeke.surfy.common.InfinitePager
 import com.cheeke.surfy.common.Log
-import com.cheeke.surfy.common.isSystemInDarkTheme
 import com.cheeke.surfy.data.util.PEOPLE_IMAGE_RATIO
 import com.cheeke.surfy.data.util.POSTER_IMAGE_RATIO
 import com.cheeke.surfy.feature.home.R
@@ -164,8 +163,6 @@ fun HomeScreen(
                 LocalFirebaseLogHelper.current.sendLog("HomeScreen", "data load success")
                 Log.d("$nowPlayingMovies, $upComingMovies, $trendingMovies, $trendingPeoples, $trendingTvs")
 
-                val lazyListState = rememberLazyListState()
-
                 HomeComponent(
                     popularMovies = homeUiState.homeUiState.popularMovies,
                     nowPlayingMovies = nowPlayingMovies,
@@ -226,10 +223,12 @@ fun HomeComponent(
             .fillMaxSize()
             .verticalScroll(state = scrollState)
     ) {
-        TodayRecommendMovieComponent(
-            movies = popularMovies,
-            goToMovie = goToMovie
-        )
+        if (popularMovies.isNotEmpty()) {
+            TodayRecommendMovieComponent(
+                movies = popularMovies,
+                goToMovie = goToMovie
+            )
+        }
 
         if (nowPlayingMovies.itemCount != 0) {
             HorizontalMovieListComponent(
@@ -274,13 +273,14 @@ fun TimeWindowSwitch(
     timeWindow: TimeWindow,
     onChangeTimeWindow: (TimeWindow) -> Unit
 ) {
-    var width by remember { mutableIntStateOf(value = 0) }
+    var width by remember { mutableStateOf(value = dp0) }
     val timeWindowAnimation by animateDpAsState(
-        targetValue = if (timeWindow == TimeWindow.DAY) dp0 else width.dp,
+        targetValue = if (timeWindow == TimeWindow.DAY) dp0 else width,
         animationSpec = tween(durationMillis = 200),
         label = "TimeWindowAnimation",
     )
-    val isDarkMode = LocalContext.current.resources.configuration.isSystemInDarkTheme
+    val isDarkMode = isSystemInDarkTheme()
+    val density = LocalDensity.current
 
     Box {
         Box(
@@ -326,7 +326,9 @@ fun TimeWindowSwitch(
                 modifier = Modifier
                     .weight(weight = 1f)
                     .fillMaxHeight()
-                    .onSizeChanged { width = it.width },
+                    .onSizeChanged {
+                        width = if (timeWindow == TimeWindow.DAY) 0.dp else with(receiver = density) { it.width.dp }
+                    },
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -373,7 +375,7 @@ fun TrendingList(
         }
         if (trending.itemCount != 0) {
             LazyRow(
-                modifier = Modifier.wrapContentSize(),
+                modifier = Modifier.semantics { contentDescription = title }.wrapContentSize(),
                 contentPadding = PaddingValues(horizontal = dp16),
                 horizontalArrangement = Arrangement.spacedBy(space = dp16)
             ) {
@@ -539,7 +541,7 @@ private fun TodayRecommendMovieComponent(
         InfinitePager<Movie>(
             contentPadding = PaddingValues(horizontal = dp20),
             pageSpacing = dp12,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.semantics { contentDescription = "todayRecommendMovies" }.fillMaxWidth(),
             isVisibleIndicator = true,
             isAutoScroll = true,
             items = movies,

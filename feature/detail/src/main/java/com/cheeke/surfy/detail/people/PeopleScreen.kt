@@ -252,6 +252,7 @@ fun ProfileComponent(
             HorizontalPager(
                 state = pagerState,
                 modifier = Modifier
+                    .semantics { contentDescription = "peopleImageHorizontalPager" }
                     .fillMaxWidth()
                     .aspectRatio(ratio = POSTER_IMAGE_RATIO)
             ) { page ->

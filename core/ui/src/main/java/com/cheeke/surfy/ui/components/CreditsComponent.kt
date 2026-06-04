@@ -66,7 +66,7 @@ fun CreditsComponent(
                     ) {
                         DynamicAsyncImageLoader(
                             source = actor.profilePath ?: "",
-                            contentDescription = null,
+                            contentDescription = actor.profilePath,
                             modifier = Modifier
                                 .size(size = dp72)
                                 .clip(shape = CircleShape),
@@ -75,12 +75,14 @@ fun CreditsComponent(
 
                         Text(
                             text = actor.character ?: "",
+                            minLines = 1,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             style = MaterialTheme.typography.labelSmall
                         )
                         Text(
                             text = actor.name ?: "",
+                            minLines = 1,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             style = MaterialTheme.typography.labelSmall
@@ -116,7 +118,7 @@ fun CreditsComponent(
                     ) {
                         DynamicAsyncImageLoader(
                             source = crew.profilePath ?: "",
-                            contentDescription = null,
+                            contentDescription = crew.profilePath,
                             modifier = Modifier
                                 .size(size = dp72)
                                 .clip(shape = CircleShape),

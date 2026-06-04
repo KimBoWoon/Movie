@@ -155,7 +155,7 @@ fun SeriesComponent(
     goToMovie: (Int) -> Unit
 ) {
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.semantics { contentDescription = "seriesList" }.fillMaxSize(),
         contentPadding = PaddingValues(bottom = dp10)
     ) {
         item {
@@ -634,7 +634,7 @@ private fun MoviePoster(
         } else {
             DynamicAsyncImageLoader(
                 source = posterUrl,
-                contentDescription = null,
+                contentDescription = posterUrl,
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
             )

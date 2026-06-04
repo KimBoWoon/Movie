@@ -38,6 +38,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -380,7 +382,7 @@ fun SeriesComponent(
 ) {
     Column {
         SectionHeader(
-            title = "Series",
+            title = stringResource(id = R.string.movie_series),
 //            actionText = "See all",
 //            onActionClick = onSeeAll
         )
@@ -401,7 +403,7 @@ fun SeriesComponent(
             ) {
                 DynamicAsyncImageLoader(
                     source = collection?.posterPath ?: "",
-                    contentDescription = null,
+                    contentDescription = collection?.posterPath,
                     modifier = Modifier
                         .size(width = dp62, height = dp92)
                         .clip(shape = RoundedCornerShape(size = dp12))
@@ -443,6 +445,7 @@ fun SeriesComponent(
             Spacer(modifier = Modifier.height(height = dp10))
 
             LazyRow(
+                modifier = Modifier.semantics { contentDescription = "seriesList" },
                 contentPadding = PaddingValues(horizontal = dp16),
                 horizontalArrangement = Arrangement.spacedBy(space = dp12)
             ) {
@@ -454,7 +457,7 @@ fun SeriesComponent(
                     ) {
                         DynamicAsyncImageLoader(
                             source = m.posterPath ?: "",
-                            contentDescription = null,
+                            contentDescription = m.posterPath,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .aspectRatio(ratio = POSTER_IMAGE_RATIO)

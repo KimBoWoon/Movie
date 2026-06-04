@@ -33,7 +33,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
+import com.cheeke.surfy.core.ui.R
 import com.cheeke.surfy.model.Image
 import com.cheeke.surfy.ui.image.DynamicAsyncImageLoader
 import com.cheeke.surfy.ui.utils.dp0
@@ -69,7 +73,7 @@ fun ImagesComponent(
             .fillMaxWidth()
             .height(height = if (backdrops.isNotEmpty() && posters.isNotEmpty()) dp433 else if (backdrops.isNotEmpty()) dp209 else if (posters.isNotEmpty()) dp246 else dp0)
     ) {
-        SectionHeader(title = "Images"/*, actionText = "See all", onActionClick = onSeeAll*/)
+        SectionHeader(title = stringResource(id = R.string.movie_image)/*, actionText = "See all", onActionClick = onSeeAll*/)
 
         if (backdrops.isNotEmpty()) {
             Spacer(modifier = Modifier.height(height = dp12))
@@ -120,6 +124,12 @@ private fun ImageRow(
     onSelect: (ImageType, Image, Int) -> Unit
 ) {
     LazyRow(
+        modifier = Modifier.semantics {
+            contentDescription = when (type) {
+                ImageType.BACKDROP -> "backdrops"
+                ImageType.POSTER -> "posters"
+            }
+        },
         contentPadding = PaddingValues(horizontal = dp10),
         horizontalArrangement = Arrangement.spacedBy(space = dp10)
     ) {
@@ -153,7 +163,7 @@ private fun ImageRow(
                         } else {
                             DynamicAsyncImageLoader(
                                 source = image.filePath.orEmpty(),
-                                contentDescription = null,
+                                contentDescription = image.filePath,
                                 modifier = cell
                                     .then(
                                         other = if (isSelected) {
@@ -164,7 +174,8 @@ private fun ImageRow(
                                         } else {
                                             Modifier
                                         }
-                                    ).roundedCornerClickable(
+                                    )
+                                    .roundedCornerClickable(
                                         onClick = { onSelect(type, image, index) },
                                         cornerRadius = dp10
                                     ),
@@ -239,7 +250,8 @@ fun SharedTransitionScope.ImageOverlay(
                     .sharedElement(
                         sharedContentState = rememberSharedContentState(key = key),
                         animatedVisibilityScope = this@AnimatedVisibility
-                    ).clip(shape = RoundedCornerShape(size = dp10)),
+                    )
+                    .clip(shape = RoundedCornerShape(size = dp10)),
                 contentScale = ContentScale.Fit
             )
         }

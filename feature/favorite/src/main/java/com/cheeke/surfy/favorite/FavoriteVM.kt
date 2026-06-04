@@ -26,7 +26,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -68,7 +67,7 @@ class FavoriteVM @AssistedInject constructor(
     ).flow.map { pagingData ->
         pagingData.map(transform = TvEntity::asExternalModel)
     }.cachedIn(scope = viewModelScope)
-    val currentPagingItems: StateFlow<FavoriteUiState> = tabIndex
+    val currentPagingItems = tabIndex
         .map { index ->
             when (FavoriteTab.entries[index]) {
                 FavoriteTab.MOVIE -> FavoriteUiState.MovieState(items = favoriteMovies)

@@ -15,6 +15,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.paging.compose.LazyPagingItems
 import com.cheeke.surfy.core.ui.R
 import com.cheeke.surfy.data.util.POSTER_IMAGE_RATIO
@@ -40,7 +42,7 @@ fun SimilarComponent(
             style = MaterialTheme.typography.titleMedium
         )
         LazyRow(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.semantics { contentDescription = "similarMovies" }.fillMaxWidth(),
             contentPadding = PaddingValues(horizontal = dp16),
             horizontalArrangement = Arrangement.spacedBy(space = dp10)
         ) {
@@ -53,7 +55,7 @@ fun SimilarComponent(
                 ) {
                     DynamicAsyncImageLoader(
                         source = similar[index]?.posterPath ?: "",
-                        contentDescription = null,
+                        contentDescription = similar[index]?.posterPath,
                         modifier = Modifier
                             .fillMaxWidth()
                             .aspectRatio(ratio = POSTER_IMAGE_RATIO)
