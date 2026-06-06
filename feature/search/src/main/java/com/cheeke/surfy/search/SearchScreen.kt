@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -76,6 +77,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.cheeke.surfy.analytics.TrackScreenViewEvent
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.data.util.POSTER_IMAGE_RATIO
+import com.cheeke.surfy.database.model.KeywordEntity
 import com.cheeke.surfy.feature.search.R
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
 import com.cheeke.surfy.model.Genre
@@ -100,12 +102,13 @@ import com.cheeke.surfy.ui.utils.dp16
 import com.cheeke.surfy.ui.utils.dp35
 import com.cheeke.surfy.ui.utils.dp40
 import com.cheeke.surfy.ui.utils.dp5
+import com.cheeke.surfy.ui.utils.dp50
 import com.cheeke.surfy.ui.utils.dp60
 import com.cheeke.surfy.ui.utils.dp8
+import com.cheeke.surfy.ui.utils.dp999
 import com.cheeke.surfy.ui.utils.matchedColorString
 import com.cheeke.surfy.ui.utils.roundedCornerClickable
 import com.cheeke.surfy.ui.utils.sp12
-import com.cheeke.surfy.ui.utils.sp20
 import kotlinx.coroutines.launch
 
 @Composable
@@ -127,6 +130,7 @@ fun SearchScreen(
     val inputKeyword = stringResource(id = R.string.input_keyword)
     val movieAppData by viewModel.surfyAppData.collectAsStateWithLifecycle()
     val lifecycle = LocalLifecycleOwner.current.lifecycle
+    val recentlyKeyword = viewModel.recentlyKeywordPaging.collectAsLazyPagingItems()
     val query by viewModel.query.collectAsStateWithLifecycle()
 
     LaunchedEffect(key1 = Unit) {
@@ -137,6 +141,7 @@ fun SearchScreen(
 
     SearchScreen(
         searchUiState = searchUiState,
+        recentlyKeyword = recentlyKeyword,
         recommendKeyword = recommendKeyword,
         query = query,
         searchType = searchType,
@@ -146,6 +151,9 @@ fun SearchScreen(
         goToTv = goToTv,
         goToPeople = goToPeople,
         goToSeries = goToSeries,
+        onSaveKeyword = viewModel::saveKeyword,
+        deleteKeyword = viewModel::deleteRecentlyKeyword,
+        deleteAllKeyword = viewModel::deleteAllRecentlyKeyword,
         onSearchClick = viewModel::searchMovies,
         updateKeyword = viewModel::updateQuery,
         updateSearchType = viewModel::updateSearchType,
@@ -156,6 +164,7 @@ fun SearchScreen(
 @Composable
 fun SearchScreen(
     searchUiState: SearchUiState,
+    recentlyKeyword: LazyPagingItems<KeywordEntity>,
     recommendKeyword: LazyPagingItems<SearchKeyword>,
     query: TextFieldValue,
     searchType: SearchType,
@@ -165,6 +174,9 @@ fun SearchScreen(
     goToTv: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     goToSeries: (Int) -> Unit,
+    onSaveKeyword: (String) -> Unit,
+    deleteKeyword: (KeywordEntity) -> Unit,
+    deleteAllKeyword: () -> Unit,
     onSearchClick: () -> Unit,
     updateKeyword: (TextFieldValue) -> Unit,
     updateSearchType: (SearchType) -> Unit,
@@ -182,6 +194,7 @@ fun SearchScreen(
             searchType = searchType,
             scrollState = scrollState,
             updateKeyword = updateKeyword,
+            onSaveKeyword = onSaveKeyword,
             onSearchClick = onSearchClick,
             updateSearchType = updateSearchType,
             updateGenre = updateGenre,
@@ -190,9 +203,13 @@ fun SearchScreen(
 
         if (isVisible) {
             RecommendKeywordComponent(
+                recentlyKeyword = recentlyKeyword,
                 recommendKeyword = recommendKeyword,
                 query = query,
                 updateKeyword = updateKeyword,
+                onSaveKeyword = onSaveKeyword,
+                deleteKeyword = deleteKeyword,
+                deleteAllKeyword = deleteAllKeyword,
                 onSearchClick = onSearchClick,
                 recommendKeywordVisible = { isVisible = it }
             )
@@ -220,6 +237,7 @@ fun SearchBarComponent(
     searchType: SearchType,
     scrollState: LazyGridState,
     onSearchClick: () -> Unit,
+    onSaveKeyword: (String) -> Unit,
     updateKeyword: (TextFieldValue) -> Unit,
     updateSearchType: (SearchType) -> Unit,
     updateGenre: (Genre?) -> Unit,
@@ -236,6 +254,7 @@ fun SearchBarComponent(
         onSearch = {
             scope.launch { scrollState.scrollToItem(index = 0) }
             updateGenre(null)
+            onSaveKeyword(query.text)
             onSearchClick()
             focusManager.clearFocus()
             recommendKeywordVisible(false)
@@ -336,6 +355,7 @@ fun SearchBarComponent(
                                 .clickable {
                                     scope.launch { scrollState.scrollToItem(index = 0) }
                                     updateGenre(null)
+                                    onSaveKeyword(query.text)
                                     onSearchClick()
                                     focusManager.clearFocus()
                                     recommendKeywordVisible(false)
@@ -564,17 +584,96 @@ fun SearchPagingComponent(
 
 @Composable
 fun RecommendKeywordComponent(
+    recentlyKeyword: LazyPagingItems<KeywordEntity>,
     recommendKeyword: LazyPagingItems<SearchKeyword>,
     query: TextFieldValue,
     updateKeyword: (TextFieldValue) -> Unit,
+    onSaveKeyword: (String) -> Unit,
+    deleteKeyword: (KeywordEntity) -> Unit,
+    deleteAllKeyword: () -> Unit,
     onSearchClick: () -> Unit,
     recommendKeywordVisible: (Boolean) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
 
-    Box(
+    Column(
         modifier = Modifier.fillMaxSize()
     ) {
+        if (recentlyKeyword.itemCount > 0) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(height = dp50)
+                    .padding(horizontal = dp10),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    modifier = Modifier.padding(top = dp5, bottom = dp5),
+                    text = stringResource(id = R.string.recently_keyword),
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.headlineSmall
+                )
+                Text(
+                    modifier = Modifier.bounceClick(onClick = { deleteAllKeyword() }),
+                    text = stringResource(id = R.string.delete_recently_keyword),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.labelSmall
+                )
+            }
+            LazyRow(
+                modifier = Modifier
+                    .semantics { contentDescription = "recentlyKeywordList" }
+                    .fillMaxWidth()
+                    .height(height = dp60),
+                contentPadding = PaddingValues(all = dp10),
+                horizontalArrangement = Arrangement.spacedBy(space = dp10)
+            ) {
+                items(
+                    count = recentlyKeyword.itemCount,
+                    key = { index -> recentlyKeyword.peek(index)?.id ?: -1 }
+                ) { index ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .background(
+                                color = MaterialTheme.colorScheme.inverseOnSurface,
+                                shape = RoundedCornerShape(size = dp999)
+                            )
+                            .bounceClick(
+                                onClick = {
+                                    focusManager.clearFocus()
+                                    updateKeyword(TextFieldValue(text = recentlyKeyword[index]?.keyword.orEmpty()))
+                                    onSaveKeyword(recentlyKeyword[index]?.keyword.orEmpty())
+                                    onSearchClick()
+                                    recommendKeywordVisible(false)
+                                }
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        recentlyKeyword[index]?.let { keywordEntity ->
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    modifier = Modifier.padding(start = dp10, top = dp10, bottom = dp10, end = dp5),
+                                    text = keywordEntity.keyword,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    style = MaterialTheme.typography.labelSmall
+                                )
+                                Icon(
+                                    modifier = Modifier.padding(top = dp10, bottom = dp10, end = dp10).bounceClick(onClick = { deleteKeyword(keywordEntity) }),
+                                    imageVector = Icons.Filled.Close,
+                                    contentDescription = "recentlyKeywordClose"
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
         LazyColumn(
             modifier = Modifier
                 .semantics { contentDescription = "recommendKeywordList" }
@@ -591,11 +690,10 @@ fun RecommendKeywordComponent(
                     Text(
                         modifier = Modifier.padding(start = dp16),
                         text = stringResource(id = R.string.recommend_keyword),
-                        fontSize = sp20,
-                        fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center,
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.headlineSmall
                     )
                     Icon(
                         modifier = Modifier
@@ -619,9 +717,10 @@ fun RecommendKeywordComponent(
                             .fillMaxWidth()
                             .height(height = dp35)
                             .bounceClick {
-                                updateKeyword(TextFieldValue(text = recommendKeyword.name ?: ""))
-                                onSearchClick()
                                 focusManager.clearFocus()
+                                updateKeyword(TextFieldValue(text = recommendKeyword.name ?: ""))
+                                onSaveKeyword(recommendKeyword.name ?: "")
+                                onSearchClick()
                                 recommendKeywordVisible(false)
                             },
                         text = annotatedString,

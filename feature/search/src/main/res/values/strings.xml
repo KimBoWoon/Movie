@@ -12,4 +12,6 @@
     <string name="search_type_people">People</string>
     <string name="search_type_series">Series</string>
     <string name="search_type_tv">TV</string>
+    <string name="recently_keyword">Recently keyword</string>
+    <string name="delete_recently_keyword">Delete recently keyword</string>
 </resources>

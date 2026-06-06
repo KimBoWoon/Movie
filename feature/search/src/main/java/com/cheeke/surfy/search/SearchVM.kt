@@ -11,8 +11,11 @@ import androidx.paging.cachedIn
 import androidx.paging.filter
 import com.cheeke.surfy.analytics.AnalyticsHelper
 import com.cheeke.surfy.analytics.logSearch
+import com.cheeke.surfy.common.Log
+import com.cheeke.surfy.data.repository.KeywordDataBaseRepository
 import com.cheeke.surfy.data.repository.PagingRepository
 import com.cheeke.surfy.data.util.DataManager
+import com.cheeke.surfy.database.model.KeywordEntity
 import com.cheeke.surfy.model.Genre
 import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.model.SearchType
@@ -53,6 +56,7 @@ class SearchVM @AssistedInject constructor(
     dataManager: DataManager,
     private val savedStateHandle: SavedStateHandle,
     private val pagingRepository: PagingRepository,
+    private val keywordDataBaseRepository: KeywordDataBaseRepository,
     private val analyticsHelper: AnalyticsHelper
 ) : ViewModel() {
     companion object {
@@ -82,6 +86,11 @@ class SearchVM @AssistedInject constructor(
             started = SharingStarted.WhileSubscribed(),
             initialValue = SurfyAppData()
         )
+    val recentlyKeywordPaging = Pager(
+        config = PagingConfig(pageSize = 20, initialLoadSize = 20, prefetchDistance = 5),
+        initialKey = 1,
+        pagingSourceFactory = { keywordDataBaseRepository.getKeywords() }
+    ).flow.cachedIn(scope = viewModelScope)
     val recommendKeywordPaging = recommendKeywordFlow
         .debounce(timeoutMillis = 300)
         .distinctUntilChanged()
@@ -159,8 +168,11 @@ class SearchVM @AssistedInject constructor(
     }
 
     fun updateQuery(value: TextFieldValue) {
-        _query.value = value
-        viewModelScope.launch { recommendKeywordFlow.emit(value = value.text) }
+        viewModelScope.launch {
+            Log.d("vm -> ${value.text}")
+            _query.emit(value = value)
+            recommendKeywordFlow.emit(value = value.text)
+        }
     }
 
     fun updateSearchType(searchType: SearchType) {
@@ -170,6 +182,24 @@ class SearchVM @AssistedInject constructor(
     fun searchMovies() {
         analyticsHelper.logSearch(searchType = searchType.value.label, query = query.value.text)
         viewModelScope.launch { searchTrigger.emit(value = Unit) }
+    }
+
+    fun saveKeyword(keyword: String) {
+        viewModelScope.launch {
+            keywordDataBaseRepository.insert(keyword = keyword)
+        }
+    }
+
+    fun deleteAllRecentlyKeyword() {
+        viewModelScope.launch {
+            keywordDataBaseRepository.deleteAll()
+        }
+    }
+
+    fun deleteRecentlyKeyword(entity: KeywordEntity) {
+        viewModelScope.launch {
+            keywordDataBaseRepository.delete(entity = entity)
+        }
     }
 }
 

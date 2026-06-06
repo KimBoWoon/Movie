@@ -1,6 +1,7 @@
 package com.cheeke.surfy.database.di
 
 import com.cheeke.surfy.database.SurfyDatabase
+import com.cheeke.surfy.database.dao.KeywordDao
 import com.cheeke.surfy.database.dao.MovieDao
 import com.cheeke.surfy.database.dao.PeopleDao
 import com.cheeke.surfy.database.dao.TvDao
@@ -26,4 +27,9 @@ internal object DaosModule {
     fun providesTvDao(
         database: SurfyDatabase,
     ): TvDao = database.tvDao()
+
+    @Provides
+    fun providesKeywordDao(
+        database: SurfyDatabase,
+    ): KeywordDao = database.keywordDao()
 }

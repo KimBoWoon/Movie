@@ -1,5 +1,6 @@
 package com.cheeke.surfy.testing.model
 
+import com.cheeke.surfy.database.model.KeywordEntity
 import com.cheeke.surfy.database.model.NowPlayingMovieEntity
 import com.cheeke.surfy.database.model.UpComingMovieEntity
 import com.cheeke.surfy.model.AlternativeTitle
@@ -543,5 +544,13 @@ val popularMovieTest = (0 until 5).map {
         releaseDate = "2026-05-29",
         voteAverage = 8.57f,
         voteCount = 36246
+    )
+}
+
+val keywordList = (0 until 10).map {
+    KeywordEntity(
+        id = it,
+        keyword = "keyword_$it",
+        timestamp = it.toLong()
     )
 }

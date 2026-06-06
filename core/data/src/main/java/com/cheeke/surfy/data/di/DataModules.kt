@@ -1,5 +1,7 @@
 package com.cheeke.surfy.data.di
 
+import com.cheeke.surfy.data.repository.KeywordDataBaseRepository
+import com.cheeke.surfy.data.repository.KeywordDataBaseRepositoryImpl
 import com.cheeke.surfy.data.repository.MovieDataBaseRepository
 import com.cheeke.surfy.data.repository.MovieDataBaseRepositoryImpl
 import com.cheeke.surfy.data.repository.MovieDetailRepository
@@ -67,6 +69,11 @@ abstract class DataModules {
     abstract fun bindTvDatabaseRepository(
         databaseRepository: TvDataBaseRepositoryImpl
     ): TvDataBaseRepository
+
+    @Binds
+    abstract fun bindKeywordDatabaseRepository(
+        databaseRepository: KeywordDataBaseRepositoryImpl
+    ): KeywordDataBaseRepository
 
     @Binds
     abstract fun bindMainMenuRepository(

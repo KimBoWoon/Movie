@@ -3,6 +3,7 @@ package com.cheeke.surfy.search
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
@@ -20,7 +21,9 @@ import com.cheeke.surfy.model.Genre
 import com.cheeke.surfy.model.SearchType
 import com.cheeke.surfy.model.SurfyAppData
 import com.cheeke.surfy.testing.model.genreListTestData
+import com.cheeke.surfy.testing.model.keywordList
 import com.cheeke.surfy.testing.model.testRecommendedKeyword
+import com.cheeke.surfy.testing.repository.TestKeywordDataBaseRepository
 import com.cheeke.surfy.testing.repository.TestPagingRepository
 import com.cheeke.surfy.testing.repository.TestUserDataRepository
 import com.cheeke.surfy.testing.utils.TestMovieAppDataManager
@@ -39,6 +42,7 @@ class SearchScreenTest {
     private lateinit var savedStateHandle: SavedStateHandle
     private lateinit var testPagingRepository: TestPagingRepository
     private lateinit var testUserDataRepository: TestUserDataRepository
+    private lateinit var testKeywordDataBaseRepository: TestKeywordDataBaseRepository
     private lateinit var movieAppDataRepository: TestMovieAppDataManager
     private val genres = genreListTestData.genres ?: emptyList()
 
@@ -48,6 +52,7 @@ class SearchScreenTest {
         testPagingRepository = TestPagingRepository()
         testUserDataRepository = TestUserDataRepository()
         movieAppDataRepository = TestMovieAppDataManager()
+        testKeywordDataBaseRepository = TestKeywordDataBaseRepository()
         movieAppDataRepository.setMovieAppData(surfyAppData = SurfyAppData(movieGenres = genres))
         viewModel = SearchVM(
             initialQuery = "",
@@ -55,6 +60,7 @@ class SearchScreenTest {
             savedStateHandle = savedStateHandle,
             dataManager = movieAppDataRepository,
             pagingRepository = testPagingRepository,
+            keywordDataBaseRepository = testKeywordDataBaseRepository,
             analyticsHelper = object : AnalyticsHelper {
                 override fun logEvent(event: AnalyticsEvent) {
                     println("event: $event")
@@ -72,9 +78,11 @@ class SearchScreenTest {
                 val selectedGenre by viewModel.selectedGenre.collectAsStateWithLifecycle()
                 val movieAppData by movieAppDataRepository.surfyAppData.collectAsStateWithLifecycle()
                 val query by viewModel.query.collectAsStateWithLifecycle()
+                val recentlyKeyword = viewModel.recentlyKeywordPaging.collectAsLazyPagingItems()
 
                 SearchScreen(
                     searchUiState = searchState,
+                    recentlyKeyword = recentlyKeyword,
                     recommendKeyword = viewModel.recommendKeywordPaging.collectAsLazyPagingItems(),
                     query = query,
                     searchType = searchType,
@@ -84,6 +92,9 @@ class SearchScreenTest {
                     goToTv = {},
                     goToPeople = {},
                     goToSeries = {},
+                    onSaveKeyword = viewModel::saveKeyword,
+                    deleteKeyword = viewModel::deleteRecentlyKeyword,
+                    deleteAllKeyword = viewModel::deleteAllRecentlyKeyword,
                     onSearchClick = viewModel::searchMovies,
                     updateKeyword = viewModel::updateQuery,
                     updateSearchType = viewModel::updateSearchType,
@@ -111,8 +122,11 @@ class SearchScreenTest {
 
                 val movieAppData by movieAppDataRepository.surfyAppData.collectAsStateWithLifecycle()
 
+                val recentlyKeyword = viewModel.recentlyKeywordPaging.collectAsLazyPagingItems()
+
                 SearchScreen(
                     searchUiState = searchState,
+                    recentlyKeyword = recentlyKeyword,
                     recommendKeyword = viewModel.recommendKeywordPaging.collectAsLazyPagingItems(),
                     query = query,
                     searchType = searchType,
@@ -122,6 +136,9 @@ class SearchScreenTest {
                     goToTv = {},
                     goToPeople = {},
                     goToSeries = {},
+                    onSaveKeyword = viewModel::saveKeyword,
+                    deleteKeyword = viewModel::deleteRecentlyKeyword,
+                    deleteAllKeyword = viewModel::deleteAllRecentlyKeyword,
                     onSearchClick = viewModel::searchMovies,
                     updateKeyword = viewModel::updateQuery,
                     updateSearchType = viewModel::updateSearchType,
@@ -144,14 +161,24 @@ class SearchScreenTest {
                 val query by viewModel.query.collectAsStateWithLifecycle()
 
                 RecommendKeywordComponent(
+                    recentlyKeyword = flowOf(value = PagingData.from(data = keywordList)).collectAsLazyPagingItems(),
                     recommendKeyword = flowOf(value = PagingData.from(data = testRecommendedKeyword)).collectAsLazyPagingItems(),
                     query = query,
+                    onSaveKeyword = viewModel::saveKeyword,
+                    deleteKeyword = viewModel::deleteRecentlyKeyword,
+                    deleteAllKeyword= viewModel::deleteAllRecentlyKeyword,
                     updateKeyword = viewModel::updateQuery,
                     onSearchClick = viewModel::searchMovies,
                     recommendKeywordVisible = {}
                 )
             }
 
+            onNodeWithText(text = "최근 검색어").assertExists().assertIsDisplayed()
+            onNodeWithText(text = "검색 기록 삭제").assertExists().assertIsDisplayed()
+            onNodeWithContentDescription(label = "recentlyKeywordList").assertExists().assertIsDisplayed()
+            keywordList.forEach {
+                onNodeWithContentDescription(label = "recentlyKeywordList").performScrollToNode(matcher = hasText(text = it.keyword)).assertExists().assertIsDisplayed()
+            }
             onNodeWithText(text = "추천 검색어").assertExists().assertIsDisplayed()
             onNodeWithContentDescription(label = "recommendedKeywordClose").assertExists().assertIsDisplayed()
             (0..5).forEach {
@@ -173,8 +200,11 @@ class SearchScreenTest {
 
                 viewModel.updateQuery(value = TextFieldValue(text = "mission"))
 
+                val recentlyKeyword = viewModel.recentlyKeywordPaging.collectAsLazyPagingItems()
+
                 SearchScreen(
                     searchUiState = searchState,
+                    recentlyKeyword = recentlyKeyword,
                     recommendKeyword = viewModel.recommendKeywordPaging.collectAsLazyPagingItems(),
                     query = query,
                     searchType = searchType,
@@ -184,6 +214,9 @@ class SearchScreenTest {
                     goToTv = {},
                     goToPeople = {},
                     goToSeries = {},
+                    onSaveKeyword = viewModel::saveKeyword,
+                    deleteKeyword = viewModel::deleteRecentlyKeyword,
+                    deleteAllKeyword = viewModel::deleteAllRecentlyKeyword,
                     onSearchClick = viewModel::searchMovies,
                     updateKeyword = viewModel::updateQuery,
                     updateSearchType = viewModel::updateSearchType,
@@ -214,8 +247,11 @@ class SearchScreenTest {
 
                 val movieAppData by movieAppDataRepository.surfyAppData.collectAsStateWithLifecycle()
 
+                val recentlyKeyword = viewModel.recentlyKeywordPaging.collectAsLazyPagingItems()
+
                 SearchScreen(
                     searchUiState = searchState,
+                    recentlyKeyword = recentlyKeyword,
                     recommendKeyword = viewModel.recommendKeywordPaging.collectAsLazyPagingItems(),
                     query = query,
                     searchType = searchType,
@@ -225,6 +261,9 @@ class SearchScreenTest {
                     goToTv = {},
                     goToPeople = {},
                     goToSeries = {},
+                    onSaveKeyword = viewModel::saveKeyword,
+                    deleteKeyword = viewModel::deleteRecentlyKeyword,
+                    deleteAllKeyword = viewModel::deleteAllRecentlyKeyword,
                     onSearchClick = viewModel::searchMovies,
                     updateKeyword = viewModel::updateQuery,
                     updateSearchType = viewModel::updateSearchType,
@@ -294,8 +333,11 @@ class SearchScreenTest {
 
                 viewModel.updateQuery(value = TextFieldValue(text = "mission"))
 
+                val recentlyKeyword = viewModel.recentlyKeywordPaging.collectAsLazyPagingItems()
+
                 SearchScreen(
                     searchUiState = searchState,
+                    recentlyKeyword = recentlyKeyword,
                     recommendKeyword = viewModel.recommendKeywordPaging.collectAsLazyPagingItems(),
                     query = query,
                     searchType = searchType,
@@ -305,6 +347,9 @@ class SearchScreenTest {
                     goToTv = {},
                     goToPeople = {},
                     goToSeries = {},
+                    onSaveKeyword = viewModel::saveKeyword,
+                    deleteKeyword = viewModel::deleteRecentlyKeyword,
+                    deleteAllKeyword = viewModel::deleteAllRecentlyKeyword,
                     onSearchClick = viewModel::searchMovies,
                     updateKeyword = viewModel::updateQuery,
                     updateSearchType = viewModel::updateSearchType,
