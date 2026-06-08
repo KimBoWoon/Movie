@@ -62,7 +62,10 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.cheeke.surfy.R
 import com.cheeke.surfy.common.Log
+import com.cheeke.surfy.common.ScrollTopEvent
+import com.cheeke.surfy.common.scrollToTop
 import com.cheeke.surfy.data.util.POSTER_IMAGE_RATIO
+import com.cheeke.surfy.favorite.navigation.FavoriteNavKey
 import com.cheeke.surfy.favorite.navigation.favoriteEntry
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
 import com.cheeke.surfy.home.navigation.HomeNavKey
@@ -293,11 +296,18 @@ fun MovieBottomBar(
                 selectedIcon = navItem.selectedIcon,
                 unSelectedIcon = navItem.unselectedIcon,
                 onClick = {
-                    if (navKey == HomeNavKey) {
-                        backstack.clear()
-                        backstack.add(element = HomeNavKey)
-                    } else {
-                        backstack.add(element = navKey)
+                    when (navKey) {
+                        backstack.last() -> {
+                            when(navKey::class.java.simpleName) {
+                                HomeNavKey::class.java.simpleName -> scrollToTop(event = ScrollTopEvent.Home)
+                                FavoriteNavKey::class.java.simpleName -> scrollToTop(event = ScrollTopEvent.Favorite)
+                            }
+                        }
+                        HomeNavKey -> {
+                            backstack.clear()
+                            backstack.add(element = HomeNavKey)
+                        }
+                        else -> backstack.add(element = navKey)
                     }
                 }
             )
