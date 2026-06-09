@@ -30,7 +30,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -59,8 +58,8 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.cheeke.surfy.analytics.TrackScreenViewEvent
 import com.cheeke.surfy.common.InfinitePager
 import com.cheeke.surfy.common.Log
+import com.cheeke.surfy.common.ScrollToTop
 import com.cheeke.surfy.common.ScrollTopEvent
-import com.cheeke.surfy.common.scrollTopEvent
 import com.cheeke.surfy.data.util.PEOPLE_IMAGE_RATIO
 import com.cheeke.surfy.data.util.POSTER_IMAGE_RATIO
 import com.cheeke.surfy.feature.home.R
@@ -221,13 +220,7 @@ fun HomeComponent(
     val trendingPeopleTitle = stringResource(id = R.string.trending_people)
     val trendingTvTitle = stringResource(id = R.string.trending_tv)
 
-    LaunchedEffect(key1 = Unit) {
-        scrollTopEvent.collect { event ->
-            if (event is ScrollTopEvent.Home) {
-                scrollState.scrollTo(value = 0)
-            }
-        }
-    }
+    scrollState.ScrollToTop(event = ScrollTopEvent.Home)
 
     Column(
         modifier = Modifier

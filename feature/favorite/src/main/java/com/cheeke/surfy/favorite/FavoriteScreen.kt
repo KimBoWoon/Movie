@@ -20,7 +20,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -42,8 +41,8 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.cheeke.surfy.analytics.LocalAnalyticsHelper
 import com.cheeke.surfy.analytics.TrackScreenViewEvent
 import com.cheeke.surfy.analytics.logFavorite
+import com.cheeke.surfy.common.ScrollToTop
 import com.cheeke.surfy.common.ScrollTopEvent
-import com.cheeke.surfy.common.scrollTopEvent
 import com.cheeke.surfy.data.util.PEOPLE_IMAGE_RATIO
 import com.cheeke.surfy.data.util.POSTER_IMAGE_RATIO
 import com.cheeke.surfy.feature.favorite.R
@@ -231,13 +230,7 @@ fun <T : Media> FavoriteListComponent(
     val lazyGridState = rememberLazyGridState()
     val visibleItemIndex by remember { derivedStateOf { lazyGridState.firstVisibleItemIndex } }
 
-    LaunchedEffect(key1 = Unit) {
-        scrollTopEvent.collect { event ->
-            if (event is ScrollTopEvent.Favorite) {
-                lazyGridState.scrollToItem(index = 0)
-            }
-        }
-    }
+    lazyGridState.ScrollToTop(event = ScrollTopEvent.Favorite)
 
     Box(
         modifier = Modifier.fillMaxSize()
