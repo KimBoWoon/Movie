@@ -21,7 +21,7 @@ import javax.inject.Singleton
 @Singleton
 class SurfyFirebase @Inject constructor(
     @param:ApplicationScope private val scope: CoroutineScope,
-    private val userdataRepository: UserDataRepository
+    private val userDataRepository: UserDataRepository
 ) : LogHelper {
     companion object {
         private const val TAG = "FirebaseCloudMessage"
@@ -30,8 +30,8 @@ class SurfyFirebase @Inject constructor(
     override fun sendLog(name: String?, message: String) {
         Firebase.crashlytics.log(
             FIREBASE_LOG_MESSAGE.replace(
-                "{name}", if (name.isNullOrEmpty()) "" else "$name -> "
-            ).replace("{message}", message)
+                oldValue = "{name}", newValue = if (name.isNullOrEmpty()) "" else "$name -> "
+            ).replace(oldValue = "{message}", newValue = message)
         )
     }
 
@@ -43,7 +43,7 @@ class SurfyFirebase @Inject constructor(
             context.getString(R.string.release_movie_notification_channel_name),
             NotificationManager.IMPORTANCE_DEFAULT,
         ).apply {
-            description = "곧 개봉하는 영화가 있습니다."
+            description = context.getString(R.string.coming_soon_media)
         }
 
         NotificationManagerCompat.from(context).createNotificationChannel(channel)
@@ -60,14 +60,13 @@ class SurfyFirebase @Inject constructor(
             val token = task.result
 
             scope.launch {
-                userdataRepository.getFCMToken().let { savedToken ->
-                    Log.d(TAG, "new token > $token")
-                    Log.d(TAG, "saved token > $savedToken")
+                val savedToken = userDataRepository.getFCMToken()
+                Log.d(TAG, "new token > $token")
+                Log.d(TAG, "saved token > $savedToken")
 
-                    if (savedToken != token) {
-                        userdataRepository.updateFCMToken(token)
-                        // TODO 서버 저장 필요!
-                    }
+                if (savedToken != token) {
+                    userDataRepository.updateFCMToken(token)
+                    // TODO 서버 저장 필요!
                 }
             }
         })

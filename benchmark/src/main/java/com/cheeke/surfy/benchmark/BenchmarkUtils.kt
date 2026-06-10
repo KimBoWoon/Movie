@@ -4,6 +4,7 @@ import androidx.test.uiautomator.BySelector
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.Until
+import com.cheeke.benchmark.BuildConfig
 
 val PACKAGE_NAME = buildString {
     append("com.cheeke.movie")
