@@ -12,20 +12,20 @@ import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.testing.model.nowPlayingMovieTest
 import com.cheeke.surfy.testing.model.upComingMovieTest
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.time.LocalDate
 
 class TestMovieDatabaseRepository() : MovieDataBaseRepository {
-//    val movieDatabase = MutableSharedFlow<List<Movie>>(replay = 0, onBufferOverflow = BufferOverflow.DROP_OLDEST)
-    val movieDatabase = MutableStateFlow<List<Movie>>(value = emptyList())
-    val currentMovieDatabase get() = movieDatabase.value
+    val movieDatabase = MutableSharedFlow<List<Movie>>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+    val currentMovieDatabase get() = movieDatabase.replayCache.firstOrNull() ?: emptyList()
 
     override fun getFavorite(): PagingSource<Int, MovieEntity> {
-        println("getFavorite called size=${movieDatabase.value.size}")
+        println("getFavorite called size=${movieDatabase.replayCache.size}")
 
         return currentMovieDatabase.map(transform = Movie::asExternalModel)
             .asPagingSourceFactory()

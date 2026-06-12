@@ -104,8 +104,7 @@ class HomeVMTest {
             expected = viewModel.homeUiState.value,
             actual = HomeState.Success(
                 homeUiState = HomeUiState(
-//                    popularMovies = listOf(movie),
-                    popularMovies = listOf(),
+                    popularMovies = listOf(movie),
                     isShowNextWeekReleaseMovieDialog = false,
                     nextWeekReleaseMovies = emptyList()
                 )
