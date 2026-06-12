@@ -11,7 +11,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 @Keep
 data class FavoriteNavKey(
-    val tab: Int = 0
+    val tab: String = "movie"
 ) : NavKey
 
 fun EntryProviderScope<NavKey>.favoriteEntry(

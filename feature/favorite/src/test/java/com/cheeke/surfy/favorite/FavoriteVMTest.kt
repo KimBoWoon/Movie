@@ -25,6 +25,9 @@ class FavoriteVMTest {
     private val testMovieDatabaseRepository = TestMovieDatabaseRepository()
     private val testPeopleDatabaseRepository = TestPeopleDatabaseRepository()
     private val testTvDatabaseRepository = TestTvDatabaseRepository()
+    private val movieTab = MovieTab(movieDataBaseRepository = testMovieDatabaseRepository)
+    private val peopleTab = PeopleTab(peopleDataBaseRepository = testPeopleDatabaseRepository)
+    private val tvTab = TvTab(tvDataBaseRepository = testTvDatabaseRepository)
     private lateinit var viewModel: FavoriteVM
     private val movie1 = Movie(id = 0, title = "movie_1", posterPath = "/movieImagePath_0.png")
     private val movie2 = Movie(id = 1, title = "movie_2", posterPath = "/movieImagePath_1.png")
@@ -36,27 +39,32 @@ class FavoriteVMTest {
     @Before
     fun setup() {
         viewModel = FavoriteVM(
-            initialTabIndex = 0,
-            movieDataBaseRepository = testMovieDatabaseRepository,
-            peopleDataBaseRepository = testPeopleDatabaseRepository,
-            tvDataBaseRepository = testTvDatabaseRepository
+            initialTabKey = "movie",
+            favoriteTabs = mapOf("movie" to movieTab, "tv" to tvTab, "people" to peopleTab)
         )
     }
 
     @Test
     fun changeTabIndexTest() = runTest {
-        backgroundScope.launch(context = UnconfinedTestDispatcher()) { viewModel.tabIndex.collect() }
+        backgroundScope.launch(context = UnconfinedTestDispatcher()) { viewModel.currentTab.collect() }
 
         assertEquals(
-            expected = viewModel.tabIndex.value,
-            actual = 0
+            expected = viewModel.currentTab.value,
+            actual = "movie"
         )
 
-        viewModel.updateTabIndex(index = 1)
+        viewModel.updateTabKey(key = "tv")
 
         assertEquals(
-            expected = viewModel.tabIndex.value,
-            actual = 1
+            expected = viewModel.currentTab.value,
+            actual = "tv"
+        )
+
+        viewModel.updateTabKey(key = "people")
+
+        assertEquals(
+            expected = viewModel.currentTab.value,
+            actual = "people"
         )
     }
 

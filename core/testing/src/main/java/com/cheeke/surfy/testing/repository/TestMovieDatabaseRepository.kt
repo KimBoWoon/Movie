@@ -79,7 +79,8 @@ class TestMovieDatabaseRepository() : MovieDataBaseRepository {
             .invoke()
 
     @VisibleForTesting
-    fun setMovies(list: List<Movie>) {
-        movieDatabase.tryEmit(value = list)
+    suspend fun setMovies(list: List<Movie>) {
+//        movieDatabase.tryEmit(value = list)
+        movieDatabase.emit(value = list)
     }
 }

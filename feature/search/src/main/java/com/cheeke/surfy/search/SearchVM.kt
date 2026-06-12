@@ -11,7 +11,6 @@ import androidx.paging.cachedIn
 import androidx.paging.filter
 import com.cheeke.surfy.analytics.AnalyticsHelper
 import com.cheeke.surfy.analytics.logSearch
-import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.data.repository.KeywordDataBaseRepository
 import com.cheeke.surfy.data.repository.PagingRepository
 import com.cheeke.surfy.data.util.DataManager
@@ -169,7 +168,6 @@ class SearchVM @AssistedInject constructor(
 
     fun updateQuery(value: TextFieldValue) {
         viewModelScope.launch {
-            Log.d("vm -> ${value.text}")
             _query.emit(value = value)
             recommendKeywordFlow.emit(value = value.text)
         }

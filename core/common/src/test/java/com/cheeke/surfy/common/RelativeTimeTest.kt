@@ -3,6 +3,7 @@ package com.cheeke.surfy.common
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.time.Instant
+import kotlin.test.assertEquals
 
 class RelativeTimeTest {
     private class FakeClock(private val fixedInstant: Instant) : RelativeClock {
@@ -205,7 +206,8 @@ class RelativeTimeTest {
         val clock = FakeClock(nowSeconds = 1_704_067_260L)
         // "2024-01-01" → 00:00:00 UTC = 1704067200, diff = 60초 → 1분 전
         assertEquals(
-            "1분 전", "2024-01-01".toRelativeTime(
+            expected = "1분 전",
+            actual = "2024-01-01".toRelativeTime(
                 pattern = "uuuu-MM-dd",
                 clock = clock
             )

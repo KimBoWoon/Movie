@@ -11,6 +11,7 @@ import com.cheeke.surfy.model.SearchType
 import com.cheeke.surfy.testing.TestSearchRemoteDataSource
 import com.cheeke.surfy.testing.model.movieSearchTestData
 import com.cheeke.surfy.testing.model.testRecommendedKeyword
+import com.cheeke.surfy.testing.repository.TestKeywordDataBaseRepository
 import com.cheeke.surfy.testing.repository.TestPagingRepository
 import com.cheeke.surfy.testing.repository.TestUserDataRepository
 import com.cheeke.surfy.testing.utils.MainDispatcherRule
@@ -34,6 +35,7 @@ class SearchVMTest {
     private lateinit var testPagingRepository: TestPagingRepository
     private lateinit var testUserDataRepository: TestUserDataRepository
     private lateinit var testMovieAppDataManager: TestMovieAppDataManager
+    private lateinit var testKeywordDataBaseRepository: TestKeywordDataBaseRepository
     private lateinit var testAnalyticsHelper: TestAnalyticsHelper
     private lateinit var apis: TestSearchRemoteDataSource
 
@@ -43,6 +45,7 @@ class SearchVMTest {
         testPagingRepository = TestPagingRepository()
         testUserDataRepository = TestUserDataRepository()
         testMovieAppDataManager = TestMovieAppDataManager()
+        testKeywordDataBaseRepository = TestKeywordDataBaseRepository()
         testAnalyticsHelper = TestAnalyticsHelper()
         apis = TestSearchRemoteDataSource()
         viewModel = SearchVM(
@@ -51,6 +54,7 @@ class SearchVMTest {
             savedStateHandle = savedStateHandle,
             dataManager = testMovieAppDataManager,
             pagingRepository = testPagingRepository,
+            keywordDataBaseRepository = testKeywordDataBaseRepository,
             analyticsHelper = testAnalyticsHelper
         )
     }

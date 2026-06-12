@@ -73,52 +73,44 @@ fun FavoriteScreen(
     LocalFirebaseLogHelper.current.sendLog("FavoriteScreen", "favorite screen init")
     TrackScreenViewEvent(screenName = "FavoriteScreen")
 
-    val tabIndex by viewModel.tabIndex.collectAsStateWithLifecycle()
-    val selectedTab = FavoriteTab.entries[tabIndex]
-    val state by viewModel.currentPagingItems.collectAsStateWithLifecycle()
-    val favoritePagingItems = when (val uiState = state) {
-        is FavoriteUiState.MovieState -> uiState.items.collectAsLazyPagingItems()
-        is FavoriteUiState.TvState -> uiState.items.collectAsLazyPagingItems()
-        is FavoriteUiState.PeopleState -> uiState.items.collectAsLazyPagingItems()
-    }
+    val selectedTab by viewModel.currentTab.collectAsStateWithLifecycle()
 
     FavoriteScreen(
-        selectedTab = selectedTab,
-        favoritePagingItems = favoritePagingItems,
+        tabList = viewModel.tabList,
+        selectedTab = viewModel.favoriteTabs.getValue(key = selectedTab),
+        favoritePagingItems = viewModel.currentPagingItems.collectAsLazyPagingItems(),
         onShowSnackbar = onShowSnackbar,
-        updateTabIndex = viewModel::updateTabIndex,
+        updateTabKey = viewModel::updateTabKey,
         goTo = { favoriteTab, media ->
             when (favoriteTab) {
-                FavoriteTab.MOVIE -> goToMovie(media.id ?: -1)
-                FavoriteTab.TV -> goToTv(media.id ?: -1)
-                FavoriteTab.PEOPLE -> goToPeople(media.id ?: -1)
+                is MovieTab -> goToMovie(media.id ?: -1)
+                is PeopleTab -> goToPeople(media.id ?: -1)
+                is TvTab -> goToTv(media.id ?: -1)
             }
-        },
-        deleteFavorite = viewModel::deleteFavorite
+        }
     )
 }
 
 @Composable
 fun FavoriteScreen(
+    tabList: List<FavoriteTab>,
     selectedTab: FavoriteTab,
     favoritePagingItems: LazyPagingItems<out Media>,
     onShowSnackbar: suspend (String, String?) -> Boolean,
-    updateTabIndex: (Int) -> Unit,
-    goTo: (FavoriteTab, Media) -> Unit,
-    deleteFavorite: (FavoriteTab, Media) -> Unit,
+    updateTabKey: (String) -> Unit,
+    goTo: (FavoriteTab, Media) -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val removeFavoriteText = stringResource(id = R.string.remove_favorite)
     val analyticsHelper = LocalAnalyticsHelper.current
+    val label = stringResource(id = selectedTab.stringId)
 
     Column(modifier = Modifier.fillMaxSize()) {
         SegmentedTabs(
+            tabList = tabList,
             modifier = Modifier.fillMaxWidth().padding(start = dp16, end = dp16, bottom = dp10),
             selected = selectedTab,
-            onSelected = { favoriteTabs ->
-                val index = FavoriteTab.entries.indexOfFirst { it.stringId == favoriteTabs.stringId }
-                updateTabIndex(index)
-            }
+            onSelected = { favoriteTabs -> updateTabKey(favoriteTabs.key) }
         )
 
         if (favoritePagingItems.itemCount == 0) {
@@ -129,9 +121,9 @@ fun FavoriteScreen(
                 Text(
                     modifier = Modifier.semantics { contentDescription = "favoriteEmpty" },
                     text = when (selectedTab) {
-                        FavoriteTab.MOVIE -> stringResource(id = R.string.empty_favorite_movie)
-                        FavoriteTab.PEOPLE -> stringResource(id = R.string.empty_favorite_people)
-                        FavoriteTab.TV -> stringResource(id = R.string.empty_favorite_tv)
+                        is MovieTab -> stringResource(id = R.string.empty_favorite_movie)
+                        is PeopleTab -> stringResource(id = R.string.empty_favorite_people)
+                        is TvTab -> stringResource(id = R.string.empty_favorite_tv)
                     },
                     style = MaterialTheme.typography.titleLarge
                 )
@@ -165,8 +157,8 @@ fun FavoriteScreen(
                                             .align(Alignment.TopEnd),
                                         isFavorite = true,
                                         onClick = {
-                                            deleteFavorite(selectedTab, media)
                                             scope.launch {
+                                                selectedTab.delete(media = media)
                                                 onShowSnackbar(removeFavoriteText, null)
                                             }
                                             analyticsHelper.logFavorite(isFavorite = false, contentType = "people", media = media)
@@ -204,11 +196,11 @@ fun FavoriteScreen(
                                         .align(Alignment.TopEnd),
                                     isFavorite = true,
                                     onClick = {
-                                        deleteFavorite(selectedTab, media)
                                         scope.launch {
+                                            selectedTab.delete(media = media)
                                             onShowSnackbar(removeFavoriteText, null)
                                         }
-                                        analyticsHelper.logFavorite(isFavorite = false, contentType = selectedTab.name, media = media)
+                                        analyticsHelper.logFavorite(isFavorite = false, contentType = label, media = media)
                                     }
                                 )
                             }
@@ -279,12 +271,11 @@ fun <T : Media> FavoriteListComponent(
 
 @Composable
 fun SegmentedTabs(
+    tabList: List<FavoriteTab>,
     selected: FavoriteTab,
     onSelected: (FavoriteTab) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val tabs = remember { FavoriteTab.entries }
-
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -293,7 +284,7 @@ fun SegmentedTabs(
             .padding(all = dp4),
         horizontalArrangement = Arrangement.spacedBy(space = dp6)
     ) {
-        tabs.forEach { tab ->
+        tabList.forEach { tab ->
             val isSelected = tab == selected
 
             Box(
@@ -301,8 +292,7 @@ fun SegmentedTabs(
                     .weight(weight = 1f)
                     .clip(shape = RoundedCornerShape(size = dp999))
                     .background(
-                        color = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.22f)
-                        else Color.Transparent
+                        color = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.22f) else Color.Transparent
                     )
                     .clickable { onSelected(tab) }
                     .padding(vertical = dp10),

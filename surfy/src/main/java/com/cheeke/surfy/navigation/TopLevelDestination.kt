@@ -36,15 +36,7 @@ val FAVORITE = TopLevelDestination(
     type = FavoriteNavKey::class.java
 )
 
-//val MY = TopLevelDestination(
-//    selectedIcon = Icons.Rounded.Settings,
-//    unselectedIcon = Icons.Outlined.Settings,
-//    titleTextId = com.cheeke.surfy.feature.my.R.string.feature_my_name,
-//    type = SettingNavKey::class.java
-//)
-
 val TOP_LEVEL_NAV_ITEMS = mapOf(
     HomeNavKey to HOME,
-    FavoriteNavKey(tab = 0) to FAVORITE,
-//    SettingNavKey to MY
+    FavoriteNavKey(tab = "movie") to FAVORITE
 )

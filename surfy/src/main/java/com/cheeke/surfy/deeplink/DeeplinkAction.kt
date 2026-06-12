@@ -6,7 +6,7 @@ import com.cheeke.surfy.detail.movie.navigation.MovieNavKey
 import com.cheeke.surfy.detail.people.navigation.PeopleNavKey
 import com.cheeke.surfy.detail.series.navigation.SeriesNavKey
 import com.cheeke.surfy.detail.tv.navigation.TvNavKey
-import com.cheeke.surfy.favorite.FavoriteTab
+import com.cheeke.surfy.favorite.FavoriteKeys
 import com.cheeke.surfy.favorite.navigation.FavoriteNavKey
 import com.cheeke.surfy.home.navigation.HomeNavKey
 import com.cheeke.surfy.search.navigation.SearchNavKey
@@ -42,8 +42,8 @@ object GoToHomeParser : DeeplinkParser {
 object GoToFavoriteParser : DeeplinkParser {
     override val path = "go_to_favorite"
     override fun parse(uri: Uri): List<NavKey> {
-        val index = uri.getQueryParameter("index")?.toIntOrNull() ?: 0
-        return listOf(FavoriteNavKey(tab = index))
+        val key = uri.getQueryParameter("key") ?: "movie"
+        return listOf(FavoriteNavKey(tab = key))
     }
 }
 
@@ -56,7 +56,7 @@ object OpenFavoritePeopleParser : DeeplinkParser {
     override val path = "open_favorite_people"
     override fun parse(uri: Uri): List<NavKey> {
         val id = uri.getQueryParameter("id")?.toIntOrNull() ?: -1
-        return listOf(FavoriteNavKey(tab = FavoriteTab.PEOPLE.ordinal), PeopleNavKey(id = id))
+        return listOf(FavoriteNavKey(tab = FavoriteKeys.PEOPLE), PeopleNavKey(id = id))
     }
 }
 
@@ -64,7 +64,7 @@ object OpenFavoriteMovieParser : DeeplinkParser {
     override val path = "open_favorite_movie"
     override fun parse(uri: Uri): List<NavKey> {
         val id = uri.getQueryParameter("id")?.toIntOrNull() ?: -1
-        return listOf(FavoriteNavKey(tab = FavoriteTab.MOVIE.ordinal), MovieNavKey(id = id))
+        return listOf(FavoriteNavKey(tab = FavoriteKeys.MOVIE), MovieNavKey(id = id))
     }
 }
 
@@ -72,7 +72,7 @@ object OpenFavoriteTvParser : DeeplinkParser {
     override val path = "open_favorite_tv"
     override fun parse(uri: Uri): List<NavKey> {
         val id = uri.getQueryParameter("id")?.toIntOrNull() ?: -1
-        return listOf(FavoriteNavKey(tab = FavoriteTab.TV.ordinal), TvNavKey(id = id))
+        return listOf(FavoriteNavKey(tab = FavoriteKeys.TV), TvNavKey(id = id))
     }
 }
 

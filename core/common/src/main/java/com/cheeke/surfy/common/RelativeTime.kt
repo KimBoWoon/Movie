@@ -46,13 +46,13 @@ fun String.toRelativeTime(
     val target = runCatching {
         LocalDateTime.parse(this, formatter).toInstant(ZoneOffset.UTC)
     }.getOrElse { e ->
-        Log.e("exception -> $e, message -> ${e.message}")
+//        Log.e("exception -> $e, message -> ${e.message}")
         LocalDate.parse(this, formatter).atStartOfDay().toInstant(ZoneOffset.UTC)
     }
 
     target.toRelativeTimeLabel(clock.nowInstant())
 }.getOrElse { e ->
-    Log.printStackTrace(e)
+//    Log.printStackTrace(e)
     ""
 }
 
