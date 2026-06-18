@@ -2,6 +2,7 @@ package com.cheeke.surfy.deeplink
 
 import android.net.Uri
 import androidx.navigation3.runtime.NavKey
+import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.detail.movie.navigation.MovieNavKey
 import com.cheeke.surfy.detail.people.navigation.PeopleNavKey
 import com.cheeke.surfy.detail.series.navigation.SeriesNavKey
@@ -9,6 +10,8 @@ import com.cheeke.surfy.detail.tv.navigation.TvNavKey
 import com.cheeke.surfy.favorite.navigation.FavoriteNavKey
 import com.cheeke.surfy.home.navigation.HomeNavKey
 import com.cheeke.surfy.search.navigation.SearchNavKey
+import com.google.firebase.Firebase
+import com.google.firebase.crashlytics.crashlytics
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -54,7 +57,10 @@ class DeepLinkManagerImpl @Inject constructor() : DeepLinkManager {
             when {
                 bottomNavKeys.any { it.java.simpleName == route::class.java.simpleName } -> bottomDeepLink.add(element = route)
                 rootNavKeys.any { it.java.simpleName == route::class.java.simpleName } -> rootDeepLink.add(element = route)
-                else -> throw RuntimeException("잘못된 deeplink 입니다. : $route")
+                else -> {
+                    Log.d("잘못된 deeplink 입니다. : $route")
+                    Firebase.crashlytics.recordException(RuntimeException("잘못된 deeplink 입니다. : $route"))
+                }
             }
         }
 

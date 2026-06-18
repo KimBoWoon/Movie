@@ -44,10 +44,7 @@ fun DynamicAsyncImageLoader(
         )
     }
 
-    Box(
-        modifier = modifier,
-        contentAlignment = Alignment.Center,
-    ) {
+    Box(contentAlignment = Alignment.Center) {
         if (isLoading && !isLocalInspection) {
             CircularProgressComponent(modifier = Modifier.align(Alignment.Center))
         }

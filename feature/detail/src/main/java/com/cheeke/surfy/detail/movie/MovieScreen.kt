@@ -30,7 +30,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -61,7 +60,6 @@ import com.cheeke.surfy.model.SimilarMedia
 import com.cheeke.surfy.ui.components.CircularProgressComponent
 import com.cheeke.surfy.ui.components.CreditsComponent
 import com.cheeke.surfy.ui.components.ImageOverlay
-import com.cheeke.surfy.ui.components.ImageType
 import com.cheeke.surfy.ui.components.ImagesComponent
 import com.cheeke.surfy.ui.components.MediaTitleComponent
 import com.cheeke.surfy.ui.components.OverviewComponent
@@ -152,20 +150,8 @@ fun MovieScreen(
                 LocalFirebaseLogHelper.current.sendLog(name = "DetailScreen", message = "$movieState")
 
                 var selectedImage by remember { mutableStateOf<Image?>(value = null) }
-                var selectedIndex by remember { mutableStateOf<Int?>(value = null) }
-                var selectedType by remember { mutableStateOf<ImageType?>(value = null) }
-                var overlayVisible by remember { mutableStateOf(value = false) }
-                var overlayImageVisible by remember { mutableStateOf(value = false) }
-                val scope = rememberCoroutineScope()
-                val onSelect: (ImageType, Image, Int) -> Unit = { type, image, index ->
-                    selectedType = type
+                val onSelect: (Image) -> Unit = { image ->
                     selectedImage = image
-                    selectedIndex = index
-                    overlayVisible = true
-                    scope.launch {
-                        withFrameNanos {  }
-                        overlayImageVisible = true
-                    }
                 }
 
                 SharedTransitionLayout {
@@ -182,25 +168,13 @@ fun MovieScreen(
                         insertFavoriteMovie = insertFavoriteMovie,
                         deleteFavoriteMovie = deleteFavoriteMovie,
                         selectedImage = selectedImage,
-                        selectedIndex = selectedIndex,
                         onSelect = onSelect,
-                        overlayVisible = overlayVisible,
                         sharedTransitionScope = this@SharedTransitionLayout
                     )
 
                     ImageOverlay(
-                        selectedType = selectedType,
                         selectedImage = selectedImage,
-                        selectedIndex = selectedIndex,
-                        overlayVisible = overlayVisible,
-                        overlayImageVisible = overlayImageVisible,
-                        onDismiss = {
-                            selectedType = null
-                            selectedIndex = null
-                            selectedImage = null
-                            overlayVisible = false
-                            overlayImageVisible = false
-                        }
+                        onDismiss = { selectedImage = null }
                     )
                 }
             }
@@ -235,9 +209,7 @@ fun MovieDetailComponent(
     insertFavoriteMovie: (Movie) -> Unit,
     deleteFavoriteMovie: (Movie) -> Unit,
     selectedImage: Image?,
-    selectedIndex: Int?,
-    overlayVisible: Boolean,
-    onSelect: (ImageType, Image, Int) -> Unit,
+    onSelect: (Image) -> Unit,
     sharedTransitionScope: SharedTransitionScope
 ) {
     val favoriteMessage = if (movie.isFavorite) stringResource(id = R.string.add_favorite_movie) else stringResource(id = R.string.remove_favorite_movie)
@@ -319,8 +291,6 @@ fun MovieDetailComponent(
                 posters = posters,
                 sharedTransitionScope = sharedTransitionScope,
                 selectedImage = selectedImage,
-                selectedIndex = selectedIndex,
-                overlayVisible = overlayVisible,
                 onSelect = onSelect
             )
         }
