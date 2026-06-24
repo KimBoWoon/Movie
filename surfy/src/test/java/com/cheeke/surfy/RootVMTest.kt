@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -58,8 +59,10 @@ class RootVMTest {
         movieRepository = TestMovieDatabaseRepository()
         tvRepository = TestTvDatabaseRepository()
         networkMonitor = TestNetworkMonitor()
-        movieRepository.setMovies(listOf(media1, media2))
         tvRepository.setTvs(listOf(media3))
+        runBlocking {
+            movieRepository.setMovies(listOf(media1, media2))
+        }
         viewModel = RootVM(
             deepLinkManager = deepLinkManager,
             movieDataBaseRepository = movieRepository,

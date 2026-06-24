@@ -170,9 +170,7 @@ fun SeriesComponent(
                 modifier = Modifier.padding(horizontal = dp20)
             ) {
                 series.overview?.takeIf { it.isNotEmpty() }?.let { overview ->
-                    ExpandableOverviewCard(
-                        overview = overview
-                    )
+                    ExpandableOverviewCard(overview = overview)
                     Spacer(modifier = Modifier.height(height = dp28))
                 }
 
@@ -248,9 +246,9 @@ private fun SeriesHeroSection(
         HeroBackground(
             backdropUrl = series.backdropPath,
             fallbackPosterUrls = if (!imageList.backdrops.isNullOrEmpty()) {
-                imageList.backdrops?.mapNotNull { it.filePath } ?: emptyList()
+                imageList.backdrops?.mapNotNull { it.filePath }.orEmpty()
             } else {
-                imageList.posters?.mapNotNull { it.filePath } ?: emptyList()
+                imageList.posters?.mapNotNull { it.filePath }.orEmpty()
             },
             modifier = Modifier.fillMaxSize()
         )
@@ -284,7 +282,7 @@ private fun SeriesHeroSection(
                 .align(alignment = Alignment.BottomStart)
         ) {
             Text(
-                text = series.title ?: "",
+                text = series.title.orEmpty(),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.ExtraBold,
                 maxLines = 2,
@@ -584,7 +582,7 @@ private fun MovieCard(
                 verticalArrangement = Arrangement.Top
             ) {
                 Text(
-                    text = movie.title ?: "",
+                    text = movie.title.orEmpty(),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.ExtraBold,
                     maxLines = 2,
@@ -600,13 +598,13 @@ private fun MovieCard(
                     )
                     Spacer(modifier = Modifier.width(width = dp8))
                     Text(
-                        text = movie.releaseDate ?: "",
+                        text = movie.releaseDate.orEmpty(),
                         style = MaterialTheme.typography.labelSmall
                     )
                 }
 
                 Text(
-                    text = movie.overview ?: "",
+                    text = movie.overview.orEmpty(),
                     style = MaterialTheme.typography.bodySmall,
                     overflow = TextOverflow.Ellipsis
                 )

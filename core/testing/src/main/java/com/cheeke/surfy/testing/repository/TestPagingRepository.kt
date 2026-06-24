@@ -48,7 +48,7 @@ class TestPagingRepository : PagingRepository {
             SearchType.TV -> tvSearchTestData.results
             SearchType.PEOPLE -> peopleSearchTestData.results
             SearchType.SERIES -> seriesSearchTestData.results
-        } ?: emptyList()).asPagingSourceFactory().invoke()
+        }.orEmpty()).asPagingSourceFactory().invoke()
     }
 
     override fun getSimilarMoviePagingSource(

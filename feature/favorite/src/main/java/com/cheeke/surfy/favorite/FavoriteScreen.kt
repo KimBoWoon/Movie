@@ -146,7 +146,7 @@ fun FavoriteScreen(
                                             .fillMaxWidth()
                                             .aspectRatio(ratio = PEOPLE_IMAGE_RATIO)
                                             .clip(shape = RoundedCornerShape(size = dp10)),
-                                        source = media.posterPath ?: "",
+                                        source = media.posterPath.orEmpty(),
                                         contentDescription = "FavoriteImage"
                                     )
                                     FavoriteButtonComponent(
@@ -170,7 +170,7 @@ fun FavoriteScreen(
                                         .wrapContentWidth()
                                         .padding(top = dp5)
                                         .align(Alignment.CenterHorizontally),
-                                    text = media.title ?: "",
+                                    text = media.title.orEmpty(),
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )
@@ -185,7 +185,7 @@ fun FavoriteScreen(
                                         .fillMaxWidth()
                                         .aspectRatio(ratio = POSTER_IMAGE_RATIO)
                                         .clip(shape = RoundedCornerShape(size = dp10)),
-                                    source = media.posterPath ?: "",
+                                    source = media.posterPath.orEmpty(),
                                     contentDescription = "FavoriteImage"
                                 )
                                 FavoriteButtonComponent(

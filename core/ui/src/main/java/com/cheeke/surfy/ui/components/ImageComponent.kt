@@ -21,8 +21,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -49,15 +50,16 @@ import com.cheeke.surfy.ui.image.DynamicAsyncImageLoader
 import com.cheeke.surfy.ui.utils.dp0
 import com.cheeke.surfy.ui.utils.dp10
 import com.cheeke.surfy.ui.utils.dp12
+import com.cheeke.surfy.ui.utils.dp120
 import com.cheeke.surfy.ui.utils.dp16
 import com.cheeke.surfy.ui.utils.dp209
 import com.cheeke.surfy.ui.utils.dp246
 import com.cheeke.surfy.ui.utils.dp433
 import com.cheeke.surfy.ui.utils.roundedCornerClickable
 
-enum class ImageType {
-    BACKDROP,
-    POSTER
+enum class ImageType(val label: String) {
+    BACKDROP(label = "backdrops"),
+    POSTER(label = "posters")
 }
 
 @Composable
@@ -122,20 +124,15 @@ private fun ImageRow(
     }
 
     LazyRow(
-        modifier = Modifier.semantics {
-            contentDescription = when (type) {
-                ImageType.BACKDROP -> "backdrops"
-                ImageType.POSTER -> "posters"
-            }
-        },
+        modifier = Modifier.semantics { contentDescription = type.label },
         state = scrollState,
         contentPadding = PaddingValues(horizontal = dp10),
         horizontalArrangement = Arrangement.spacedBy(space = dp10)
     ) {
-        itemsIndexed(
+        items(
             items = images,
-            key = { index, image -> image.filePath ?: "image-${images[index].filePath}" }
-        ) { index, image ->
+            key = { image -> image.filePath.orEmpty() }
+        ) { image ->
             val key = "image-${image.filePath}"
 
             with(receiver = sharedTransitionScope) {
@@ -149,11 +146,11 @@ private fun ImageRow(
                         source = image.filePath.orEmpty(),
                         contentDescription = image.filePath,
                         modifier = Modifier
+                            .width(width = if (type == ImageType.BACKDROP) dp246 else dp120)
                             .sharedElement(
                                 sharedContentState = rememberSharedContentState(key = key),
                                 animatedVisibilityScope = this@AnimatedVisibility
-                            )
-                            .roundedCornerClickable(
+                            ).roundedCornerClickable(
                                 onClick = {
                                     savedIndex = scrollState.firstVisibleItemIndex
                                     savedOffset = scrollState.firstVisibleItemScrollOffset
@@ -227,8 +224,7 @@ fun SharedTransitionScope.ImageOverlay(
                         .sharedElement(
                             sharedContentState = rememberSharedContentState(key = key),
                             animatedVisibilityScope = this@AnimatedContent
-                        )
-                        .clip(shape = RoundedCornerShape(size = dp10)),
+                        ).clip(shape = RoundedCornerShape(size = dp10)),
                     contentScale = ContentScale.Fit
                 )
             }

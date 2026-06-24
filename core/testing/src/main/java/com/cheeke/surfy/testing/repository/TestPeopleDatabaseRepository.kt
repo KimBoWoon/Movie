@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.map
 
 class TestPeopleDatabaseRepository : PeopleDataBaseRepository {
     val peopleDatabase = MutableSharedFlow<List<People>>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
-    private val currentPeopleDatabase get() = peopleDatabase.replayCache.firstOrNull() ?: emptyList()
+    private val currentPeopleDatabase get() = peopleDatabase.replayCache.firstOrNull().orEmpty()
 
     override fun getFavorite(): PagingSource<Int, PeopleEntity> =
         currentPeopleDatabase

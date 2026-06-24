@@ -309,7 +309,7 @@ fun ProfileComponent(
             }
 
             Text(
-                text = people.title ?: "",
+                text = people.title.orEmpty(),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(horizontal = 20.dp),
@@ -318,7 +318,7 @@ fun ProfileComponent(
             )
 
             Text(
-                text = people.knownForDepartment ?: "",
+                text = people.knownForDepartment.orEmpty(),
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = 1
             )
@@ -332,7 +332,7 @@ fun ProfileComponent(
                 )
             } else {
                 Text(
-                    text = people.birthday ?: "",
+                    text = people.birthday.orEmpty(),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1

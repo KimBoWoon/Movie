@@ -20,7 +20,7 @@ class MovieReviewPagingSource(
             val response = apis.getMovieReviews(movieId = id, language = "$language-$region", page = page)
 
             LoadResult.Page(
-                data = response.results ?: emptyList(),
+                data = response.results.orEmpty(),
                 prevKey = null,
                 nextKey = if ((response.totalPages ?: 1) > page) page + 1 else null
             )

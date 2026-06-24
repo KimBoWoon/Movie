@@ -25,7 +25,7 @@ fun MovieEntity.asExternalModel(): Movie = Movie(
 
 fun Movie.asExternalModel(): MovieEntity = MovieEntity(
     id = id ?: -1,
-    posterPath = posterPath ?: "",
+    posterPath = posterPath.orEmpty(),
     timestamp = -1L,//Clock.System.now().toEpochMilliseconds(),
     title = title,
     releaseDate = releaseDate

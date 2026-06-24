@@ -129,9 +129,9 @@ class TvScreenTest {
             detailRepository.setTv(tv = tvTestData)
 
             onNodeWithContentDescription(label = "favorite").assertExists().assertIsDisplayed()
-//            onNodeWithTag(testTag = "titleComponent").assertTextEquals(tvTestData.title ?: "").assertIsDisplayed()
-            onNodeWithText(text = tvTestData.originalTitle ?: "").assertExists().assertIsDisplayed()
-            onNodeWithText(text = tvTestData.overview ?: "").assertExists().assertIsDisplayed()
+//            onNodeWithTag(testTag = "titleComponent").assertTextEquals(tvTestData.title.orEmpty()).assertIsDisplayed()
+            onNodeWithText(text = tvTestData.originalTitle.orEmpty()).assertExists().assertIsDisplayed()
+            onNodeWithText(text = tvTestData.overview.orEmpty()).assertExists().assertIsDisplayed()
         }
     }
 

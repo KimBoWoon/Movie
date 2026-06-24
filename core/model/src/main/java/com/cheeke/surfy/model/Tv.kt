@@ -40,6 +40,8 @@ data class Tv(
     val voteCount: Int? = null,
     val episode: TvSeasons? = null,
     val seasonList: Map<String, TvSeasons>? = null,
+    val similar: SimilarMedias? = null,
+    val reviews: Reviews? = null,
     override val releaseDate: String? = null,
     override val certification: String? = null,
     override val runtime: Int? = null,

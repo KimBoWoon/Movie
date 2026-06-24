@@ -161,7 +161,7 @@ class MovieVMTest {
                         title = it.title,
                         posterPath = it.posterPath
                     )
-                } ?: emptyList(),
+                }.orEmpty(),
                 prevKey = null,
                 nextKey = null
             ),

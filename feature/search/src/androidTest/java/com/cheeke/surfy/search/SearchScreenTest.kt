@@ -44,7 +44,7 @@ class SearchScreenTest {
     private lateinit var testUserDataRepository: TestUserDataRepository
     private lateinit var testKeywordDataBaseRepository: TestKeywordDataBaseRepository
     private lateinit var movieAppDataRepository: TestMovieAppDataManager
-    private val genres = genreListTestData.genres ?: emptyList()
+    private val genres = genreListTestData.genres.orEmpty()
 
     @Before
     fun setup() {

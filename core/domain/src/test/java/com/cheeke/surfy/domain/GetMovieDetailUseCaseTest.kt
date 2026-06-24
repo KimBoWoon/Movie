@@ -51,13 +51,13 @@ class GetMovieDetailUseCaseTest {
             movieDataBaseRepository.insert(media = Movie(id = 23))
             movieAppDataRepository.setMovieAppData(
                 SurfyAppData(
-                    secureBaseUrl = configurationTestData.images?.secureBaseUrl ?: "",
-                    movieGenres = genreListTestData.genres ?: emptyList(),
-                    region = regionTestData.results?.map { LocaleOption(code = it.iso31661.orEmpty(), label = it.englishName.orEmpty(), isSelected = it.isSelected) } ?: emptyList(),
+                    secureBaseUrl = configurationTestData.images?.secureBaseUrl.orEmpty(),
+                    movieGenres = genreListTestData.genres.orEmpty(),
+                    region = regionTestData.results?.map { LocaleOption(code = it.iso31661.orEmpty(), label = it.englishName.orEmpty(), isSelected = it.isSelected) }.orEmpty(),
                     language = languageListTestData.map { LocaleOption(code = it.iso6391.orEmpty(), label = it.englishName.orEmpty(), isSelected = it.isSelected) },
                     posterSize = configurationTestData.images?.posterSizes?.map {
                         PosterSize(size = it, isSelected = it == "original")
-                    } ?: emptyList()
+                    }.orEmpty()
                 )
             )
         }

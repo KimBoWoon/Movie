@@ -19,7 +19,7 @@ class RecommendKeywordPagingSource(
                 val response = apis.getSearchKeyword(query = query, page = page)
 
                 LoadResult.Page(
-                    data = response.results ?: emptyList(),
+                    data = response.results.orEmpty(),
                     prevKey = null,
                     nextKey = if (response.totalPages == page) null else page + 1
                 )

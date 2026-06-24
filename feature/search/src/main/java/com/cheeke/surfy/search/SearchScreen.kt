@@ -563,7 +563,7 @@ fun SearchPagingComponent(
                                     }
                                 }, cornerRadius = dp10
                             ),
-                        source = item.posterPath ?: "",
+                        source = item.posterPath.orEmpty(),
                         contentDescription = "${item.id}_${item.title}"
                     )
                 }
@@ -718,8 +718,8 @@ fun RecommendKeywordComponent(
                             .height(height = dp35)
                             .bounceClick {
                                 focusManager.clearFocus()
-                                updateKeyword(TextFieldValue(text = recommendKeyword.name ?: ""))
-                                onSaveKeyword(recommendKeyword.name ?: "")
+                                updateKeyword(TextFieldValue(text = recommendKeyword.name.orEmpty()))
+                                onSaveKeyword(recommendKeyword.name.orEmpty())
                                 onSearchClick()
                                 recommendKeywordVisible(false)
                             },

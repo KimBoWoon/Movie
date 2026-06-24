@@ -29,7 +29,7 @@ android {
         buildConfigField(
             type = "String",
             name = "APP_FLAVOR_SUFFIX",
-            value = "\"${flavor.applicationIdSuffix ?: ""}\""
+            value = "\"${flavor.applicationIdSuffix.orEmpty()}\""
         )
     }
 

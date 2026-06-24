@@ -59,17 +59,17 @@ class MovieScreenTest {
     private lateinit var testPagingRepository: TestPagingRepository
     private lateinit var testMovieAppDataManager: TestMovieAppDataManager
     private val surfyAppData = SurfyAppData(
-        secureBaseUrl = configurationTestData.images?.secureBaseUrl ?: "",
-        movieGenres = genreListTestData.genres ?: emptyList(),
+        secureBaseUrl = configurationTestData.images?.secureBaseUrl.orEmpty(),
+        movieGenres = genreListTestData.genres.orEmpty(),
         region = regionTestData.results?.map { region ->
             LocaleOption(code = region.iso31661 ?: "KR", label = region.nativeName ?: "KR", isSelected = region.iso31661 == "KR")
-        } ?: emptyList(),
+        }.orEmpty(),
         language = languageListTestData.map { language ->
             LocaleOption(code = language.iso6391 ?: "ko", label = language.englishName ?: "Korean", isSelected = language.iso6391 == "ko")
         },
         posterSize = configurationTestData.images?.posterSizes?.map {
             PosterSize(size = it, isSelected = it == "original")
-        } ?: emptyList()
+        }.orEmpty()
     )
 
     @Before
@@ -191,8 +191,8 @@ class MovieScreenTest {
             testDetailRepository.setMovieSeries(movieSeries = movieSeriesTestData)
 
             onNodeWithContentDescription(label = "favorite").assertExists().assertIsDisplayed()
-            onNodeWithText(text = favoriteMovieDetailTestData.originalTitle ?: "").assertExists().assertIsDisplayed()
-            onNodeWithText(text = favoriteMovieDetailTestData.overview ?: "").assertExists().assertIsDisplayed()
+            onNodeWithText(text = favoriteMovieDetailTestData.originalTitle.orEmpty()).assertExists().assertIsDisplayed()
+            onNodeWithText(text = favoriteMovieDetailTestData.overview.orEmpty()).assertExists().assertIsDisplayed()
         }
     }
 
@@ -280,16 +280,16 @@ class MovieScreenTest {
 
             onNodeWithText(text = "배우").performScrollTo().assertExists().assertIsDisplayed()
             favoriteMovieDetailTestData.credits?.cast?.forEach { cast ->
-                onNodeWithContentDescription(label = cast.profilePath ?: "").assertExists().assertIsDisplayed()
-                onNodeWithText(text = cast.name ?: "").assertExists().assertIsDisplayed()
-                onNodeWithText(text = cast.character ?: "").assertExists().assertIsDisplayed()
+                onNodeWithContentDescription(label = cast.profilePath.orEmpty()).assertExists().assertIsDisplayed()
+                onNodeWithText(text = cast.name.orEmpty()).assertExists().assertIsDisplayed()
+                onNodeWithText(text = cast.character.orEmpty()).assertExists().assertIsDisplayed()
             }
             onNodeWithText(text = "스태프").performScrollTo().assertExists().assertIsDisplayed()
             favoriteMovieDetailTestData.credits?.crew?.forEach { crew ->
-                onNodeWithContentDescription(label = crew.profilePath ?: "").assertExists().assertIsDisplayed()
-                onNodeWithText(text = crew.name ?: "").assertExists().assertIsDisplayed()
-                onNodeWithText(text = crew.job ?: "").assertExists().assertIsDisplayed()
-                onNodeWithText(text = crew.department ?: "").assertExists().assertIsDisplayed()
+                onNodeWithContentDescription(label = crew.profilePath.orEmpty()).assertExists().assertIsDisplayed()
+                onNodeWithText(text = crew.name.orEmpty()).assertExists().assertIsDisplayed()
+                onNodeWithText(text = crew.job.orEmpty()).assertExists().assertIsDisplayed()
+                onNodeWithText(text = crew.department.orEmpty()).assertExists().assertIsDisplayed()
             }
         }
     }
@@ -333,13 +333,13 @@ class MovieScreenTest {
             )
             onNodeWithText(text = "Backdrops").performScrollTo().assertExists().assertIsDisplayed()
             onNodeWithContentDescription(label = "backdrops").performScrollTo().assertExists().assertIsDisplayed()
-            (favoriteMovieDetailTestData.images?.backdrops ?: emptyList()).forEach { backdrops ->
-                onNodeWithContentDescription(label = backdrops.filePath ?: "").assertExists().assertIsDisplayed()
+            (favoriteMovieDetailTestData.images?.backdrops.orEmpty()).forEach { backdrops ->
+                onNodeWithContentDescription(label = backdrops.filePath.orEmpty()).assertExists().assertIsDisplayed()
             }
             onNodeWithText(text = "Posters").performScrollTo().assertExists().assertIsDisplayed()
             onNodeWithContentDescription(label = "posters").performScrollTo().assertExists().assertIsDisplayed()
-            (favoriteMovieDetailTestData.images?.posters ?: emptyList()).forEach { posters ->
-                onNodeWithContentDescription(label = posters.filePath ?: "").assertExists().assertIsDisplayed()
+            (favoriteMovieDetailTestData.images?.posters.orEmpty()).forEach { posters ->
+                onNodeWithContentDescription(label = posters.filePath.orEmpty()).assertExists().assertIsDisplayed()
             }
         }
     }
@@ -414,8 +414,8 @@ class MovieScreenTest {
 
             onNodeWithContentDescription(label = "unFavorite").assertExists().assertIsDisplayed()
             onNodeWithContentDescription(label = "favorite").assertIsNotDisplayed()
-            onNodeWithText(text = favoriteMovieDetailTestData.originalTitle ?: "").assertExists().assertIsDisplayed()
-            onNodeWithText(text = favoriteMovieDetailTestData.overview ?: "").assertExists().assertIsDisplayed()
+            onNodeWithText(text = favoriteMovieDetailTestData.originalTitle.orEmpty()).assertExists().assertIsDisplayed()
+            onNodeWithText(text = favoriteMovieDetailTestData.overview.orEmpty()).assertExists().assertIsDisplayed()
             onNodeWithContentDescription(label = "unFavorite").assertExists().assertIsDisplayed().performClick()
 //            onNodeWithContentDescription(label = "unFavorite").assertIsNotDisplayed()
 //            onNodeWithContentDescription(label = "favorite").assertIsDisplayed()
@@ -459,8 +459,8 @@ class MovieScreenTest {
 
             onNodeWithContentDescription(label = "favorite").assertExists().assertIsDisplayed()
             onNodeWithContentDescription(label = "unFavorite").assertIsNotDisplayed()
-            onNodeWithText(text = favoriteMovieDetailTestData.originalTitle ?: "").assertExists().assertIsDisplayed()
-            onNodeWithText(text = favoriteMovieDetailTestData.overview ?: "").assertExists().assertIsDisplayed()
+            onNodeWithText(text = favoriteMovieDetailTestData.originalTitle.orEmpty()).assertExists().assertIsDisplayed()
+            onNodeWithText(text = favoriteMovieDetailTestData.overview.orEmpty()).assertExists().assertIsDisplayed()
             onNodeWithContentDescription(label = "favorite").assertExists().assertIsDisplayed().performClick()
             onNodeWithContentDescription(label = "unFavorite").assertIsDisplayed()
             onNodeWithContentDescription(label = "favorite").assertIsNotDisplayed()

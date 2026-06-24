@@ -33,7 +33,7 @@ interface SettingRemoteDataSource {
 interface MovieRemoteDataSource {
     suspend fun getMovie(
         id: Int,
-        appendToResponse: String = "images,videos,credits,releases,keywords,alternative_titles",
+        appendToResponse: String = "images,videos,credits,releases,keywords,alternative_titles,similar,reviews",
         language: String = "ko-KR",
         includeImageLanguage: String = "ko",
         region: String = "KR"
@@ -78,7 +78,7 @@ interface TvRemoteDataSource {
     suspend fun getTv(
         id: Int,
         language: String,
-        appendToResponse: String = "images,videos,credits,releases,keywords,alternative_titles",
+        appendToResponse: String = "images,videos,credits,releases,keywords,alternative_titles,similar,reviews",
         includeImageLanguage: String = "ko"
     ): Tv
 

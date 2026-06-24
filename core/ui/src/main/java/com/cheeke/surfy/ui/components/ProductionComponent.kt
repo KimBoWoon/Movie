@@ -44,7 +44,7 @@ fun ProductionComponent(companies: List<ProductionCompany>) {
                             .padding(end = dp12)
                     ) {
                         DynamicAsyncImageLoader(
-                            source = company.logoPath ?: "",
+                            source = company.logoPath.orEmpty(),
                             contentDescription = null,
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -56,7 +56,7 @@ fun ProductionComponent(companies: List<ProductionCompany>) {
                         )
                         Spacer(modifier = Modifier.height(height = dp8))
                         Text(
-                            text = company.name ?: "",
+                            text = company.name.orEmpty(),
                             style = MaterialTheme.typography.bodySmall,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis

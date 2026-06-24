@@ -64,7 +64,7 @@ class GetTvDetailUseCase @Inject constructor(
                     is Result.Loading -> TvSeasonLoadState.Loading(message = season.name)
                     is Result.Success -> {
                         episodesCache.update {
-                            it + ((result.data.name ?: "") to (result.data.episodes ?: emptyList()))
+                            it + ((result.data.name.orEmpty()) to (result.data.episodes.orEmpty()))
                         }
                         TvSeasonLoadState.Idle
                     }

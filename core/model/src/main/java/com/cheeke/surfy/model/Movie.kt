@@ -45,6 +45,7 @@ data class Movie(
     override val mediaType: MediaType = MediaType.MOVIE,
     override val firstAirDate: String? = null,
     override val lastAirDate: String? = null,
+    val similar: SimilarMedias? = null,
     override val isFavorite: Boolean = false
 ) : Parcelable, Media
 

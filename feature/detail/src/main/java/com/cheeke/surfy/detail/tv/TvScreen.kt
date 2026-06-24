@@ -71,6 +71,7 @@ import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
 import com.cheeke.surfy.model.Cast
 import com.cheeke.surfy.model.Credits
 import com.cheeke.surfy.model.Image
+import com.cheeke.surfy.model.Review
 import com.cheeke.surfy.model.SimilarMedia
 import com.cheeke.surfy.model.Tv
 import com.cheeke.surfy.model.TvEpisode
@@ -82,6 +83,7 @@ import com.cheeke.surfy.ui.components.ImagesComponent
 import com.cheeke.surfy.ui.components.MediaTitleComponent
 import com.cheeke.surfy.ui.components.OverviewComponent
 import com.cheeke.surfy.ui.components.ProductionComponent
+import com.cheeke.surfy.ui.components.ReviewComponent
 import com.cheeke.surfy.ui.components.SimilarComponent
 import com.cheeke.surfy.ui.components.TitleComponent
 import com.cheeke.surfy.ui.components.VideosComponent
@@ -114,12 +116,14 @@ fun TvScreen(
     TrackScreenViewEvent(screenName = "TvScreen")
 
     val similarTvs = viewModel.similarTvs.collectAsLazyPagingItems()
+    val tvReviews = viewModel.tvReviews.collectAsLazyPagingItems()
     val selectedEpisode by viewModel.selectedEpisode.collectAsStateWithLifecycle()
     val tvUiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     TvScreen(
         tvUiState = tvUiState,
         similarTvs = similarTvs,
+        tvReviews = tvReviews,
         selectedEpisode = selectedEpisode,
         goToTv = goToTv,
         goToPeople = goToPeople,
@@ -139,6 +143,7 @@ fun TvScreen(
 fun TvScreen(
     tvUiState: TvState,
     similarTvs: LazyPagingItems<SimilarMedia>,
+    tvReviews: LazyPagingItems<Review>,
     selectedEpisode: TvEpisode?,
     goToTv: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
@@ -179,6 +184,7 @@ fun TvScreen(
                         tv = tvUiState.tvUiState,
                         isAutoPlayTrailer = tvUiState.tvUiState.autoPlayTrailer,
                         similarTvs = similarTvs,
+                        tvReviews = tvReviews,
                         goToTv = goToTv,
                         goToPeople = goToPeople,
                         goToBack = goToBack,
@@ -230,6 +236,7 @@ fun TvDetailComponent(
     tv: TvUiState,
     isAutoPlayTrailer: Boolean,
     similarTvs: LazyPagingItems<SimilarMedia>,
+    tvReviews: LazyPagingItems<Review>,
     goToTv: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     goToBack: () -> Unit,
@@ -324,8 +331,8 @@ fun TvDetailComponent(
             ProductionComponent(companies = productionCompanies)
         }
         tv.tv.images?.let {
-            val backdrops = it.backdrops ?: emptyList()
-            val posters = it.posters ?: emptyList()
+            val backdrops = it.backdrops.orEmpty()
+            val posters = it.posters.orEmpty()
 
             Spacer(modifier = Modifier
                 .fillMaxWidth()
@@ -338,15 +345,21 @@ fun TvDetailComponent(
                 onSelect = onSelect
             )
         }
-        if (similarTvs.itemCount > 0) {
-            Spacer(modifier = Modifier
-                .fillMaxWidth()
-                .height(height = dp10))
-            SimilarComponent(similar = similarTvs, goToDestination = goToTv)
+        if (!tv.tv.reviews?.results.isNullOrEmpty()) {
+            ReviewComponent(
+                items = tv.tv.reviews?.results.orEmpty(),
+                reviews = tvReviews
+            )
         }
-        Spacer(modifier = Modifier
-            .fillMaxWidth()
-            .height(height = dp20))
+        if (similarTvs.itemCount > 0) {
+            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
+            SimilarComponent(
+                similarMovies = similarTvs,
+                items = tv.tv.similar?.results.orEmpty(),
+                goToDestination = goToTv
+            )
+        }
+        Spacer(modifier = Modifier.fillMaxWidth().height(height = dp20))
     }
 }
 
@@ -407,8 +420,8 @@ fun SeasonComponent(
                     }
                     analyticsHelper.logSelectSeason(
                         tvId = tv.id.toString(),
-                        tvTitle = tv.title ?: "",
-                        seasonName = season.name ?: "",
+                        tvTitle = tv.title.orEmpty(),
+                        seasonName = season.name.orEmpty(),
                         seasonNumber = season.seasonNumber.toString()
                     )
                 }
@@ -449,7 +462,7 @@ fun EpisodeContents(
                 ) {
                     CircularProgressComponent()
                     Text(
-                        text = stringResource(id = R.string.tv_season_loading, episodeState.message ?: ""),
+                        text = stringResource(id = R.string.tv_season_loading, episodeState.message.orEmpty()),
                         style = MaterialTheme.typography.labelSmall,
                         color = Color.Gray
                     )
@@ -471,7 +484,7 @@ fun EpisodeContents(
             }
             is TvSeasonLoadState.Error -> {
                 Text(
-                    text = stringResource(id = R.string.tv_season_error, episodeState.message ?: ""),
+                    text = stringResource(id = R.string.tv_season_error, episodeState.message.orEmpty()),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray
                 )
@@ -516,7 +529,7 @@ private fun SeasonSpinner(
                 DropdownMenuItem(
                     text = {
                         Text(
-                            text = season.name ?: "",
+                            text = season.name.orEmpty(),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
@@ -564,7 +577,7 @@ private fun EpisodeRow(
             .clickable(onClick = onClick),
     ) {
         DynamicAsyncImageLoader(
-            source = episode.stillPath ?: "",
+            source = episode.stillPath.orEmpty(),
             contentDescription = null,
             modifier = Modifier
                 .fillMaxWidth()
@@ -582,7 +595,7 @@ private fun EpisodeRow(
         )
         Spacer(Modifier.height(height = dp2))
         Text(
-            text = episode.name ?: "",
+            text = episode.name.orEmpty(),
             style = MaterialTheme.typography.bodyMedium,
             minLines = 2,
             maxLines = 2,
@@ -622,7 +635,7 @@ fun EpisodeDetailBottomSheetDialog(
                     .padding(start = dp10, end = dp10, bottom = dp10)
                     .aspectRatio(ratio = 16f / 9f)
                     .clip(shape = RoundedCornerShape(size = dp10)),
-                source = episode.stillPath ?: "",
+                source = episode.stillPath.orEmpty(),
                 contentDescription = episode.stillPath
             )
             Row(
@@ -634,9 +647,9 @@ fun EpisodeDetailBottomSheetDialog(
             ) {
                 Text(
                     modifier = Modifier
-                        .semantics { contentDescription = episode.name ?: "" }
+                        .semantics { contentDescription = episode.name.orEmpty() }
                         .weight(weight = 1f),
-                    text = episode.name ?: "",
+                    text = episode.name.orEmpty(),
                     fontWeight = FontWeight.Bold,
                     overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.titleSmall,
@@ -653,13 +666,13 @@ fun EpisodeDetailBottomSheetDialog(
             }
             Text(
                 modifier = Modifier.padding(horizontal = dp10),
-                text = episode.airDate ?: "",
+                text = episode.airDate.orEmpty(),
                 fontSize = sp10,
                 style = MaterialTheme.typography.labelSmall,
             )
             Text(
                 modifier = Modifier.padding(horizontal = dp10),
-                text = episode.overview ?: "",
+                text = episode.overview.orEmpty(),
                 fontSize = sp12,
                 style = MaterialTheme.typography.labelLarge,
             )
@@ -681,7 +694,7 @@ fun EpisodeDetailBottomSheetDialog(
                             profilePath = it.profilePath
                         )
                     },
-                    crew = episode.crew ?: emptyList()
+                    crew = episode.crew.orEmpty()
                 ),
                 goToPeople = goToPeople
             )

@@ -22,7 +22,7 @@ import java.time.LocalDate
 
 class TestMovieDatabaseRepository() : MovieDataBaseRepository {
     val movieDatabase = MutableSharedFlow<List<Movie>>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
-    val currentMovieDatabase get() = movieDatabase.replayCache.firstOrNull() ?: emptyList()
+    val currentMovieDatabase get() = movieDatabase.replayCache.firstOrNull().orEmpty()
 
     override fun getFavorite(): PagingSource<Int, MovieEntity> {
         println("getFavorite called size=${movieDatabase.replayCache.size}")

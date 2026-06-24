@@ -42,17 +42,19 @@ fun String.toRelativeTime(
     pattern: String = "uuuu-MM-dd HH:mm:ss",
     clock: RelativeClock = SystemRelativeClock
 ): String = runCatching {
-    val formatter = DateTimeFormatter.ofPattern(pattern)
     val target = runCatching {
-        LocalDateTime.parse(this, formatter).toInstant(ZoneOffset.UTC)
-    }.getOrElse { e ->
-//        Log.e("exception -> $e, message -> ${e.message}")
-        LocalDate.parse(this, formatter).atStartOfDay().toInstant(ZoneOffset.UTC)
-    }
+        Instant.parse(this)
+    }.getOrElse {
+        val formatter = DateTimeFormatter.ofPattern(pattern)
 
+        runCatching {
+            LocalDateTime.parse(this, formatter).toInstant(ZoneOffset.UTC)
+        }.getOrElse {
+            LocalDate.parse(this, formatter).atStartOfDay().toInstant(ZoneOffset.UTC)
+        }
+    }
     target.toRelativeTimeLabel(clock.nowInstant())
-}.getOrElse { e ->
-//    Log.printStackTrace(e)
+}.getOrElse {
     ""
 }
 

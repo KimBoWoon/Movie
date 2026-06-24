@@ -91,20 +91,22 @@ class MovieVM @AssistedInject constructor(
             initialValue = false,
             started = SharingStarted.Lazily
         )
-//    val movieReviews = Pager(
-//        config = PagingConfig(pageSize = 1, initialLoadSize = 1, prefetchDistance = 5),
-//        initialKey = 1,
-//        pagingSourceFactory = { pagingRepository.getMovieReviews(movieId = id) }
-//    ).flow.map {
-//        it.map { review -> ReviewDataModel.Item(review = review) }
-//            .insertSeparators { before, after ->
-//                if (before != null && after != null) {
-//                    ReviewDataModel.Separator
-//                } else {
-//                    null
-//                }
-//            }
-//    }.cachedIn(scope = viewModelScope)
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val movieReviews = userDataRepository.internalData
+        .map { it.language to it.region }
+        .flatMapLatest {
+            Pager(
+                config = PagingConfig(pageSize = 1, initialLoadSize = 1, prefetchDistance = 5),
+                initialKey = 1,
+                pagingSourceFactory = {
+                    pagingRepository.getMovieReviews(
+                        movieId = id,
+                        language = it.first,
+                        region = it.second
+                    )
+                }
+            ).flow
+        }.cachedIn(scope = viewModelScope)
 
     init {
         viewModelScope.launch {

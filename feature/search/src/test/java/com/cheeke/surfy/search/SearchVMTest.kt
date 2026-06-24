@@ -95,7 +95,7 @@ class SearchVMTest {
         )
 
         val a: PagingSource.LoadResult<Int, Media> = PagingSource.LoadResult.Page(
-            data = movieSearchTestData.results ?: emptyList(),
+            data = movieSearchTestData.results.orEmpty(),
             prevKey = null,
             nextKey = null
         )

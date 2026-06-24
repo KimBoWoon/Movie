@@ -61,8 +61,8 @@ class MovieFCMService : FirebaseMessagingService() {
         }
 
         message.notification?.let { notiData ->
-            Log.d(TAG, notiData.title ?: "")
-            Log.d(TAG, notiData.body ?: "")
+            Log.d(TAG, notiData.title.orEmpty())
+            Log.d(TAG, notiData.body.orEmpty())
             Log.d(TAG, notiData.imageUrl.toString())
             Log.d(TAG, message.data.toString())
 

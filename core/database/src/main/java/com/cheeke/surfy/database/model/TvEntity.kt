@@ -28,7 +28,7 @@ fun TvEntity.asExternalModel(): Tv = Tv(
 
 fun Tv.asExternalModel(): TvEntity = TvEntity(
     id = id ?: -1,
-    posterPath = posterPath ?: "",
+    posterPath = posterPath.orEmpty(),
     timestamp = -1L,//Clock.System.now().toEpochMilliseconds(),
     name = title,
     firstAirDate = firstAirDate,

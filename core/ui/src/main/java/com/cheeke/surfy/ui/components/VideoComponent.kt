@@ -103,7 +103,7 @@ fun VideosComponent(
                         }
                         PlayerConstants.PlayerState.PLAYING -> {
                             Log.d("PLAYING")
-                            analyticsHelper.logPlayTrailer(contentType = "YouTube", videoId = vodList[index].key ?: "")
+                            analyticsHelper.logPlayTrailer(contentType = "YouTube", videoId = vodList[index].key.orEmpty())
                         }
                         PlayerConstants.PlayerState.PAUSED -> Log.d("PAUSED")
                         PlayerConstants.PlayerState.BUFFERING -> Log.d("BUFFERING")

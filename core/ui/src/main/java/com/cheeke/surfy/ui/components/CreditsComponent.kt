@@ -55,7 +55,7 @@ fun CreditsComponent(
                 horizontalArrangement = Arrangement.spacedBy(space = dp12)
             ) {
                 items(
-                    items = credits.cast ?: emptyList(),
+                    items = credits.cast.orEmpty(),
                     key = { "${it.id}_${it.creditId}_${it.castId}" }
                 ) { actor ->
                     Column(
@@ -65,7 +65,7 @@ fun CreditsComponent(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         DynamicAsyncImageLoader(
-                            source = actor.profilePath ?: "",
+                            source = actor.profilePath.orEmpty(),
                             contentDescription = actor.profilePath,
                             modifier = Modifier
                                 .size(size = dp72)
@@ -74,14 +74,14 @@ fun CreditsComponent(
                         )
 
                         Text(
-                            text = actor.character ?: "",
+                            text = actor.character.orEmpty(),
                             minLines = 1,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             style = MaterialTheme.typography.labelSmall
                         )
                         Text(
-                            text = actor.name ?: "",
+                            text = actor.name.orEmpty(),
                             minLines = 1,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
@@ -107,7 +107,7 @@ fun CreditsComponent(
                 horizontalArrangement = Arrangement.spacedBy(space = dp12)
             ) {
                 items(
-                    items = credits.crew ?: emptyList(),
+                    items = credits.crew.orEmpty(),
                     key = { "${it.id}_${it.job}" }
                 ) { crew ->
                     Column(
@@ -117,7 +117,7 @@ fun CreditsComponent(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         DynamicAsyncImageLoader(
-                            source = crew.profilePath ?: "",
+                            source = crew.profilePath.orEmpty(),
                             contentDescription = crew.profilePath,
                             modifier = Modifier
                                 .size(size = dp72)
@@ -126,19 +126,19 @@ fun CreditsComponent(
                         )
 
                         Text(
-                            text = crew.department ?: "",
+                            text = crew.department.orEmpty(),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             style = MaterialTheme.typography.labelSmall
                         )
                         Text(
-                            text = crew.name ?: "",
+                            text = crew.name.orEmpty(),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             style = MaterialTheme.typography.labelSmall
                         )
                         Text(
-                            text = crew.job ?: "",
+                            text = crew.job.orEmpty(),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             style = MaterialTheme.typography.labelSmall

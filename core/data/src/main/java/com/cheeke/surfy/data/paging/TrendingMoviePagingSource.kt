@@ -16,7 +16,7 @@ class TrendingMoviePagingSource(
             val response = apis.getTrendingMovie(timeWindow = timeWindow, language = language, page = params.key ?: 1)
 
             LoadResult.Page(
-                data = response.results ?: emptyList(),
+                data = response.results.orEmpty(),
                 prevKey = null,
                 nextKey = if ((response.totalPages ?: 1) > (params.key ?: 1)) (params.key ?: 1) + 1 else null
             )

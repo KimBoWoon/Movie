@@ -88,7 +88,7 @@ class ModalBottomSheetDialogTest {
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .aspectRatio(ratio = images[index].aspectRatio?.toFloat() ?: 1f),
-                                        source = images[index].filePath ?: "",
+                                        source = images[index].filePath.orEmpty(),
                                         contentDescription = "PosterView"
                                     )
                                 }

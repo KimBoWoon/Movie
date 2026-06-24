@@ -55,6 +55,7 @@ import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
 import com.cheeke.surfy.model.AlternativeTitle
 import com.cheeke.surfy.model.Image
 import com.cheeke.surfy.model.Movie
+import com.cheeke.surfy.model.Review
 import com.cheeke.surfy.model.Series
 import com.cheeke.surfy.model.SimilarMedia
 import com.cheeke.surfy.ui.components.CircularProgressComponent
@@ -64,6 +65,7 @@ import com.cheeke.surfy.ui.components.ImagesComponent
 import com.cheeke.surfy.ui.components.MediaTitleComponent
 import com.cheeke.surfy.ui.components.OverviewComponent
 import com.cheeke.surfy.ui.components.ProductionComponent
+import com.cheeke.surfy.ui.components.ReviewComponent
 import com.cheeke.surfy.ui.components.SectionHeader
 import com.cheeke.surfy.ui.components.SimilarComponent
 import com.cheeke.surfy.ui.components.SubSectionTitleComponent
@@ -100,11 +102,13 @@ fun MovieScreen(
 
     val movieState by viewModel.movie.collectAsStateWithLifecycle()
     val similarMovies = viewModel.similarMovies.collectAsLazyPagingItems()
+    val movieReviews = viewModel.movieReviews.collectAsLazyPagingItems()
     val isCheatActive by viewModel.isCheatActive.collectAsStateWithLifecycle()
 
     MovieScreen(
         movieState = movieState,
         similarMovies = similarMovies,
+        movieReviews = movieReviews,
         goToMovie = goToMovie,
         goToPeople = goToPeople,
         goToSeries = goToSeries,
@@ -121,6 +125,7 @@ fun MovieScreen(
 fun MovieScreen(
     movieState: MovieState,
     similarMovies: LazyPagingItems<SimilarMedia>,
+    movieReviews: LazyPagingItems<Review>,
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     goToSeries: (Int) -> Unit,
@@ -159,6 +164,7 @@ fun MovieScreen(
                         movie = movieState.movie,
                         isAutoPlayTrailer = movieState.isAutoPlayTrailer,
                         similarMovies = similarMovies,
+                        movieReviews = movieReviews,
                         goToMovie = goToMovie,
                         goToPeople = goToPeople,
                         goToSeries = goToSeries,
@@ -200,6 +206,7 @@ fun MovieDetailComponent(
     movie: Movie,
     isAutoPlayTrailer: Boolean,
     similarMovies: LazyPagingItems<SimilarMedia>,
+    movieReviews: LazyPagingItems<Review>,
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     goToSeries: (Int) -> Unit,
@@ -282,8 +289,8 @@ fun MovieDetailComponent(
             )
         }
         movie.images?.let { images ->
-            val posters = images.posters ?: emptyList()
-            val backdrops = images.backdrops ?: emptyList()
+            val posters = images.posters.orEmpty()
+            val backdrops = images.backdrops.orEmpty()
 
             Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
             ImagesComponent(
@@ -294,23 +301,22 @@ fun MovieDetailComponent(
                 onSelect = onSelect
             )
         }
-        if (similarMovies.itemCount > 0) {
+        Spacer(modifier = Modifier.fillMaxWidth().height(height = dp20))
+        if (!movie.reviews?.results.isNullOrEmpty()) {
+            ReviewComponent(
+                items = movie.reviews?.results.orEmpty(),
+                reviews = movieReviews
+            )
             Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
+        }
+        if (similarMovies.itemCount > 0) {
             SimilarComponent(
-                similar = similarMovies,
+                similarMovies = similarMovies,
+                items = movie.similar?.results.orEmpty(),
                 goToDestination = goToMovie
             )
+            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp20))
         }
-        Spacer(modifier = Modifier.fillMaxWidth().height(height = dp20))
-//            // 11) (옵션) Reviews Preview (2~3개) + See all
-//            if (uiState.reviews.isNotEmpty()) {
-//                item {
-//                    ReviewsPreviewSection(
-//                        reviews = uiState.reviews,
-//                        onSeeAll = { /* open reviews screen */ }
-//                    )
-//                }
-//            }
     }
 }
 
@@ -348,14 +354,9 @@ fun SeriesComponent(
     collection: Series?,
     goToMovie: (Int) -> Unit,
     goToSeries: (Int) -> Unit
-//    onSeeAll: () -> Unit
 ) {
     Column {
-        SectionHeader(
-            title = stringResource(id = R.string.movie_series),
-//            actionText = "See all",
-//            onActionClick = onSeeAll
-        )
+        SectionHeader(title = stringResource(id = R.string.movie_series))
 
         Spacer(modifier = Modifier.height(height = dp12))
 
@@ -363,7 +364,7 @@ fun SeriesComponent(
             modifier = Modifier
                 .padding(horizontal = dp16)
                 .clip(shape = RoundedCornerShape(size = dp16))
-                .background(Color.DarkGray.copy(alpha = 0.25f))
+                .background(color = Color.DarkGray.copy(alpha = 0.25f))
                 .fillMaxWidth()
                 .padding(all = dp14)
                 .bounceClick { goToSeries(collection?.id ?: -1) },
@@ -372,12 +373,12 @@ fun SeriesComponent(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 DynamicAsyncImageLoader(
-                    source = collection?.posterPath ?: "",
+                    source = collection?.posterPath.orEmpty(),
                     contentDescription = collection?.posterPath,
                     modifier = Modifier
                         .size(width = dp62, height = dp92)
                         .clip(shape = RoundedCornerShape(size = dp12))
-                        .background(Color.DarkGray),
+                        .background(color = Color.DarkGray),
                     contentScale = ContentScale.Crop
                 )
 
@@ -385,7 +386,7 @@ fun SeriesComponent(
 
                 Column(modifier = Modifier.weight(weight = 1f)) {
                     Text(
-                        text = collection?.title ?: "",
+                        text = collection?.title.orEmpty(),
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.SemiBold,
                         maxLines = 2,
@@ -419,14 +420,14 @@ fun SeriesComponent(
                 contentPadding = PaddingValues(horizontal = dp16),
                 horizontalArrangement = Arrangement.spacedBy(space = dp12)
             ) {
-                items(items = collection.parts ?: emptyList()) { m ->
+                items(items = collection.parts.orEmpty()) { m ->
                     Column(
                         modifier = Modifier
                             .width(width = dp120)
                             .clickable { goToMovie(m.id ?: -1) }
                     ) {
                         DynamicAsyncImageLoader(
-                            source = m.posterPath ?: "",
+                            source = m.posterPath.orEmpty(),
                             contentDescription = m.posterPath,
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -437,7 +438,7 @@ fun SeriesComponent(
                         )
                         Spacer(modifier = Modifier.height(height = dp8))
                         Text(
-                            text = m.title ?: "",
+                            text = m.title.orEmpty(),
                             style = MaterialTheme.typography.bodySmall,
                             minLines = 2,
                             maxLines = 2,
@@ -466,7 +467,7 @@ fun SeriesComponent(
 //        if (!providers.flatrate.isNullOrEmpty()) {
 //            SubSectionTitle(text = "스트리밍")
 //            LazyRow(contentPadding = PaddingValues(horizontal = dp16)) {
-//                items(items = providers.flatrate ?: emptyList()) { p ->
+//                items(items = providers.flatrate.orEmpty()) { p ->
 //                    Column(
 //                        modifier = Modifier
 //                            .width(width = dp92)
@@ -474,7 +475,7 @@ fun SeriesComponent(
 //                        horizontalAlignment = Alignment.CenterHorizontally
 //                    ) {
 //                        DynamicAsyncImageLoader(
-//                            source = p.logoPath ?: "",
+//                            source = p.logoPath.orEmpty(),
 //                            contentDescription = null,
 //                            modifier = Modifier
 //                                .size(size = dp64)
@@ -484,7 +485,7 @@ fun SeriesComponent(
 //                            contentScale = ContentScale.Fit
 //                        )
 //                        Spacer(Modifier.height(height = dp8))
-//                        Text(text = p.providerName ?: "", style = MaterialTheme.typography.labelSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
+//                        Text(text = p.providerName.orEmpty(), style = MaterialTheme.typography.labelSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
 //                    }
 //                }
 //            }
@@ -493,7 +494,7 @@ fun SeriesComponent(
 //        if (!providers.rent.isNullOrEmpty()) {
 //            SubSectionTitle(text = "대여")
 //            LazyRow(contentPadding = PaddingValues(horizontal = dp16)) {
-//                items(items = providers.rent ?: emptyList()) { p ->
+//                items(items = providers.rent.orEmpty()) { p ->
 //                    Column(
 //                        modifier = Modifier
 //                            .width(width = dp92)
@@ -501,7 +502,7 @@ fun SeriesComponent(
 //                        horizontalAlignment = Alignment.CenterHorizontally
 //                    ) {
 //                        DynamicAsyncImageLoader(
-//                            source = p.logoPath ?: "",
+//                            source = p.logoPath.orEmpty(),
 //                            contentDescription = null,
 //                            modifier = Modifier
 //                                .size(size = dp64)
@@ -511,7 +512,7 @@ fun SeriesComponent(
 //                            contentScale = ContentScale.Fit
 //                        )
 //                        Spacer(Modifier.height(height = dp8))
-//                        Text(text = p.providerName ?: "", style = MaterialTheme.typography.labelSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
+//                        Text(text = p.providerName.orEmpty(), style = MaterialTheme.typography.labelSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
 //                    }
 //                }
 //            }
@@ -520,7 +521,7 @@ fun SeriesComponent(
 //        if (!providers.buy.isNullOrEmpty()) {
 //            SubSectionTitle(text = "구매")
 //            LazyRow(contentPadding = PaddingValues(horizontal = dp16)) {
-//                items(items = providers.buy ?: emptyList()) { p ->
+//                items(items = providers.buy.orEmpty()) { p ->
 //                    Column(
 //                        modifier = Modifier
 //                            .width(width = dp92)
@@ -528,7 +529,7 @@ fun SeriesComponent(
 //                        horizontalAlignment = Alignment.CenterHorizontally
 //                    ) {
 //                        DynamicAsyncImageLoader(
-//                            source = p.logoPath ?: "",
+//                            source = p.logoPath.orEmpty(),
 //                            contentDescription = null,
 //                            modifier = Modifier
 //                                .size(size = dp64)
@@ -538,7 +539,7 @@ fun SeriesComponent(
 //                            contentScale = ContentScale.Fit
 //                        )
 //                        Spacer(Modifier.height(height = dp8))
-//                        Text(text = p.providerName ?: "", style = MaterialTheme.typography.labelSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
+//                        Text(text = p.providerName.orEmpty(), style = MaterialTheme.typography.labelSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
 //                    }
 //                }
 //            }

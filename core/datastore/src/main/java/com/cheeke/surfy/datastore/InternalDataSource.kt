@@ -165,7 +165,7 @@ class InternalDataSource @Inject constructor(
     suspend fun getMainDate(): String =
         datastore.data.map { preferences ->
             preferences.updateDate
-        }.firstOrNull() ?: ""
+        }.firstOrNull().orEmpty()
 
     suspend fun getRegion(): String =
         datastore.data.map { preferences ->
@@ -185,12 +185,12 @@ class InternalDataSource @Inject constructor(
     suspend fun getShowNextReleaseMoviesDate(): String =
         datastore.data.map { preferences ->
             preferences.showNextReleaseMoviesDate
-        }.firstOrNull() ?: ""
+        }.firstOrNull().orEmpty()
 
     suspend fun getSecureBaseUrl(): String =
         datastore.data.map { preferences ->
             preferences.secureBaseUrl
-        }.firstOrNull() ?: ""
+        }.firstOrNull().orEmpty()
 
     suspend fun getFirstInstall(): Boolean =
         datastore.data.map { preferences ->
@@ -218,5 +218,5 @@ class InternalDataSource @Inject constructor(
     suspend fun getFCMToken(): String =
         datastore.data.map { preferences ->
             preferences.fcmToken
-        }.firstOrNull() ?: ""
+        }.firstOrNull().orEmpty()
 }

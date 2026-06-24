@@ -17,7 +17,7 @@ class SimilarMoviePagingSource(
             val response = apis.getSimilarMovies(id = id, language = "$language-$region", page = params.key ?: 1)
 
             LoadResult.Page(
-                data = response.results ?: emptyList(),
+                data = response.results.orEmpty(),
                 prevKey = null,
                 nextKey = if ((response.totalPages ?: 1) > (params.key ?: 1)) (params.key ?: 1) + 1 else null
             )

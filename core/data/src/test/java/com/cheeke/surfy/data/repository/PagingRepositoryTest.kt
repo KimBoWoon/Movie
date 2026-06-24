@@ -51,7 +51,7 @@ class PagingRepositoryTest {
 
         val page = actual as PagingSource.LoadResult.Page
 
-        assertEquals(expected = movieSearchTestData.results ?: emptyList(), actual = page.data)
+        assertEquals(expected = movieSearchTestData.results.orEmpty(), actual = page.data)
         assertEquals(expected = null, actual = page.prevKey)
         assertEquals(expected = null, actual = page.nextKey)
     }
@@ -78,7 +78,7 @@ class PagingRepositoryTest {
 
         val page = actual as PagingSource.LoadResult.Page
 
-        assertEquals(expected = peopleSearchTestData.results ?: emptyList(), actual = page.data)
+        assertEquals(expected = peopleSearchTestData.results.orEmpty(), actual = page.data)
         assertEquals(expected = null, actual = page.prevKey)
         assertEquals(expected = null, actual = page.nextKey)
     }
@@ -105,7 +105,7 @@ class PagingRepositoryTest {
 
         val page = actual as PagingSource.LoadResult.Page
 
-        assertEquals(expected = tvSearchTestData.results ?: emptyList(), actual = page.data)
+        assertEquals(expected = tvSearchTestData.results.orEmpty(), actual = page.data)
         assertEquals(expected = null, actual = page.prevKey)
         assertEquals(expected = null, actual = page.nextKey)
     }
@@ -132,7 +132,7 @@ class PagingRepositoryTest {
 
         val page = actual as PagingSource.LoadResult.Page
 
-        assertEquals(expected = seriesSearchTestData.results ?: emptyList(), actual = page.data)
+        assertEquals(expected = seriesSearchTestData.results.orEmpty(), actual = page.data)
         assertEquals(expected = null, actual = page.prevKey)
         assertEquals(expected = null, actual = page.nextKey)
     }
@@ -159,7 +159,7 @@ class PagingRepositoryTest {
 
         val page = actual as PagingSource.LoadResult.Page
 
-        assertEquals(expected = movieSearchTestData.results ?: emptyList(), actual = page.data)
+        assertEquals(expected = movieSearchTestData.results.orEmpty(), actual = page.data)
         assertEquals(expected = null, actual = page.prevKey)
         assertEquals(expected = null, actual = page.nextKey)
     }
@@ -180,7 +180,7 @@ class PagingRepositoryTest {
 
         val page = actual as PagingSource.LoadResult.Page
 
-        assertEquals(expected = similarMoviesTestData.results ?: emptyList(), actual = page.data)
+        assertEquals(expected = similarMoviesTestData.results.orEmpty(), actual = page.data)
         assertEquals(expected = 0, actual = page.prevKey)
         assertEquals(expected = null, actual = page.nextKey)
     }

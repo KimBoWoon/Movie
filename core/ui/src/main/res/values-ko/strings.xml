@@ -13,4 +13,5 @@
     <string name="similar_movie_not_found">비슷한 영화가 없습니다.</string>
     <string name="similar_media">비슷한 작품</string>
     <string name="movie_image">이미지</string>
+    <string name="see_all">더보기</string>
 </resources>

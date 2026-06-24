@@ -245,7 +245,7 @@ fun MovieSearchTopBar(
                                     else -> throw RuntimeException("${nextWeekReleaseMovie.mediaType} not found")
                                 }
                             },
-                        text = stringResource(id = R.string.next_week_release_movie, nextWeekReleaseMovie.title ?: ""),
+                        text = stringResource(id = R.string.next_week_release_movie, nextWeekReleaseMovie.title.orEmpty()),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -368,7 +368,7 @@ fun ReleaseMoviesDialog(
                                 .fillMaxWidth()
                                 .align(Alignment.BottomCenter)
                                 .background(color = Color(color = 0x33000000)),
-                            text = stringResource(id = com.cheeke.surfy.feature.home.R.string.release_movie, releaseMovies[pagerState.currentPage].releaseDate ?: ""),
+                            text = stringResource(id = com.cheeke.surfy.feature.home.R.string.release_movie, releaseMovies[pagerState.currentPage].releaseDate.orEmpty()),
                             textAlign = TextAlign.Center,
                             color = Color.White
                         )

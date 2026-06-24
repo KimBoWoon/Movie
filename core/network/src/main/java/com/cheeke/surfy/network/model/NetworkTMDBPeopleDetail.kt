@@ -93,7 +93,7 @@ fun NetworkTMDBPeopleImages.asExternalModel(): List<Image> =
             voteCount = it.voteCount,
             width = it.width
         )
-    } ?: emptyList()
+    }.orEmpty()
 
 fun List<NetworkTMDBPeopleProfile>.asExternalModel(): List<Image> =
     map {

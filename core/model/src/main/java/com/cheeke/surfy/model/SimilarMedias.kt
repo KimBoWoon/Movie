@@ -1,12 +1,20 @@
 package com.cheeke.surfy.model
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.Serializable
+
+@Serializable
+@Parcelize
 data class SimilarMedias(
     val page: Int? = null,
     val results: List<SimilarMedia>? = null,
     val totalPages: Int? = null,
     val totalResults: Int? = null
-)
+) : Parcelable
 
+@Serializable
+@Parcelize
 data class SimilarMedia(
     // Movie
     val adult: Boolean? = null,
@@ -29,4 +37,4 @@ data class SimilarMedia(
     val name: String? = null,
     val originCountry: List<String>? = null,
     val originalName: String? = null,
-)
+) : Parcelable

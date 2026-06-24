@@ -113,7 +113,7 @@ class SurfyDataManager @Inject constructor(
             isDarkMode = internalData.isDarkMode,
             updateDate = internalData.updateDate,
             imageQuality = internalData.imageQuality,
-            secureBaseUrl = configuration.images?.secureBaseUrl ?: "",
+            secureBaseUrl = configuration.images?.secureBaseUrl.orEmpty(),
             movieGenres = genresPair.movie,
             tvGenres = genresPair.tv,
             region = region.results?.map {
@@ -122,7 +122,7 @@ class SurfyDataManager @Inject constructor(
                     label = it.nativeName ?: "",
                     isSelected = internalData.region == it.iso31661
                 )
-            } ?: emptyList(),
+            }.orEmpty(),
             language = language.map {
                 LocaleOption(
                     code = it.iso6391 ?: "",
@@ -132,7 +132,7 @@ class SurfyDataManager @Inject constructor(
             },
             posterSize = configuration.images?.posterSizes?.map {
                 PosterSize(size = it, isSelected = internalData.imageQuality == it)
-            } ?: emptyList()
+            }.orEmpty()
         )
     }.asResult()
         .map { result ->

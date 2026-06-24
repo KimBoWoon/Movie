@@ -144,7 +144,7 @@ class SearchVM @AssistedInject constructor(
                             ) { pagingData: PagingData<Media>, genre: Genre? ->
                                 if (genre != null) {
                                     pagingData.filter { media: Media ->
-                                        genre.id in (media.genres?.map { it.id } ?: emptyList())
+                                        genre.id in (media.genres?.map { it.id }.orEmpty())
                                     }
                                 } else {
                                     pagingData

@@ -18,7 +18,7 @@ import java.time.LocalDate
 
 class TestTvDatabaseRepository : TvDataBaseRepository {
     val tvDatabase = MutableSharedFlow<List<Tv>>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
-    private val currentTvDatabase get() = tvDatabase.replayCache.firstOrNull() ?: emptyList()
+    private val currentTvDatabase get() = tvDatabase.replayCache.firstOrNull().orEmpty()
 
     override fun getFavorite(): PagingSource<Int, TvEntity> =
         currentTvDatabase

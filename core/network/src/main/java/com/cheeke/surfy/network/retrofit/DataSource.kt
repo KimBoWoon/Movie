@@ -366,7 +366,7 @@ class SyncRemoteDataSourceImpl @Inject constructor(
                     currentPage = (response.data.page ?: 1) + 1
                     totalPage = response.data.totalPages ?: Int.MAX_VALUE
                     result.addAll(
-                        response.data.asExternalModel().results?.map(MovieResult::asExternalMovie) ?: emptyList()
+                        response.data.asExternalModel().results?.map(MovieResult::asExternalMovie).orEmpty()
                     )
                 }
             }
@@ -391,13 +391,13 @@ class SyncRemoteDataSourceImpl @Inject constructor(
                     currentPage = (response.data.page ?: 1) + 1
                     totalPage = response.data.totalPages ?: Int.MAX_VALUE
                     result.addAll(
-                        response.data.asExternalModel().results?.map(MovieResult::asExternalMovie) ?: emptyList()
+                        response.data.asExternalModel().results?.map(MovieResult::asExternalMovie).orEmpty()
                     )
                 }
             }
         } while (currentPage <= totalPage)
 
-        return result.filter { (it.releaseDate ?: "") > LocalDate.now().toString() }.distinctBy { it.id }.sortedBy { it.releaseDate }
+        return result.filter { (it.releaseDate.orEmpty()) > LocalDate.now().toString() }.distinctBy { it.id }.sortedBy { it.releaseDate }
     }
 }
 

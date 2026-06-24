@@ -112,6 +112,22 @@ class TvVM @AssistedInject constructor(
         started = SharingStarted.Lazily,
         initialValue = TvState.Loading
     )
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val tvReviews = userDataRepository.internalData
+        .map { it.language to it.region }
+        .flatMapLatest {
+            Pager(
+                config = PagingConfig(pageSize = 1, initialLoadSize = 1, prefetchDistance = 5),
+                initialKey = 1,
+                pagingSourceFactory = {
+                    pagingRepository.getTvReviews(
+                        seriesId = id,
+                        language = it.first,
+                        region = it.second
+                    )
+                }
+            ).flow
+        }.cachedIn(scope = viewModelScope)
 
     init {
         viewModelScope.launch {

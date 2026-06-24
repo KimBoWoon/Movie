@@ -51,17 +51,17 @@ class PeopleScreenTest {
     private lateinit var testDetailRepository: TestPeopleDetailRepository
     private lateinit var testMovieAppDataManager: TestMovieAppDataManager
     private val surfyAppData = SurfyAppData(
-        secureBaseUrl = configurationTestData.images?.secureBaseUrl ?: "",
-        movieGenres = genreListTestData.genres ?: emptyList(),
+        secureBaseUrl = configurationTestData.images?.secureBaseUrl.orEmpty(),
+        movieGenres = genreListTestData.genres.orEmpty(),
         region = regionTestData.results?.map { region ->
             LocaleOption(code = region.iso31661 ?: "KR", label = region.nativeName ?: "KR", isSelected = region.iso31661 == "KR")
-        } ?: emptyList(),
+        }.orEmpty(),
         language = languageListTestData.map { language ->
             LocaleOption(code = language.iso6391 ?: "ko", label = language.englishName ?: "Korean", isSelected = language.iso6391 == "ko")
         },
         posterSize = configurationTestData.images?.posterSizes?.map {
             PosterSize(size = it, isSelected = it == "original")
-        } ?: emptyList()
+        }.orEmpty()
     )
 
     @Before

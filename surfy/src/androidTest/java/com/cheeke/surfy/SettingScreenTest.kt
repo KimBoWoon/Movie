@@ -29,7 +29,7 @@ class SettingScreenTest {
     private lateinit var testMovieAppDataManager: TestMovieAppDataManager
     private val surfyAppData = SurfyAppData(
         secureBaseUrl = configurationTestData.images?.secureBaseUrl ?: "",
-        movieGenres = genreListTestData.genres ?: emptyList(),
+        movieGenres = genreListTestData.genres.orEmpty(),
         region = regionTestData.results?.map {
             LocaleOption(
                 code = it.iso31661 ?: "",
@@ -46,7 +46,7 @@ class SettingScreenTest {
         },
         posterSize = configurationTestData.images?.posterSizes?.map {
             PosterSize(size = it, isSelected = it == "original")
-        } ?: emptyList()
+        }.orEmpty()
     )
 
     @Before

@@ -111,7 +111,7 @@ object GoToSeriesParser : DeeplinkParser {
 object GoToSearchParser : DeeplinkParser {
     override val path = "go_to_search"
     override fun parse(uri: Uri): List<NavKey> {
-        val query = uri.getQueryParameter("query") ?: ""
+        val query = uri.getQueryParameter("query").orEmpty()
         val searchType = uri.getQueryParameter("searchType") ?: "surfy"
         return listOf(SearchNavKey(query = query, searchType = searchType.uppercase()))
     }
@@ -120,7 +120,7 @@ object GoToSearchParser : DeeplinkParser {
 object SearchToMovieParser : DeeplinkParser {
     override val path = "search_to_movie"
     override fun parse(uri: Uri): List<NavKey> {
-        val query = uri.getQueryParameter("query") ?: ""
+        val query = uri.getQueryParameter("query").orEmpty()
         val searchType = uri.getQueryParameter("searchType") ?: "surfy"
         val id = uri.getQueryParameter("id")?.toIntOrNull() ?: -1
         return listOf(SearchNavKey(query = query, searchType = searchType.uppercase()), MovieNavKey(id = id))
@@ -130,7 +130,7 @@ object SearchToMovieParser : DeeplinkParser {
 object SearchToPeopleParser : DeeplinkParser {
     override val path = "search_to_people"
     override fun parse(uri: Uri): List<NavKey> {
-        val query = uri.getQueryParameter("query") ?: ""
+        val query = uri.getQueryParameter("query").orEmpty()
         val searchType = uri.getQueryParameter("searchType") ?: "surfy"
         val id = uri.getQueryParameter("id")?.toIntOrNull() ?: -1
         return listOf(SearchNavKey(query = query, searchType = searchType.uppercase()), PeopleNavKey(id = id))
@@ -140,7 +140,7 @@ object SearchToPeopleParser : DeeplinkParser {
 object SearchToSeriesParser : DeeplinkParser {
     override val path = "search_to_series"
     override fun parse(uri: Uri): List<NavKey> {
-        val query = uri.getQueryParameter("query") ?: ""
+        val query = uri.getQueryParameter("query").orEmpty()
         val searchType = uri.getQueryParameter("searchType") ?: "surfy"
         val id = uri.getQueryParameter("id")?.toIntOrNull() ?: -1
         return listOf(SearchNavKey(query = query, searchType = searchType.uppercase()), TvNavKey(id = id))
@@ -150,7 +150,7 @@ object SearchToSeriesParser : DeeplinkParser {
 object SearchToTvParser : DeeplinkParser {
     override val path = "search_to_tv"
     override fun parse(uri: Uri): List<NavKey> {
-        val query = uri.getQueryParameter("query") ?: ""
+        val query = uri.getQueryParameter("query").orEmpty()
         val searchType = uri.getQueryParameter("searchType") ?: "surfy"
         val id = uri.getQueryParameter("id")?.toIntOrNull() ?: -1
         return listOf(SearchNavKey(query = query, searchType = searchType.uppercase()), SeriesNavKey(id = id))

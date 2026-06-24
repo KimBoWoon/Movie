@@ -12,7 +12,7 @@ class TestSynchronizer(
     private val datastore: InternalDataSource
 ) : Synchronizer {
     override suspend fun getVersion(): String =
-        datastore.userData.map { it.updateDate }.firstOrNull() ?: ""
+        datastore.userData.map { it.updateDate }.firstOrNull().orEmpty()
 
     override suspend fun updateVersion(update: () -> String) {
         datastore.updateMainDate(value = update())

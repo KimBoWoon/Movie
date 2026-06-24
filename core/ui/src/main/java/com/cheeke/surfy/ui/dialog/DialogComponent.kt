@@ -129,7 +129,7 @@ private fun MovieDialog(
                             .background(color = Color.White, shape = RoundedCornerShape(bottomStart = dp20))
                             .border(line = Line.END, strokeWidth = dp1, color = Color.Black)
                             .padding(top = dp30),
-                        text = dismissPair.first ?: "",
+                        text = dismissPair.first.orEmpty(),
                     ) {
                         dismissPair.second?.let { it() }
                         onDismiss()

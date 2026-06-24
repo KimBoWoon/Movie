@@ -87,7 +87,11 @@ data class NetworkTMDBTv(
     @SerialName("vote_average")
     val voteAverage: Float? = null,
     @SerialName("vote_count")
-    val voteCount: Int? = null
+    val voteCount: Int? = null,
+    @SerialName("similar")
+    val similar: NetworkTMDBSimilarMedia? = null,
+    @SerialName("reviews")
+    val reviews: NetworkTMDBMovieReviews? = null
 )
 
 @Serializable
@@ -248,7 +252,9 @@ fun NetworkTMDBTv.asExternalModel(): Tv = Tv(
     videos = videos?.asExternalModel(),
     voteAverage = voteAverage,
     voteCount = voteCount,
-    releaseDate = firstAirDate
+    releaseDate = firstAirDate,
+    similar = similar?.asExternalModel(),
+    reviews = reviews?.asExternalModel()
 )
 
 fun NetworkTMDBTvAlternativeTitles.asExternalModel(): TvAlternativeTitles = TvAlternativeTitles(

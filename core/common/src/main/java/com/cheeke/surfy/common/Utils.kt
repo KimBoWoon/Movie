@@ -36,7 +36,7 @@ fun getVersionName(context: Context): String = runCatching {
         context.packageManager.getPackageInfo(context.packageName, PackageManager.PackageInfoFlags.of(0))
     } else {
         context.packageManager.getPackageInfo(context.packageName, 0)
-    }.versionName ?: ""
+    }.versionName.orEmpty()
 }.getOrElse { e ->
     Log.printStackTrace(tr = e)
     ""
