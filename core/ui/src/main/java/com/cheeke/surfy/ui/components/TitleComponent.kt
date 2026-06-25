@@ -12,9 +12,13 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import com.cheeke.surfy.ui.utils.dp10
 import com.cheeke.surfy.ui.utils.dp24
 import com.cheeke.surfy.ui.utils.dp40
@@ -22,7 +26,9 @@ import com.cheeke.surfy.ui.utils.dp5
 
 @Composable
 fun TitleComponent(
+    title: String = "",
     isFavorite: Boolean,
+    animatedAlpha: Float = -1f,
     goToBack: (() -> Unit)? = null,
     onFavorite: (() -> Unit)? = null
 ) {
@@ -50,7 +56,25 @@ fun TitleComponent(
             }
         }
 
-        Spacer(modifier = Modifier.weight(weight = 1f))
+        if (title.isNotEmpty()) {
+            Text(
+                text = title,
+                modifier = Modifier
+                    .weight(weight = 1f)
+                    .then(
+                        other = if (animatedAlpha != -1f) {
+                            Modifier.alpha(alpha = animatedAlpha)
+                        } else {
+                            Modifier
+                        }
+                    ),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center
+            )
+        } else {
+            Spacer(modifier = Modifier.weight(weight = 1f))
+        }
 
         onFavorite?.let {
             Surface(

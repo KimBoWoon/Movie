@@ -40,24 +40,25 @@ class PeopleVM @AssistedInject constructor(
     }
 
     private val reload = MutableSharedFlow<Unit>(replay = 1)
+
     @OptIn(ExperimentalCoroutinesApi::class)
     val people = reload
         .flatMapLatest {
-        trace(sectionName = "GetPeopleDetail") { getPeopleDetail(personId = id) }.asResult()
-    }.map { result ->
-        when (result) {
-            is Result.Loading -> PeopleState.Loading
-            is Result.Success -> {
-                analyticsHelper.logSelectContent(contentType = "people", media = result.data)
-                PeopleState.Success(data = result.data)
+            trace(sectionName = "GetPeopleDetail") { getPeopleDetail(personId = id) }.asResult()
+        }.map { result ->
+            when (result) {
+                is Result.Loading -> PeopleState.Loading
+                is Result.Success -> {
+                    analyticsHelper.logSelectContent(contentType = "people", media = result.data)
+                    PeopleState.Success(data = result.data)
+                }
+                is Result.Error -> PeopleState.Error(result.throwable as SurfyNetworkException)
             }
-            is Result.Error -> PeopleState.Error(result.throwable as SurfyNetworkException)
-        }
-    }.stateIn(
-        scope = viewModelScope,
-        initialValue = PeopleState.Loading,
-        started = SharingStarted.Lazily
-    )
+        }.stateIn(
+            scope = viewModelScope,
+            initialValue = PeopleState.Loading,
+            started = SharingStarted.Lazily
+        )
 
     init {
         viewModelScope.launch {

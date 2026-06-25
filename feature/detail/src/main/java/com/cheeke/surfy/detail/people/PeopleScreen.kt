@@ -1,5 +1,6 @@
 package com.cheeke.surfy.detail.people
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -25,7 +27,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -154,9 +158,8 @@ fun PeopleDetailComponent(
     onShowSnackbar: suspend (String, String?) -> Boolean
 ) {
     val scope = rememberCoroutineScope()
-
     val relatedMovie = people.combineCredits?.getRelatedMovie()?.sortedWith(
-        compareByDescending<Media> {
+        comparator = compareByDescending<Media> {
             if (it.releaseDate.isNullOrEmpty()) {
                 LocalDate.MAX
             } else {
@@ -167,19 +170,89 @@ fun PeopleDetailComponent(
     val snackbarMessage = if (people.isFavorite) stringResource(id = R.string.remove_favorite_people) else stringResource(id = R.string.add_favorite_people)
     val lazyGridScrollState = rememberLazyGridState()
     val analyticsHelper = LocalAnalyticsHelper.current
+    val alpha by remember {
+        derivedStateOf {
+            val item = lazyGridScrollState.layoutInfo.visibleItemsInfo.firstOrNull { it.index == 0 }
 
-    LazyVerticalGrid(
-        modifier = Modifier.fillMaxSize(),
-        columns = GridCells.Fixed(count = 3),
-        state = lazyGridScrollState,
-        contentPadding = PaddingValues(start = dp10, end = dp10, bottom = dp20),
-        horizontalArrangement = Arrangement.spacedBy(space = dp10),
-        verticalArrangement = Arrangement.spacedBy(space = dp10)
-    ) {
-        item(span = { GridItemSpan(currentLineSpan = maxLineSpan) }) {
-            ProfileComponent(
-                people = people,
-                images = people.images.orEmpty(),
+            if (item == null) {
+                1f
+            } else {
+                (-item.offset.y.toFloat() / (item.size.height.toFloat() * 0.5f)).coerceIn(minimumValue = 0f, maximumValue = 1f)
+            }
+        }
+    }
+    val animatedAlpha by animateFloatAsState(
+        targetValue = alpha,
+        label = "TopBarAlpha"
+    )
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        LazyVerticalGrid(
+            modifier = Modifier.fillMaxSize(),
+            columns = GridCells.Fixed(count = 3),
+            state = lazyGridScrollState,
+            contentPadding = PaddingValues(start = dp10, end = dp10, bottom = dp20),
+            horizontalArrangement = Arrangement.spacedBy(space = dp10),
+            verticalArrangement = Arrangement.spacedBy(space = dp10)
+        ) {
+            item(span = { GridItemSpan(currentLineSpan = maxLineSpan) }) {
+                ProfileComponent(
+                    people = people,
+                    images = people.images.orEmpty(),
+                )
+            }
+
+            item(span = { GridItemSpan(currentLineSpan = maxLineSpan) }) {
+                ExternalIdLinkComponent(people = people)
+            }
+
+            if (!people.biography.isNullOrBlank()) {
+                item(span = { GridItemSpan(currentLineSpan = maxLineSpan) }) {
+                    Text(
+                        modifier = Modifier.semantics { contentDescription = "peopleBiography" },
+                        text = people.biography.orEmpty()
+                    )
+                }
+            }
+
+            items(
+                items = relatedMovie,
+                key = { media -> "${media.mediaType}_${media.id}" },
+                contentType = { "people_credit_poster" }
+            ) { media ->
+                DynamicAsyncImageLoader(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(ratio = POSTER_IMAGE_RATIO)
+                        .roundedCornerClickable(
+                            onClick = {
+                                when (media.mediaType) {
+                                    MediaType.MOVIE -> goToMovie(media.id ?: -1)
+                                    MediaType.TV -> goToTv(media.id ?: -1)
+                                    else -> {
+                                        scope.launch { onShowSnackbar("MediaType not found...", null) }
+                                        return@roundedCornerClickable
+                                    }
+                                }
+                            },
+                            cornerRadius = dp10
+                        ),
+                    source = media.posterPath.orEmpty(),
+                    contentDescription = "RelatedMovie"
+                )
+            }
+        }
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .statusBarsPadding()
+                .background(color = MaterialTheme.colorScheme.surface.copy(alpha = animatedAlpha))
+        ) {
+            TitleComponent(
+                title = people.title.orEmpty(),
+                animatedAlpha = animatedAlpha,
+                isFavorite = people.isFavorite,
                 goToBack = goToBack,
                 onFavorite = {
                     if (people.isFavorite) {
@@ -193,55 +266,13 @@ fun PeopleDetailComponent(
                 }
             )
         }
-
-        item(span = { GridItemSpan(currentLineSpan = maxLineSpan) }) {
-            ExternalIdLinkComponent(people = people)
-        }
-
-        if (!people.biography.isNullOrBlank()) {
-            item(span = { GridItemSpan(currentLineSpan = maxLineSpan) }) {
-                Text(
-                    modifier = Modifier.semantics { contentDescription = "peopleBiography" },
-                    text = people.biography.orEmpty()
-                )
-            }
-        }
-
-        items(
-            items = relatedMovie,
-            key = { media -> "${media.mediaType}_${media.id}" },
-            contentType = { "people_credit_poster" }
-        ) { media ->
-            DynamicAsyncImageLoader(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(ratio = POSTER_IMAGE_RATIO)
-                    .roundedCornerClickable(
-                        onClick = {
-                            when (media.mediaType) {
-                                MediaType.MOVIE -> goToMovie(media.id ?: -1)
-                                MediaType.TV -> goToTv(media.id ?: -1)
-                                else -> {
-                                    scope.launch { onShowSnackbar("MediaType not found...", null) }
-                                    return@roundedCornerClickable
-                                }
-                            }
-                        },
-                        cornerRadius = dp10
-                    ),
-                source = media.posterPath.orEmpty(),
-                contentDescription = "RelatedMovie"
-            )
-        }
     }
 }
 
 @Composable
 fun ProfileComponent(
     people: People,
-    images: List<Image>,
-    goToBack: () -> Unit,
-    onFavorite: () -> Unit
+    images: List<Image>
 ) {
     val pagerState = rememberPagerState(pageCount = { images.size.coerceAtLeast(minimumValue = 1) })
 
@@ -284,12 +315,6 @@ fun ProfileComponent(
                 .fillMaxWidth()
                 .height(height = dp200))
         }
-
-        TitleComponent(
-            isFavorite = people.isFavorite,
-            goToBack = goToBack,
-            onFavorite = onFavorite
-        )
 
         Column(
             modifier = Modifier.align(Alignment.BottomCenter),
