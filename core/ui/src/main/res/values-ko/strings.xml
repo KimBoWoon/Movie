@@ -15,4 +15,7 @@
     <string name="movie_image">이미지</string>
     <string name="see_all">더보기</string>
     <string name="overview_show_more">더보기</string>
+    <string name="backdrops">스틸컷</string>
+    <string name="posters">포스터</string>
+    <string name="production">제공</string>
 </resources>

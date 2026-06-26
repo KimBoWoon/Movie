@@ -225,7 +225,9 @@ fun MovieDetailComponent(
     val analyticsHelper = LocalAnalyticsHelper.current
 
     Column(
-        modifier = Modifier.fillMaxSize().verticalScroll(state = scrollState)
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(state = scrollState)
     ) {
         TitleComponent(
             isFavorite = movie.isFavorite,
@@ -283,6 +285,7 @@ fun MovieDetailComponent(
         movie.series?.let { series ->
             Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
             SeriesComponent(
+                movieId = movie.id,
                 collection = series,
                 goToMovie = goToMovie,
                 goToSeries = goToSeries
@@ -351,6 +354,7 @@ fun AlternativeTitleComponent(alternativeTitles: List<AlternativeTitle>) {
 
 @Composable
 fun SeriesComponent(
+    movieId: Int?,
     collection: Series?,
     goToMovie: (Int) -> Unit,
     goToSeries: (Int) -> Unit
@@ -412,7 +416,7 @@ fun SeriesComponent(
 
         if (!collection?.parts.isNullOrEmpty()) {
             Spacer(modifier = Modifier.height(height = dp14))
-            SubSectionTitleComponent(text = "Parts")
+            SubSectionTitleComponent(text = stringResource(id = R.string.collection_parts))
             Spacer(modifier = Modifier.height(height = dp10))
 
             LazyRow(
@@ -424,7 +428,11 @@ fun SeriesComponent(
                     Column(
                         modifier = Modifier
                             .width(width = dp120)
-                            .clickable { goToMovie(m.id ?: -1) }
+                            .clickable {
+                                if (movieId != null && m.id != movieId) {
+                                    goToMovie(m.id ?: -1)
+                                }
+                            }
                     ) {
                         DynamicAsyncImageLoader(
                             source = m.posterPath.orEmpty(),

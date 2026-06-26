@@ -15,4 +15,7 @@
     <string name="movie_image">Images</string>
     <string name="see_all">See all</string>
     <string name="overview_show_more">Show more</string>
+    <string name="backdrops">Backdrops</string>
+    <string name="posters">Posters</string>
+    <string name="production">Production</string>
 </resources>

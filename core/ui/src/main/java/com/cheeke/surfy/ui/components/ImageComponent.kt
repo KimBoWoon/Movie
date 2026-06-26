@@ -77,11 +77,11 @@ fun ImagesComponent(
             .fillMaxWidth()
             .height(height = if (backdrops.isNotEmpty() && posters.isNotEmpty()) dp433 else if (backdrops.isNotEmpty()) dp209 else if (posters.isNotEmpty()) dp246 else dp0)
     ) {
-        SectionHeader(title = stringResource(id = R.string.movie_image)/*, actionText = "See all", onActionClick = onSeeAll*/)
+        SectionHeader(title = stringResource(id = R.string.movie_image))
 
         if (backdrops.isNotEmpty()) {
             Spacer(modifier = Modifier.height(height = dp12))
-            SubSectionTitleComponent(text = "Backdrops")
+            SubSectionTitleComponent(text = stringResource(id = R.string.backdrops))
             Spacer(modifier = Modifier.height(height = dp10))
             ImageRow(
                 type = ImageType.BACKDROP,
@@ -94,7 +94,7 @@ fun ImagesComponent(
 
         if (posters.isNotEmpty()) {
             Spacer(modifier = Modifier.height(height = dp16))
-            SubSectionTitleComponent(text = "Posters")
+            SubSectionTitleComponent(text = stringResource(id = R.string.posters))
             Spacer(modifier = Modifier.height(height = dp10))
             ImageRow(
                 type = ImageType.POSTER,
@@ -150,7 +150,8 @@ private fun ImageRow(
                             .sharedElement(
                                 sharedContentState = rememberSharedContentState(key = key),
                                 animatedVisibilityScope = this@AnimatedVisibility
-                            ).roundedCornerClickable(
+                            )
+                            .roundedCornerClickable(
                                 onClick = {
                                     savedIndex = scrollState.firstVisibleItemIndex
                                     savedOffset = scrollState.firstVisibleItemScrollOffset
@@ -224,7 +225,8 @@ fun SharedTransitionScope.ImageOverlay(
                         .sharedElement(
                             sharedContentState = rememberSharedContentState(key = key),
                             animatedVisibilityScope = this@AnimatedContent
-                        ).clip(shape = RoundedCornerShape(size = dp10)),
+                        )
+                        .clip(shape = RoundedCornerShape(size = dp10)),
                     contentScale = ContentScale.Fit
                 )
             }
