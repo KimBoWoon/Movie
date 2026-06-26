@@ -1,8 +1,12 @@
 package com.cheeke.surfy.favorite
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
+import com.cheeke.surfy.data.repository.FavoriteKeys
+import com.cheeke.surfy.data.repository.FavoriteRepository
+import com.cheeke.surfy.feature.favorite.R
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -14,8 +18,8 @@ import kotlinx.coroutines.flow.flatMapLatest
 
 @HiltViewModel(assistedFactory = FavoriteVM.Factory::class)
 class FavoriteVM @AssistedInject constructor(
-    @Assisted initialTabKey: String,
-    val favoriteTabs: Map<String, @JvmSuppressWildcards FavoriteTab>
+    @Assisted initialTabKey: FavoriteKeys,
+    val repositories: Map<FavoriteKeys, @JvmSuppressWildcards FavoriteRepository>
 ) : ViewModel() {
     companion object {
         internal const val TAG = "FavoriteVM"
@@ -23,27 +27,35 @@ class FavoriteVM @AssistedInject constructor(
 
     @AssistedFactory
     interface Factory {
-        fun create(tab: String): FavoriteVM
+        fun create(tab: FavoriteKeys): FavoriteVM
     }
 
     private val _currentTab = MutableStateFlow(value = initialTabKey)
     val currentTab = _currentTab.asStateFlow()
     val tabList = listOf(
-        favoriteTabs.getValue(key = FavoriteKeys.MOVIE),
-        favoriteTabs.getValue(key = FavoriteKeys.TV),
-        favoriteTabs.getValue(key = FavoriteKeys.PEOPLE)
+        FavoriteTabUiModel(
+            type = FavoriteKeys.MOVIE,
+            titleRes = R.string.movie
+        ),
+        FavoriteTabUiModel(
+            type = FavoriteKeys.TV,
+            titleRes = R.string.tv
+        ),
+        FavoriteTabUiModel(
+            type = FavoriteKeys.PEOPLE,
+            titleRes = R.string.people
+        )
     )
     @OptIn(ExperimentalCoroutinesApi::class)
     val currentPagingItems = currentTab
-        .flatMapLatest { key -> favoriteTabs.getValue(key = key).pagingSource }.cachedIn(scope = viewModelScope)
+        .flatMapLatest { key -> repositories.getValue(key = key).pagingSource }.cachedIn(scope = viewModelScope)
 
-    fun updateTabKey(key: String) {
+    fun updateTabKey(key: FavoriteKeys) {
         _currentTab.value = key
     }
 }
 
-object FavoriteKeys {
-    const val MOVIE = "movie"
-    const val TV = "tv"
-    const val PEOPLE = "people"
-}
+data class FavoriteTabUiModel(
+    val type: FavoriteKeys,
+    @param:StringRes val titleRes: Int
+)

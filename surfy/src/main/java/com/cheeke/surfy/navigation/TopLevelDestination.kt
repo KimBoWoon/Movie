@@ -8,6 +8,7 @@ import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation3.runtime.NavKey
+import com.cheeke.surfy.data.repository.FavoriteKeys
 import com.cheeke.surfy.favorite.navigation.FavoriteNavKey
 import com.cheeke.surfy.feature.home.R
 import com.cheeke.surfy.home.navigation.HomeNavKey
@@ -38,5 +39,5 @@ val FAVORITE = TopLevelDestination(
 
 val TOP_LEVEL_NAV_ITEMS = mapOf(
     HomeNavKey to HOME,
-    FavoriteNavKey(tab = "movie") to FAVORITE
+    FavoriteNavKey(tab = FavoriteKeys.MOVIE) to FAVORITE
 )

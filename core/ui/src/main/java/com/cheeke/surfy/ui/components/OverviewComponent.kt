@@ -17,7 +17,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import com.cheeke.surfy.core.ui.R
 import com.cheeke.surfy.ui.utils.dp16
 import com.cheeke.surfy.ui.utils.dp30
 
@@ -26,7 +28,9 @@ fun OverviewComponent(overview: String) {
     var expanded by remember { mutableStateOf(value = false) }
     var showMore by remember { mutableStateOf(value = false) }
 
-    Box(modifier = Modifier.fillMaxWidth().padding(horizontal = dp16)) {
+    Box(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = dp16)
+    ) {
         Text(
             text = overview,
             maxLines = if (expanded) Int.MAX_VALUE else 4,
@@ -58,7 +62,7 @@ fun OverviewComponent(overview: String) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "더보기",
+                    text = stringResource(id = R.string.overview_show_more),
                     color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.clickable { expanded = true }

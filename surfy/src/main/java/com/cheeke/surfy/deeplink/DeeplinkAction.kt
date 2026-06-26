@@ -2,11 +2,11 @@ package com.cheeke.surfy.deeplink
 
 import android.net.Uri
 import androidx.navigation3.runtime.NavKey
+import com.cheeke.surfy.data.repository.FavoriteKeys
 import com.cheeke.surfy.detail.movie.navigation.MovieNavKey
 import com.cheeke.surfy.detail.people.navigation.PeopleNavKey
 import com.cheeke.surfy.detail.series.navigation.SeriesNavKey
 import com.cheeke.surfy.detail.tv.navigation.TvNavKey
-import com.cheeke.surfy.favorite.FavoriteKeys
 import com.cheeke.surfy.favorite.navigation.FavoriteNavKey
 import com.cheeke.surfy.home.navigation.HomeNavKey
 import com.cheeke.surfy.search.navigation.SearchNavKey
@@ -42,7 +42,9 @@ object GoToHomeParser : DeeplinkParser {
 object GoToFavoriteParser : DeeplinkParser {
     override val path = "go_to_favorite"
     override fun parse(uri: Uri): List<NavKey> {
-        val key = uri.getQueryParameter("key") ?: "movie"
+        val key = (uri.getQueryParameter("key") ?: "movie").let {
+            FavoriteKeys.valueOf(it.uppercase())
+        }
         return listOf(FavoriteNavKey(tab = key))
     }
 }

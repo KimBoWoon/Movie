@@ -130,9 +130,7 @@ fun RootScreen(
                 showSettingDialog = showSettingDialog
             )
         },
-        bottomBar = {
-            MovieBottomBar(backstack = backstack)
-        }
+        bottomBar = { MovieBottomBar(backstack = backstack) }
     ) { paddingValues ->
         val isOffline by viewModel.isOffline.collectAsStateWithLifecycle()
         val notConnectedMessage = stringResource(id = R.string.not_connected)
@@ -291,14 +289,14 @@ fun MovieBottomBar(
     ) {
         TOP_LEVEL_NAV_ITEMS.forEach { (navKey, navItem) ->
             BottomNavigationBarItem(
-                selected = navKey == backstack.last(),
+                selected = navKey.javaClass.simpleName == backstack.last().javaClass.simpleName,
                 label = stringResource(id = navItem.titleTextId),
                 selectedIcon = navItem.selectedIcon,
                 unSelectedIcon = navItem.unselectedIcon,
                 onClick = {
                     when (navKey) {
                         backstack.last() -> {
-                            when(navKey::class.java.simpleName) {
+                            when (navKey::class.java.simpleName) {
                                 HomeNavKey::class.java.simpleName -> scrollToTop(event = ScrollTopEvent.Home)
                                 FavoriteNavKey::class.java.simpleName -> scrollToTop(event = ScrollTopEvent.Favorite)
                             }

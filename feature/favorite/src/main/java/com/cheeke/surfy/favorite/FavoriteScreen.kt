@@ -43,6 +43,11 @@ import com.cheeke.surfy.analytics.TrackScreenViewEvent
 import com.cheeke.surfy.analytics.logFavorite
 import com.cheeke.surfy.common.ScrollToTop
 import com.cheeke.surfy.common.ScrollTopEvent
+import com.cheeke.surfy.data.repository.FavoriteKeys
+import com.cheeke.surfy.data.repository.FavoriteMovieRepository
+import com.cheeke.surfy.data.repository.FavoritePeopleRepository
+import com.cheeke.surfy.data.repository.FavoriteRepository
+import com.cheeke.surfy.data.repository.FavoriteTvRepository
 import com.cheeke.surfy.data.util.PEOPLE_IMAGE_RATIO
 import com.cheeke.surfy.data.util.POSTER_IMAGE_RATIO
 import com.cheeke.surfy.feature.favorite.R
@@ -77,15 +82,15 @@ fun FavoriteScreen(
 
     FavoriteScreen(
         tabList = viewModel.tabList,
-        selectedTab = viewModel.favoriteTabs.getValue(key = selectedTab),
+        selectedTab = viewModel.repositories.getValue(key = selectedTab),
         favoritePagingItems = viewModel.currentPagingItems.collectAsLazyPagingItems(),
         onShowSnackbar = onShowSnackbar,
         updateTabKey = viewModel::updateTabKey,
         goTo = { favoriteTab, media ->
             when (favoriteTab) {
-                is MovieTab -> goToMovie(media.id ?: -1)
-                is PeopleTab -> goToPeople(media.id ?: -1)
-                is TvTab -> goToTv(media.id ?: -1)
+                is FavoriteMovieRepository -> goToMovie(media.id ?: -1)
+                is FavoritePeopleRepository -> goToPeople(media.id ?: -1)
+                is FavoriteTvRepository -> goToTv(media.id ?: -1)
             }
         }
     )
@@ -93,24 +98,23 @@ fun FavoriteScreen(
 
 @Composable
 fun FavoriteScreen(
-    tabList: List<FavoriteTab>,
-    selectedTab: FavoriteTab,
+    tabList: List<FavoriteTabUiModel>,
+    selectedTab: FavoriteRepository,
     favoritePagingItems: LazyPagingItems<out Media>,
     onShowSnackbar: suspend (String, String?) -> Boolean,
-    updateTabKey: (String) -> Unit,
-    goTo: (FavoriteTab, Media) -> Unit
+    updateTabKey: (FavoriteKeys) -> Unit,
+    goTo: (FavoriteRepository, Media) -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val removeFavoriteText = stringResource(id = R.string.remove_favorite)
     val analyticsHelper = LocalAnalyticsHelper.current
-    val label = stringResource(id = selectedTab.stringId)
+    val label = stringResource(id = tabList.first { it.type == selectedTab.key }.titleRes)
 
     Column(modifier = Modifier.fillMaxSize()) {
         SegmentedTabs(
             tabList = tabList,
-            modifier = Modifier.fillMaxWidth().padding(start = dp16, end = dp16, bottom = dp10),
             selected = selectedTab,
-            onSelected = { favoriteTabs -> updateTabKey(favoriteTabs.key) }
+            onSelected = { selected -> updateTabKey(selected.type) }
         )
 
         if (favoritePagingItems.itemCount == 0) {
@@ -121,9 +125,9 @@ fun FavoriteScreen(
                 Text(
                     modifier = Modifier.semantics { contentDescription = "favoriteEmpty" },
                     text = when (selectedTab) {
-                        is MovieTab -> stringResource(id = R.string.empty_favorite_movie)
-                        is PeopleTab -> stringResource(id = R.string.empty_favorite_people)
-                        is TvTab -> stringResource(id = R.string.empty_favorite_tv)
+                        is FavoriteMovieRepository -> stringResource(id = R.string.empty_favorite_movie)
+                        is FavoritePeopleRepository -> stringResource(id = R.string.empty_favorite_people)
+                        is FavoriteTvRepository -> stringResource(id = R.string.empty_favorite_tv)
                     },
                     style = MaterialTheme.typography.titleLarge
                 )
@@ -271,21 +275,21 @@ fun <T : Media> FavoriteListComponent(
 
 @Composable
 fun SegmentedTabs(
-    tabList: List<FavoriteTab>,
-    selected: FavoriteTab,
-    onSelected: (FavoriteTab) -> Unit,
-    modifier: Modifier = Modifier
+    tabList: List<FavoriteTabUiModel>,
+    selected: FavoriteRepository,
+    onSelected: (FavoriteTabUiModel) -> Unit,
 ) {
     Row(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
+            .padding(start = dp16, end = dp16, bottom = dp10)
             .clip(shape = RoundedCornerShape(size = dp999))
             .background(color = MaterialTheme.colorScheme.surfaceVariant)
             .padding(all = dp4),
         horizontalArrangement = Arrangement.spacedBy(space = dp6)
     ) {
         tabList.forEach { tab ->
-            val isSelected = tab == selected
+            val isSelected = tab.type == selected.key
 
             Box(
                 modifier = Modifier
@@ -299,7 +303,7 @@ fun SegmentedTabs(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = stringResource(id = tab.stringId),
+                    text = stringResource(id = tab.titleRes),
                     style = MaterialTheme.typography.labelLarge,
                     color = if (isSelected) MaterialTheme.colorScheme.primary else Color.Gray,
                     fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium

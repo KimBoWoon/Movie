@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -243,29 +242,22 @@ fun PeopleDetailComponent(
             }
         }
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .statusBarsPadding()
-                .background(color = MaterialTheme.colorScheme.surface.copy(alpha = animatedAlpha))
-        ) {
-            TitleComponent(
-                title = people.title.orEmpty(),
-                animatedAlpha = animatedAlpha,
-                isFavorite = people.isFavorite,
-                goToBack = goToBack,
-                onFavorite = {
-                    if (people.isFavorite) {
-                        deleteFavoritePeople(people)
-                        analyticsHelper.logFavorite(isFavorite = false, contentType = "people", media = people)
-                    } else {
-                        insertFavoritePeople(people)
-                        analyticsHelper.logFavorite(isFavorite = true, contentType = "people", media = people)
-                    }
-                    scope.launch { onShowSnackbar(snackbarMessage, null) }
+        TitleComponent(
+            title = people.title.orEmpty(),
+            animatedAlpha = animatedAlpha,
+            isFavorite = people.isFavorite,
+            goToBack = goToBack,
+            onFavorite = {
+                if (people.isFavorite) {
+                    deleteFavoritePeople(people)
+                    analyticsHelper.logFavorite(isFavorite = false, contentType = "people", media = people)
+                } else {
+                    insertFavoritePeople(people)
+                    analyticsHelper.logFavorite(isFavorite = true, contentType = "people", media = people)
                 }
-            )
-        }
+                scope.launch { onShowSnackbar(snackbarMessage, null) }
+            }
+        )
     }
 }
 

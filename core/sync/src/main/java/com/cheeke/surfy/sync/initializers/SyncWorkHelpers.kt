@@ -8,6 +8,7 @@ import androidx.core.app.NotificationCompat
 import androidx.work.Constraints
 import androidx.work.ForegroundInfo
 import androidx.work.NetworkType
+import com.cheeke.surfy.core.sync.R
 
 const val SYNC_TOPIC = "sync"
 const val UNIQUE_SYNC_WORKER = "UNIQUE_SYNC_WORKER"
@@ -30,7 +31,7 @@ private fun Context.syncWorkNotification(): Notification {
         "sync",
         NotificationManager.IMPORTANCE_DEFAULT,
     ).apply {
-        description = "surfy data loading..."
+        description = getString(R.string.syncing)
     }
 
     val notificationManager: NotificationManager? =
@@ -43,7 +44,7 @@ private fun Context.syncWorkNotification(): Notification {
         SYNC_NOTIFICATION_CHANNEL_ID,
     )
         .setSmallIcon(com.cheeke.surfy.core.notifications.R.drawable.ic_launcher_round)
-        .setContentTitle("MovieInfo")
+        .setContentTitle("Surfy")
         .setPriority(NotificationCompat.PRIORITY_DEFAULT)
         .build()
 }

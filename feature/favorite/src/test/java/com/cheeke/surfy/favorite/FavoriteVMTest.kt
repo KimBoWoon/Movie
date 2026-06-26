@@ -40,7 +40,7 @@ class FavoriteVMTest {
     fun setup() {
         viewModel = FavoriteVM(
             initialTabKey = "movie",
-            favoriteTabs = mapOf("movie" to movieTab, "tv" to tvTab, "people" to peopleTab)
+            repositories = mapOf("movie" to movieTab, "tv" to tvTab, "people" to peopleTab)
         )
     }
 

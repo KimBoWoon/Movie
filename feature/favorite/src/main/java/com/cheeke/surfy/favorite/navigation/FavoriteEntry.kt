@@ -4,6 +4,7 @@ import androidx.annotation.Keep
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
+import com.cheeke.surfy.data.repository.FavoriteKeys
 import com.cheeke.surfy.favorite.FavoriteScreen
 import com.cheeke.surfy.favorite.FavoriteVM
 import kotlinx.serialization.Serializable
@@ -11,7 +12,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 @Keep
 data class FavoriteNavKey(
-    val tab: String = "movie"
+    val tab: FavoriteKeys = FavoriteKeys.MOVIE
 ) : NavKey
 
 fun EntryProviderScope<NavKey>.favoriteEntry(
