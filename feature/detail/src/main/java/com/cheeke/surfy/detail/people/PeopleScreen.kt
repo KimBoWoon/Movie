@@ -42,11 +42,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cheeke.surfy.analytics.LocalAnalyticsHelper
 import com.cheeke.surfy.analytics.TrackScreenViewEvent
 import com.cheeke.surfy.analytics.logFavorite
 import com.cheeke.surfy.common.Log
+import com.cheeke.surfy.common.subscribeAsState
 import com.cheeke.surfy.data.util.POSTER_IMAGE_RATIO
 import com.cheeke.surfy.feature.detail.R
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
@@ -80,7 +80,7 @@ fun PeopleScreen(
     LocalFirebaseLogHelper.current.sendLog("PeopleScreen", "people screen start!")
     TrackScreenViewEvent(screenName = "PeopleScreen")
 
-    val peopleState by viewModel.people.collectAsStateWithLifecycle()
+    val peopleState by viewModel.people.subscribeAsState(initial = PeopleState.Loading)
 
     PeopleScreen(
         peopleState = peopleState,

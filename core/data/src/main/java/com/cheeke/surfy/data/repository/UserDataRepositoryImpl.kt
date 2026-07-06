@@ -4,93 +4,93 @@ import com.cheeke.surfy.data.util.SyncManager
 import com.cheeke.surfy.datastore.InternalDataSource
 import com.cheeke.surfy.model.DarkThemeConfig
 import com.cheeke.surfy.model.InternalData
-import kotlinx.coroutines.flow.Flow
+import io.reactivex.rxjava3.core.Flowable
 import javax.inject.Inject
 
 class UserDataRepositoryImpl @Inject constructor(
     private val datastore: InternalDataSource,
     private val syncManager: SyncManager
 ) : UserDataRepository {
-    override val internalData: Flow<InternalData> = datastore.userData
+    override val internalData: Flowable<InternalData> = datastore.userData
 
-    override suspend fun updateIsAdult(value: Boolean) {
+    override fun updateIsAdult(value: Boolean) {
         datastore.updateIsAdult(value = value)
     }
 
-    override suspend fun updateIsAutoPlayTrailer(value: Boolean) {
+    override fun updateIsAutoPlayTrailer(value: Boolean) {
         datastore.updateIsAutoPlayTrailer(value = value)
     }
 
-    override suspend fun updateDarkMode(darkThemeConfig: DarkThemeConfig) {
+    override fun updateDarkMode(darkThemeConfig: DarkThemeConfig) {
         datastore.updateDarkMode(darkThemeConfig = darkThemeConfig)
     }
 
-    override suspend fun updateMainDate(value: String) {
+    override fun updateMainDate(value: String) {
         datastore.updateMainDate(value = value)
     }
 
-    override suspend fun updateRegion(value: String) {
+    override fun updateRegion(value: String) {
         datastore.updateRegion(value = value)
         syncManager.requestSync()
     }
 
-    override suspend fun updateLanguage(value: String) {
+    override fun updateLanguage(value: String) {
         datastore.updateLanguage(value = value)
         syncManager.requestSync()
     }
 
-    override suspend fun updateImageQuality(value: String) {
+    override fun updateImageQuality(value: String) {
         datastore.updateImageQuality(value = value)
     }
 
-    override suspend fun updateShowNextReleaseMoviesDate(value: String) {
+    override fun updateShowNextReleaseMoviesDate(value: String) {
         datastore.updateShowNextReleaseMoviesDate(value = value)
     }
 
-    override suspend fun updateSecureBaseUrl(value: String) {
+    override fun updateSecureBaseUrl(value: String) {
         datastore.updateSecureBaseUrl(value = value)
     }
 
-    override suspend fun updateFirstInstall(value: Boolean) {
+    override fun updateFirstInstall(value: Boolean) {
         datastore.updateFirstInstall(value = value)
     }
 
-    override suspend fun updateIsCheatActive(value: Boolean) {
+    override fun updateIsCheatActive(value: Boolean) {
         datastore.updateIsCheatActive(value = value)
     }
 
-    override suspend fun getSecureBaseUrl(): String =
+    override fun getSecureBaseUrl(): Flowable<String> =
         datastore.getSecureBaseUrl()
 
-    override suspend fun updateFCMToken(token: String) {
+    override fun updateFCMToken(token: String) {
         datastore.updateFCMToken(token)
     }
 
-    override suspend fun updateWorkScheduleTime(value: Long) {
+    override fun updateWorkScheduleTime(value: Long) {
         datastore.updateWorkScheduleTime(value = value)
     }
 
-    override suspend fun getIsAdult(): Boolean = datastore.getIsAdult()
+    override fun getIsAdult(): Flowable<Boolean> = datastore.getIsAdult()
 
-    override suspend fun getAutoPlayTrailer(): Boolean = datastore.getAutoPlayTrailer()
+    override fun getAutoPlayTrailer(): Flowable<Boolean> = datastore.getAutoPlayTrailer()
 
-    override suspend fun getDarkMode(): DarkThemeConfig = datastore.getDarkMode()
+    override fun getDarkMode(): Flowable<DarkThemeConfig> = datastore.getDarkMode()
 
-    override suspend fun getMainDate(): String = datastore.getMainDate()
+    override fun getMainDate(): Flowable<String> = datastore.getMainDate()
 
-    override suspend fun getRegion(): String = datastore.getRegion()
+    override fun getRegion(): Flowable<String> = datastore.getRegion()
 
-    override suspend fun getLanguage(): String = datastore.getLanguage()
+    override fun getLanguage(): Flowable<String> = datastore.getLanguage()
 
-    override suspend fun getImageQuality(): String = datastore.getImageQuality()
+    override fun getImageQuality(): Flowable<String> = datastore.getImageQuality()
 
-    override suspend fun getShowNextReleaseMoviesDate(): String = datastore.getShowNextReleaseMoviesDate()
+    override fun getShowNextReleaseMoviesDate(): Flowable<String> = datastore.getShowNextReleaseMoviesDate()
 
-    override suspend fun getFCMToken(): String = datastore.getFCMToken()
+    override fun getFCMToken(): Flowable<String> = datastore.getFCMToken()
 
-    override suspend fun getFirstInstall(): Boolean = datastore.getFirstInstall()
+    override fun getFirstInstall(): Flowable<Boolean> = datastore.getFirstInstall()
 
-    override suspend fun getWorkScheduleTime(): Long = datastore.getWorkScheduleTime()
+    override fun getWorkScheduleTime(): Flowable<Long> = datastore.getWorkScheduleTime()
 
-    override suspend fun getIsCheatActive(): Boolean = datastore.getIsCheatActive()
+    override fun getIsCheatActive(): Flowable<Boolean> = datastore.getIsCheatActive()
 }

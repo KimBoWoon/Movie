@@ -14,7 +14,6 @@ import com.google.firebase.Firebase
 import com.google.firebase.crashlytics.crashlytics
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -59,16 +58,19 @@ class SurfyFirebase @Inject constructor(
             // Get new FCM registration token
             val token = task.result
 
-            scope.launch {
-                val savedToken = userDataRepository.getFCMToken()
-                Log.d(TAG, "new token > $token")
-                Log.d(TAG, "saved token > $savedToken")
+            val savedToken = userDataRepository.getFCMToken()
+            Log.d(TAG, "new token > $token")
+            Log.d(TAG, "saved token > $savedToken")
 
-                if (savedToken != token) {
-                    userDataRepository.updateFCMToken(token)
-                    // TODO 서버 저장 필요!
-                }
-            }
+            savedToken.subscribe(
+                {
+                    if (it != token) {
+                        userDataRepository.updateFCMToken(token)
+                        // TODO 서버 저장 필요!
+                    }
+                },
+                { Log.d("error", it.message ?: "") }
+            )
         })
     }
 }

@@ -24,5 +24,11 @@ dependencies {
         implementation(it)
     }
 
+    implementation(libs.rxkotlin)
+    implementation(libs.rxandroid)
+    implementation("androidx.paging:paging-runtime:3.3.6")
+    implementation("androidx.paging:paging-rxjava3:3.3.6")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-rx3:1.11.0")
+
     testImplementation(libs.androidx.paging.testing)
 }

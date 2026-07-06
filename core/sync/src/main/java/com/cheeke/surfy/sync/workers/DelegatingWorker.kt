@@ -2,14 +2,15 @@ package com.cheeke.surfy.sync.workers
 
 import android.content.Context
 import androidx.hilt.work.HiltWorkerFactory
-import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
+import androidx.work.rxjava3.RxWorker
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
+import io.reactivex.rxjava3.core.Single
 import kotlin.reflect.KClass
 
 @EntryPoint
@@ -21,7 +22,7 @@ interface HiltWorkerFactoryEntryPoint {
 private const val WORKER_CLASS_NAME = "MovieInitWorker"
 const val IS_FORCE = "IS_FORCE"
 
-internal fun KClass<out CoroutineWorker>.delegatedData(isForce: Boolean = false) =
+internal fun KClass<out RxWorker>.delegatedData(isForce: Boolean = false) =
     Data.Builder()
         .putString(WORKER_CLASS_NAME, qualifiedName)
         .putBoolean(IS_FORCE, isForce)
@@ -30,7 +31,7 @@ internal fun KClass<out CoroutineWorker>.delegatedData(isForce: Boolean = false)
 class DelegatingWorker(
     appContext: Context,
     workerParams: WorkerParameters,
-) : CoroutineWorker(appContext, workerParams) {
+) : RxWorker(appContext, workerParams) {
     private val workerClassName =
         workerParams.inputData.getString(WORKER_CLASS_NAME).orEmpty()
 
@@ -38,11 +39,11 @@ class DelegatingWorker(
         EntryPointAccessors.fromApplication<HiltWorkerFactoryEntryPoint>(appContext)
             .hiltWorkerFactory()
             .createWorker(appContext, workerClassName, workerParams)
-            as? CoroutineWorker ?: throw IllegalArgumentException("Unable to find appropriate worker")
+            as? RxWorker ?: throw IllegalArgumentException("Unable to find appropriate worker")
 
-    override suspend fun getForegroundInfo(): ForegroundInfo =
+    override fun getForegroundInfo(): Single<ForegroundInfo> =
         delegateWorker.getForegroundInfo()
 
-    override suspend fun doWork(): Result =
-        delegateWorker.doWork()
+    override fun createWork(): Single<Result> =
+        delegateWorker.createWork()
 }

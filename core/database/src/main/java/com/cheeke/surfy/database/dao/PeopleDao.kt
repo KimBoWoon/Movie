@@ -7,12 +7,12 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Upsert
 import com.cheeke.surfy.database.model.PeopleEntity
-import kotlinx.coroutines.flow.Flow
+import io.reactivex.rxjava3.core.Flowable
 
 @Dao
 interface PeopleDao {
     @Query(value = "SELECT EXISTS(SELECT 1 FROM peoples WHERE id = :id)")
-    fun isFavoritePeople(id: Int): Flow<Boolean>
+    fun isFavoritePeople(id: Int): Flowable<Boolean>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertOrIgnorePeoples(people: PeopleEntity): Long

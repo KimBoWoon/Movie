@@ -1,158 +1,186 @@
 package com.cheeke.surfy.datastore
 
-import androidx.datastore.core.DataStore
+import androidx.datastore.rxjava3.RxDataStore
 import com.cheeke.surfy.core.datastore.DarkThemeConfigProto
 import com.cheeke.surfy.core.datastore.InternalDataPreferences
-import com.cheeke.surfy.core.datastore.copy
 import com.cheeke.surfy.model.DarkThemeConfig
 import com.cheeke.surfy.model.InternalData
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.map
+import io.reactivex.rxjava3.core.Flowable
+import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import javax.inject.Inject
 
 /**
  * DataStore Repository
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 class InternalDataSource @Inject constructor(
-    private val datastore: DataStore<InternalDataPreferences>
+    private val datastore: RxDataStore<InternalDataPreferences>
 ) {
     companion object {
         private const val TAG = "datastore"
     }
 
-    val userData = datastore.data.map { preferences ->
-        InternalData(
-            isAdult = preferences.isAdult,
-            isAutoPlayTrailer = preferences.isAutoPlayTrailer,
-            isDarkMode = when (preferences.darkMode) {
-                DarkThemeConfigProto.DARK_THEME_CONFIG_UNSPECIFIED,
-                DarkThemeConfigProto.DARK_THEME_CONFIG_FOLLOW_SYSTEM,
-                DarkThemeConfigProto.UNRECOGNIZED -> DarkThemeConfig.FOLLOW_SYSTEM
-                DarkThemeConfigProto.DARK_THEME_CONFIG_LIGHT -> DarkThemeConfig.LIGHT
-                DarkThemeConfigProto.DARK_THEME_CONFIG_DARK -> DarkThemeConfig.DARK
-            },
-            updateDate = preferences.updateDate,
-            region = preferences.region,
-            language = preferences.language,
-            imageQuality = preferences.imageQuality,
-            showNextReleaseMoviesDate = preferences.showNextReleaseMoviesDate,
-            secureBaseUrl = preferences.secureBaseUrl,
-            isCheatActive = preferences.isCheatActive,
-        )
-    }
+    val userData = datastore.data()
+        .map { preferences ->
+            InternalData(
+                isAdult = preferences.isAdult,
+                isAutoPlayTrailer = preferences.isAutoPlayTrailer,
+                isDarkMode = when (preferences.darkMode) {
+                    DarkThemeConfigProto.DARK_THEME_CONFIG_UNSPECIFIED,
+                    DarkThemeConfigProto.DARK_THEME_CONFIG_FOLLOW_SYSTEM,
+                    DarkThemeConfigProto.UNRECOGNIZED -> DarkThemeConfig.FOLLOW_SYSTEM
+                    DarkThemeConfigProto.DARK_THEME_CONFIG_LIGHT -> DarkThemeConfig.LIGHT
+                    DarkThemeConfigProto.DARK_THEME_CONFIG_DARK -> DarkThemeConfig.DARK
+                },
+                updateDate = preferences.updateDate,
+                region = preferences.region,
+                language = preferences.language,
+                imageQuality = preferences.imageQuality,
+                showNextReleaseMoviesDate = preferences.showNextReleaseMoviesDate,
+                secureBaseUrl = preferences.secureBaseUrl,
+                isCheatActive = preferences.isCheatActive,
+            )
+        }
 
-    suspend fun updateIsAdult(value: Boolean) {
-        datastore.updateData { preferences ->
-            preferences.copy {
-                isAdult = value
-            }
+    fun updateIsAdult(value: Boolean) {
+        datastore.updateDataAsync { preferences ->
+            val updated = preferences.toBuilder()
+                .setIsAdult(value)
+                .build()
+
+            Single.just(updated)
         }
     }
 
-    suspend fun updateIsAutoPlayTrailer(value: Boolean) {
-        datastore.updateData { preferences ->
-            preferences.copy {
-                isAutoPlayTrailer = value
-            }
+    fun updateIsAutoPlayTrailer(value: Boolean) {
+        datastore.updateDataAsync { preferences ->
+            val updated = preferences.toBuilder()
+                .setIsAutoPlayTrailer(value)
+                .build()
+
+            Single.just(updated)
         }
     }
 
-    suspend fun updateDarkMode(darkThemeConfig: DarkThemeConfig) {
-        datastore.updateData { preferences ->
-            preferences.copy {
-                darkMode = when (darkThemeConfig) {
-                    DarkThemeConfig.FOLLOW_SYSTEM -> DarkThemeConfigProto.DARK_THEME_CONFIG_FOLLOW_SYSTEM
-                    DarkThemeConfig.LIGHT -> DarkThemeConfigProto.DARK_THEME_CONFIG_LIGHT
-                    DarkThemeConfig.DARK -> DarkThemeConfigProto.DARK_THEME_CONFIG_DARK
-                }
-            }
+    fun updateDarkMode(darkThemeConfig: DarkThemeConfig) {
+        datastore.updateDataAsync { preferences ->
+            val updated = preferences.toBuilder()
+                .setDarkMode(
+                    when (darkThemeConfig) {
+                        DarkThemeConfig.FOLLOW_SYSTEM -> DarkThemeConfigProto.DARK_THEME_CONFIG_FOLLOW_SYSTEM
+                        DarkThemeConfig.LIGHT -> DarkThemeConfigProto.DARK_THEME_CONFIG_LIGHT
+                        DarkThemeConfig.DARK -> DarkThemeConfigProto.DARK_THEME_CONFIG_DARK
+                    }
+                )
+                .build()
+
+            Single.just(updated)
         }
     }
 
-    suspend fun updateMainDate(value: String) {
-        datastore.updateData { preferences ->
-            preferences.copy {
-                updateDate = value
-            }
+    fun updateMainDate(value: String) {
+        datastore.updateDataAsync { preferences ->
+            val updated = preferences.toBuilder()
+                .setUpdateDate(value)
+                .build()
+
+            Single.just(updated)
         }
     }
 
-    suspend fun updateRegion(value: String) {
-        datastore.updateData { preferences ->
-            preferences.copy {
-                region = value
-            }
+    fun updateRegion(value: String) {
+        datastore.updateDataAsync { preferences ->
+            val updated = preferences.toBuilder()
+                .setRegion(value)
+                .build()
+
+            Single.just(updated)
         }
     }
 
-    suspend fun updateLanguage(value: String) {
-        datastore.updateData { preferences ->
-            preferences.copy {
-                language = value
-            }
+    fun updateLanguage(value: String) {
+        datastore.updateDataAsync { preferences ->
+            val updated = preferences.toBuilder()
+                .setLanguage(value)
+                .build()
+
+            Single.just(updated)
         }
     }
 
-    suspend fun updateImageQuality(value: String) {
-        datastore.updateData { preferences ->
-            preferences.copy {
-                imageQuality = value
-            }
+    fun updateImageQuality(value: String) {
+        datastore.updateDataAsync { preferences ->
+            val updated = preferences.toBuilder()
+                .setImageQuality(value)
+                .build()
+
+            Single.just(updated)
         }
     }
 
-    suspend fun updateShowNextReleaseMoviesDate(value: String) {
-        datastore.updateData { preferences ->
-            preferences.copy {
-                showNextReleaseMoviesDate = value
-            }
+    fun updateShowNextReleaseMoviesDate(value: String) {
+        datastore.updateDataAsync { preferences ->
+            val updated = preferences.toBuilder()
+                .setShowNextReleaseMoviesDate(value)
+                .build()
+
+            Single.just(updated)
         }
     }
 
-    suspend fun updateSecureBaseUrl(value: String) {
-        datastore.updateData { preferences ->
-            preferences.copy {
-                secureBaseUrl = value
-            }
+    fun updateSecureBaseUrl(value: String) {
+        datastore.updateDataAsync { preferences ->
+            val updated = preferences.toBuilder()
+                .setSecureBaseUrl(value)
+                .build()
+
+            Single.just(updated)
         }
     }
 
-    suspend fun updateFirstInstall(value: Boolean) {
-        datastore.updateData { preferences ->
-            preferences.copy {
-                isFirstInstall = value
-            }
+    fun updateFirstInstall(value: Boolean) {
+        datastore.updateDataAsync { preferences ->
+            val updated = preferences.toBuilder()
+                .setIsFirstInstall(value)
+                .build()
+
+            Single.just(updated)
         }
     }
 
-    suspend fun updateWorkScheduleTime(value: Long) {
-        datastore.updateData { preferences ->
-            preferences.copy {
-                workScheduleTime = value
-            }
+    fun updateWorkScheduleTime(value: Long) {
+        datastore.updateDataAsync { preferences ->
+            val updated = preferences.toBuilder()
+                .setWorkScheduleTime(value)
+                .build()
+
+            Single.just(updated)
         }
     }
 
-    suspend fun updateIsCheatActive(value: Boolean) {
-        datastore.updateData { preferences ->
-            preferences.copy {
-                isCheatActive = value
-            }
+    fun updateIsCheatActive(value: Boolean) {
+        datastore.updateDataAsync { preferences ->
+            val updated = preferences.toBuilder()
+                .setIsCheatActive(value)
+                .build()
+
+            Single.just(updated)
         }
     }
 
-    suspend fun getIsAdult(): Boolean =
-        datastore.data.map { preferences ->
+    fun getIsAdult(): Flowable<Boolean> =
+        datastore.data().map { preferences ->
             preferences.isAdult
-        }.firstOrNull() ?: true
+        }
 
-    suspend fun getAutoPlayTrailer(): Boolean =
-        datastore.data.map { preferences ->
+    fun getAutoPlayTrailer(): Flowable<Boolean> =
+        datastore.data().map { preferences ->
             preferences.isAutoPlayTrailer
-        }.firstOrNull() ?: false
+        }
 
-    suspend fun getDarkMode(): DarkThemeConfig =
-        datastore.data.map { preferences ->
+    fun getDarkMode(): Flowable<DarkThemeConfig> =
+        datastore.data().map { preferences ->
             when (preferences.darkMode) {
                 DarkThemeConfigProto.UNRECOGNIZED,
                 DarkThemeConfigProto.DARK_THEME_CONFIG_UNSPECIFIED,
@@ -160,63 +188,64 @@ class InternalDataSource @Inject constructor(
                 DarkThemeConfigProto.DARK_THEME_CONFIG_LIGHT -> DarkThemeConfig.LIGHT
                 DarkThemeConfigProto.DARK_THEME_CONFIG_DARK -> DarkThemeConfig.DARK
             }
-        }.firstOrNull() ?: DarkThemeConfig.FOLLOW_SYSTEM
+        }
 
-    suspend fun getMainDate(): String =
-        datastore.data.map { preferences ->
+    fun getMainDate(): Flowable<String> =
+        datastore.data().map { preferences ->
             preferences.updateDate
-        }.firstOrNull().orEmpty()
+        }
 
-    suspend fun getRegion(): String =
-        datastore.data.map { preferences ->
+    fun getRegion(): Flowable<String> =
+        datastore.data().map { preferences ->
             preferences.region
-        }.firstOrNull() ?: "KR"
+        }
 
-    suspend fun getLanguage(): String =
-        datastore.data.map { preferences ->
+    fun getLanguage(): Flowable<String> =
+        datastore.data().map { preferences ->
             preferences.language
-        }.firstOrNull() ?: "ko"
+        }
 
-    suspend fun getImageQuality(): String =
-        datastore.data.map { preferences ->
+    fun getImageQuality(): Flowable<String> =
+        datastore.data().map { preferences ->
             preferences.imageQuality
-        }.firstOrNull() ?: "original"
+        }
 
-    suspend fun getShowNextReleaseMoviesDate(): String =
-        datastore.data.map { preferences ->
+    fun getShowNextReleaseMoviesDate(): Flowable<String> =
+        datastore.data().map { preferences ->
             preferences.showNextReleaseMoviesDate
-        }.firstOrNull().orEmpty()
+        }
 
-    suspend fun getSecureBaseUrl(): String =
-        datastore.data.map { preferences ->
+    fun getSecureBaseUrl(): Flowable<String> =
+        datastore.data().map { preferences ->
             preferences.secureBaseUrl
-        }.firstOrNull().orEmpty()
+        }
 
-    suspend fun getFirstInstall(): Boolean =
-        datastore.data.map { preferences ->
+    fun getFirstInstall(): Flowable<Boolean> =
+        datastore.data().map { preferences ->
             preferences.isFirstInstall
-        }.firstOrNull() ?: false
+        }
 
-    suspend fun getWorkScheduleTime(): Long =
-        datastore.data.map { preferences ->
+    fun getWorkScheduleTime(): Flowable<Long> =
+        datastore.data().map { preferences ->
             preferences.workScheduleTime
-        }.firstOrNull() ?: 0
+        }
 
-    suspend fun getIsCheatActive(): Boolean =
-        datastore.data.map { preferences ->
+    fun getIsCheatActive(): Flowable<Boolean> =
+        datastore.data().map { preferences ->
             preferences.isCheatActive
-        }.firstOrNull() ?: false
+        }
 
-    suspend fun updateFCMToken(token: String) {
-        datastore.updateData { preferences ->
-            preferences.copy {
-                fcmToken = token
-            }
+    fun updateFCMToken(token: String) {
+        datastore.updateDataAsync { preferences ->
+            val updated = preferences.toBuilder()
+                .setFcmToken(token)
+                .build()
+            Single.just(updated)
         }
     }
 
-    suspend fun getFCMToken(): String =
-        datastore.data.map { preferences ->
+    fun getFCMToken(): Flowable<String> =
+        datastore.data().map { preferences ->
             preferences.fcmToken
-        }.firstOrNull().orEmpty()
+        }
 }

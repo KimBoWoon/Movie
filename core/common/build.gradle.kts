@@ -15,4 +15,7 @@ dependencies {
     ).forEach {
         testImplementation(it)
     }
+
+    implementation(libs.rxkotlin)
+    implementation(libs.rxandroid)
 }

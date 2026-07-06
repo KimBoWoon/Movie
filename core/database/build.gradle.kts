@@ -15,11 +15,17 @@ dependencies {
         libs.androidx.junit,
         libs.androidx.datastore,
         libs.androidx.room.runtime,
-        libs.androidx.room.ktx,
+//        libs.androidx.room.ktx,
         libs.androidx.compose.room.paging
     ).forEach {
         implementation(it)
     }
+
+    implementation("androidx.paging:paging-runtime:3.3.6")
+    implementation("androidx.paging:paging-rxjava3:3.3.6")
+    implementation("androidx.room:room-rxjava3:2.8.4")
+    implementation(libs.rxkotlin)
+    implementation(libs.rxandroid)
 
     api(project(":core:model"))
 

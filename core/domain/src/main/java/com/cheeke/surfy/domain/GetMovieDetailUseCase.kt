@@ -8,13 +8,9 @@ import com.cheeke.surfy.data.repository.UserDataRepository
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.Series
 import com.cheeke.surfy.model.SeriesPart
+import io.reactivex.rxjava3.core.Flowable
+import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -24,9 +20,9 @@ class GetMovieDetailUseCase @Inject constructor(
     private val detailRepository: MovieDetailRepository
 ) {
     @OptIn(ExperimentalCoroutinesApi::class)
-    operator fun invoke(id: Int): Flow<Movie> =
-        combine(
-            detailRepository.getData(id = id),
+    operator fun invoke(id: Int): Flowable<Movie> =
+        Flowable.combineLatest(
+            detailRepository.getData(id = id).toFlowable(),
             userDataRepository.internalData,
             movieDataBaseRepository.isFavorite(id = id)
         ) { movie, internalData, isFavorite ->
@@ -39,13 +35,13 @@ class GetMovieDetailUseCase @Inject constructor(
                 certification = country?.certification ?: movie.certification,
                 isFavorite = isFavorite
             )
-        }.flatMapLatest { movie ->
+        }.flatMap { movie ->
             movie.belongsToCollection?.id?.let { collectionId ->
-                getCollection(collectionId = collectionId).map { series -> movie.copy(series = series) }
-            } ?: flowOf(value = movie)
+                getCollection(collectionId = collectionId).map { series -> movie.copy(series = series) }.toFlowable()
+            } ?: Flowable.just(movie)
         }
 
-    private fun getCollection(collectionId: Int): Flow<Series> =
+    private fun getCollection(collectionId: Int): Single<Series> =
         detailRepository.getMovieSeries(collectionId = collectionId)
             .map { series ->
                 series.copy(
@@ -54,8 +50,8 @@ class GetMovieDetailUseCase @Inject constructor(
                             .thenBy { it.title.orEmpty() }
                     )
                 )
-            }.catch { e ->
+            }.onErrorReturn { e ->
                 Log.printStackTrace(tr = e)
-                emit(value = Series())
+                Series()
             }
 }

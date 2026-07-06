@@ -20,133 +20,134 @@ import com.cheeke.surfy.model.TrendingMedia
 import com.cheeke.surfy.model.Tv
 import com.cheeke.surfy.model.TvEpisode
 import com.cheeke.surfy.model.TvSeasons
+import io.reactivex.rxjava3.core.Single
 
 interface SettingRemoteDataSource {
-    suspend fun getConfiguration(): Configuration
-    suspend fun getCertification(): CertificationData
-    suspend fun getAvailableLanguage(): List<Language>
-    suspend fun getAvailableRegion(): Regions
-    suspend fun getMovieGenres(language: String = "ko-KR"): Genres
-    suspend fun getTvGenres(language: String): Genres
+    fun getConfiguration(): Single<Configuration>
+    fun getCertification(): Single<CertificationData>
+    fun getAvailableLanguage(): Single<List<Language>>
+    fun getAvailableRegion(): Single<Regions>
+    fun getMovieGenres(language: String = "ko-KR"): Single<Genres>
+    fun getTvGenres(language: String): Single<Genres>
 }
 
 interface MovieRemoteDataSource {
-    suspend fun getMovie(
+    fun getMovie(
         id: Int,
         appendToResponse: String = "images,videos,credits,releases,keywords,alternative_titles,similar,reviews",
         language: String = "ko-KR",
         includeImageLanguage: String = "ko",
         region: String = "KR"
-    ): Movie
+    ): Single<Movie>
 
-    suspend fun getSimilarMovies(
+    fun getSimilarMovies(
         id: Int,
         language: String = "ko-KR",
         page: Int = 1
-    ): SimilarMedias
+    ): Single<SimilarMedias>
 
-    suspend fun getMovieReviews(
+    fun getMovieReviews(
         movieId: Int,
         language: String = "ko-KR",
         page: Int = 1
-    ): Reviews
+    ): Single<Reviews>
 
-    suspend fun getMovieWatchProvider(
+    fun getMovieWatchProvider(
         movieId: Int
-    ): MovieWatchProvider
+    ): Single<MovieWatchProvider>
 }
 
 interface PeopleRemoteDataSource {
-    suspend fun getPeopleDetail(
+    fun getPeopleDetail(
         personId: Int,
         appendToResponse: String = "images, combined_credits, external_ids",
         language: String = "ko-KR",
         includeImageLanguage: String = "ko"
-    ): People
+    ): Single<People>
 
-    suspend fun getCombineCredits(
+    fun getCombineCredits(
         personId: Int,
         language: String = "ko-KR"
-    ): CombineCredits
+    ): Single<CombineCredits>
 
-    suspend fun getExternalIds(
+    fun getExternalIds(
         personId: Int
-    ): ExternalIds
+    ): Single<ExternalIds>
 }
 
 interface TvRemoteDataSource {
-    suspend fun getTv(
+    fun getTv(
         id: Int,
         language: String,
         appendToResponse: String = "images,videos,credits,releases,keywords,alternative_titles,similar,reviews",
         includeImageLanguage: String = "ko"
-    ): Tv
+    ): Single<Tv>
 
-    suspend fun getTvSeasons(
+    fun getTvSeasons(
         seriesId: Int,
         seasonNumber: Int,
         appendToResponse: String = "images,videos,credits,releases,keywords,alternative_titles",
         language: String = "ko-KR"
-    ): TvSeasons
+    ): Single<TvSeasons>
 
-    suspend fun getTvEpisode(
+    fun getTvEpisode(
         seriesId: Int,
         seasonNumber: Int,
         episodeNumber: Int,
         appendToResponse: String = "images,videos,credits,releases,keywords,alternative_titles",
         language: String = "ko-KR"
-    ): TvEpisode
+    ): Single<TvEpisode>
 
-    suspend fun getSimilarTv(
+    fun getSimilarTv(
         id: Int,
         language: String = "ko-KR",
         page: Int = 1
-    ): SimilarMedias
+    ): Single<SimilarMedias>
 
-    suspend fun getTvReviews(
+    fun getTvReviews(
         seriesId: Int,
         language: String = "ko-KR",
         page: Int = 1
-    ): Reviews
+    ): Single<Reviews>
 }
 
 interface SeriesRemoteDataSource {
-    suspend fun getMovieSeries(
+    fun getMovieSeries(
         collectionId: Int,
         language: String = "ko-KR"
-    ): Series
+    ): Single<Series>
 
-    suspend fun getSeriesImages(
+    fun getSeriesImages(
         collectionId: Int,
         includeImageLanguage: String,
         language: String
-    ): ImageList
+    ): Single<ImageList>
 }
 
 interface SyncRemoteDataSource {
-    suspend fun getNowPlaying(
+    fun getNowPlaying(
         language: String = "ko-KR",
         region: String = "KR",
         page: Int = 1
-    ): List<Movie>
+    ): Single<List<Movie>>
 
-    suspend fun getUpcomingMovie(
+    fun getUpcomingMovie(
         language: String = "ko-KR",
         region: String = "KR",
         page: Int = 1
-    ): List<Movie>
+    ): Single<List<Movie>>
 }
 
 interface TrendingRemoteDataSource {
-    suspend fun getTrendingMovie(timeWindow: String, language: String, page: Int): TrendingMedia
+    fun getTrendingMovie(timeWindow: String, language: String, page: Int): Single<TrendingMedia>
 
-    suspend fun getTrendingPeople(
+    fun getTrendingPeople(
         timeWindow: String,
         language: String,
         page: Int = 1
-    ): TrendingMedia
+    ): Single<TrendingMedia>
 
-    suspend fun getTrendingTv(timeWindow: String, language: String, page: Int): TrendingMedia
+    fun getTrendingTv(timeWindow: String, language: String, page: Int): Single<TrendingMedia>
 }
 
 interface SearchRemoteDataSource {

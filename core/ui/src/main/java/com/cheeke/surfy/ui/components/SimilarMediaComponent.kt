@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -24,14 +23,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.cheeke.surfy.core.ui.R
@@ -98,7 +95,7 @@ fun SimilarComponent(
 
     if (seeAllState) {
         SeeAllSimilarMediaBottomSheet(
-            similarMedia = similarMovies,
+            items = similarMovies,
             goToDestination = goToDestination,
             onDismiss = { seeAllState = false }
         )
@@ -108,7 +105,7 @@ fun SimilarComponent(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SeeAllSimilarMediaBottomSheet(
-    similarMedia: Flow<PagingData<SimilarMedia>>,
+    items: Flow<PagingData<SimilarMedia>>,
     goToDestination: (Int) -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -126,26 +123,14 @@ fun SeeAllSimilarMediaBottomSheet(
         dragHandle = { BottomSheetDefaults.DragHandle() },
         sheetGesturesEnabled = false
     ) {
-        val items = similarMedia.collectAsLazyPagingItems()
+        val items = items.collectAsLazyPagingItems()
 
         LazyVerticalGrid(
             modifier = Modifier.fillMaxSize(),
             columns = GridCells.Fixed(count = 3),
             verticalArrangement = Arrangement.spacedBy(space = dp10),
-            horizontalArrangement = Arrangement.spacedBy(space = dp10),
-            contentPadding = PaddingValues(all = dp10)
+            horizontalArrangement = Arrangement.spacedBy(space = dp10)
         ) {
-            if (items.loadState.refresh is LoadState.Loading) {
-                item {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressComponent(modifier = Modifier.wrapContentSize())
-                    }
-                }
-            }
-
             items(
                 count = items.itemCount,
                 key = { index -> "${items.peek(index)?.id}-$index" }

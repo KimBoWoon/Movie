@@ -6,8 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.cheeke.surfy.analytics.AnalyticsHelper
 import com.cheeke.surfy.analytics.logSelectContent
 import com.cheeke.surfy.common.Result
-import com.cheeke.surfy.common.asResult
 import com.cheeke.surfy.domain.GetSeriesDetailUseCase
+import com.cheeke.surfy.domain.SeriesWithImages
 import com.cheeke.surfy.model.ImageList
 import com.cheeke.surfy.model.Series
 import com.cheeke.surfy.network.model.SurfyNetworkException
@@ -15,12 +15,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
+import io.reactivex.rxjava3.processors.BehaviorProcessor
 import kotlinx.coroutines.launch
 
 @HiltViewModel(assistedFactory = SeriesVM.Factory::class)
@@ -38,35 +33,37 @@ class SeriesVM @AssistedInject constructor(
         fun create(id: Int): SeriesVM
     }
 
-    private val reload = MutableSharedFlow<Unit>(replay = 1)
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val series = reload
-        .flatMapLatest {
-            trace(sectionName = "GetSeriesDetail") { getSeriesDetailUseCase(id = id) }.asResult()
-        }.map { result ->
-            when (result) {
-                is Result.Loading -> SeriesState.Loading
-                is Result.Success -> {
-                    analyticsHelper.logSelectContent(contentType = "series", media = result.data.series)
-                    SeriesState.Success(series = result.data.series, imageList = result.data.imageList)
-                }
-                is Result.Error -> SeriesState.Error(throwable = result.throwable as SurfyNetworkException)
+    private val reload = BehaviorProcessor.createDefault<Unit>(Unit)
+    private val detail = reload
+        .switchMap {
+            trace("GetSeriesDetail") {
+                getSeriesDetailUseCase(id)
+                    .map<Result<SeriesWithImages>> { Result.Success(it) }
+                    .startWithItem(Result.Loading)
+                    .onErrorReturn { Result.Error(it) }
             }
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.Lazily,
-            initialValue = SeriesState.Loading
-        )
+        }
+    val series = detail.map { result ->
+        when (result) {
+            Result.Loading -> SeriesState.Loading
+            is Result.Success -> {
+                analyticsHelper.logSelectContent(contentType = "series", media = result.data.series)
+                SeriesState.Success(series = result.data.series, imageList = result.data.imageList)
+            }
+            is Result.Error -> SeriesState.Error(result.throwable as SurfyNetworkException)
+        }
+    }.replay(1)
+        .refCount()
 
     init {
         viewModelScope.launch {
-            reload.emit(value = Unit)
+            reload.onNext(Unit)
         }
     }
 
     fun restart() {
         viewModelScope.launch {
-            reload.emit(value = Unit)
+            reload.onNext(Unit)
         }
     }
 }

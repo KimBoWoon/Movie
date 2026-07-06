@@ -2,59 +2,64 @@ package com.cheeke.surfy.data.util
 
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.model.Movie
-import kotlin.coroutines.cancellation.CancellationException
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
 
 interface Synchronizer {
-    suspend fun getVersion(): String
-    suspend fun updateVersion(update: () -> String)
-    suspend fun Syncable.sync(): Boolean = this@sync.syncWith(this@Synchronizer)
+    fun getVersion(): Single<String>
+    fun Syncable.sync(): Single<Boolean> = this@sync.syncWith(this@Synchronizer)
     fun getSyncInputData(): List<Pair<String, Any?>>
-    suspend fun afterSync() {}
+    fun afterSync(): Completable = Completable.complete()
 }
 
 interface Syncable {
-    suspend fun syncWith(synchronizer: Synchronizer): Boolean
+    fun syncWith(synchronizer: Synchronizer): Single<Boolean>
 }
 
-internal suspend fun <T> suspendRunCatching(block: suspend () -> T): Result<T> = try {
-    Result.success(value = block())
-} catch (cancellationException: CancellationException) {
-    throw cancellationException
-} catch (exception: Exception) {
-    Log.printStackTrace(tr = exception)
-    Result.failure(exception = exception)
-}
+fun Synchronizer.updateMovieSync(
+    updateChecker: Synchronizer.() -> Single<Boolean>,
+    getList: () -> Single<List<Movie>>,
+    modelDeleter: () -> Completable,
+    modelUpdater: (movies: List<Movie>) -> Completable
+): Single<Boolean> = updateChecker()
+    .flatMap { shouldUpdate: Boolean ->
+        if (shouldUpdate) {
+            getList().flatMap { updateList: List<Movie> ->
+                Log.d("changeListSync -> $updateList")
 
-suspend fun Synchronizer.updateMovieSync(
-    updateChecker: suspend Synchronizer.() -> Boolean,
-    getList: suspend () -> List<Movie>,
-    versionUpdater: () -> String,
-    modelDeleter: suspend () -> Unit,
-    modelUpdater: suspend (List<Movie>) -> Unit,
-): Boolean = suspendRunCatching {
-    if (updateChecker()) {
-        val updateList = getList()
-        Log.d("changeListSync -> $updateList")
-        modelDeleter()
-        modelUpdater(updateList)
-        (getSyncInputData().firstOrNull { it.first == "IS_FORCE" }?.second as Boolean).let { forceUpdate ->
-            if (!forceUpdate) afterSync()
+                modelDeleter()
+                    .andThen(modelUpdater(updateList))
+                    .andThen(
+                        Single.fromCallable {
+                            getSyncInputData().firstOrNull { it.first == "IS_FORCE" }?.second as? Boolean ?: false
+                        }
+                    )
+                    .flatMapCompletable { forceUpdate: Boolean ->
+                        if (!forceUpdate) afterSync() else Completable.complete()
+                    }.toSingleDefault(true)
+            }
+        } else {
+            Log.d("changeListSync -> update not necessary")
+            Single.just(true)
         }
-        updateVersion(update = { versionUpdater() })
-    } else {
-        Log.d("changeListSync -> update not necessary")
     }
-}.isSuccess
+    .onErrorReturn { throwable: Throwable ->
+        Log.printStackTrace(tr = throwable)
+        false
+    }
 
-suspend fun Synchronizer.changeListSync(
-    getList: suspend () -> List<Movie>,
-    versionUpdater: () -> String,
-    modelDeleter: suspend () -> Unit,
-    modelUpdater: suspend (List<Movie>) -> Unit,
-): Boolean = suspendRunCatching {
-    val updateList = getList()
-    modelDeleter()
-    modelUpdater(updateList)
-    afterSync()
-    updateVersion(update = { versionUpdater() })
-}.isSuccess
+fun Synchronizer.changeListSync(
+    getList: () -> Single<List<Movie>>,
+    modelDeleter: () -> Completable,
+    modelUpdater: (movies: List<Movie>) -> Completable
+): Single<Boolean> = getList()
+    .flatMap { updateList: List<Movie> ->
+        modelDeleter()
+            .andThen(modelUpdater(updateList))
+            .andThen(afterSync())
+            .toSingleDefault(true)
+    }
+    .onErrorReturn { throwable: Throwable ->
+        Log.printStackTrace(tr = throwable)
+        false
+    }

@@ -6,14 +6,16 @@ import com.cheeke.surfy.database.model.TvEntity
 import com.cheeke.surfy.database.model.asExternalModel
 import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.model.Tv
-import kotlinx.coroutines.flow.Flow
+import io.reactivex.rxjava3.core.Flowable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.schedulers.Schedulers
 import java.time.Instant
 import javax.inject.Inject
 
 class TvDataBaseRepositoryImpl @Inject constructor(
     private val tvDao: TvDao
 ) : TvDataBaseRepository {
-    override fun isFavorite(id: Int): Flow<Boolean> = tvDao.isFavoriteTv(id = id)
+    override fun isFavorite(id: Int): Flowable<Boolean> = tvDao.isFavoriteTv(id = id)
 
     override suspend fun insert(media: Media): Long =
         tvDao.insertOrIgnoreTvs(
@@ -48,10 +50,10 @@ class TvDataBaseRepositoryImpl @Inject constructor(
         )
     }
 
-    override suspend fun getNextWeekReleaseTvs(): List<Tv> =
+    override fun getNextWeekReleaseTvs(): Single<List<Tv>> =
         tvDao.getNextWeekReleaseTvs().map { tvEntity ->
-            tvEntity.asExternalModel()
-        }
+            tvEntity.map(transform = TvEntity::asExternalModel)
+        }.subscribeOn(Schedulers.io())
 
     override fun getFavorite(): PagingSource<Int, TvEntity> =
         tvDao.getFavoriteTv()

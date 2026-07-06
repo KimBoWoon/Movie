@@ -49,8 +49,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cheeke.surfy.analytics.TrackScreenViewEvent
+import com.cheeke.surfy.common.subscribeAsState
 import com.cheeke.surfy.core.network.R
 import com.cheeke.surfy.data.util.POSTER_IMAGE_RATIO
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
@@ -91,7 +91,7 @@ fun SeriesScreen(
     LocalFirebaseLogHelper.current.sendLog("SeriesScreen", "series screen init")
     TrackScreenViewEvent(screenName = "SeriesScreen")
 
-    val seriesState by viewModel.series.collectAsStateWithLifecycle()
+    val seriesState by viewModel.series.subscribeAsState(initial = SeriesState.Loading)
 
     SeriesScreen(
         seriesState = seriesState,

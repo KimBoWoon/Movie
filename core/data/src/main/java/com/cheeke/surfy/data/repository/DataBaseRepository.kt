@@ -9,11 +9,12 @@ import com.cheeke.surfy.database.model.UpComingMovieEntity
 import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.Tv
-import kotlinx.coroutines.flow.Flow
+import io.reactivex.rxjava3.core.Flowable
+import io.reactivex.rxjava3.core.Single
 
 interface DataBaseRepository<T : Any> {
     fun getFavorite(): PagingSource<Int, T>
-    fun isFavorite(id: Int): Flow<Boolean>
+    fun isFavorite(id: Int): Flowable<Boolean>
     suspend fun insert(media: Media): Long
     suspend fun delete(media: Media)
     suspend fun upsert(medias: List<Media>)
@@ -22,12 +23,12 @@ interface DataBaseRepository<T : Any> {
 interface MovieDataBaseRepository : DataBaseRepository<MovieEntity> {
     fun getUpComingMovies(): PagingSource<Int, UpComingMovieEntity>
     fun getNowPlayingMovies(): PagingSource<Int, NowPlayingMovieEntity>
-    suspend fun getPopularMovies(): List<Movie>
-    suspend fun getNextWeekReleaseMovies(): List<Movie>
+    fun getPopularMovies(): Single<List<Movie>>
+    fun getNextWeekReleaseMovies(): Single<List<Movie>>
 }
 
 interface PeopleDataBaseRepository : DataBaseRepository<PeopleEntity> {}
 
 interface TvDataBaseRepository : DataBaseRepository<TvEntity> {
-    suspend fun getNextWeekReleaseTvs(): List<Tv>
+    fun getNextWeekReleaseTvs(): Single<List<Tv>>
 }

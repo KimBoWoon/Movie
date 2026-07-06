@@ -9,12 +9,14 @@ import androidx.room.Upsert
 import com.cheeke.surfy.database.model.MovieEntity
 import com.cheeke.surfy.database.model.NowPlayingMovieEntity
 import com.cheeke.surfy.database.model.UpComingMovieEntity
-import kotlinx.coroutines.flow.Flow
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Flowable
+import io.reactivex.rxjava3.core.Single
 
 @Dao
 interface MovieDao {
     @Query(value = "SELECT EXISTS(SELECT 1 FROM movies WHERE id = :id)")
-    fun isFavoriteMovie(id: Int): Flow<Boolean>
+    fun isFavoriteMovie(id: Int): Flowable<Boolean>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertOrIgnoreMovies(movie: MovieEntity): Long
@@ -26,10 +28,10 @@ interface MovieDao {
     suspend fun deleteMovie(id: Int)
 
     @Query(value = "SELECT * FROM movies WHERE releaseDate BETWEEN DATE('now', 'localtime') AND DATE('now', '+7 day', 'localtime') ORDER BY releaseDate ASC, title ASC")
-    suspend fun getNextWeekReleaseMovies(): List<MovieEntity>
+    fun getNextWeekReleaseMovies(): Single<List<MovieEntity>>
 
     @Query(value = "SELECT * FROM nowplayingmovie WHERE voteCount > 500 AND voteAverage > 7.0")
-    suspend fun getPopularMovies(): List<NowPlayingMovieEntity>
+    fun getPopularMovies(): Single<List<NowPlayingMovieEntity>>
 
     @Query(value = "SELECT * FROM movies ORDER BY timestamp DESC")
     fun getFavoriteMovie(): PagingSource<Int, MovieEntity>
@@ -41,16 +43,16 @@ interface MovieDao {
     fun getUpComingMovie(): PagingSource<Int, UpComingMovieEntity>
 
     @Query(value = "DELETE FROM nowplayingmovie")
-    suspend fun deleteNowPlayingMovie()
+    fun deleteNowPlayingMovie(): Completable
 
     @Query(value = "DELETE FROM upcomingmovie")
-    suspend fun deleteUpComingMovie()
+    fun deleteUpComingMovie(): Completable
 
     @Upsert
-    suspend fun upsertNowPlayingMovie(entities: List<NowPlayingMovieEntity>)
+    fun upsertNowPlayingMovie(entities: List<NowPlayingMovieEntity>): Completable
 
     @Upsert
-    suspend fun upsertUpComingMovie(entities: List<UpComingMovieEntity>)
+    fun upsertUpComingMovie(entities: List<UpComingMovieEntity>): Completable
 
     @Query(value = "DELETE FROM movies")
     fun deleteAllFavoriteMovies()

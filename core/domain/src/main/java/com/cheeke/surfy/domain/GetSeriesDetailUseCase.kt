@@ -5,28 +5,26 @@ import com.cheeke.surfy.data.repository.SeriesDetailRepository
 import com.cheeke.surfy.model.ImageList
 import com.cheeke.surfy.model.Series
 import com.cheeke.surfy.model.SeriesPart
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
+import io.reactivex.rxjava3.core.Flowable
 import javax.inject.Inject
 
 class GetSeriesDetailUseCase @Inject constructor(
     private val detailRepository: SeriesDetailRepository
 ) {
-    operator fun invoke(id: Int): Flow<SeriesWithImages> = combine(
-        detailRepository.getData(id = id)
-            .map { series ->
+    operator fun invoke(id: Int): Flowable<SeriesWithImages> =
+        Flowable.combineLatest(
+            detailRepository.getData(id = id).map { series ->
                 series.copy(
                     parts = series.parts?.sortedWith(
                         comparator = compareBy<SeriesPart> { it.releaseDate.toEpochDayOrMax() }
                             .thenBy { it.title.orEmpty() }
                     )
                 )
-            },
-        detailRepository.getMovieSeriesImageList(collectionId = id)
-    ) { series, imageList ->
-        SeriesWithImages(series = series, imageList = imageList)
-    }
+            }.toFlowable(),
+            detailRepository.getMovieSeriesImageList(collectionId = id).toFlowable()
+        ) { series, imageList ->
+            SeriesWithImages(series = series, imageList = imageList)
+        }
 }
 
 data class SeriesWithImages(

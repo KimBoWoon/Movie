@@ -2,7 +2,6 @@ package com.cheeke.surfy.sync.workers
 
 import android.content.Context
 import androidx.hilt.work.HiltWorker
-import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.OneTimeWorkRequest
 import androidx.work.OneTimeWorkRequestBuilder
@@ -10,22 +9,16 @@ import androidx.work.OutOfQuotaPolicy
 import androidx.work.PeriodicWorkRequest
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkerParameters
-import com.cheeke.surfy.common.Dispatcher
-import com.cheeke.surfy.common.Dispatchers
-import com.cheeke.surfy.data.repository.MovieDataBaseRepository
+import androidx.work.rxjava3.RxWorker
 import com.cheeke.surfy.data.repository.SyncRepository
-import com.cheeke.surfy.data.repository.TvDataBaseRepository
 import com.cheeke.surfy.data.repository.UserDataRepository
 import com.cheeke.surfy.data.util.Synchronizer
-import com.cheeke.surfy.notifications.Notifier
 import com.cheeke.surfy.sync.initializers.SyncConstraints
 import com.cheeke.surfy.sync.initializers.syncForegroundInfo
 import com.cheeke.surfy.sync.utils.millisUntilNextMidnight
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.async
-import kotlinx.coroutines.withContext
+import io.reactivex.rxjava3.core.Single
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
@@ -35,13 +28,9 @@ import java.util.concurrent.TimeUnit
 class MidnightSyncWorker @AssistedInject constructor(
     @Assisted private val appContext: Context,
     @Assisted private val workerParams: WorkerParameters,
-    @param:Dispatcher(Dispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
     private val userDateRepository: UserDataRepository,
-    private val syncRepository: SyncRepository,
-    private val movieDataBaseRepository: MovieDataBaseRepository,
-    private val tvDataBaseRepository: TvDataBaseRepository,
-    private val notifier: Notifier
-) : CoroutineWorker(appContext, workerParams), Synchronizer {
+    private val syncRepository: SyncRepository
+) : RxWorker(appContext, workerParams), Synchronizer {
     companion object {
         const val WORKER_TAG = "MID_NIGHT_SYNC_WORKER"
         const val PERIODIC_WORKER_TAG = "PERIODIC_WORKER_TAG"
@@ -81,16 +70,8 @@ class MidnightSyncWorker @AssistedInject constructor(
                 .build()
     }
 
-    override suspend fun getVersion(): String =
-        userDateRepository.getMainDate()
-
-    override suspend fun updateVersion(update: () -> String) {
-        val date = update()
-
-        if (date.isNotEmpty()) {
-            userDateRepository.updateMainDate(value = date)
-        }
-    }
+    override fun getVersion(): Single<String> =
+        userDateRepository.getMainDate().firstOrError()
 
     override fun getSyncInputData(): List<Pair<String, Any?>> = mutableListOf(
         Pair(
@@ -99,23 +80,16 @@ class MidnightSyncWorker @AssistedInject constructor(
         )
     )
 
-    override suspend fun afterSync() {
-        val nextReleaseMedias = movieDataBaseRepository.getNextWeekReleaseMovies() + tvDataBaseRepository.getNextWeekReleaseTvs()
-        notifier.postMovieNotifications(movies = nextReleaseMedias)
-    }
+    override fun getForegroundInfo(): Single<ForegroundInfo> =
+        Single.just(appContext.syncForegroundInfo())
 
-    override suspend fun getForegroundInfo(): ForegroundInfo =
-        appContext.syncForegroundInfo()
-
-    override suspend fun doWork(): Result = withContext(context = ioDispatcher) {
-        async {
-            syncRepository.sync()
-        }.await()
-            .let { isSuccess ->
+    override fun createWork(): Single<Result> {
+        return syncRepository.sync()
+            .map { isSuccess ->
                 when (isSuccess) {
                     true -> Result.success()
                     false -> if (runAttemptCount > 5) Result.failure() else Result.retry()
                 }
-            }
+            }.onErrorReturnItem(Result.failure())
     }
 }

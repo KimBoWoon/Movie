@@ -44,4 +44,9 @@ dependencies {
     }
 
     androidTestImplementation(libs.okhttp.mockWebServer)
+
+    implementation(libs.rxkotlin)
+    implementation(libs.rxandroid)
+    implementation(libs.kotlinx.serialization.converter)
+    implementation(libs.retrofit2.adapter.rxjava3)
 }

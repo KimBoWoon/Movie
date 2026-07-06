@@ -1,11 +1,11 @@
 package com.cheeke.surfy.data.util
 
-import kotlinx.coroutines.flow.Flow
+import io.reactivex.rxjava3.core.Flowable
 
 /**
  * Utility for reporting app connectivity status
  * 네트워크 상태를 알기 위한 인터페이스
  */
 interface NetworkMonitor {
-    val isOnline: Flow<Boolean>
+    val isOnline: Flowable<Boolean>
 }

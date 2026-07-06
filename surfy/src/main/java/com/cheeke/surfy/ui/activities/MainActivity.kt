@@ -17,10 +17,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation3.runtime.rememberNavBackStack
 import com.cheeke.surfy.R
 import com.cheeke.surfy.SurfyFirebase
@@ -29,6 +26,7 @@ import com.cheeke.surfy.analytics.LocalAnalyticsHelper
 import com.cheeke.surfy.common.AppDoubleBackToExit
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.common.isSystemInDarkTheme
+import com.cheeke.surfy.common.subscribeAsState
 import com.cheeke.surfy.data.util.NetworkMonitor
 import com.cheeke.surfy.deeplink.DeepLinkManager
 import com.cheeke.surfy.detail.movie.navigation.MovieNavKey
@@ -43,10 +41,8 @@ import com.cheeke.surfy.ui.setting.SettingsAction
 import com.cheeke.surfy.ui.theme.SurfyTheme
 import com.cheeke.surfy.utils.isSystemInDarkTheme
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
+import io.reactivex.rxjava3.kotlin.addTo
+import io.reactivex.rxjava3.kotlin.combineLatest
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -88,32 +84,49 @@ class MainActivity : ComponentActivity() {
 
         var darkTheme by mutableStateOf(value = resources.configuration.isSystemInDarkTheme)
 
-        lifecycleScope.launch {
-            lifecycle.repeatOnLifecycle(state = Lifecycle.State.STARTED) {
-                combine(
-                    isSystemInDarkTheme(),
-                    viewModel.surfyAppData
-                ) { systemDarkTheme, userdata ->
-                    userdata.shouldUseDarkTheme(isSystemDarkTheme = systemDarkTheme)
-                }.onEach { darkTheme = it }
-                    .distinctUntilChanged()
-                    .collect { darkTheme ->
-                        enableEdgeToEdge(
-                            statusBarStyle = SystemBarStyle.auto(
-                                lightScrim = Color.TRANSPARENT,
-                                darkScrim = Color.TRANSPARENT,
-                            ) { darkTheme },
-                            navigationBarStyle = SystemBarStyle.auto(
-                                lightScrim = lightScrim,
-                                darkScrim = darkScrim,
-                            ) { darkTheme },
-                        )
-                    }
-            }
-        }
-
-        // true -> 스플래쉬 화면 노출, false -> 스플래쉬 화면 미노출
-        splashScreen.setKeepOnScreenCondition { viewModel.surfyAppData.value.shouldKeepSplashScreen() }
+        viewModel.surfyAppData.combineLatest(
+            isSystemInDarkTheme()
+        ).map { (surfyAppDataState, systemDarkTheme) ->
+            // true -> 스플래쉬 화면 노출, false -> 스플래쉬 화면 미노출
+            splashScreen.setKeepOnScreenCondition { surfyAppDataState.shouldKeepSplashScreen() }
+            surfyAppDataState.shouldUseDarkTheme(isSystemDarkTheme = systemDarkTheme)
+        }.distinctUntilChanged()
+            .subscribe(
+            {
+                enableEdgeToEdge(
+                    statusBarStyle = SystemBarStyle.auto(
+                        lightScrim = Color.TRANSPARENT,
+                        darkScrim = Color.TRANSPARENT,
+                    ) { darkTheme },
+                    navigationBarStyle = SystemBarStyle.auto(
+                        lightScrim = lightScrim,
+                        darkScrim = darkScrim,
+                    ) { darkTheme },
+                )
+            },
+            { Log.e(it.message.toString()) }
+        ).addTo(viewModel.disposable)
+//        viewModel.surfyAppData.zipWith(isSystemInDarkTheme()) { surfyAppDataState, systemDarkTheme ->
+//            // true -> 스플래쉬 화면 노출, false -> 스플래쉬 화면 미노출
+//            splashScreen.setKeepOnScreenCondition { surfyAppDataState.shouldKeepSplashScreen() }
+//            surfyAppDataState.shouldUseDarkTheme(isSystemDarkTheme = systemDarkTheme)
+//        }.doOnEach { darkTheme = it.value ?: false }
+//            .distinctUntilChanged()
+//            .subscribe(
+//                {
+//                    enableEdgeToEdge(
+//                        statusBarStyle = SystemBarStyle.auto(
+//                            lightScrim = Color.TRANSPARENT,
+//                            darkScrim = Color.TRANSPARENT,
+//                        ) { darkTheme },
+//                        navigationBarStyle = SystemBarStyle.auto(
+//                            lightScrim = lightScrim,
+//                            darkScrim = darkScrim,
+//                        ) { darkTheme },
+//                    )
+//                },
+//                { Log.e(it.message.toString()) }
+//            ).addTo(viewModel.disposable)
 
         setContent {
             CompositionLocalProvider(
@@ -122,8 +135,8 @@ class MainActivity : ComponentActivity() {
             ) {
                 LocalFirebaseLogHelper.current.sendLog(name = javaClass.simpleName, message = "compose start!")
 
-                val nextWeekReleaseDialogItems by viewModel.nextWeekReleaseMedias.collectAsStateWithLifecycle()
-                val shouldShowNextWeekReleaseDialog by viewModel.shouldShowNextWeekReleaseDialog.collectAsStateWithLifecycle()
+                val nextWeekReleaseDialogItems by viewModel.nextWeekReleaseMedias.subscribeAsState(initial = emptyList())
+                val shouldShowNextWeekReleaseDialog by viewModel.shouldShowNextWeekReleaseDialog.subscribeAsState(initial = false)
 
                 SurfyTheme(darkTheme = darkTheme) {
                     val backstack = rememberNavBackStack(RootNavKey)

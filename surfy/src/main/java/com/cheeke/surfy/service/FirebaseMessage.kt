@@ -10,7 +10,6 @@ import coil3.imageLoader
 import coil3.request.ImageRequest
 import coil3.toBitmap
 import com.cheeke.surfy.common.Log
-import com.cheeke.surfy.common.di.ApplicationScope
 import com.cheeke.surfy.core.notifications.R
 import com.cheeke.surfy.data.repository.UserDataRepository
 import com.cheeke.surfy.model.Movie
@@ -19,8 +18,6 @@ import com.cheeke.surfy.notifications.moviePendingIntent
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -33,23 +30,23 @@ class MovieFCMService : FirebaseMessagingService() {
 
     @Inject
     lateinit var userdataRepository: UserDataRepository
-    @Inject
-    @ApplicationScope
-    lateinit var scope: CoroutineScope
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
 
-        scope.launch {
-            userdataRepository.getFCMToken().let { savedToken ->
-                Log.d(TAG, "new token > $token")
-                Log.d(TAG, "saved token > $savedToken")
+        userdataRepository.getFCMToken().let { savedToken ->
+            Log.d(TAG, "new token > $token")
+            Log.d(TAG, "saved token > $savedToken")
 
-                if (savedToken != token) {
-                    userdataRepository.updateFCMToken(token)
-                    // TODO 서버 저장 필요!
-                }
-            }
+            savedToken.subscribe(
+                {
+                    if (it != token) {
+                        userdataRepository.updateFCMToken(token)
+                        // TODO 서버 저장 필요!
+                    }
+                },
+                { Log.d("error", it.message ?: "") }
+            )
         }
     }
 

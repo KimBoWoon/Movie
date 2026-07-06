@@ -3,15 +3,16 @@ package com.cheeke.surfy.data.repository
 import com.cheeke.surfy.datastore.InternalDataSource
 import com.cheeke.surfy.model.InternalData
 import com.cheeke.surfy.model.Media
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
+import io.reactivex.rxjava3.core.Single
 import javax.inject.Inject
 
 class DetailRequestOptionsProvider @Inject constructor(
     private val datastore: InternalDataSource
 ) {
-    suspend fun current(): DetailRequestOptions =
-        DetailRequestOptions(internalData = datastore.userData.first())
+    fun current(): Single<DetailRequestOptions> =
+        datastore.userData
+            .firstOrError()
+            .map { internalData -> DetailRequestOptions(internalData) }
 }
 
 data class DetailRequestOptions(
@@ -26,5 +27,5 @@ data class DetailRequestOptions(
 }
 
 interface DetailRepository<T : Media> {
-    fun getData(id: Int): Flow<T>
+    fun getData(id: Int): Single<T>
 }

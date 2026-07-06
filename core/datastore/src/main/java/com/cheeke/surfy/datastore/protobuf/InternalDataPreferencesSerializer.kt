@@ -7,21 +7,26 @@ import com.cheeke.surfy.core.datastore.copy
 import com.google.protobuf.InvalidProtocolBufferException
 import java.io.InputStream
 import java.io.OutputStream
+import java.util.Locale
 import javax.inject.Inject
 
 class InternalDataPreferencesSerializer @Inject constructor(
 
 ) : Serializer<InternalDataPreferences> {
-    override val defaultValue: InternalDataPreferences = InternalDataPreferences.getDefaultInstance()
+    override val defaultValue: InternalDataPreferences = InternalDataPreferences.newBuilder()
+        .setLanguage(Locale.getDefault().language)
+        .setRegion(Locale.getDefault().country)
+        .setImageQuality("original")
+        .build()
 
     override suspend fun readFrom(input: InputStream): InternalDataPreferences =
         try {
             InternalDataPreferences.parseFrom(input).copy {
                 if (region.isEmpty()) {
-                    region = "KR"
+                    region = Locale.getDefault().country
                 }
                 if (language.isEmpty()) {
-                    language = "ko"
+                    language = Locale.getDefault().language
                 }
                 if (imageQuality.isEmpty()) {
                     imageQuality = "original"

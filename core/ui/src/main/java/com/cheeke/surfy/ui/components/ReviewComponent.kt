@@ -40,7 +40,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.paging.compose.LazyPagingItems
+import androidx.paging.PagingData
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.cheeke.surfy.common.toRelativeTime
 import com.cheeke.surfy.core.ui.R
 import com.cheeke.surfy.model.Review
@@ -53,12 +54,13 @@ import com.cheeke.surfy.ui.utils.dp20
 import com.cheeke.surfy.ui.utils.dp200
 import com.cheeke.surfy.ui.utils.dp5
 import com.cheeke.surfy.ui.utils.dp60
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 @Composable
 fun ReviewComponent(
     items: List<Review>,
-    reviews: LazyPagingItems<Review>
+    reviews: Flow<PagingData<Review>>
 ) {
     var seeAllState by remember { mutableStateOf(value = false) }
     var showDetail by remember { mutableStateOf<Review?>(value = null) }
@@ -106,7 +108,7 @@ fun ReviewComponent(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SeeAllReviewBottomSheet(
-    items: LazyPagingItems<Review>,
+    items: Flow<PagingData<Review>>,
     showDetail: (() -> Unit)?,
     onDismiss: () -> Unit
 ) {
@@ -124,6 +126,8 @@ fun SeeAllReviewBottomSheet(
         dragHandle = { BottomSheetDefaults.DragHandle() },
         sheetGesturesEnabled = false
     ) {
+        val items = items.collectAsLazyPagingItems()
+
         LazyColumn(
             modifier = Modifier.fillMaxSize().background(color = MaterialTheme.colorScheme.background),
             verticalArrangement = Arrangement.spacedBy(space = dp10),

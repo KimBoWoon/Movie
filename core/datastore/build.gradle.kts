@@ -47,9 +47,13 @@ dependencies {
         implementation(it)
     }
 
+    implementation(libs.rxkotlin)
+    implementation(libs.rxandroid)
+    implementation("androidx.datastore:datastore-preferences-rxjava3:1.2.1")
+
     arrayOf(
         libs.protobuf.kotlin.lite,
-        libs.androidx.datastore,
+//        libs.androidx.datastore,
         project(":core:model")
     ).forEach {
         api(it)

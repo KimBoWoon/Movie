@@ -43,10 +43,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cheeke.surfy.R
 import com.cheeke.surfy.analytics.TrackScreenViewEvent
 import com.cheeke.surfy.common.getVersionName
+import com.cheeke.surfy.common.subscribeAsState
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
 import com.cheeke.surfy.ui.utils.dp1
 import com.cheeke.surfy.ui.utils.dp10
@@ -72,8 +72,8 @@ fun SettingScreen(
     LocalFirebaseLogHelper.current.sendLog("MyScreen", "my screen init")
     TrackScreenViewEvent(screenName = "SettingScreen")
 
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val isCheatActive by viewModel.isCheatActive.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.subscribeAsState(initial = SettingsUiState())
+    val isCheatActive by viewModel.isCheatActive.subscribeAsState(initial = false)
 
     SettingScreen(
         state = uiState,

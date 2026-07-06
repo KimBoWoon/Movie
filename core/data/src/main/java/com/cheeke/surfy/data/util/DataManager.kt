@@ -2,12 +2,11 @@ package com.cheeke.surfy.data.util
 
 import com.cheeke.surfy.model.DarkThemeConfig
 import com.cheeke.surfy.model.SurfyAppData
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
+import io.reactivex.rxjava3.core.Flowable
 
 interface DataManager {
-    val surfyAppData: StateFlow<SurfyAppDataState>
-    val localeFlow: Flow<Locale>
+    val surfyAppData: Flowable<SurfyAppDataState>
+    val localeFlow: Flowable<Locale>
 }
 
 sealed interface SurfyAppDataState {

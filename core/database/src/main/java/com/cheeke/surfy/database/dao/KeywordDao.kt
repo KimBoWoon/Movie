@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.cheeke.surfy.database.model.KeywordEntity
+import io.reactivex.rxjava3.core.Completable
 
 @Dao
 interface KeywordDao {
@@ -13,11 +14,11 @@ interface KeywordDao {
     fun getKeywords(): PagingSource<Int, KeywordEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertOrReplaceKeyword(entity: KeywordEntity): Long
+    fun insertOrReplaceKeyword(entity: KeywordEntity): Completable
 
     @Query(value = "DELETE FROM recentlyKeyword")
-    suspend fun deleteAll()
+    fun deleteAll(): Completable
 
     @Query(value = "DELETE FROM recentlyKeyword WHERE id = :id")
-    suspend fun delete(id: Int)
+    fun delete(id: Int): Completable
 }

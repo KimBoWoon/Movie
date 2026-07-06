@@ -55,16 +55,14 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.PagingData
-import androidx.paging.compose.LazyPagingItems
-import androidx.paging.compose.collectAsLazyPagingItems
 import com.cheeke.surfy.analytics.LocalAnalyticsHelper
 import com.cheeke.surfy.analytics.TrackScreenViewEvent
 import com.cheeke.surfy.analytics.logFavorite
 import com.cheeke.surfy.analytics.logSelectEpisode
 import com.cheeke.surfy.analytics.logSelectSeason
 import com.cheeke.surfy.common.Log
+import com.cheeke.surfy.common.subscribeAsState
 import com.cheeke.surfy.detail.movie.AlternativeTitleComponent
 import com.cheeke.surfy.domain.TvSeasonLoadState
 import com.cheeke.surfy.feature.detail.R
@@ -105,6 +103,7 @@ import com.cheeke.surfy.ui.utils.sp12
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.reactive.asFlow
 
 @Composable
 fun TvScreen(
@@ -117,10 +116,10 @@ fun TvScreen(
     LocalFirebaseLogHelper.current.sendLog("DetailScreen", "detail screen start!")
     TrackScreenViewEvent(screenName = "TvScreen")
 
-    val similarTvs = viewModel.similarTvs
-    val tvReviews = viewModel.tvReviews.collectAsLazyPagingItems()
-    val selectedEpisode by viewModel.selectedEpisode.collectAsStateWithLifecycle()
-    val tvUiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val similarTvs = viewModel.similarTvs.asFlow()
+    val tvReviews = viewModel.tvReviews.asFlow()
+    val selectedEpisode by viewModel.selectedEpisode.subscribeAsState(initial = EpisodeDialog.Hidden)
+    val tvUiState by viewModel.uiState.subscribeAsState(initial = TvState.Loading)
 
     TvScreen(
         tvUiState = tvUiState,
@@ -145,8 +144,8 @@ fun TvScreen(
 fun TvScreen(
     tvUiState: TvState,
     similarTvs: Flow<PagingData<SimilarMedia>>,
-    tvReviews: LazyPagingItems<Review>,
-    selectedEpisode: TvEpisode?,
+    tvReviews: Flow<PagingData<Review>>,
+    selectedEpisode: EpisodeDialog,
     goToTv: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     goToBack: () -> Unit,
@@ -206,9 +205,9 @@ fun TvScreen(
                     )
                 }
 
-                if (selectedEpisode != null) {
+                if (selectedEpisode is EpisodeDialog.Visible) {
                     EpisodeDetailBottomSheetDialog(
-                        episode = selectedEpisode,
+                        episode = selectedEpisode.episode,
                         state = rememberModalBottomSheetState(skipPartiallyExpanded = true),
                         scope = rememberCoroutineScope(),
                         goToPeople = goToPeople,
@@ -238,7 +237,7 @@ fun TvDetailComponent(
     tv: TvUiState,
     isAutoPlayTrailer: Boolean,
     similarTvs: Flow<PagingData<SimilarMedia>>,
-    tvReviews: LazyPagingItems<Review>,
+    tvReviews: Flow<PagingData<Review>>,
     goToTv: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     goToBack: () -> Unit,
@@ -259,8 +258,7 @@ fun TvDetailComponent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(state = scrollState),
-        verticalArrangement = Arrangement.spacedBy(space = dp10)
+            .verticalScroll(state = scrollState)
     ) {
         TitleComponent(
             isFavorite = tv.tv.isFavorite,
@@ -280,18 +278,33 @@ fun TvDetailComponent(
         )
         tv.tv.videos?.results?.filter { it.site == "YouTube" }?.takeIf { it.isNotEmpty() }?.let { vods ->
             VideosComponent(scope = scope, vodList = vods, autoPlayTrailer = isAutoPlayTrailer)
+            Spacer(modifier = Modifier
+                .fillMaxWidth()
+                .height(height = dp10))
         }
         MediaTitleComponent(media = tv.tv)
         tv.tv.alternativeTitles?.titles?.takeIf { it.isNotEmpty() }?.let { alternativeTitles ->
+            Spacer(modifier = Modifier
+                .fillMaxWidth()
+                .height(height = dp10))
             AlternativeTitleComponent(alternativeTitles = alternativeTitles)
         }
         tv.tv.overview?.takeIf { it.trim().isNotEmpty() }?.let { overview ->
+            Spacer(modifier = Modifier
+                .fillMaxWidth()
+                .height(height = dp10))
             OverviewComponent(overview = overview)
         }
         tv.tv.credits?.let { credits ->
+            Spacer(modifier = Modifier
+                .fillMaxWidth()
+                .height(height = dp10))
             CreditsComponent(credits = credits, goToPeople = goToPeople)
         }
         tv.seasons.takeIf { it.isNotEmpty() }?.let { seasons ->
+            Spacer(modifier = Modifier
+                .fillMaxWidth()
+                .height(height = dp10))
             SeasonComponent(
                 tv = tv.tv,
                 seasons = seasons,
@@ -313,12 +326,21 @@ fun TvDetailComponent(
             )
         }
         tv.tv.productionCompanies?.let { productionCompanies ->
+            Spacer(modifier = Modifier
+                .fillMaxWidth()
+                .height(height = dp10))
             ProductionComponent(companies = productionCompanies)
         }
         tv.tv.images?.let {
+            val backdrops = it.backdrops.orEmpty()
+            val posters = it.posters.orEmpty()
+
+            Spacer(modifier = Modifier
+                .fillMaxWidth()
+                .height(height = dp10))
             ImagesComponent(
-                backdrops = it.backdrops.orEmpty(),
-                posters = it.posters.orEmpty(),
+                backdrops = backdrops,
+                posters = posters,
                 sharedTransitionScope = sharedTransitionScope,
                 selectedImage = selectedImage,
                 onSelect = onSelect
@@ -331,12 +353,14 @@ fun TvDetailComponent(
             )
         }
         if (!tv.tv.similar?.results.isNullOrEmpty()) {
+            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
             SimilarComponent(
                 similarMovies = similarTvs,
                 items = tv.tv.similar?.results.orEmpty(),
                 goToDestination = goToTv
             )
         }
+        Spacer(modifier = Modifier.fillMaxWidth().height(height = dp20))
     }
 }
 

@@ -3,19 +3,18 @@ package com.cheeke.surfy.domain
 import com.cheeke.surfy.data.repository.PeopleDataBaseRepository
 import com.cheeke.surfy.data.repository.PeopleDetailRepository
 import com.cheeke.surfy.model.People
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
+import io.reactivex.rxjava3.core.Flowable
 import javax.inject.Inject
 
 class GetPeopleDetailUseCase @Inject constructor(
     private val detailRepository: PeopleDetailRepository,
     private val peopleDataBaseRepository: PeopleDataBaseRepository
 ) {
-    operator fun invoke(personId: Int): Flow<People> =
-        combine(
-            detailRepository.getData(id = personId),
-            detailRepository.getCombineCredits(personId = personId),
-            detailRepository.getExternalIds(personId = personId),
+    operator fun invoke(personId: Int): Flowable<People> =
+        Flowable.combineLatest(
+            detailRepository.getData(id = personId).toFlowable(),
+            detailRepository.getCombineCredits(personId = personId).toFlowable(),
+            detailRepository.getExternalIds(personId = personId).toFlowable(),
             peopleDataBaseRepository.isFavorite(id = personId)
         ) { peopleDetail, combineCredits, externalIds, isFavorite ->
             peopleDetail.copy(

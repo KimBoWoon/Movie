@@ -5,15 +5,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
-import androidx.paging.cachedIn
+import androidx.paging.rxjava3.cachedIn
+import androidx.paging.rxjava3.flowable
 import com.cheeke.surfy.analytics.AnalyticsHelper
 import com.cheeke.surfy.analytics.logSelectContent
 import com.cheeke.surfy.common.Result
-import com.cheeke.surfy.common.asResult
 import com.cheeke.surfy.data.repository.PagingRepository
 import com.cheeke.surfy.data.repository.TvDataBaseRepository
 import com.cheeke.surfy.data.repository.UserDataRepository
 import com.cheeke.surfy.domain.GetTvDetailUseCase
+import com.cheeke.surfy.domain.SeasonSelection
+import com.cheeke.surfy.domain.TvScreenData
 import com.cheeke.surfy.domain.TvSeasonLoadState
 import com.cheeke.surfy.model.Tv
 import com.cheeke.surfy.model.TvEpisode
@@ -23,15 +25,11 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.reactivex.rxjava3.core.Flowable
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.processors.BehaviorProcessor
+import io.reactivex.rxjava3.processors.PublishProcessor
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 @HiltViewModel(assistedFactory = TvVM.Factory::class)
@@ -54,11 +52,11 @@ class TvVM @AssistedInject constructor(
         ): TvVM
     }
 
-    private val reload = MutableSharedFlow<Unit>(replay = 1)
+    private val disposables = CompositeDisposable()
     @OptIn(ExperimentalCoroutinesApi::class)
     val similarTvs = userDataRepository.internalData
         .map { it.language to it.region }
-        .flatMapLatest {
+        .flatMap {
             Pager(
                 config = PagingConfig(pageSize = 1, initialLoadSize = 1, prefetchDistance = 5),
                 initialKey = 1,
@@ -69,53 +67,77 @@ class TvVM @AssistedInject constructor(
                         region = it.second
                     )
                 }
-            ).flow
+            ).flowable
         }.cachedIn(scope = viewModelScope)
-    private val _selectedEpisode = MutableStateFlow<TvEpisode?>(value = null)
-    val selectedEpisode = _selectedEpisode.asStateFlow()
-    private val selectedSeason = MutableStateFlow<TvSeason?>(value = null)
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private val tv = reload.flatMapLatest {
-        trace(sectionName = "GetTvDetail") { getTvDetailUseCase(id = id, selectedSeason = selectedSeason).asResult() }
-    }
-    val uiState = combine(
-        tv,
-        selectedSeason,
-        userDataRepository.internalData
-    ) { result, selectedSeason, internalData ->
-        when (result) {
-            is Result.Loading -> TvState.Loading
-            is Result.Success -> {
-                analyticsHelper.logSelectContent(contentType = "tv", media = result.data.tv)
-                val tv = result.data.tv
-                val seasons = tv.seasons
-                val initialSeason = selectedSeason ?: seasons?.sortedBy { it.seasonNumber }?.firstOrNull()
 
-                if (selectedSeason == null && initialSeason != null) {
-                    this@TvVM.selectedSeason.value = initialSeason
-                }
-
-                TvState.Success(
-                    tvUiState = TvUiState(
-                        tv = result.data.tv,
-                        seasons = seasons.orEmpty(),
-                        episodeState = result.data.seasonLoadState,
-                        episodesBySeason = result.data.episodesBySeason,
-                        autoPlayTrailer = internalData.isAutoPlayTrailer
+    private val reload = PublishProcessor.create<Unit>()
+    private val _selectedEpisode = BehaviorProcessor.create<EpisodeDialog>()
+    val selectedEpisode = BehaviorProcessor.create<EpisodeDialog>()
+    private val _selectedSeason = BehaviorProcessor.createDefault<SeasonSelection>(SeasonSelection.None)
+    val selectedSeason: Flowable<SeasonSelection> = _selectedSeason.hide()
+    private val tv =
+        reload
+            .startWithItem(Unit)
+            .switchMap {
+                trace("GetTvDetail") {
+                    getTvDetailUseCase(
+                        tvId = id,
+                        selectedSeason = selectedSeason
                     )
-                )
+                }.map<Result<TvScreenData>> { Result.Success(it) }
+                    .startWithItem(Result.Loading)
+                    .onErrorReturn { Result.Error(it) }
+            }.replay(1)
+            .refCount()
+    val uiState =
+        tv.switchMap { result ->
+            when (result) {
+                is Result.Loading -> Flowable.just(TvState.Loading)
+                is Result.Success -> {
+                    userDataRepository.internalData.map { internalData ->
+                        analyticsHelper.logSelectContent(contentType = "tv", media = result.data.tv)
+
+                        TvState.Success(
+                            TvUiState(
+                                tv = result.data.tv,
+                                seasons = result.data.tv.seasons.orEmpty(),
+                                episodeState = result.data.seasonLoadState,
+                                episodesBySeason = result.data.episodesBySeason,
+                                autoPlayTrailer = internalData.isAutoPlayTrailer
+                            )
+                        )
+                    }
+                }
+                is Result.Error -> Flowable.just(TvState.Error(SurfyNetworkException(throwable = result.throwable)))
             }
-            is Result.Error -> TvState.Error(throwable = result.throwable as SurfyNetworkException)
-        }
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.Lazily,
-        initialValue = TvState.Loading
-    )
+        }.replay(1).refCount()
+//        Flowable.combineLatest(
+//            tv,
+//            userDataRepository.internalData
+//        ) { result, internalData ->
+//            when (result) {
+//                is Result.Loading -> TvState.Loading
+//                is Result.Success -> {
+//                    analyticsHelper.logSelectContent(contentType = "tv", media = result.data.tv)
+//
+//                    TvState.Success(
+//                        TvUiState(
+//                            tv = result.data.tv,
+//                            seasons = result.data.tv.seasons.orEmpty(),
+//                            episodeState = result.data.seasonLoadState,
+//                            episodesBySeason = result.data.episodesBySeason,
+//                            autoPlayTrailer = internalData.isAutoPlayTrailer
+//                        )
+//                    )
+//                }
+//                is Result.Error -> TvState.Error(result.throwable as SurfyNetworkException)
+//            }
+//        }.replay(1)
+//            .refCount()
     @OptIn(ExperimentalCoroutinesApi::class)
     val tvReviews = userDataRepository.internalData
         .map { it.language to it.region }
-        .flatMapLatest {
+        .flatMap {
             Pager(
                 config = PagingConfig(pageSize = 1, initialLoadSize = 1, prefetchDistance = 5),
                 initialKey = 1,
@@ -126,25 +148,19 @@ class TvVM @AssistedInject constructor(
                         region = it.second
                     )
                 }
-            ).flow
+            ).flowable
         }.cachedIn(scope = viewModelScope)
 
     init {
-        viewModelScope.launch {
-            reload.emit(value = Unit)
-        }
+        reload.onNext(Unit)
     }
 
     fun onSelectSeason(season: TvSeason) {
-        viewModelScope.launch {
-            selectedSeason.emit(value = season)
-        }
+        _selectedSeason.onNext(SeasonSelection.Selected(season))
     }
 
     fun restart() {
-        viewModelScope.launch {
-            reload.emit(value = Unit)
-        }
+        reload.onNext(Unit)
     }
 
     fun insertTv(tv: Tv) {
@@ -161,14 +177,18 @@ class TvVM @AssistedInject constructor(
 
     fun showEpisodeDetail(episode: TvEpisode) {
         viewModelScope.launch {
-            _selectedEpisode.emit(value = episode)
+            _selectedEpisode.onNext(EpisodeDialog.Visible(episode))
         }
     }
 
     fun hideEpisodeDetail() {
         viewModelScope.launch {
-            _selectedEpisode.emit(value = null)
+            _selectedEpisode.onNext(EpisodeDialog.Hidden)
         }
+    }
+
+    override fun onCleared() {
+        disposables.clear()
     }
 }
 
@@ -185,3 +205,8 @@ data class TvUiState(
     val episodesBySeason: Map<String, List<TvEpisode>>,
     val autoPlayTrailer: Boolean
 )
+
+sealed interface EpisodeDialog {
+    data object Hidden : EpisodeDialog
+    data class Visible(val episode: TvEpisode) : EpisodeDialog
+}

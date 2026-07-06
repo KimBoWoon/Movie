@@ -3,7 +3,7 @@ package com.cheeke.surfy.favorite
 import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.cachedIn
+import androidx.paging.rxjava3.cachedIn
 import com.cheeke.surfy.data.repository.FavoriteKeys
 import com.cheeke.surfy.data.repository.FavoriteRepository
 import com.cheeke.surfy.feature.favorite.R
@@ -11,10 +11,8 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.reactivex.rxjava3.processors.BehaviorProcessor
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.flatMapLatest
 
 @HiltViewModel(assistedFactory = FavoriteVM.Factory::class)
 class FavoriteVM @AssistedInject constructor(
@@ -30,25 +28,25 @@ class FavoriteVM @AssistedInject constructor(
         fun create(tab: FavoriteKeys): FavoriteVM
     }
 
-    private val _currentTab = MutableStateFlow(value = initialTabKey)
-    val currentTab = _currentTab.asStateFlow()
+    private val _currentTab = BehaviorProcessor.createDefault(initialTabKey)
+    val currentTab = _currentTab.hide()
     val tabList = FavoriteKeys.entries.map {
         FavoriteTabUiModel(
             type = it,
             titleRes = when (it) {
                 FavoriteKeys.MOVIE -> R.string.movie
-                FavoriteKeys.PEOPLE -> R.string.people
                 FavoriteKeys.TV -> R.string.tv
+                FavoriteKeys.PEOPLE -> R.string.people
             }
         )
     }
     @OptIn(ExperimentalCoroutinesApi::class)
     val currentPagingItems = currentTab
-        .flatMapLatest { key -> repositories.getValue(key = key).pagingSource }
+        .switchMap { key -> repositories.getValue(key = key).pagingSource }
         .cachedIn(scope = viewModelScope)
 
     fun updateTabKey(key: FavoriteKeys) {
-        _currentTab.value = key
+        _currentTab.onNext(key)
     }
 }
 

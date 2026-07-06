@@ -4,14 +4,14 @@ import androidx.paging.PagingSource
 import com.cheeke.surfy.database.dao.PeopleDao
 import com.cheeke.surfy.database.model.PeopleEntity
 import com.cheeke.surfy.model.Media
-import kotlinx.coroutines.flow.Flow
+import io.reactivex.rxjava3.core.Flowable
 import java.time.Instant
 import javax.inject.Inject
 
 class PeopleDataBaseRepositoryImpl @Inject constructor(
     private val peopleDao: PeopleDao
 ) : PeopleDataBaseRepository {
-    override fun isFavorite(id: Int): Flow<Boolean> = peopleDao.isFavoritePeople(id = id)
+    override fun isFavorite(id: Int): Flowable<Boolean> = peopleDao.isFavoritePeople(id = id)
 
     override suspend fun insert(media: Media): Long =
         peopleDao.insertOrIgnorePeoples(

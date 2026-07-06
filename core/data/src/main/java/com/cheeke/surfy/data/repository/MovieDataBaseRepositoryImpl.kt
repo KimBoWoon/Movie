@@ -9,9 +9,11 @@ import com.cheeke.surfy.database.model.UpComingMovieEntity
 import com.cheeke.surfy.database.model.asExternalModel
 import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.model.Movie
+import io.reactivex.rxjava3.core.Flowable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import java.time.Instant
 import javax.inject.Inject
@@ -36,7 +38,7 @@ class MovieDataBaseRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun isFavorite(id: Int): Flow<Boolean> = movieDao.isFavoriteMovie(id = id)
+    override fun isFavorite(id: Int): Flowable<Boolean> = movieDao.isFavoriteMovie(id = id)
 
     override suspend fun insert(media: Media): Long =
         movieDao.insertOrIgnoreMovies(
@@ -75,15 +77,15 @@ class MovieDataBaseRepositoryImpl @Inject constructor(
     override fun getNowPlayingMovies(): PagingSource<Int, NowPlayingMovieEntity> =
         movieDao.getNowPlayingMovie()
 
-    override suspend fun getPopularMovies(): List<Movie> =
+    override fun getPopularMovies(): Single<List<Movie>> =
         movieDao.getPopularMovies().map { nowPlayingMovieEntities ->
-            nowPlayingMovieEntities.asExternalModel()
-        }
+            nowPlayingMovieEntities.map(transform = NowPlayingMovieEntity::asExternalModel)
+        }.subscribeOn(Schedulers.io())
 
-    override suspend fun getNextWeekReleaseMovies(): List<Movie> =
+    override fun getNextWeekReleaseMovies(): Single<List<Movie>> =
         movieDao.getNextWeekReleaseMovies().map { movieEntity ->
-            movieEntity.asExternalModel()
-        }
+            movieEntity.map(transform = MovieEntity::asExternalModel)
+        }.subscribeOn(Schedulers.io())
 
     override fun getFavorite(): PagingSource<Int, MovieEntity> =
         movieDao.getFavoriteMovie()

@@ -4,20 +4,22 @@ import android.content.res.Configuration
 import androidx.activity.ComponentActivity
 import androidx.core.util.Consumer
 import com.cheeke.surfy.common.isSystemInDarkTheme
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.conflate
-import kotlinx.coroutines.flow.distinctUntilChanged
+import io.reactivex.rxjava3.core.BackpressureStrategy
+import io.reactivex.rxjava3.core.Flowable
 
-fun ComponentActivity.isSystemInDarkTheme() = callbackFlow {
-    channel.trySend(element = resources.configuration.isSystemInDarkTheme)
+fun ComponentActivity.isSystemInDarkTheme(): Flowable<Boolean> =
+    Flowable.create({ emitter ->
+        emitter.onNext(resources.configuration.isSystemInDarkTheme)
 
-    val listener = Consumer<Configuration> {
-        channel.trySend(element = it.isSystemInDarkTheme)
-    }
+        val listener = Consumer<Configuration> {
+            emitter.onNext(it.isSystemInDarkTheme)
+        }
 
-    addOnConfigurationChangedListener(listener)
+        addOnConfigurationChangedListener(listener)
 
-    awaitClose { removeOnConfigurationChangedListener(listener) }
-}.distinctUntilChanged()
-    .conflate()
+        emitter.setCancellable {
+            removeOnConfigurationChangedListener(listener)
+        }
+
+    }, BackpressureStrategy.LATEST)
+        .distinctUntilChanged()

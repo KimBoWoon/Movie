@@ -64,7 +64,7 @@ class TestMovieDatabaseRepository() : MovieDataBaseRepository {
         return movieDatabase.first()
     }
 
-    override suspend fun getPopularMovies(): List<Movie> = movieDatabase.map { movies ->
+    override fun getPopularMovies(): List<Movie> = movieDatabase.map { movies ->
         movies.filter { movie -> (movie.voteCount ?: 0) > 500 && (movie.voteAverage ?: 0f) > 7.0f }
     }.first()
 

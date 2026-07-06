@@ -18,5 +18,8 @@ dependencies {
         implementation(it)
     }
 
+    implementation(libs.rxkotlin)
+    implementation(libs.rxandroid)
+
     compileOnly(platform(libs.androidx.compose.bom))
 }

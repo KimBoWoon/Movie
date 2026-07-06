@@ -42,14 +42,12 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.PagingData
-import androidx.paging.compose.LazyPagingItems
-import androidx.paging.compose.collectAsLazyPagingItems
 import com.cheeke.surfy.analytics.LocalAnalyticsHelper
 import com.cheeke.surfy.analytics.TrackScreenViewEvent
 import com.cheeke.surfy.analytics.logFavorite
 import com.cheeke.surfy.common.Log
+import com.cheeke.surfy.common.subscribeAsState
 import com.cheeke.surfy.data.util.POSTER_IMAGE_RATIO
 import com.cheeke.surfy.feature.detail.R
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
@@ -80,6 +78,7 @@ import com.cheeke.surfy.ui.utils.dp12
 import com.cheeke.surfy.ui.utils.dp120
 import com.cheeke.surfy.ui.utils.dp14
 import com.cheeke.surfy.ui.utils.dp16
+import com.cheeke.surfy.ui.utils.dp20
 import com.cheeke.surfy.ui.utils.dp4
 import com.cheeke.surfy.ui.utils.dp5
 import com.cheeke.surfy.ui.utils.dp62
@@ -88,6 +87,7 @@ import com.cheeke.surfy.ui.utils.dp92
 import com.cheeke.surfy.ui.utils.sp10
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.reactive.asFlow
 
 @Composable
 fun MovieScreen(
@@ -101,10 +101,10 @@ fun MovieScreen(
     LocalFirebaseLogHelper.current.sendLog("DetailScreen", "detail screen start!")
     TrackScreenViewEvent(screenName = "DetailScreen")
 
-    val movieState by viewModel.movie.collectAsStateWithLifecycle()
-    val similarMovies = viewModel.similarMovies
-    val movieReviews = viewModel.movieReviews.collectAsLazyPagingItems()
-    val isCheatActive by viewModel.isCheatActive.collectAsStateWithLifecycle()
+    val movieState by viewModel.movie.subscribeAsState(initial = MovieState.Loading)
+    val similarMovies = viewModel.similarMovies.asFlow()
+    val movieReviews = viewModel.movieReviews.asFlow()
+    val isCheatActive by viewModel.isCheatActive.subscribeAsState(initial = false)
 
     MovieScreen(
         movieState = movieState,
@@ -126,7 +126,7 @@ fun MovieScreen(
 fun MovieScreen(
     movieState: MovieState,
     similarMovies: Flow<PagingData<SimilarMedia>>,
-    movieReviews: LazyPagingItems<Review>,
+    movieReviews: Flow<PagingData<Review>>,
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     goToSeries: (Int) -> Unit,
@@ -207,7 +207,7 @@ fun MovieDetailComponent(
     movie: Movie,
     isAutoPlayTrailer: Boolean,
     similarMovies: Flow<PagingData<SimilarMedia>>,
-    movieReviews: LazyPagingItems<Review>,
+    movieReviews: Flow<PagingData<Review>>,
     goToMovie: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
     goToSeries: (Int) -> Unit,
@@ -228,8 +228,7 @@ fun MovieDetailComponent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(state = scrollState),
-        verticalArrangement = Arrangement.spacedBy(space = dp10)
+            .verticalScroll(state = scrollState)
     ) {
         TitleComponent(
             isFavorite = movie.isFavorite,
@@ -253,6 +252,7 @@ fun MovieDetailComponent(
                 vodList = vodList,
                 autoPlayTrailer = isAutoPlayTrailer
             )
+            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
         }
 
         MediaTitleComponent(media = movie)
@@ -264,22 +264,27 @@ fun MovieDetailComponent(
 //            }
         if (isCheatActive) {
             movie.alternativeTitles?.titles?.takeIf { it.isNotEmpty() }?.let { alternativeTitles ->
+                Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
                 AlternativeTitleComponent(alternativeTitles = alternativeTitles)
             }
         }
         movie.overview?.takeIf { it.trim().isNotEmpty() }?.let { overview ->
+            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
             OverviewComponent(overview = overview)
         }
         movie.credits?.let { credits ->
+            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
             CreditsComponent(
                 credits = credits,
                 goToPeople = goToPeople
             )
         }
         movie.productionCompanies?.let { productionCompanies ->
+            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
             ProductionComponent(companies = productionCompanies)
         }
         movie.series?.let { series ->
+            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
             SeriesComponent(
                 movieId = movie.id,
                 collection = series,
@@ -288,19 +293,25 @@ fun MovieDetailComponent(
             )
         }
         movie.images?.let { images ->
+            val posters = images.posters.orEmpty()
+            val backdrops = images.backdrops.orEmpty()
+
+            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
             ImagesComponent(
-                backdrops = images.backdrops.orEmpty(),
-                posters = images.posters.orEmpty(),
+                backdrops = backdrops,
+                posters = posters,
                 sharedTransitionScope = sharedTransitionScope,
                 selectedImage = selectedImage,
                 onSelect = onSelect
             )
         }
+        Spacer(modifier = Modifier.fillMaxWidth().height(height = dp20))
         if (!movie.reviews?.results.isNullOrEmpty()) {
             ReviewComponent(
                 items = movie.reviews?.results.orEmpty(),
                 reviews = movieReviews
             )
+            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp10))
         }
         if (!movie.similar?.results.isNullOrEmpty()) {
             SimilarComponent(
@@ -308,6 +319,7 @@ fun MovieDetailComponent(
                 items = movie.similar?.results.orEmpty(),
                 goToDestination = goToMovie
             )
+            Spacer(modifier = Modifier.fillMaxWidth().height(height = dp20))
         }
     }
 }

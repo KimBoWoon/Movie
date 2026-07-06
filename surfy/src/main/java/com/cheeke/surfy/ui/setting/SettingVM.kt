@@ -8,13 +8,10 @@ import com.cheeke.surfy.data.util.DataManager
 import com.cheeke.surfy.model.DarkThemeConfig
 import com.cheeke.surfy.model.LocaleOption
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
+import io.reactivex.rxjava3.core.Flowable
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.addTo
+import io.reactivex.rxjava3.processors.BehaviorProcessor
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -27,11 +24,12 @@ class SettingVM @Inject constructor(
         private const val TAG = "SettingVM"
     }
 
-    private val _uiState = MutableStateFlow(value = SettingsUiState())
-    val uiState: StateFlow<SettingsUiState> = combine(
-        flow = userDataRepository.internalData,
-        flow2 = dataManager.surfyAppData,
-        flow3 = _uiState
+    private val disposable = CompositeDisposable()
+    private val _uiState = BehaviorProcessor.createDefault(SettingsUiState())
+    val uiState = Flowable.combineLatest(
+        userDataRepository.internalData,
+        dataManager.surfyAppData,
+        _uiState
     ) { internalData, movieAppDataState, settingsUiState ->
         val movieAppData = movieAppDataState.getMovieAppData()
         val selectedLanguage = movieAppData.language.find { it.isSelected }
@@ -56,153 +54,169 @@ class SettingVM @Inject constructor(
             selectedImageQuality = settingsUiState.selectedImageQuality,
             isCheatActive = settingsUiState.isCheatActive ?: internalData.isCheatActive
         )
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = SettingsUiState()
-    )
+    }
     var titleClickCount = 0
-    val _isCheatActive = MutableStateFlow(value = false)
-    val isCheatActive = _isCheatActive.asStateFlow()
+    val _isCheatActive = BehaviorProcessor.createDefault(false)
+    val isCheatActive = _isCheatActive.hide()
 
     init {
-        viewModelScope.launch {
-            _isCheatActive.emit(value = userDataRepository.getIsCheatActive())
-            _uiState.update { it.copy(isCheatActive = userDataRepository.getIsCheatActive()) }
-        }
+        userDataRepository.internalData
+            .subscribe(
+                { internalData ->
+                    _uiState.value?.let {
+                        _uiState.onNext(it.copy(isCheatActive = internalData.isCheatActive))
+                    }
+                    _isCheatActive.onNext(internalData.isCheatActive)
+                },
+                { Log.d(it.message.toString()) }
+            ).addTo(disposable)
     }
 
     fun onAction(action: SettingsAction) {
         Log.d("onAction", "$action")
         when (action) {
-            SettingsAction.OpenMain -> _uiState.update { it.copy(sheet = SettingsSheet.Main) }
-            SettingsAction.CloseSheet -> _uiState.update { it.copy(sheet = SettingsSheet.Hidden) }
-            is SettingsAction.SetAdult -> {
-                _uiState.update { it.copy(isAdult = action.enabled) }
-                viewModelScope.launch {
-                    userDataRepository.updateIsAdult(value = action.enabled)
+            SettingsAction.OpenMain -> {
+                _uiState.value?.let {
+                    _uiState.onNext(it.copy(sheet = SettingsSheet.Main))
                 }
             }
-            is SettingsAction.SetTrailerAutoplay -> {
-                _uiState.update { it.copy(isTrailerAutoplay = action.enabled) }
-                viewModelScope.launch {
-                    userDataRepository.updateIsAutoPlayTrailer(value = action.enabled)
+            SettingsAction.CloseSheet -> {
+                _uiState.value?.let {
+                    _uiState.onNext(it.copy(sheet = SettingsSheet.Hidden))
                 }
+            }
+            is SettingsAction.SetAdult -> userDataRepository.updateIsAdult(value = action.enabled)
+            is SettingsAction.SetTrailerAutoplay -> {
+                userDataRepository.updateIsAutoPlayTrailer(value = action.enabled)
             }
             SettingsAction.OpenLanguageRegion -> {
-                _uiState.update {
-                    it.copy(
-                        sheet = SettingsSheet.LanguageRegion,
-                        language = it.language,
-                        region = it.region,
-                    )
+                _uiState.value?.let {
+                    _uiState.onNext(it.copy(sheet = SettingsSheet.LanguageRegion))
                 }
             }
             SettingsAction.OpenImageQuality -> {
-                _uiState.update {
-                    it.copy(
-                        sheet = SettingsSheet.ImageQuality,
-                        imageQuality = it.imageQuality,
-                        imageQualityList = it.imageQualityList
-                    )
+                _uiState.value?.let {
+                    _uiState.onNext(it.copy(sheet = SettingsSheet.ImageQuality))
                 }
             }
-            is SettingsAction.PickLanguage -> _uiState.update { it.copy(selectedLanguage = action.option) }
-            is SettingsAction.PickRegion -> _uiState.update { it.copy(selectedRegion = action.option) }
+            is SettingsAction.PickLanguage -> {
+                _uiState.value?.let {
+                    _uiState.onNext(it.copy(selectedLanguage = action.option))
+                }
+            }
+            is SettingsAction.PickRegion -> {
+                _uiState.value?.let {
+                    _uiState.onNext(it.copy(selectedRegion = action.option))
+                }
+            }
             SettingsAction.ConfirmLanguageRegion -> {
-                viewModelScope.launch {
-                    _uiState.value.selectedLanguage?.let {
-                        if (it.code != _uiState.value.language?.code) {
-                            userDataRepository.updateLanguage(value = it.code)
-                        }
-                    }
-                    _uiState.value.selectedRegion?.let {
-                        if (it.code != _uiState.value.region?.code) {
-                            userDataRepository.updateRegion(value = it.code)
-                        }
+                _uiState.value?.selectedLanguage?.let {
+                    if (it.code != _uiState.value?.language?.code) {
+                        userDataRepository.updateLanguage(value = it.code)
                     }
                 }
-                _uiState.update {
-                    it.copy(
-                        language = _uiState.value.selectedLanguage,
-                        region = _uiState.value.selectedRegion,
-                        sheet = SettingsSheet.Main
-                    )
+                _uiState.value?.selectedRegion?.let {
+                    if (it.code != _uiState.value?.region?.code) {
+                        userDataRepository.updateRegion(value = it.code)
+                    }
+                }
+                _uiState.value?.let {
+                    _uiState.onNext(it.copy(sheet = SettingsSheet.Main))
                 }
             }
             SettingsAction.BackToMainFromLanguageRegion -> {
-                _uiState.update {
-                    it.copy(
-                        sheet = SettingsSheet.Main,
-                        language = it.language,
-                        region = it.region,
-                        selectedLanguage = null,
-                        selectedRegion = null
+                _uiState.value?.let {
+                    _uiState.onNext(
+                        it.copy(
+                            sheet = SettingsSheet.Main,
+                            language = it.language,
+                            region = it.region,
+                            selectedRegion = null,
+                            selectedLanguage = null,
+                        )
                     )
                 }
             }
-            is SettingsAction.PickImageQuality -> _uiState.update { it.copy(selectedImageQuality = action.option) }
+            is SettingsAction.PickImageQuality -> {
+                _uiState.value?.let {
+                    _uiState.onNext(it.copy(selectedImageQuality = action.option))
+                }
+            }
             SettingsAction.ConfirmImageQuality -> {
-                _uiState.update {
-                    it.copy(
-                        imageQuality = _uiState.value.selectedImageQuality ?: "original",
-                        sheet = SettingsSheet.Main
+                _uiState.value?.let {
+                    _uiState.onNext(
+                        it.copy(
+                            sheet = SettingsSheet.Main,
+                            imageQuality = it.selectedImageQuality ?: "original"
+                        )
                     )
                 }
-                viewModelScope.launch {
-                    _uiState.value.selectedImageQuality?.let {
-                        userDataRepository.updateImageQuality(value = it)
-                    }
+                _uiState.value?.selectedImageQuality?.let {
+                    userDataRepository.updateImageQuality(value = it)
                 }
             }
             SettingsAction.BackToMainFromImageQuality -> {
-                _uiState.update {
-                    it.copy(
-                        sheet = SettingsSheet.Main,
-                        imageQuality = it.imageQuality,
-                        selectedImageQuality = null
+                _uiState.value?.let {
+                    _uiState.onNext(
+                        it.copy(
+                            sheet = SettingsSheet.Main,
+                            imageQuality = it.imageQuality,
+                            selectedLanguage = null
+                        )
                     )
                 }
             }
             SettingsAction.BackToMainFromThemeSetting -> {
-                _uiState.update {
-                    it.copy(
-                        sheet = SettingsSheet.Main,
-                        theme = it.theme,
-                        selectedTheme = null
+                _uiState.value?.let {
+                    _uiState.onNext(
+                        it.copy(
+                            sheet = SettingsSheet.Main,
+                            theme = it.theme,
+                            selectedTheme = null
+                        )
                     )
                 }
             }
             SettingsAction.ConfirmTheme -> {
-                _uiState.update {
-                    it.copy(
-                        theme = _uiState.value.selectedTheme ?: DarkThemeConfig.FOLLOW_SYSTEM,
-                        sheet = SettingsSheet.Main
+                _uiState.value?.let {
+                    _uiState.onNext(
+                        it.copy(
+                            sheet = SettingsSheet.Main,
+                            theme = it.selectedTheme ?: DarkThemeConfig.FOLLOW_SYSTEM
+                        )
                     )
                 }
-                viewModelScope.launch {
-                    _uiState.value.selectedTheme?.let {
-                        userDataRepository.updateDarkMode(darkThemeConfig = it)
-                    }
+                _uiState.value?.selectedTheme?.let {
+                    userDataRepository.updateDarkMode(darkThemeConfig = it)
                 }
             }
             SettingsAction.OpenThemeSetting -> {
-                _uiState.update {
-                    it.copy(
-                        sheet = SettingsSheet.ThemeSetting,
-                        theme = it.theme,
-                        themeList = DarkThemeConfig.entries
+                _uiState.value?.let {
+                    _uiState.onNext(
+                        it.copy(
+                            sheet = SettingsSheet.ThemeSetting,
+                            theme = it.theme,
+                            themeList = DarkThemeConfig.entries
+                        )
                     )
                 }
             }
-            is SettingsAction.PickTheme -> _uiState.update { it.copy(selectedTheme = action.option) }
-            is SettingsAction.SetCheatActive -> {
-                viewModelScope.launch {
-                    _uiState.value.isCheatActive?.let { isCheatActive ->
-                        userDataRepository.updateIsCheatActive(value = !isCheatActive)
-                    }
+            is SettingsAction.PickTheme -> {
+                _uiState.value?.let {
+                    _uiState.onNext(it.copy(selectedTheme = action.option))
                 }
-                _uiState.update { it.copy(isCheatActive = it.isCheatActive?.not()) }
+            }
+            is SettingsAction.SetCheatActive -> {
+                _uiState.value?.let {
+                    _uiState.onNext(
+                        it.copy(
+                            isCheatActive = it.isCheatActive?.not()
+                        )
+                    )
+                }
+                _uiState.value?.isCheatActive?.let { isCheatActive ->
+                    userDataRepository.updateIsCheatActive(value = !isCheatActive)
+                }
             }
         }
     }
@@ -212,10 +226,15 @@ class SettingVM @Inject constructor(
             titleClickCount++
 
             if (titleClickCount >= 10) {
-                _isCheatActive.emit(value = !isCheatActive.value)
+                _isCheatActive.onNext(_isCheatActive.value?.not() ?: false)
                 titleClickCount = 0
             }
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        disposable.clear()
     }
 }
 

@@ -35,6 +35,9 @@ dependencies {
         implementation(it)
     }
 
+    implementation(libs.rxkotlin)
+    implementation(libs.rxandroid)
+
     ksp(libs.hilt.ext.compiler)
 
     arrayOf(

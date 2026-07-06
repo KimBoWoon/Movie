@@ -60,6 +60,7 @@ import com.cheeke.surfy.common.InfinitePager
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.common.ScrollToTop
 import com.cheeke.surfy.common.ScrollTopEvent
+import com.cheeke.surfy.common.subscribeAsState
 import com.cheeke.surfy.data.util.PEOPLE_IMAGE_RATIO
 import com.cheeke.surfy.data.util.POSTER_IMAGE_RATIO
 import com.cheeke.surfy.feature.home.R
@@ -87,6 +88,7 @@ import com.cheeke.surfy.ui.utils.dp60
 import com.cheeke.surfy.ui.utils.dp8
 import com.cheeke.surfy.ui.utils.sp10
 import com.cheeke.surfy.ui.utils.sp8
+import kotlinx.coroutines.rx3.asFlow
 
 @Composable
 fun HomeScreen(
@@ -98,15 +100,15 @@ fun HomeScreen(
     LocalFirebaseLogHelper.current.sendLog("HomeScreen", "init screen")
     TrackScreenViewEvent(screenName = "HomeScreen")
 
-    val homeState by viewModel.homeUiState.collectAsStateWithLifecycle()
+    val homeState by viewModel.homeUiState.subscribeAsState(initial = HomeState.Loading)
     val nowPlayingMovies = viewModel.nowPlayingMoviePaging.collectAsLazyPagingItems()
     val upComingMovies = viewModel.upComingMoviePaging.collectAsLazyPagingItems()
     val trendingMovies = viewModel.trendingMoviePaging.collectAsLazyPagingItems()
     val trendingPeoples = viewModel.trendingPeoplePaging.collectAsLazyPagingItems()
     val trendingTvs = viewModel.trendingTvPaging.collectAsLazyPagingItems()
-    val trendingMovieTimeWindow by viewModel.trendingMovieTimeWindow.collectAsStateWithLifecycle()
-    val trendingPeopleTimeWindow by viewModel.trendingPeopleTimeWindow.collectAsStateWithLifecycle()
-    val trendingTvTimeWindow by viewModel.trendingTvTimeWindow.collectAsStateWithLifecycle()
+    val trendingMovieTimeWindow by viewModel.trendingMovieTimeWindow.asFlow().collectAsStateWithLifecycle(initialValue = TimeWindow.DAY)
+    val trendingPeopleTimeWindow by viewModel.trendingPeopleTimeWindow.asFlow().collectAsStateWithLifecycle(initialValue = TimeWindow.DAY)
+    val trendingTvTimeWindow by viewModel.trendingTvTimeWindow.asFlow().collectAsStateWithLifecycle(initialValue = TimeWindow.DAY)
 
     HomeScreen(
         homeUiState = homeState,

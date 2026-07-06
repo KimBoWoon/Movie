@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.cheeke.surfy.analytics.AnalyticsHelper
 import com.cheeke.surfy.analytics.logSelectContent
 import com.cheeke.surfy.common.Result
-import com.cheeke.surfy.common.asResult
 import com.cheeke.surfy.data.repository.PeopleDataBaseRepository
 import com.cheeke.surfy.domain.GetPeopleDetailUseCase
 import com.cheeke.surfy.model.People
@@ -15,12 +14,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
+import io.reactivex.rxjava3.processors.BehaviorProcessor
 import kotlinx.coroutines.launch
 
 @HiltViewModel(assistedFactory = PeopleVM.Factory::class)
@@ -39,36 +33,37 @@ class PeopleVM @AssistedInject constructor(
         fun create(id: Int): PeopleVM
     }
 
-    private val reload = MutableSharedFlow<Unit>(replay = 1)
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val people = reload
-        .flatMapLatest {
-            trace(sectionName = "GetPeopleDetail") { getPeopleDetail(personId = id) }.asResult()
-        }.map { result ->
-            when (result) {
-                is Result.Loading -> PeopleState.Loading
-                is Result.Success -> {
-                    analyticsHelper.logSelectContent(contentType = "people", media = result.data)
-                    PeopleState.Success(data = result.data)
-                }
-                is Result.Error -> PeopleState.Error(result.throwable as SurfyNetworkException)
+    private val reload = BehaviorProcessor.createDefault<Unit>(Unit)
+    private val detail = reload
+        .switchMap {
+            trace("GetPeopleDetail") {
+                getPeopleDetail(id)
+                    .map<Result<People>> { Result.Success(it) }
+                    .startWithItem(Result.Loading)
+                    .onErrorReturn { Result.Error(it) }
             }
-        }.stateIn(
-            scope = viewModelScope,
-            initialValue = PeopleState.Loading,
-            started = SharingStarted.Lazily
-        )
+        }
+    val people = detail.map { result ->
+        when (result) {
+            Result.Loading -> PeopleState.Loading
+            is Result.Success -> {
+                analyticsHelper.logSelectContent(contentType = "movie", media = result.data)
+                PeopleState.Success(data = result.data)
+            }
+            is Result.Error -> PeopleState.Error(result.throwable as SurfyNetworkException)
+        }
+    }.replay(1)
+        .refCount()
 
     init {
         viewModelScope.launch {
-            reload.emit(value = Unit)
+            reload.onNext(Unit)
         }
     }
 
     fun restart() {
         viewModelScope.launch {
-            reload.emit(value = Unit)
+            reload.onNext(Unit)
         }
     }
 

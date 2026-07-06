@@ -67,16 +67,15 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.flowWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.cheeke.surfy.analytics.TrackScreenViewEvent
 import com.cheeke.surfy.common.Log
+import com.cheeke.surfy.common.subscribeAsState
 import com.cheeke.surfy.data.util.POSTER_IMAGE_RATIO
+import com.cheeke.surfy.data.util.SurfyAppDataState
 import com.cheeke.surfy.database.model.KeywordEntity
 import com.cheeke.surfy.feature.search.R
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
@@ -110,6 +109,7 @@ import com.cheeke.surfy.ui.utils.matchedColorString
 import com.cheeke.surfy.ui.utils.roundedCornerClickable
 import com.cheeke.surfy.ui.utils.sp12
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx3.asFlow
 
 @Composable
 fun SearchScreen(
@@ -123,19 +123,19 @@ fun SearchScreen(
     LocalFirebaseLogHelper.current.sendLog("SearchScreen", "search screen init")
     TrackScreenViewEvent(screenName = "SearchScreen")
 
-    val searchUiState by viewModel.searchResult.collectAsStateWithLifecycle()
-    val selectedGenre by viewModel.selectedGenre.collectAsStateWithLifecycle()
-    val searchType by viewModel.searchType.collectAsStateWithLifecycle()
-    val recommendKeyword = viewModel.recommendKeywordPaging.collectAsLazyPagingItems()
+    val searchUiState by viewModel.searchResult.subscribeAsState(initial = SearchUiState.SearchHint)
+    val selectedGenre by viewModel.selectedGenre.subscribeAsState(initial = SearchVM.GenreSelection(null))
+    val searchType by viewModel.searchType.subscribeAsState(initial = SearchType.MULTI)
+    val recommendKeyword = viewModel.recommendKeywordPaging.asFlow().collectAsLazyPagingItems()
     val inputKeyword = stringResource(id = R.string.input_keyword)
-    val movieAppData by viewModel.surfyAppData.collectAsStateWithLifecycle()
+    val movieAppData by viewModel.surfyAppData.subscribeAsState(initial = SurfyAppDataState.Loading)
     val lifecycle = LocalLifecycleOwner.current.lifecycle
-    val recentlyKeyword = viewModel.recentlyKeywordPaging.collectAsLazyPagingItems()
-    val query by viewModel.query.collectAsStateWithLifecycle()
+    val recentlyKeyword = viewModel.recentlyKeywordPaging.asFlow().collectAsLazyPagingItems()
+    val query by viewModel.query.subscribeAsState(initial = TextFieldValue(text = ""))
 
     LaunchedEffect(key1 = Unit) {
         viewModel.showSnackbar
-            .flowWithLifecycle(lifecycle = lifecycle, minActiveState = Lifecycle.State.STARTED)
+            .asFlow()
             .collect { onShowSnackbar(inputKeyword, null) }
     }
 
@@ -145,7 +145,7 @@ fun SearchScreen(
         recommendKeyword = recommendKeyword,
         query = query,
         searchType = searchType,
-        surfyAppData = movieAppData,
+        surfyAppData = movieAppData.getMovieAppData(),
         selectedGenre = selectedGenre,
         goToMovie = goToMovie,
         goToTv = goToTv,
@@ -169,7 +169,7 @@ fun SearchScreen(
     query: TextFieldValue,
     searchType: SearchType,
     surfyAppData: SurfyAppData,
-    selectedGenre: Genre?,
+    selectedGenre: SearchVM.GenreSelection,
     goToMovie: (Int) -> Unit,
     goToTv: (Int) -> Unit,
     goToPeople: (Int) -> Unit,
@@ -438,7 +438,7 @@ fun SearchResultComponent(
     goToPeople: (Int) -> Unit,
     goToSeries: (Int) -> Unit,
     surfyAppData: SurfyAppData,
-    selectedGenre: Genre?,
+    selectedGenre: SearchVM.GenreSelection,
     updateGenre: (Genre) -> Unit,
 ) {
     Box(
@@ -509,7 +509,7 @@ fun SearchPagingComponent(
     scrollState: LazyGridState,
     searchType: SearchType,
     surfyAppData: SurfyAppData,
-    selectedGenre: Genre?,
+    selectedGenre: SearchVM.GenreSelection,
     updateGenre: (Genre) -> Unit,
     goToMovie: (Int) -> Unit,
     goToTv: (Int) -> Unit,
@@ -743,7 +743,7 @@ fun RecommendKeywordComponent(
 fun MovieFilterRowComponent(
     searchType: SearchType,
     surfyAppData: SurfyAppData,
-    selectedGenre: Genre?,
+    selectedGenre: SearchVM.GenreSelection,
     updateGenre: (Genre) -> Unit
 ) {
     if (searchType == SearchType.MOVIE || searchType == SearchType.TV) {
@@ -761,7 +761,7 @@ fun MovieFilterRowComponent(
                 genre.name?.let { name ->
                     FilterChipComponent(
                         title = name,
-                        selectedFilter = selectedGenre?.id == genre.id,
+                        selectedFilter = selectedGenre.genre?.id == genre.id,
                         updateFilter = { updateGenre(genre) }
                     )
                 }

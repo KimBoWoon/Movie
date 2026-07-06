@@ -34,7 +34,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -43,6 +42,7 @@ import com.cheeke.surfy.analytics.TrackScreenViewEvent
 import com.cheeke.surfy.analytics.logFavorite
 import com.cheeke.surfy.common.ScrollToTop
 import com.cheeke.surfy.common.ScrollTopEvent
+import com.cheeke.surfy.common.subscribeAsState
 import com.cheeke.surfy.data.repository.FavoriteKeys
 import com.cheeke.surfy.data.repository.FavoriteMovieRepository
 import com.cheeke.surfy.data.repository.FavoritePeopleRepository
@@ -66,6 +66,7 @@ import com.cheeke.surfy.ui.utils.dp5
 import com.cheeke.surfy.ui.utils.dp6
 import com.cheeke.surfy.ui.utils.dp999
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.reactive.asFlow
 
 @Composable
 fun FavoriteScreen(
@@ -78,12 +79,12 @@ fun FavoriteScreen(
     LocalFirebaseLogHelper.current.sendLog("FavoriteScreen", "favorite screen init")
     TrackScreenViewEvent(screenName = "FavoriteScreen")
 
-    val selectedTab by viewModel.currentTab.collectAsStateWithLifecycle()
+    val selectedTab by viewModel.currentTab.subscribeAsState(FavoriteKeys.MOVIE)
 
     FavoriteScreen(
         tabList = viewModel.tabList,
         selectedTab = viewModel.repositories.getValue(key = selectedTab),
-        favoritePagingItems = viewModel.currentPagingItems.collectAsLazyPagingItems(),
+        favoritePagingItems = viewModel.currentPagingItems.asFlow().collectAsLazyPagingItems(),
         onShowSnackbar = onShowSnackbar,
         updateTabKey = viewModel::updateTabKey,
         goTo = { favoriteTab, media ->

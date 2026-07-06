@@ -20,6 +20,9 @@ dependencies {
         implementation(it)
     }
 
+//    implementation("androidx.work:work-rxjava2:2.11.2")
+    implementation("androidx.work:work-rxjava3:2.10.3")
+
     ksp(libs.hilt.ext.compiler)
 
     androidTestImplementation(libs.kotlinx.coroutines.test)

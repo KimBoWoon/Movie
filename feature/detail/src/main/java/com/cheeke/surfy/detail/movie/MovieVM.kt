@@ -5,11 +5,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
-import androidx.paging.cachedIn
+import androidx.paging.rxjava3.cachedIn
+import androidx.paging.rxjava3.flowable
 import com.cheeke.surfy.analytics.AnalyticsHelper
 import com.cheeke.surfy.analytics.logSelectContent
 import com.cheeke.surfy.common.Result
-import com.cheeke.surfy.common.asResult
 import com.cheeke.surfy.data.repository.MovieDataBaseRepository
 import com.cheeke.surfy.data.repository.PagingRepository
 import com.cheeke.surfy.data.repository.UserDataRepository
@@ -20,13 +20,9 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.reactivex.rxjava3.core.Flowable
+import io.reactivex.rxjava3.processors.BehaviorProcessor
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 @HiltViewModel(assistedFactory = MovieVM.Factory::class)
@@ -49,29 +45,34 @@ class MovieVM @AssistedInject constructor(
         ): MovieVM
     }
 
-    private val reload = MutableSharedFlow<Unit>(replay = 1)
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val movie = combine(
-        reload.flatMapLatest { trace(sectionName = "GetMovieDetail") { getMovieDetail(id = id) }.asResult() },
+    private val reload = BehaviorProcessor.createDefault<Unit>(Unit)
+    private val detail = reload
+        .switchMap {
+            trace("GetMovieDetail") {
+                getMovieDetail(id)
+                    .map<Result<Movie>> { Result.Success(it) }
+                    .startWithItem(Result.Loading)
+                    .onErrorReturn { Result.Error(it) }
+            }
+        }
+    val movie = Flowable.combineLatest(
+        detail,
         userDataRepository.internalData
     ) { result, internalData ->
         when (result) {
-            is Result.Loading -> MovieState.Loading
+            Result.Loading -> MovieState.Loading
             is Result.Success -> {
                 analyticsHelper.logSelectContent(contentType = "movie", media = result.data)
                 MovieState.Success(movie = result.data, isAutoPlayTrailer = internalData.isAutoPlayTrailer)
             }
-            is Result.Error -> MovieState.Error(throwable = result.throwable as SurfyNetworkException)
+            is Result.Error -> MovieState.Error(result.throwable as SurfyNetworkException)
         }
-    }.stateIn(
-        scope = viewModelScope,
-        initialValue = MovieState.Loading,
-        started = SharingStarted.Lazily
-    )
+    }.replay(1)
+        .refCount()
     @OptIn(ExperimentalCoroutinesApi::class)
     val similarMovies = userDataRepository.internalData
         .map { it.language to it.region }
-        .flatMapLatest {
+        .flatMap {
             Pager(
                 config = PagingConfig(pageSize = 1, initialLoadSize = 1, prefetchDistance = 5),
                 initialKey = 1,
@@ -82,19 +83,14 @@ class MovieVM @AssistedInject constructor(
                         region = it.second
                     )
                 }
-            ).flow
+            ).flowable
         }.cachedIn(scope = viewModelScope)
     val isCheatActive = userDataRepository.internalData
         .map { it.isCheatActive }
-        .stateIn(
-            scope = viewModelScope,
-            initialValue = false,
-            started = SharingStarted.Lazily
-        )
     @OptIn(ExperimentalCoroutinesApi::class)
     val movieReviews = userDataRepository.internalData
         .map { it.language to it.region }
-        .flatMapLatest {
+        .flatMap {
             Pager(
                 config = PagingConfig(pageSize = 1, initialLoadSize = 1, prefetchDistance = 5),
                 initialKey = 1,
@@ -105,18 +101,18 @@ class MovieVM @AssistedInject constructor(
                         region = it.second
                     )
                 }
-            ).flow
+            ).flowable
         }.cachedIn(scope = viewModelScope)
 
     init {
         viewModelScope.launch {
-            reload.emit(value = Unit)
+            reload.onNext(Unit)
         }
     }
 
     fun restart() {
         viewModelScope.launch {
-            reload.emit(value = Unit)
+            reload.onNext(Unit)
         }
     }
 

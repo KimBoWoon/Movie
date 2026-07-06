@@ -3,28 +3,32 @@ package com.cheeke.surfy.data.repository
 import com.cheeke.surfy.model.ImageList
 import com.cheeke.surfy.model.Series
 import com.cheeke.surfy.network.SeriesRemoteDataSource
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import io.reactivex.rxjava3.core.Single
 import javax.inject.Inject
 
 interface SeriesDetailRepository : DetailRepository<Series> {
-    override fun getData(id: Int): Flow<Series>
-    fun getMovieSeriesImageList(collectionId: Int): Flow<ImageList>
+    override fun getData(id: Int): Single<Series>
+    fun getMovieSeriesImageList(collectionId: Int): Single<ImageList>
 }
 
 class SeriesDetailRepositoryImpl @Inject constructor(
     private val apis: SeriesRemoteDataSource,
     private val requestOptionsProvider: DetailRequestOptionsProvider
 ) : SeriesDetailRepository {
-    override fun getData(id: Int): Flow<Series> = flow {
-        val internalData = requestOptionsProvider.current()
+    override fun getData(id: Int): Single<Series> = requestOptionsProvider.current()
+        .flatMap {
+            apis.getMovieSeries(
+                collectionId = id,
+                language = it.languageTag
+            )
+        }
 
-        emit(value = apis.getMovieSeries(collectionId = id, language = internalData.languageTag))
-    }
-
-    override fun getMovieSeriesImageList(collectionId: Int): Flow<ImageList> = flow {
-        val internalData = requestOptionsProvider.current()
-
-        emit(value = apis.getSeriesImages(collectionId = collectionId, includeImageLanguage = internalData.localizedImageLanguage, language = internalData.languageTag))
-    }
+    override fun getMovieSeriesImageList(collectionId: Int): Single<ImageList> = requestOptionsProvider.current()
+        .flatMap {
+            apis.getSeriesImages(
+                collectionId = collectionId,
+                includeImageLanguage = it.localizedImageLanguage,
+                language = it.languageTag
+            )
+        }
 }

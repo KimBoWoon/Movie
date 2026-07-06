@@ -1,8 +1,8 @@
 package com.cheeke.surfy.network.di
 
-import com.cheeke.surfy.network.CustomCallAdapter
 import com.cheeke.surfy.network.MovieApis
 import com.cheeke.surfy.network.PeopleApis
+import com.cheeke.surfy.network.RxApiResultCallAdapterFactory
 import com.cheeke.surfy.network.SearchApis
 import com.cheeke.surfy.network.SeriesApis
 import com.cheeke.surfy.network.SettingApis
@@ -25,13 +25,14 @@ object TMDBRetrofitModule {
     @Provides
     fun provideRetrofit(
         tmdbUrl: String,
-        customCallAdapter: CustomCallAdapter,
+//        customCallAdapter: CustomCallAdapter,
         serialization: Json,
         jsonMediaType: MediaType,
         client: OkHttpClient
     ): Retrofit = Retrofit.Builder()
         .baseUrl(tmdbUrl)
-        .addCallAdapterFactory(customCallAdapter)
+//        .addCallAdapterFactory(customCallAdapter)
+        .addCallAdapterFactory(RxApiResultCallAdapterFactory())
         .addConverterFactory(serialization.asConverterFactory(jsonMediaType))
         .client(client)
         .build()

@@ -8,8 +8,8 @@ import androidx.paging.PagingData
 import androidx.paging.PagingSource
 import androidx.paging.cachedIn
 import androidx.paging.map
-import com.cheeke.surfy.common.Result
-import com.cheeke.surfy.common.asResult
+import androidx.paging.rxjava3.cachedIn
+import androidx.paging.rxjava3.flowable
 import com.cheeke.surfy.data.model.asExternalModel
 import com.cheeke.surfy.data.repository.MovieDataBaseRepository
 import com.cheeke.surfy.data.repository.PagingRepository
@@ -19,26 +19,19 @@ import com.cheeke.surfy.database.model.NowPlayingMovieEntity
 import com.cheeke.surfy.database.model.UpComingMovieEntity
 import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.model.Movie
-import com.cheeke.surfy.model.TrendingMediaResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.reactivex.rxjava3.core.BackpressureStrategy
+import io.reactivex.rxjava3.core.Flowable
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.subjects.BehaviorSubject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.reactive.asFlow
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeVM @Inject constructor(
-    dataManager: DataManager,
+    private val dataManager: DataManager,
     movieDataBaseRepository: MovieDataBaseRepository,
     pagingRepository: PagingRepository,
     networkMonitor: NetworkMonitor
@@ -53,18 +46,12 @@ class HomeVM @Inject constructor(
         pageSize = PAGE_SIZE,
         prefetchDistance = PREFETCH_DISTANCE
     )
-    private val _trendingMovieTimeWindow = MutableStateFlow(value = TimeWindow.DAY)
-    val trendingMovieTimeWindow = _trendingMovieTimeWindow.asStateFlow()
-    private val _trendingPeopleTimeWindow = MutableStateFlow(value = TimeWindow.DAY)
-    val trendingPeopleTimeWindow = _trendingPeopleTimeWindow.asStateFlow()
-    private val _trendingTvTimeWindow = MutableStateFlow(value = TimeWindow.DAY)
-    val trendingTvTimeWindow = _trendingTvTimeWindow.asStateFlow()
+    val trendingMovieTimeWindow = BehaviorSubject.createDefault(TimeWindow.DAY)
+    val trendingPeopleTimeWindow = BehaviorSubject.createDefault(TimeWindow.DAY)
+    val trendingTvTimeWindow = BehaviorSubject.createDefault(TimeWindow.DAY)
     private val onlineState = networkMonitor.isOnline
         .distinctUntilChanged()
         .filter { it }
-    private val localeState = dataManager.localeFlow
-        .map { locale -> "${locale.language}-${locale.region}" }
-        .distinctUntilChanged()
     val nowPlayingMoviePaging = Pager(
         config = PagingConfig(pageSize = 20, prefetchDistance = 5),
         pagingSourceFactory = { movieDataBaseRepository.getNowPlayingMovies() }
@@ -77,79 +64,61 @@ class HomeVM @Inject constructor(
     ).flow.map { pagingData ->
         pagingData.map(transform = UpComingMovieEntity::asExternalModel)
     }.cachedIn(scope = viewModelScope)
-    val trendingMoviePaging: Flow<PagingData<TrendingMediaResult>> =
+    val trendingMoviePaging =
         createTrendingPaging(
             timeWindowFlow = trendingMovieTimeWindow,
             pagingSourceFactory = pagingRepository::getTrendingMovie
-        )
-    val trendingPeoplePaging: Flow<PagingData<TrendingMediaResult>> =
+        ).asFlow()
+    val trendingPeoplePaging =
         createTrendingPaging(
             timeWindowFlow = trendingPeopleTimeWindow,
             pagingSourceFactory = pagingRepository::getTrendingPeople
-        )
-    val trendingTvPaging: Flow<PagingData<TrendingMediaResult>> =
+        ).asFlow()
+    val trendingTvPaging =
         createTrendingPaging(
             timeWindowFlow = trendingTvTimeWindow,
             pagingSourceFactory = pagingRepository::getTrendingTv
-        )
-    val homeUiState: StateFlow<HomeState> = flow {
-        emit(value = movieDataBaseRepository.getPopularMovies())
-    }.map { popularMovies ->
-        HomeUiState(popularMovies = popularMovies)
-    }.asResult()
-        .map { result ->
-            when (result) {
-                is Result.Loading -> HomeState.Loading
-                is Result.Success -> HomeState.Success(homeUiState = result.data)
-                is Result.Error -> HomeState.Error(result.throwable)
-            }
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.Lazily,
-            initialValue = HomeState.Loading
-        )
+        ).asFlow()
+    val homeUiState: Observable<HomeState> = movieDataBaseRepository.getPopularMovies()
+        .map<HomeState> { HomeState.Success(HomeUiState(popularMovies = it)) }
+        .toObservable()
+        .startWithItem(HomeState.Loading)
+        .onErrorReturn { HomeState.Error(it) }
+        .replay(1)
+        .refCount()
 
     fun updateTrendingMovieTimeWindow(timeWindow: TimeWindow) {
-        when (timeWindow) {
-            TimeWindow.DAY -> _trendingMovieTimeWindow.value = TimeWindow.DAY
-            TimeWindow.WEEK -> _trendingMovieTimeWindow.value = TimeWindow.WEEK
-        }
+        trendingMovieTimeWindow.onNext(timeWindow)
     }
 
     fun updateTrendingPeopleTimeWindow(timeWindow: TimeWindow) {
-        when (timeWindow) {
-            TimeWindow.DAY -> _trendingPeopleTimeWindow.value = TimeWindow.DAY
-            TimeWindow.WEEK -> _trendingPeopleTimeWindow.value = TimeWindow.WEEK
-        }
+        trendingPeopleTimeWindow.onNext(timeWindow)
     }
 
     fun updateTrendingTvTimeWindow(timeWindow: TimeWindow) {
-        when (timeWindow) {
-            TimeWindow.DAY -> _trendingTvTimeWindow.value = TimeWindow.DAY
-            TimeWindow.WEEK -> _trendingTvTimeWindow.value = TimeWindow.WEEK
-        }
+        trendingTvTimeWindow.onNext(timeWindow)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun <T : Any> createTrendingPaging(
-        timeWindowFlow: StateFlow<TimeWindow>,
+        timeWindowFlow: Observable<TimeWindow>,
         pagingSourceFactory: (timeWindow: String, language: String) -> PagingSource<Int, T>
-    ): Flow<PagingData<T>> {
-        return combine(
-            timeWindowFlow,
-            localeState,
+    ): Flowable<PagingData<T>> {
+        return Flowable.combineLatest(
+            timeWindowFlow.toFlowable(BackpressureStrategy.LATEST),
+            dataManager.localeFlow,
             onlineState
         ) { timeWindow, language, _ ->
-            TrendingRequest(timeWindow = timeWindow.label, language = language)
+            TrendingRequest(timeWindow = timeWindow.label, language = "${language.language}-${language.region}")
         }.distinctUntilChanged()
-            .flatMapLatest { request ->
+            .flatMap { request ->
                 Pager(
                     config = pagingConfig,
                     pagingSourceFactory = {
                         pagingSourceFactory(request.timeWindow, request.language)
                     }
-                ).flow
-            }.cachedIn(viewModelScope)
+                ).flowable
+            }.cachedIn(scope = viewModelScope)
     }
 }
 

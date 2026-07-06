@@ -35,8 +35,11 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -93,6 +96,7 @@ import com.cheeke.surfy.ui.utils.roundedCornerClickable
 import com.cheeke.surfy.ui.utils.sp15
 import com.cheeke.surfy.ui.utils.sp20
 import com.cheeke.surfy.utils.VerticalRollingAnimation
+import io.reactivex.rxjava3.core.Observable
 
 @Composable
 fun RootScreen(
@@ -132,7 +136,11 @@ fun RootScreen(
         },
         bottomBar = { MovieBottomBar(backstack = backstack) }
     ) { paddingValues ->
-        val isOffline by viewModel.isOffline.collectAsStateWithLifecycle()
+//        val isOffline by viewModel.isOffline.collectAsStateWithLifecycle()
+        val isOffline by rememberObservableState(
+            observable = viewModel.isOffline,
+            initial = false
+        )
         val notConnectedMessage = stringResource(id = R.string.not_connected)
         val firebaseLog = LocalFirebaseLogHelper.current
 
@@ -420,4 +428,26 @@ fun ReleaseMoviesDialog(
             }
         }
     )
+}
+
+@Composable
+fun rememberObservableState(
+    observable: Observable<Boolean>,
+    initial: Boolean
+): State<Boolean> {
+    val state = remember {
+        mutableStateOf(value = initial)
+    }
+
+    DisposableEffect(key1 = observable) {
+        val disposable = observable.subscribe {
+            state.value = it
+        }
+
+        onDispose {
+            disposable.dispose()
+        }
+    }
+
+    return state
 }

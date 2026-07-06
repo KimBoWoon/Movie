@@ -14,6 +14,9 @@ dependencies {
         implementation(it)
     }
 
+    implementation(libs.rxkotlin)
+    implementation(libs.rxandroid)
+
     arrayOf(
         project(":core:data"),
         project(":core:model")
