@@ -7,7 +7,7 @@ import androidx.test.uiautomator.Until
 import com.cheeke.benchmark.BuildConfig
 
 val PACKAGE_NAME = buildString {
-    append("com.cheeke.movie")
+    append("com.cheeke.surfy")
     append(BuildConfig.APP_FLAVOR_SUFFIX)
 }
 

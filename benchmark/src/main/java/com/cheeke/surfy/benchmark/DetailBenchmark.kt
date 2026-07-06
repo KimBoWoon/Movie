@@ -1,6 +1,7 @@
 package com.cheeke.surfy.benchmark
 
 import androidx.benchmark.macro.ExperimentalMetricApi
+import androidx.benchmark.macro.MemoryUsageMetric
 import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.TraceSectionMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
@@ -24,6 +25,7 @@ class DetailBenchmark {
             TraceSectionMetric(sectionName = "GetPeopleDetail"),
             TraceSectionMetric(sectionName = "GetTvDetail"),
             TraceSectionMetric(sectionName = "GetSeriesDetail"),
+            MemoryUsageMetric(mode = MemoryUsageMetric.Mode.Last)
         ),
         iterations = 5,
         startupMode = StartupMode.COLD

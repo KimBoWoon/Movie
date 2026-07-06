@@ -37,13 +37,10 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.merge
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -76,8 +73,7 @@ class SearchVM @AssistedInject constructor(
     val query = _query.asStateFlow()
     val selectedGenre = savedStateHandle.getStateFlow<Genre?>(key = GENRE, initialValue = null)
     val searchType = savedStateHandle.getStateFlow<SearchType>(key = SEARCH_TYPE, initialValue = initialSearchType)
-    val showSnackbar = MutableSharedFlow<Unit>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
-    private val recommendKeywordFlow = MutableStateFlow<String>(value = "")
+    val showSnackbar = MutableSharedFlow<Unit>(replay = 0, extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
     val surfyAppData = dataManager.surfyAppData
         .map { it.getMovieAppData() }
         .stateIn(
@@ -90,39 +86,33 @@ class SearchVM @AssistedInject constructor(
         initialKey = 1,
         pagingSourceFactory = { keywordDataBaseRepository.getKeywords() }
     ).flow.cachedIn(scope = viewModelScope)
-    val recommendKeywordPaging = recommendKeywordFlow
+    val recommendKeywordPaging = query
+        .map { textFieldValue: TextFieldValue -> textFieldValue.text }
         .debounce(timeoutMillis = 300)
         .distinctUntilChanged()
-        .flatMapLatest { query ->
-            if (query.trim().isEmpty()) {
+        .flatMapLatest { keyword: String ->
+            if (keyword.trim().isEmpty()) {
                 flowOf(value = PagingData.empty())
             } else {
                 Pager(
                     config = PagingConfig(pageSize = 20, initialLoadSize = 20, prefetchDistance = 5),
                     initialKey = 1,
-                    pagingSourceFactory = { pagingRepository.getRecommendKeywordPagingSource(query = query) }
+                    pagingSourceFactory = { pagingRepository.getRecommendKeywordPagingSource(query = keyword) }
                 ).flow
             }
         }.cachedIn(scope = viewModelScope)
-    private val searchTrigger: MutableSharedFlow<Unit> = MutableSharedFlow(replay = 0, extraBufferCapacity = 1)
-    val searchResult: StateFlow<SearchUiState> = merge(
-        searchType.map { SearchUiState.SearchHint },
-        searchTrigger
-            .onStart {
-                if (initialQuery.trim().isNotEmpty()) emit(Unit)
-            }
-            .map { _: Unit ->
-                val currentQuery: String = query.value.text.trim()
-
-                if (currentQuery.isEmpty()) {
-                    showSnackbar.emit(value = Unit)
-                }
-
-                currentQuery
-            }.filter { currentQuery: String ->
-                currentQuery.isNotEmpty()
-            }
-            .flatMapLatest { currentQuery: String ->
+    private val searchRequest = MutableStateFlow<SearchRequest?>(
+        value = if (initialQuery.trim().isNotEmpty()) {
+            SearchRequest(searchType = initialSearchType, query = initialQuery.trim())
+        } else {
+            null
+        }
+    )
+    val searchResult: StateFlow<SearchUiState> = searchRequest
+        .flatMapLatest { request: SearchRequest? ->
+            if (request == null) {
+                flowOf(value = SearchUiState.SearchHint)
+            } else {
                 flow<SearchUiState> {
                     emit(
                         value = SearchUiState.Success(
@@ -132,8 +122,8 @@ class SearchVM @AssistedInject constructor(
                                     initialKey = 1,
                                     pagingSourceFactory = {
                                         pagingRepository.getSearchPagingSource(
-                                            type = searchType.value,
-                                            query = currentQuery,
+                                            type = request.searchType,
+                                            query = request.query,
                                             language = surfyAppData.value.language.find { it.isSelected }?.code.orEmpty(),
                                             region = surfyAppData.value.region.find { it.isSelected }?.code.orEmpty(),
                                             isAdult = surfyAppData.value.isAdult
@@ -153,10 +143,11 @@ class SearchVM @AssistedInject constructor(
                         )
                     )
                 }.catch { throwable: Throwable ->
-                    emit(value = SearchUiState.Error(throwable = throwable as SurfyNetworkException))
+                    val networkException = throwable as? SurfyNetworkException ?: throw throwable
+                    emit(value = SearchUiState.Error(throwable = networkException))
                 }
             }
-        ).stateIn(
+        }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.Lazily,
             initialValue = SearchUiState.SearchHint
@@ -167,19 +158,24 @@ class SearchVM @AssistedInject constructor(
     }
 
     fun updateQuery(value: TextFieldValue) {
-        viewModelScope.launch {
-            _query.emit(value = value)
-            recommendKeywordFlow.emit(value = value.text)
-        }
+        _query.value = value
     }
 
-    fun updateSearchType(searchType: SearchType) {
-        savedStateHandle[SEARCH_TYPE] = searchType
+    fun updateSearchType(newSearchType: SearchType) {
+        savedStateHandle[SEARCH_TYPE] = newSearchType
+        searchRequest.value = null // 타입 바뀌면 명시적으로 힌트 상태로 리셋
     }
 
     fun searchMovies() {
-        analyticsHelper.logSearch(searchType = searchType.value.label, query = query.value.text)
-        viewModelScope.launch { searchTrigger.emit(value = Unit) }
+        val currentQuery: String = query.value.text.trim()
+
+        if (currentQuery.isEmpty()) {
+            viewModelScope.launch { showSnackbar.emit(value = Unit) }
+            return
+        }
+
+        analyticsHelper.logSearch(searchType = searchType.value.label, query = currentQuery)
+        searchRequest.value = SearchRequest(searchType = searchType.value, query = currentQuery)
     }
 
     fun saveKeyword(keyword: String) {
@@ -200,6 +196,11 @@ class SearchVM @AssistedInject constructor(
         }
     }
 }
+
+private data class SearchRequest(
+    val searchType: SearchType,
+    val query: String
+)
 
 sealed interface SearchUiState {
     data object SearchHint : SearchUiState

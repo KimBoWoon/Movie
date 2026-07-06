@@ -3,9 +3,10 @@ package com.cheeke.surfy.favorite
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.paging.testing.TestPager
-import com.cheeke.surfy.model.Movie
-import com.cheeke.surfy.model.People
-import com.cheeke.surfy.model.Tv
+import com.cheeke.surfy.data.repository.FavoriteKeys
+import com.cheeke.surfy.data.repository.FavoriteMovieRepository
+import com.cheeke.surfy.data.repository.FavoritePeopleRepository
+import com.cheeke.surfy.data.repository.FavoriteTvRepository
 import com.cheeke.surfy.testing.repository.TestMovieDatabaseRepository
 import com.cheeke.surfy.testing.repository.TestPeopleDatabaseRepository
 import com.cheeke.surfy.testing.repository.TestTvDatabaseRepository
@@ -25,22 +26,20 @@ class FavoriteVMTest {
     private val testMovieDatabaseRepository = TestMovieDatabaseRepository()
     private val testPeopleDatabaseRepository = TestPeopleDatabaseRepository()
     private val testTvDatabaseRepository = TestTvDatabaseRepository()
-    private val movieTab = MovieTab(movieDataBaseRepository = testMovieDatabaseRepository)
-    private val peopleTab = PeopleTab(peopleDataBaseRepository = testPeopleDatabaseRepository)
-    private val tvTab = TvTab(tvDataBaseRepository = testTvDatabaseRepository)
+    private val movieTab = FavoriteMovieRepository(repository = testMovieDatabaseRepository)
+    private val peopleTab = FavoritePeopleRepository(repository = testPeopleDatabaseRepository)
+    private val tvTab = FavoriteTvRepository(repository = testTvDatabaseRepository)
     private lateinit var viewModel: FavoriteVM
-    private val movie1 = Movie(id = 0, title = "movie_1", posterPath = "/movieImagePath_0.png")
-    private val movie2 = Movie(id = 1, title = "movie_2", posterPath = "/movieImagePath_1.png")
-    private val people1 = People(id = 0, title = "people_1", posterPath = "/peopleImagePath_0.png")
-    private val people2 = People(id = 1, title = "people_2", posterPath = "/peopleImagePath_1.png")
-    private val tv1 = Tv(id = 0, title = "tv_1", posterPath = "/tvImagePath_0.png")
-    private val tv2 = Tv(id = 1, title = "tv_2", posterPath = "/tvImagePath_1.png")
 
     @Before
     fun setup() {
         viewModel = FavoriteVM(
-            initialTabKey = "movie",
-            repositories = mapOf("movie" to movieTab, "tv" to tvTab, "people" to peopleTab)
+            initialTabKey = FavoriteKeys.MOVIE,
+            repositories = mapOf(
+                FavoriteKeys.MOVIE to movieTab,
+                FavoriteKeys.TV to tvTab,
+                FavoriteKeys.PEOPLE to peopleTab
+            )
         )
     }
 
@@ -50,21 +49,21 @@ class FavoriteVMTest {
 
         assertEquals(
             expected = viewModel.currentTab.value,
-            actual = "movie"
+            actual = FavoriteKeys.MOVIE
         )
 
-        viewModel.updateTabKey(key = "tv")
+        viewModel.updateTabKey(key = FavoriteKeys.TV)
 
         assertEquals(
             expected = viewModel.currentTab.value,
-            actual = "tv"
+            actual = FavoriteKeys.TV
         )
 
-        viewModel.updateTabKey(key = "people")
+        viewModel.updateTabKey(key = FavoriteKeys.PEOPLE)
 
         assertEquals(
             expected = viewModel.currentTab.value,
-            actual = "people"
+            actual = FavoriteKeys.PEOPLE
         )
     }
 

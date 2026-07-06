@@ -32,23 +32,20 @@ class FavoriteVM @AssistedInject constructor(
 
     private val _currentTab = MutableStateFlow(value = initialTabKey)
     val currentTab = _currentTab.asStateFlow()
-    val tabList = listOf(
+    val tabList = FavoriteKeys.entries.map {
         FavoriteTabUiModel(
-            type = FavoriteKeys.MOVIE,
-            titleRes = R.string.movie
-        ),
-        FavoriteTabUiModel(
-            type = FavoriteKeys.TV,
-            titleRes = R.string.tv
-        ),
-        FavoriteTabUiModel(
-            type = FavoriteKeys.PEOPLE,
-            titleRes = R.string.people
+            type = it,
+            titleRes = when (it) {
+                FavoriteKeys.MOVIE -> R.string.movie
+                FavoriteKeys.PEOPLE -> R.string.people
+                FavoriteKeys.TV -> R.string.tv
+            }
         )
-    )
+    }
     @OptIn(ExperimentalCoroutinesApi::class)
     val currentPagingItems = currentTab
-        .flatMapLatest { key -> repositories.getValue(key = key).pagingSource }.cachedIn(scope = viewModelScope)
+        .flatMapLatest { key -> repositories.getValue(key = key).pagingSource }
+        .cachedIn(scope = viewModelScope)
 
     fun updateTabKey(key: FavoriteKeys) {
         _currentTab.value = key
