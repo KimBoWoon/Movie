@@ -22,16 +22,15 @@ dependencies {
         libs.androidx.compose.hilt.navigation,
         libs.androidx.media3.exoplayer,
         libs.androidx.media3.ui,
-        libs.androidx.compose.paging
+        libs.androidx.compose.paging,
+        libs.rxkotlin,
+        libs.rxandroid,
+        libs.androidx.paging.runtime,
+        libs.paging.rxjava3,
+        libs.kotlinx.coroutines.rx3
     ).forEach {
         implementation(it)
     }
-
-    implementation(libs.rxkotlin)
-    implementation(libs.rxandroid)
-    implementation("androidx.paging:paging-runtime:3.3.6")
-    implementation("androidx.paging:paging-rxjava3:3.3.6")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-rx3:1.11.0")
 
     testImplementation(libs.androidx.paging.testing)
     testImplementation(libs.androidx.paging.common)

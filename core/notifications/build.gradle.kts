@@ -13,13 +13,12 @@ dependencies {
     arrayOf(
         project(":core:common"),
         project(":core:domain"),
-        libs.coil.compose
+        libs.coil.compose,
+        libs.rxkotlin,
+        libs.rxandroid
     ).forEach {
         implementation(it)
     }
-
-    implementation(libs.rxkotlin)
-    implementation(libs.rxandroid)
 
     compileOnly(platform(libs.androidx.compose.bom))
 }

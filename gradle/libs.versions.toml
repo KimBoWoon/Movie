@@ -111,6 +111,13 @@ lottieCompose = "6.7.1"
 uiautomator = "2.3.0"
 benchmarkMacroJunit4 = "1.4.1"
 
+# rx
+kotlinxCoroutinesRx3 = "1.11.0"
+roomRxJava = "2.8.4"
+pagingRxjava3 = "3.5.0"
+datastorePreferencesRxjava3 = "1.2.1"
+workRxjava3 = "2.11.2"
+
 [libraries]
 # gradle plugin
 android-gradle = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
@@ -251,6 +258,12 @@ lottie-compose = { group = "com.airbnb.android", name = "lottie-compose", versio
 # rxKotlin
 rxandroid = { group = "io.reactivex.rxjava3", name = "rxandroid", version.ref = "rxandroid" }
 rxkotlin = { group = "io.reactivex.rxjava3", name = "rxkotlin", version.ref = "rxkotlin" }
+kotlinx-coroutines-rx3 = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-rx3", version.ref = "kotlinxCoroutinesRx3" }
+androidx-paging-runtime = { group = "androidx.paging", name = "paging-runtime", version.ref = "pagingRxjava3" }
+androidx-room-rxjava3 = { group = "androidx.room", name = "room-rxjava3", version.ref = "roomRxJava" }
+paging-rxjava3 = { group = "androidx.paging", name = "paging-rxjava3", version.ref = "pagingRxjava3" }
+datastore-preferences-rxjava3 = { group = "androidx.datastore", name = "datastore-preferences-rxjava3", version.ref = "datastorePreferencesRxjava3" }
+work-rxjava3 = { group = "androidx.work", name = "work-rxjava3", version.ref = "workRxjava3" }
 
 # plugin
 ksp-gradlePlugin = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }

@@ -15,13 +15,11 @@ dependencies {
         project(":core:data"),
         project(":core:notifications"),
         libs.androidx.work.ktx,
-        libs.hilt.ext.work
+        libs.hilt.ext.work,
+        libs.work.rxjava3
     ).forEach {
         implementation(it)
     }
-
-//    implementation("androidx.work:work-rxjava2:2.11.2")
-    implementation("androidx.work:work-rxjava3:2.10.3")
 
     ksp(libs.hilt.ext.compiler)
 

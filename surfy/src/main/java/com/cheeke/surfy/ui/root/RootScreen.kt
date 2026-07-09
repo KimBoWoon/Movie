@@ -67,6 +67,7 @@ import com.cheeke.surfy.R
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.common.ScrollTopEvent
 import com.cheeke.surfy.common.scrollToTop
+import com.cheeke.surfy.common.subscribeAsState
 import com.cheeke.surfy.data.util.POSTER_IMAGE_RATIO
 import com.cheeke.surfy.favorite.navigation.FavoriteNavKey
 import com.cheeke.surfy.favorite.navigation.favoriteEntry
@@ -110,11 +111,9 @@ fun RootScreen(
     val backstack = rememberNavBackStack(HomeNavKey)
     val snackbarHostState = remember { SnackbarHostState() }
     val nextWeekReleaseDialogItems by viewModel.nextWeekReleaseMedias.collectAsStateWithLifecycle()
-    val bottomDeeplink by viewModel.bottomDeeplink.collectAsStateWithLifecycle(initialValue = emptyList())
+    val bottomDeeplink by viewModel.bottomDeeplink.subscribeAsState(initial = emptyList<NavKey>())
 
-    LaunchedEffect(key1 = bottomDeeplink) {
-        if (bottomDeeplink.isEmpty()) return@LaunchedEffect
-
+    if (bottomDeeplink.isNotEmpty()) {
         bottomDeeplink.forEach { route ->
             backstack.add(element = route)
         }

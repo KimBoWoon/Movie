@@ -12,14 +12,13 @@ import com.cheeke.surfy.home.navigation.HomeNavKey
 import com.cheeke.surfy.search.navigation.SearchNavKey
 import com.google.firebase.Firebase
 import com.google.firebase.crashlytics.crashlytics
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.subjects.BehaviorSubject
 import jakarta.inject.Inject
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 
 interface DeepLinkManager {
-    val rootDeeplink: Flow<List<NavKey>>
-    val bottomDeeplink: Flow<List<NavKey>>
+    val rootDeeplink: Observable<List<NavKey>>
+    val bottomDeeplink: Observable<List<NavKey>>
 
     fun handleDeepLink(uri: Uri?)
     fun consumeRootDeepLink()
@@ -38,14 +37,14 @@ class DeepLinkManagerImpl @Inject constructor() : DeepLinkManager {
         HomeNavKey::class,
         FavoriteNavKey::class
     )
-
-    private val _rootDeeplink = MutableStateFlow<List<NavKey>>(value = emptyList())
-    override val rootDeeplink = _rootDeeplink.asStateFlow()
-    private val _bottomDeeplink = MutableStateFlow<List<NavKey>>(value = emptyList())
-    override val bottomDeeplink = _bottomDeeplink.asStateFlow()
+    private val rootDeepLinkSubject = BehaviorSubject.createDefault<List<NavKey>>(emptyList())
+    override val rootDeeplink: Observable<List<NavKey>> = rootDeepLinkSubject.hide()
+    private val bottomDeepLinkSubject = BehaviorSubject.createDefault<List<NavKey>>(emptyList())
+    override val bottomDeeplink: Observable<List<NavKey>> = bottomDeepLinkSubject.hide()
 
     override fun handleDeepLink(uri: Uri?) {
-        val stack = parseDeeplink(uri = uri)
+        val stack = parseDeeplink(uri)
+
         if (stack.isEmpty()) {
             return
         }
@@ -55,24 +54,26 @@ class DeepLinkManagerImpl @Inject constructor() : DeepLinkManager {
 
         stack.forEach { route ->
             when {
-                bottomNavKeys.any { it.java.simpleName == route::class.java.simpleName } -> bottomDeepLink.add(element = route)
-                rootNavKeys.any { it.java.simpleName == route::class.java.simpleName } -> rootDeepLink.add(element = route)
+                route::class in bottomNavKeys -> bottomDeepLink += route
+                route::class in rootNavKeys -> rootDeepLink += route
                 else -> {
                     Log.d("잘못된 deeplink 입니다. : $route")
-                    Firebase.crashlytics.recordException(RuntimeException("잘못된 deeplink 입니다. : $route"))
+                    Firebase.crashlytics.recordException(
+                        RuntimeException("잘못된 deeplink 입니다. : $route")
+                    )
                 }
             }
         }
 
-        _rootDeeplink.value = rootDeepLink
-        _bottomDeeplink.value = bottomDeepLink
+        rootDeepLinkSubject.onNext(rootDeepLink)
+        bottomDeepLinkSubject.onNext(bottomDeepLink)
     }
 
     override fun consumeRootDeepLink() {
-        _rootDeeplink.value = emptyList()
+        rootDeepLinkSubject.onNext(emptyList())
     }
 
     override fun consumeBottomDeepLink() {
-        _bottomDeeplink.value = emptyList()
+        bottomDeepLinkSubject.onNext(emptyList())
     }
 }

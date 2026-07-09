@@ -43,13 +43,12 @@ dependencies {
         project(":core:common"),
         libs.kotlinx.serialization.json,
         libs.androidx.junit,
+        libs.rxkotlin,
+        libs.rxandroid,
+        libs.datastore.preferences.rxjava3
     ).forEach {
         implementation(it)
     }
-
-    implementation(libs.rxkotlin)
-    implementation(libs.rxandroid)
-    implementation("androidx.datastore:datastore-preferences-rxjava3:1.2.1")
 
     arrayOf(
         libs.protobuf.kotlin.lite,

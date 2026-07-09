@@ -29,14 +29,13 @@ dependencies {
         libs.androidx.splash,
         libs.androidx.startup,
         libs.hilt.ext.work,
-
+        libs.rxkotlin,
+        libs.rxandroid,
+        libs.kotlinx.coroutines.rx3,
         libs.androidx.compose.hilt.navigation,
     ).forEach {
         implementation(it)
     }
-
-    implementation(libs.rxkotlin)
-    implementation(libs.rxandroid)
 
     ksp(libs.hilt.ext.compiler)
 

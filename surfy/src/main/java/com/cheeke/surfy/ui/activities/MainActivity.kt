@@ -17,7 +17,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.rememberNavBackStack
 import com.cheeke.surfy.R
 import com.cheeke.surfy.SurfyFirebase
@@ -141,7 +140,7 @@ class MainActivity : ComponentActivity() {
                 SurfyTheme(darkTheme = darkTheme) {
                     val backstack = rememberNavBackStack(RootNavKey)
                     val snackbarHostState = remember { SnackbarHostState() }
-                    val rootDeeplink by deepLinkManager.rootDeeplink.collectAsStateWithLifecycle(initialValue = emptyList())
+                    val rootDeeplink by deepLinkManager.rootDeeplink.subscribeAsState(initial = emptyList())
 
                     LaunchedEffect(key1 = rootDeeplink) {
                         if (rootDeeplink.isEmpty()) return@LaunchedEffect

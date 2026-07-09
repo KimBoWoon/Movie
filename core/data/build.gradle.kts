@@ -16,16 +16,15 @@ android {
 
 dependencies {
     arrayOf(
-        libs.androidx.compose.paging
+        libs.androidx.compose.paging,
+        libs.rxkotlin,
+        libs.rxandroid,
+        libs.androidx.paging.runtime,
+        libs.paging.rxjava3,
+        libs.kotlinx.coroutines.rx3
     ).forEach {
         implementation(it)
     }
-
-    implementation(libs.rxkotlin)
-    implementation(libs.rxandroid)
-    implementation("androidx.paging:paging-runtime:3.3.6")
-    implementation("androidx.paging:paging-rxjava3:3.3.6")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-rx3:1.11.0")
 
     arrayOf(
         project(":core:common"),
