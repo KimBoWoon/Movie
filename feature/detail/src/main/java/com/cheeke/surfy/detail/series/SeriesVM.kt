@@ -2,7 +2,6 @@ package com.cheeke.surfy.detail.series
 
 import androidx.compose.ui.util.trace
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.cheeke.surfy.analytics.AnalyticsHelper
 import com.cheeke.surfy.analytics.logSelectContent
 import com.cheeke.surfy.common.Result
@@ -16,7 +15,6 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.rxjava3.processors.BehaviorProcessor
-import kotlinx.coroutines.launch
 
 @HiltViewModel(assistedFactory = SeriesVM.Factory::class)
 class SeriesVM @AssistedInject constructor(
@@ -45,7 +43,7 @@ class SeriesVM @AssistedInject constructor(
         }
     val series = detail.map { result ->
         when (result) {
-            Result.Loading -> SeriesState.Loading
+            is Result.Loading -> SeriesState.Loading
             is Result.Success -> {
                 analyticsHelper.logSelectContent(contentType = "series", media = result.data.series)
                 SeriesState.Success(series = result.data.series, imageList = result.data.imageList)
@@ -56,15 +54,11 @@ class SeriesVM @AssistedInject constructor(
         .refCount()
 
     init {
-        viewModelScope.launch {
-            reload.onNext(Unit)
-        }
+        reload.onNext(Unit)
     }
 
     fun restart() {
-        viewModelScope.launch {
-            reload.onNext(Unit)
-        }
+        reload.onNext(Unit)
     }
 }
 

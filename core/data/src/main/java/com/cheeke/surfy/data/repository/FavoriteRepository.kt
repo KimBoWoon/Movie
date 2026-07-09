@@ -21,8 +21,8 @@ sealed interface FavoriteRepository {
     val key: FavoriteKeys
     val pagingSource: Flowable<PagingData<Media>>
 
-    suspend fun insert(media: Media)
-    suspend fun delete(media: Media)
+    fun insert(media: Media)
+    fun delete(media: Media)
 }
 
 class FavoriteMovieRepository @Inject constructor(
@@ -37,12 +37,12 @@ class FavoriteMovieRepository @Inject constructor(
             pagingData.map(transform = MovieEntity::asExternalModel)
         }
 
-    override suspend fun insert(media: Media) {
-        repository.insert(media = media)
+    override fun insert(media: Media) {
+        repository.insert(media = media).subscribe()
     }
 
-    override suspend fun delete(media: Media) {
-        repository.delete(media = media)
+    override fun delete(media: Media) {
+        repository.delete(media = media).subscribe()
     }
 }
 
@@ -58,12 +58,12 @@ class FavoritePeopleRepository @Inject constructor(
             pagingData.map(transform = PeopleEntity::asExternalModel)
         }
 
-    override suspend fun insert(media: Media) {
-        repository.insert(media = media)
+    override fun insert(media: Media) {
+        repository.insert(media = media).subscribe()
     }
 
-    override suspend fun delete(media: Media) {
-        repository.delete(media = media)
+    override fun delete(media: Media) {
+        repository.delete(media = media).subscribe()
     }
 }
 
@@ -79,11 +79,11 @@ class FavoriteTvRepository @Inject constructor(
             pagingData.map(transform = TvEntity::asExternalModel)
         }
 
-    override suspend fun insert(media: Media) {
-        repository.insert(media = media)
+    override fun insert(media: Media) {
+        repository.insert(media = media).subscribe()
     }
 
-    override suspend fun delete(media: Media) {
-        repository.delete(media = media)
+    override fun delete(media: Media) {
+        repository.delete(media = media).subscribe()
     }
 }

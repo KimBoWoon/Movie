@@ -27,10 +27,10 @@ import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.addTo
 import io.reactivex.rxjava3.processors.BehaviorProcessor
 import io.reactivex.rxjava3.processors.PublishProcessor
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.launch
 
 @HiltViewModel(assistedFactory = TvVM.Factory::class)
 class TvVM @AssistedInject constructor(
@@ -111,29 +111,6 @@ class TvVM @AssistedInject constructor(
                 is Result.Error -> Flowable.just(TvState.Error(SurfyNetworkException(throwable = result.throwable)))
             }
         }.replay(1).refCount()
-//        Flowable.combineLatest(
-//            tv,
-//            userDataRepository.internalData
-//        ) { result, internalData ->
-//            when (result) {
-//                is Result.Loading -> TvState.Loading
-//                is Result.Success -> {
-//                    analyticsHelper.logSelectContent(contentType = "tv", media = result.data.tv)
-//
-//                    TvState.Success(
-//                        TvUiState(
-//                            tv = result.data.tv,
-//                            seasons = result.data.tv.seasons.orEmpty(),
-//                            episodeState = result.data.seasonLoadState,
-//                            episodesBySeason = result.data.episodesBySeason,
-//                            autoPlayTrailer = internalData.isAutoPlayTrailer
-//                        )
-//                    )
-//                }
-//                is Result.Error -> TvState.Error(result.throwable as SurfyNetworkException)
-//            }
-//        }.replay(1)
-//            .refCount()
     @OptIn(ExperimentalCoroutinesApi::class)
     val tvReviews = userDataRepository.internalData
         .map { it.language to it.region }
@@ -164,27 +141,19 @@ class TvVM @AssistedInject constructor(
     }
 
     fun insertTv(tv: Tv) {
-        viewModelScope.launch {
-            tvDataBaseRepository.insert(media = tv)
-        }
+        tvDataBaseRepository.insert(media = tv).subscribe().addTo(disposables)
     }
 
     fun deleteTv(tv: Tv) {
-        viewModelScope.launch {
-            tvDataBaseRepository.delete(media = tv)
-        }
+        tvDataBaseRepository.delete(media = tv).subscribe().addTo(disposables)
     }
 
     fun showEpisodeDetail(episode: TvEpisode) {
-        viewModelScope.launch {
-            _selectedEpisode.onNext(EpisodeDialog.Visible(episode))
-        }
+        _selectedEpisode.onNext(EpisodeDialog.Visible(episode))
     }
 
     fun hideEpisodeDetail() {
-        viewModelScope.launch {
-            _selectedEpisode.onNext(EpisodeDialog.Hidden)
-        }
+        _selectedEpisode.onNext(EpisodeDialog.Hidden)
     }
 
     override fun onCleared() {

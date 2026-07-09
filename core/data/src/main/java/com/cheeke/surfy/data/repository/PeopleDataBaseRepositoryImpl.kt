@@ -4,16 +4,19 @@ import androidx.paging.PagingSource
 import com.cheeke.surfy.database.dao.PeopleDao
 import com.cheeke.surfy.database.model.PeopleEntity
 import com.cheeke.surfy.model.Media
-import io.reactivex.rxjava3.core.Flowable
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.schedulers.Schedulers
 import java.time.Instant
 import javax.inject.Inject
 
 class PeopleDataBaseRepositoryImpl @Inject constructor(
     private val peopleDao: PeopleDao
 ) : PeopleDataBaseRepository {
-    override fun isFavorite(id: Int): Flowable<Boolean> = peopleDao.isFavoritePeople(id = id)
+    override fun isFavorite(id: Int): Observable<Boolean> = peopleDao.isFavoritePeople(id = id)
 
-    override suspend fun insert(media: Media): Long =
+    override fun insert(media: Media): Single<Long> =
         peopleDao.insertOrIgnorePeoples(
             PeopleEntity(
                 id = media.id ?: -1,
@@ -21,15 +24,15 @@ class PeopleDataBaseRepositoryImpl @Inject constructor(
                 name = media.title ?: "",
                 profilePath = media.posterPath ?: ""
             )
-        )
+        ).subscribeOn(Schedulers.io())
 
-    override suspend fun delete(media: Media) {
-        media.id?.let { id ->
-            peopleDao.deletePeople(id = id)
-        }
+    override fun delete(media: Media): Completable {
+        return media.id?.let { id ->
+            peopleDao.deletePeople(id = id).subscribeOn(Schedulers.io())
+        } ?: Completable.complete()
     }
 
-    override suspend fun upsert(medias: List<Media>) =
+    override fun upsert(medias: List<Media>): Completable =
         peopleDao.upsertPeoples(
             entities = medias.map { media ->
                 PeopleEntity(
@@ -39,7 +42,7 @@ class PeopleDataBaseRepositoryImpl @Inject constructor(
                     profilePath = media.posterPath ?: ""
                 )
             }
-        )
+        ).subscribeOn(Schedulers.io())
 
     override fun getFavorite(): PagingSource<Int, PeopleEntity> =
         peopleDao.getFavoritePeople()

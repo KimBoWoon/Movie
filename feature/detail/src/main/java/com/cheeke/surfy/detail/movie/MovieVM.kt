@@ -21,9 +21,10 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.rxjava3.core.Flowable
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.addTo
 import io.reactivex.rxjava3.processors.BehaviorProcessor
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.launch
 
 @HiltViewModel(assistedFactory = MovieVM.Factory::class)
 class MovieVM @AssistedInject constructor(
@@ -45,6 +46,7 @@ class MovieVM @AssistedInject constructor(
         ): MovieVM
     }
 
+    private val disposable = CompositeDisposable()
     private val reload = BehaviorProcessor.createDefault<Unit>(Unit)
     private val detail = reload
         .switchMap {
@@ -60,7 +62,7 @@ class MovieVM @AssistedInject constructor(
         userDataRepository.internalData
     ) { result, internalData ->
         when (result) {
-            Result.Loading -> MovieState.Loading
+            is Result.Loading -> MovieState.Loading
             is Result.Success -> {
                 analyticsHelper.logSelectContent(contentType = "movie", media = result.data)
                 MovieState.Success(movie = result.data, isAutoPlayTrailer = internalData.isAutoPlayTrailer)
@@ -105,27 +107,24 @@ class MovieVM @AssistedInject constructor(
         }.cachedIn(scope = viewModelScope)
 
     init {
-        viewModelScope.launch {
-            reload.onNext(Unit)
-        }
+        reload.onNext(Unit)
     }
 
     fun restart() {
-        viewModelScope.launch {
-            reload.onNext(Unit)
-        }
+        reload.onNext(Unit)
     }
 
     fun insertMovie(movie: Movie) {
-        viewModelScope.launch {
-            movieDataBaseRepository.insert(media = movie)
-        }
+        movieDataBaseRepository.insert(media = movie).subscribe().addTo(disposable)
     }
 
     fun deleteMovie(movie: Movie) {
-        viewModelScope.launch {
-            movieDataBaseRepository.delete(media = movie)
-        }
+        movieDataBaseRepository.delete(media = movie).subscribe().addTo(disposable)
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        disposable.clear()
     }
 }
 

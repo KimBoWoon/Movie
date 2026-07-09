@@ -10,23 +10,22 @@ import com.cheeke.surfy.database.model.MovieEntity
 import com.cheeke.surfy.database.model.NowPlayingMovieEntity
 import com.cheeke.surfy.database.model.UpComingMovieEntity
 import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 
 @Dao
 interface MovieDao {
     @Query(value = "SELECT EXISTS(SELECT 1 FROM movies WHERE id = :id)")
-    fun isFavoriteMovie(id: Int): Flowable<Boolean>
+    fun isFavoriteMovie(id: Int): Observable<Boolean>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertOrIgnoreMovies(movie: MovieEntity): Long
+    fun insertOrIgnoreMovies(movie: MovieEntity): Single<Long>
 
     @Upsert
-    suspend fun upsertMovies(entities: List<MovieEntity>)
+    fun upsertMovies(entities: List<MovieEntity>): Completable
 
     @Query(value = "DELETE FROM movies WHERE id = (:id)")
-    suspend fun deleteMovie(id: Int)
+    fun deleteMovie(id: Int): Completable
 
     @Query(value = "SELECT * FROM movies WHERE releaseDate BETWEEN DATE('now', 'localtime') AND DATE('now', '+7 day', 'localtime') ORDER BY releaseDate ASC, title ASC")
     fun getNextWeekReleaseMovies(): Single<List<MovieEntity>>

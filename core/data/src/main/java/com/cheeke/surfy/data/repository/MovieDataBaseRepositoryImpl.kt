@@ -9,7 +9,7 @@ import com.cheeke.surfy.database.model.UpComingMovieEntity
 import com.cheeke.surfy.database.model.asExternalModel
 import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.model.Movie
-import io.reactivex.rxjava3.core.Flowable
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -39,9 +39,9 @@ class MovieDataBaseRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun isFavorite(id: Int): Flowable<Boolean> = movieDao.isFavoriteMovie(id = id)
+    override fun isFavorite(id: Int): Observable<Boolean> = movieDao.isFavoriteMovie(id = id)
 
-    override suspend fun insert(media: Media): Long =
+    override fun insert(media: Media): Single<Long> =
         movieDao.insertOrIgnoreMovies(
             MovieEntity(
                 id = media.id ?: -1,
@@ -50,16 +50,16 @@ class MovieDataBaseRepositoryImpl @Inject constructor(
                 releaseDate = media.releaseDate ?: "",
                 timestamp = Instant.now().toEpochMilli()
             )
-        )
+        ).subscribeOn(Schedulers.io())
 
-    override suspend fun delete(media: Media) {
-        media.id?.let { id ->
-            movieDao.deleteMovie(id = id)
-        }
+    override fun delete(media: Media): Completable {
+        return media.id?.let { id ->
+            return movieDao.deleteMovie(id = id).subscribeOn(Schedulers.io())
+        } ?: Completable.complete()
     }
 
-    override suspend fun upsert(medias: List<Media>) {
-        movieDao.upsertMovies(
+    override fun upsert(medias: List<Media>): Completable {
+        return movieDao.upsertMovies(
             entities = medias.map { movie ->
                 MovieEntity(
                     id = movie.id ?: -1,
@@ -69,7 +69,7 @@ class MovieDataBaseRepositoryImpl @Inject constructor(
                     timestamp = Instant.now().toEpochMilli()
                 )
             }
-        )
+        ).subscribeOn(Schedulers.io())
     }
 
     override fun getUpComingMovies(): PagingSource<Int, UpComingMovieEntity> =

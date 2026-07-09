@@ -7,22 +7,23 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Upsert
 import com.cheeke.surfy.database.model.TvEntity
-import io.reactivex.rxjava3.core.Flowable
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 
 @Dao
 interface TvDao {
     @Query(value = "SELECT EXISTS(SELECT 1 FROM tvs WHERE id = :id)")
-    fun isFavoriteTv(id: Int): Flowable<Boolean>
+    fun isFavoriteTv(id: Int): Observable<Boolean>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertOrIgnoreTvs(tv: TvEntity): Long
+    fun insertOrIgnoreTvs(tv: TvEntity): Single<Long>
 
     @Upsert
-    suspend fun upsertTvs(entities: List<TvEntity>)
+    fun upsertTvs(entities: List<TvEntity>): Completable
 
     @Query(value = "DELETE FROM tvs WHERE id = (:id)")
-    suspend fun deleteTv(id: Int)
+    fun deleteTv(id: Int): Completable
 
     @Query(value = "SELECT * FROM tvs WHERE firstAirDate BETWEEN DATE('now', 'localtime') AND DATE('now', '+7 day', 'localtime') ORDER BY firstAirDate ASC, name ASC")
     fun getNextWeekReleaseTvs(): Single<List<TvEntity>>

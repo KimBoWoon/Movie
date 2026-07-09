@@ -8,6 +8,7 @@ import com.cheeke.surfy.data.repository.UserDataRepository
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.Series
 import com.cheeke.surfy.model.SeriesPart
+import io.reactivex.rxjava3.core.BackpressureStrategy
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -24,7 +25,7 @@ class GetMovieDetailUseCase @Inject constructor(
         Flowable.combineLatest(
             detailRepository.getData(id = id).toFlowable(),
             userDataRepository.internalData,
-            movieDataBaseRepository.isFavorite(id = id)
+            movieDataBaseRepository.isFavorite(id = id).toFlowable(BackpressureStrategy.LATEST)
         ) { movie, internalData, isFavorite ->
             val country = movie.releases?.countries?.filter { country ->
                 country.iso31661.equals(other = internalData.region, ignoreCase = true)

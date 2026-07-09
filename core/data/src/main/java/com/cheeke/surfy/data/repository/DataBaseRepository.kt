@@ -9,16 +9,16 @@ import com.cheeke.surfy.database.model.UpComingMovieEntity
 import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.Tv
-import io.reactivex.rxjava3.core.Flowable
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 
 interface DataBaseRepository<T : Any> {
     fun getFavorite(): PagingSource<Int, T>
-    fun isFavorite(id: Int): Flowable<Boolean>
-    suspend fun insert(media: Media): Long
-    suspend fun delete(media: Media)
-    suspend fun upsert(medias: List<Media>)
+    fun isFavorite(id: Int): Observable<Boolean>
+    fun insert(media: Media): Single<Long>
+    fun delete(media: Media): Completable
+    fun upsert(medias: List<Media>): Completable
 }
 
 interface MovieDataBaseRepository : DataBaseRepository<MovieEntity> {

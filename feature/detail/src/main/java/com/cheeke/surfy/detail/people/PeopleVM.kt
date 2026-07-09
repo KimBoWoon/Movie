@@ -2,7 +2,6 @@ package com.cheeke.surfy.detail.people
 
 import androidx.compose.ui.util.trace
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.cheeke.surfy.analytics.AnalyticsHelper
 import com.cheeke.surfy.analytics.logSelectContent
 import com.cheeke.surfy.common.Result
@@ -14,8 +13,9 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.kotlin.addTo
 import io.reactivex.rxjava3.processors.BehaviorProcessor
-import kotlinx.coroutines.launch
 
 @HiltViewModel(assistedFactory = PeopleVM.Factory::class)
 class PeopleVM @AssistedInject constructor(
@@ -33,6 +33,7 @@ class PeopleVM @AssistedInject constructor(
         fun create(id: Int): PeopleVM
     }
 
+    private val disposable = CompositeDisposable()
     private val reload = BehaviorProcessor.createDefault<Unit>(Unit)
     private val detail = reload
         .switchMap {
@@ -45,7 +46,7 @@ class PeopleVM @AssistedInject constructor(
         }
     val people = detail.map { result ->
         when (result) {
-            Result.Loading -> PeopleState.Loading
+            is Result.Loading -> PeopleState.Loading
             is Result.Success -> {
                 analyticsHelper.logSelectContent(contentType = "movie", media = result.data)
                 PeopleState.Success(data = result.data)
@@ -56,27 +57,24 @@ class PeopleVM @AssistedInject constructor(
         .refCount()
 
     init {
-        viewModelScope.launch {
-            reload.onNext(Unit)
-        }
+        reload.onNext(Unit)
     }
 
     fun restart() {
-        viewModelScope.launch {
-            reload.onNext(Unit)
-        }
+        reload.onNext(Unit)
     }
 
     fun insertPeople(people: People) {
-        viewModelScope.launch {
-            peopleDataBaseRepository.insert(media = people)
-        }
+        peopleDataBaseRepository.insert(media = people).subscribe().addTo(disposable)
     }
 
     fun deletePeople(people: People) {
-        viewModelScope.launch {
-            peopleDataBaseRepository.delete(media = people)
-        }
+        peopleDataBaseRepository.delete(media = people).subscribe().addTo(disposable)
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        disposable.clear()
     }
 }
 

@@ -5,6 +5,7 @@ import com.cheeke.surfy.data.repository.TvDetailRepository
 import com.cheeke.surfy.model.Tv
 import com.cheeke.surfy.model.TvEpisode
 import com.cheeke.surfy.model.TvSeason
+import io.reactivex.rxjava3.core.BackpressureStrategy
 import io.reactivex.rxjava3.core.Flowable
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
@@ -52,7 +53,7 @@ class GetTvDetailUseCase @Inject constructor(
 
         return Flowable.combineLatest(
             detail,
-            tvDataBaseRepository.isFavorite(tvId),
+            tvDataBaseRepository.isFavorite(tvId).toFlowable(BackpressureStrategy.LATEST),
             episodesBySeason,
             loadState
         ) { tv, favorite, cache, state ->
