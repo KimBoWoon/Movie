@@ -21,13 +21,14 @@ import com.cheeke.surfy.model.Tv
 import com.cheeke.surfy.model.TvEpisode
 import com.cheeke.surfy.model.TvSeasons
 import io.reactivex.rxjava3.core.Single
+import java.util.Locale
 
 interface SettingRemoteDataSource {
     fun getConfiguration(): Single<Configuration>
     fun getCertification(): Single<CertificationData>
     fun getAvailableLanguage(): Single<List<Language>>
     fun getAvailableRegion(): Single<Regions>
-    fun getMovieGenres(language: String = "ko-KR"): Single<Genres>
+    fun getMovieGenres(language: String): Single<Genres>
     fun getTvGenres(language: String): Single<Genres>
 }
 
@@ -35,20 +36,20 @@ interface MovieRemoteDataSource {
     fun getMovie(
         id: Int,
         appendToResponse: String = "images,videos,credits,releases,keywords,alternative_titles,similar,reviews",
-        language: String = "ko-KR",
-        includeImageLanguage: String = "ko",
-        region: String = "KR"
+        language: String = "${Locale.getDefault().language}-${Locale.getDefault().country}",
+        includeImageLanguage: String = "${Locale.getDefault().language}",
+        region: String = "${Locale.getDefault().country}"
     ): Single<Movie>
 
     fun getSimilarMovies(
         id: Int,
-        language: String = "ko-KR",
+        language: String = "${Locale.getDefault().language}-${Locale.getDefault().country}",
         page: Int = 1
     ): Single<SimilarMedias>
 
     fun getMovieReviews(
         movieId: Int,
-        language: String = "ko-KR",
+        language: String = "${Locale.getDefault().language}-${Locale.getDefault().country}",
         page: Int = 1
     ): Single<Reviews>
 
@@ -61,13 +62,13 @@ interface PeopleRemoteDataSource {
     fun getPeopleDetail(
         personId: Int,
         appendToResponse: String = "images, combined_credits, external_ids",
-        language: String = "ko-KR",
-        includeImageLanguage: String = "ko"
+        language: String = "${Locale.getDefault().language}-${Locale.getDefault().country}",
+        includeImageLanguage: String = "${Locale.getDefault().language}"
     ): Single<People>
 
     fun getCombineCredits(
         personId: Int,
-        language: String = "ko-KR"
+        language: String = "${Locale.getDefault().language}-${Locale.getDefault().country}"
     ): Single<CombineCredits>
 
     fun getExternalIds(
@@ -80,14 +81,14 @@ interface TvRemoteDataSource {
         id: Int,
         language: String,
         appendToResponse: String = "images,videos,credits,releases,keywords,alternative_titles,similar,reviews",
-        includeImageLanguage: String = "ko"
+        includeImageLanguage: String = "${Locale.getDefault().language}"
     ): Single<Tv>
 
     fun getTvSeasons(
         seriesId: Int,
         seasonNumber: Int,
         appendToResponse: String = "images,videos,credits,releases,keywords,alternative_titles",
-        language: String = "ko-KR"
+        language: String = "${Locale.getDefault().language}-${Locale.getDefault().country}"
     ): Single<TvSeasons>
 
     fun getTvEpisode(
@@ -95,18 +96,18 @@ interface TvRemoteDataSource {
         seasonNumber: Int,
         episodeNumber: Int,
         appendToResponse: String = "images,videos,credits,releases,keywords,alternative_titles",
-        language: String = "ko-KR"
+        language: String = "${Locale.getDefault().language}-${Locale.getDefault().country}"
     ): Single<TvEpisode>
 
     fun getSimilarTv(
         id: Int,
-        language: String = "ko-KR",
+        language: String = "${Locale.getDefault().language}-${Locale.getDefault().country}",
         page: Int = 1
     ): Single<SimilarMedias>
 
     fun getTvReviews(
         seriesId: Int,
-        language: String = "ko-KR",
+        language: String = "${Locale.getDefault().language}-${Locale.getDefault().country}",
         page: Int = 1
     ): Single<Reviews>
 }
@@ -114,7 +115,7 @@ interface TvRemoteDataSource {
 interface SeriesRemoteDataSource {
     fun getMovieSeries(
         collectionId: Int,
-        language: String = "ko-KR"
+        language: String = "${Locale.getDefault().language}-${Locale.getDefault().country}"
     ): Single<Series>
 
     fun getSeriesImages(
@@ -126,14 +127,14 @@ interface SeriesRemoteDataSource {
 
 interface SyncRemoteDataSource {
     fun getNowPlaying(
-        language: String = "ko-KR",
-        region: String = "KR",
+        language: String = "${Locale.getDefault().language}-${Locale.getDefault().country}",
+        region: String = "${Locale.getDefault().country}",
         page: Int = 1
     ): Single<List<Movie>>
 
     fun getUpcomingMovie(
-        language: String = "ko-KR",
-        region: String = "KR",
+        language: String = "${Locale.getDefault().language}-${Locale.getDefault().country}",
+        region: String = "${Locale.getDefault().country}",
         page: Int = 1
     ): Single<List<Movie>>
 }
@@ -151,47 +152,47 @@ interface TrendingRemoteDataSource {
 }
 
 interface SearchRemoteDataSource {
-    suspend fun searchMulti(
+    fun searchMulti(
         query: String,
         includeAdult: Boolean = true,
-        language: String = "ko-KR",
+        language: String = "${Locale.getDefault().language}-${Locale.getDefault().country}",
         page: Int = 1
-    ): SearchData
+    ): Single<SearchData>
 
-    suspend fun searchMovies(
+    fun searchMovies(
         query: String,
         includeAdult: Boolean = true,
-        language: String = "ko-KR",
-        region: String = "KR",
+        language: String = "${Locale.getDefault().language}-${Locale.getDefault().country}",
+        region: String = "${Locale.getDefault().country}",
         page: Int = 1
-    ): SearchData
+    ): Single<SearchData>
 
-    suspend fun searchTv(
+    fun searchTv(
         query: String,
         includeAdult: Boolean = true,
-        language: String = "ko-KR",
-        region: String = "KR",
+        language: String = "${Locale.getDefault().language}-${Locale.getDefault().country}",
+        region: String = "${Locale.getDefault().country}",
         page: Int = 1
-    ): SearchData
+    ): Single<SearchData>
 
-    suspend fun searchPeople(
+    fun searchPeople(
         query: String,
         includeAdult: Boolean = true,
-        language: String = "ko-KR",
-        region: String = "KR",
+        language: String = "${Locale.getDefault().language}-${Locale.getDefault().country}",
+        region: String = "${Locale.getDefault().country}",
         page: Int = 1
-    ): SearchData
+    ): Single<SearchData>
 
-    suspend fun searchSeries(
+    fun searchSeries(
         query: String,
         includeAdult: Boolean = true,
-        language: String = "ko-KR",
-        region: String = "KR",
+        language: String = "${Locale.getDefault().language}-${Locale.getDefault().country}",
+        region: String = "${Locale.getDefault().country}",
         page: Int = 1
-    ): SearchData
+    ): Single<SearchData>
 
-    suspend fun getSearchKeyword(
+    fun getSearchKeyword(
         query: String,
         page: Int
-    ): SearchKeywordData
+    ): Single<SearchKeywordData>
 }

@@ -81,7 +81,6 @@ class HomeVM @Inject constructor(
         ).asFlow()
     val homeUiState: Observable<HomeState> = movieDataBaseRepository.getPopularMovies()
         .map<HomeState> { HomeState.Success(HomeUiState(popularMovies = it)) }
-        .toObservable()
         .startWithItem(HomeState.Loading)
         .onErrorReturn { HomeState.Error(it) }
         .replay(1)

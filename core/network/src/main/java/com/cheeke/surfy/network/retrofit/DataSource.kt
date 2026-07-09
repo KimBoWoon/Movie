@@ -88,7 +88,7 @@ class SettingNetworkDataSourceImpl @Inject constructor(
             }
 
     override fun getMovieGenres(language: String): Single<Genres> =
-        apis.getMovieGenres()
+        apis.getMovieGenres(language = language)
             .map {
                 when (it) {
                     is ApiResponse.Failure -> throw SurfyNetworkException(throwable = it.throwable, stringRes = it.stringRes)
@@ -97,7 +97,7 @@ class SettingNetworkDataSourceImpl @Inject constructor(
             }
 
     override fun getTvGenres(language: String): Single<Genres> =
-        apis.getTvGenres()
+        apis.getTvGenres(language = language)
             .map {
                 when (it) {
                     is ApiResponse.Failure -> throw SurfyNetworkException(throwable = it.throwable, stringRes = it.stringRes)
@@ -110,103 +110,105 @@ class SettingNetworkDataSourceImpl @Inject constructor(
 class SearchRemoteDataSourceImpl @Inject constructor(
     private val apis: SearchApis
 ) : SearchRemoteDataSource {
-    override suspend fun searchMulti(
+    override fun searchMulti(
         query: String,
         includeAdult: Boolean,
         language: String,
         page: Int
-    ): SearchData = when (
-        val response = apis.searchMulti(
-            query = query,
-            includeAdult = includeAdult,
-            language = language,
-            page = page
-        )
-    ) {
-        is ApiResponse.Failure -> throw SurfyNetworkException(throwable = response.throwable, stringRes = response.stringRes)
-        is ApiResponse.Success -> response.data.asExternalModel(mediaType = null)
-    }
-
-    override suspend fun searchMovies(
-        query: String,
-        includeAdult: Boolean,
-        language: String,
-        region: String,
-        page: Int
-    ): SearchData = when (
-        val response = apis.searchMovies(
-            query = query,
-            includeAdult = includeAdult,
-            language = language,
-            region = region,
-            page = page
-        )
-    ) {
-        is ApiResponse.Failure -> throw SurfyNetworkException(throwable = response.throwable, stringRes = response.stringRes)
-        is ApiResponse.Success -> response.data.asExternalModel(mediaType = MediaType.MOVIE)
-    }
-
-    override suspend fun searchTv(
-        query: String,
-        includeAdult: Boolean,
-        language: String,
-        region: String,
-        page: Int
-    ): SearchData = when (
-        val response = apis.searchTv(
-            query = query,
-            includeAdult = includeAdult,
-            language = language,
-            region = region,
-            page = page
-        )
-    ) {
-        is ApiResponse.Failure -> throw SurfyNetworkException(throwable = response.throwable, stringRes = response.stringRes)
-        is ApiResponse.Success -> response.data.asExternalModel(mediaType = MediaType.TV)
-    }
-
-    override suspend fun searchPeople(
-        query: String,
-        includeAdult: Boolean,
-        language: String,
-        region: String,
-        page: Int
-    ): SearchData = when (
-        val response = apis.searchPeople(
-            query = query,
-            includeAdult = includeAdult,
-            language = language,
-            region = region,
-            page = page
-        )
-    ) {
-        is ApiResponse.Failure -> throw SurfyNetworkException(throwable = response.throwable, stringRes = response.stringRes)
-        is ApiResponse.Success -> response.data.asExternalModel(mediaType = MediaType.PEOPLE)
-    }
-
-    override suspend fun searchSeries(
-        query: String,
-        includeAdult: Boolean,
-        language: String,
-        region: String,
-        page: Int
-    ): SearchData = when (
-        val response = apis.searchMovieSeries(
-            query = query,
-            includeAdult = includeAdult,
-            language = language,
-            region = region,
-            page = page
-        )
-    ) {
-        is ApiResponse.Failure -> throw SurfyNetworkException(throwable = response.throwable, stringRes = response.stringRes)
-        is ApiResponse.Success -> response.data.asExternalModel(mediaType = MediaType.SERIES)
-    }
-
-    override suspend fun getSearchKeyword(query: String, page: Int): SearchKeywordData =
-        when (val response = apis.getSearchKeyword(query = query, page = page)) {
+    ): Single<SearchData> = apis.searchMulti(
+        query = query,
+        includeAdult = includeAdult,
+        language = language,
+        page = page
+    ).map { response ->
+        when (response) {
             is ApiResponse.Failure -> throw SurfyNetworkException(throwable = response.throwable, stringRes = response.stringRes)
-            is ApiResponse.Success -> response.data.asExternalModel()
+            is ApiResponse.Success -> response.data.asExternalModel(mediaType = null)
+        }
+    }
+
+    override fun searchMovies(
+        query: String,
+        includeAdult: Boolean,
+        language: String,
+        region: String,
+        page: Int
+    ): Single<SearchData> = apis.searchMovies(
+        query = query,
+        includeAdult = includeAdult,
+        language = language,
+        region = region,
+        page = page
+    ).map { response ->
+        when (response) {
+            is ApiResponse.Failure -> throw SurfyNetworkException(throwable = response.throwable, stringRes = response.stringRes)
+            is ApiResponse.Success -> response.data.asExternalModel(mediaType = MediaType.MOVIE)
+        }
+    }
+
+    override fun searchTv(
+        query: String,
+        includeAdult: Boolean,
+        language: String,
+        region: String,
+        page: Int
+    ): Single<SearchData> = apis.searchTv(
+        query = query,
+        includeAdult = includeAdult,
+        language = language,
+        region = region,
+        page = page
+    ).map { response ->
+        when (response) {
+            is ApiResponse.Failure -> throw SurfyNetworkException(throwable = response.throwable, stringRes = response.stringRes)
+            is ApiResponse.Success -> response.data.asExternalModel(mediaType = MediaType.TV)
+        }
+    }
+
+    override fun searchPeople(
+        query: String,
+        includeAdult: Boolean,
+        language: String,
+        region: String,
+        page: Int
+    ): Single<SearchData> = apis.searchPeople(
+        query = query,
+        includeAdult = includeAdult,
+        language = language,
+        region = region,
+        page = page
+    ).map { response ->
+        when (response) {
+            is ApiResponse.Failure -> throw SurfyNetworkException(throwable = response.throwable, stringRes = response.stringRes)
+            is ApiResponse.Success -> response.data.asExternalModel(mediaType = MediaType.PEOPLE)
+        }
+    }
+
+    override fun searchSeries(
+        query: String,
+        includeAdult: Boolean,
+        language: String,
+        region: String,
+        page: Int
+    ): Single<SearchData> = apis.searchMovieSeries(
+        query = query,
+        includeAdult = includeAdult,
+        language = language,
+        region = region,
+        page = page
+    ).map { response ->
+        when (response) {
+            is ApiResponse.Failure -> throw SurfyNetworkException(throwable = response.throwable, stringRes = response.stringRes)
+            is ApiResponse.Success -> response.data.asExternalModel(mediaType = MediaType.SERIES)
+        }
+    }
+
+    override fun getSearchKeyword(query: String, page: Int): Single<SearchKeywordData> =
+        apis.getSearchKeyword(query = query, page = page).map { response ->
+            when (response) {
+                is ApiResponse.Failure -> throw SurfyNetworkException(throwable = response.throwable, stringRes = response.stringRes)
+                is ApiResponse.Success -> response.data.asExternalModel()
+            }
         }
 }
 

@@ -11,6 +11,7 @@ import com.cheeke.surfy.database.model.NowPlayingMovieEntity
 import com.cheeke.surfy.database.model.UpComingMovieEntity
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Flowable
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 
 @Dao
@@ -31,7 +32,7 @@ interface MovieDao {
     fun getNextWeekReleaseMovies(): Single<List<MovieEntity>>
 
     @Query(value = "SELECT * FROM nowplayingmovie WHERE voteCount > 500 AND voteAverage > 7.0")
-    fun getPopularMovies(): Single<List<NowPlayingMovieEntity>>
+    fun getPopularMovies(): Observable<List<NowPlayingMovieEntity>>
 
     @Query(value = "SELECT * FROM movies ORDER BY timestamp DESC")
     fun getFavoriteMovie(): PagingSource<Int, MovieEntity>

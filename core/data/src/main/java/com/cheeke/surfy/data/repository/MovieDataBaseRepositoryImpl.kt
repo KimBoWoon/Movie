@@ -10,6 +10,7 @@ import com.cheeke.surfy.database.model.asExternalModel
 import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.model.Movie
 import io.reactivex.rxjava3.core.Flowable
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.CoroutineScope
@@ -77,7 +78,7 @@ class MovieDataBaseRepositoryImpl @Inject constructor(
     override fun getNowPlayingMovies(): PagingSource<Int, NowPlayingMovieEntity> =
         movieDao.getNowPlayingMovie()
 
-    override fun getPopularMovies(): Single<List<Movie>> =
+    override fun getPopularMovies(): Observable<List<Movie>> =
         movieDao.getPopularMovies().map { nowPlayingMovieEntities ->
             nowPlayingMovieEntities.map(transform = NowPlayingMovieEntity::asExternalModel)
         }.subscribeOn(Schedulers.io())

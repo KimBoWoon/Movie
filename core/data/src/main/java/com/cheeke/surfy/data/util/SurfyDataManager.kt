@@ -51,9 +51,10 @@ class SurfyDataManager @Inject constructor(
         userData
             .map { userDataEntry -> Locale(language = userDataEntry.language, region = userDataEntry.region) }
             .distinctUntilChanged()
+            .replay(1)
+            .refCount()
 
-    private val _surfyAppData =
-        BehaviorProcessor.createDefault<SurfyAppDataState>(SurfyAppDataState.Loading)
+    private val _surfyAppData = BehaviorProcessor.createDefault<SurfyAppDataState>(SurfyAppDataState.Loading)
     override val surfyAppData = _surfyAppData.hide()
     private val _tmdbConfiguration = BehaviorProcessor.create<Triple<Configuration, List<Language>, Regions>>()
     val tmdbConfiguration = _tmdbConfiguration.hide()
@@ -75,51 +76,54 @@ class SurfyDataManager @Inject constructor(
                 onError = { throwable: Throwable -> /* 로깅 처리 */ }
             )
 
-        disposables += userData.take(1)
-            .flatMap { internalData ->
-                Flowable.combineLatest(
-                    tmdbConfiguration,
-                    tmdbGenres
-                ) { (configurationResult, languageResult, regionResult), genresResult ->
-                    val results = listOf(internalData, configurationResult, languageResult, regionResult, genresResult)
-                    val firstFailure: ResourceResult.Failure? = results.filterIsInstance<ResourceResult.Failure>().firstOrNull()
+        disposables += userData.switchMap { internalData ->
+            Flowable.combineLatest(
+                tmdbConfiguration,
+                tmdbGenres
+            ) { (configurationResult, languageResult, regionResult), genresResult ->
+                val results = listOf(internalData, configurationResult, languageResult, regionResult, genresResult)
+                val firstFailure: ResourceResult.Failure? = results.filterIsInstance<ResourceResult.Failure>().firstOrNull()
 
-                    val appDataState: SurfyAppDataState = if (firstFailure != null) {
-                        SurfyAppDataState.Error(throwable = firstFailure.throwable)
-                    } else {
-                        SurfyAppDataState.Success(
-                            data = SurfyAppData(
-                                isAdult = internalData.isAdult,
-                                autoPlayTrailer = internalData.isAutoPlayTrailer,
-                                isDarkMode = internalData.isDarkMode,
-                                updateDate = internalData.updateDate,
-                                imageQuality = internalData.imageQuality,
-                                secureBaseUrl = configurationResult.images?.secureBaseUrl.orEmpty(),
-                                movieGenres = genresResult.movie,
-                                tvGenres = genresResult.tv,
-                                region = regionResult.results.orEmpty().map { regionItem ->
-                                    LocaleOption(
-                                        code = regionItem.iso31661.orEmpty(),
-                                        label = regionItem.nativeName.orEmpty(),
-                                        isSelected = internalData.region == regionItem.iso31661
+                val appDataState: SurfyAppDataState = if (firstFailure != null) {
+                    SurfyAppDataState.Error(throwable = firstFailure.throwable)
+                } else {
+                    SurfyAppDataState.Success(
+                        data = SurfyAppData(
+                            isAdult = internalData.isAdult,
+                            autoPlayTrailer = internalData.isAutoPlayTrailer,
+                            isDarkMode = internalData.isDarkMode,
+                            updateDate = internalData.updateDate,
+                            imageQuality = internalData.imageQuality,
+                            secureBaseUrl = configurationResult.images?.secureBaseUrl.orEmpty(),
+                            movieGenres = genresResult.movie,
+                            tvGenres = genresResult.tv,
+                            region = regionResult.results.orEmpty().map { regionItem ->
+                                LocaleOption(
+                                    code = regionItem.iso31661.orEmpty(),
+                                    label = regionItem.nativeName.orEmpty(),
+                                    isSelected = internalData.region == regionItem.iso31661
+                                )
+                            },
+                            language = languageResult.map { languageItem ->
+                                LocaleOption(
+                                    code = languageItem.iso6391.orEmpty(),
+                                    label = languageItem.englishName.orEmpty(),
+                                    isSelected = internalData.language == languageItem.iso6391
+                                )
+                            },
+                            posterSize = configurationResult.images?.posterSizes.orEmpty()
+                                .map { size ->
+                                    PosterSize(
+                                        size = size,
+                                        isSelected = internalData.imageQuality == size
                                     )
-                                },
-                                language = languageResult.map { languageItem ->
-                                    LocaleOption(
-                                        code = languageItem.iso6391.orEmpty(),
-                                        label = languageItem.englishName.orEmpty(),
-                                        isSelected = internalData.language == languageItem.iso6391
-                                    )
-                                },
-                                posterSize = configurationResult.images?.posterSizes.orEmpty().map { size ->
-                                    PosterSize(size = size, isSelected = internalData.imageQuality == size)
                                 }
-                            )
                         )
-                    }
-                    appDataState
+                    )
                 }
-            }.startWithItem(SurfyAppDataState.Loading)
+                appDataState
+            }
+        }.startWithItem(SurfyAppDataState.Loading)
             .onErrorReturn { throwable: Throwable -> SurfyAppDataState.Error(throwable = throwable) }
             .subscribe(
                 {

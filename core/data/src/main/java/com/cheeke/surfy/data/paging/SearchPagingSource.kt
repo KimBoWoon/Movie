@@ -1,11 +1,13 @@
 package com.cheeke.surfy.data.paging
 
-import androidx.paging.PagingSource
 import androidx.paging.PagingState
+import androidx.paging.rxjava3.RxPagingSource
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.model.SearchType
 import com.cheeke.surfy.network.SearchRemoteDataSource
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.schedulers.Schedulers
 
 class SearchPagingSource(
     private val apis: SearchRemoteDataSource,
@@ -14,26 +16,26 @@ class SearchPagingSource(
     private val language: String,
     private val region: String,
     private val isAdult: Boolean
-) : PagingSource<Int, Media>() {
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Media> =
-        runCatching {
-            val response = when (type) {
-                SearchType.MULTI -> apis.searchMulti(query = query, includeAdult = isAdult, language = language, page = params.key ?: 1)
-                SearchType.MOVIE -> apis.searchMovies(query = query, includeAdult = isAdult, language = language, region = region, page = params.key ?: 1)
-                SearchType.TV -> apis.searchTv(query = query, includeAdult = isAdult, language = language, region = region, page = params.key ?: 1)
-                SearchType.PEOPLE -> apis.searchPeople(query = query, includeAdult = isAdult, language = language, region = region, page = params.key ?: 1)
-                SearchType.SERIES -> apis.searchSeries(query = query, includeAdult = isAdult, language = language, region = region, page = params.key ?: 1)
+) : RxPagingSource<Int, Media>() {
+    override fun loadSingle(params: LoadParams<Int>): Single<LoadResult<Int, Media>> {
+        return when (type) {
+            SearchType.MULTI -> apis.searchMulti(query = query, includeAdult = isAdult, language = language, page = params.key ?: 1)
+            SearchType.MOVIE -> apis.searchMovies(query = query, includeAdult = isAdult, language = language, region = region, page = params.key ?: 1)
+            SearchType.TV -> apis.searchTv(query = query, includeAdult = isAdult, language = language, region = region, page = params.key ?: 1)
+            SearchType.PEOPLE -> apis.searchPeople(query = query, includeAdult = isAdult, language = language, region = region, page = params.key ?: 1)
+            SearchType.SERIES -> apis.searchSeries(query = query, includeAdult = isAdult, language = language, region = region, page = params.key ?: 1)
+        }.subscribeOn(Schedulers.io())
+            .map<LoadResult<Int, Media>> { response ->
+                LoadResult.Page(
+                    data = response.results.orEmpty(),
+                    prevKey = null,
+                    nextKey = if ((response.totalPages ?: 1) > (params.key ?: 1)) (params.key ?: 1) + 1 else null
+                )
+            }.onErrorReturn { e ->
+                Log.printStackTrace(e)
+                LoadResult.Error(e)
             }
-
-            LoadResult.Page(
-                data = response.results.orEmpty(),
-                prevKey = null,
-                nextKey = if ((response.totalPages ?: 1) > (params.key ?: 1)) (params.key ?: 1) + 1 else null
-            )
-        }.getOrElse { e ->
-            Log.printStackTrace(e)
-            LoadResult.Error(e)
-        }
+    }
 
     override fun getRefreshKey(state: PagingState<Int, Media>): Int? =
         state.anchorPosition?.let { anchorPosition ->

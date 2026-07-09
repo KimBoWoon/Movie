@@ -14,7 +14,7 @@ import io.reactivex.rxjava3.core.Flowable
 import jakarta.inject.Inject
 
 enum class FavoriteKeys {
-    MOVIE, PEOPLE, TV
+    MOVIE, TV, PEOPLE
 }
 
 sealed interface FavoriteRepository {

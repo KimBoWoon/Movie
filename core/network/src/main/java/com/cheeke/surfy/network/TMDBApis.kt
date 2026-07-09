@@ -26,6 +26,7 @@ import io.reactivex.rxjava3.core.Single
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
+import java.util.Locale
 
 interface SettingApis {
     @GET(value = "/3/configuration")
@@ -42,12 +43,12 @@ interface SettingApis {
 
     @GET(value = "/3/genre/movie/list")
     fun getMovieGenres(
-        @Query(value = "language") language: String = "ko-KR"
+        @Query(value = "language") language: String = "${Locale.getDefault().language}-${Locale.getDefault().country}"
     ): Single<ApiResponse<NetworkTMDBMovieGenres>>
 
     @GET(value = "/3/genre/tv/list")
     fun getTvGenres(
-        @Query(value = "language") language: String = "ko-KR"
+        @Query(value = "language") language: String = "${Locale.getDefault().language}-${Locale.getDefault().country}"
     ): Single<ApiResponse<NetworkTMDBMovieGenres>>
 }
 
@@ -56,15 +57,15 @@ interface MovieApis {
     fun getMovie(
         @Path(value = "movie_id") id: Int,
         @Query(value = "append_to_response") appendToResponse: String = "images,videos,credits,releases,alternative_titles",
-        @Query(value = "language") language: String = "ko-KR",
-        @Query(value = "include_image_language") includeImageLanguage: String = "ko",
-        @Query(value = "region") region: String = "KR"
+        @Query(value = "language") language: String = "${Locale.getDefault().language}-${Locale.getDefault().country}",
+        @Query(value = "include_image_language") includeImageLanguage: String = "${Locale.getDefault().language}",
+        @Query(value = "region") region: String = "${Locale.getDefault().country}"
     ): Single<ApiResponse<NetworkTMDBMovie>>
 
     @GET(value = "/3/movie/{movie_id}/similar")
     fun getSimilarMovies(
         @Path(value = "movie_id") id: Int,
-        @Query(value = "language") language: String = "ko-KR",
+        @Query(value = "language") language: String = "${Locale.getDefault().language}-${Locale.getDefault().country}",
         @Query(value = "page") page: Int = 1,
     ): Single<ApiResponse<NetworkTMDBSimilarMedia>>
 
@@ -76,7 +77,7 @@ interface MovieApis {
     @GET(value = "/3/movie/{movie_id}/reviews")
     fun getMovieReview(
         @Path(value = "movie_id") movieId: Int,
-        @Query(value = "language") language: String = "ko-KR",
+        @Query(value = "language") language: String = "${Locale.getDefault().language}-${Locale.getDefault().country}",
         @Query(value = "page") page: Int = 1
     ): Single<ApiResponse<NetworkTMDBMovieReviews>>
 }
@@ -86,14 +87,14 @@ interface PeopleApis {
     fun getPeopleDetail(
         @Path(value = "person_id") personId: Int,
         @Query(value = "append_to_response") appendToResponse: String = "images, combined_credits, external_ids",
-        @Query(value = "language") language: String = "ko-KR",
-        @Query(value = "include_image_language") includeImageLanguage: String = "ko"
+        @Query(value = "language") language: String = "${Locale.getDefault().language}-${Locale.getDefault().country}",
+        @Query(value = "include_image_language") includeImageLanguage: String = "${Locale.getDefault().language}"
     ): Single<ApiResponse<NetworkTMDBPeopleDetail>>
 
     @GET(value = "/3/person/{person_id}/combined_credits")
     fun getCombineCredits(
         @Path(value = "person_id") personId: Int,
-        @Query(value = "language") language: String = "ko-KR"
+        @Query(value = "language") language: String = "${Locale.getDefault().language}-${Locale.getDefault().country}"
     ): Single<ApiResponse<NetworkTMDBCombineCredits>>
 
     @GET(value = "/3/person/{person_id}/external_ids")
@@ -106,7 +107,7 @@ interface TvApis {
     @GET(value = "/3/tv/{series_id}/similar")
     fun getSimilarTv(
         @Path(value = "series_id") id: Int,
-        @Query(value = "language") language: String = "ko-KR",
+        @Query(value = "language") language: String = "${Locale.getDefault().language}-${Locale.getDefault().country}",
         @Query(value = "page") page: Int = 1,
     ): Single<ApiResponse<NetworkTMDBSimilarMedia>>
 
@@ -114,8 +115,8 @@ interface TvApis {
     fun getTv(
         @Path(value = "series_id") id: Int,
         @Query(value = "append_to_response") appendToResponse: String = "images,videos,credits,releases,alternative_titles",
-        @Query(value = "language") language: String = "ko-KR",
-        @Query(value = "include_image_language") includeImageLanguage: String = "ko"
+        @Query(value = "language") language: String = "${Locale.getDefault().language}-${Locale.getDefault().country}",
+        @Query(value = "include_image_language") includeImageLanguage: String = "${Locale.getDefault().language}"
     ): Single<ApiResponse<NetworkTMDBTv>>
 
     @GET(value = "/3/tv/{series_id}/season/{season_number}")
@@ -123,7 +124,7 @@ interface TvApis {
         @Path(value = "series_id") seriesId: Int,
         @Path(value = "season_number") seasonNumber: Int,
         @Query(value = "append_to_response") appendToResponse: String = "images,videos,credits,releases,alternative_titles",
-        @Query(value = "language") language: String = "ko-KR"
+        @Query(value = "language") language: String = "${Locale.getDefault().language}-${Locale.getDefault().country}"
     ): Single<ApiResponse<NetworkTMDBTvSeasons>>
 
     @GET(value = "/3/tv/{series_id}/season/{season_number}/episode/{episode_number}")
@@ -132,13 +133,13 @@ interface TvApis {
         @Path(value = "season_number") seasonNumber: Int,
         @Path(value = "episode_number") episodeNumber: Int,
         @Query(value = "append_to_response") appendToResponse: String = "images,videos,credits,releases,alternative_titles",
-        @Query(value = "language") language: String = "ko-KR"
+        @Query(value = "language") language: String = "${Locale.getDefault().language}-${Locale.getDefault().country}"
     ): Single<ApiResponse<NetworkTMDBTvEpisode>>
 
     @GET(value = "/3/tv/{series_id}/reviews")
     fun getTvReview(
         @Path(value = "series_id") seriesId: Int,
-        @Query(value = "language") language: String = "ko-KR",
+        @Query(value = "language") language: String = "${Locale.getDefault().language}-${Locale.getDefault().country}",
         @Query(value = "page") page: Int = 1
     ): Single<ApiResponse<NetworkTMDBTvReviews>>
 }
@@ -147,81 +148,81 @@ interface SeriesApis {
     @GET(value = "/3/collection/{collection_id}")
     fun getMovieSeries(
         @Path(value = "collection_id") collectionId: Int,
-        @Query(value = "language") language: String = "ko-KR",
+        @Query(value = "language") language: String = "${Locale.getDefault().language}-${Locale.getDefault().country}",
     ): Single<ApiResponse<NetworkTMDBMovieSeries>>
 
     @GET(value = "/3/collection/{collection_id}/images")
     fun getSeriesImages(
         @Path(value = "collection_id") collectionId: Int,
         @Query(value = "include_image_language") includeImageLanguage: String = "ko-KR,null",
-        @Query(value = "language") language: String = "ko-KR"
+        @Query(value = "language") language: String = "${Locale.getDefault().language}-${Locale.getDefault().country}"
     ): Single<ApiResponse<NetworkTMDBImageList>>
 }
 
 interface SearchApis {
     @GET(value = "/3/search/multi")
-    suspend fun searchMulti(
+    fun searchMulti(
         @Query(value = "query") query: String,
         @Query(value = "include_adult") includeAdult: Boolean = true,
-        @Query(value = "language") language: String = "ko-KR",
+        @Query(value = "language") language: String = "${Locale.getDefault().language}-${Locale.getDefault().country}",
         @Query(value = "page") page: Int = 1
-    ): ApiResponse<NetworkTMDBSearch>
+    ): Single<ApiResponse<NetworkTMDBSearch>>
 
     @GET(value = "/3/search/movie")
-    suspend fun searchMovies(
+    fun searchMovies(
         @Query(value = "query") query: String,
         @Query(value = "include_adult") includeAdult: Boolean = true,
-        @Query(value = "language") language: String = "ko-KR",
-        @Query(value = "region") region: String = "KR",
+        @Query(value = "language") language: String = "${Locale.getDefault().language}-${Locale.getDefault().country}",
+        @Query(value = "region") region: String = "${Locale.getDefault().country}",
         @Query(value = "page") page: Int = 1
-    ): ApiResponse<NetworkTMDBSearch>
+    ): Single<ApiResponse<NetworkTMDBSearch>>
 
     @GET(value = "/3/search/tv")
-    suspend fun searchTv(
+    fun searchTv(
         @Query(value = "query") query: String,
         @Query(value = "include_adult") includeAdult: Boolean = true,
-        @Query(value = "language") language: String = "ko-KR",
-        @Query(value = "region") region: String = "KR",
+        @Query(value = "language") language: String = "${Locale.getDefault().language}-${Locale.getDefault().country}",
+        @Query(value = "region") region: String = "${Locale.getDefault().country}",
         @Query(value = "page") page: Int = 1
-    ): ApiResponse<NetworkTMDBSearch>
+    ): Single<ApiResponse<NetworkTMDBSearch>>
 
     @GET(value = "/3/search/person")
-    suspend fun searchPeople(
+    fun searchPeople(
         @Query(value = "query") query: String,
         @Query(value = "include_adult") includeAdult: Boolean = true,
-        @Query(value = "language") language: String = "ko-KR",
-        @Query(value = "region") region: String = "KR",
+        @Query(value = "language") language: String = "${Locale.getDefault().language}-${Locale.getDefault().country}",
+        @Query(value = "region") region: String = "${Locale.getDefault().country}",
         @Query(value = "page") page: Int = 1
-    ): ApiResponse<NetworkTMDBSearch>
+    ): Single<ApiResponse<NetworkTMDBSearch>>
 
     @GET(value = "/3/search/collection")
-    suspend fun searchMovieSeries(
+    fun searchMovieSeries(
         @Query(value = "query") query: String,
         @Query(value = "include_adult") includeAdult: Boolean = true,
         @Query(value = "page") page: Int = 1,
-        @Query(value = "language") language: String = "ko-KR",
-        @Query(value = "region") region: String = "KR"
-    ): ApiResponse<NetworkTMDBSearch>
+        @Query(value = "language") language: String = "${Locale.getDefault().language}-${Locale.getDefault().country}",
+        @Query(value = "region") region: String = "${Locale.getDefault().country}"
+    ): Single<ApiResponse<NetworkTMDBSearch>>
 
     @GET(value = "/3/search/keyword")
-    suspend fun getSearchKeyword(
+    fun getSearchKeyword(
         @Query(value = "query") query: String,
         @Query(value = "page") page: Int
-    ): ApiResponse<NetworkTMDBSearchKeywordData>
+    ): Single<ApiResponse<NetworkTMDBSearchKeywordData>>
 }
 
 interface SyncApis {
     @GET(value = "/3/movie/now_playing")
     fun getNowPlaying(
-        @Query(value = "language") language: String = "ko-KR",
-        @Query(value = "region") region: String = "KR",
+        @Query(value = "language") language: String = "${Locale.getDefault().language}-${Locale.getDefault().country}",
+        @Query(value = "region") region: String = "${Locale.getDefault().country}",
         @Query(value = "page") page: Int = 1
     ): Single<ApiResponse<NetworkTMDBMovieList>>
 
     @GET(value = "/3/movie/upcoming")
     fun getUpcomingMovie(
-        @Query(value = "language") language: String = "ko-KR",
-        @Query(value = "region") region: String = "KR",
+        @Query(value = "language") language: String = "${Locale.getDefault().language}-${Locale.getDefault().country}",
+        @Query(value = "region") region: String = "${Locale.getDefault().country}",
         @Query(value = "page") page: Int = 1
     ): Single<ApiResponse<NetworkTMDBMovieList>>
 }

@@ -23,8 +23,8 @@ internal object DatabaseModule {
         name = "surfy-database.db"
     )/*.addCallback(
         callback = object : RoomDatabase.Callback() {
-            override fun onCreate(db: SupportSQLiteDatabase) {
-                super.onCreate(db)
+            override fun onOpen(db: SupportSQLiteDatabase) {
+                super.onOpen(db)
 
                 context.assets.open("surfy-database_db-movies.sql").use { inputStream ->
                     val sql = inputStream.bufferedReader().use { it.readText() }
