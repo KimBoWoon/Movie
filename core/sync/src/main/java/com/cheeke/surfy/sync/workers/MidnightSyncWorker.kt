@@ -12,12 +12,9 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkerParameters
 import com.cheeke.surfy.common.Dispatcher
 import com.cheeke.surfy.common.Dispatchers
-import com.cheeke.surfy.data.repository.MovieDataBaseRepository
 import com.cheeke.surfy.data.repository.SyncRepository
-import com.cheeke.surfy.data.repository.TvDataBaseRepository
 import com.cheeke.surfy.data.repository.UserDataRepository
 import com.cheeke.surfy.data.util.Synchronizer
-import com.cheeke.surfy.notifications.Notifier
 import com.cheeke.surfy.sync.initializers.SyncConstraints
 import com.cheeke.surfy.sync.initializers.syncForegroundInfo
 import com.cheeke.surfy.sync.utils.millisUntilNextMidnight
@@ -37,12 +34,10 @@ class MidnightSyncWorker @AssistedInject constructor(
     @Assisted private val workerParams: WorkerParameters,
     @param:Dispatcher(Dispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
     private val userDateRepository: UserDataRepository,
-    private val syncRepository: SyncRepository,
-    private val movieDataBaseRepository: MovieDataBaseRepository,
-    private val tvDataBaseRepository: TvDataBaseRepository,
-    private val notifier: Notifier
+    private val syncRepository: SyncRepository
 ) : CoroutineWorker(appContext, workerParams), Synchronizer {
     companion object {
+        const val WORKER_NAME = "MID_NIGHT_SYNC_WORKER_NAME"
         const val WORKER_TAG = "MID_NIGHT_SYNC_WORKER"
         const val PERIODIC_WORKER_TAG = "PERIODIC_WORKER_TAG"
         const val EXPEDITED_SYNC_WORK_NAME = "EXPEDITED_SYNC_WORK_NAME"
@@ -98,11 +93,6 @@ class MidnightSyncWorker @AssistedInject constructor(
             second = inputData.getBoolean(key = IS_FORCE, defaultValue = false)
         )
     )
-
-    override suspend fun afterSync() {
-        val nextReleaseMedias = movieDataBaseRepository.getNextWeekReleaseMovies() + tvDataBaseRepository.getNextWeekReleaseTvs()
-        notifier.postMovieNotifications(movies = nextReleaseMedias)
-    }
 
     override suspend fun getForegroundInfo(): ForegroundInfo =
         appContext.syncForegroundInfo()

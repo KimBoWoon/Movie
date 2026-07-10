@@ -6,6 +6,8 @@ import com.cheeke.surfy.core.datastore.InternalDataPreferences
 import com.cheeke.surfy.core.datastore.copy
 import com.cheeke.surfy.model.DarkThemeConfig
 import com.cheeke.surfy.model.InternalData
+import com.cheeke.surfy.model.defaultLanguage
+import com.cheeke.surfy.model.defaultRegion
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -170,12 +172,12 @@ class InternalDataSource @Inject constructor(
     suspend fun getRegion(): String =
         datastore.data.map { preferences ->
             preferences.region
-        }.firstOrNull() ?: "KR"
+        }.firstOrNull() ?: defaultRegion
 
     suspend fun getLanguage(): String =
         datastore.data.map { preferences ->
             preferences.language
-        }.firstOrNull() ?: "ko"
+        }.firstOrNull() ?: defaultLanguage
 
     suspend fun getImageQuality(): String =
         datastore.data.map { preferences ->

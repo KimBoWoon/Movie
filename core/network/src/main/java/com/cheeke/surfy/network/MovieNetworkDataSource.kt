@@ -20,13 +20,16 @@ import com.cheeke.surfy.model.TrendingMedia
 import com.cheeke.surfy.model.Tv
 import com.cheeke.surfy.model.TvEpisode
 import com.cheeke.surfy.model.TvSeasons
+import com.cheeke.surfy.model.defaultLanguage
+import com.cheeke.surfy.model.defaultLanguageRegion
+import com.cheeke.surfy.model.defaultRegion
 
 interface SettingRemoteDataSource {
     suspend fun getConfiguration(): Configuration
     suspend fun getCertification(): CertificationData
     suspend fun getAvailableLanguage(): List<Language>
     suspend fun getAvailableRegion(): Regions
-    suspend fun getMovieGenres(language: String = "ko-KR"): Genres
+    suspend fun getMovieGenres(language: String = defaultLanguageRegion): Genres
     suspend fun getTvGenres(language: String): Genres
 }
 
@@ -34,20 +37,20 @@ interface MovieRemoteDataSource {
     suspend fun getMovie(
         id: Int,
         appendToResponse: String = "images,videos,credits,releases,keywords,alternative_titles,similar,reviews",
-        language: String = "ko-KR",
-        includeImageLanguage: String = "ko",
-        region: String = "KR"
+        language: String = defaultLanguageRegion,
+        includeImageLanguage: String = defaultLanguage,
+        region: String = defaultRegion
     ): Movie
 
     suspend fun getSimilarMovies(
         id: Int,
-        language: String = "ko-KR",
+        language: String = defaultLanguageRegion,
         page: Int = 1
     ): SimilarMedias
 
     suspend fun getMovieReviews(
         movieId: Int,
-        language: String = "ko-KR",
+        language: String = defaultLanguageRegion,
         page: Int = 1
     ): Reviews
 
@@ -60,13 +63,13 @@ interface PeopleRemoteDataSource {
     suspend fun getPeopleDetail(
         personId: Int,
         appendToResponse: String = "images, combined_credits, external_ids",
-        language: String = "ko-KR",
-        includeImageLanguage: String = "ko"
+        language: String = defaultLanguageRegion,
+        includeImageLanguage: String = defaultLanguage
     ): People
 
     suspend fun getCombineCredits(
         personId: Int,
-        language: String = "ko-KR"
+        language: String = defaultLanguageRegion
     ): CombineCredits
 
     suspend fun getExternalIds(
@@ -79,14 +82,14 @@ interface TvRemoteDataSource {
         id: Int,
         language: String,
         appendToResponse: String = "images,videos,credits,releases,keywords,alternative_titles,similar,reviews",
-        includeImageLanguage: String = "ko"
+        includeImageLanguage: String = defaultLanguage
     ): Tv
 
     suspend fun getTvSeasons(
         seriesId: Int,
         seasonNumber: Int,
         appendToResponse: String = "images,videos,credits,releases,keywords,alternative_titles",
-        language: String = "ko-KR"
+        language: String = defaultLanguageRegion
     ): TvSeasons
 
     suspend fun getTvEpisode(
@@ -94,18 +97,18 @@ interface TvRemoteDataSource {
         seasonNumber: Int,
         episodeNumber: Int,
         appendToResponse: String = "images,videos,credits,releases,keywords,alternative_titles",
-        language: String = "ko-KR"
+        language: String = defaultLanguageRegion
     ): TvEpisode
 
     suspend fun getSimilarTv(
         id: Int,
-        language: String = "ko-KR",
+        language: String = defaultLanguageRegion,
         page: Int = 1
     ): SimilarMedias
 
     suspend fun getTvReviews(
         seriesId: Int,
-        language: String = "ko-KR",
+        language: String = defaultLanguageRegion,
         page: Int = 1
     ): Reviews
 }
@@ -113,7 +116,7 @@ interface TvRemoteDataSource {
 interface SeriesRemoteDataSource {
     suspend fun getMovieSeries(
         collectionId: Int,
-        language: String = "ko-KR"
+        language: String = defaultLanguageRegion
     ): Series
 
     suspend fun getSeriesImages(
@@ -125,14 +128,14 @@ interface SeriesRemoteDataSource {
 
 interface SyncRemoteDataSource {
     suspend fun getNowPlaying(
-        language: String = "ko-KR",
-        region: String = "KR",
+        language: String = defaultLanguageRegion,
+        region: String = defaultRegion,
         page: Int = 1
     ): List<Movie>
 
     suspend fun getUpcomingMovie(
-        language: String = "ko-KR",
-        region: String = "KR",
+        language: String = defaultLanguageRegion,
+        region: String = defaultRegion,
         page: Int = 1
     ): List<Movie>
 }
@@ -153,39 +156,39 @@ interface SearchRemoteDataSource {
     suspend fun searchMulti(
         query: String,
         includeAdult: Boolean = true,
-        language: String = "ko-KR",
+        language: String = defaultLanguageRegion,
         page: Int = 1
     ): SearchData
 
     suspend fun searchMovies(
         query: String,
         includeAdult: Boolean = true,
-        language: String = "ko-KR",
-        region: String = "KR",
+        language: String = defaultLanguageRegion,
+        region: String = defaultRegion,
         page: Int = 1
     ): SearchData
 
     suspend fun searchTv(
         query: String,
         includeAdult: Boolean = true,
-        language: String = "ko-KR",
-        region: String = "KR",
+        language: String = defaultLanguageRegion,
+        region: String = defaultRegion,
         page: Int = 1
     ): SearchData
 
     suspend fun searchPeople(
         query: String,
         includeAdult: Boolean = true,
-        language: String = "ko-KR",
-        region: String = "KR",
+        language: String = defaultLanguageRegion,
+        region: String = defaultRegion,
         page: Int = 1
     ): SearchData
 
     suspend fun searchSeries(
         query: String,
         includeAdult: Boolean = true,
-        language: String = "ko-KR",
-        region: String = "KR",
+        language: String = defaultLanguageRegion,
+        region: String = defaultRegion,
         page: Int = 1
     ): SearchData
 

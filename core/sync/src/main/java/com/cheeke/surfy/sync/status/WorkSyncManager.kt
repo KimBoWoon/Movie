@@ -9,6 +9,7 @@ import androidx.work.WorkManager
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.data.util.SyncManager
 import com.cheeke.surfy.sync.workers.MidnightSyncWorker
+import com.cheeke.surfy.sync.workers.UpComingNotificationWorker
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.filterNotNull
 import java.util.UUID
@@ -36,9 +37,15 @@ internal class WorkSyncManager @Inject constructor(
 //        WorkManager.getInstance(context = appContext).cancelAllWork()
         WorkManager.getInstance(context = appContext)
             .enqueueUniqueWork(
-                uniqueWorkName = ONE_TIME_UNIQUE_WORKER,
+                uniqueWorkName = MidnightSyncWorker.WORKER_NAME,
                 existingWorkPolicy = ExistingWorkPolicy.KEEP,
                 request = MidnightSyncWorker.startUpSyncWork()
+            )
+        WorkManager.getInstance(context = appContext)
+            .enqueueUniqueWork(
+                uniqueWorkName = UpComingNotificationWorker.WORKER_NAME,
+                existingWorkPolicy = ExistingWorkPolicy.KEEP,
+                request = UpComingNotificationWorker.startUpSyncWork()
             )
 //        WorkManager.getInstance(context = appContext)
 //            .enqueueUniquePeriodicWork(
