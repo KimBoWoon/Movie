@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="syncing">API data loading…</string>
+    <string name="mid_night_sync_worker_noti_name">Movie info update</string>
+    <string name="mid_night_sync_worker_noti_description">Movie info updating…</string>
 </resources>

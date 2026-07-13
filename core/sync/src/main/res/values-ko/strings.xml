@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="syncing">데이터 로딩중…</string>
+    <string name="mid_night_sync_worker_noti_name">영화 정보 업데이트</string>
+    <string name="mid_night_sync_worker_noti_description">영화 정보 업데이트 중…</string>
 </resources>

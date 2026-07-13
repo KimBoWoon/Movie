@@ -3,12 +3,15 @@ package com.cheeke.surfy.sync.workers
 import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
+import androidx.work.ForegroundInfo
 import androidx.work.OneTimeWorkRequest
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkerParameters
+import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.data.repository.MovieDataBaseRepository
 import com.cheeke.surfy.data.repository.TvDataBaseRepository
 import com.cheeke.surfy.notifications.Notifier
+import com.cheeke.surfy.sync.initializers.syncForegroundInfo
 import com.cheeke.surfy.sync.utils.millisUntilNextMidnight
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -27,15 +30,20 @@ class UpComingNotificationWorker @AssistedInject constructor(
         const val WORKER_TAG = "UP_COMING_NOTIFICATION_WORKER"
 
         fun startUpSyncWork(): OneTimeWorkRequest =
-            OneTimeWorkRequestBuilder<DelegatingWorker>()
+            OneTimeWorkRequestBuilder<UpComingNotificationWorker>()
                 .addTag(tag = WORKER_TAG)
                 .setInitialDelay(duration = millisUntilNextMidnight(), timeUnit = TimeUnit.MILLISECONDS)
                 .build()
     }
 
+    override suspend fun getForegroundInfo(): ForegroundInfo =
+        appContext.syncForegroundInfo()
+
     override suspend fun doWork(): Result {
+        Log.d(WORKER_NAME, "worker start")
         val nextReleaseMedias = movieDataBaseRepository.getNextWeekReleaseMovies() + tvDataBaseRepository.getNextWeekReleaseTvs()
         notifier.postMovieNotifications(movies = nextReleaseMedias.sortedBy { it.releaseDate })
+        Log.d(WORKER_NAME, "worker end -> $nextReleaseMedias")
         return Result.success()
     }
 }

@@ -28,7 +28,7 @@ fun Context.syncForegroundInfo() = ForegroundInfo(
 private fun Context.syncWorkNotification(): Notification {
     val channel = NotificationChannel(
         SYNC_NOTIFICATION_CHANNEL_ID,
-        "sync",
+        getString(R.string.mid_night_sync_worker_noti_name),
         NotificationManager.IMPORTANCE_DEFAULT,
     ).apply {
         description = getString(R.string.syncing)
@@ -44,7 +44,7 @@ private fun Context.syncWorkNotification(): Notification {
         SYNC_NOTIFICATION_CHANNEL_ID,
     )
         .setSmallIcon(com.cheeke.surfy.core.notifications.R.drawable.ic_launcher_round)
-        .setContentTitle("Surfy")
+        .setContentTitle(getString(R.string.mid_night_sync_worker_noti_description))
         .setPriority(NotificationCompat.PRIORITY_DEFAULT)
         .build()
 }
