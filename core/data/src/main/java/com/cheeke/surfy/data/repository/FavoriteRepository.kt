@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 enum class FavoriteKeys {
-    MOVIE, PEOPLE, TV
+    MOVIE, TV, PEOPLE
 }
 
 sealed interface FavoriteRepository {

@@ -5,6 +5,7 @@ import androidx.hilt.work.HiltWorkerFactory
 import androidx.startup.Initializer
 import androidx.work.Configuration
 import androidx.work.WorkManager
+import com.cheeke.surfy.BuildConfig
 import com.cheeke.surfy.common.Log
 import javax.inject.Inject
 
@@ -15,6 +16,7 @@ class WorkManagerInitializer : Initializer<WorkManager>, Configuration.Provider 
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
             .setWorkerFactory(workerFactory)
+            .setMinimumLoggingLevel(if (BuildConfig.DEBUG) android.util.Log.DEBUG else android.util.Log.ERROR)
             .build()
 
     override fun create(context: Context): WorkManager {
