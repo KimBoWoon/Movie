@@ -46,8 +46,11 @@ data class Tv(
     override val certification: String? = null,
     override val runtime: Int? = null,
     override val mediaType: MediaType = MediaType.TV,
-    override val isFavorite: Boolean = false
-) : Media
+    override val isFavorite: Boolean = false,
+    override val deepLinkPath: String = "go_to_tv"
+) : Media {
+    override fun <VisitResult> accept(visitor: MediaVisitor<VisitResult>): VisitResult = visitor.visitTv(tv = this)
+}
 
 data class TvAlternativeTitles(
     val results: List<AlternativeTitle>? = null

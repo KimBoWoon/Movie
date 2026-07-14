@@ -6,6 +6,7 @@ import android.content.pm.PackageManager.PERMISSION_GRANTED
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.net.toUri
 import coil3.imageLoader
 import coil3.request.ImageRequest
 import coil3.toBitmap
@@ -14,8 +15,8 @@ import com.cheeke.surfy.common.di.ApplicationScope
 import com.cheeke.surfy.core.notifications.R
 import com.cheeke.surfy.data.repository.UserDataRepository
 import com.cheeke.surfy.model.Movie
-import com.cheeke.surfy.notifications.createMovieNotification
-import com.cheeke.surfy.notifications.moviePendingIntent
+import com.cheeke.surfy.notifications.buildMovieNotification
+import com.cheeke.surfy.notifications.deepLinkPendingIntent
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import dagger.hilt.android.AndroidEntryPoint
@@ -67,7 +68,7 @@ class MovieFCMService : FirebaseMessagingService() {
             Log.d(TAG, message.data.toString())
 
             val pendingIntent = message.data["movieId"]?.let { id ->
-                moviePendingIntent(Movie(id = id.toInt()))
+                applicationContext.deepLinkPendingIntent(requestCode = id.toInt(), deepLinkUri = Movie(id = id.toInt()).deepLinkPath.toUri())
             }
 
             notiData.imageUrl?.let { imageUri ->
@@ -76,8 +77,8 @@ class MovieFCMService : FirebaseMessagingService() {
                         .data(data = imageUri)
                         .listener(
                             onSuccess = { request, result ->
-                                val movieNotification = createMovieNotification {
-                                    setSmallIcon(R.drawable.ic_launcher_round)
+                                val movieNotification = applicationContext.buildMovieNotification {
+                                    it.setSmallIcon(R.drawable.ic_launcher_round)
                                         .setContentTitle(notiData.title)
                                         .setContentText(notiData.body)
                                         .setLargeIcon(result.image.toBitmap())
@@ -97,8 +98,8 @@ class MovieFCMService : FirebaseMessagingService() {
                         .build()
                 )
             } ?: run {
-                val movieNotification = createMovieNotification {
-                    setSmallIcon(R.drawable.ic_launcher_round)
+                val movieNotification = applicationContext.buildMovieNotification {
+                    it.setSmallIcon(R.drawable.ic_launcher_round)
                         .setContentTitle(notiData.title)
                         .setContentText(notiData.body)
                         .setContentIntent(pendingIntent)

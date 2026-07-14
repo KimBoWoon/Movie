@@ -28,8 +28,11 @@ data class People(
     override val mediaType: MediaType = MediaType.PEOPLE,
     override val firstAirDate: String? = null,
     override val lastAirDate: String? = null,
-    override val isFavorite: Boolean = false
-) : Media
+    override val isFavorite: Boolean = false,
+    override val deepLinkPath: String = "go_to_people"
+) : Media {
+    override fun <VisitResult> accept(visitor: MediaVisitor<VisitResult>): VisitResult = visitor.visitPeople(people = this)
+}
 
 data class RelatedMovie(
     val adult: Boolean? = null,

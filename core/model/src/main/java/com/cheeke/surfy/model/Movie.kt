@@ -46,8 +46,11 @@ data class Movie(
     override val firstAirDate: String? = null,
     override val lastAirDate: String? = null,
     val similar: SimilarMedias? = null,
-    override val isFavorite: Boolean = false
-) : Parcelable, Media
+    override val isFavorite: Boolean = false,
+    override val deepLinkPath: String = "go_to_movie"
+) : Parcelable, Media {
+    override fun <VisitResult> accept(visitor: MediaVisitor<VisitResult>): VisitResult = visitor.visitMovie(movie = this)
+}
 
 @Serializable
 @Parcelize

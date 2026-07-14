@@ -23,8 +23,11 @@ data class Series(
     override val mediaType: MediaType = MediaType.SERIES,
     override val firstAirDate: String? = null,
     override val lastAirDate: String? = null,
-    override val isFavorite: Boolean = false
-) : Parcelable, Media
+    override val isFavorite: Boolean = false,
+    override val deepLinkPath: String = "go_to_series"
+) : Parcelable, Media {
+    override fun <VisitResult> accept(visitor: MediaVisitor<VisitResult>): VisitResult = visitor.visitSeries(series = this)
+}
 
 @Serializable
 @Parcelize

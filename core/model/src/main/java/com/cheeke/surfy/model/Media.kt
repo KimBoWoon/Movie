@@ -15,4 +15,17 @@ interface Media {
     val voteAverage: Float?
     val mediaType: MediaType
     val isFavorite: Boolean
+
+    /**
+     * deeplink
+     */
+    val deepLinkPath: String
+    fun <VisitResult> accept(visitor: MediaVisitor<VisitResult>): VisitResult
+}
+
+interface MediaVisitor<VisitResult> {
+    fun visitMovie(movie: Movie): VisitResult
+    fun visitTv(tv: Tv): VisitResult
+    fun visitPeople(people: People): VisitResult
+    fun visitSeries(series: Series): VisitResult
 }

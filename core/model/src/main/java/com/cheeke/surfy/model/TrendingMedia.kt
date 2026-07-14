@@ -40,8 +40,13 @@ data class TrendingMediaResult(
     // TV
     override val firstAirDate: String? = null,
     override val lastAirDate: String? = null,
-    val originCountry: List<String>? = null
-) : Media
+    val originCountry: List<String>? = null,
+    override val deepLinkPath: String = ""
+) : Media {
+    override fun <VisitResult> accept(visitor: MediaVisitor<VisitResult>): VisitResult {
+        throw RuntimeException("not implemented")
+    }
+}
 
 data class TrendingPeopleKnownFor(
     val adult: Boolean? = null,
