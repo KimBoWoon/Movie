@@ -8,6 +8,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
 import com.cheeke.surfy.analytics.AnalyticsHelper
 import com.cheeke.surfy.analytics.logSelectContent
+import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.common.Result
 import com.cheeke.surfy.common.asResult
 import com.cheeke.surfy.data.repository.PagingRepository
@@ -76,7 +77,15 @@ class TvVM @AssistedInject constructor(
     private val selectedSeason = MutableStateFlow<TvSeason?>(value = null)
     @OptIn(ExperimentalCoroutinesApi::class)
     private val tv = reload.flatMapLatest {
-        trace(sectionName = "GetTvDetail") { getTvDetailUseCase(id = id, selectedSeason = selectedSeason).asResult() }
+        trace(sectionName = "GetTvDetail") {
+            val start = System.nanoTime()
+            try {
+                getTvDetailUseCase(id = id, selectedSeason = selectedSeason).asResult()
+            } finally {
+                val elapsed = System.nanoTime() - start
+                Log.i(TAG, "GetTvDetail: ${elapsed / 1_000_000.0} ms")
+            }
+        }
     }
     val uiState = combine(
         tv,

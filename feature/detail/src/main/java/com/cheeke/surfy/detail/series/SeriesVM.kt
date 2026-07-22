@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cheeke.surfy.analytics.AnalyticsHelper
 import com.cheeke.surfy.analytics.logSelectContent
+import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.common.Result
 import com.cheeke.surfy.common.asResult
 import com.cheeke.surfy.domain.GetSeriesDetailUseCase
@@ -42,7 +43,15 @@ class SeriesVM @AssistedInject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     val series = reload
         .flatMapLatest {
-            trace(sectionName = "GetSeriesDetail") { getSeriesDetailUseCase(id = id) }.asResult()
+            trace(sectionName = "GetSeriesDetail") {
+                val start = System.nanoTime()
+                try {
+                    getSeriesDetailUseCase(id = id)
+                } finally {
+                    val elapsed = System.nanoTime() - start
+                    Log.i(TAG, "GetSeriesDetail: ${elapsed / 1_000_000.0} ms")
+                }
+            }.asResult()
         }.map { result ->
             when (result) {
                 is Result.Loading -> SeriesState.Loading

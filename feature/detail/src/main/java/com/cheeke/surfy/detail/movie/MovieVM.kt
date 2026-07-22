@@ -8,6 +8,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
 import com.cheeke.surfy.analytics.AnalyticsHelper
 import com.cheeke.surfy.analytics.logSelectContent
+import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.common.Result
 import com.cheeke.surfy.common.asResult
 import com.cheeke.surfy.data.repository.MovieDataBaseRepository
@@ -52,7 +53,17 @@ class MovieVM @AssistedInject constructor(
     private val reload = MutableSharedFlow<Unit>(replay = 1)
     @OptIn(ExperimentalCoroutinesApi::class)
     val movie = combine(
-        reload.flatMapLatest { trace(sectionName = "GetMovieDetail") { getMovieDetail(id = id) }.asResult() },
+        reload.flatMapLatest {
+            trace(sectionName = "GetMovieDetail") {
+                val start = System.nanoTime()
+                try {
+                    getMovieDetail(id = id)
+                } finally {
+                    val elapsed = System.nanoTime() - start
+                    Log.i(TAG, "GetMovieDetail: ${elapsed / 1_000_000.0} ms")
+                }
+            }.asResult()
+        },
         userDataRepository.internalData
     ) { result, internalData ->
         when (result) {

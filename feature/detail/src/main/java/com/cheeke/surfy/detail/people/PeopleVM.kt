@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cheeke.surfy.analytics.AnalyticsHelper
 import com.cheeke.surfy.analytics.logSelectContent
+import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.common.Result
 import com.cheeke.surfy.common.asResult
 import com.cheeke.surfy.data.repository.PeopleDataBaseRepository
@@ -44,7 +45,15 @@ class PeopleVM @AssistedInject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     val people = reload
         .flatMapLatest {
-            trace(sectionName = "GetPeopleDetail") { getPeopleDetail(personId = id) }.asResult()
+            trace(sectionName = "GetPeopleDetail") {
+                val start = System.nanoTime()
+                try {
+                    getPeopleDetail(personId = id)
+                } finally {
+                    val elapsed = System.nanoTime() - start
+                    Log.i(TAG, "GetPeopleDetail: ${elapsed / 1_000_000.0} ms")
+                }
+            }.asResult()
         }.map { result ->
             when (result) {
                 is Result.Loading -> PeopleState.Loading
