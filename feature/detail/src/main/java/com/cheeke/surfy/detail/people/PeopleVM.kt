@@ -4,6 +4,7 @@ import androidx.compose.ui.util.trace
 import androidx.lifecycle.ViewModel
 import com.cheeke.surfy.analytics.AnalyticsHelper
 import com.cheeke.surfy.analytics.logSelectContent
+import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.common.Result
 import com.cheeke.surfy.data.repository.PeopleDataBaseRepository
 import com.cheeke.surfy.domain.GetPeopleDetailUseCase
@@ -37,11 +38,16 @@ class PeopleVM @AssistedInject constructor(
     private val reload = BehaviorProcessor.createDefault<Unit>(Unit)
     private val detail = reload
         .switchMap {
+            val start = System.nanoTime()
             trace("GetPeopleDetail") {
                 getPeopleDetail(id)
-                    .map<Result<People>> { Result.Success(it) }
+                    .map<Result<People>> { Result.Success(data = it) }
                     .startWithItem(Result.Loading)
-                    .onErrorReturn { Result.Error(it) }
+                    .onErrorReturn { Result.Error(throwable = it) }
+                    .doOnSubscribe {
+                        val elapsed = System.nanoTime() - start
+                        Log.i(TAG, "GetPeopleDetail: ${elapsed / 1_000_000.0} ms")
+                    }
             }
         }
     val people = detail.map { result ->

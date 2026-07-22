@@ -4,6 +4,7 @@ import androidx.compose.ui.util.trace
 import androidx.lifecycle.ViewModel
 import com.cheeke.surfy.analytics.AnalyticsHelper
 import com.cheeke.surfy.analytics.logSelectContent
+import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.common.Result
 import com.cheeke.surfy.domain.GetSeriesDetailUseCase
 import com.cheeke.surfy.domain.SeriesWithImages
@@ -34,11 +35,16 @@ class SeriesVM @AssistedInject constructor(
     private val reload = BehaviorProcessor.createDefault<Unit>(Unit)
     private val detail = reload
         .switchMap {
+            val start = System.nanoTime()
             trace("GetSeriesDetail") {
                 getSeriesDetailUseCase(id)
-                    .map<Result<SeriesWithImages>> { Result.Success(it) }
+                    .map<Result<SeriesWithImages>> { Result.Success(data = it) }
                     .startWithItem(Result.Loading)
-                    .onErrorReturn { Result.Error(it) }
+                    .onErrorReturn { Result.Error(throwable = it) }
+                    .doOnSubscribe {
+                        val elapsed = System.nanoTime() - start
+                        Log.i(TAG, "GetSeriesDetail: ${elapsed / 1_000_000.0} ms")
+                    }
             }
         }
     val series = detail.map { result ->

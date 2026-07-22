@@ -9,6 +9,7 @@ import androidx.paging.rxjava3.cachedIn
 import androidx.paging.rxjava3.flowable
 import com.cheeke.surfy.analytics.AnalyticsHelper
 import com.cheeke.surfy.analytics.logSelectContent
+import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.common.Result
 import com.cheeke.surfy.data.repository.MovieDataBaseRepository
 import com.cheeke.surfy.data.repository.PagingRepository
@@ -50,11 +51,16 @@ class MovieVM @AssistedInject constructor(
     private val reload = BehaviorProcessor.createDefault<Unit>(Unit)
     private val detail = reload
         .switchMap {
+            val start = System.nanoTime()
             trace("GetMovieDetail") {
                 getMovieDetail(id)
-                    .map<Result<Movie>> { Result.Success(it) }
+                    .map<Result<Movie>> { Result.Success(data = it) }
                     .startWithItem(Result.Loading)
-                    .onErrorReturn { Result.Error(it) }
+                    .onErrorReturn { Result.Error(throwable = it) }
+                    .doOnSubscribe {
+                        val elapsed = System.nanoTime() - start
+                        Log.i(TAG, "GetMovieDetail: ${elapsed / 1_000_000.0} ms")
+                    }
             }
         }
     val movie = Flowable.combineLatest(

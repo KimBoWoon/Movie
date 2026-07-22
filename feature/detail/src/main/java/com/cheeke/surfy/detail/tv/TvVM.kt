@@ -9,6 +9,7 @@ import androidx.paging.rxjava3.cachedIn
 import androidx.paging.rxjava3.flowable
 import com.cheeke.surfy.analytics.AnalyticsHelper
 import com.cheeke.surfy.analytics.logSelectContent
+import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.common.Result
 import com.cheeke.surfy.data.repository.PagingRepository
 import com.cheeke.surfy.data.repository.TvDataBaseRepository
@@ -79,6 +80,7 @@ class TvVM @AssistedInject constructor(
         reload
             .startWithItem(Unit)
             .switchMap {
+                val start = System.nanoTime()
                 trace("GetTvDetail") {
                     getTvDetailUseCase(
                         tvId = id,
@@ -87,6 +89,10 @@ class TvVM @AssistedInject constructor(
                 }.map<Result<TvScreenData>> { Result.Success(it) }
                     .startWithItem(Result.Loading)
                     .onErrorReturn { Result.Error(it) }
+                    .doOnSubscribe {
+                        val elapsed = System.nanoTime() - start
+                        Log.i(TAG, "GetTvDetail: ${elapsed / 1_000_000.0} ms")
+                    }
             }.replay(1)
             .refCount()
     val uiState =
