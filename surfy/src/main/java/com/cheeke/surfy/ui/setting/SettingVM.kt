@@ -3,10 +3,10 @@ package com.cheeke.surfy.ui.setting
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cheeke.surfy.common.Log
-import com.cheeke.surfy.data.repository.UserDataRepository
-import com.cheeke.surfy.data.util.DataManager
+import com.cheeke.surfy.datamanager.api.DataManager
 import com.cheeke.surfy.model.DarkThemeConfig
 import com.cheeke.surfy.model.LocaleOption
+import com.cheeke.surfy.userdata.api.UserDataRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted

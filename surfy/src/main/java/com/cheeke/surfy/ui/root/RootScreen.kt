@@ -62,14 +62,14 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.cheeke.surfy.R
 import com.cheeke.surfy.common.Log
+import com.cheeke.surfy.common.POSTER_IMAGE_RATIO
 import com.cheeke.surfy.common.ScrollTopEvent
 import com.cheeke.surfy.common.scrollToTop
-import com.cheeke.surfy.data.util.POSTER_IMAGE_RATIO
-import com.cheeke.surfy.favorite.navigation.FavoriteNavKey
-import com.cheeke.surfy.favorite.navigation.favoriteEntry
+import com.cheeke.surfy.favorite.api.FavoriteNavKey
+import com.cheeke.surfy.favorite.impl.favoriteEntry
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
-import com.cheeke.surfy.home.navigation.HomeNavKey
-import com.cheeke.surfy.home.navigation.homeEntry
+import com.cheeke.surfy.home.api.HomeNavKey
+import com.cheeke.surfy.home.impl.homeEntry
 import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.model.MediaType
 import com.cheeke.surfy.model.SearchType
@@ -366,7 +366,7 @@ fun ReleaseMoviesDialog(
                                 .fillMaxWidth()
                                 .align(Alignment.BottomCenter)
                                 .background(color = Color(color = 0x33000000)),
-                            text = stringResource(id = com.cheeke.surfy.feature.home.R.string.release_movie, releaseMovies[pagerState.currentPage].releaseDate.orEmpty()),
+                            text = stringResource(id = com.cheeke.surfy.feature.home.impl.R.string.release_movie, releaseMovies[pagerState.currentPage].releaseDate.orEmpty()),
                             textAlign = TextAlign.Center,
                             color = Color.White
                         )

@@ -2,11 +2,11 @@ package com.cheeke.surfy.ui.root
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cheeke.surfy.data.repository.MovieDataBaseRepository
-import com.cheeke.surfy.data.repository.TvDataBaseRepository
-import com.cheeke.surfy.data.util.NetworkMonitor
 import com.cheeke.surfy.deeplink.DeepLinkManager
+import com.cheeke.surfy.detail.api.movie.MovieRepository
+import com.cheeke.surfy.detail.api.tv.TvRepository
 import com.cheeke.surfy.model.Media
+import com.cheeke.surfy.network.utils.NetworkMonitor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -20,8 +20,8 @@ import javax.inject.Inject
 @HiltViewModel
 class RootVM @Inject constructor(
     private val deepLinkManager: DeepLinkManager,
-    private val movieDataBaseRepository: MovieDataBaseRepository,
-    private val tvDataBaseRepository: TvDataBaseRepository,
+    private val movieDataBaseRepository: MovieRepository,
+    private val tvDataBaseRepository: TvRepository,
     private val networkMonitor: NetworkMonitor
 ) : ViewModel() {
     private val _nextWeekReleaseMedias: MutableStateFlow<List<Media>> = MutableStateFlow(value = emptyList())

@@ -3,7 +3,7 @@ package com.cheeke.surfy.startup
 import android.content.Context
 import androidx.startup.Initializer
 import com.cheeke.surfy.common.Log
-import com.cheeke.surfy.data.util.SyncManager
+import com.cheeke.surfy.userdata.api.SyncManager
 import javax.inject.Inject
 
 class SyncInitializer : Initializer<Unit> {

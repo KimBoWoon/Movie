@@ -1,9 +1,9 @@
 package com.cheeke.surfy.testing.utils
 
 import androidx.annotation.VisibleForTesting
-import com.cheeke.surfy.data.util.DataManager
-import com.cheeke.surfy.data.util.Locale
-import com.cheeke.surfy.data.util.SurfyAppDataState
+import com.cheeke.surfy.datamanager.api.DataManager
+import com.cheeke.surfy.datamanager.api.Locale
+import com.cheeke.surfy.datamanager.api.SurfyAppDataState
 import com.cheeke.surfy.model.SurfyAppData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

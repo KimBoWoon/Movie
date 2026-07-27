@@ -2,14 +2,14 @@ package com.cheeke.surfy.ui.activities
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cheeke.surfy.data.repository.MovieDataBaseRepository
-import com.cheeke.surfy.data.repository.TvDataBaseRepository
-import com.cheeke.surfy.data.repository.UserDataRepository
-import com.cheeke.surfy.data.util.DataManager
-import com.cheeke.surfy.data.util.SurfyAppDataState
-import com.cheeke.surfy.data.util.SyncManager
+import com.cheeke.surfy.datamanager.api.DataManager
+import com.cheeke.surfy.datamanager.api.SurfyAppDataState
+import com.cheeke.surfy.detail.api.movie.MovieRepository
+import com.cheeke.surfy.detail.api.tv.TvRepository
 import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.ui.image.imageUrl
+import com.cheeke.surfy.userdata.api.SyncManager
+import com.cheeke.surfy.userdata.api.UserDataRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -30,8 +30,8 @@ class MainVM @Inject constructor(
     dataManager: DataManager,
     syncManager: SyncManager,
     private val userDataRepository: UserDataRepository,
-    private val movieDataBaseRepository: MovieDataBaseRepository,
-    private val tvDataBaseRepository: TvDataBaseRepository
+    private val movieDataBaseRepository: MovieRepository,
+    private val tvDataBaseRepository: TvRepository
 ) : ViewModel() {
     init {
         viewModelScope.launch {

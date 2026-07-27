@@ -9,7 +9,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.cheeke.surfy.analytics.LocalAnalyticsHelper
 import com.cheeke.surfy.analytics.logPlayTrailer
 import com.cheeke.surfy.common.Log
-import com.cheeke.surfy.data.util.VIDEO_RATIO
+import com.cheeke.surfy.common.VIDEO_RATIO
 import com.cheeke.surfy.model.VideoInfo
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer

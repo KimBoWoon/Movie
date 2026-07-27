@@ -30,6 +30,8 @@ dependencies {
         api(it)
     }
 
+    implementation(project(":core:userdata:api"))
+
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.kotlinx.serialization.json)
     testImplementation(libs.androidx.paging.testing)

@@ -8,10 +8,10 @@ import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation3.runtime.NavKey
-import com.cheeke.surfy.data.repository.FavoriteKeys
-import com.cheeke.surfy.favorite.navigation.FavoriteNavKey
-import com.cheeke.surfy.feature.home.R
-import com.cheeke.surfy.home.navigation.HomeNavKey
+import com.cheeke.surfy.favorite.api.FavoriteContentType
+import com.cheeke.surfy.favorite.api.FavoriteNavKey
+import com.cheeke.surfy.feature.home.impl.R
+import com.cheeke.surfy.home.api.HomeNavKey
 
 /**
  * 앱 최상단 내비게이션 바
@@ -33,11 +33,11 @@ val HOME = TopLevelDestination(
 val FAVORITE = TopLevelDestination(
     selectedIcon = Icons.Rounded.Favorite,
     unselectedIcon = Icons.Outlined.FavoriteBorder,
-    titleTextId = com.cheeke.surfy.feature.favorite.R.string.feature_favorite_name,
+    titleTextId = com.cheeke.surfy.feature.favorite.impl.R.string.feature_favorite_name,
     type = FavoriteNavKey::class.java
 )
 
 val TOP_LEVEL_NAV_ITEMS = mapOf(
     HomeNavKey to HOME,
-    FavoriteNavKey(tab = FavoriteKeys.MOVIE) to FAVORITE
+    FavoriteNavKey(tab = FavoriteContentType.MOVIE) to FAVORITE
 )

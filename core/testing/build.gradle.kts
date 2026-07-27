@@ -10,7 +10,6 @@ android {
 dependencies {
     arrayOf(
         project(":core:common"),
-        project(":core:data"),
         project(":core:model"),
         project(":core:analytics"),
         libs.kotlinx.coroutines.test
@@ -18,6 +17,8 @@ dependencies {
         api(it)
     }
 
+    implementation(project(":core:datamanager:api"))
+    implementation(project(":core:userdata:api"))
     implementation(libs.hilt.android.testing)
     implementation(libs.androidx.test.rules)
     implementation(libs.androidx.compose.paging)

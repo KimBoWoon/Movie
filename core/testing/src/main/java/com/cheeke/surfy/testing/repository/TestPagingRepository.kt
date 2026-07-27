@@ -3,7 +3,6 @@ package com.cheeke.surfy.testing.repository
 import android.annotation.SuppressLint
 import androidx.paging.PagingSource
 import androidx.paging.testing.asPagingSourceFactory
-import com.cheeke.surfy.data.repository.PagingRepository
 import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.model.Review
 import com.cheeke.surfy.model.SearchKeyword

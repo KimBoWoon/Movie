@@ -2,14 +2,15 @@ package com.cheeke.surfy.deeplink
 
 import android.net.Uri
 import androidx.navigation3.runtime.NavKey
-import com.cheeke.surfy.data.repository.FavoriteKeys
-import com.cheeke.surfy.detail.movie.navigation.MovieNavKey
-import com.cheeke.surfy.detail.people.navigation.PeopleNavKey
-import com.cheeke.surfy.detail.series.navigation.SeriesNavKey
-import com.cheeke.surfy.detail.tv.navigation.TvNavKey
-import com.cheeke.surfy.favorite.navigation.FavoriteNavKey
-import com.cheeke.surfy.home.navigation.HomeNavKey
-import com.cheeke.surfy.search.navigation.SearchNavKey
+import com.cheeke.surfy.detail.api.movie.MovieNavKey
+import com.cheeke.surfy.detail.api.people.PeopleNavKey
+import com.cheeke.surfy.detail.api.series.SeriesNavKey
+import com.cheeke.surfy.detail.api.tv.TvNavKey
+import com.cheeke.surfy.favorite.api.FavoriteContentType
+import com.cheeke.surfy.favorite.api.FavoriteNavKey
+import com.cheeke.surfy.home.api.HomeNavKey
+import com.cheeke.surfy.model.SearchType
+import com.cheeke.surfy.search.api.SearchNavKey
 
 private val parsers = listOf(
     GoToHomeParser,
@@ -43,7 +44,7 @@ object GoToFavoriteParser : DeeplinkParser {
     override val path = "go_to_favorite"
     override fun parse(uri: Uri): List<NavKey> {
         val key = (uri.getQueryParameter("key") ?: "movie").let {
-            FavoriteKeys.valueOf(it.uppercase())
+            FavoriteContentType.valueOf(it.uppercase())
         }
         return listOf(FavoriteNavKey(tab = key))
     }
@@ -58,7 +59,7 @@ object OpenFavoritePeopleParser : DeeplinkParser {
     override val path = "open_favorite_people"
     override fun parse(uri: Uri): List<NavKey> {
         val id = uri.getQueryParameter("id")?.toIntOrNull() ?: -1
-        return listOf(FavoriteNavKey(tab = FavoriteKeys.PEOPLE), PeopleNavKey(id = id))
+        return listOf(FavoriteNavKey(tab = FavoriteContentType.PEOPLE), PeopleNavKey(id = id))
     }
 }
 
@@ -66,7 +67,7 @@ object OpenFavoriteMovieParser : DeeplinkParser {
     override val path = "open_favorite_movie"
     override fun parse(uri: Uri): List<NavKey> {
         val id = uri.getQueryParameter("id")?.toIntOrNull() ?: -1
-        return listOf(FavoriteNavKey(tab = FavoriteKeys.MOVIE), MovieNavKey(id = id))
+        return listOf(FavoriteNavKey(tab = FavoriteContentType.MOVIE), MovieNavKey(id = id))
     }
 }
 
@@ -74,7 +75,7 @@ object OpenFavoriteTvParser : DeeplinkParser {
     override val path = "open_favorite_tv"
     override fun parse(uri: Uri): List<NavKey> {
         val id = uri.getQueryParameter("id")?.toIntOrNull() ?: -1
-        return listOf(FavoriteNavKey(tab = FavoriteKeys.TV), TvNavKey(id = id))
+        return listOf(FavoriteNavKey(tab = FavoriteContentType.TV), TvNavKey(id = id))
     }
 }
 
@@ -114,8 +115,8 @@ object GoToSearchParser : DeeplinkParser {
     override val path = "go_to_search"
     override fun parse(uri: Uri): List<NavKey> {
         val query = uri.getQueryParameter("query").orEmpty()
-        val searchType = uri.getQueryParameter("searchType") ?: "surfy"
-        return listOf(SearchNavKey(query = query, searchType = searchType.uppercase()))
+        val searchType = uri.getQueryParameter("searchType") ?: "multi"
+        return listOf(SearchNavKey(query = query, searchType = SearchType.entries.find { it.name == searchType.uppercase() } ?: SearchType.MULTI))
     }
 }
 
@@ -123,9 +124,8 @@ object SearchToMovieParser : DeeplinkParser {
     override val path = "search_to_movie"
     override fun parse(uri: Uri): List<NavKey> {
         val query = uri.getQueryParameter("query").orEmpty()
-        val searchType = uri.getQueryParameter("searchType") ?: "surfy"
         val id = uri.getQueryParameter("id")?.toIntOrNull() ?: -1
-        return listOf(SearchNavKey(query = query, searchType = searchType.uppercase()), MovieNavKey(id = id))
+        return listOf(SearchNavKey(query = query, searchType = SearchType.MOVIE), MovieNavKey(id = id))
     }
 }
 
@@ -133,9 +133,8 @@ object SearchToPeopleParser : DeeplinkParser {
     override val path = "search_to_people"
     override fun parse(uri: Uri): List<NavKey> {
         val query = uri.getQueryParameter("query").orEmpty()
-        val searchType = uri.getQueryParameter("searchType") ?: "surfy"
         val id = uri.getQueryParameter("id")?.toIntOrNull() ?: -1
-        return listOf(SearchNavKey(query = query, searchType = searchType.uppercase()), PeopleNavKey(id = id))
+        return listOf(SearchNavKey(query = query, searchType = SearchType.PEOPLE), PeopleNavKey(id = id))
     }
 }
 
@@ -143,9 +142,8 @@ object SearchToSeriesParser : DeeplinkParser {
     override val path = "search_to_series"
     override fun parse(uri: Uri): List<NavKey> {
         val query = uri.getQueryParameter("query").orEmpty()
-        val searchType = uri.getQueryParameter("searchType") ?: "surfy"
         val id = uri.getQueryParameter("id")?.toIntOrNull() ?: -1
-        return listOf(SearchNavKey(query = query, searchType = searchType.uppercase()), TvNavKey(id = id))
+        return listOf(SearchNavKey(query = query, searchType = SearchType.SERIES), TvNavKey(id = id))
     }
 }
 
@@ -153,9 +151,8 @@ object SearchToTvParser : DeeplinkParser {
     override val path = "search_to_tv"
     override fun parse(uri: Uri): List<NavKey> {
         val query = uri.getQueryParameter("query").orEmpty()
-        val searchType = uri.getQueryParameter("searchType") ?: "surfy"
         val id = uri.getQueryParameter("id")?.toIntOrNull() ?: -1
-        return listOf(SearchNavKey(query = query, searchType = searchType.uppercase()), SeriesNavKey(id = id))
+        return listOf(SearchNavKey(query = query, searchType = SearchType.TV), SeriesNavKey(id = id))
     }
 }
 

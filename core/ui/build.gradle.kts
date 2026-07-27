@@ -12,7 +12,6 @@ dependencies {
     arrayOf(
         project(":core:common"),
         project(":core:model"),
-        project(":core:data"),
         project(":core:analytics"),
         libs.androidx.compose.material3,
         libs.androidx.compose.material3.adaptive,

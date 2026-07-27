@@ -12,8 +12,9 @@ dependencies {
         project(":core:common"),
         project(":core:model"),
         project(":core:network"),
-        project(":core:data"),
+        project(":feature:detail:api"),
         project(":core:notifications"),
+        project(":core:userdata:api"),
         libs.androidx.work.ktx,
         libs.hilt.ext.work
     ).forEach {

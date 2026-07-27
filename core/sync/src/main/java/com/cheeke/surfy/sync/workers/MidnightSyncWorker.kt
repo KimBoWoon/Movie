@@ -12,12 +12,12 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkerParameters
 import com.cheeke.surfy.common.Dispatcher
 import com.cheeke.surfy.common.Dispatchers
-import com.cheeke.surfy.data.repository.SyncRepository
-import com.cheeke.surfy.data.repository.UserDataRepository
-import com.cheeke.surfy.data.util.Synchronizer
 import com.cheeke.surfy.sync.initializers.SyncConstraints
 import com.cheeke.surfy.sync.initializers.syncForegroundInfo
+import com.cheeke.surfy.sync.repository.SyncRepository
+import com.cheeke.surfy.sync.repository.Synchronizer
 import com.cheeke.surfy.sync.utils.millisUntilNextMidnight
+import com.cheeke.surfy.userdata.api.UserDataRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineDispatcher

@@ -7,9 +7,9 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import com.cheeke.surfy.data.util.NetworkMonitor
-import com.cheeke.surfy.ui.activities.MainActivity
+import com.cheeke.surfy.network.utils.NetworkMonitor
 import com.cheeke.surfy.testing.rules.GrantPostNotificationsPermissionRule
+import com.cheeke.surfy.ui.activities.MainActivity
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Before

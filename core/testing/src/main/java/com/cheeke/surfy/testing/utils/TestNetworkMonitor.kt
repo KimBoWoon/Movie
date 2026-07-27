@@ -1,6 +1,6 @@
 package com.cheeke.surfy.testing.utils
 
-import com.cheeke.surfy.data.util.NetworkMonitor
+import com.cheeke.surfy.network.utils.NetworkMonitor
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 

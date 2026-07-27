@@ -7,7 +7,6 @@ import androidx.work.ListenableWorker
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
 import androidx.work.testing.TestListenableWorkerBuilder
-import com.cheeke.surfy.data.repository.SyncRepository
 import com.cheeke.surfy.data.repository.UserDataRepository
 import com.cheeke.surfy.notifications.Notifier
 import com.cheeke.surfy.notifications.SystemTrayNotifier

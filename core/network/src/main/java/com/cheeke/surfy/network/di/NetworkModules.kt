@@ -16,10 +16,13 @@ import com.cheeke.surfy.network.retrofit.SettingNetworkDataSourceImpl
 import com.cheeke.surfy.network.retrofit.SyncRemoteDataSourceImpl
 import com.cheeke.surfy.network.retrofit.TrendingRemoteDataSourceImpl
 import com.cheeke.surfy.network.retrofit.TvRemoteDataSourceImpl
+import com.cheeke.surfy.network.utils.ConnectivityManagerNetworkMonitor
+import com.cheeke.surfy.network.utils.NetworkMonitor
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -47,4 +50,14 @@ abstract class NetworkModules {
 
     @Binds
     abstract fun bindTrendingApis(apis: TrendingRemoteDataSourceImpl): TrendingRemoteDataSource
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class EnvironmentModules {
+    @Binds
+    @Singleton
+    internal abstract fun bindsNetworkMonitor(
+        networkMonitor: ConnectivityManagerNetworkMonitor
+    ): NetworkMonitor
 }

@@ -1,0 +1,34 @@
+package com.cheeke.surfy.datamanager.api
+
+import com.cheeke.surfy.model.DarkThemeConfig
+import com.cheeke.surfy.model.Genre
+import com.cheeke.surfy.model.SurfyAppData
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
+
+interface DataManager {
+    val surfyAppData: StateFlow<SurfyAppDataState>
+    val localeFlow: Flow<Locale>
+}
+
+sealed interface SurfyAppDataState {
+    data object Loading : SurfyAppDataState
+    data class Success(val data: SurfyAppData) : SurfyAppDataState {
+        override fun shouldUseDarkTheme(isSystemDarkTheme: Boolean) =
+            when (data.isDarkMode) {
+                DarkThemeConfig.FOLLOW_SYSTEM -> isSystemDarkTheme
+                DarkThemeConfig.LIGHT -> false
+                DarkThemeConfig.DARK -> true
+            }
+
+        override fun getMovieAppData(): SurfyAppData = this.data
+    }
+    data class Error(val throwable: Throwable) : SurfyAppDataState
+
+    fun shouldKeepSplashScreen(): Boolean = this is Loading
+    fun shouldUseDarkTheme(isSystemDarkTheme: Boolean): Boolean = isSystemDarkTheme
+    fun getMovieAppData(): SurfyAppData = SurfyAppData()
+}
+
+data class Locale(val language: String, val region: String)
+data class GenreData(val movie: List<Genre>, val tv: List<Genre>)

@@ -34,8 +34,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.cheeke.surfy.common.POSTER_IMAGE_RATIO
 import com.cheeke.surfy.core.ui.R
-import com.cheeke.surfy.data.util.POSTER_IMAGE_RATIO
 import com.cheeke.surfy.model.SimilarMedia
 import com.cheeke.surfy.ui.image.DynamicAsyncImageLoader
 import com.cheeke.surfy.ui.utils.bounceClick

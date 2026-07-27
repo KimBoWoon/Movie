@@ -29,11 +29,11 @@ import com.cheeke.surfy.analytics.LocalAnalyticsHelper
 import com.cheeke.surfy.common.AppDoubleBackToExit
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.common.isSystemInDarkTheme
-import com.cheeke.surfy.data.util.NetworkMonitor
 import com.cheeke.surfy.deeplink.DeepLinkManager
-import com.cheeke.surfy.detail.movie.navigation.MovieNavKey
-import com.cheeke.surfy.detail.tv.navigation.TvNavKey
+import com.cheeke.surfy.detail.api.movie.MovieNavKey
+import com.cheeke.surfy.detail.api.tv.TvNavKey
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
+import com.cheeke.surfy.network.utils.NetworkMonitor
 import com.cheeke.surfy.ui.SurfyApp
 import com.cheeke.surfy.ui.root.ReleaseMoviesDialog
 import com.cheeke.surfy.ui.root.navigation.RootNavKey

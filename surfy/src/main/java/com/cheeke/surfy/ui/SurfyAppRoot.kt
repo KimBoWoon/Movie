@@ -18,16 +18,16 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import com.cheeke.surfy.detail.movie.navigation.goToMovie
-import com.cheeke.surfy.detail.movie.navigation.movieEntry
-import com.cheeke.surfy.detail.people.navigation.goToPeople
-import com.cheeke.surfy.detail.people.navigation.peopleEntry
-import com.cheeke.surfy.detail.series.navigation.goToSeries
-import com.cheeke.surfy.detail.series.navigation.seriesEntry
-import com.cheeke.surfy.detail.tv.navigation.goToTv
-import com.cheeke.surfy.detail.tv.navigation.tvEntry
-import com.cheeke.surfy.search.navigation.goToSearch
-import com.cheeke.surfy.search.navigation.searchEntry
+import com.cheeke.surfy.detail.impl.movie.goToMovie
+import com.cheeke.surfy.detail.impl.movie.movieEntry
+import com.cheeke.surfy.detail.impl.people.goToPeople
+import com.cheeke.surfy.detail.impl.people.peopleEntry
+import com.cheeke.surfy.detail.impl.series.goToSeries
+import com.cheeke.surfy.detail.impl.series.seriesEntry
+import com.cheeke.surfy.detail.impl.tv.goToTv
+import com.cheeke.surfy.detail.impl.tv.tvEntry
+import com.cheeke.surfy.search.impl.goToSearch
+import com.cheeke.surfy.search.impl.searchEntry
 import com.cheeke.surfy.ui.root.navigation.rootEntry
 
 @Composable

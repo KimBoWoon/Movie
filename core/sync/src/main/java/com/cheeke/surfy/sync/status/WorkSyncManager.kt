@@ -7,9 +7,9 @@ import androidx.work.WorkInfo
 import androidx.work.WorkInfo.State
 import androidx.work.WorkManager
 import com.cheeke.surfy.common.Log
-import com.cheeke.surfy.data.util.SyncManager
 import com.cheeke.surfy.sync.workers.MidnightSyncWorker
 import com.cheeke.surfy.sync.workers.UpComingNotificationWorker
+import com.cheeke.surfy.userdata.api.SyncManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.filterNotNull
 import java.util.UUID

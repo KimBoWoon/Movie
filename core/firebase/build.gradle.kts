@@ -11,7 +11,6 @@ android {
 dependencies {
     arrayOf(
         project(":core:common"),
-        project(":core:data")
     ).forEach {
         implementation(it)
     }

@@ -22,13 +22,13 @@ import com.cheeke.surfy.common.Dispatchers.IO
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.common.di.ApplicationScope
 import com.cheeke.surfy.core.notifications.R
-import com.cheeke.surfy.data.repository.UserDataRepository
 import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.model.MediaVisitor
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.People
 import com.cheeke.surfy.model.Series
 import com.cheeke.surfy.model.Tv
+import com.cheeke.surfy.userdata.api.UserDataRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope

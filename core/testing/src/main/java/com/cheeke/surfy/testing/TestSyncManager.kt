@@ -1,6 +1,6 @@
 package com.cheeke.surfy.testing
 
-import com.cheeke.surfy.data.util.SyncManager
+import com.cheeke.surfy.userdata.api.SyncManager
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class TestSyncManager : SyncManager {

@@ -6,9 +6,9 @@ import android.content.Context
 import androidx.core.app.NotificationManagerCompat
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.common.di.ApplicationScope
-import com.cheeke.surfy.data.repository.UserDataRepository
 import com.cheeke.surfy.firebase.FIREBASE_LOG_MESSAGE
 import com.cheeke.surfy.firebase.LogHelper
+import com.cheeke.surfy.userdata.api.UserDataRepository
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.Firebase
 import com.google.firebase.crashlytics.crashlytics

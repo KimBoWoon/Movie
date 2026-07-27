@@ -12,7 +12,7 @@ dependencies {
 
     arrayOf(
         project(":core:common"),
-        project(":core:domain"),
+        project(":core:userdata:api"),
         libs.coil.compose
     ).forEach {
         implementation(it)

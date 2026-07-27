@@ -1,0 +1,32 @@
+plugins {
+    alias(libs.plugins.cheeke.android.library)
+    alias(libs.plugins.cheeke.android.library.compose)
+    alias(libs.plugins.cheeke.android.feature)
+}
+
+android {
+    namespace = "com.cheeke.surfy.feature.home.impl"
+}
+
+dependencies {
+    arrayOf(
+        project(":core:common"),
+        project(":core:datastore"),
+        project(":core:model"),
+        project(":core:notifications"),
+        project(":core:firebase"),
+        project(":core:analytics"),
+        project(":core:datamanager:api"),
+        project(":feature:detail:api"),
+        libs.coil.compose,
+        libs.androidx.navigation3.runtime,
+        libs.androidx.compose.hilt.navigation,
+        libs.androidx.compose.paging
+    ).forEach {
+        implementation(it)
+    }
+
+    api(project(":feature:home:api"))
+
+    testImplementation(libs.androidx.paging.testing)
+}
