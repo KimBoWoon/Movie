@@ -10,9 +10,9 @@ import androidx.paging.PagingData
 import androidx.paging.PagingSource
 import androidx.paging.cachedIn
 import androidx.paging.filter
-import com.cheeke.surfy.analytics.AnalyticsHelper
-import com.cheeke.surfy.analytics.logSearch
-import com.cheeke.surfy.database.model.KeywordEntity
+import com.cheeke.surfy.analytics.api.AnalyticsHelper
+import com.cheeke.surfy.analytics.api.logSearch
+import com.cheeke.surfy.database.impl.model.KeywordEntity
 import com.cheeke.surfy.datamanager.api.DataManager
 import com.cheeke.surfy.model.Genre
 import com.cheeke.surfy.model.Media

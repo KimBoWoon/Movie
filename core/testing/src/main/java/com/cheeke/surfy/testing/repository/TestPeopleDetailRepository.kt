@@ -1,6 +1,6 @@
 package com.cheeke.surfy.testing.repository
 
-import com.cheeke.surfy.data.repository.PeopleDetailRepository
+import com.cheeke.surfy.detail.api.people.PeopleDetailRepository
 import com.cheeke.surfy.model.CombineCredits
 import com.cheeke.surfy.model.ExternalIds
 import com.cheeke.surfy.model.People

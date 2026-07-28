@@ -1,7 +1,8 @@
 package com.cheeke.surfy.testing.repository
 
 import androidx.annotation.VisibleForTesting
-import com.cheeke.surfy.data.util.Synchronizer
+import com.cheeke.surfy.sync.repository.SyncRepository
+import com.cheeke.surfy.sync.repository.Synchronizer
 import java.time.LocalDate
 
 class TestSyncRepository : SyncRepository {

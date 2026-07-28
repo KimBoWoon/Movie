@@ -2,8 +2,8 @@ package com.cheeke.surfy.testing.repository
 
 import androidx.paging.PagingSource
 import androidx.paging.testing.asPagingSourceFactory
-import com.cheeke.surfy.data.repository.KeywordDataBaseRepository
 import com.cheeke.surfy.database.model.KeywordEntity
+import com.cheeke.surfy.search.api.KeywordDataBaseRepository
 import com.cheeke.surfy.testing.model.keywordList
 import kotlinx.coroutines.flow.MutableStateFlow
 

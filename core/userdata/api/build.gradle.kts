@@ -23,8 +23,7 @@ dependencies {
 
     arrayOf(
         project(":core:common"),
-        project(":core:database"),
-        project(":core:datastore"),
+        project(":core:database:impl"),
         project(":core:network")
     ).forEach {
         api(it)
@@ -33,7 +32,6 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.kotlinx.serialization.json)
     testImplementation(libs.androidx.paging.testing)
-    testImplementation(project(":core:datastore-test"))
 
     androidTestImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.kotlinx.serialization.json)

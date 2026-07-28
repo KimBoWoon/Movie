@@ -4,11 +4,11 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
-import com.cheeke.surfy.database.dao.MovieDao
-import com.cheeke.surfy.database.model.MovieEntity
-import com.cheeke.surfy.database.model.NowPlayingMovieEntity
-import com.cheeke.surfy.database.model.UpComingMovieEntity
-import com.cheeke.surfy.database.model.asExternalModel
+import com.cheeke.surfy.database.impl.dao.MovieDao
+import com.cheeke.surfy.database.impl.model.MovieEntity
+import com.cheeke.surfy.database.impl.model.NowPlayingMovieEntity
+import com.cheeke.surfy.database.impl.model.UpComingMovieEntity
+import com.cheeke.surfy.database.impl.model.asExternalModel
 import com.cheeke.surfy.detail.api.movie.MovieRepository
 import com.cheeke.surfy.feature.detail.impl.BuildConfig
 import com.cheeke.surfy.model.Movie

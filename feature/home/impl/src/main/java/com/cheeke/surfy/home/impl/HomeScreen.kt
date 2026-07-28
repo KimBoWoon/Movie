@@ -55,7 +55,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.cheeke.surfy.analytics.TrackScreenViewEvent
+import com.cheeke.surfy.analytics.api.TrackScreenViewEvent
 import com.cheeke.surfy.common.InfinitePager
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.common.PEOPLE_IMAGE_RATIO

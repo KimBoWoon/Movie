@@ -10,12 +10,12 @@ import androidx.core.net.toUri
 import coil3.imageLoader
 import coil3.request.ImageRequest
 import coil3.toBitmap
+import com.cheeke.curfy.notification.impl.buildMovieNotification
+import com.cheeke.curfy.notification.impl.deepLinkPendingIntent
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.common.di.ApplicationScope
-import com.cheeke.surfy.core.notifications.R
+import com.cheeke.surfy.core.notifications.impl.R
 import com.cheeke.surfy.model.Movie
-import com.cheeke.surfy.notifications.buildMovieNotification
-import com.cheeke.surfy.notifications.deepLinkPendingIntent
 import com.cheeke.surfy.userdata.api.UserDataRepository
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage

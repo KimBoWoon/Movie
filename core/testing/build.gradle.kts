@@ -11,12 +11,15 @@ dependencies {
     arrayOf(
         project(":core:common"),
         project(":core:model"),
-        project(":core:analytics"),
+        project(":core:analytics:api"),
         libs.kotlinx.coroutines.test
     ).forEach {
         api(it)
     }
 
+    implementation(project(":feature:detail:api"))
+    implementation(project(":feature:search:api"))
+    implementation(project(":core:sync:api"))
     implementation(project(":core:datamanager:api"))
     implementation(project(":core:userdata:api"))
     implementation(libs.hilt.android.testing)

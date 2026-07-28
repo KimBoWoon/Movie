@@ -10,11 +10,11 @@ dependencies {
     arrayOf(
         project(":core:common"),
         project(":core:ui"),
-        project(":core:sync"),
+        project(":core:sync:impl"),
         project(":core:model"),
-        project(":core:notifications"),
+        project(":core:notifications:impl"),
         project(":core:firebase"),
-        project(":core:analytics"),
+        project(":core:analytics:impl"),
         project(":feature:detail:impl"),
         project(":feature:favorite:impl"),
         project(":feature:home:impl"),
@@ -45,7 +45,6 @@ dependencies {
     }
 
     arrayOf(
-        project(":core:datastore-test"),
         project(":core:testing"),
         libs.hilt.android.testing,
         libs.kotlin.test,

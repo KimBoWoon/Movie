@@ -1,8 +1,8 @@
 package com.cheeke.surfy.testing.repository
 
-import com.cheeke.surfy.data.repository.UserDataRepository
 import com.cheeke.surfy.model.DarkThemeConfig
 import com.cheeke.surfy.model.InternalData
+import com.cheeke.surfy.userdata.api.UserDataRepository
 import kotlinx.coroutines.channels.BufferOverflow.DROP_OLDEST
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow

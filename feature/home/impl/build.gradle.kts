@@ -11,11 +11,10 @@ android {
 dependencies {
     arrayOf(
         project(":core:common"),
-        project(":core:datastore"),
         project(":core:model"),
-        project(":core:notifications"),
+        project(":core:notifications:api"),
         project(":core:firebase"),
-        project(":core:analytics"),
+        project(":core:analytics:api"),
         project(":core:datamanager:api"),
         project(":feature:detail:api"),
         libs.coil.compose,

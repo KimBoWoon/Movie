@@ -11,11 +11,10 @@ android {
 dependencies {
     arrayOf(
         project(":core:common"),
-        project(":core:datastore"),
-        project(":core:database"),
+        project(":core:database:impl"),
         project(":core:model"),
         project(":core:firebase"),
-        project(":core:analytics"),
+        project(":core:analytics:api"),
         project(":core:datamanager:api"),
         libs.androidx.navigation3.runtime,
         libs.androidx.compose.hilt.navigation,

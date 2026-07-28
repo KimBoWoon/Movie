@@ -1,6 +1,6 @@
 package com.cheeke.surfy.testing.repository
 
-import com.cheeke.surfy.data.repository.MovieDetailRepository
+import com.cheeke.surfy.detail.api.movie.MovieDetailRepository
 import com.cheeke.surfy.model.ImageList
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.MovieWatchProvider

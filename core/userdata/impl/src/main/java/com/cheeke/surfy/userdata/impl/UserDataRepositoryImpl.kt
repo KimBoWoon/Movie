@@ -1,6 +1,5 @@
 package com.cheeke.surfy.userdata.impl
 
-import com.cheeke.surfy.datastore.InternalDataSource
 import com.cheeke.surfy.model.DarkThemeConfig
 import com.cheeke.surfy.model.InternalData
 import com.cheeke.surfy.userdata.api.SyncManager

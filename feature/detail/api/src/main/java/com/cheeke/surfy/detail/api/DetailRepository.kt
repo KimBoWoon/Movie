@@ -1,17 +1,17 @@
 package com.cheeke.surfy.detail.api
 
-import com.cheeke.surfy.datastore.InternalDataSource
 import com.cheeke.surfy.model.InternalData
 import com.cheeke.surfy.model.Media
+import com.cheeke.surfy.userdata.api.UserDataRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
 class DetailRequestOptionsProvider @Inject constructor(
-    private val datastore: InternalDataSource
+    private val userdataRepository: UserDataRepository
 ) {
     suspend fun current(): DetailRequestOptions =
-        DetailRequestOptions(internalData = datastore.userData.first())
+        DetailRequestOptions(internalData = userdataRepository.internalData.first())
 }
 
 data class DetailRequestOptions(

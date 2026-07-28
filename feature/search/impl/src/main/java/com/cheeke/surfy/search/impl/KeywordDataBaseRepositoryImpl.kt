@@ -1,8 +1,8 @@
 package com.cheeke.surfy.search.impl
 
 import androidx.paging.PagingSource
-import com.cheeke.surfy.database.dao.KeywordDao
-import com.cheeke.surfy.database.model.KeywordEntity
+import com.cheeke.surfy.database.impl.dao.KeywordDao
+import com.cheeke.surfy.database.impl.model.KeywordEntity
 import com.cheeke.surfy.search.api.KeywordDataBaseRepository
 import jakarta.inject.Inject
 import kotlin.time.Clock

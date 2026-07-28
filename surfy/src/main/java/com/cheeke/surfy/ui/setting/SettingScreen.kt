@@ -45,7 +45,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cheeke.surfy.R
-import com.cheeke.surfy.analytics.TrackScreenViewEvent
+import com.cheeke.surfy.analytics.api.TrackScreenViewEvent
 import com.cheeke.surfy.common.getVersionName
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
 import com.cheeke.surfy.ui.utils.dp1

@@ -4,9 +4,9 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
-import com.cheeke.surfy.database.dao.TvDao
-import com.cheeke.surfy.database.model.TvEntity
-import com.cheeke.surfy.database.model.asExternalModel
+import com.cheeke.surfy.database.impl.dao.TvDao
+import com.cheeke.surfy.database.impl.model.TvEntity
+import com.cheeke.surfy.database.impl.model.asExternalModel
 import com.cheeke.surfy.detail.api.tv.TvRepository
 import com.cheeke.surfy.model.Tv
 import jakarta.inject.Inject

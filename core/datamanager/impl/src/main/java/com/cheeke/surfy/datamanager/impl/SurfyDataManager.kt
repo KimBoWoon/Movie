@@ -10,7 +10,6 @@ import com.cheeke.surfy.datamanager.api.DataManager
 import com.cheeke.surfy.datamanager.api.GenreData
 import com.cheeke.surfy.datamanager.api.Locale
 import com.cheeke.surfy.datamanager.api.SurfyAppDataState
-import com.cheeke.surfy.datastore.InternalDataSource
 import com.cheeke.surfy.model.Configuration
 import com.cheeke.surfy.model.LocaleOption
 import com.cheeke.surfy.model.PosterSize
@@ -45,10 +44,9 @@ class SurfyDataManager @Inject constructor(
     @param:ApplicationScope private val appScope: CoroutineScope,
     private val apis: SettingRemoteDataSource,
     private val userDataRepository: UserDataRepository,
-    datastore: InternalDataSource,
     networkMonitor: NetworkMonitor
 ) : DataManager {
-    private val userDataFlow = datastore.userData.distinctUntilChanged()
+    private val userDataFlow = userDataRepository.internalData.distinctUntilChanged()
     override val localeFlow: Flow<Locale> =
         userDataFlow
             .map { Locale(it.language, it.region) }

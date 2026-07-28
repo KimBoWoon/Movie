@@ -4,9 +4,9 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
-import com.cheeke.surfy.database.dao.PeopleDao
-import com.cheeke.surfy.database.model.PeopleEntity
-import com.cheeke.surfy.database.model.asExternalModel
+import com.cheeke.surfy.database.impl.dao.PeopleDao
+import com.cheeke.surfy.database.impl.model.PeopleEntity
+import com.cheeke.surfy.database.impl.model.asExternalModel
 import com.cheeke.surfy.detail.api.people.PeopleRepository
 import com.cheeke.surfy.model.People
 import jakarta.inject.Inject

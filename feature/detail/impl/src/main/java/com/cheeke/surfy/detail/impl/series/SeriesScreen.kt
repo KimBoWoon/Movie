@@ -50,7 +50,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.cheeke.surfy.analytics.TrackScreenViewEvent
+import com.cheeke.surfy.analytics.api.TrackScreenViewEvent
 import com.cheeke.surfy.common.POSTER_IMAGE_RATIO
 import com.cheeke.surfy.core.network.R
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
@@ -376,7 +376,7 @@ private fun PosterCollageHero(
 ) {
     HorizontalPager(
         modifier = Modifier.fillMaxSize(),
-        state = rememberPagerState() { posterUrls.size }
+        state = rememberPagerState { posterUrls.size }
     ) { index ->
         DynamicAsyncImageLoader(
             source = posterUrls[index],

@@ -1,6 +1,6 @@
 package com.cheeke.surfy.testing.repository
 
-import com.cheeke.surfy.data.repository.TvDetailRepository
+import com.cheeke.surfy.detail.api.tv.TvDetailRepository
 import com.cheeke.surfy.model.Tv
 import com.cheeke.surfy.model.TvEpisode
 import com.cheeke.surfy.model.TvSeasons

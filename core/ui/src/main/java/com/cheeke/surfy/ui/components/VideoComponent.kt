@@ -6,8 +6,8 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.viewinterop.AndroidView
-import com.cheeke.surfy.analytics.LocalAnalyticsHelper
-import com.cheeke.surfy.analytics.logPlayTrailer
+import com.cheeke.surfy.analytics.api.LocalAnalyticsHelper
+import com.cheeke.surfy.analytics.api.logPlayTrailer
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.common.VIDEO_RATIO
 import com.cheeke.surfy.model.VideoInfo

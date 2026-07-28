@@ -7,8 +7,8 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.paging.cachedIn
-import com.cheeke.surfy.analytics.AnalyticsHelper
-import com.cheeke.surfy.analytics.logSelectContent
+import com.cheeke.surfy.analytics.api.AnalyticsHelper
+import com.cheeke.surfy.analytics.api.logSelectContent
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.common.Result
 import com.cheeke.surfy.common.asResult

@@ -1,36 +1,24 @@
 package com.cheeke.surfy.testing.repository
 
 import androidx.annotation.VisibleForTesting
-import androidx.paging.PagingSource
-import androidx.paging.testing.asPagingSourceFactory
-import com.cheeke.surfy.data.repository.MovieDataBaseRepository
-import com.cheeke.surfy.database.model.MovieEntity
-import com.cheeke.surfy.database.model.NowPlayingMovieEntity
-import com.cheeke.surfy.database.model.UpComingMovieEntity
-import com.cheeke.surfy.database.model.asExternalModel
-import com.cheeke.surfy.model.Media
+import androidx.paging.PagingData
+import com.cheeke.surfy.detail.api.movie.MovieRepository
 import com.cheeke.surfy.model.Movie
-import com.cheeke.surfy.testing.model.nowPlayingMovieTest
-import com.cheeke.surfy.testing.model.upComingMovieTest
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import java.time.LocalDate
 
-class TestMovieDatabaseRepository() : MovieDataBaseRepository {
+class TestMovieDatabaseRepository : MovieRepository {
     val movieDatabase = MutableSharedFlow<List<Movie>>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
     val currentMovieDatabase get() = movieDatabase.replayCache.firstOrNull().orEmpty()
 
-    override fun getFavorite(): PagingSource<Int, MovieEntity> {
-        println("getFavorite called size=${movieDatabase.replayCache.size}")
-
-        return currentMovieDatabase.map(transform = Movie::asExternalModel)
-            .asPagingSourceFactory()
-            .invoke()
-    }
+    override fun getFavorite(): Flow<PagingData<Movie>> =
+        flow { emit(value = PagingData.from(data = currentMovieDatabase)) }
 
     override fun isFavorite(id: Int): Flow<Boolean> =
         movieDatabase
@@ -38,18 +26,18 @@ class TestMovieDatabaseRepository() : MovieDataBaseRepository {
                 medias.firstOrNull { it.id == id } != null
             }.distinctUntilChanged()
 
-    override suspend fun insert(media: Media): Long {
-        movieDatabase.emit(value = currentMovieDatabase + (media as Movie))
+    override suspend fun insert(media: Movie): Long {
+        movieDatabase.emit(value = currentMovieDatabase + media)
         return media.id?.toLong() ?: throw RuntimeException("room database insert failed...")
     }
 
-    override suspend fun delete(media: Media) {
+    override suspend fun delete(media: Movie) {
         movieDatabase.emit(value = currentMovieDatabase.filter { it.id != media.id })
     }
 
-    override suspend fun upsert(medias: List<Media>) {
+    override suspend fun upsert(medias: List<Movie>) {
         movieDatabase.emit(
-            value = (currentMovieDatabase + (medias as List<Movie>)).map { movie ->
+            value = (currentMovieDatabase + medias).map { movie ->
                 medias.find { it.id == movie.id } ?: movie
             }
         )
@@ -68,15 +56,11 @@ class TestMovieDatabaseRepository() : MovieDataBaseRepository {
         movies.filter { movie -> (movie.voteCount ?: 0) > 500 && (movie.voteAverage ?: 0f) > 7.0f }
     }.first()
 
-    override fun getUpComingMovies(): PagingSource<Int, UpComingMovieEntity> =
-        upComingMovieTest
-            .asPagingSourceFactory()
-            .invoke()
+    override fun getUpComingMovies(): Flow<PagingData<Movie>> =
+        flow { emit(value = PagingData.from(data = currentMovieDatabase)) }
 
-    override fun getNowPlayingMovies(): PagingSource<Int, NowPlayingMovieEntity> =
-        nowPlayingMovieTest
-            .asPagingSourceFactory()
-            .invoke()
+    override fun getNowPlayingMovies(): Flow<PagingData<Movie>> =
+        flow { emit(value = PagingData.from(data = currentMovieDatabase)) }
 
     @VisibleForTesting
     suspend fun setMovies(list: List<Movie>) {

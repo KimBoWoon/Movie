@@ -3,8 +3,8 @@ package com.cheeke.surfy.detail.impl.series
 import androidx.compose.ui.util.trace
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cheeke.surfy.analytics.AnalyticsHelper
-import com.cheeke.surfy.analytics.logSelectContent
+import com.cheeke.surfy.analytics.api.AnalyticsHelper
+import com.cheeke.surfy.analytics.api.logSelectContent
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.common.Result
 import com.cheeke.surfy.common.asResult

@@ -1,6 +1,6 @@
 package com.cheeke.surfy.testing.repository
 
-import com.cheeke.surfy.data.repository.SeriesDetailRepository
+import com.cheeke.surfy.detail.api.series.SeriesDetailRepository
 import com.cheeke.surfy.model.ImageList
 import com.cheeke.surfy.model.Series
 import kotlinx.coroutines.channels.BufferOverflow.DROP_OLDEST

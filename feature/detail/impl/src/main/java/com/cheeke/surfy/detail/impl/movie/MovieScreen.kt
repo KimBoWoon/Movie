@@ -46,9 +46,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.cheeke.surfy.analytics.LocalAnalyticsHelper
-import com.cheeke.surfy.analytics.TrackScreenViewEvent
-import com.cheeke.surfy.analytics.logFavorite
+import com.cheeke.surfy.analytics.api.LocalAnalyticsHelper
+import com.cheeke.surfy.analytics.api.TrackScreenViewEvent
+import com.cheeke.surfy.analytics.api.logFavorite
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.common.POSTER_IMAGE_RATIO
 import com.cheeke.surfy.feature.detail.impl.R

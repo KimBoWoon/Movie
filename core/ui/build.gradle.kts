@@ -12,7 +12,7 @@ dependencies {
     arrayOf(
         project(":core:common"),
         project(":core:model"),
-        project(":core:analytics"),
+        project(":core:analytics:api"),
         libs.androidx.compose.material3,
         libs.androidx.compose.material3.adaptive,
         libs.androidx.compose.material3.navigationSuite,

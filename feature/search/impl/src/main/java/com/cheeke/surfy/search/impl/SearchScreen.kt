@@ -74,10 +74,10 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.cheeke.surfy.analytics.TrackScreenViewEvent
+import com.cheeke.surfy.analytics.api.TrackScreenViewEvent
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.common.POSTER_IMAGE_RATIO
-import com.cheeke.surfy.database.model.KeywordEntity
+import com.cheeke.surfy.database.impl.model.KeywordEntity
 import com.cheeke.surfy.feature.search.impl.R
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
 import com.cheeke.surfy.model.Genre

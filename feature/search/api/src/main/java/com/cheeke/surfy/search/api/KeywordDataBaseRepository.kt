@@ -1,7 +1,7 @@
 package com.cheeke.surfy.search.api
 
 import androidx.paging.PagingSource
-import com.cheeke.surfy.database.model.KeywordEntity
+import com.cheeke.surfy.database.impl.model.KeywordEntity
 
 interface KeywordDataBaseRepository {
     fun getKeywords(): PagingSource<Int, KeywordEntity>

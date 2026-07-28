@@ -24,8 +24,8 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation3.runtime.rememberNavBackStack
 import com.cheeke.surfy.R
 import com.cheeke.surfy.SurfyFirebase
-import com.cheeke.surfy.analytics.AnalyticsHelper
-import com.cheeke.surfy.analytics.LocalAnalyticsHelper
+import com.cheeke.surfy.analytics.api.AnalyticsHelper
+import com.cheeke.surfy.analytics.api.LocalAnalyticsHelper
 import com.cheeke.surfy.common.AppDoubleBackToExit
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.common.isSystemInDarkTheme

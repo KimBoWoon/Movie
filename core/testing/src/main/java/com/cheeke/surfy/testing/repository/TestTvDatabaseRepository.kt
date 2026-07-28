@@ -1,30 +1,24 @@
 package com.cheeke.surfy.testing.repository
 
 import androidx.annotation.VisibleForTesting
-import androidx.paging.PagingSource
-import androidx.paging.testing.asPagingSourceFactory
-import com.cheeke.surfy.data.repository.TvDataBaseRepository
-import com.cheeke.surfy.database.model.TvEntity
-import com.cheeke.surfy.database.model.asExternalModel
-import com.cheeke.surfy.model.Media
+import androidx.paging.PagingData
+import com.cheeke.surfy.detail.api.tv.TvRepository
 import com.cheeke.surfy.model.Tv
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import java.time.LocalDate
 
-class TestTvDatabaseRepository : TvDataBaseRepository {
+class TestTvDatabaseRepository : TvRepository {
     val tvDatabase = MutableSharedFlow<List<Tv>>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
     private val currentTvDatabase get() = tvDatabase.replayCache.firstOrNull().orEmpty()
 
-    override fun getFavorite(): PagingSource<Int, TvEntity> =
-        currentTvDatabase
-            .map(transform = Tv::asExternalModel)
-            .asPagingSourceFactory()
-            .invoke()
+    override fun getFavorite(): Flow<PagingData<Tv>> =
+        flow { emit(value = PagingData.from(data = currentTvDatabase)) }
 
     override fun isFavorite(id: Int): Flow<Boolean> =
         tvDatabase
@@ -32,18 +26,18 @@ class TestTvDatabaseRepository : TvDataBaseRepository {
                 tvs.firstOrNull { it.id == id } != null
             }.distinctUntilChanged()
 
-    override suspend fun insert(media: Media): Long {
+    override suspend fun insert(media: Tv): Long {
         tvDatabase.emit(value = currentTvDatabase + (media as Tv))
         return media.id?.toLong() ?: throw RuntimeException("room database insert failed...")
     }
 
-    override suspend fun delete(media: Media) {
+    override suspend fun delete(media: Tv) {
         tvDatabase.emit(value = currentTvDatabase.filter { it.id != media.id })
     }
 
-    override suspend fun upsert(medias: List<Media>) {
+    override suspend fun upsert(medias: List<Tv>) {
         tvDatabase.emit(
-            value = (currentTvDatabase + (medias as List<Tv>)).map { tv ->
+            value = (currentTvDatabase + medias).map { tv ->
                 medias.find { it.id == tv.id } ?: tv
             }
         )
