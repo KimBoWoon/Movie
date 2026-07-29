@@ -4,7 +4,7 @@ import com.cheeke.surfy.detail.api.movie.MovieDetailRepository
 import com.cheeke.surfy.detail.api.movie.MovieRepository
 import com.cheeke.surfy.detail.api.people.PeopleDetailRepository
 import com.cheeke.surfy.detail.api.people.PeopleRepository
-import com.cheeke.surfy.detail.api.series.SeriesDetailRepository
+import com.cheeke.surfy.detail.api.series.SeriesRepository
 import com.cheeke.surfy.detail.api.tv.TvDetailRepository
 import com.cheeke.surfy.detail.api.tv.TvRepository
 import com.cheeke.surfy.detail.impl.movie.MovieDetailRepositoryImpl
@@ -40,7 +40,7 @@ abstract class DetailRepositoryModules {
     @Binds
     abstract fun bindSeriesDetailRepository(
         seriesDetailRepository: SeriesDetailRepositoryImpl
-    ): SeriesDetailRepository
+    ): SeriesRepository
 
     @Binds
     abstract fun bindMovieRepository(

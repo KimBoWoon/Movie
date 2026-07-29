@@ -17,6 +17,8 @@ dependencies {
         project(":core:notifications:api"),
         project(":core:firebase"),
         project(":core:analytics:api"),
+        project(":core:database:impl"),
+        project(":core:network"),
         libs.androidx.navigation3.runtime,
         libs.androidx.compose.hilt.navigation,
         libs.androidx.media3.exoplayer,

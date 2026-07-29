@@ -10,18 +10,8 @@ android {
 
 dependencies {
     arrayOf(
-        project(":core:common"),
-        project(":core:model"),
-        project(":core:notifications:api"),
-        project(":core:firebase"),
-        project(":core:analytics:api"),
-        libs.coil.compose,
         libs.androidx.navigation3.runtime,
-        libs.androidx.compose.hilt.navigation,
-        libs.androidx.compose.paging
     ).forEach {
         implementation(it)
     }
-
-    testImplementation(libs.androidx.paging.testing)
 }

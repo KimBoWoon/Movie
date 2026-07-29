@@ -10,13 +10,5 @@ android {
 dependencies {
     api(project(":core:model"))
 
-    arrayOf(
-        project(":core:common"),
-        project(":core:userdata:api"),
-        libs.coil.compose
-    ).forEach {
-        implementation(it)
-    }
-
     compileOnly(platform(libs.androidx.compose.bom))
 }

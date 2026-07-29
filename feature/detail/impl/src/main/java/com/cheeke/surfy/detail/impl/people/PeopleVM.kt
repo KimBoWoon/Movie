@@ -57,7 +57,7 @@ class PeopleVM @AssistedInject constructor(
             when (result) {
                 is Result.Loading -> PeopleState.Loading
                 is Result.Success -> {
-                    analyticsHelper.logSelectContent(contentType = "people", media = result.data)
+                    analyticsHelper.logSelectContent(contentType = "people", id = id, title = result.data.title.orEmpty())
                     PeopleState.Success(data = result.data)
                 }
                 is Result.Error -> PeopleState.Error(result.throwable as SurfyNetworkException)

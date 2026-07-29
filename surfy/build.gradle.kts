@@ -21,6 +21,11 @@ dependencies {
         project(":feature:search:impl"),
         project(":core:userdata:impl"),
         project(":core:datamanager:impl"),
+        project(":core:userdata:api"),
+        project(":core:sync:api"),
+        project(":core:network"),
+        project(":core:datamanager:api"),
+        project(":core:designsystem"),
         libs.coil.compose,
         libs.androidx.compose.material3.navigationSuite,
         libs.androidx.compose.material3.adaptive.navigation3,
@@ -29,7 +34,6 @@ dependencies {
         libs.androidx.splash,
         libs.androidx.startup,
         libs.hilt.ext.work,
-
         libs.androidx.compose.hilt.navigation,
     ).forEach {
         implementation(it)

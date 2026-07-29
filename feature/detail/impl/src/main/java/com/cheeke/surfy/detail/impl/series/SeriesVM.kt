@@ -55,7 +55,7 @@ class SeriesVM @AssistedInject constructor(
             when (result) {
                 is Result.Loading -> SeriesState.Loading
                 is Result.Success -> {
-                    analyticsHelper.logSelectContent(contentType = "series", media = result.data.series)
+                    analyticsHelper.logSelectContent(contentType = "series", id = id, title = result.data.series.title.orEmpty())
                     SeriesState.Success(series = result.data.series, imageList = result.data.imageList)
                 }
                 is Result.Error -> SeriesState.Error(throwable = result.throwable as SurfyNetworkException)

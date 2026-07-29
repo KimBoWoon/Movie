@@ -250,10 +250,10 @@ fun PeopleDetailComponent(
             onFavorite = {
                 if (people.isFavorite) {
                     deleteFavoritePeople(people)
-                    analyticsHelper.logFavorite(isFavorite = false, contentType = "people", media = people)
+                    analyticsHelper.logFavorite(isFavorite = false, contentType = "people", id = people.id ?: -1, title = people.title.orEmpty())
                 } else {
                     insertFavoritePeople(people)
-                    analyticsHelper.logFavorite(isFavorite = true, contentType = "people", media = people)
+                    analyticsHelper.logFavorite(isFavorite = true, contentType = "people", id = people.id ?: -1, title = people.title.orEmpty())
                 }
                 scope.launch { onShowSnackbar(snackbarMessage, null) }
             }

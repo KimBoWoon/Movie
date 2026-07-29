@@ -98,7 +98,7 @@ class TvVM @AssistedInject constructor(
         when (result) {
             is Result.Loading -> TvState.Loading
             is Result.Success -> {
-                analyticsHelper.logSelectContent(contentType = "tv", media = result.data.tv)
+                analyticsHelper.logSelectContent(contentType = "tv", id = id, title = result.data.tv.title.orEmpty())
                 val tv = result.data.tv
                 val seasons = tv.seasons
                 val initialSeason = selectedSeason ?: seasons?.sortedBy { it.seasonNumber }?.firstOrNull()

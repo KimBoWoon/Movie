@@ -237,10 +237,10 @@ fun MovieDetailComponent(
             onFavorite = {
                 if (movie.isFavorite) {
                     deleteFavoriteMovie(movie)
-                    analyticsHelper.logFavorite(isFavorite = false, contentType = "movie", media = movie)
+                    analyticsHelper.logFavorite(isFavorite = false, contentType = "movie", id = movie.id ?: -1, title = movie.title.orEmpty())
                 } else {
                     insertFavoriteMovie(movie)
-                    analyticsHelper.logFavorite(isFavorite = true, contentType = "movie", media = movie)
+                    analyticsHelper.logFavorite(isFavorite = true, contentType = "movie", id = movie.id ?: -1, title = movie.title.orEmpty())
                 }
                 scope.launch {
                     onShowSnackbar(favoriteMessage, null)

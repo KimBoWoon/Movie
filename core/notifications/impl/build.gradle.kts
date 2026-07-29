@@ -14,6 +14,7 @@ dependencies {
     arrayOf(
         project(":core:common"),
         project(":core:userdata:api"),
+        project(":core:designsystem"),
         libs.coil.compose
     ).forEach {
         implementation(it)

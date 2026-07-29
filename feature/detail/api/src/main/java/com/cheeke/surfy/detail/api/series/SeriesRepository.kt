@@ -5,7 +5,7 @@ import com.cheeke.surfy.model.ImageList
 import com.cheeke.surfy.model.Series
 import kotlinx.coroutines.flow.Flow
 
-interface SeriesDetailRepository : DetailRepository<Series> {
+interface SeriesRepository : DetailRepository<Series> {
     override fun getData(id: Int): Flow<Series>
     fun getMovieSeriesImageList(collectionId: Int): Flow<ImageList>
 }

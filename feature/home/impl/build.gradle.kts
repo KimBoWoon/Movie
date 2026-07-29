@@ -17,6 +17,7 @@ dependencies {
         project(":core:analytics:api"),
         project(":core:datamanager:api"),
         project(":feature:detail:api"),
+        project(":core:network"),
         libs.coil.compose,
         libs.androidx.navigation3.runtime,
         libs.androidx.compose.hilt.navigation,

@@ -12,8 +12,6 @@ dependencies {
     arrayOf(
         project(":core:common"),
         libs.kotlinx.serialization.json,
-        libs.androidx.junit,
-        libs.androidx.datastore,
         libs.androidx.room.runtime,
         libs.androidx.room.ktx,
         libs.androidx.compose.room.paging
@@ -21,7 +19,6 @@ dependencies {
         implementation(it)
     }
 
-    api(project(":core:database:api"))
     api(project(":core:model"))
 
     arrayOf(

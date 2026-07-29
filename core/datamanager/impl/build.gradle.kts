@@ -16,27 +16,25 @@ android {
 
 dependencies {
     arrayOf(
-        libs.androidx.compose.paging
+        project(":core:database:impl"),
+        project(":core:network"),
+        project(":core:datamanager:api"),
+        project(":core:userdata:api")
     ).forEach {
         implementation(it)
     }
 
     arrayOf(
         project(":core:common"),
-        project(":core:database:impl"),
-        project(":core:network"),
-        project(":core:datamanager:api")
     ).forEach {
         api(it)
     }
 
-    implementation(project(":core:userdata:api"))
-
-    testImplementation(libs.kotlinx.coroutines.test)
-    testImplementation(libs.kotlinx.serialization.json)
-    testImplementation(libs.androidx.paging.testing)
-
-    androidTestImplementation(libs.kotlinx.coroutines.test)
-    androidTestImplementation(libs.kotlinx.serialization.json)
-    androidTestImplementation(project(":core:testing"))
+    arrayOf(
+        libs.kotlinx.coroutines.test,
+        libs.kotlinx.serialization.json,
+        project(":core:testing")
+    ).forEach {
+        androidTestImplementation(it)
+    }
 }

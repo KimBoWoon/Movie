@@ -43,7 +43,7 @@ private fun Context.syncWorkNotification(): Notification {
         this,
         SYNC_NOTIFICATION_CHANNEL_ID,
     )
-        .setSmallIcon(com.cheeke.surfy.core.notifications.R.drawable.ic_launcher_round)
+        .setSmallIcon(com.cheeke.surfy.designsystem.R.drawable.ic_launcher_round)
         .setContentTitle(getString(R.string.mid_night_sync_worker_noti_description))
         .setPriority(NotificationCompat.PRIORITY_DEFAULT)
         .build()

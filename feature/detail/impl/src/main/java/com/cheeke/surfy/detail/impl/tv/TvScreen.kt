@@ -267,10 +267,10 @@ fun TvDetailComponent(
             onFavorite = {
                 if (tv.tv.isFavorite) {
                     deleteFavoriteTv(tv.tv)
-                    analyticsHelper.logFavorite(isFavorite = false, contentType = "tv", media = tv.tv)
+                    analyticsHelper.logFavorite(isFavorite = false, contentType = "tv", id = tv.tv.id ?: -1, title = tv.tv.title.orEmpty())
                 } else {
                     insertFavoriteTv(tv.tv)
-                    analyticsHelper.logFavorite(isFavorite = true, contentType = "tv", media = tv.tv)
+                    analyticsHelper.logFavorite(isFavorite = true, contentType = "tv", id = tv.tv.id ?: -1, title = tv.tv.title.orEmpty())
                 }
                 scope.launch {
                     onShowSnackbar(favoriteMessage, null)

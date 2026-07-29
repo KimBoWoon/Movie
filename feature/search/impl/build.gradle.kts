@@ -16,6 +16,7 @@ dependencies {
         project(":core:firebase"),
         project(":core:analytics:api"),
         project(":core:datamanager:api"),
+        project(":core:network"),
         libs.androidx.navigation3.runtime,
         libs.androidx.compose.hilt.navigation,
         libs.androidx.compose.paging

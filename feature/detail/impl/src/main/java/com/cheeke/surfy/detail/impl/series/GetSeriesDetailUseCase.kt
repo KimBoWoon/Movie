@@ -1,7 +1,7 @@
 package com.cheeke.surfy.detail.impl.series
 
 import com.cheeke.surfy.common.toEpochDayOrMax
-import com.cheeke.surfy.detail.api.series.SeriesDetailRepository
+import com.cheeke.surfy.detail.api.series.SeriesRepository
 import com.cheeke.surfy.model.ImageList
 import com.cheeke.surfy.model.Series
 import com.cheeke.surfy.model.SeriesPart
@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class GetSeriesDetailUseCase @Inject constructor(
-    private val detailRepository: SeriesDetailRepository
+    private val detailRepository: SeriesRepository
 ) {
     operator fun invoke(id: Int): Flow<SeriesWithImages> = combine(
         detailRepository.getData(id = id)

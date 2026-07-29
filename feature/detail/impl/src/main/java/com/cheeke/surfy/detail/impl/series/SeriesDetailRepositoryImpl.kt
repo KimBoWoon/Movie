@@ -1,7 +1,7 @@
 package com.cheeke.surfy.detail.impl.series
 
 import com.cheeke.surfy.detail.api.DetailRequestOptionsProvider
-import com.cheeke.surfy.detail.api.series.SeriesDetailRepository
+import com.cheeke.surfy.detail.api.series.SeriesRepository
 import com.cheeke.surfy.model.ImageList
 import com.cheeke.surfy.model.Series
 import com.cheeke.surfy.network.SeriesRemoteDataSource
@@ -12,7 +12,7 @@ import javax.inject.Inject
 class SeriesDetailRepositoryImpl @Inject constructor(
     private val apis: SeriesRemoteDataSource,
     private val requestOptionsProvider: DetailRequestOptionsProvider
-) : SeriesDetailRepository {
+) : SeriesRepository {
     override fun getData(id: Int): Flow<Series> = flow {
         val internalData = requestOptionsProvider.current()
 

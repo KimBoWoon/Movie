@@ -2,7 +2,6 @@ package com.cheeke.surfy.analytics.api
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import com.cheeke.surfy.model.Media
 import com.google.firebase.analytics.FirebaseAnalytics
 
 fun AnalyticsHelper.logScreenView(screenName: String) {
@@ -16,20 +15,20 @@ fun AnalyticsHelper.logScreenView(screenName: String) {
     )
 }
 
-fun AnalyticsHelper.logSelectContent(contentType: String, media: Media) {
+fun AnalyticsHelper.logSelectContent(contentType: String, id: Int, title: String) {
     logEvent(
         event = AnalyticsEvent(
             type = FirebaseAnalytics.Event.SELECT_CONTENT,
             extras = listOf(
                 AnalyticsEvent.Param(
                     key = FirebaseAnalytics.Param.ITEM_ID,
-                    value = media.id.toString()
+                    value = id.toString()
                 ),
                 AnalyticsEvent.Param(
                     key = FirebaseAnalytics.Param.CONTENT_TYPE,
                     value = contentType
                 ),
-                AnalyticsEvent.Param(key = "title", value = media.title ?: "")
+                AnalyticsEvent.Param(key = "title", value = title)
             )
         )
     )
@@ -50,7 +49,8 @@ fun AnalyticsHelper.logSearch(searchType: String, query: String) {
 fun AnalyticsHelper.logFavorite(
     isFavorite: Boolean,
     contentType: String,
-    media: Media
+    id: Int,
+    title: String
 ) {
     when (isFavorite) {
         true -> {
@@ -64,9 +64,9 @@ fun AnalyticsHelper.logFavorite(
                         ),
                         AnalyticsEvent.Param(
                             key = FirebaseAnalytics.Param.ITEM_ID,
-                            value = media.id.toString()
+                            value = id.toString()
                         ),
-                        AnalyticsEvent.Param(key = "title", value = media.title ?: ""),
+                        AnalyticsEvent.Param(key = "title", value = title),
                     )
                 )
             )
@@ -82,9 +82,9 @@ fun AnalyticsHelper.logFavorite(
                         ),
                         AnalyticsEvent.Param(
                             key = FirebaseAnalytics.Param.ITEM_ID,
-                            value = media.id.toString()
+                            value = id.toString()
                         ),
-                        AnalyticsEvent.Param(key = "title", value = media.title ?: ""),
+                        AnalyticsEvent.Param(key = "title", value = title),
                     )
                 )
             )

@@ -70,7 +70,7 @@ class SystemTrayNotifier @Inject constructor(
         if (!appContext.hasPostNotificationPermission()) return
 
         val notification = appContext.buildMovieNotification { builder ->
-            builder.setSmallIcon(R.drawable.ic_launcher_round)
+            builder.setSmallIcon(com.cheeke.surfy.designsystem.R.drawable.ic_launcher_round)
                 .setContentTitle(contentTitle)
                 .setContentIntent(
                     appContext.deepLinkPendingIntent(requestCode = notificationId, deepLinkUri = deepLinkUri.toUri())
@@ -112,7 +112,7 @@ class SystemTrayNotifier @Inject constructor(
 
                 val posterBitmap = posterBitmaps[index]
                 val notification = appContext.buildMovieNotification { builder ->
-                    builder.setSmallIcon(R.drawable.ic_launcher_round)
+                    builder.setSmallIcon(com.cheeke.surfy.designsystem.R.drawable.ic_launcher_round)
                         .setContentTitle(notificationTitle)
                         .setContentText(media.title)
                         .setContentIntent(appContext.deepLinkPendingIntent(requestCode = notificationId, deepLinkUri = media.movieDeepLinkUri()))
@@ -129,7 +129,7 @@ class SystemTrayNotifier @Inject constructor(
             }
 
             val summaryNotification = appContext.buildMovieNotification { builder ->
-                builder.setSmallIcon(R.drawable.ic_launcher_round)
+                builder.setSmallIcon(com.cheeke.surfy.designsystem.R.drawable.ic_launcher_round)
                     .setGroup(MOVIE_NOTIFICATION_GROUP)
                     .setGroupSummary(true)
                     .setAutoCancel(true)

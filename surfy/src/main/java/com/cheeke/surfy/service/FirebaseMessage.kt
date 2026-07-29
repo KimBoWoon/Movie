@@ -14,7 +14,6 @@ import com.cheeke.curfy.notification.impl.buildMovieNotification
 import com.cheeke.curfy.notification.impl.deepLinkPendingIntent
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.common.di.ApplicationScope
-import com.cheeke.surfy.core.notifications.impl.R
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.userdata.api.UserDataRepository
 import com.google.firebase.messaging.FirebaseMessagingService
@@ -78,7 +77,7 @@ class MovieFCMService : FirebaseMessagingService() {
                         .listener(
                             onSuccess = { request, result ->
                                 val movieNotification = applicationContext.buildMovieNotification {
-                                    it.setSmallIcon(R.drawable.ic_launcher_round)
+                                    it.setSmallIcon(com.cheeke.surfy.designsystem.R.drawable.ic_launcher_round)
                                         .setContentTitle(notiData.title)
                                         .setContentText(notiData.body)
                                         .setLargeIcon(result.image.toBitmap())
@@ -99,7 +98,7 @@ class MovieFCMService : FirebaseMessagingService() {
                 )
             } ?: run {
                 val movieNotification = applicationContext.buildMovieNotification {
-                    it.setSmallIcon(R.drawable.ic_launcher_round)
+                    it.setSmallIcon(com.cheeke.surfy.designsystem.R.drawable.ic_launcher_round)
                         .setContentTitle(notiData.title)
                         .setContentText(notiData.body)
                         .setContentIntent(pendingIntent)

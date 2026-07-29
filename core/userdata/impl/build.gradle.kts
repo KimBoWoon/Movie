@@ -47,6 +47,9 @@ androidComponents.beforeVariants {
 
 dependencies {
     arrayOf(
+        project(":core:database:impl"),
+        project(":core:network"),
+        project(":core:userdata:api"),
         libs.androidx.compose.paging,
         libs.hilt.android.testing,
         libs.protobuf.kotlin.lite,
@@ -56,10 +59,7 @@ dependencies {
     }
 
     arrayOf(
-        project(":core:common"),
-        project(":core:database:impl"),
-        project(":core:network"),
-        project(":core:userdata:api")
+        project(":core:common")
     ).forEach {
         api(it)
     }
@@ -67,8 +67,4 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.kotlinx.serialization.json)
     testImplementation(libs.androidx.paging.testing)
-
-    androidTestImplementation(libs.kotlinx.coroutines.test)
-    androidTestImplementation(libs.kotlinx.serialization.json)
-    androidTestImplementation(project(":core:testing"))
 }

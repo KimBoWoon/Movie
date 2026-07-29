@@ -73,7 +73,7 @@ class MovieVM @AssistedInject constructor(
         when (result) {
             is Result.Loading -> MovieState.Loading
             is Result.Success -> {
-                analyticsHelper.logSelectContent(contentType = "movie", media = result.data)
+                analyticsHelper.logSelectContent(contentType = "movie", id = id, title = result.data.title.orEmpty())
                 MovieState.Success(movie = result.data, isAutoPlayTrailer = internalData.isAutoPlayTrailer)
             }
             is Result.Error -> MovieState.Error(throwable = result.throwable as SurfyNetworkException)

@@ -162,7 +162,7 @@ fun FavoriteScreen(
                                                 selectedTab.delete(media = media)
                                                 onShowSnackbar(removeFavoriteText, null)
                                             }
-                                            analyticsHelper.logFavorite(isFavorite = false, contentType = "people", media = media)
+                                            analyticsHelper.logFavorite(isFavorite = false, contentType = "people", id = media.id ?: -1, title = media.title.orEmpty())
                                         }
                                     )
                                 }
@@ -201,7 +201,7 @@ fun FavoriteScreen(
                                             selectedTab.delete(media = media)
                                             onShowSnackbar(removeFavoriteText, null)
                                         }
-                                        analyticsHelper.logFavorite(isFavorite = false, contentType = label, media = media)
+                                        analyticsHelper.logFavorite(isFavorite = false, contentType = label, id = media.id ?: -1, title = media.title.orEmpty())
                                     }
                                 )
                             }
