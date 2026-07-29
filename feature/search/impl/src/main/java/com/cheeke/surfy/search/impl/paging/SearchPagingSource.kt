@@ -5,7 +5,7 @@ import androidx.paging.PagingState
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.model.SearchType
-import com.cheeke.surfy.network.SearchRemoteDataSource
+import com.cheeke.surfy.network.api.SearchRemoteDataSource
 
 class SearchPagingSource(
     private val apis: SearchRemoteDataSource,

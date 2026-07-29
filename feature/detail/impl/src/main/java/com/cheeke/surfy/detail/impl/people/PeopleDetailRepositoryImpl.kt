@@ -5,7 +5,7 @@ import com.cheeke.surfy.detail.api.people.PeopleDetailRepository
 import com.cheeke.surfy.model.CombineCredits
 import com.cheeke.surfy.model.ExternalIds
 import com.cheeke.surfy.model.People
-import com.cheeke.surfy.network.PeopleRemoteDataSource
+import com.cheeke.surfy.network.api.PeopleRemoteDataSource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject

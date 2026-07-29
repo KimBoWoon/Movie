@@ -10,7 +10,7 @@ import com.cheeke.surfy.common.Result
 import com.cheeke.surfy.common.asResult
 import com.cheeke.surfy.model.ImageList
 import com.cheeke.surfy.model.Series
-import com.cheeke.surfy.network.model.SurfyNetworkException
+import com.cheeke.surfy.network.api.SurfyNetworkException
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject

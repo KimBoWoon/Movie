@@ -18,8 +18,8 @@ import com.cheeke.surfy.detail.impl.paging.SimilarMoviePagingSource
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.Review
 import com.cheeke.surfy.model.SimilarMedia
-import com.cheeke.surfy.network.MovieRemoteDataSource
-import com.cheeke.surfy.network.model.SurfyNetworkException
+import com.cheeke.surfy.network.api.MovieRemoteDataSource
+import com.cheeke.surfy.network.api.SurfyNetworkException
 import com.cheeke.surfy.userdata.api.UserDataRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory

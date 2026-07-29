@@ -48,7 +48,7 @@ androidComponents.beforeVariants {
 dependencies {
     arrayOf(
         project(":core:database:impl"),
-        project(":core:network"),
+        project(":core:network:api"),
         project(":core:userdata:api"),
         libs.androidx.compose.paging,
         libs.hilt.android.testing,

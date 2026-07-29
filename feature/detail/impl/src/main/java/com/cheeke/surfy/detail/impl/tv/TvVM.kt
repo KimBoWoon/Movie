@@ -20,8 +20,8 @@ import com.cheeke.surfy.model.SimilarMedia
 import com.cheeke.surfy.model.Tv
 import com.cheeke.surfy.model.TvEpisode
 import com.cheeke.surfy.model.TvSeason
-import com.cheeke.surfy.network.TvRemoteDataSource
-import com.cheeke.surfy.network.model.SurfyNetworkException
+import com.cheeke.surfy.network.api.SurfyNetworkException
+import com.cheeke.surfy.network.api.TvRemoteDataSource
 import com.cheeke.surfy.userdata.api.UserDataRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory

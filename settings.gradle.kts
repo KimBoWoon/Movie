@@ -23,7 +23,6 @@ dependencyResolutionManagement {
 rootProject.name = "Surfy"
 include(":surfy")
 include(":core:common")
-include(":core:network")
 include(":core:ui")
 include(":core:model")
 include(":core:firebase")
@@ -50,3 +49,5 @@ include(":core:notifications:impl")
 include(":core:database:api")
 include(":core:database:impl")
 include(":core:designsystem")
+include(":core:network:api")
+include(":core:network:impl")

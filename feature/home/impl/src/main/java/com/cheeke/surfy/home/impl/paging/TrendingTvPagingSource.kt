@@ -4,7 +4,7 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.model.TrendingMediaResult
-import com.cheeke.surfy.network.TrendingRemoteDataSource
+import com.cheeke.surfy.network.api.TrendingRemoteDataSource
 
 class TrendingTvPagingSource(
     private val apis: TrendingRemoteDataSource,

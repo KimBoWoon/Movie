@@ -17,8 +17,8 @@ import com.cheeke.surfy.home.impl.paging.TrendingTvPagingSource
 import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.TrendingMediaResult
-import com.cheeke.surfy.network.TrendingRemoteDataSource
-import com.cheeke.surfy.network.utils.NetworkMonitor
+import com.cheeke.surfy.network.api.NetworkMonitor
+import com.cheeke.surfy.network.api.TrendingRemoteDataSource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow

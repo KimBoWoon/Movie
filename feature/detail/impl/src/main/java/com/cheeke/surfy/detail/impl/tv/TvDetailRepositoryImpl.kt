@@ -5,7 +5,7 @@ import com.cheeke.surfy.detail.api.tv.TvDetailRepository
 import com.cheeke.surfy.model.Tv
 import com.cheeke.surfy.model.TvEpisode
 import com.cheeke.surfy.model.TvSeasons
-import com.cheeke.surfy.network.TvRemoteDataSource
+import com.cheeke.surfy.network.api.TvRemoteDataSource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject

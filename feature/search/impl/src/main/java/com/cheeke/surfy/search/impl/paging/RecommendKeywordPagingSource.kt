@@ -4,7 +4,7 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.model.SearchKeyword
-import com.cheeke.surfy.network.SearchRemoteDataSource
+import com.cheeke.surfy.network.api.SearchRemoteDataSource
 
 class RecommendKeywordPagingSource(
     private val apis: SearchRemoteDataSource,

@@ -11,7 +11,7 @@ dependencies {
     arrayOf(
         project(":core:common"),
         project(":core:model"),
-        project(":core:network"),
+        project(":core:network:api"),
         project(":feature:detail:api"),
         project(":core:notifications:api"),
         project(":core:userdata:api"),

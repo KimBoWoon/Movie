@@ -6,7 +6,7 @@ import com.cheeke.surfy.deeplink.DeepLinkManager
 import com.cheeke.surfy.detail.api.movie.MovieRepository
 import com.cheeke.surfy.detail.api.tv.TvRepository
 import com.cheeke.surfy.model.Media
-import com.cheeke.surfy.network.utils.NetworkMonitor
+import com.cheeke.surfy.network.api.NetworkMonitor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted

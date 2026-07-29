@@ -52,7 +52,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cheeke.surfy.analytics.api.TrackScreenViewEvent
 import com.cheeke.surfy.common.POSTER_IMAGE_RATIO
-import com.cheeke.surfy.core.network.R
+import com.cheeke.surfy.feature.detail.impl.R
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
 import com.cheeke.surfy.model.ImageList
 import com.cheeke.surfy.model.Series
@@ -134,10 +134,10 @@ fun SeriesScreen(
             is SeriesState.Error -> {
                 LocalFirebaseLogHelper.current.sendLog("SeriesScreen", "Series state Error")
 
-                val message = seriesState.throwable.stringRes?.let { stringResource(id = it) } ?: stringResource(id = R.string.something_wrong)
+                val message = seriesState.throwable.stringRes?.let { stringResource(id = it) } ?: stringResource(id = com.cheeke.surfy.core.network.api.R.string.something_wrong)
 
                 ConfirmDialog(
-                    title = stringResource(id = R.string.network_failed),
+                    title = stringResource(id = com.cheeke.surfy.core.network.api.R.string.network_failed),
                     message = message,
                     confirmPair = stringResource(id = com.cheeke.surfy.core.ui.R.string.retry_message) to { restart() },
                     dismissPair = stringResource(id = com.cheeke.surfy.core.ui.R.string.back_message) to goToBack

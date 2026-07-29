@@ -4,7 +4,7 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.model.SimilarMedia
-import com.cheeke.surfy.network.MovieRemoteDataSource
+import com.cheeke.surfy.network.api.MovieRemoteDataSource
 
 class SimilarMoviePagingSource(
     private val apis: MovieRemoteDataSource,

@@ -188,7 +188,7 @@ fun HomeScreen(
                 Log.e("${homeUiState.throwable.message}")
                 Text(
                     modifier = Modifier.fillMaxSize(),
-                    text = homeUiState.throwable.message ?: stringResource(id = com.cheeke.surfy.core.network.R.string.something_wrong)
+                    text = homeUiState.throwable.message ?: stringResource(id = com.cheeke.surfy.core.network.api.R.string.something_wrong)
                 )
             }
         }

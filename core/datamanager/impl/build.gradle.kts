@@ -17,7 +17,7 @@ android {
 dependencies {
     arrayOf(
         project(":core:database:impl"),
-        project(":core:network"),
+        project(":core:network:api"),
         project(":core:datamanager:api"),
         project(":core:userdata:api")
     ).forEach {

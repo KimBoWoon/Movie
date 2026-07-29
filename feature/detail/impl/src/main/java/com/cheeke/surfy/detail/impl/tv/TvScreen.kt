@@ -219,10 +219,10 @@ fun TvScreen(
                 Log.e(tvUiState.throwable.message ?: "something wrong")
                 LocalFirebaseLogHelper.current.sendLog(name = "TvScreen", message = tvUiState.throwable.message ?: "something wrong")
 
-                val message = tvUiState.throwable.stringRes?.let { stringResource(id = it) } ?: stringResource(id = com.cheeke.surfy.core.network.R.string.something_wrong)
+                val message = tvUiState.throwable.stringRes?.let { stringResource(id = it) } ?: stringResource(id = com.cheeke.surfy.core.network.api.R.string.something_wrong)
 
                 ConfirmDialog(
-                    title = stringResource(id = com.cheeke.surfy.core.network.R.string.network_failed),
+                    title = stringResource(id = com.cheeke.surfy.core.network.api.R.string.network_failed),
                     message = message,
                     confirmPair = stringResource(id = com.cheeke.surfy.core.ui.R.string.retry_message) to { restart() },
                     dismissPair = stringResource(id = com.cheeke.surfy.core.ui.R.string.back_message) to goToBack

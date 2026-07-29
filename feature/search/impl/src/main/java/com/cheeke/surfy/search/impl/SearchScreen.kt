@@ -460,8 +460,8 @@ fun SearchResultComponent(
                     CircularProgressComponent()
                 } else if (pagingData.loadState.refresh is LoadState.Error) {
                     ConfirmDialog(
-                        title = stringResource(id = com.cheeke.surfy.core.network.R.string.network_failed),
-                        message = (pagingData.loadState.refresh as? LoadState.Error)?.error?.message ?: stringResource(id = com.cheeke.surfy.core.network.R.string.something_wrong),
+                        title = stringResource(id = com.cheeke.surfy.core.network.api.R.string.network_failed),
+                        message = (pagingData.loadState.refresh as? LoadState.Error)?.error?.message ?: stringResource(id = com.cheeke.surfy.core.network.api.R.string.something_wrong),
                         confirmPair = stringResource(id = com.cheeke.surfy.core.ui.R.string.retry_message) to { pagingData.retry() },
                         dismissPair = stringResource(id = com.cheeke.surfy.core.ui.R.string.confirm_message) to {}
                     )
@@ -489,12 +489,12 @@ fun SearchResultComponent(
                 }
             }
             is SearchUiState.Error -> {
-                LocalFirebaseLogHelper.current.sendLog("SearchResultPaging", searchUiState.throwable.message ?: stringResource(com.cheeke.surfy.core.network.R.string.something_wrong))
+                LocalFirebaseLogHelper.current.sendLog("SearchResultPaging", searchUiState.throwable.message ?: stringResource(com.cheeke.surfy.core.network.api.R.string.something_wrong))
 
-                val message = searchUiState.throwable.stringRes?.let { stringResource(id = it) } ?: stringResource(id = com.cheeke.surfy.core.network.R.string.something_wrong)
+                val message = searchUiState.throwable.stringRes?.let { stringResource(id = it) } ?: stringResource(id = com.cheeke.surfy.core.network.api.R.string.something_wrong)
 
                 ConfirmDialog(
-                    title = stringResource(id = com.cheeke.surfy.core.network.R.string.network_failed),
+                    title = stringResource(id = com.cheeke.surfy.core.network.api.R.string.network_failed),
                     message = message,
                     confirmPair = stringResource(id = com.cheeke.surfy.core.ui.R.string.confirm_message) to {}
                 )

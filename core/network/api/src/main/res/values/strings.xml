@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="something_wrong">Something Wrong…</string>
+    <string name="network_failed">Network Failed</string>
+    <string name="un_known_host">The network connection is bad. Please try again later.</string>
+    <string name="soket_timeout">Request timed out, try again later.</string>
+    <string name="connect_exception">Unable to connect to server.</string>
+    <string name="ssl_hand_shake_exception">Security connection failed.</string>
+    <string name="network_error_unknown">An unknown error occurred.</string>
+    <string name="empty_body">empty body!</string>
+    <string name="user_error">Please check the information you entered again.\nIf the problem persists, please contact the customer service center.</string>
+    <string name="server_error">A temporary error occurred.\nPlease try again in a moment.</string>
+    <string name="response_error_unknown">An unknown error occurred.</string>
+</resources>

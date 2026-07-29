@@ -4,7 +4,7 @@ import com.cheeke.surfy.detail.api.DetailRequestOptionsProvider
 import com.cheeke.surfy.detail.api.series.SeriesRepository
 import com.cheeke.surfy.model.ImageList
 import com.cheeke.surfy.model.Series
-import com.cheeke.surfy.network.SeriesRemoteDataSource
+import com.cheeke.surfy.network.api.SeriesRemoteDataSource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject

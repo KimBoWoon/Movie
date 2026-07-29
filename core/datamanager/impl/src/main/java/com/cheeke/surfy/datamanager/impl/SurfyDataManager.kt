@@ -15,8 +15,8 @@ import com.cheeke.surfy.model.LocaleOption
 import com.cheeke.surfy.model.PosterSize
 import com.cheeke.surfy.model.Regions
 import com.cheeke.surfy.model.SurfyAppData
-import com.cheeke.surfy.network.SettingRemoteDataSource
-import com.cheeke.surfy.network.utils.NetworkMonitor
+import com.cheeke.surfy.network.api.NetworkMonitor
+import com.cheeke.surfy.network.api.SettingRemoteDataSource
 import com.cheeke.surfy.userdata.api.UserDataRepository
 import jakarta.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher

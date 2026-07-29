@@ -189,10 +189,10 @@ fun MovieScreen(
                 Log.e("${movieState.throwable.message}")
                 LocalFirebaseLogHelper.current.sendLog(name = "DetailScreen", message = "${movieState.throwable.message}")
 
-                val message = movieState.throwable.stringRes?.let { stringResource(id = it) } ?: stringResource(id = com.cheeke.surfy.core.network.R.string.something_wrong)
+                val message = movieState.throwable.stringRes?.let { stringResource(id = it) } ?: stringResource(id = com.cheeke.surfy.core.network.api.R.string.something_wrong)
 
                 ConfirmDialog(
-                    title = stringResource(id = com.cheeke.surfy.core.network.R.string.network_failed),
+                    title = stringResource(id = com.cheeke.surfy.core.network.api.R.string.network_failed),
                     message = message,
                     confirmPair = stringResource(id = com.cheeke.surfy.core.ui.R.string.retry_message) to { restart() },
                     dismissPair = stringResource(id = com.cheeke.surfy.core.ui.R.string.back_message) to goToBack

@@ -133,10 +133,10 @@ fun PeopleScreen(
             is PeopleState.Error -> {
                 Log.e("${peopleState.throwable.message}")
 
-                val message = peopleState.throwable.stringRes?.let { stringResource(id = it) } ?: stringResource(id = com.cheeke.surfy.core.network.R.string.something_wrong)
+                val message = peopleState.throwable.stringRes?.let { stringResource(id = it) } ?: stringResource(id = com.cheeke.surfy.core.network.api.R.string.something_wrong)
 
                 ConfirmDialog(
-                    title = stringResource(id = com.cheeke.surfy.core.network.R.string.network_failed),
+                    title = stringResource(id = com.cheeke.surfy.core.network.api.R.string.network_failed),
                     message = message,
                     confirmPair = stringResource(id = com.cheeke.surfy.core.ui.R.string.retry_message) to { restart() },
                     dismissPair = stringResource(id = com.cheeke.surfy.core.ui.R.string.back_message) to goToBack

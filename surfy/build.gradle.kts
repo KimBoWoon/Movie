@@ -23,7 +23,7 @@ dependencies {
         project(":core:datamanager:impl"),
         project(":core:userdata:api"),
         project(":core:sync:api"),
-        project(":core:network"),
+        project(":core:network:impl"),
         project(":core:datamanager:api"),
         project(":core:designsystem"),
         libs.coil.compose,

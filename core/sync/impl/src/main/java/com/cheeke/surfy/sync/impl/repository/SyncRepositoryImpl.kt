@@ -4,7 +4,7 @@ import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.database.impl.dao.MovieDao
 import com.cheeke.surfy.database.impl.model.NowPlayingMovieEntity
 import com.cheeke.surfy.database.impl.model.UpComingMovieEntity
-import com.cheeke.surfy.network.SyncRemoteDataSource
+import com.cheeke.surfy.network.api.SyncRemoteDataSource
 import com.cheeke.surfy.sync.api.SyncRepository
 import com.cheeke.surfy.sync.api.Synchronizer
 import com.cheeke.surfy.sync.impl.utils.updateMovieSync

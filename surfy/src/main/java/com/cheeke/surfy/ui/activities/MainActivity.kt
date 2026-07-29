@@ -33,7 +33,6 @@ import com.cheeke.surfy.deeplink.DeepLinkManager
 import com.cheeke.surfy.detail.api.movie.MovieNavKey
 import com.cheeke.surfy.detail.api.tv.TvNavKey
 import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
-import com.cheeke.surfy.network.utils.NetworkMonitor
 import com.cheeke.surfy.ui.SurfyApp
 import com.cheeke.surfy.ui.root.ReleaseMoviesDialog
 import com.cheeke.surfy.ui.root.navigation.RootNavKey
@@ -53,8 +52,6 @@ import javax.inject.Inject
 class MainActivity : ComponentActivity() {
     private val viewModel: MainVM by viewModels()
     private val settingVM: SettingVM by viewModels()
-    @Inject
-    lateinit var networkMonitor: NetworkMonitor
     @Inject
     lateinit var surfyFirebase: SurfyFirebase
     @Inject
