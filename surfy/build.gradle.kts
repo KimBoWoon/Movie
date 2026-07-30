@@ -13,7 +13,7 @@ dependencies {
         project(":core:sync:impl"),
         project(":core:model"),
         project(":core:notifications:impl"),
-        project(":core:firebase"),
+        project(":core:firebase:impl"),
         project(":core:analytics:impl"),
         project(":feature:detail:impl"),
         project(":feature:favorite:impl"),

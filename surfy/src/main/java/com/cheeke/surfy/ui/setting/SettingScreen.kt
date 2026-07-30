@@ -47,7 +47,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cheeke.surfy.R
 import com.cheeke.surfy.analytics.api.TrackScreenViewEvent
 import com.cheeke.surfy.common.getVersionName
-import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
+import com.cheeke.surfy.firebase.api.LocalFirebaseLogHelper
 import com.cheeke.surfy.ui.utils.dp1
 import com.cheeke.surfy.ui.utils.dp10
 import com.cheeke.surfy.ui.utils.dp12

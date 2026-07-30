@@ -49,7 +49,7 @@ import com.cheeke.surfy.analytics.api.logFavorite
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.common.POSTER_IMAGE_RATIO
 import com.cheeke.surfy.feature.detail.impl.R
-import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
+import com.cheeke.surfy.firebase.api.LocalFirebaseLogHelper
 import com.cheeke.surfy.model.Image
 import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.model.MediaType

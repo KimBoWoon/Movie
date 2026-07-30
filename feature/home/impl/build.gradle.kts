@@ -13,7 +13,7 @@ dependencies {
         project(":core:common"),
         project(":core:model"),
         project(":core:notifications:api"),
-        project(":core:firebase"),
+        project(":core:firebase:api"),
         project(":core:analytics:api"),
         project(":core:datamanager:api"),
         project(":feature:detail:api"),

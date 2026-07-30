@@ -1,7 +1,7 @@
 package com.cheeke.surfy.network.impl.di
 
 import com.cheeke.surfy.core.network.api.BuildConfig
-import com.cheeke.surfy.network.api.NetworkLogInterceptor
+import com.cheeke.surfy.network.impl.utils.NetworkLogInterceptor
 import com.localebro.okhttpprofiler.OkHttpProfilerInterceptor
 import dagger.Module
 import dagger.Provides

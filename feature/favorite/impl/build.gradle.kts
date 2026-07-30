@@ -12,7 +12,7 @@ dependencies {
     arrayOf(
         project(":core:common"),
         project(":core:model"),
-        project(":core:firebase"),
+        project(":core:firebase:api"),
         project(":core:analytics:api"),
         project(":core:database:impl"),
         libs.androidx.navigation3.runtime,

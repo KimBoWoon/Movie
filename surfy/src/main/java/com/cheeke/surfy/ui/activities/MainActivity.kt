@@ -23,7 +23,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation3.runtime.rememberNavBackStack
 import com.cheeke.surfy.R
-import com.cheeke.surfy.SurfyFirebase
 import com.cheeke.surfy.analytics.api.AnalyticsHelper
 import com.cheeke.surfy.analytics.api.LocalAnalyticsHelper
 import com.cheeke.surfy.common.AppDoubleBackToExit
@@ -32,7 +31,8 @@ import com.cheeke.surfy.common.isSystemInDarkTheme
 import com.cheeke.surfy.deeplink.DeepLinkManager
 import com.cheeke.surfy.detail.api.movie.MovieNavKey
 import com.cheeke.surfy.detail.api.tv.TvNavKey
-import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
+import com.cheeke.surfy.firebase.api.LocalFirebaseLogHelper
+import com.cheeke.surfy.firebase.impl.SurfyFirebaseLogHelper
 import com.cheeke.surfy.ui.SurfyApp
 import com.cheeke.surfy.ui.root.ReleaseMoviesDialog
 import com.cheeke.surfy.ui.root.navigation.RootNavKey
@@ -53,7 +53,7 @@ class MainActivity : ComponentActivity() {
     private val viewModel: MainVM by viewModels()
     private val settingVM: SettingVM by viewModels()
     @Inject
-    lateinit var surfyFirebase: SurfyFirebase
+    lateinit var surfyFirebase: SurfyFirebaseLogHelper
     @Inject
     lateinit var analyticsHelper: AnalyticsHelper
     @Inject

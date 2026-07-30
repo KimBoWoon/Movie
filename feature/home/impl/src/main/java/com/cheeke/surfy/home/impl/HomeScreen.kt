@@ -63,7 +63,7 @@ import com.cheeke.surfy.common.POSTER_IMAGE_RATIO
 import com.cheeke.surfy.common.ScrollToTop
 import com.cheeke.surfy.common.ScrollTopEvent
 import com.cheeke.surfy.feature.home.impl.R
-import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
+import com.cheeke.surfy.firebase.api.LocalFirebaseLogHelper
 import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.TrendingMediaResult

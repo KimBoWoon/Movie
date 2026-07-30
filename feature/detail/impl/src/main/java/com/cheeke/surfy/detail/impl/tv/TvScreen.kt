@@ -67,7 +67,7 @@ import com.cheeke.surfy.analytics.api.logSelectSeason
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.detail.impl.movie.AlternativeTitleComponent
 import com.cheeke.surfy.feature.detail.impl.R
-import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
+import com.cheeke.surfy.firebase.api.LocalFirebaseLogHelper
 import com.cheeke.surfy.model.Cast
 import com.cheeke.surfy.model.Credits
 import com.cheeke.surfy.model.Image

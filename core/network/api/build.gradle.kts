@@ -2,7 +2,6 @@ import com.cheeke.surfy.convention.Config
 
 plugins {
     alias(libs.plugins.cheeke.android.library)
-    alias(libs.plugins.cheeke.hilt)
 }
 
 android {

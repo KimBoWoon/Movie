@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.cheeke.android.library)
-    alias(libs.plugins.cheeke.android.library.compose)
     alias(libs.plugins.cheeke.hilt)
 }
 

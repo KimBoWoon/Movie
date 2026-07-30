@@ -15,7 +15,7 @@ dependencies {
         project(":core:userdata:api"),
         project(":core:model"),
         project(":core:notifications:api"),
-        project(":core:firebase"),
+        project(":core:firebase:api"),
         project(":core:analytics:api"),
         project(":core:database:impl"),
         project(":core:network:api"),

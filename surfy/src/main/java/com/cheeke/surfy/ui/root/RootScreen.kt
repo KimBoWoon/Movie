@@ -67,7 +67,7 @@ import com.cheeke.surfy.common.ScrollTopEvent
 import com.cheeke.surfy.common.scrollToTop
 import com.cheeke.surfy.favorite.api.FavoriteNavKey
 import com.cheeke.surfy.favorite.impl.favoriteEntry
-import com.cheeke.surfy.firebase.LocalFirebaseLogHelper
+import com.cheeke.surfy.firebase.api.LocalFirebaseLogHelper
 import com.cheeke.surfy.home.api.HomeNavKey
 import com.cheeke.surfy.home.impl.homeEntry
 import com.cheeke.surfy.model.Media
