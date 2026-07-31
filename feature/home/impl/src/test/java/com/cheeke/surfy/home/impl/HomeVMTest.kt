@@ -3,13 +3,16 @@ package com.cheeke.surfy.home.impl
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.paging.testing.TestPager
+import com.cheeke.surfy.datamanager.api.TestSurfyAppData
+import com.cheeke.surfy.detail.api.TestMovieDao
+import com.cheeke.surfy.detail.api.TestMovieDatabaseRepository
+import com.cheeke.surfy.detail.api.TestPeopleDao
+import com.cheeke.surfy.detail.api.TestTvDao
 import com.cheeke.surfy.model.Movie
-import com.cheeke.surfy.testing.repository.TestMovieDatabaseRepository
-import com.cheeke.surfy.testing.repository.TestPagingRepository
-import com.cheeke.surfy.testing.repository.TestUserDataRepository
+import com.cheeke.surfy.network.api.TestNetworkMonitor
+import com.cheeke.surfy.network.api.TestTrendingRemoteDataSource
 import com.cheeke.surfy.testing.utils.MainDispatcherRule
-import com.cheeke.surfy.testing.utils.TestMovieAppDataManager
-import com.cheeke.surfy.testing.utils.TestNetworkMonitor
+import com.cheeke.surfy.userdata.api.TestUserDataRepository
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -24,23 +27,27 @@ class HomeVMTest {
     val mainDispatcherRule = MainDispatcherRule()
     private lateinit var viewModel: HomeVM
     private lateinit var testDatabaseRepository: TestMovieDatabaseRepository
-    private lateinit var testPagingRepository: TestPagingRepository
     private lateinit var testNetworkMonitor: TestNetworkMonitor
     private lateinit var testUserRepository: TestUserDataRepository
-    private lateinit var testMovieAppDataManager: TestMovieAppDataManager
+    private lateinit var testMovieAppDataManager: TestSurfyAppData
+    private lateinit var movieDao: TestMovieDao
+    private lateinit var peopleDao: TestPeopleDao
+    private lateinit var tvDao: TestTvDao
 
     @Before
     fun setup() {
         testDatabaseRepository = TestMovieDatabaseRepository()
-        testPagingRepository = TestPagingRepository()
         testNetworkMonitor = TestNetworkMonitor()
         testUserRepository = TestUserDataRepository()
-        testMovieAppDataManager = TestMovieAppDataManager()
+        testMovieAppDataManager = TestSurfyAppData()
+        movieDao = TestMovieDao()
+        peopleDao = TestPeopleDao()
+        tvDao = TestTvDao()
         viewModel = HomeVM(
             movieDataBaseRepository = testDatabaseRepository,
-            pagingRepository = testPagingRepository,
             networkMonitor = testNetworkMonitor,
-            dataManager = testMovieAppDataManager
+            dataManager = testMovieAppDataManager,
+            trendingApis = TestTrendingRemoteDataSource()
         )
     }
 
@@ -55,10 +62,10 @@ class HomeVMTest {
         assertEquals(expected = viewModel.homeUiState.value, actual = HomeState.Loading)
         backgroundScope.launch(context = UnconfinedTestDispatcher()) { viewModel.homeUiState.collect() }
 
-        val nowPlayingMovieResult = testDatabaseRepository.getNowPlayingMovies()
+        val nowPlayingMovieResult = movieDao.getNowPlayingMovie()
         val nowPlayingTestPager = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 20, prefetchDistance = 5),
-            pagingSource = testDatabaseRepository.getNowPlayingMovies()
+            pagingSource = movieDao.getNowPlayingMovie()
         )
 
         assertEquals(
@@ -72,10 +79,10 @@ class HomeVMTest {
             )
         )
 
-        val upComingMovieResult = testDatabaseRepository.getUpComingMovies()
+        val upComingMovieResult = movieDao.getUpComingMovie()
         val upComingMovieTestPager = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 20, prefetchDistance = 5),
-            pagingSource = testDatabaseRepository.getUpComingMovies()
+            pagingSource = movieDao.getUpComingMovie()
         )
 
         assertEquals(

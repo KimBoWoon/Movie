@@ -1,14 +1,14 @@
 package com.cheeke.surfy.detail.impl
 
+import com.cheeke.surfy.analytics.api.TestAnalyticsHelper
+import com.cheeke.surfy.datamanager.api.TestSurfyAppData
+import com.cheeke.surfy.detail.api.TestSeriesDetailRepository
 import com.cheeke.surfy.detail.impl.series.GetSeriesDetailUseCase
-import com.cheeke.surfy.detail.series.SeriesState
-import com.cheeke.surfy.detail.series.SeriesVM
+import com.cheeke.surfy.detail.impl.series.SeriesState
+import com.cheeke.surfy.detail.impl.series.SeriesVM
 import com.cheeke.surfy.testing.model.movieSeriesTestData
 import com.cheeke.surfy.testing.model.testImageList
-import com.cheeke.surfy.testing.repository.TestSeriesDetailRepository
 import com.cheeke.surfy.testing.utils.MainDispatcherRule
-import com.cheeke.surfy.testing.utils.TestAnalyticsHelper
-import com.cheeke.surfy.testing.utils.TestMovieAppDataManager
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -25,7 +25,7 @@ class SeriesVMTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
     private lateinit var testDetailRepository: TestSeriesDetailRepository
-    private lateinit var testMovieAppDataManager: TestMovieAppDataManager
+    private lateinit var testMovieAppDataManager: TestSurfyAppData
     private lateinit var testAnalyticsHelper: TestAnalyticsHelper
     private lateinit var getSeriesDetailUseCase: GetSeriesDetailUseCase
     private lateinit var seriesVM: SeriesVM
@@ -33,7 +33,7 @@ class SeriesVMTest {
     @Before
     fun setup() {
         testDetailRepository = TestSeriesDetailRepository()
-        testMovieAppDataManager = TestMovieAppDataManager()
+        testMovieAppDataManager = TestSurfyAppData()
         testAnalyticsHelper = TestAnalyticsHelper()
         getSeriesDetailUseCase = GetSeriesDetailUseCase(detailRepository = testDetailRepository)
 

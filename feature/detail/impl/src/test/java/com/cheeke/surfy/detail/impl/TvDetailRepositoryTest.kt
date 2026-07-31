@@ -1,15 +1,13 @@
 package com.cheeke.surfy.detail.impl
 
-import com.cheeke.surfy.core.datastore.InternalDataPreferences
-import com.cheeke.surfy.datastore.InternalDataSource
-import com.cheeke.surfy.datastore_test.InMemoryDataStore
 import com.cheeke.surfy.detail.api.DetailRequestOptionsProvider
 import com.cheeke.surfy.detail.impl.tv.TvDetailRepositoryImpl
-import com.cheeke.surfy.testing.TestTvRemoteDataSource
+import com.cheeke.surfy.network.api.TestTvRemoteDataSource
 import com.cheeke.surfy.testing.model.tvEpisodeTestData
 import com.cheeke.surfy.testing.model.tvSeasonTestData
 import com.cheeke.surfy.testing.model.tvTestData
 import com.cheeke.surfy.testing.utils.MainDispatcherRule
+import com.cheeke.surfy.userdata.api.TestUserDataRepository
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -21,18 +19,16 @@ class TvDetailRepositoryTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
     private lateinit var tvApis: TestTvRemoteDataSource
-    private lateinit var datastore: InternalDataSource
+    private lateinit var userdata: TestUserDataRepository
     private lateinit var repository: TvDetailRepositoryImpl
 
     @Before
     fun setup() {
         tvApis = TestTvRemoteDataSource()
-        datastore = InternalDataSource(
-            datastore = InMemoryDataStore(initialValue = InternalDataPreferences.getDefaultInstance())
-        )
+        userdata = TestUserDataRepository()
         repository = TvDetailRepositoryImpl(
             apis = tvApis,
-            requestOptionsProvider = DetailRequestOptionsProvider(datastore = datastore),
+            requestOptionsProvider = DetailRequestOptionsProvider(userdataRepository = userdata),
         )
     }
 

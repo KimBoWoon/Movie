@@ -29,7 +29,7 @@ import com.cheeke.surfy.testing.model.languageListTestData
 import com.cheeke.surfy.testing.model.movieSeriesTestData
 import com.cheeke.surfy.testing.model.regionTestData
 import com.cheeke.surfy.testing.repository.TestSeriesDetailRepository
-import com.cheeke.surfy.testing.utils.TestMovieAppDataManager
+import com.cheeke.surfy.testing.utils.TestSurfyAppData
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
@@ -41,7 +41,7 @@ class SeriesScreenTest {
     private lateinit var viewModel: SeriesVM
     private lateinit var savedStateHandle: SavedStateHandle
     private lateinit var testDetailRepository: TestSeriesDetailRepository
-    private lateinit var testMovieAppDataManager: TestMovieAppDataManager
+    private lateinit var testMovieAppDataManager: TestSurfyAppData
     private lateinit var getSeriesDetailUseCase: GetSeriesDetailUseCase
     private lateinit var title: String
     private lateinit var message: String
@@ -81,7 +81,7 @@ class SeriesScreenTest {
             this@SeriesScreenTest.confirmString = getString(com.cheeke.surfy.core.ui.R.string.retry_message)
             this@SeriesScreenTest.dismissString = getString(com.cheeke.surfy.core.ui.R.string.back_message)
         }
-        testMovieAppDataManager = TestMovieAppDataManager()
+        testMovieAppDataManager = TestSurfyAppData()
         testMovieAppDataManager.setMovieAppData(surfyAppData)
     }
 

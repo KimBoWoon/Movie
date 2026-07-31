@@ -3,20 +3,19 @@ package com.cheeke.surfy.search.impl
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.paging.PagingSource
+import com.cheeke.surfy.analytics.api.TestAnalyticsHelper
+import com.cheeke.surfy.datamanager.api.TestSurfyAppData
 import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.model.SearchKeyword
 import com.cheeke.surfy.model.SearchType
+import com.cheeke.surfy.network.api.TestSearchRemoteDataSource
+import com.cheeke.surfy.search.api.TestKeywordDataBaseRepository
 import com.cheeke.surfy.search.impl.paging.RecommendKeywordPagingSource
 import com.cheeke.surfy.search.impl.paging.SearchPagingSource
-import com.cheeke.surfy.testing.TestSearchRemoteDataSource
 import com.cheeke.surfy.testing.model.movieSearchTestData
 import com.cheeke.surfy.testing.model.testRecommendedKeyword
-import com.cheeke.surfy.testing.repository.TestKeywordDataBaseRepository
-import com.cheeke.surfy.testing.repository.TestPagingRepository
-import com.cheeke.surfy.testing.repository.TestUserDataRepository
 import com.cheeke.surfy.testing.utils.MainDispatcherRule
-import com.cheeke.surfy.testing.utils.TestAnalyticsHelper
-import com.cheeke.surfy.testing.utils.TestMovieAppDataManager
+import com.cheeke.surfy.userdata.api.TestUserDataRepository
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -32,9 +31,8 @@ class SearchVMTest {
     val mainDispatcherRule = MainDispatcherRule()
     private lateinit var viewModel: SearchVM
     private lateinit var savedStateHandle: SavedStateHandle
-    private lateinit var testPagingRepository: TestPagingRepository
     private lateinit var testUserDataRepository: TestUserDataRepository
-    private lateinit var testMovieAppDataManager: TestMovieAppDataManager
+    private lateinit var testMovieAppDataManager: TestSurfyAppData
     private lateinit var testKeywordDataBaseRepository: TestKeywordDataBaseRepository
     private lateinit var testAnalyticsHelper: TestAnalyticsHelper
     private lateinit var apis: TestSearchRemoteDataSource
@@ -42,9 +40,8 @@ class SearchVMTest {
     @Before
     fun setup() {
         savedStateHandle = SavedStateHandle()
-        testPagingRepository = TestPagingRepository()
         testUserDataRepository = TestUserDataRepository()
-        testMovieAppDataManager = TestMovieAppDataManager()
+        testMovieAppDataManager = TestSurfyAppData()
         testKeywordDataBaseRepository = TestKeywordDataBaseRepository()
         testAnalyticsHelper = TestAnalyticsHelper()
         apis = TestSearchRemoteDataSource()
@@ -53,9 +50,9 @@ class SearchVMTest {
             initialSearchType = SearchType.MOVIE,
             savedStateHandle = savedStateHandle,
             dataManager = testMovieAppDataManager,
-            pagingRepository = testPagingRepository,
             keywordDataBaseRepository = testKeywordDataBaseRepository,
-            analyticsHelper = testAnalyticsHelper
+            analyticsHelper = testAnalyticsHelper,
+            searchApis = TestSearchRemoteDataSource()
         )
     }
 

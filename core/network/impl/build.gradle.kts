@@ -30,6 +30,7 @@ dependencies {
 
     arrayOf(
         project(":core:testing"),
+        testFixtures(project(":core:network:api")),
         libs.retrofit2,
         libs.kotlinx.serialization.converter,
         libs.okhttp.mockWebServer,

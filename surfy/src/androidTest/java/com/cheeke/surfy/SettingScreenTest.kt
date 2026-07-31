@@ -12,11 +12,11 @@ import com.cheeke.surfy.testing.model.configurationTestData
 import com.cheeke.surfy.testing.model.genreListTestData
 import com.cheeke.surfy.testing.model.languageListTestData
 import com.cheeke.surfy.testing.model.regionTestData
-import com.cheeke.surfy.testing.repository.TestUserDataRepository
-import com.cheeke.surfy.testing.utils.TestMovieAppDataManager
+import com.cheeke.surfy.testing.utils.TestSurfyAppData
 import com.cheeke.surfy.ui.setting.SettingScreen
 import com.cheeke.surfy.ui.setting.SettingVM
 import com.cheeke.surfy.ui.setting.SettingsAction
+import com.cheeke.surfy.userdata.api.TestUserDataRepository
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -26,7 +26,7 @@ class SettingScreenTest {
     val composeTestRule = createComposeRule()
     private lateinit var viewModel: SettingVM
     private lateinit var testUserDataRepository: TestUserDataRepository
-    private lateinit var testMovieAppDataManager: TestMovieAppDataManager
+    private lateinit var testMovieAppDataManager: TestSurfyAppData
     private val surfyAppData = SurfyAppData(
         secureBaseUrl = configurationTestData.images?.secureBaseUrl ?: "",
         movieGenres = genreListTestData.genres.orEmpty(),
@@ -52,7 +52,7 @@ class SettingScreenTest {
     @Before
     fun setup() {
         testUserDataRepository = TestUserDataRepository()
-        testMovieAppDataManager = TestMovieAppDataManager()
+        testMovieAppDataManager = TestSurfyAppData()
         viewModel = SettingVM(
             userDataRepository = testUserDataRepository,
             dataManager = testMovieAppDataManager

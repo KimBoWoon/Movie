@@ -7,18 +7,16 @@ import androidx.work.ListenableWorker
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
 import androidx.work.testing.TestListenableWorkerBuilder
-import com.cheeke.surfy.data.repository.UserDataRepository
-import com.cheeke.surfy.notifications.Notifier
-import com.cheeke.surfy.notifications.SystemTrayNotifier
-import com.cheeke.surfy.sync.workers.MidnightSyncWorker
-import com.cheeke.surfy.sync.workers.delegatedData
-import com.cheeke.surfy.testing.TestSyncRemoteDataSource
-import com.cheeke.surfy.testing.repository.TestMovieDatabaseRepository
-import com.cheeke.surfy.testing.repository.TestSyncRepository
-import com.cheeke.surfy.testing.repository.TestUserDataRepository
+import com.cheeke.surfy.detail.api.TestMovieDatabaseRepository
+import com.cheeke.surfy.network.api.TestSyncRemoteDataSource
+import com.cheeke.surfy.sync.api.SyncRepository
+import com.cheeke.surfy.sync.api.TestSyncRepository
+import com.cheeke.surfy.sync.impl.workers.MidnightSyncWorker
+import com.cheeke.surfy.sync.impl.workers.delegatedData
+import com.cheeke.surfy.userdata.api.TestUserDataRepository
+import com.cheeke.surfy.userdata.api.UserDataRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -32,7 +30,6 @@ class MidnightSyncWorkerTest {
     private lateinit var syncRepository: TestSyncRepository
     private lateinit var userDataRepository: TestUserDataRepository
     private lateinit var databaseRepository: TestMovieDatabaseRepository
-    private lateinit var notifier: Notifier
 
     @Before
     fun setup() {
@@ -41,11 +38,6 @@ class MidnightSyncWorkerTest {
         syncRepository = TestSyncRepository()
         userDataRepository = TestUserDataRepository()
         databaseRepository = TestMovieDatabaseRepository()
-        notifier = SystemTrayNotifier(
-            context = context,
-            ioDispatcher = UnconfinedTestDispatcher(),
-            userDataRepository = userDataRepository
-        )
     }
 
     @Test
@@ -57,8 +49,6 @@ class MidnightSyncWorkerTest {
                 TestWorkerFactory(
                     syncRepository = syncRepository,
                     userDataRepository = userDataRepository,
-                    databaseRepository = databaseRepository,
-                    notifier = notifier
                 )
             ).setInputData(MidnightSyncWorker::class.delegatedData(isForce = false))
             .build()
@@ -77,8 +67,6 @@ class MidnightSyncWorkerTest {
                 TestWorkerFactory(
                     syncRepository = syncRepository,
                     userDataRepository = userDataRepository,
-                    databaseRepository = databaseRepository,
-                    notifier = notifier
                 )
             ).setInputData(MidnightSyncWorker::class.delegatedData(isForce = true))
             .build()
@@ -95,8 +83,6 @@ class MidnightSyncWorkerTest {
                 TestWorkerFactory(
                     syncRepository = syncRepository,
                     userDataRepository = userDataRepository,
-                    databaseRepository = databaseRepository,
-                    notifier = notifier
                 )
             ).setRunAttemptCount(6).build()
 
@@ -112,8 +98,6 @@ class MidnightSyncWorkerTest {
                 TestWorkerFactory(
                     syncRepository = syncRepository,
                     userDataRepository = userDataRepository,
-                    databaseRepository = databaseRepository,
-                    notifier = notifier
                 )
             ).setRunAttemptCount(2).build()
 
@@ -125,9 +109,7 @@ class MidnightSyncWorkerTest {
 
 class TestWorkerFactory(
     private val syncRepository: SyncRepository,
-    private val userDataRepository: UserDataRepository,
-    private val databaseRepository: DatabaseRepository,
-    private val notifier: Notifier
+    private val userDataRepository: UserDataRepository
 ) : WorkerFactory() {
     override fun createWorker(
         appContext: Context,
@@ -139,7 +121,5 @@ class TestWorkerFactory(
         ioDispatcher = Dispatchers.Unconfined,
         userDateRepository = userDataRepository,
         syncRepository = syncRepository,
-        databaseRepository = databaseRepository,
-        notifier = notifier
     )
 }

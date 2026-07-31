@@ -1,8 +1,8 @@
 package com.cheeke.surfy.userdata.impl
 
 import com.cheeke.surfy.model.DarkThemeConfig
-import com.cheeke.surfy.testing.repository.TestUserDataRepository
 import com.cheeke.surfy.testing.utils.MainDispatcherRule
+import com.cheeke.surfy.userdata.api.TestUserDataRepository
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Before

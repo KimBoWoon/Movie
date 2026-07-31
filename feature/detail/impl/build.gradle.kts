@@ -33,6 +33,11 @@ dependencies {
     testImplementation(libs.androidx.paging.testing)
     testImplementation(libs.androidx.paging.common)
     testImplementation(libs.turbine)
+    testImplementation(testFixtures(project(":feature:detail:api")))
+    testImplementation(testFixtures(project(":core:userdata:api")))
+    testImplementation(testFixtures(project(":core:datamanager:api")))
+    testImplementation(testFixtures(project(":core:network:api")))
+    testImplementation(testFixtures(project(":core:analytics:api")))
 
     androidTestImplementation(project(":core:testing"))
 }

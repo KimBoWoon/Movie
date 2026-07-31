@@ -4,26 +4,25 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.paging.testing.TestPager
 import androidx.paging.testing.asSnapshot
+import com.cheeke.surfy.analytics.api.TestAnalyticsHelper
+import com.cheeke.surfy.detail.api.TestMovieDatabaseRepository
+import com.cheeke.surfy.detail.api.TestMovieDetailRepository
 import com.cheeke.surfy.detail.impl.movie.GetMovieDetailUseCase
+import com.cheeke.surfy.detail.impl.movie.MovieState
+import com.cheeke.surfy.detail.impl.movie.MovieVM
 import com.cheeke.surfy.detail.impl.paging.MovieReviewPagingSource
 import com.cheeke.surfy.detail.impl.paging.SimilarMoviePagingSource
-import com.cheeke.surfy.detail.movie.MovieState
-import com.cheeke.surfy.detail.movie.MovieVM
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.Review
 import com.cheeke.surfy.model.SimilarMedia
-import com.cheeke.surfy.testing.TestMovieRemoteDataSource
+import com.cheeke.surfy.network.api.TestMovieRemoteDataSource
 import com.cheeke.surfy.testing.model.favoriteMovieDetailTestData
 import com.cheeke.surfy.testing.model.movieSeriesTestData
 import com.cheeke.surfy.testing.model.similarMoviesTestData
 import com.cheeke.surfy.testing.model.testMovieReviews
 import com.cheeke.surfy.testing.model.unFavoriteMovieDetailTestData
-import com.cheeke.surfy.testing.repository.TestMovieDatabaseRepository
-import com.cheeke.surfy.testing.repository.TestMovieDetailRepository
-import com.cheeke.surfy.testing.repository.TestPagingRepository
-import com.cheeke.surfy.testing.repository.TestUserDataRepository
 import com.cheeke.surfy.testing.utils.MainDispatcherRule
-import com.cheeke.surfy.testing.utils.TestAnalyticsHelper
+import com.cheeke.surfy.userdata.api.TestUserDataRepository
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -45,7 +44,6 @@ class MovieVMTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
     private val testDataBaseRepository = TestMovieDatabaseRepository()
-    private val testPagingRepository = TestPagingRepository()
     private val testDetailRepository = TestMovieDetailRepository()
     private val testUserDataRepository = TestUserDataRepository()
     private val testAnalyticsHelper = TestAnalyticsHelper()
@@ -62,9 +60,9 @@ class MovieVMTest {
             id = 0,
             movieDataBaseRepository = testDataBaseRepository,
             getMovieDetail = getMovieDetailUseCase,
-            pagingRepository = testPagingRepository,
             analyticsHelper = testAnalyticsHelper,
-            userDataRepository = testUserDataRepository
+            userDataRepository = testUserDataRepository,
+            movieApis = TestMovieRemoteDataSource()
         )
         runBlocking {
             testDataBaseRepository.insert(media = Movie(id = 0, title = "movie_1", posterPath = "/movieImagePath.png"))
@@ -78,7 +76,7 @@ class MovieVMTest {
 
         val testPager = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 7, prefetchDistance = 5),
-            pagingSource = testPagingRepository.getSimilarMoviePagingSource(id = 0, language = "ko", region = "KR")
+            pagingSource = viewModel.getSimilarMoviePagingSource(id = 0, language = "ko", region = "KR")
         )
 
         assertEquals(viewModel.movie.value, MovieState.Loading)
@@ -109,15 +107,15 @@ class MovieVMTest {
             id = 324,
             getMovieDetail = getMovieDetailUseCase,
             movieDataBaseRepository = testDataBaseRepository,
-            pagingRepository = testPagingRepository,
             analyticsHelper = testAnalyticsHelper,
-            userDataRepository = testUserDataRepository
+            userDataRepository = testUserDataRepository,
+            movieApis = TestMovieRemoteDataSource()
         )
         backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.movie.collect() }
 
         val testPager = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 7, prefetchDistance = 5),
-            pagingSource = testPagingRepository.getSimilarMoviePagingSource(id = 324, language = "ko", region = "KR")
+            pagingSource = viewModel.getSimilarMoviePagingSource(id = 324, language = "ko", region = "KR")
         )
 
         assertEquals(viewModel.movie.value, MovieState.Loading)
@@ -206,9 +204,9 @@ class MovieVMTest {
             id = 23,
             getMovieDetail = getMovieDetailUseCase,
             movieDataBaseRepository = testDataBaseRepository,
-            pagingRepository = testPagingRepository,
             analyticsHelper = testAnalyticsHelper,
-            userDataRepository = testUserDataRepository
+            userDataRepository = testUserDataRepository,
+            movieApis = TestMovieRemoteDataSource()
         )
 
         backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.movie.collect() }

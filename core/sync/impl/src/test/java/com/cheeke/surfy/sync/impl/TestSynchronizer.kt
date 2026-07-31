@@ -1,21 +1,21 @@
 package com.cheeke.surfy.sync.impl
 
-import com.cheeke.surfy.datastore.InternalDataSource
-import com.cheeke.surfy.sync.repository.Synchronizer
+import com.cheeke.surfy.sync.api.Synchronizer
+import com.cheeke.surfy.userdata.api.TestUserDataRepository
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 
 /**
  * Test synchronizer that delegates to DataStore
  */
-class TestSynchronizer(
-    private val datastore: InternalDataSource
-) : Synchronizer {
+class TestSynchronizer : Synchronizer {
+    private val userData = TestUserDataRepository()
+
     override suspend fun getVersion(): String =
-        datastore.userData.map { it.updateDate }.firstOrNull().orEmpty()
+        userData.internalData.map { it.updateDate }.firstOrNull().orEmpty()
 
     override suspend fun updateVersion(update: () -> String) {
-        datastore.updateMainDate(value = update())
+        userData.updateMainDate(value = update())
     }
 
     override fun getSyncInputData(): List<Pair<String, Any?>> = mutableListOf(

@@ -107,6 +107,9 @@ lottieCompose = "6.7.1"
 uiautomator = "2.3.0"
 benchmarkMacroJunit4 = "1.4.1"
 
+# coroutine
+kotlinxCoroutinesCore = "1.11.0"
+
 [libraries]
 # gradle plugin
 android-gradle = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
@@ -121,6 +124,7 @@ androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-activity = { group = "androidx.activity", name = "activity-ktx", version.ref = "activity" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-fragment = { group = "androidx.fragment", name = "fragment-ktx", version.ref = "jetpack-fragment" }
 androidx-datastore = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore"}

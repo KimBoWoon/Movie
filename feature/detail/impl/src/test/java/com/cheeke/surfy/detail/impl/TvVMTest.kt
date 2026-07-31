@@ -1,20 +1,20 @@
 package com.cheeke.surfy.detail.impl
 
+import com.cheeke.surfy.analytics.api.TestAnalyticsHelper
+import com.cheeke.surfy.detail.api.TestTvDatabaseRepository
+import com.cheeke.surfy.detail.api.TestTvDetailRepository
 import com.cheeke.surfy.detail.impl.tv.GetTvDetailUseCase
 import com.cheeke.surfy.detail.impl.tv.TvSeasonLoadState
-import com.cheeke.surfy.detail.tv.TvState
-import com.cheeke.surfy.detail.tv.TvUiState
-import com.cheeke.surfy.detail.tv.TvVM
+import com.cheeke.surfy.detail.impl.tv.TvState
+import com.cheeke.surfy.detail.impl.tv.TvUiState
+import com.cheeke.surfy.detail.impl.tv.TvVM
 import com.cheeke.surfy.model.Tv
 import com.cheeke.surfy.model.TvEpisode
 import com.cheeke.surfy.model.TvSeason
 import com.cheeke.surfy.model.TvSeasons
-import com.cheeke.surfy.testing.repository.TestPagingRepository
-import com.cheeke.surfy.testing.repository.TestTvDatabaseRepository
-import com.cheeke.surfy.testing.repository.TestTvDetailRepository
-import com.cheeke.surfy.testing.repository.TestUserDataRepository
+import com.cheeke.surfy.network.api.TestTvRemoteDataSource
 import com.cheeke.surfy.testing.utils.MainDispatcherRule
-import com.cheeke.surfy.testing.utils.TestAnalyticsHelper
+import com.cheeke.surfy.userdata.api.TestUserDataRepository
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -31,7 +31,6 @@ class TvVMTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
     private val testDataBaseRepository = TestTvDatabaseRepository()
-    private val testPagingRepository = TestPagingRepository()
     private val testDetailRepository = TestTvDetailRepository()
     private val testUserDataRepository = TestUserDataRepository()
     private val testAnalyticsHelper = TestAnalyticsHelper()
@@ -63,10 +62,10 @@ class TvVMTest {
         viewModel = TvVM(
             id = 0,
             tvDataBaseRepository = testDataBaseRepository,
-            pagingRepository = testPagingRepository,
             getTvDetailUseCase = getTvDetailUseCase,
             analyticsHelper = testAnalyticsHelper,
-            userDataRepository = testUserDataRepository
+            userDataRepository = testUserDataRepository,
+            tvApis = TestTvRemoteDataSource()
         )
     }
 

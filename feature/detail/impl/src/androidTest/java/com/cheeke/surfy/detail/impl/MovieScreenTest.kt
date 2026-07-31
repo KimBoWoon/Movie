@@ -38,7 +38,7 @@ import com.cheeke.surfy.testing.repository.TestMovieDatabaseRepository
 import com.cheeke.surfy.testing.repository.TestMovieDetailRepository
 import com.cheeke.surfy.testing.repository.TestPagingRepository
 import com.cheeke.surfy.testing.repository.TestUserDataRepository
-import com.cheeke.surfy.testing.utils.TestMovieAppDataManager
+import com.cheeke.surfy.testing.utils.TestSurfyAppData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -57,7 +57,7 @@ class MovieScreenTest {
     private lateinit var testDatabaseRepository: TestMovieDatabaseRepository
     private lateinit var testDetailRepository: TestMovieDetailRepository
     private lateinit var testPagingRepository: TestPagingRepository
-    private lateinit var testMovieAppDataManager: TestMovieAppDataManager
+    private lateinit var testMovieAppDataManager: TestSurfyAppData
     private val surfyAppData = SurfyAppData(
         secureBaseUrl = configurationTestData.images?.secureBaseUrl.orEmpty(),
         movieGenres = genreListTestData.genres.orEmpty(),
@@ -82,7 +82,7 @@ class MovieScreenTest {
         testDetailRepository = TestMovieDetailRepository()
         testDatabaseRepository = TestMovieDatabaseRepository()
         testPagingRepository = TestPagingRepository()
-        testMovieAppDataManager = TestMovieAppDataManager()
+        testMovieAppDataManager = TestSurfyAppData()
         movieDetailUseCase = GetMovieDetailUseCase(
             userDataRepository = testUserDataRepository,
             movieDataBaseRepository = testDatabaseRepository,

@@ -1,7 +1,7 @@
 package com.cheeke.surfy.database.impl
 
 import androidx.paging.PagingSource
-import com.cheeke.surfy.database.model.PeopleEntity
+import com.cheeke.surfy.database.impl.model.PeopleEntity
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Test

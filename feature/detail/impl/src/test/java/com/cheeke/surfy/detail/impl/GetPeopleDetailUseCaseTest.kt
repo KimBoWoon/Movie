@@ -1,13 +1,14 @@
 package com.cheeke.surfy.detail.impl
 
+import com.cheeke.surfy.datamanager.api.TestSurfyAppData
+import com.cheeke.surfy.detail.api.TestPeopleDatabaseRepository
+import com.cheeke.surfy.detail.api.TestPeopleDetailRepository
+import com.cheeke.surfy.detail.impl.people.GetPeopleDetailUseCase
 import com.cheeke.surfy.model.People
 import com.cheeke.surfy.testing.model.combineCreditsTestData
 import com.cheeke.surfy.testing.model.externalIdsTestData
 import com.cheeke.surfy.testing.model.peopleDetailTestData
-import com.cheeke.surfy.testing.repository.TestPeopleDatabaseRepository
-import com.cheeke.surfy.testing.repository.TestPeopleDetailRepository
 import com.cheeke.surfy.testing.utils.MainDispatcherRule
-import com.cheeke.surfy.testing.utils.TestMovieAppDataManager
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -21,14 +22,14 @@ class GetPeopleDetailUseCaseTest {
     val mainDispatcherRule = MainDispatcherRule()
     private lateinit var detailRepository: TestPeopleDetailRepository
     private lateinit var peopleDataBaseRepository: TestPeopleDatabaseRepository
-    private lateinit var movieAppDataRepository: TestMovieAppDataManager
+    private lateinit var movieAppDataRepository: TestSurfyAppData
     private lateinit var getPeopleDetailUseCase: GetPeopleDetailUseCase
 
     @Before
     fun setup() {
         detailRepository = TestPeopleDetailRepository()
         peopleDataBaseRepository = TestPeopleDatabaseRepository()
-        movieAppDataRepository = TestMovieAppDataManager()
+        movieAppDataRepository = TestSurfyAppData()
         getPeopleDetailUseCase = GetPeopleDetailUseCase(
             detailRepository = detailRepository,
             peopleDataBaseRepository = peopleDataBaseRepository

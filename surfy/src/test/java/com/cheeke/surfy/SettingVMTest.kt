@@ -1,12 +1,12 @@
 package com.cheeke.surfy
 
+import com.cheeke.surfy.datamanager.api.TestSurfyAppData
 import com.cheeke.surfy.model.DarkThemeConfig
-import com.cheeke.surfy.testing.repository.TestUserDataRepository
 import com.cheeke.surfy.testing.utils.MainDispatcherRule
-import com.cheeke.surfy.testing.utils.TestMovieAppDataManager
 import com.cheeke.surfy.ui.setting.SettingVM
 import com.cheeke.surfy.ui.setting.SettingsSheet
 import com.cheeke.surfy.ui.setting.SettingsUiState
+import com.cheeke.surfy.userdata.api.TestUserDataRepository
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -22,7 +22,7 @@ class SettingVMTest {
     val mainDispatcherRule = MainDispatcherRule()
     private lateinit var viewModel: SettingVM
     private lateinit var testUserDataRepository: TestUserDataRepository
-    private lateinit var testMovieAppDataManager: TestMovieAppDataManager
+    private lateinit var testMovieAppDataManager: TestSurfyAppData
     private val settingUiState = SettingsUiState(
         sheet = SettingsSheet.Hidden,
         mainUpdateDate = "",
@@ -46,7 +46,7 @@ class SettingVMTest {
     @Before
     fun setup() {
         testUserDataRepository = TestUserDataRepository()
-        testMovieAppDataManager = TestMovieAppDataManager()
+        testMovieAppDataManager = TestSurfyAppData()
         viewModel = SettingVM(
             userDataRepository = testUserDataRepository,
             dataManager = testMovieAppDataManager

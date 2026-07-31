@@ -19,8 +19,8 @@ import com.cheeke.surfy.testing.model.testTrendingTv
 import com.cheeke.surfy.testing.model.upComingMovieTest
 import com.cheeke.surfy.testing.repository.TestMovieDatabaseRepository
 import com.cheeke.surfy.testing.repository.TestPagingRepository
-import com.cheeke.surfy.testing.utils.TestMovieAppDataManager
 import com.cheeke.surfy.testing.utils.TestNetworkMonitor
+import com.cheeke.surfy.testing.utils.TestSurfyAppData
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -30,7 +30,7 @@ class HomeScreenTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<ComponentActivity>()
     private lateinit var viewModel: HomeVM
-    private lateinit var dataManager: TestMovieAppDataManager
+    private lateinit var dataManager: TestSurfyAppData
     private lateinit var testDatabaseRepository: TestMovieDatabaseRepository
     private lateinit var testPagingRepository: TestPagingRepository
     private lateinit var testNetworkMonitor: TestNetworkMonitor
@@ -38,7 +38,7 @@ class HomeScreenTest {
     @Before
     fun setup() {
         testDatabaseRepository = TestMovieDatabaseRepository()
-        dataManager = TestMovieAppDataManager()
+        dataManager = TestSurfyAppData()
         testPagingRepository = TestPagingRepository()
         testNetworkMonitor = TestNetworkMonitor()
         viewModel = HomeVM(

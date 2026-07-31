@@ -1,6 +1,6 @@
 package com.cheeke.surfy.userdata.impl
 
-import com.cheeke.surfy.core.datastore.InternalDataPreferences
+import com.cheeke.surfy.core.userdata.InternalDataPreferences
 import com.cheeke.surfy.model.DarkThemeConfig
 import com.cheeke.surfy.testing.utils.MainDispatcherRule
 import com.cheeke.surfy.userdata.impl.test.InMemoryDataStore

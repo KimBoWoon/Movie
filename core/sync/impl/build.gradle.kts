@@ -27,6 +27,14 @@ dependencies {
 
     ksp(libs.hilt.ext.compiler)
 
+    testImplementation(testFixtures(project(":core:network:api")))
+    testImplementation(testFixtures(project(":core:sync:api")))
+    testImplementation(testFixtures(project(":core:userdata:api")))
+
     androidTestImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.work.testing)
+    androidTestImplementation(testFixtures(project(":core:userdata:api")))
+    androidTestImplementation(testFixtures(project(":core:network:api")))
+    androidTestImplementation(testFixtures(project(":core:sync:api")))
+    androidTestImplementation(testFixtures(project(":feature:detail:api")))
 }

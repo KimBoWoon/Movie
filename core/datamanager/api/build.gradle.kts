@@ -11,6 +11,10 @@ android {
             isReturnDefaultValues = true
         }
     }
+
+    testFixtures {
+        enable = true
+    }
 }
 
 dependencies {
@@ -19,4 +23,7 @@ dependencies {
     ).forEach {
         api(it)
     }
+
+    testFixturesImplementation("androidx.annotation:annotation:1.10.0")
+    testFixturesImplementation(libs.kotlinx.coroutines.core)
 }

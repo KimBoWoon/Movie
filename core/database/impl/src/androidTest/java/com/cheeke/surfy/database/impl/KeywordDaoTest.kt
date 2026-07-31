@@ -1,7 +1,7 @@
 package com.cheeke.surfy.database.impl
 
 import androidx.paging.PagingSource
-import com.cheeke.surfy.database.model.KeywordEntity
+import com.cheeke.surfy.database.impl.model.KeywordEntity
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import kotlin.test.assertEquals

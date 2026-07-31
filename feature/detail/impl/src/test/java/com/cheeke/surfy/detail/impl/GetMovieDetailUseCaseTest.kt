@@ -1,5 +1,9 @@
 package com.cheeke.surfy.detail.impl
 
+import com.cheeke.surfy.datamanager.api.TestSurfyAppData
+import com.cheeke.surfy.detail.api.TestMovieDatabaseRepository
+import com.cheeke.surfy.detail.api.TestMovieDetailRepository
+import com.cheeke.surfy.detail.impl.movie.GetMovieDetailUseCase
 import com.cheeke.surfy.model.LocaleOption
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.PosterSize
@@ -11,12 +15,8 @@ import com.cheeke.surfy.testing.model.languageListTestData
 import com.cheeke.surfy.testing.model.movieSeriesTestData
 import com.cheeke.surfy.testing.model.regionTestData
 import com.cheeke.surfy.testing.model.unFavoriteMovieDetailTestData
-import com.cheeke.surfy.testing.repository.TestMovieDatabaseRepository
-import com.cheeke.surfy.testing.repository.TestMovieDetailRepository
-import com.cheeke.surfy.testing.repository.TestPagingRepository
-import com.cheeke.surfy.testing.repository.TestUserDataRepository
 import com.cheeke.surfy.testing.utils.MainDispatcherRule
-import com.cheeke.surfy.testing.utils.TestMovieAppDataManager
+import com.cheeke.surfy.userdata.api.TestUserDataRepository
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -32,16 +32,14 @@ class GetMovieDetailUseCaseTest {
     private lateinit var movieDataBaseRepository: TestMovieDatabaseRepository
     private lateinit var userDataRepository: TestUserDataRepository
     private lateinit var getMovieDetailUseCase: GetMovieDetailUseCase
-    private lateinit var movieAppDataRepository: TestMovieAppDataManager
-    private lateinit var testPagingRepository: TestPagingRepository
+    private lateinit var movieAppDataRepository: TestSurfyAppData
 
     @Before
     fun setup() {
         detailRepository = TestMovieDetailRepository()
         movieDataBaseRepository = TestMovieDatabaseRepository()
         userDataRepository = TestUserDataRepository()
-        movieAppDataRepository = TestMovieAppDataManager()
-        testPagingRepository = TestPagingRepository()
+        movieAppDataRepository = TestSurfyAppData()
         getMovieDetailUseCase = GetMovieDetailUseCase(
             userDataRepository = userDataRepository,
             detailRepository = detailRepository,

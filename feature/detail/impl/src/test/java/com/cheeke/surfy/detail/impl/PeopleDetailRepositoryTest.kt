@@ -1,13 +1,13 @@
 package com.cheeke.surfy.detail.impl
 
-import com.cheeke.surfy.core.datastore.InternalDataPreferences
-import com.cheeke.surfy.datastore.InternalDataSource
-import com.cheeke.surfy.datastore_test.InMemoryDataStore
-import com.cheeke.surfy.testing.TestPeopleRemoteDataSource
+import com.cheeke.surfy.detail.api.DetailRequestOptionsProvider
+import com.cheeke.surfy.detail.impl.people.PeopleDetailRepositoryImpl
+import com.cheeke.surfy.network.api.TestPeopleRemoteDataSource
 import com.cheeke.surfy.testing.model.combineCreditsTestData
 import com.cheeke.surfy.testing.model.externalIdsTestData
 import com.cheeke.surfy.testing.model.peopleDetailTestData
 import com.cheeke.surfy.testing.utils.MainDispatcherRule
+import com.cheeke.surfy.userdata.api.TestUserDataRepository
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -19,18 +19,16 @@ class PeopleDetailRepositoryTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
     private lateinit var movieApis: TestPeopleRemoteDataSource
-    private lateinit var datastore: InternalDataSource
+    private lateinit var userdata: TestUserDataRepository
     private lateinit var repository: PeopleDetailRepositoryImpl
 
     @Before
     fun setup() {
         movieApis = TestPeopleRemoteDataSource()
-        datastore = InternalDataSource(
-            datastore = InMemoryDataStore(initialValue = InternalDataPreferences.getDefaultInstance())
-        )
+        userdata = TestUserDataRepository()
         repository = PeopleDetailRepositoryImpl(
             apis = movieApis,
-            requestOptionsProvider = DetailRequestOptionsProvider(datastore = datastore),
+            requestOptionsProvider = DetailRequestOptionsProvider(userdataRepository = userdata),
         )
     }
 

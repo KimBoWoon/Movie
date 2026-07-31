@@ -26,7 +26,7 @@ import com.cheeke.surfy.testing.model.testRecommendedKeyword
 import com.cheeke.surfy.testing.repository.TestKeywordDataBaseRepository
 import com.cheeke.surfy.testing.repository.TestPagingRepository
 import com.cheeke.surfy.testing.repository.TestUserDataRepository
-import com.cheeke.surfy.testing.utils.TestMovieAppDataManager
+import com.cheeke.surfy.testing.utils.TestSurfyAppData
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -43,7 +43,7 @@ class SearchScreenTest {
     private lateinit var testPagingRepository: TestPagingRepository
     private lateinit var testUserDataRepository: TestUserDataRepository
     private lateinit var testKeywordDataBaseRepository: TestKeywordDataBaseRepository
-    private lateinit var movieAppDataRepository: TestMovieAppDataManager
+    private lateinit var movieAppDataRepository: TestSurfyAppData
     private val genres = genreListTestData.genres.orEmpty()
 
     @Before
@@ -51,7 +51,7 @@ class SearchScreenTest {
         savedStateHandle = SavedStateHandle()
         testPagingRepository = TestPagingRepository()
         testUserDataRepository = TestUserDataRepository()
-        movieAppDataRepository = TestMovieAppDataManager()
+        movieAppDataRepository = TestSurfyAppData()
         testKeywordDataBaseRepository = TestKeywordDataBaseRepository()
         movieAppDataRepository.setMovieAppData(surfyAppData = SurfyAppData(movieGenres = genres))
         viewModel = SearchVM(

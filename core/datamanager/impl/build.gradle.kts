@@ -12,6 +12,10 @@ android {
             isReturnDefaultValues = true
         }
     }
+
+    testFixtures {
+        enable = true
+    }
 }
 
 dependencies {

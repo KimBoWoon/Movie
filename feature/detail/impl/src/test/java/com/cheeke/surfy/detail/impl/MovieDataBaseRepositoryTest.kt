@@ -3,9 +3,11 @@ package com.cheeke.surfy.detail.impl
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.paging.testing.TestPager
-import com.cheeke.surfy.database.model.MovieEntity
-import com.cheeke.surfy.database.model.NowPlayingMovieEntity
-import com.cheeke.surfy.database.model.asExternalModel
+import com.cheeke.surfy.database.impl.model.MovieEntity
+import com.cheeke.surfy.database.impl.model.NowPlayingMovieEntity
+import com.cheeke.surfy.database.impl.model.asExternalModel
+import com.cheeke.surfy.detail.api.TestMovieDao
+import com.cheeke.surfy.detail.impl.movie.MovieRepositoryImpl
 import com.cheeke.surfy.testing.utils.MainDispatcherRule
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -18,15 +20,15 @@ class MovieDataBaseRepositoryTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
     private val movieDao = TestMovieDao()
-    private val repository = MovieDataBaseRepositoryImpl(movieDao = movieDao)
+    private val repository = MovieRepositoryImpl(movieDao = movieDao)
     private val movie = MovieEntity(id = 0, title = "title_0", posterPath = "posterPath_0", releaseDate = "releaseDate", timestamp = 0)
 
     @Test
     fun getFavoriteTest() = runTest {
-        val favoriteMovieSource = repository.getFavorite()
+        val favoriteMovieSource = movieDao.getFavoriteMovie()
         val favoriteMoviePager = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 20, prefetchDistance = 5),
-            pagingSource = repository.getFavorite()
+            pagingSource = movieDao.getFavoriteMovie()
         )
 
         assertEquals(
@@ -60,7 +62,7 @@ class MovieDataBaseRepositoryTest {
     fun insert() = runTest {
         val favoritePagerBeforeInsert = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 20, prefetchDistance = 5),
-            pagingSource = repository.getFavorite()
+            pagingSource = movieDao.getFavoriteMovie()
         )
 
         var result = favoritePagerBeforeInsert.refresh() as PagingSource.LoadResult.Page
@@ -71,7 +73,7 @@ class MovieDataBaseRepositoryTest {
 
         val favoritePagerAfterInsert = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 20, prefetchDistance = 5),
-            pagingSource = repository.getFavorite()
+            pagingSource = movieDao.getFavoriteMovie()
         )
 
         result = favoritePagerAfterInsert.refresh() as PagingSource.LoadResult.Page
@@ -84,7 +86,7 @@ class MovieDataBaseRepositoryTest {
     fun delete() = runTest {
         val favoritePagerBeforeInsert = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 20, prefetchDistance = 5),
-            pagingSource = repository.getFavorite()
+            pagingSource = movieDao.getFavoriteMovie()
         )
 
         var result = favoritePagerBeforeInsert.refresh() as PagingSource.LoadResult.Page
@@ -95,7 +97,7 @@ class MovieDataBaseRepositoryTest {
 
         val favoritePagerAfterInsert = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 20, prefetchDistance = 5),
-            pagingSource = repository.getFavorite()
+            pagingSource = movieDao.getFavoriteMovie()
         )
 
         result = favoritePagerAfterInsert.refresh() as PagingSource.LoadResult.Page
@@ -107,7 +109,7 @@ class MovieDataBaseRepositoryTest {
 
         val favoritePagerAfterDelete = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 20, prefetchDistance = 5),
-            pagingSource = repository.getFavorite()
+            pagingSource = movieDao.getFavoriteMovie()
         )
 
         result = favoritePagerAfterDelete.refresh() as PagingSource.LoadResult.Page
@@ -119,7 +121,7 @@ class MovieDataBaseRepositoryTest {
     fun upsert() = runTest {
         val favoritePagerBeforeInsert = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 20, prefetchDistance = 5),
-            pagingSource = repository.getFavorite()
+            pagingSource = movieDao.getFavoriteMovie()
         )
 
         var result = favoritePagerBeforeInsert.refresh() as PagingSource.LoadResult.Page
@@ -130,7 +132,7 @@ class MovieDataBaseRepositoryTest {
 
         val favoritePagerAfterInsert = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 20, prefetchDistance = 5),
-            pagingSource = repository.getFavorite()
+            pagingSource = movieDao.getFavoriteMovie()
         )
 
         result = favoritePagerAfterInsert.refresh() as PagingSource.LoadResult.Page
@@ -141,10 +143,10 @@ class MovieDataBaseRepositoryTest {
 
     @Test
     fun getUpComingMovies() = runTest {
-        val favoriteMovieSource = repository.getUpComingMovies()
+        val favoriteMovieSource = movieDao.getUpComingMovie()
         val favoriteMoviePager = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 20, prefetchDistance = 5),
-            pagingSource = repository.getUpComingMovies()
+            pagingSource = movieDao.getUpComingMovie()
         )
 
         assertEquals(
@@ -161,10 +163,10 @@ class MovieDataBaseRepositoryTest {
 
     @Test
     fun getNowPlayingMovies() = runTest {
-        val favoriteMovieSource = repository.getNowPlayingMovies()
+        val favoriteMovieSource = movieDao.getNowPlayingMovie()
         val favoriteMoviePager = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 20, prefetchDistance = 5),
-            pagingSource = repository.getNowPlayingMovies()
+            pagingSource = movieDao.getNowPlayingMovie()
         )
 
         assertEquals(

@@ -11,6 +11,10 @@ android {
             isReturnDefaultValues = true
         }
     }
+
+    testFixtures {
+        enable = true
+    }
 }
 
 dependencies {
@@ -20,4 +24,6 @@ dependencies {
     ).forEach {
         api(it)
     }
+
+    testFixturesImplementation(libs.kotlinx.coroutines.core)
 }

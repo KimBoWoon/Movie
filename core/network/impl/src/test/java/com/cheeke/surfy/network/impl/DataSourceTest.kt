@@ -1,13 +1,13 @@
 package com.cheeke.surfy.network.impl
 
-import com.cheeke.surfy.testing.TestMovieRemoteDataSource
-import com.cheeke.surfy.testing.TestPeopleRemoteDataSource
-import com.cheeke.surfy.testing.TestSearchRemoteDataSource
-import com.cheeke.surfy.testing.TestSeriesRemoteDataSource
-import com.cheeke.surfy.testing.TestSettingRemoteDataSource
-import com.cheeke.surfy.testing.TestSyncRemoteDataSource
-import com.cheeke.surfy.testing.TestTrendingRemoteDataSource
-import com.cheeke.surfy.testing.TestTvRemoteDataSource
+import com.cheeke.surfy.network.api.TestMovieRemoteDataSource
+import com.cheeke.surfy.network.api.TestPeopleRemoteDataSource
+import com.cheeke.surfy.network.api.TestSearchRemoteDataSource
+import com.cheeke.surfy.network.api.TestSeriesRemoteDataSource
+import com.cheeke.surfy.network.api.TestSettingRemoteDataSource
+import com.cheeke.surfy.network.api.TestSyncRemoteDataSource
+import com.cheeke.surfy.network.api.TestTrendingRemoteDataSource
+import com.cheeke.surfy.network.api.TestTvRemoteDataSource
 import com.cheeke.surfy.testing.model.certificationTestData
 import com.cheeke.surfy.testing.model.combineCreditsTestData
 import com.cheeke.surfy.testing.model.configurationTestData

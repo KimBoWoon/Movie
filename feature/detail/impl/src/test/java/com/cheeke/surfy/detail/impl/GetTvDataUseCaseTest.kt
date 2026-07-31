@@ -1,12 +1,13 @@
 package com.cheeke.surfy.detail.impl
 
+import com.cheeke.surfy.detail.api.TestTvDatabaseRepository
+import com.cheeke.surfy.detail.api.TestTvDetailRepository
+import com.cheeke.surfy.detail.impl.tv.GetTvDetailUseCase
 import com.cheeke.surfy.model.Tv
 import com.cheeke.surfy.model.TvEpisode
 import com.cheeke.surfy.model.TvSeasons
-import com.cheeke.surfy.testing.repository.TestTvDatabaseRepository
-import com.cheeke.surfy.testing.repository.TestTvDetailRepository
-import com.cheeke.surfy.testing.repository.TestUserDataRepository
 import com.cheeke.surfy.testing.utils.MainDispatcherRule
+import com.cheeke.surfy.userdata.api.TestUserDataRepository
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Before

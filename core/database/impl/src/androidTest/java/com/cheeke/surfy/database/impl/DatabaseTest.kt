@@ -3,10 +3,10 @@ package com.cheeke.surfy.database.impl
 import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
-import com.cheeke.surfy.database.dao.KeywordDao
-import com.cheeke.surfy.database.dao.MovieDao
-import com.cheeke.surfy.database.dao.PeopleDao
-import com.cheeke.surfy.database.dao.TvDao
+import com.cheeke.surfy.database.impl.dao.KeywordDao
+import com.cheeke.surfy.database.impl.dao.MovieDao
+import com.cheeke.surfy.database.impl.dao.PeopleDao
+import com.cheeke.surfy.database.impl.dao.TvDao
 import org.junit.After
 import org.junit.Before
 

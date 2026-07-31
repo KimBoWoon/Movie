@@ -43,13 +43,18 @@ dependencies {
 
     arrayOf(
         libs.hilt.android.testing,
-        project(":core:testing")
+        project(":core:testing"),
+        testFixtures(project(":core:userdata:api"))
     ).forEach {
         androidTestImplementation(it)
     }
 
     arrayOf(
         project(":core:testing"),
+        testFixtures(project(":core:userdata:api")),
+        testFixtures(project(":feature:detail:api")),
+        testFixtures(project(":core:network:api")),
+        testFixtures(project(":core:datamanager:api")),
         libs.hilt.android.testing,
         libs.kotlin.test,
         libs.androidx.navigation.testing,

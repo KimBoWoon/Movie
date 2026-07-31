@@ -1,8 +1,8 @@
 package com.cheeke.surfy.testing.model
 
-import com.cheeke.surfy.database.model.KeywordEntity
-import com.cheeke.surfy.database.model.NowPlayingMovieEntity
-import com.cheeke.surfy.database.model.UpComingMovieEntity
+import com.cheeke.surfy.database.impl.model.KeywordEntity
+import com.cheeke.surfy.database.impl.model.NowPlayingMovieEntity
+import com.cheeke.surfy.database.impl.model.UpComingMovieEntity
 import com.cheeke.surfy.model.AlternativeTitle
 import com.cheeke.surfy.model.AlternativeTitles
 import com.cheeke.surfy.model.BelongsToCollection

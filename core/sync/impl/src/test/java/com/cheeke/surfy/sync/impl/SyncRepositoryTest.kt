@@ -1,11 +1,8 @@
 package com.cheeke.surfy.sync.impl
 
-import com.cheeke.surfy.core.datastore.InternalDataPreferences
-import com.cheeke.surfy.datastore.InternalDataSource
-import com.cheeke.surfy.datastore_test.InMemoryDataStore
-import com.cheeke.surfy.sync.repository.Synchronizer
-import com.cheeke.surfy.testing.TestSyncRemoteDataSource
-import com.cheeke.surfy.testing.repository.TestSyncRepository
+import com.cheeke.surfy.network.api.TestSyncRemoteDataSource
+import com.cheeke.surfy.sync.api.Synchronizer
+import com.cheeke.surfy.sync.api.TestSyncRepository
 import com.cheeke.surfy.testing.utils.MainDispatcherRule
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -18,18 +15,14 @@ class SyncRepositoryTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
     private lateinit var movieApis: TestSyncRemoteDataSource
-    private lateinit var datastore: InternalDataSource
     private lateinit var repository: TestSyncRepository
     private lateinit var synchronizer: Synchronizer
 
     @Before
     fun setup() {
         movieApis = TestSyncRemoteDataSource()
-        datastore = InternalDataSource(
-            datastore = InMemoryDataStore(initialValue = InternalDataPreferences.getDefaultInstance())
-        )
         repository = TestSyncRepository()
-        synchronizer = TestSynchronizer(datastore)
+        synchronizer = TestSynchronizer()
     }
 
     @Test

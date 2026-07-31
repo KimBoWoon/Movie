@@ -3,7 +3,8 @@ package com.cheeke.surfy.detail.impl
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.paging.testing.TestPager
-import com.cheeke.surfy.database.model.PeopleEntity
+import com.cheeke.surfy.database.impl.model.PeopleEntity
+import com.cheeke.surfy.detail.api.TestPeopleDao
 import com.cheeke.surfy.testing.utils.MainDispatcherRule
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -15,15 +16,14 @@ class PeopleDataBaseRepositoryTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
     private val peopleDao = TestPeopleDao()
-    private val repository = PeopleDataBaseRepositoryImpl(peopleDao = peopleDao)
     private val people = PeopleEntity(id = 0, timestamp = 0L, name = "people_0", profilePath = "profilePath_0")
 
     @Test
     fun getFavoriteTest() = runTest {
-        val favoriteMovieSource = repository.getFavorite()
+        val favoriteMovieSource = peopleDao.getFavoritePeople()
         val favoriteMoviePager = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 20, prefetchDistance = 5),
-            pagingSource = repository.getFavorite()
+            pagingSource = peopleDao.getFavoritePeople()
         )
 
         assertEquals(
@@ -57,7 +57,7 @@ class PeopleDataBaseRepositoryTest {
     fun insert() = runTest {
         val favoritePagerBeforeInsert = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 20, prefetchDistance = 5),
-            pagingSource = repository.getFavorite()
+            pagingSource = peopleDao.getFavoritePeople()
         )
 
         var result = favoritePagerBeforeInsert.refresh() as PagingSource.LoadResult.Page
@@ -68,7 +68,7 @@ class PeopleDataBaseRepositoryTest {
 
         val favoritePagerAfterInsert = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 20, prefetchDistance = 5),
-            pagingSource = repository.getFavorite()
+            pagingSource = peopleDao.getFavoritePeople()
         )
 
         result = favoritePagerAfterInsert.refresh() as PagingSource.LoadResult.Page
@@ -81,7 +81,7 @@ class PeopleDataBaseRepositoryTest {
     fun delete() = runTest {
         val favoritePagerBeforeInsert = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 20, prefetchDistance = 5),
-            pagingSource = repository.getFavorite()
+            pagingSource = peopleDao.getFavoritePeople()
         )
 
         var result = favoritePagerBeforeInsert.refresh() as PagingSource.LoadResult.Page
@@ -92,7 +92,7 @@ class PeopleDataBaseRepositoryTest {
 
         val favoritePagerAfterInsert = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 20, prefetchDistance = 5),
-            pagingSource = repository.getFavorite()
+            pagingSource = peopleDao.getFavoritePeople()
         )
 
         result = favoritePagerAfterInsert.refresh() as PagingSource.LoadResult.Page
@@ -104,7 +104,7 @@ class PeopleDataBaseRepositoryTest {
 
         val favoritePagerAfterDelete = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 20, prefetchDistance = 5),
-            pagingSource = repository.getFavorite()
+            pagingSource = peopleDao.getFavoritePeople()
         )
 
         result = favoritePagerAfterDelete.refresh() as PagingSource.LoadResult.Page
@@ -116,7 +116,7 @@ class PeopleDataBaseRepositoryTest {
     fun upsert() = runTest {
         val favoritePagerBeforeInsert = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 20, prefetchDistance = 5),
-            pagingSource = repository.getFavorite()
+            pagingSource = peopleDao.getFavoritePeople()
         )
 
         var result = favoritePagerBeforeInsert.refresh() as PagingSource.LoadResult.Page
@@ -127,7 +127,7 @@ class PeopleDataBaseRepositoryTest {
 
         val favoritePagerAfterInsert = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 20, prefetchDistance = 5),
-            pagingSource = repository.getFavorite()
+            pagingSource = peopleDao.getFavoritePeople()
         )
 
         result = favoritePagerAfterInsert.refresh() as PagingSource.LoadResult.Page

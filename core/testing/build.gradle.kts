@@ -22,6 +22,7 @@ dependencies {
     implementation(project(":core:sync:api"))
     implementation(project(":core:datamanager:api"))
     implementation(project(":core:userdata:api"))
+    implementation(project(":core:database:impl"))
     implementation(libs.hilt.android.testing)
     implementation(libs.androidx.test.rules)
     implementation(libs.androidx.compose.paging)

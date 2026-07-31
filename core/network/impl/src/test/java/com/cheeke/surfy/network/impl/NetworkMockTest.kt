@@ -1,5 +1,6 @@
 package com.cheeke.surfy.network.impl
 
+import com.cheeke.surfy.core.network.api.R
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json

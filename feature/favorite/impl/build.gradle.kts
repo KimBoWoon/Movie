@@ -25,4 +25,5 @@ dependencies {
     api(project(":feature:favorite:api"))
 
     testImplementation(libs.androidx.paging.testing)
+    testImplementation(testFixtures(project(":feature:detail:api")))
 }

@@ -1,7 +1,7 @@
 package com.cheeke.surfy.search.impl
 
 import androidx.paging.PagingSource
-import com.cheeke.surfy.database.model.KeywordEntity
+import com.cheeke.surfy.database.impl.model.KeywordEntity
 import com.cheeke.surfy.testing.model.keywordList
 import com.cheeke.surfy.testing.utils.MainDispatcherRule
 import kotlinx.coroutines.test.runTest

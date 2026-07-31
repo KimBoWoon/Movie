@@ -1,12 +1,12 @@
 package com.cheeke.surfy.detail.impl
 
-import com.cheeke.surfy.core.datastore.InternalDataPreferences
-import com.cheeke.surfy.datastore.InternalDataSource
-import com.cheeke.surfy.datastore_test.InMemoryDataStore
-import com.cheeke.surfy.testing.TestSeriesRemoteDataSource
+import com.cheeke.surfy.detail.api.DetailRequestOptionsProvider
+import com.cheeke.surfy.detail.impl.series.SeriesDetailRepositoryImpl
+import com.cheeke.surfy.network.api.TestSeriesRemoteDataSource
 import com.cheeke.surfy.testing.model.movieSeriesTestData
 import com.cheeke.surfy.testing.model.testImageList
 import com.cheeke.surfy.testing.utils.MainDispatcherRule
+import com.cheeke.surfy.userdata.api.TestUserDataRepository
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -18,18 +18,16 @@ class SeriesDetailRepositoryTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
     private lateinit var movieApis: TestSeriesRemoteDataSource
-    private lateinit var datastore: InternalDataSource
+    private lateinit var userdata: TestUserDataRepository
     private lateinit var repository: SeriesDetailRepositoryImpl
 
     @Before
     fun setup() {
         movieApis = TestSeriesRemoteDataSource()
-        datastore = InternalDataSource(
-            datastore = InMemoryDataStore(initialValue = InternalDataPreferences.getDefaultInstance())
-        )
+        userdata = TestUserDataRepository()
         repository = SeriesDetailRepositoryImpl(
             apis = movieApis,
-            requestOptionsProvider = DetailRequestOptionsProvider(datastore = datastore),
+            requestOptionsProvider = DetailRequestOptionsProvider(userdataRepository = userdata),
         )
     }
 

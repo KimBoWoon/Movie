@@ -3,7 +3,8 @@ package com.cheeke.surfy.detail.impl
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.paging.testing.TestPager
-import com.cheeke.surfy.database.model.TvEntity
+import com.cheeke.surfy.database.impl.model.TvEntity
+import com.cheeke.surfy.detail.api.TestTvDao
 import com.cheeke.surfy.testing.utils.MainDispatcherRule
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -16,15 +17,21 @@ class TvDataBaseRepositoryTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
     private val tvDao = TestTvDao()
-    private val repository = TvDataBaseRepositoryImpl(tvDao = tvDao)
-    private val tv = TvEntity(id = 0, posterPath = "posterPath_0", timestamp = 0L, name = "tv_0", firstAirDate = LocalDate.now().plusDays(1).toString(), lastAirDate = "lastAirDate_0")
+    private val tv = TvEntity(
+        id = 0,
+        posterPath = "posterPath_0",
+        timestamp = 0L,
+        name = "tv_0",
+        firstAirDate = LocalDate.now().plusDays(1).toString(),
+        lastAirDate = "lastAirDate_0"
+    )
 
     @Test
     fun getFavoriteTest() = runTest {
-        val favoriteMovieSource = repository.getFavorite()
+        val favoriteMovieSource = tvDao.getFavoriteTv()
         val favoriteMoviePager = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 20, prefetchDistance = 5),
-            pagingSource = repository.getFavorite()
+            pagingSource = tvDao.getFavoriteTv()
         )
 
         assertEquals(
@@ -58,7 +65,7 @@ class TvDataBaseRepositoryTest {
     fun insert() = runTest {
         val favoritePagerBeforeInsert = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 20, prefetchDistance = 5),
-            pagingSource = repository.getFavorite()
+            pagingSource = tvDao.getFavoriteTv()
         )
 
         var result = favoritePagerBeforeInsert.refresh() as PagingSource.LoadResult.Page
@@ -69,7 +76,7 @@ class TvDataBaseRepositoryTest {
 
         val favoritePagerAfterInsert = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 20, prefetchDistance = 5),
-            pagingSource = repository.getFavorite()
+            pagingSource = tvDao.getFavoriteTv()
         )
 
         result = favoritePagerAfterInsert.refresh() as PagingSource.LoadResult.Page
@@ -82,7 +89,7 @@ class TvDataBaseRepositoryTest {
     fun delete() = runTest {
         val favoritePagerBeforeInsert = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 20, prefetchDistance = 5),
-            pagingSource = repository.getFavorite()
+            pagingSource = tvDao.getFavoriteTv()
         )
 
         var result = favoritePagerBeforeInsert.refresh() as PagingSource.LoadResult.Page
@@ -93,7 +100,7 @@ class TvDataBaseRepositoryTest {
 
         val favoritePagerAfterInsert = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 20, prefetchDistance = 5),
-            pagingSource = repository.getFavorite()
+            pagingSource = tvDao.getFavoriteTv()
         )
 
         result = favoritePagerAfterInsert.refresh() as PagingSource.LoadResult.Page
@@ -105,7 +112,7 @@ class TvDataBaseRepositoryTest {
 
         val favoritePagerAfterDelete = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 20, prefetchDistance = 5),
-            pagingSource = repository.getFavorite()
+            pagingSource = tvDao.getFavoriteTv()
         )
 
         result = favoritePagerAfterDelete.refresh() as PagingSource.LoadResult.Page
@@ -117,7 +124,7 @@ class TvDataBaseRepositoryTest {
     fun upsert() = runTest {
         val favoritePagerBeforeInsert = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 20, prefetchDistance = 5),
-            pagingSource = repository.getFavorite()
+            pagingSource = tvDao.getFavoriteTv()
         )
 
         var result = favoritePagerBeforeInsert.refresh() as PagingSource.LoadResult.Page
@@ -128,7 +135,7 @@ class TvDataBaseRepositoryTest {
 
         val favoritePagerAfterInsert = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 20, prefetchDistance = 5),
-            pagingSource = repository.getFavorite()
+            pagingSource = tvDao.getFavoriteTv()
         )
 
         result = favoritePagerAfterInsert.refresh() as PagingSource.LoadResult.Page

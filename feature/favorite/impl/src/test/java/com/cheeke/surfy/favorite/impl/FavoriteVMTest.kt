@@ -3,10 +3,10 @@ package com.cheeke.surfy.favorite.impl
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.paging.testing.TestPager
-import com.cheeke.surfy.data.repository.FavoriteKeys
-import com.cheeke.surfy.testing.repository.TestMovieDatabaseRepository
-import com.cheeke.surfy.testing.repository.TestPeopleDatabaseRepository
-import com.cheeke.surfy.testing.repository.TestTvDatabaseRepository
+import com.cheeke.surfy.detail.api.TestMovieDao
+import com.cheeke.surfy.detail.api.TestPeopleDao
+import com.cheeke.surfy.detail.api.TestTvDao
+import com.cheeke.surfy.favorite.api.FavoriteContentType
 import com.cheeke.surfy.testing.utils.MainDispatcherRule
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -20,22 +20,22 @@ import kotlin.test.assertEquals
 class FavoriteVMTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
-    private val testMovieDatabaseRepository = TestMovieDatabaseRepository()
-    private val testPeopleDatabaseRepository = TestPeopleDatabaseRepository()
-    private val testTvDatabaseRepository = TestTvDatabaseRepository()
-    private val movieTab = FavoriteMovieRepository(repository = testMovieDatabaseRepository)
-    private val peopleTab = FavoritePeopleRepository(repository = testPeopleDatabaseRepository)
-    private val tvTab = FavoriteTvRepository(repository = testTvDatabaseRepository)
+    private val movieDao = TestMovieDao()
+    private val peopleDao = TestPeopleDao()
+    private val tvDao = TestTvDao()
+    private val movieTab = FavoriteMovieRepository(movieDao = movieDao)
+    private val peopleTab = FavoritePeopleRepository(peopleDao = peopleDao)
+    private val tvTab = FavoriteTvRepository(tvDao = tvDao)
     private lateinit var viewModel: FavoriteVM
 
     @Before
     fun setup() {
         viewModel = FavoriteVM(
-            initialTabKey = FavoriteKeys.MOVIE,
+            initialTabKey = FavoriteContentType.MOVIE,
             repositories = mapOf(
-                FavoriteKeys.MOVIE to movieTab,
-                FavoriteKeys.TV to tvTab,
-                FavoriteKeys.PEOPLE to peopleTab
+                FavoriteContentType.MOVIE to movieTab,
+                FavoriteContentType.TV to tvTab,
+                FavoriteContentType.PEOPLE to peopleTab
             )
         )
     }
@@ -46,30 +46,30 @@ class FavoriteVMTest {
 
         assertEquals(
             expected = viewModel.currentTab.value,
-            actual = FavoriteKeys.MOVIE
+            actual = FavoriteContentType.MOVIE
         )
 
-        viewModel.updateTabKey(key = FavoriteKeys.TV)
+        viewModel.updateTabKey(key = FavoriteContentType.TV)
 
         assertEquals(
             expected = viewModel.currentTab.value,
-            actual = FavoriteKeys.TV
+            actual = FavoriteContentType.TV
         )
 
-        viewModel.updateTabKey(key = FavoriteKeys.PEOPLE)
+        viewModel.updateTabKey(key = FavoriteContentType.PEOPLE)
 
         assertEquals(
             expected = viewModel.currentTab.value,
-            actual = FavoriteKeys.PEOPLE
+            actual = FavoriteContentType.PEOPLE
         )
     }
 
     @Test
     fun favoriteMoviePagingTest() = runTest {
-        val favoriteMovieSource = testMovieDatabaseRepository.getFavorite()
+        val favoriteMovieSource = movieDao.getFavoriteMovie()
         val favoriteMoviePager = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 20, prefetchDistance = 5),
-            pagingSource = testMovieDatabaseRepository.getFavorite()
+            pagingSource = movieDao.getFavoriteMovie()
         )
 
         assertEquals(
@@ -86,10 +86,10 @@ class FavoriteVMTest {
 
     @Test
     fun favoritePeoplePagingTest() = runTest {
-        val favoritePeopleSource = testMovieDatabaseRepository.getFavorite()
+        val favoritePeopleSource = peopleDao.getFavoritePeople()
         val favoritePeoplePager = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 20, prefetchDistance = 5),
-            pagingSource = testMovieDatabaseRepository.getFavorite()
+            pagingSource = peopleDao.getFavoritePeople()
         )
 
         assertEquals(
@@ -106,10 +106,10 @@ class FavoriteVMTest {
 
     @Test
     fun favoriteTvPagingTest() = runTest {
-        val favoriteTvSource = testMovieDatabaseRepository.getFavorite()
+        val favoriteTvSource = tvDao.getFavoriteTv()
         val favoriteTvPager = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 20, prefetchDistance = 5),
-            pagingSource = testMovieDatabaseRepository.getFavorite()
+            pagingSource = tvDao.getFavoriteTv()
         )
 
         assertEquals(

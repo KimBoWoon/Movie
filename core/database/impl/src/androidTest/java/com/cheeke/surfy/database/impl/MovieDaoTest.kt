@@ -1,8 +1,8 @@
 package com.cheeke.surfy.database.impl
 
 import androidx.paging.PagingSource
-import com.cheeke.surfy.database.model.MovieEntity
-import com.cheeke.surfy.database.model.NowPlayingMovieEntity
+import com.cheeke.surfy.database.impl.model.MovieEntity
+import com.cheeke.surfy.database.impl.model.NowPlayingMovieEntity
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Test

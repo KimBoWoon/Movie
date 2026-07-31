@@ -46,7 +46,7 @@
         </activity>
 
         <service
-            android:name="com.cheeke.surfy.service.MovieFCMService"
+            android:name="com.cheeke.surfy.service.SurfyFCMService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />

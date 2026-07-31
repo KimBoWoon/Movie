@@ -1,9 +1,10 @@
 package com.cheeke.surfy.detail.impl
 
+import com.cheeke.surfy.detail.api.TestSeriesDetailRepository
+import com.cheeke.surfy.detail.impl.series.GetSeriesDetailUseCase
 import com.cheeke.surfy.model.ImageList
 import com.cheeke.surfy.model.Series
 import com.cheeke.surfy.model.SeriesPart
-import com.cheeke.surfy.testing.repository.TestSeriesDetailRepository
 import com.cheeke.surfy.testing.utils.MainDispatcherRule
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest

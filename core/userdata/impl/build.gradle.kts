@@ -67,4 +67,5 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.kotlinx.serialization.json)
     testImplementation(libs.androidx.paging.testing)
+    testImplementation(testFixtures(project(":core:userdata:api")))
 }

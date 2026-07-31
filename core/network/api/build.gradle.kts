@@ -10,6 +10,10 @@ android {
     defaultConfig {
         buildConfigField("String", "TMDB_OPEN_API_KEY", "\"${Config.getProp("tmdb_open_api_key")}\"")
     }
+
+    testFixtures {
+        enable = true
+    }
 }
 
 dependencies {
@@ -28,4 +32,7 @@ dependencies {
     ).forEach {
         api(it)
     }
+
+    testFixturesImplementation(libs.kotlinx.coroutines.core)
+    testFixturesImplementation(project(":core:testing"))
 }
