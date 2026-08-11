@@ -2,7 +2,6 @@ package com.cheeke.surfy.detail.impl.tv
 
 import com.cheeke.surfy.common.Result
 import com.cheeke.surfy.common.asResult
-import com.cheeke.surfy.detail.api.tv.TvDetailRepository
 import com.cheeke.surfy.detail.api.tv.TvRepository
 import com.cheeke.surfy.model.Tv
 import com.cheeke.surfy.model.TvEpisode

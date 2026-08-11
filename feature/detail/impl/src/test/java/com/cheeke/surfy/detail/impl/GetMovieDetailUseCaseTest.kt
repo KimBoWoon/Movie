@@ -2,7 +2,6 @@ package com.cheeke.surfy.detail.impl
 
 import com.cheeke.surfy.datamanager.api.TestSurfyAppData
 import com.cheeke.surfy.detail.api.TestMovieDatabaseRepository
-import com.cheeke.surfy.detail.api.TestMovieDetailRepository
 import com.cheeke.surfy.detail.impl.movie.GetMovieDetailUseCase
 import com.cheeke.surfy.model.LocaleOption
 import com.cheeke.surfy.model.Movie

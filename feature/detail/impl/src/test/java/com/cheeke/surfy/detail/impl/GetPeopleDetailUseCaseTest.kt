@@ -2,7 +2,6 @@ package com.cheeke.surfy.detail.impl
 
 import com.cheeke.surfy.datamanager.api.TestSurfyAppData
 import com.cheeke.surfy.detail.api.TestPeopleDatabaseRepository
-import com.cheeke.surfy.detail.api.TestPeopleDetailRepository
 import com.cheeke.surfy.detail.impl.people.GetPeopleDetailUseCase
 import com.cheeke.surfy.model.People
 import com.cheeke.surfy.testing.model.combineCreditsTestData

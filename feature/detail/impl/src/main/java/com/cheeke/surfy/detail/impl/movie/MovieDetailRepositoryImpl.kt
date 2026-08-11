@@ -1,7 +1,6 @@
 package com.cheeke.surfy.detail.impl.movie
 
-import com.cheeke.surfy.detail.api.DetailRequestOptionsProvider
-import com.cheeke.surfy.detail.api.movie.MovieDetailRepository
+import com.cheeke.surfy.detail.impl.DetailRequestOptionsProvider
 import com.cheeke.surfy.model.ImageList
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.MovieWatchProvider

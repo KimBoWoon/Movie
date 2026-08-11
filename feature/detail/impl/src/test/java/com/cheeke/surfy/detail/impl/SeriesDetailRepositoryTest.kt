@@ -1,6 +1,5 @@
 package com.cheeke.surfy.detail.impl
 
-import com.cheeke.surfy.detail.api.DetailRequestOptionsProvider
 import com.cheeke.surfy.detail.impl.series.SeriesDetailRepositoryImpl
 import com.cheeke.surfy.network.api.TestSeriesRemoteDataSource
 import com.cheeke.surfy.testing.model.movieSeriesTestData

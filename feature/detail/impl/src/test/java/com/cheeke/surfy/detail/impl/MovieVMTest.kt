@@ -6,7 +6,6 @@ import androidx.paging.testing.TestPager
 import androidx.paging.testing.asSnapshot
 import com.cheeke.surfy.analytics.api.TestAnalyticsHelper
 import com.cheeke.surfy.detail.api.TestMovieDatabaseRepository
-import com.cheeke.surfy.detail.api.TestMovieDetailRepository
 import com.cheeke.surfy.detail.impl.movie.GetMovieDetailUseCase
 import com.cheeke.surfy.detail.impl.movie.MovieState
 import com.cheeke.surfy.detail.impl.movie.MovieVM

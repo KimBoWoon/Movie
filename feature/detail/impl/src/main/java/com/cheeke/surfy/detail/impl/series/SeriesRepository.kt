@@ -1,6 +1,6 @@
-package com.cheeke.surfy.detail.api.series
+package com.cheeke.surfy.detail.impl.series
 
-import com.cheeke.surfy.detail.api.DetailRepository
+import com.cheeke.surfy.detail.impl.DetailRepository
 import com.cheeke.surfy.model.ImageList
 import com.cheeke.surfy.model.Series
 import kotlinx.coroutines.flow.Flow

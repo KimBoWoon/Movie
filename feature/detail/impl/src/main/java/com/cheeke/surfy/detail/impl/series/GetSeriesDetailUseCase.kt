@@ -1,7 +1,6 @@
 package com.cheeke.surfy.detail.impl.series
 
 import com.cheeke.surfy.common.toEpochDayOrMax
-import com.cheeke.surfy.detail.api.series.SeriesRepository
 import com.cheeke.surfy.model.ImageList
 import com.cheeke.surfy.model.Series
 import com.cheeke.surfy.model.SeriesPart

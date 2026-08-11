@@ -1,9 +1,7 @@
-package com.cheeke.surfy.detail.api
+package com.cheeke.surfy.detail.impl
 
 import com.cheeke.surfy.model.InternalData
-import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.userdata.api.UserDataRepository
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
@@ -23,8 +21,4 @@ data class DetailRequestOptions(
     val includeImageLanguage: String = "${internalData.language},null"
     val localizedImageLanguage: String = "$languageTag,null"
     val includeAdult: Boolean = internalData.isAdult
-}
-
-interface DetailRepository<T : Media> {
-    fun getData(id: Int): Flow<T>
 }

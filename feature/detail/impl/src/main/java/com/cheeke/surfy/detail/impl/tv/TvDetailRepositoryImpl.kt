@@ -1,7 +1,6 @@
 package com.cheeke.surfy.detail.impl.tv
 
-import com.cheeke.surfy.detail.api.DetailRequestOptionsProvider
-import com.cheeke.surfy.detail.api.tv.TvDetailRepository
+import com.cheeke.surfy.detail.impl.DetailRequestOptionsProvider
 import com.cheeke.surfy.model.Tv
 import com.cheeke.surfy.model.TvEpisode
 import com.cheeke.surfy.model.TvSeasons

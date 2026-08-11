@@ -1,7 +1,6 @@
 package com.cheeke.surfy.detail.impl.people
 
-import com.cheeke.surfy.detail.api.DetailRequestOptionsProvider
-import com.cheeke.surfy.detail.api.people.PeopleDetailRepository
+import com.cheeke.surfy.detail.impl.DetailRequestOptionsProvider
 import com.cheeke.surfy.model.CombineCredits
 import com.cheeke.surfy.model.ExternalIds
 import com.cheeke.surfy.model.People

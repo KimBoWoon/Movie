@@ -2,7 +2,6 @@ package com.cheeke.surfy.detail.impl.movie
 
 import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.common.toEpochDayOrMax
-import com.cheeke.surfy.detail.api.movie.MovieDetailRepository
 import com.cheeke.surfy.detail.api.movie.MovieRepository
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.Series

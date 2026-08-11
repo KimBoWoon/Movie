@@ -1,6 +1,6 @@
-package com.cheeke.surfy.detail.api.people
+package com.cheeke.surfy.detail.impl.people
 
-import com.cheeke.surfy.detail.api.DetailRepository
+import com.cheeke.surfy.detail.impl.DetailRepository
 import com.cheeke.surfy.model.CombineCredits
 import com.cheeke.surfy.model.ExternalIds
 import com.cheeke.surfy.model.People
