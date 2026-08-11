@@ -6,6 +6,10 @@ plugins {
 
 android {
     namespace = "com.cheeke.surfy.feature.search.impl"
+
+    testFixtures {
+        enable = true
+    }
 }
 
 dependencies {
@@ -26,13 +30,18 @@ dependencies {
 
     api(project(":feature:search:api"))
 
-    testImplementation(libs.androidx.paging.testing)
     androidTestImplementation(libs.androidx.paging.testing)
 
+    testImplementation(libs.androidx.paging.testing)
     testImplementation(testFixtures(notation = project(":feature:detail:api")))
     testImplementation(testFixtures(notation = project(":core:userdata:api")))
     testImplementation(testFixtures(notation = project(":core:datamanager:api")))
     testImplementation(testFixtures(notation = project(":core:network:api")))
     testImplementation(testFixtures(notation = project(":core:analytics:api")))
-    testImplementation(testFixtures(notation = project(":feature:search:api")))
+
+    testFixturesImplementation(libs.kotlinx.coroutines.core)
+    testFixturesImplementation(libs.androidx.compose.paging)
+    testFixturesImplementation(libs.androidx.paging.testing)
+    testFixturesImplementation(project(":core:database:impl"))
+    testFixturesImplementation(project(":core:testing"))
 }

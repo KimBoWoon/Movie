@@ -21,7 +21,6 @@ import com.cheeke.surfy.model.SearchType
 import com.cheeke.surfy.model.SurfyAppData
 import com.cheeke.surfy.network.api.SearchRemoteDataSource
 import com.cheeke.surfy.network.api.SurfyNetworkException
-import com.cheeke.surfy.search.api.KeywordDataBaseRepository
 import com.cheeke.surfy.search.impl.paging.RecommendKeywordPagingSource
 import com.cheeke.surfy.search.impl.paging.SearchPagingSource
 import dagger.assisted.Assisted

@@ -9,7 +9,6 @@ import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.model.SearchKeyword
 import com.cheeke.surfy.model.SearchType
 import com.cheeke.surfy.network.api.TestSearchRemoteDataSource
-import com.cheeke.surfy.search.api.TestKeywordDataBaseRepository
 import com.cheeke.surfy.search.impl.paging.RecommendKeywordPagingSource
 import com.cheeke.surfy.search.impl.paging.SearchPagingSource
 import com.cheeke.surfy.testing.model.movieSearchTestData

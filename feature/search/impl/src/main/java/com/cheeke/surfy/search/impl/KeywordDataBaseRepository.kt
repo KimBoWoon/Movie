@@ -1,4 +1,4 @@
-package com.cheeke.surfy.search.api
+package com.cheeke.surfy.search.impl
 
 import androidx.paging.PagingSource
 import com.cheeke.surfy.database.impl.model.KeywordEntity

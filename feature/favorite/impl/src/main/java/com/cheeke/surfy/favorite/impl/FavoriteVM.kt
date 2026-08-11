@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import com.cheeke.surfy.favorite.api.FavoriteContentType
-import com.cheeke.surfy.feature.favorite.impl.R
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -31,16 +30,14 @@ class FavoriteVM @AssistedInject constructor(
 
     private val _currentTab = MutableStateFlow(value = initialTabKey)
     val currentTab = _currentTab.asStateFlow()
-    val tabList = FavoriteContentType.entries.map {
-        FavoriteTabUiModel(
-            type = it,
-            titleRes = when (it) {
-                FavoriteContentType.MOVIE -> R.string.movie
-                FavoriteContentType.PEOPLE -> R.string.people
-                FavoriteContentType.TV -> R.string.tv
-            }
-        )
-    }
+    val tabList = repositories
+        .toSortedMap(comparator = compareBy { key -> key.ordinal })
+        .map { (key, value) ->
+            FavoriteTabUiModel(
+                type = key,
+                label = value.label
+            )
+        }
     @OptIn(ExperimentalCoroutinesApi::class)
     val currentPagingItems = currentTab
         .flatMapLatest { key -> repositories.getValue(key = key).pagingSource }
@@ -53,5 +50,5 @@ class FavoriteVM @AssistedInject constructor(
 
 data class FavoriteTabUiModel(
     val type: FavoriteContentType,
-    @param:StringRes val titleRes: Int
+    @param:StringRes val label: Int
 )

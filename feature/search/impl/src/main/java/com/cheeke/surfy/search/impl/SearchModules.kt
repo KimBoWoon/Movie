@@ -1,6 +1,5 @@
 package com.cheeke.surfy.search.impl
 
-import com.cheeke.surfy.search.api.KeywordDataBaseRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

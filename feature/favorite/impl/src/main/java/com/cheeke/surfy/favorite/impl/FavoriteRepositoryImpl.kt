@@ -1,5 +1,6 @@
 package com.cheeke.surfy.favorite.impl
 
+import androidx.annotation.StringRes
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
@@ -12,6 +13,7 @@ import com.cheeke.surfy.database.impl.model.PeopleEntity
 import com.cheeke.surfy.database.impl.model.TvEntity
 import com.cheeke.surfy.database.impl.model.asExternalModel
 import com.cheeke.surfy.favorite.api.FavoriteContentType
+import com.cheeke.surfy.feature.favorite.impl.R
 import com.cheeke.surfy.model.Media
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.Flow
@@ -20,6 +22,7 @@ import kotlinx.coroutines.flow.map
 interface FavoriteRepository {
     val key: FavoriteContentType
     val pagingSource: Flow<PagingData<Media>>
+    val label: Int
 
     suspend fun insert(media: Media)
     suspend fun delete(media: Media)
@@ -33,6 +36,7 @@ class FavoriteMovieRepository @Inject constructor(
         Pager(config = PagingConfig(pageSize = 20)) {
             movieDao.getFavoriteMovie()
         }.flow.map { pagingData -> pagingData.map(transform = MovieEntity::asExternalModel) }
+    @StringRes override val label: Int = R.string.movie
 
     override suspend fun insert(media: Media) {
         movieDao.insertOrIgnoreMovies(
@@ -59,6 +63,7 @@ class FavoritePeopleRepository @Inject constructor(
         Pager(config = PagingConfig(pageSize = 20)) {
             peopleDao.getFavoritePeople()
         }.flow.map { pagingData -> pagingData.map(transform = PeopleEntity::asExternalModel) }
+    @StringRes override val label: Int = R.string.people
 
     override suspend fun insert(media: Media) {
         peopleDao.insertOrIgnorePeoples(
@@ -84,6 +89,7 @@ class FavoriteTvRepository @Inject constructor(
         Pager(config = PagingConfig(pageSize = 20)) {
             tvDao.getFavoriteTv()
         }.flow.map { pagingData -> pagingData.map(transform = TvEntity::asExternalModel) }
+    @StringRes override val label: Int = R.string.tv
 
     override suspend fun insert(media: Media) {
         tvDao.insertOrIgnoreTvs(

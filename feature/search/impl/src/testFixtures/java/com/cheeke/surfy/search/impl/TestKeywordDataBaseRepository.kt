@@ -1,4 +1,4 @@
-package com.cheeke.surfy.search.api
+package com.cheeke.surfy.search.impl
 
 import androidx.paging.PagingSource
 import androidx.paging.testing.asPagingSourceFactory
@@ -10,7 +10,7 @@ class TestKeywordDataBaseRepository : KeywordDataBaseRepository {
     val keywordDatabase = MutableStateFlow<List<KeywordEntity>>(value = emptyList())
 
     override fun getKeywords(): PagingSource<Int, KeywordEntity> =
-        keywordList.asPagingSourceFactory<KeywordEntity>().invoke()
+        keywordList.asPagingSourceFactory().invoke()
 
     override suspend fun insert(keyword: String) {
         keywordDatabase.emit(value = keywordDatabase.value + KeywordEntity(id = 0, keyword = keyword, timestamp = 0))

@@ -104,7 +104,7 @@ fun FavoriteScreen(
     val scope = rememberCoroutineScope()
     val removeFavoriteText = stringResource(id = R.string.remove_favorite)
     val analyticsHelper = LocalAnalyticsHelper.current
-    val label = stringResource(id = tabList.first { it.type == selectedTab.key }.titleRes)
+    val label = stringResource(id = tabList.first { it.type == selectedTab.key }.label)
 
     Column(modifier = Modifier.fillMaxSize()) {
         SegmentedTabs(
@@ -300,7 +300,7 @@ fun SegmentedTabs(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = stringResource(id = tab.titleRes),
+                    text = stringResource(id = tab.label),
                     style = MaterialTheme.typography.labelLarge,
                     color = if (isSelected) MaterialTheme.colorScheme.primary else Color.Gray,
                     fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium
