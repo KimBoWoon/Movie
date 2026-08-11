@@ -2,8 +2,14 @@ package com.cheeke.surfy.detail.api
 
 import androidx.annotation.VisibleForTesting
 import androidx.paging.PagingData
+import androidx.paging.PagingSource
+import androidx.paging.testing.asPagingSourceFactory
 import com.cheeke.surfy.detail.api.movie.MovieRepository
 import com.cheeke.surfy.model.Movie
+import com.cheeke.surfy.model.Review
+import com.cheeke.surfy.model.SimilarMedia
+import com.cheeke.surfy.testing.model.similarMoviesTestData
+import com.cheeke.surfy.testing.model.testMovieReviews
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -67,4 +73,16 @@ class TestMovieDatabaseRepository : MovieRepository {
 //        movieDatabase.tryEmit(value = list)
         movieDatabase.emit(value = list)
     }
+
+    override fun getSimilarMoviePagingSource(
+        id: Int,
+        language: String,
+        region: String
+    ): PagingSource<Int, SimilarMedia> = (similarMoviesTestData.results ?: emptyList()).asPagingSourceFactory().invoke()
+
+    override fun getMovieReviews(
+        movieId: Int,
+        language: String,
+        region: String
+    ): PagingSource<Int, Review> = testMovieReviews.asPagingSourceFactory().invoke()
 }

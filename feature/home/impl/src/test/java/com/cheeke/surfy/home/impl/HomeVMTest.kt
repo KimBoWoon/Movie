@@ -10,7 +10,6 @@ import com.cheeke.surfy.detail.api.TestPeopleDao
 import com.cheeke.surfy.detail.api.TestTvDao
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.network.api.TestNetworkMonitor
-import com.cheeke.surfy.network.api.TestTrendingRemoteDataSource
 import com.cheeke.surfy.testing.utils.MainDispatcherRule
 import com.cheeke.surfy.userdata.api.TestUserDataRepository
 import kotlinx.coroutines.flow.collect
@@ -47,7 +46,7 @@ class HomeVMTest {
             movieDataBaseRepository = testDatabaseRepository,
             networkMonitor = testNetworkMonitor,
             dataManager = testMovieAppDataManager,
-            trendingApis = TestTrendingRemoteDataSource()
+            homeRepository = TestHomeRepository()
         )
     }
 

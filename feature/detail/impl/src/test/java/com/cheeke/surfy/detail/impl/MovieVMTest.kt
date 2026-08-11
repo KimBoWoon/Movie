@@ -57,11 +57,10 @@ class MovieVMTest {
     fun setup() {
         viewModel = MovieVM(
             id = 0,
-            movieDataBaseRepository = testDataBaseRepository,
+            movieRepository = testDataBaseRepository,
             getMovieDetail = getMovieDetailUseCase,
             analyticsHelper = testAnalyticsHelper,
-            userDataRepository = testUserDataRepository,
-            movieApis = TestMovieRemoteDataSource()
+            userDataRepository = testUserDataRepository
         )
         runBlocking {
             testDataBaseRepository.insert(media = Movie(id = 0, title = "movie_1", posterPath = "/movieImagePath.png"))
@@ -75,7 +74,7 @@ class MovieVMTest {
 
         val testPager = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 7, prefetchDistance = 5),
-            pagingSource = viewModel.getSimilarMoviePagingSource(id = 0, language = "ko", region = "KR")
+            pagingSource = testDataBaseRepository.getSimilarMoviePagingSource(id = 0, language = "ko", region = "KR")
         )
 
         assertEquals(viewModel.movie.value, MovieState.Loading)
@@ -105,16 +104,15 @@ class MovieVMTest {
         viewModel = MovieVM(
             id = 324,
             getMovieDetail = getMovieDetailUseCase,
-            movieDataBaseRepository = testDataBaseRepository,
+            movieRepository = testDataBaseRepository,
             analyticsHelper = testAnalyticsHelper,
-            userDataRepository = testUserDataRepository,
-            movieApis = TestMovieRemoteDataSource()
+            userDataRepository = testUserDataRepository
         )
         backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.movie.collect() }
 
         val testPager = TestPager(
             config = PagingConfig(pageSize = 0, initialLoadSize = 7, prefetchDistance = 5),
-            pagingSource = viewModel.getSimilarMoviePagingSource(id = 324, language = "ko", region = "KR")
+            pagingSource = testDataBaseRepository.getSimilarMoviePagingSource(id = 324, language = "ko", region = "KR")
         )
 
         assertEquals(viewModel.movie.value, MovieState.Loading)
@@ -202,10 +200,9 @@ class MovieVMTest {
         viewModel = MovieVM(
             id = 23,
             getMovieDetail = getMovieDetailUseCase,
-            movieDataBaseRepository = testDataBaseRepository,
+            movieRepository = testDataBaseRepository,
             analyticsHelper = testAnalyticsHelper,
-            userDataRepository = testUserDataRepository,
-            movieApis = TestMovieRemoteDataSource()
+            userDataRepository = testUserDataRepository
         )
 
         backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.movie.collect() }

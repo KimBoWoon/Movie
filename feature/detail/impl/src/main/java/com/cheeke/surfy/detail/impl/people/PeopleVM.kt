@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
 class PeopleVM @AssistedInject constructor(
     @Assisted val id: Int,
     getPeopleDetail: GetPeopleDetailUseCase,
-    private val peopleDataBaseRepository: PeopleRepository,
+    private val peopleRepository: PeopleRepository,
     private val analyticsHelper: AnalyticsHelper
 ) : ViewModel() {
     companion object {
@@ -82,13 +82,13 @@ class PeopleVM @AssistedInject constructor(
 
     fun insertPeople(people: People) {
         viewModelScope.launch {
-            peopleDataBaseRepository.insert(media = people)
+            peopleRepository.insert(media = people)
         }
     }
 
     fun deletePeople(people: People) {
         viewModelScope.launch {
-            peopleDataBaseRepository.delete(media = people)
+            peopleRepository.delete(media = people)
         }
     }
 }

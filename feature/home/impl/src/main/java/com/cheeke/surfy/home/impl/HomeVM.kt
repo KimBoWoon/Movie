@@ -11,14 +11,10 @@ import com.cheeke.surfy.common.Result
 import com.cheeke.surfy.common.asResult
 import com.cheeke.surfy.datamanager.api.DataManager
 import com.cheeke.surfy.detail.api.movie.MovieRepository
-import com.cheeke.surfy.home.impl.paging.TrendingMoviePagingSource
-import com.cheeke.surfy.home.impl.paging.TrendingPeoplePagingSource
-import com.cheeke.surfy.home.impl.paging.TrendingTvPagingSource
 import com.cheeke.surfy.model.Media
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.model.TrendingMediaResult
 import com.cheeke.surfy.network.api.NetworkMonitor
-import com.cheeke.surfy.network.api.TrendingRemoteDataSource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -40,7 +36,7 @@ class HomeVM @Inject constructor(
     dataManager: DataManager,
     movieDataBaseRepository: MovieRepository,
     networkMonitor: NetworkMonitor,
-    private val trendingApis: TrendingRemoteDataSource
+    private val homeRepository: HomeRepository
 ) : ViewModel() {
     companion object {
         private const val TAG = "HomeVM"
@@ -69,17 +65,23 @@ class HomeVM @Inject constructor(
     val trendingMoviePaging: Flow<PagingData<TrendingMediaResult>> =
         createTrendingPaging(
             timeWindowFlow = trendingMovieTimeWindow,
-            pagingSourceFactory = ::getTrendingMovie
+            pagingSourceFactory = { timeWindow, language ->
+                homeRepository.getTrendingMovie(timeWindow = timeWindow, language = language)
+            }
         )
     val trendingPeoplePaging: Flow<PagingData<TrendingMediaResult>> =
         createTrendingPaging(
             timeWindowFlow = trendingPeopleTimeWindow,
-            pagingSourceFactory = ::getTrendingPeople
+            pagingSourceFactory = { timeWindow, language ->
+                homeRepository.getTrendingPeople(timeWindow = timeWindow, language = language)
+            }
         )
     val trendingTvPaging: Flow<PagingData<TrendingMediaResult>> =
         createTrendingPaging(
             timeWindowFlow = trendingTvTimeWindow,
-            pagingSourceFactory = ::getTrendingTv
+            pagingSourceFactory = { timeWindow, language ->
+                homeRepository.getTrendingTv(timeWindow = timeWindow, language = language)
+            }
         )
     val homeUiState: StateFlow<HomeState> = flow {
         emit(value = movieDataBaseRepository.getPopularMovies())
@@ -118,33 +120,6 @@ class HomeVM @Inject constructor(
             TimeWindow.WEEK -> _trendingTvTimeWindow.value = TimeWindow.WEEK
         }
     }
-
-    fun getTrendingMovie(
-        timeWindow: String,
-        language: String
-    ): PagingSource<Int, TrendingMediaResult> = TrendingMoviePagingSource(
-        apis = trendingApis,
-        timeWindow = timeWindow,
-        language = language
-    )
-
-    fun getTrendingPeople(
-        timeWindow: String,
-        language: String
-    ): PagingSource<Int, TrendingMediaResult> = TrendingPeoplePagingSource(
-        apis = trendingApis,
-        timeWindow = timeWindow,
-        language = language
-    )
-
-    fun getTrendingTv(
-        timeWindow: String,
-        language: String
-    ): PagingSource<Int, TrendingMediaResult> = TrendingTvPagingSource(
-        apis = trendingApis,
-        timeWindow = timeWindow,
-        language = language
-    )
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun <T : Any> createTrendingPaging(

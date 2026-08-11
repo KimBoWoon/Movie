@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import androidx.paging.PagingSource
 import androidx.paging.cachedIn
 import androidx.paging.filter
 import com.cheeke.surfy.analytics.api.AnalyticsHelper
@@ -16,13 +15,9 @@ import com.cheeke.surfy.database.impl.model.KeywordEntity
 import com.cheeke.surfy.datamanager.api.DataManager
 import com.cheeke.surfy.model.Genre
 import com.cheeke.surfy.model.Media
-import com.cheeke.surfy.model.SearchKeyword
 import com.cheeke.surfy.model.SearchType
 import com.cheeke.surfy.model.SurfyAppData
-import com.cheeke.surfy.network.api.SearchRemoteDataSource
 import com.cheeke.surfy.network.api.SurfyNetworkException
-import com.cheeke.surfy.search.impl.paging.RecommendKeywordPagingSource
-import com.cheeke.surfy.search.impl.paging.SearchPagingSource
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -56,7 +51,7 @@ class SearchVM @AssistedInject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val keywordDataBaseRepository: KeywordDataBaseRepository,
     private val analyticsHelper: AnalyticsHelper,
-    private val searchApis: SearchRemoteDataSource
+    private val searchRepository: SearchRepository
 ) : ViewModel() {
     companion object {
         internal const val TAG = "SearchVM"
@@ -100,7 +95,7 @@ class SearchVM @AssistedInject constructor(
                 Pager(
                     config = PagingConfig(pageSize = 20, initialLoadSize = 20, prefetchDistance = 5),
                     initialKey = 1,
-                    pagingSourceFactory = { getRecommendKeywordPagingSource(query = keyword) }
+                    pagingSourceFactory = { searchRepository.getRecommendKeywordPagingSource(query = keyword) }
                 ).flow
             }
         }.cachedIn(scope = viewModelScope)
@@ -124,7 +119,7 @@ class SearchVM @AssistedInject constructor(
                                     config = PagingConfig(pageSize = 20, initialLoadSize = 20, prefetchDistance = 5),
                                     initialKey = 1,
                                     pagingSourceFactory = {
-                                        getSearchPagingSource(
+                                        searchRepository.getSearchPagingSource(
                                             type = request.searchType,
                                             query = request.query,
                                             language = surfyAppData.value.language.find { it.isSelected }?.code.orEmpty(),
@@ -155,28 +150,6 @@ class SearchVM @AssistedInject constructor(
             started = SharingStarted.Lazily,
             initialValue = SearchUiState.SearchHint
         )
-
-    fun getSearchPagingSource(
-        type: SearchType,
-        query: String,
-        language: String,
-        region: String,
-        isAdult: Boolean
-    ): PagingSource<Int, Media> = SearchPagingSource(
-        apis = searchApis,
-        type = type,
-        query = query,
-        language = language,
-        region = region,
-        isAdult = isAdult,
-    )
-
-    fun getRecommendKeywordPagingSource(
-        query: String
-    ): PagingSource<Int, SearchKeyword> = RecommendKeywordPagingSource(
-        apis = searchApis,
-        query = query
-    )
 
     fun updateGenre(genre: Genre?) {
         savedStateHandle[GENRE] = if (genre == selectedGenre.value) null else genre

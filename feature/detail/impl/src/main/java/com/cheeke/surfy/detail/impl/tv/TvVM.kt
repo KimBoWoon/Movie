@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
-import androidx.paging.PagingSource
 import androidx.paging.cachedIn
 import com.cheeke.surfy.analytics.api.AnalyticsHelper
 import com.cheeke.surfy.analytics.api.logSelectContent
@@ -13,15 +12,10 @@ import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.common.Result
 import com.cheeke.surfy.common.asResult
 import com.cheeke.surfy.detail.api.tv.TvRepository
-import com.cheeke.surfy.detail.impl.paging.SimilarTvPagingSource
-import com.cheeke.surfy.detail.impl.paging.TvReviewPagingSource
-import com.cheeke.surfy.model.Review
-import com.cheeke.surfy.model.SimilarMedia
 import com.cheeke.surfy.model.Tv
 import com.cheeke.surfy.model.TvEpisode
 import com.cheeke.surfy.model.TvSeason
 import com.cheeke.surfy.network.api.SurfyNetworkException
-import com.cheeke.surfy.network.api.TvRemoteDataSource
 import com.cheeke.surfy.userdata.api.UserDataRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -41,11 +35,10 @@ import kotlinx.coroutines.launch
 @HiltViewModel(assistedFactory = TvVM.Factory::class)
 class TvVM @AssistedInject constructor(
     @Assisted(value = "id") val id: Int,
+    userDataRepository: UserDataRepository,
     private val getTvDetailUseCase: GetTvDetailUseCase,
-    private val tvDataBaseRepository: TvRepository,
-    private val analyticsHelper: AnalyticsHelper,
-    private val userDataRepository: UserDataRepository,
-    private val tvApis: TvRemoteDataSource
+    private val tvRepository: TvRepository,
+    private val analyticsHelper: AnalyticsHelper
 ) : ViewModel() {
     companion object {
         private const val TAG = "TvVM"
@@ -67,7 +60,7 @@ class TvVM @AssistedInject constructor(
                 config = PagingConfig(pageSize = 1, initialLoadSize = 1, prefetchDistance = 5),
                 initialKey = 1,
                 pagingSourceFactory = {
-                    getSimilarTvPagingSource(
+                    tvRepository.getSimilarTvPagingSource(
                         id = id,
                         language = it.first,
                         region = it.second
@@ -132,7 +125,7 @@ class TvVM @AssistedInject constructor(
                 config = PagingConfig(pageSize = 1, initialLoadSize = 1, prefetchDistance = 5),
                 initialKey = 1,
                 pagingSourceFactory = {
-                    getTvReviews(
+                    tvRepository.getTvReviews(
                         seriesId = id,
                         language = it.first,
                         region = it.second
@@ -146,28 +139,6 @@ class TvVM @AssistedInject constructor(
             reload.emit(value = Unit)
         }
     }
-
-    fun getSimilarTvPagingSource(
-        id: Int,
-        language: String,
-        region: String
-    ): PagingSource<Int, SimilarMedia> = SimilarTvPagingSource(
-        apis = tvApis,
-        id = id,
-        language = language,
-        region = region
-    )
-
-    fun getTvReviews(
-        seriesId: Int,
-        language: String,
-        region: String
-    ): PagingSource<Int, Review> = TvReviewPagingSource(
-        apis = tvApis,
-        id = seriesId,
-        language = language,
-        region = region
-    )
 
     fun onSelectSeason(season: TvSeason) {
         viewModelScope.launch {
@@ -183,13 +154,13 @@ class TvVM @AssistedInject constructor(
 
     fun insertTv(tv: Tv) {
         viewModelScope.launch {
-            tvDataBaseRepository.insert(media = tv)
+            tvRepository.insert(media = tv)
         }
     }
 
     fun deleteTv(tv: Tv) {
         viewModelScope.launch {
-            tvDataBaseRepository.delete(media = tv)
+            tvRepository.delete(media = tv)
         }
     }
 

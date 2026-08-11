@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
-import androidx.paging.PagingSource
 import androidx.paging.cachedIn
 import com.cheeke.surfy.analytics.api.AnalyticsHelper
 import com.cheeke.surfy.analytics.api.logSelectContent
@@ -13,12 +12,7 @@ import com.cheeke.surfy.common.Log
 import com.cheeke.surfy.common.Result
 import com.cheeke.surfy.common.asResult
 import com.cheeke.surfy.detail.api.movie.MovieRepository
-import com.cheeke.surfy.detail.impl.paging.MovieReviewPagingSource
-import com.cheeke.surfy.detail.impl.paging.SimilarMoviePagingSource
 import com.cheeke.surfy.model.Movie
-import com.cheeke.surfy.model.Review
-import com.cheeke.surfy.model.SimilarMedia
-import com.cheeke.surfy.network.api.MovieRemoteDataSource
 import com.cheeke.surfy.network.api.SurfyNetworkException
 import com.cheeke.surfy.userdata.api.UserDataRepository
 import dagger.assisted.Assisted
@@ -37,11 +31,10 @@ import kotlinx.coroutines.launch
 @HiltViewModel(assistedFactory = MovieVM.Factory::class)
 class MovieVM @AssistedInject constructor(
     @Assisted(value = "id") val id: Int,
+    userDataRepository: UserDataRepository,
     private val getMovieDetail: GetMovieDetailUseCase,
-    private val movieDataBaseRepository: MovieRepository,
-    private val userDataRepository: UserDataRepository,
-    private val analyticsHelper: AnalyticsHelper,
-    private val movieApis: MovieRemoteDataSource
+    private val movieRepository: MovieRepository,
+    private val analyticsHelper: AnalyticsHelper
 ) : ViewModel() {
     companion object {
         private const val TAG = "MovieVM"
@@ -91,7 +84,7 @@ class MovieVM @AssistedInject constructor(
                 config = PagingConfig(pageSize = 1, initialLoadSize = 1, prefetchDistance = 5),
                 initialKey = 1,
                 pagingSourceFactory = {
-                    getSimilarMoviePagingSource(
+                    movieRepository.getSimilarMoviePagingSource(
                         id = id,
                         language = it.first,
                         region = it.second
@@ -114,7 +107,7 @@ class MovieVM @AssistedInject constructor(
                 config = PagingConfig(pageSize = 1, initialLoadSize = 1, prefetchDistance = 5),
                 initialKey = 1,
                 pagingSourceFactory = {
-                    getMovieReviews(
+                    movieRepository.getMovieReviews(
                         movieId = id,
                         language = it.first,
                         region = it.second
@@ -122,28 +115,6 @@ class MovieVM @AssistedInject constructor(
                 }
             ).flow
         }.cachedIn(scope = viewModelScope)
-
-    fun getSimilarMoviePagingSource(
-        id: Int,
-        language: String,
-        region: String
-    ): PagingSource<Int, SimilarMedia> = SimilarMoviePagingSource(
-        apis = movieApis,
-        id = id,
-        language = language,
-        region = region
-    )
-
-    fun getMovieReviews(
-        movieId: Int,
-        language: String,
-        region: String
-    ): PagingSource<Int, Review> = MovieReviewPagingSource(
-        apis = movieApis,
-        id = movieId,
-        language = language,
-        region = region
-    )
 
     init {
         viewModelScope.launch {
@@ -159,13 +130,13 @@ class MovieVM @AssistedInject constructor(
 
     fun insertMovie(movie: Movie) {
         viewModelScope.launch {
-            movieDataBaseRepository.insert(media = movie)
+            movieRepository.insert(media = movie)
         }
     }
 
     fun deleteMovie(movie: Movie) {
         viewModelScope.launch {
-            movieDataBaseRepository.delete(media = movie)
+            movieRepository.delete(media = movie)
         }
     }
 }

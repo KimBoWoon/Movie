@@ -8,6 +8,7 @@ import com.cheeke.surfy.database.impl.model.NowPlayingMovieEntity
 import com.cheeke.surfy.database.impl.model.asExternalModel
 import com.cheeke.surfy.detail.api.TestMovieDao
 import com.cheeke.surfy.detail.impl.movie.MovieRepositoryImpl
+import com.cheeke.surfy.network.api.TestMovieRemoteDataSource
 import com.cheeke.surfy.testing.utils.MainDispatcherRule
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -20,7 +21,7 @@ class MovieDataBaseRepositoryTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
     private val movieDao = TestMovieDao()
-    private val repository = MovieRepositoryImpl(movieDao = movieDao)
+    private val repository = MovieRepositoryImpl(movieDao = movieDao, movieApis = TestMovieRemoteDataSource())
     private val movie = MovieEntity(id = 0, title = "title_0", posterPath = "posterPath_0", releaseDate = "releaseDate", timestamp = 0)
 
     @Test

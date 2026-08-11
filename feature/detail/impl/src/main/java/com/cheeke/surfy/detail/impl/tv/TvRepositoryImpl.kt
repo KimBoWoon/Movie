@@ -3,19 +3,26 @@ package com.cheeke.surfy.detail.impl.tv
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import androidx.paging.PagingSource
 import androidx.paging.map
 import com.cheeke.surfy.database.impl.dao.TvDao
 import com.cheeke.surfy.database.impl.model.TvEntity
 import com.cheeke.surfy.database.impl.model.asExternalModel
 import com.cheeke.surfy.detail.api.tv.TvRepository
+import com.cheeke.surfy.detail.impl.paging.SimilarTvPagingSource
+import com.cheeke.surfy.detail.impl.paging.TvReviewPagingSource
+import com.cheeke.surfy.model.Review
+import com.cheeke.surfy.model.SimilarMedia
 import com.cheeke.surfy.model.Tv
+import com.cheeke.surfy.network.api.TvRemoteDataSource
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.time.Instant
 
 class TvRepositoryImpl @Inject constructor(
-    private val tvDao: TvDao
+    private val tvDao: TvDao,
+    private val tvApis: TvRemoteDataSource
 ) : TvRepository {
     override suspend fun getNextWeekReleaseTvs(): List<Tv> =
         tvDao.getNextWeekReleaseTvs().map { it.asExternalModel() }
@@ -49,4 +56,26 @@ class TvRepositoryImpl @Inject constructor(
     override suspend fun upsert(medias: List<Tv>) {
         tvDao.upsertTvs(entities = medias.map(transform = Tv::asExternalModel))
     }
+
+    override fun getSimilarTvPagingSource(
+        id: Int,
+        language: String,
+        region: String
+    ): PagingSource<Int, SimilarMedia> = SimilarTvPagingSource(
+        apis = tvApis,
+        id = id,
+        language = language,
+        region = region
+    )
+
+    override fun getTvReviews(
+        seriesId: Int,
+        language: String,
+        region: String
+    ): PagingSource<Int, Review> = TvReviewPagingSource(
+        apis = tvApis,
+        id = seriesId,
+        language = language,
+        region = region
+    )
 }

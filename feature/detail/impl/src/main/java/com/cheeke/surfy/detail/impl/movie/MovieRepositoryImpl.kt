@@ -3,6 +3,7 @@ package com.cheeke.surfy.detail.impl.movie
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import androidx.paging.PagingSource
 import androidx.paging.map
 import com.cheeke.surfy.database.impl.dao.MovieDao
 import com.cheeke.surfy.database.impl.model.MovieEntity
@@ -10,8 +11,13 @@ import com.cheeke.surfy.database.impl.model.NowPlayingMovieEntity
 import com.cheeke.surfy.database.impl.model.UpComingMovieEntity
 import com.cheeke.surfy.database.impl.model.asExternalModel
 import com.cheeke.surfy.detail.api.movie.MovieRepository
+import com.cheeke.surfy.detail.impl.paging.MovieReviewPagingSource
+import com.cheeke.surfy.detail.impl.paging.SimilarMoviePagingSource
 import com.cheeke.surfy.feature.detail.impl.BuildConfig
 import com.cheeke.surfy.model.Movie
+import com.cheeke.surfy.model.Review
+import com.cheeke.surfy.model.SimilarMedia
+import com.cheeke.surfy.network.api.MovieRemoteDataSource
 import jakarta.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,7 +27,8 @@ import kotlinx.coroutines.launch
 import java.time.Instant
 
 class MovieRepositoryImpl @Inject constructor(
-    private val movieDao: MovieDao
+    private val movieDao: MovieDao,
+    private val movieApis: MovieRemoteDataSource
 ) : MovieRepository {
     init {
         if (BuildConfig.BENCHMARK) {
@@ -84,4 +91,26 @@ class MovieRepositoryImpl @Inject constructor(
 
     override suspend fun getNextWeekReleaseMovies(): List<Movie> =
         movieDao.getNextWeekReleaseMovies().map { it.asExternalModel() }
+
+    override fun getSimilarMoviePagingSource(
+        id: Int,
+        language: String,
+        region: String
+    ): PagingSource<Int, SimilarMedia> = SimilarMoviePagingSource(
+        apis = movieApis,
+        id = id,
+        language = language,
+        region = region
+    )
+
+    override fun getMovieReviews(
+        movieId: Int,
+        language: String,
+        region: String
+    ): PagingSource<Int, Review> = MovieReviewPagingSource(
+        apis = movieApis,
+        id = movieId,
+        language = language,
+        region = region
+    )
 }

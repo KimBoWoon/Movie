@@ -2,8 +2,14 @@ package com.cheeke.surfy.detail.api
 
 import androidx.annotation.VisibleForTesting
 import androidx.paging.PagingData
+import androidx.paging.PagingSource
+import androidx.paging.testing.asPagingSourceFactory
 import com.cheeke.surfy.detail.api.tv.TvRepository
+import com.cheeke.surfy.model.Review
+import com.cheeke.surfy.model.SimilarMedia
 import com.cheeke.surfy.model.Tv
+import com.cheeke.surfy.testing.model.similarTvTestData
+import com.cheeke.surfy.testing.model.testTvReviews
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -56,4 +62,16 @@ class TestTvDatabaseRepository : TvRepository {
     fun setTvs(list: List<Tv>) {
         tvDatabase.tryEmit(value = list)
     }
+
+    override fun getSimilarTvPagingSource(
+        id: Int,
+        language: String,
+        region: String
+    ): PagingSource<Int, SimilarMedia> = (similarTvTestData.results ?: emptyList()).asPagingSourceFactory().invoke()
+
+    override fun getTvReviews(
+        seriesId: Int,
+        language: String,
+        region: String
+    ): PagingSource<Int, Review> = testTvReviews.asPagingSourceFactory().invoke()
 }

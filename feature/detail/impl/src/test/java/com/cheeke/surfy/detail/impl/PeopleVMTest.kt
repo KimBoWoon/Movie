@@ -48,7 +48,7 @@ class PeopleVMTest {
         viewModel = PeopleVM(
             id = 0,
             getPeopleDetail = getPeopleDetailUseCase,
-            peopleDataBaseRepository = testDatabaseRepository,
+            peopleRepository = testDatabaseRepository,
             analyticsHelper = testAnalyticsHelper
         )
         runBlocking {
@@ -86,7 +86,7 @@ class PeopleVMTest {
         viewModel = PeopleVM(
             id = 124,
             getPeopleDetail = getPeopleDetailUseCase,
-            peopleDataBaseRepository = testDatabaseRepository,
+            peopleRepository = testDatabaseRepository,
             analyticsHelper = testAnalyticsHelper
         )
         backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.people.collect() }
@@ -111,7 +111,7 @@ class PeopleVMTest {
         viewModel = PeopleVM(
             id = 124,
             getPeopleDetail = getPeopleDetailUseCase,
-            peopleDataBaseRepository = testDatabaseRepository,
+            peopleRepository = testDatabaseRepository,
             analyticsHelper = testAnalyticsHelper
         )
         backgroundScope.launch(UnconfinedTestDispatcher()) { viewModel.people.collect() }

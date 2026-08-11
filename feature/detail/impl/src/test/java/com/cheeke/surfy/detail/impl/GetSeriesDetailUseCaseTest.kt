@@ -1,6 +1,5 @@
 package com.cheeke.surfy.detail.impl
 
-import com.cheeke.surfy.detail.api.TestSeriesDetailRepository
 import com.cheeke.surfy.detail.impl.series.GetSeriesDetailUseCase
 import com.cheeke.surfy.model.ImageList
 import com.cheeke.surfy.model.Series

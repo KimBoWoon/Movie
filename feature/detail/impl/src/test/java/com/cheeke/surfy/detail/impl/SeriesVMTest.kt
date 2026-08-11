@@ -2,7 +2,6 @@ package com.cheeke.surfy.detail.impl
 
 import com.cheeke.surfy.analytics.api.TestAnalyticsHelper
 import com.cheeke.surfy.datamanager.api.TestSurfyAppData
-import com.cheeke.surfy.detail.api.TestSeriesDetailRepository
 import com.cheeke.surfy.detail.impl.series.GetSeriesDetailUseCase
 import com.cheeke.surfy.detail.impl.series.SeriesState
 import com.cheeke.surfy.detail.impl.series.SeriesVM

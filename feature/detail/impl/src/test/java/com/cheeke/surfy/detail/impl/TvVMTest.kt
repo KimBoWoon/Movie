@@ -11,7 +11,6 @@ import com.cheeke.surfy.model.Tv
 import com.cheeke.surfy.model.TvEpisode
 import com.cheeke.surfy.model.TvSeason
 import com.cheeke.surfy.model.TvSeasons
-import com.cheeke.surfy.network.api.TestTvRemoteDataSource
 import com.cheeke.surfy.testing.utils.MainDispatcherRule
 import com.cheeke.surfy.userdata.api.TestUserDataRepository
 import kotlinx.coroutines.flow.collect
@@ -60,11 +59,10 @@ class TvVMTest {
     fun setup() {
         viewModel = TvVM(
             id = 0,
-            tvDataBaseRepository = testDataBaseRepository,
+            tvRepository = testDataBaseRepository,
             getTvDetailUseCase = getTvDetailUseCase,
             analyticsHelper = testAnalyticsHelper,
-            userDataRepository = testUserDataRepository,
-            tvApis = TestTvRemoteDataSource()
+            userDataRepository = testUserDataRepository
         )
     }
 

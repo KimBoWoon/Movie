@@ -51,7 +51,7 @@ class SearchVMTest {
             dataManager = testMovieAppDataManager,
             keywordDataBaseRepository = testKeywordDataBaseRepository,
             analyticsHelper = testAnalyticsHelper,
-            searchApis = TestSearchRemoteDataSource()
+            searchRepository = TestSearchRepository()
         )
     }
 
