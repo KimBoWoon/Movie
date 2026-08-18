@@ -585,7 +585,7 @@ private fun RecommendMovie(
                 .background(
                     Brush.verticalGradient(
                         colors = listOf(
-                            Color.Black.copy(alpha = 0.32f),
+                            MaterialTheme.colorScheme.background.copy(alpha = 0.32f),
                             Color.Transparent
                         )
                     )
@@ -601,8 +601,8 @@ private fun RecommendMovie(
                     Brush.verticalGradient(
                         colors = listOf(
                             Color.Transparent,
-                            Color.Black.copy(alpha = 0.2f),
-                            Color.Black.copy(alpha = 0.9f)
+                            MaterialTheme.colorScheme.background.copy(alpha = 0.2f),
+                            MaterialTheme.colorScheme.background.copy(alpha = 0.9f)
                         )
                     )
                 )
