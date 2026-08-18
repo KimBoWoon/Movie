@@ -7,7 +7,6 @@ import com.cheeke.surfy.common.Result
 import com.cheeke.surfy.common.asResult
 import com.cheeke.surfy.common.di.ApplicationScope
 import com.cheeke.surfy.data.repository.UserDataRepository
-import com.cheeke.surfy.datastore.InternalDataSource
 import com.cheeke.surfy.model.Configuration
 import com.cheeke.surfy.model.Genre
 import com.cheeke.surfy.model.LocaleOption
@@ -41,10 +40,9 @@ class SurfyDataManager @Inject constructor(
     @param:ApplicationScope private val appScope: CoroutineScope,
     private val apis: SettingRemoteDataSource,
     private val userDataRepository: UserDataRepository,
-    datastore: InternalDataSource,
     networkMonitor: NetworkMonitor
 ) : DataManager {
-    private val userDataFlow = datastore.userData.distinctUntilChanged()
+    private val userDataFlow = userDataRepository.internalData.distinctUntilChanged()
     override val localeFlow: Flow<Locale> =
         userDataFlow
             .map { Locale(it.language, it.region) }

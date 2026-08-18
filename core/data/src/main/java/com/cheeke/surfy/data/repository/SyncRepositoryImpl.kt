@@ -6,20 +6,18 @@ import com.cheeke.surfy.data.model.asUpComingMovieEntity
 import com.cheeke.surfy.data.util.Synchronizer
 import com.cheeke.surfy.data.util.updateMovieSync
 import com.cheeke.surfy.database.dao.MovieDao
-import com.cheeke.surfy.datastore.InternalDataSource
 import com.cheeke.surfy.model.Movie
 import com.cheeke.surfy.network.SyncRemoteDataSource
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.first
 import java.time.LocalDate
 import javax.inject.Inject
 
 class SyncRepositoryImpl @Inject constructor(
     private val apis: SyncRemoteDataSource,
-    private val datastore: InternalDataSource,
+    private val userdata: UserDataRepository,
     private val movieDao: MovieDao
 ) : SyncRepository {
     override suspend fun syncWith(synchronizer: Synchronizer): Boolean = coroutineScope {
@@ -27,7 +25,7 @@ class SyncRepositoryImpl @Inject constructor(
             getNowPlayingMovies(synchronizer),
             getUpComingMovies(synchronizer)
         )
-        datastore.updateMainDate(value = LocalDate.now().minusDays(1).toString())
+        userdata.updateMainDate(value = LocalDate.now().minusDays(1).toString())
         result
     }.all { it }
 
@@ -45,10 +43,11 @@ class SyncRepositoryImpl @Inject constructor(
                     targetDt.isAfter(updateDate) || getSyncInputData().firstOrNull { it.first == "IS_FORCE" }?.second as Boolean
                 },
                 getList = {
-                    val internalData = datastore.userData.first()
+                    val language = userdata.getLanguage()
+                    val region = userdata.getRegion()
 
                     runCatching {
-                        apis.getNowPlaying(language = internalData.language, region = internalData.region, page = 1)
+                        apis.getNowPlaying(language = language, region = region, page = 1)
                     }.getOrElse { e ->
                         Log.e(e.message ?: "sync error!")
                         emptyList()
@@ -77,10 +76,11 @@ class SyncRepositoryImpl @Inject constructor(
                     targetDt.isAfter(updateDate) || getSyncInputData().firstOrNull { it.first == "IS_FORCE" }?.second as Boolean
                 },
                 getList = {
-                    val internalData = datastore.userData.first()
+                    val language = userdata.getLanguage()
+                    val region = userdata.getRegion()
 
                     runCatching {
-                        apis.getUpcomingMovie(language = internalData.language, region = internalData.region, page = 1)
+                        apis.getUpcomingMovie(language = language, region = region, page = 1)
                     }.getOrElse { e ->
                         Log.e(e.message ?: "sync error!")
                         emptyList()
