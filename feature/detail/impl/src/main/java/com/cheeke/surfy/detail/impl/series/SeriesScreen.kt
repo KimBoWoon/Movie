@@ -268,8 +268,8 @@ private fun SeriesHeroSection(
                 .background(
                     Brush.verticalGradient(
                         colorStops = arrayOf(
-                            0.6f to Color.Black.copy(alpha = 0.05f),
-                            0.8f to Color.Black.copy(alpha = 0.10f),
+                            0.6f to MaterialTheme.colorScheme.background.copy(alpha = 0.05f),
+                            0.8f to MaterialTheme.colorScheme.background.copy(alpha = 0.10f),
                             1.0f to MaterialTheme.colorScheme.background
                         )
                     )
@@ -359,8 +359,8 @@ private fun PosterBlurHero(
                 .background(
                     Brush.verticalGradient(
                         colorStops = arrayOf(
-                            0.6f to Color.Black.copy(alpha = 0.05f),
-                            0.8f to Color.Black.copy(alpha = 0.10f),
+                            0.6f to MaterialTheme.colorScheme.background.copy(alpha = 0.05f),
+                            0.8f to MaterialTheme.colorScheme.background.copy(alpha = 0.10f),
                             1.0f to MaterialTheme.colorScheme.background
                         )
                     )
@@ -390,8 +390,8 @@ private fun PosterCollageHero(
         modifier = modifier.background(
             Brush.verticalGradient(
                 colorStops = arrayOf(
-                    0.6f to Color.Black.copy(alpha = 0.05f),
-                    0.8f to Color.Black.copy(alpha = 0.10f),
+                    0.6f to MaterialTheme.colorScheme.background.copy(alpha = 0.05f),
+                    0.8f to MaterialTheme.colorScheme.background.copy(alpha = 0.10f),
                     1.0f to MaterialTheme.colorScheme.background
                 )
             )
@@ -409,8 +409,8 @@ private fun GradientHero(
             .background(
                 Brush.verticalGradient(
                     colorStops = arrayOf(
-                        0.6f to Color.Black.copy(alpha = 0.05f),
-                        0.8f to Color.Black.copy(alpha = 0.10f),
+                        0.6f to MaterialTheme.colorScheme.background.copy(alpha = 0.05f),
+                        0.8f to MaterialTheme.colorScheme.background.copy(alpha = 0.10f),
                         1.0f to MaterialTheme.colorScheme.background
                     )
                 )

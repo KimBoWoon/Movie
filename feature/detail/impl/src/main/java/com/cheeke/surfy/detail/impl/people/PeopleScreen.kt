@@ -295,8 +295,8 @@ fun ProfileComponent(
                     .background(
                         Brush.verticalGradient(
                             colorStops = arrayOf(
-                                0.6f to Color.Black.copy(alpha = 0.05f),
-                                0.8f to Color.Black.copy(alpha = 0.10f),
+                                0.6f to MaterialTheme.colorScheme.background.copy(alpha = 0.05f),
+                                0.8f to MaterialTheme.colorScheme.background.copy(alpha = 0.10f),
                                 1.0f to MaterialTheme.colorScheme.background
                             )
                         )
