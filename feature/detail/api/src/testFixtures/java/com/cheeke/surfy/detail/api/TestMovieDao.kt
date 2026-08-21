@@ -88,7 +88,7 @@ class TestMovieDao : MovieDao {
         entitiesStateFlow.tryEmit(value = emptyList())
     }
 
-    override suspend fun getPopularMovies(): List<NowPlayingMovieEntity> = nowPlayingMovieFlow.first()
+    override fun getPopularMovies(): Flow<List<NowPlayingMovieEntity>> = nowPlayingMovieFlow
 
     override fun getFavoriteMovie(): PagingSource<Int, MovieEntity> =
         entitiesStateFlow.value.asPagingSourceFactory().invoke()

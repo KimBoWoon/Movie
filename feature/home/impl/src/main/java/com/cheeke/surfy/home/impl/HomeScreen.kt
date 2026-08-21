@@ -331,7 +331,8 @@ fun TimeWindowSwitch(
                     .weight(weight = 1f)
                     .fillMaxHeight()
                     .onSizeChanged {
-                        width = if (timeWindow == TimeWindow.DAY) 0.dp else with(receiver = density) { it.width.dp }
+                        width =
+                            if (timeWindow == TimeWindow.DAY) 0.dp else with(receiver = density) { it.width.dp }
                     },
                 contentAlignment = Alignment.Center
             ) {
@@ -379,7 +380,9 @@ fun TrendingList(
         }
         if (trending.itemCount != 0) {
             LazyRow(
-                modifier = Modifier.semantics { contentDescription = title }.wrapContentSize(),
+                modifier = Modifier
+                    .semantics { contentDescription = title }
+                    .wrapContentSize(),
                 contentPadding = PaddingValues(horizontal = dp16),
                 horizontalArrangement = Arrangement.spacedBy(space = dp16)
             ) {
@@ -503,7 +506,10 @@ fun MediaItem(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                modifier = Modifier.wrapContentHeight().weight(weight = 1f).padding(end = dp5),
+                modifier = Modifier
+                    .wrapContentHeight()
+                    .weight(weight = 1f)
+                    .padding(end = dp5),
                 text = movie.title ?: "",
                 fontSize = sp10,
                 style = MaterialTheme.typography.labelSmall,
@@ -540,12 +546,14 @@ private fun TodayRecommendMovieComponent(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(all = dp16),
-            text = "오늘의 추천 영화"
+            text = stringResource(id = R.string.today_recommended_movie)
         )
         InfinitePager<Movie>(
             contentPadding = PaddingValues(horizontal = dp20),
             pageSpacing = dp12,
-            modifier = Modifier.semantics { contentDescription = "todayRecommendMovies" }.fillMaxWidth(),
+            modifier = Modifier
+                .semantics { contentDescription = "todayRecommendMovies" }
+                .fillMaxWidth(),
             isVisibleIndicator = true,
             isAutoScroll = true,
             items = movies,

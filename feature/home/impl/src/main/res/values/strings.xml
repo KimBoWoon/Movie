@@ -11,4 +11,5 @@
     <string name="trending_movie">Trending Movie</string>
     <string name="trending_people">Trending People</string>
     <string name="trending_tv">Trending TV</string>
+    <string name="today_recommended_movie">Today recommended movie</string>
 </resources>

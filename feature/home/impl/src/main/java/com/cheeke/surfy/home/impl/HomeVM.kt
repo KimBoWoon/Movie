@@ -26,7 +26,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
@@ -83,11 +82,9 @@ class HomeVM @Inject constructor(
                 homeRepository.getTrendingTv(timeWindow = timeWindow, language = language)
             }
         )
-    val homeUiState: StateFlow<HomeState> = flow {
-        emit(value = movieDataBaseRepository.getPopularMovies())
-    }.map { popularMovies ->
-        HomeUiState(popularMovies = popularMovies)
-    }.asResult()
+    val homeUiState = movieDataBaseRepository.getPopularMovies()
+        .map { popularMovies -> HomeUiState(popularMovies = popularMovies) }
+        .asResult()
         .map { result ->
             when (result) {
                 is Result.Loading -> HomeState.Loading

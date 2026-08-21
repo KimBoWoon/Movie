@@ -58,9 +58,9 @@ class TestMovieDatabaseRepository : MovieRepository {
         return movieDatabase.first()
     }
 
-    override suspend fun getPopularMovies(): List<Movie> = movieDatabase.map { movies ->
+    override fun getPopularMovies(): Flow<List<Movie>> = movieDatabase.map { movies ->
         movies.filter { movie -> (movie.voteCount ?: 0) > 500 && (movie.voteAverage ?: 0f) > 7.0f }
-    }.first()
+    }
 
     override fun getUpComingMovies(): Flow<PagingData<Movie>> =
         flow { emit(value = PagingData.from(data = currentMovieDatabase)) }

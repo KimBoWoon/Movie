@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 interface MovieRepository : DataBaseRepository<Movie> {
     fun getUpComingMovies(): Flow<PagingData<Movie>>
     fun getNowPlayingMovies(): Flow<PagingData<Movie>>
-    suspend fun getPopularMovies(): List<Movie>
+    fun getPopularMovies(): Flow<List<Movie>>
     suspend fun getNextWeekReleaseMovies(): List<Movie>
     fun getSimilarMoviePagingSource(
         id: Int,

@@ -81,8 +81,10 @@ class MovieRepositoryImpl @Inject constructor(
             movieDao.getUpComingMovie()
         }.flow.map { pagingData -> pagingData.map(transform = UpComingMovieEntity::asExternalModel) }
 
-    override suspend fun getPopularMovies(): List<Movie> =
-        movieDao.getPopularMovies().map { it.asExternalModel() }
+    override fun getPopularMovies(): Flow<List<Movie>> =
+        movieDao.getPopularMovies().map { nowPlayingMovieEntities ->
+            nowPlayingMovieEntities.map { nowPlayingMovieEntity -> nowPlayingMovieEntity.asExternalModel() }
+        }
 
     override fun getNowPlayingMovies(): Flow<PagingData<Movie>> =
         Pager(config = PagingConfig(pageSize = 20)) {
